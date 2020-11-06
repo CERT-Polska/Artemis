@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: karton-logger
+  name: karton-logger
+  namespace: artemis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: karton-logger
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: karton-logger
+    spec:
+      containers:
+      - command:
+        - karton
+        - logs
+        image: certpl/karton-system:158d07960d8cd39dee8771af719f560df93b3212
+        imagePullPolicy: IfNotPresent
+        name: karton-logger
+        volumeMounts:
+        - mountPath: /etc/karton
+          name: karton-cfg
+      volumes:
+      - name: karton-cfg
+        secret:
+          defaultMode: 420
+          secretName: karton

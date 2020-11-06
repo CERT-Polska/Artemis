@@ -1,0 +1,62 @@
+{% extends "components/base.jinja2" %}
+{% block main %}
+<div class="bs-component" style="padding-top: 100px">
+  <h3 class="text-center">task {{ task._id }}</h3>
+
+  <dl class="row">
+    <dt class="col-3">UID</dt>
+    <dd class="col-9">{{task._id}}</dd>
+
+    <dt class="col-3">Priority</dt>
+    <dd class="col-9">
+        <span class="badge bg-dark">{{task.priority}}</span>
+    </dd>
+
+    {% if task.parent_uid %}
+        <dt class="col-3">Parent UID</dt>
+        <dd class="col-9">
+            <a href="/task/{{task.parent_uid}}">{{task.parent_uid}}</a>
+        </dd>
+    {% endif %}
+
+    <dt class="col-3">Analysis</dt>
+    <dd class="col-9">
+      <a href="/analysis/{{task.root_uid}}">{{task.root_uid}}</a>
+    </dd>
+
+    <dt class="col-3">Origin</dt>
+    <dd class="col-9">
+      <a href="/live/queue/{{task['headers']['origin']}}">{{task['headers']['origin']}}</a>
+    </dd>
+
+    <dt class="col-3">Receiver</dt>
+    <dd class="col-9">
+      <a href="/live/queue/{{task['headers']['receiver']}}">{{task['headers']['receiver']}}</a>
+    </dd>
+
+    <dt class="col-3">Headers</dt>
+    <dd class="col-9">
+      {% for hdrname, hdrval in task['headers'].items() %}
+      {% if hdrname == 'type' %}
+      <span class="badge bg-primary">{{hdrname}}:{{hdrval}}</span>
+      {% elif hdrname == 'kind' %}
+      <span class="badge bg-info">{{hdrname}}:{{hdrval}}</span>
+      {% elif hdrname == 'stage' %}
+      <span class="badge bg-success">{{hdrname}}:{{hdrval}}</span>
+      {% elif hdrname == 'receiver' %}
+      {% else %}
+      <span class="badge bg-secondary">{{hdrname}}:{{hdrval}}</span>
+      {% endif %}
+      {% endfor %}
+    </dd>
+  </dl>
+
+  <h4>Result</h4>
+
+  <details>
+    <summary>raw JSON</summary>
+    <pre><code>{{ pretty_printed }}</code></pre>
+  </details>
+
+</div>
+{% endblock %}

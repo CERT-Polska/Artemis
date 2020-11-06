@@ -1,0 +1,74 @@
+# Artemis
+A modular web reconnaisance tool and vulnerability scanner based on Karton
+(https://github.com/CERT-Polska/karton).
+
+**Artemis is experimental software, under active development - use at your own risk.**
+
+To chat about Artemis, join the Discord server:
+
+[![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
+
+## Features
+Artemis includes, among others:
+
+ - subdomain scan using `crt.sh`,
+ - Shodan integration,
+ - email configuration verification (misconfigured SPF/DMARC, open relays),
+ - Wordpress/Joomla vulnerability scanning,
+ - a check for VCS folders (e.g. `.git`),
+ - a check for enabled directory index.
+
+Artemis is built with scalability in mind -- different scanners are separate microservices
+and can be scaled independently if such a need arises.
+
+## Screenshots
+![Artemis - scan](.github/screenshots/scan.png)
+
+## Getting started
+If you plan using Artemis on production highly consider [k8s deployment](k8s/README.md). Development
+environment doesn't scale properly and has hardcoded credentials.
+
+For development / testing pruposes a docker-compose configuration exists. Some modules (e.g. downloading
+vulnerability information from Shodan) are not available because the credentials aren't provided.
+
+To run simply:
+
+ - clone the repo
+ - run `docker compose up`
+ - visit `localhost:5000`
+
+URLs you provide don't have to follow any strict rules (e.g. `hxxp://127.0.0.1:1337/someurl` should work as well).
+
+## Development
+
+### Tests
+To run the tests, use:
+
+```
+./scripts/test
+```
+
+### Code formatting
+Artemis uses `pre-commit` to run linters and format the code.
+`pre-commit` is executed on CI to verify that the code is formatted properly.
+
+To run it locally, use:
+
+```
+pre-commit run --all-files
+```
+
+To setup `pre-commit` so that it runs before each commit, use:
+
+```
+pre-commit install
+```
+
+## How do I write my own module?
+
+[Karton documentation](https://karton-core.readthedocs.io/en/latest/) as well
+as [existing modules](artemis/modules) are great place to start.
+
+If you want to contribute a new module to Artemis, remember to write a good test - one
+that spawns an application and checks that Artemis would find the vulnerability there.
+An example could be `test/modules/test_vcs.py`.

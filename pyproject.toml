@@ -1,0 +1,25 @@
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.liccheck]
+authorized_licenses = [
+    "bsd",
+    "apache 2.0",
+    "apache software",
+    "isc",
+    "isc license (iscl)",
+    "gnu library or lesser general public license (lgpl)",
+    "mozilla public license 2.0 (mpl 2.0)",
+    "mit",
+    "python software foundation",
+]
+
+[tool.liccheck.authorized_packages]
+# BSD, not properly provided in package metadata
+karton-core = "4.2.0"
+
+# Apache 2, not properly provided in package metadata
+aiofiles = "0.7.0"

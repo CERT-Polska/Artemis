@@ -1,0 +1,223 @@
+version: "3"
+
+services:
+  minio:
+    image: minio/minio
+    environment:
+     - MINIO_ACCESS_KEY=example-access-key
+     - MINIO_SECRET_KEY=example-secret-key
+    command: "server /data"
+
+  redis:
+    image: redis
+
+  db:
+    image: mongo
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=root
+     - MONGO_INITDB_ROOT_PASSWORD=root
+    ports: [27017:27017]
+
+  karton-system:
+    image: "certpl/karton-system:d94ce4e263ae381b998d44c37475b88044ad896c"
+    depends_on: ["db", "redis", "minio"]
+    command: ["--setup-bucket"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+
+  karton-logger:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-system]
+    command: "python3 -m artemis.stdout_logger"
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    ports: ["5000:5000"]
+    depends_on: [karton-logger]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+     - DASHBOARD_URL=http://127.0.0.1:5001
+
+  karton-dashboard:
+    image: certpl/karton-dashboard:ed8c453c791e83829fa46c52b64386fe9e7f5a84
+    ports: [5001:5000]
+    depends_on: [karton-logger]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+
+  karton-classifier:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.classifier"
+
+  karton-port_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.port_scanner"
+
+  karton-robots:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.robots"
+
+  karton-vcs:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.vcs"
+
+  karton-php-lfi:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.php_lfi"
+
+  karton-crtsh:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.crtsh"
+
+  karton-ip-lookup:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.ip_lookup"
+
+  karton-reverse-dns:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.reverse_dns_lookup"
+
+  karton-bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.bruter"
+
+  karton-directory_index:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.directory_index"
+
+  karton-identifier:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.webapp_identifier"
+
+  karton-joomla_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.joomla_scanner"
+
+  karton-wp_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.wp_scanner"
+
+  karton-dns_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.dns_scanner"
+
+  karton-ftp_bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.ftp_bruter"
+
+  karton-mail_dns_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.mail_dns_scanner"
+
+  karton-postman:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+     - POSTMAN_MAIL_FROM=artemis@localhost.com
+     - POSTMAN_MAIL_TO=artemis@localhost.com
+    command: "python3 -m artemis.modules.postman"
+
+  karton-wordpress_bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.wordpress_bruter"
+
+  shodan-vulns:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+     - SHODAN_API_KEY=
+    command: "python3 -m artemis.modules.shodan_vulns"

@@ -1,0 +1,45 @@
+{% extends "components/base.jinja2" %}
+{% block main %}
+    <h1>Analysis results</h1>
+    {% if entries %}
+        <div class="container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">URL</th>
+                            <th scope="col">UID</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in entries %}
+                            <tr>
+                                <td>{{ entry.payload.data }}</td>
+                                <td>
+                                    <a href="/analysis/{{ entry.id }}?status=INTERESTING">{{ entry.id }}</a>
+                                </td>
+                                <td>
+                                    {% if entry.num_active_tasks > 0 %}
+                                        <span class="badge bg-warning">
+                                            In progress (pending tasks: {{ entry.num_active_tasks }})
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-success">
+                                            Done
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <p>
+            Hint: Browse to the <a href="/queue">task queue</a> to see how the tasks are progressing.
+        </p>
+    {% else %}
+        No URLs have yet been analysed. <a href="/add">Analyze URLs.</a>
+    {% endif %}
+{% endblock %}

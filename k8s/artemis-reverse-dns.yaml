@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: artemis-reverse-dns
+  name: artemis-reverse-dns
+  namespace: artemis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: artemis-reverse-dns
+  template:
+    metadata:
+      labels:
+        app: artemis-reverse-dns
+    spec:
+      containers:
+      - command:
+        - python3
+        - -m
+        - artemis.modules.reverse_dns_lookup
+        env:
+        - name: DB_CONN_STR
+          valueFrom:
+            secretKeyRef:
+              key: db_conn_str
+              name: artemis
+        image: certpl/artemis:latest
+        imagePullPolicy: Always
+        name: artemis-reverse-dns
+        volumeMounts:
+        - mountPath: /etc/karton
+          name: karton-cfg
+      imagePullSecrets:
+      - name: ghcr
+      restartPolicy: Always
+      volumes:
+      - name: karton-cfg
+        secret:
+          defaultMode: 420
+          secretName: karton

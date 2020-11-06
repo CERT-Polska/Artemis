@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: artemis-postman
+  name: artemis-postman
+  namespace: artemis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: artemis-postman
+  template:
+    metadata:
+      labels:
+        app: artemis-postman
+    spec:
+      containers:
+      - command:
+        - python3
+        - -m
+        - artemis.modules.postman
+        env:
+        - name: DB_CONN_STR
+          valueFrom:
+            secretKeyRef:
+              key: db_conn_str
+              name: artemis
+        - name: POSTMAN_MAIL_FROM
+          valueFrom:
+            secretKeyRef:
+              key: postman_mail_from
+              name: artemis
+        - name: POSTMAN_MAIL_TO
+          valueFrom:
+            secretKeyRef:
+              key: postman_mail_to
+              name: artemis
+        image: certpl/artemis:latest
+        imagePullPolicy: Always
+        name: artemis-postman
+        volumeMounts:
+        - mountPath: /etc/karton
+          name: karton-cfg
+      imagePullSecrets:
+      - name: ghcr
+      restartPolicy: Always
+      volumes:
+      - name: karton-cfg
+        secret:
+          defaultMode: 420
+          secretName: karton

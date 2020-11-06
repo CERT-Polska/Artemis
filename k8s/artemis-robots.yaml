@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: artemis-robots
+  name: artemis-robots
+  namespace: artemis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: artemis-robots
+  template:
+    metadata:
+      labels:
+        app: artemis-robots
+    spec:
+      containers:
+      - command:
+        - python3
+        - -m
+        - artemis.modules.robots
+        env:
+        - name: DB_CONN_STR
+          valueFrom:
+            secretKeyRef:
+              key: db_conn_str
+              name: artemis
+        image: certpl/artemis:latest
+        imagePullPolicy: Always
+        name: artemis-robots
+        volumeMounts:
+        - mountPath: /etc/karton
+          name: karton-cfg
+      imagePullSecrets:
+      - name: ghcr
+      restartPolicy: Always
+      volumes:
+      - name: karton-cfg
+        secret:
+          defaultMode: 420
+          secretName: karton

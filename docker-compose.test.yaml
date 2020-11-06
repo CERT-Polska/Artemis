@@ -1,0 +1,158 @@
+version: "3.8"
+services:
+  test:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    command: python -m unittest discover
+    environment:
+      TEST_REDIS_HOST: test-redis
+      TEST_REDIS_PORT: 6379
+      POSTMAN_MAIL_FROM: artemis@localhost.com
+      POSTMAN_MAIL_TO: artemis@localhost.com
+    volumes:
+      # We don't copy the test code into the image so that we don't pollute production image
+      # with test data.
+      - ./test/:/opt/test/
+    networks:
+      network:
+        ipv4_address: 192.168.3.2
+
+  test-redis:
+    image: redis:7.0.5
+    networks:
+      network:
+        ipv4_address: 192.168.3.3
+
+  test-service-with-bruteable-backups:
+    image: nginx:latest
+    volumes:
+      - ./test/data/bruteable-backups/:/usr/share/nginx/html/
+    networks:
+      network:
+        ipv4_address: 192.168.3.4
+
+  test-robots-service:
+    image: nginx:latest
+    volumes:
+      - ./test/data/robots/:/usr/share/nginx/html/
+    networks:
+      network:
+        ipv4_address: 192.168.3.5
+
+  test-ftp-server-with-easy-password:
+    image: stilliard/pure-ftpd:latest
+    environment:
+        - FTP_USER_NAME=admin
+        - FTP_USER_PASS=12345
+        - FTP_USER_HOME=/dev/shm
+    networks:
+      network:
+        ipv4_address: 192.168.3.6
+
+  test-old-joomla:
+    image: joomla:3-php7.4-apache  # this is an old image on purpose
+    environment:
+      JOOMLA_DB_HOST: test-old-joomla-mysql
+      JOOMLA_DB_PASSWORD: example
+    networks:
+      network:
+        ipv4_address: 192.168.3.7
+
+  test-old-joomla-mysql:
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    networks:
+      network:
+        ipv4_address: 192.168.3.8
+
+  test-smtp-server:
+    image: bytemark/smtp
+    networks:
+      network:
+        ipv4_address: 192.168.3.9
+
+  test-php-lfi:
+    image: php:7.4-apache
+    volumes:
+      - ./test/data/php_lfi/:/var/www/html/
+    networks:
+      network:
+        ipv4_address: 192.168.3.10
+
+  test-service-with-exposed-git:
+    image: nginx:latest
+    volumes:
+      - ./test/data/git/git/:/usr/share/nginx/html/.git/
+    networks:
+      network:
+        ipv4_address: 192.168.3.11
+
+  test-old-wordpress:
+    image: wordpress:5.9.3-apache
+    environment:
+      WORDPRESS_DB_HOST: test-old-wordpress-mysql
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: example
+    networks:
+      network:
+        ipv4_address: 192.168.3.12
+
+  test-old-wordpress-mysql:
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    networks:
+      network:
+        ipv4_address: 192.168.3.13
+
+  test-ftp-server-for-port-scanner:
+    image: stilliard/pure-ftpd:latest
+    environment:
+        FTP_USER_NAME: admin
+        FTP_USER_PASS: 12345
+        FTP_USER_HOME: /dev/shm
+        ADDED_FLAGS: "--bind 22"
+    networks:
+      network:
+        ipv4_address: 192.168.3.14
+
+  test-service-with-directory-index:
+    image: nginx:latest
+    volumes:
+      - ./test/data/directory_index/default.conf:/etc/nginx/conf.d/default.conf
+      - ./test/data/directory_index/:/usr/share/nginx/html/
+    networks:
+      network:
+        ipv4_address: 192.168.3.15
+
+  test-wordpress-easy-password:
+    image: wordpress:6.1.1-apache
+    environment:
+      WORDPRESS_DB_HOST: test-wordpress-easy-password-mysql
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: example
+    networks:
+      network:
+        ipv4_address: 192.168.3.16
+    ports:
+      - 8080:80
+
+  test-wordpress-easy-password-mysql:
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    networks:
+      network:
+        ipv4_address: 192.168.3.17
+
+networks:
+  network:
+    internal: false
+    ipam:
+      config:
+        - subnet: 192.168.3.0/24
+          gateway: 192.168.3.1

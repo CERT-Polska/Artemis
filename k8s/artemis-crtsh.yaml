@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: artemis-crtsh
+  name: artemis-crtsh
+  namespace: artemis
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: artemis-crtsh
+  template:
+    metadata:
+      labels:
+        app: artemis-crtsh
+    spec:
+      containers:
+      - command:
+        - python3
+        - -m
+        - artemis.modules.crtsh
+        env:
+        - name: DB_CONN_STR
+          valueFrom:
+            secretKeyRef:
+              key: db_conn_str
+              name: artemis
+        image: certpl/artemis:latest
+        imagePullPolicy: Always
+        name: artemis-crtsh
+        volumeMounts:
+        - mountPath: /etc/karton
+          name: karton-cfg
+      imagePullSecrets:
+      - name: ghcr
+      restartPolicy: Always
+      volumes:
+      - name: karton-cfg
+        secret:
+          defaultMode: 420
+          secretName: karton

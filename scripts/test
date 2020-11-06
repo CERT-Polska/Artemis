@@ -1,0 +1,47 @@
+#!/bin/bash
+
+docker compose -f docker-compose.test.yaml down --volumes --remove-orphans
+
+# Let's first start everything except the test container and perform relevant setup
+docker compose -f docker-compose.test.yaml up -d --build --scale test=0
+
+# Wait for the dependency services to be available
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-joomla-mysql:3306
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-wordpress-mysql:3306
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-bruteable-backups:80
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-robots-service:80
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-ftp-server-with-easy-password:21
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-joomla:80
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-smtp-server:25
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-php-lfi:80
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-exposed-git:80
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-wordpress:80
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-ftp-server-for-port-scanner:22
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-directory-index:80
+
+# Set up Joomla instance
+docker compose -f docker-compose.test.yaml cp test/data/joomla/configuration.php test-old-joomla:/var/www/html
+docker compose -f docker-compose.test.yaml exec test-old-joomla rm -rf /var/www/html/installation
+docker compose -f docker-compose.test.yaml cp test/data/joomla/db.sql test-old-joomla-mysql:/
+docker compose -f docker-compose.test.yaml exec test-old-joomla-mysql bash -c 'mysql --password=example -e "CREATE DATABASE IF NOT EXISTS example";'
+docker compose -f docker-compose.test.yaml exec test-old-joomla-mysql bash -c 'mysql --password=example example < /db.sql'
+
+# Set up Wordpress instance with old Wordpress
+docker compose -f docker-compose.test.yaml cp test/data/old_wordpress/db.sql test-old-wordpress-mysql:/
+docker compose -f docker-compose.test.yaml exec test-old-wordpress sed -i "/Happy publishing/a define( 'AUTOMATIC_UPDATER_DISABLED', true );" /var/www/html/wp-config.php
+docker compose -f docker-compose.test.yaml exec test-old-wordpress-mysql bash -c 'mysql --password=example -e "CREATE DATABASE IF NOT EXISTS example";'
+docker compose -f docker-compose.test.yaml exec test-old-wordpress-mysql bash -c 'mysql --password=example example < /db.sql'
+
+# Set up Wordpress instance with easy password
+docker compose -f docker-compose.test.yaml cp test/data/wordpress_easy_password/db.sql test-wordpress-easy-password-mysql:/
+docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mysql bash -c 'mysql --password=example -e "CREATE DATABASE IF NOT EXISTS example";'
+docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mysql bash -c 'mysql --password=example example < /db.sql'
+
+# Now we are ready to start the tests
+docker compose -f docker-compose.test.yaml run test
+
+EXIT_CODE=$?
+
+docker compose -f docker-compose.test.yaml down --volumes --remove-orphans
+
+exit $EXIT_CODE

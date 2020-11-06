@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis
+  name: redis
+  namespace: artemis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - image: redis:6.2
+        imagePullPolicy: IfNotPresent
+        name: redis
+        volumeMounts:
+        - mountPath: /data/redis
+          name: artemis-pv
+          subPath: redis
+      volumes:
+      - name: artemis-pv
+        persistentVolumeClaim:
+          claimName: artemis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: artemis
+spec:
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    app: redis
+  type: ClusterIP

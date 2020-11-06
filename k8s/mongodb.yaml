@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongodb
+  name: mongodb
+  namespace: artemis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: root
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: root
+        image: mongo:latest
+        imagePullPolicy: Always
+        name: mongodb
+        volumeMounts:
+        - mountPath: /data/db
+          name: artemis-pv
+          subPath: mongodb
+      volumes:
+      - name: artemis-pv
+        persistentVolumeClaim:
+          claimName: artemis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: artemis
+spec:
+  ports:
+  - port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    app: mongodb
+  type: ClusterIP

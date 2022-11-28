@@ -8,7 +8,7 @@ dnspython==2.2.1
 fastapi==0.67.0
 h11==0.14.0
 idna==3.2
-Jinja2==3.0.1
+Jinja2==3.1.2
 karton-core==4.2.0
 liccheck==0.7.3
 MarkupSafe==2.1.1

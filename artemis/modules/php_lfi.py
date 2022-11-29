@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import dataclasses
 import re
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import requests
 from karton.core import Task
@@ -42,7 +42,7 @@ class PHPLFIScanner(ArtemisHTTPBase):
 
     def scan(self, current_task: Task, url: str) -> None:
         found_lfi_descriptions = []
-        result: Dict[Tuple[str, str], str] = {}
+        result: Dict[str, str] = {}
         response = requests.get(url, verify=False, allow_redirects=True, timeout=5)
 
         if response.status_code != 200:

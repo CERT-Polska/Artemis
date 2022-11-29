@@ -60,6 +60,9 @@ class Bruter(ArtemisHTTPBase):
         dummy = requests.get(dummy_url, verify=False, timeout=5)
 
         urls = [f"{url}/{file}" for file in set(FILENAMES_TO_SCAN)]
+        # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
+        # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
+        # not have access to response contents here.
         results = download_urls(urls)
         for response_url, response in results.items():
             if (

@@ -17,7 +17,7 @@ class BruterTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         data = [
-            TestData("test-service-with-bruteable-backups", TaskType.SERVICE),
+            TestData("test-service-with-bruteable-files", TaskType.SERVICE),
             TestData("192.168.3.4", TaskType.SERVICE),
         ]
 
@@ -30,5 +30,5 @@ class BruterTest(ArtemisModuleTestCase):
             self.run_task(task)
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-            self.assertEqual(call.kwargs["status_reason"], "Found files: localhost.sql, sql.gz")
-            self.assertEqual(call.kwargs["data"], ["localhost.sql", "sql.gz"])
+            self.assertEqual(call.kwargs["status_reason"], "Found files: .htaccess.bak, localhost.sql, sql.gz")
+            self.assertEqual(call.kwargs["data"], [".htaccess.bak", "localhost.sql", "sql.gz"])

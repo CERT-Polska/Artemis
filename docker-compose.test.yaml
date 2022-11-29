@@ -24,10 +24,10 @@ services:
       network:
         ipv4_address: 192.168.3.3
 
-  test-service-with-bruteable-backups:
+  test-service-with-bruteable-files:
     image: nginx:latest
     volumes:
-      - ./test/data/bruteable-backups/:/usr/share/nginx/html/
+      - ./test/data/bruteable_files/:/usr/share/nginx/html/
     networks:
       network:
         ipv4_address: 192.168.3.4

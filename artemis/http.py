@@ -18,7 +18,7 @@ async def download(url, task_limitter):
                 return HTTPResponse(status_code=response.status, content=await response.text())
 
 
-async def download_multiple(urls: List[str], max_parallel_tasks: int) -> Dict[str, HTTPResponse]:
+async def _download_urls_async(urls: List[str], max_parallel_tasks: int) -> Dict[str, HTTPResponse]:
     task_limitter = asyncio.BoundedSemaphore(max_parallel_tasks)
     jobs = []
     for url in urls:
@@ -28,4 +28,4 @@ async def download_multiple(urls: List[str], max_parallel_tasks: int) -> Dict[st
 
 def download_urls(urls: List[str], max_parallel_tasks: int = 20) -> Dict[str, HTTPResponse]:
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(download_multiple(urls, max_parallel_tasks))
+    return loop.run_until_complete(_download_urls_async(urls, max_parallel_tasks))

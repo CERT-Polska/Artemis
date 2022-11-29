@@ -119,7 +119,7 @@ class MailDNSScanner(ArtemisBase):
                 status_reasons.append("SPF record is not present")
             if result.multiple_spf_records:
                 status_reasons.append("multiple SPF records are present")
-            if not result.spf_rejecting_all:
+            if result.spf_record_present and not result.spf_rejecting_all:
                 status_reasons.append("SPF record doesn't contain the 'reject all' directive")
             if not result.dmarc_record_present:
                 status_reasons.append("DMARC record is not present")

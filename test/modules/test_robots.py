@@ -4,7 +4,7 @@ from typing import NamedTuple
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.modules.robots import RobotsResult, RobotsScanner  # noqa: E402
+from artemis.modules.robots import RobotsScanner  # noqa: E402
 
 
 class TestData(NamedTuple):
@@ -12,7 +12,6 @@ class TestData(NamedTuple):
     port: int
     ssl: bool
     task_type: TaskType
-    result: RobotsResult
 
 
 class RobotsTest(ArtemisModuleTestCase):
@@ -20,8 +19,8 @@ class RobotsTest(ArtemisModuleTestCase):
 
     def test_robots(self) -> None:
         data = [
-            TestData("test-robots-service", 80, False, TaskType.SERVICE, RobotsResult([], ["/secret-url/"])),
-            TestData("192.168.3.5", 80, False, TaskType.SERVICE, RobotsResult([], ["/secret-url/"])),
+            TestData("test-robots-service", 80, False, TaskType.SERVICE),
+            TestData("192.168.3.5", 80, False, TaskType.SERVICE),
         ]
 
         for entry in data:

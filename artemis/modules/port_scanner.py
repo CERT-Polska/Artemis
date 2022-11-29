@@ -61,7 +61,7 @@ class PortScanner(ArtemisBase):
             ssl = data["transport"] == "tcptls"
             service = data["service"]
             if ssl:
-                service.rstrip("s")
+                service = service.rstrip("s")
 
             result[str(port)] = self.PortResult(service, ssl).__dict__
 

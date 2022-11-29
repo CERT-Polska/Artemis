@@ -20,7 +20,7 @@ repos:
     args: [--strict]
     additional_dependencies:
     - dnspython==2.2.1
-    - karton-core==5.0.0
+    - karton-core==4.2.0
     - fastapi==0.88.0
     - pymongo-stubs==0.2.0
     - requests_mock==1.10.0

@@ -16,8 +16,8 @@ class DB:
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
         self.task_results = self.client.artemis.task_results
 
-    def list_analysis(self) -> List[Dict]:
-        return cast(List[Dict], list(self.analysis.find()))
+    def list_analysis(self) -> List[Dict[str, Any]]:
+        return cast(List[Dict[str, Any]], list(self.analysis.find()))
 
     def create_analysis(self, analysis: Task) -> None:
         created_analysis = self.task_to_dict(analysis)
@@ -46,22 +46,23 @@ class DB:
 
         self.task_results.update_one({"_id": created_task_result["uid"]}, {"$set": created_task_result}, upsert=True)
 
-    def get_analysis_by_url(self, url: str) -> List[Dict]:
-        return cast(List[Dict], self.analysis.find({"data": {"$regex": f".*{url}.*"}}))
+    def get_analysis_by_url(self, url: str) -> List[Dict[str, Any]]:
+        return cast(List[Dict[str, Any]], self.analysis.find({"data": {"$regex": f".*{url}.*"}}))
 
-    def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict]:
-        return cast(Optional[Dict], self.analysis.find_one({"_id": analysis_id}))
+    def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
+        return cast(Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id}))
 
-    def get_task_results_by_analysis_id(self, analysis_id: str, status: Optional[str] = None) -> List[Dict]:
+    def get_task_results_by_analysis_id(self, analysis_id: str, status: Optional[str] = None) -> List[Dict[str, Any]]:
         if status:
             return cast(
-                List[Dict], list(self.task_results.find({"root_uid": analysis_id, "status": TaskStatus(status)}))
+                List[Dict[str, Any]],
+                list(self.task_results.find({"root_uid": analysis_id, "status": TaskStatus(status)})),
             )
         else:
-            return cast(List[Dict], list(self.task_results.find({"root_uid": analysis_id})))
+            return cast(List[Dict[str, Any]], list(self.task_results.find({"root_uid": analysis_id})))
 
-    def get_task_by_id(self, task_id: str) -> Optional[Dict]:
-        return cast(Optional[Dict], self.task_results.find_one({"_id": task_id}))
+    def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
+        return cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
 
     def save_scheduled_task(self, task: Task) -> bool:
         """
@@ -76,7 +77,7 @@ class DB:
         result = self.scheduled_tasks.update_one(created_task, {"$set": created_task}, upsert=True)
         return bool(result.upserted_id)
 
-    def _get_task_deduplication_data(self, task: Task) -> List:
+    def _get_task_deduplication_data(self, task: Task) -> List[List[Any]]:
         """
         Represents a task so that two identical tasks with different IDs will have the same representation.
 
@@ -85,7 +86,7 @@ class DB:
         an ordered way).
         """
 
-        def dict_to_list(d: dict) -> List:
+        def dict_to_list(d: Dict[str, Any]) -> List[List[Any]]:
             result = []
             # We sort the items so that the same dict will always have the same representation
             # regardless of how are the items ordered internally.

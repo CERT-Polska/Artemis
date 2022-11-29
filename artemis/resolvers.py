@@ -48,6 +48,6 @@ def ip_lookup(domain: str) -> Set[str]:
     if dns_rc == 0:
         return _ips_from_answer(domain, result["Answer"])
     elif dns_rc == 3:  # NXDomain
-        return {}
+        return set()
     else:
         raise RuntimeError(f"Unexpected DNS status ({dns_rc})")

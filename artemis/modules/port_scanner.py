@@ -41,7 +41,7 @@ class PortScanner(ArtemisBase):
         # would be a waste of resources.
         if cache := self.cache.get(target_ip):
             self.log.info(f"host {target_ip} in redis cache")
-            return json.loads(cache)
+            return json.loads(cache)  # type: ignore
 
         self.log.info(f"scanning {target_ip}")
         naabu = subprocess.Popen(
@@ -76,7 +76,7 @@ class PortScanner(ArtemisBase):
         if task_type == TaskType.DOMAIN:
             hosts = ip_lookup(target)
         elif task_type == TaskType.IP:
-            hosts = [target]
+            hosts = {target}
         else:
             raise ValueError("Unknown task type")
 

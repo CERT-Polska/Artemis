@@ -1,6 +1,6 @@
 import traceback
 from abc import abstractmethod
-from typing import cast
+from typing import Optional, cast
 
 import requests
 from karton.core import Karton, Task
@@ -18,7 +18,7 @@ class ArtemisBase(Karton):
     Artemis base module. Provides helpers (such as e.g. cache) for all modules.
     """
 
-    def __init__(self, db: DB = None, *args, **kwargs) -> None:
+    def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(self.backend.redis, self.identity)
         self.lock = ResourceLock(self.backend.redis, self.identity)

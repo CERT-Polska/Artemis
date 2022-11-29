@@ -10,7 +10,7 @@ class RedisCache:
         self.duration = duration
         self.cache_name = f"cache.{cache_name}"
 
-    def get(self, key: str) -> None:
+    def get(self, key: str) -> bytes:
         return self.redis.get(f"{self.cache_name}:{key}")
 
     def set(self, key: str, value: str) -> None:

@@ -61,7 +61,7 @@ class Bruter(ArtemisHTTPBase):
 
         urls = [f"{url}/{file}" for file in set(FILENAMES_TO_SCAN)]
         results = download_urls(urls)
-        for response_url, response in results:
+        for response_url, response in results.items():
             if (
                 response.status_code == 200
                 and response.content
@@ -69,7 +69,7 @@ class Bruter(ArtemisHTTPBase):
                 and "Error 403" not in response.content
                 and SequenceMatcher(None, response.content, dummy.content).quick_ratio() < 0.8
             ):
-                found_files.add(response_url[len(url) + 1])
+                found_files.add(response_url[len(url) + 1 :])
         return sorted(list(found_files))
 
     def run(self, current_task: Task) -> None:

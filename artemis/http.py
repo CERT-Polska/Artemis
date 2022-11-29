@@ -1,22 +1,21 @@
 import asyncio
+import dataclasses
 from typing import Dict, List
 
 import aiohttp
 
 
+@dataclasses.dataclass
 class HTTPResponse:
     status_code: int
-    response: bytes
     content: str
 
 
 async def download(url, task_limitter):
     async with task_limitter:
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, allow_redirects=False, timeout=5, verify_ssl=False) as response:
-                return HTTPResponse(
-                    status_code=response.status_code, content=await response.text().decode("utf-8", errors="ignore")
-                )
+            async with session.get(url, allow_redirects=False, timeout=5, ssl=False) as response:
+                return HTTPResponse(status_code=response.status, content=await response.text())
 
 
 async def download_multiple(urls: List[str], max_parallel_tasks: int) -> Dict[str, HTTPResponse]:

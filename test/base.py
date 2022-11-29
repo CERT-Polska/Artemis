@@ -1,11 +1,11 @@
 import os
 from unittest.mock import MagicMock
 
-from karton.core.test import BackendMock, ConfigMock, KartonTestCase
+from karton.core.test import ConfigMock, KartonBackendMock, KartonTestCase
 from redis import StrictRedis
 
 
-class KartonBackendMockWithRedis(BackendMock):
+class KartonBackendMockWithRedis(KartonBackendMock):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

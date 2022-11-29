@@ -7,7 +7,8 @@ from artemis.modules.joomla_scanner import JoomlaScanner
 
 
 class JoomlaScannerTest(ArtemisModuleTestCase):
-    karton_class = JoomlaScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = JoomlaScanner  # type: ignore
 
     def test_simple(self) -> None:
         task = Task(

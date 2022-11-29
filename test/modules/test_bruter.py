@@ -13,7 +13,8 @@ class TestData(NamedTuple):
 
 
 class BruterTest(ArtemisModuleTestCase):
-    karton_class = Bruter
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = Bruter  # type: ignore
 
     def test_simple(self) -> None:
         data = [

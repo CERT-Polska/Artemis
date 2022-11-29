@@ -7,7 +7,8 @@ from artemis.modules.wp_scanner import WordPressScanner
 
 
 class WordPressScannerTest(ArtemisModuleTestCase):
-    karton_class = WordPressScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = WordPressScanner  # type: ignore
 
     def test_simple(self) -> None:
         task = Task(

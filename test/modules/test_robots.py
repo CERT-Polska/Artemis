@@ -15,7 +15,8 @@ class TestData(NamedTuple):
 
 
 class RobotsTest(ArtemisModuleTestCase):
-    karton_class = RobotsScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = RobotsScanner  # type: ignore
 
     def test_robots(self) -> None:
         data = [

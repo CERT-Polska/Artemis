@@ -8,7 +8,8 @@ from artemis.modules.shodan_vulns import ShodanVulns
 
 
 class ShodanVulnsTest(ArtemisModuleTestCase):
-    karton_class = ShodanVulns
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = ShodanVulns  # type: ignore
 
     def test_robots(self) -> None:
         task = Task(

@@ -14,7 +14,8 @@ class TestData(NamedTuple):
 
 
 class PHPLFIScannerTest(ArtemisModuleTestCase):
-    karton_class = PHPLFIScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = PHPLFIScanner  # type: ignore
 
     def test_get_lfi_candidates(self) -> None:
         self.assertEqual(

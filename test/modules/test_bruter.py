@@ -30,5 +30,5 @@ class BruterTest(ArtemisModuleTestCase):
             self.run_task(task)
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-            self.assertEqual(call.kwargs["status_reason"], "Found files: .htaccess.bak, localhost.sql, sql.gz")
-            self.assertEqual(call.kwargs["data"], [".htaccess.bak", "localhost.sql", "sql.gz"])
+            self.assertEqual(call.kwargs["status_reason"], "Found files: config.dist, localhost.sql, sql.gz")
+            self.assertEqual(call.kwargs["data"], ["config.dist", "localhost.sql", "sql.gz"])

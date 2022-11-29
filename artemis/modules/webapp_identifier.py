@@ -46,7 +46,7 @@ class WebappIdentifier(ArtemisHTTPBase):
 
         return Application.UNKNOWN
 
-    def _process(self, current_task: Task, url: str) -> Tuple[str, Application]:
+    def _process(self, current_task: Task, url: str) -> None:
         application = self._identify(url)
 
         if application != Application.UNKNOWN:
@@ -62,7 +62,7 @@ class WebappIdentifier(ArtemisHTTPBase):
 
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=application)
 
-    def run(self, current_task: Task) -> None:  # type: ignore
+    def run(self, current_task: Task) -> None:
         url = self.get_target_url(current_task)
         self.log.info(f"application identifier scanning {url}")
 

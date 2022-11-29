@@ -11,7 +11,7 @@ class KartonBackendMockWithRedis(KartonBackendMock):
 
         self.redis = StrictRedis(
             host=os.environ["TEST_REDIS_HOST"],
-            port=os.environ["TEST_REDIS_PORT"],
+            port=int(os.environ["TEST_REDIS_PORT"]),
         )
         self.redis.flushall()
 

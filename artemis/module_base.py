@@ -18,7 +18,7 @@ class ArtemisBase(Karton):
     Artemis base module. Provides helpers (such as e.g. cache) for all modules.
     """
 
-    def __init__(self, db=None, *args, **kwargs):
+    def __init__(self, db: DB = None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(self.backend.redis, self.identity)
         self.lock = ResourceLock(self.backend.redis, self.identity)

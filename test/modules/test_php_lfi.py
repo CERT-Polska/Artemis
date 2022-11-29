@@ -1,5 +1,5 @@
 from test.base import ArtemisModuleTestCase
-from typing import NamedTuple
+from typing import Dict, NamedTuple
 
 from karton.core import Task
 
@@ -10,13 +10,13 @@ from artemis.modules.php_lfi import LFICandidate, PHPLFIScanner, get_lfi_candida
 class TestData(NamedTuple):
     host: str
     task_type: TaskType
-    result: dict
+    result: Dict[str, str]
 
 
 class PHPLFIScannerTest(ArtemisModuleTestCase):
     karton_class = PHPLFIScanner
 
-    def test_get_lfi_candidates(self):
+    def test_get_lfi_candidates(self) -> None:
         self.assertEqual(
             get_lfi_candidates("", "<a href=include-file.php?name=test>"),
             [LFICandidate(file="include-file", param="name")],

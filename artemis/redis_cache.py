@@ -14,7 +14,7 @@ class RedisCache:
         return self.redis.get(f"{self.cache_name}:{key}")
 
     def set(self, key: str, value: str) -> None:
-        return self.redis.set(f"{self.cache_name}:{key}", value, ex=self.duration)
+        self.redis.set(f"{self.cache_name}:{key}", value, ex=self.duration)
 
     def flush(self) -> None:
-        return self.redis.flushall()
+        self.redis.flushall()

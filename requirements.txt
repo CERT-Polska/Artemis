@@ -1,3 +1,4 @@
+aiohttp==3.8.3
 aiofiles==22.1.0
 anytree==2.8.0
 beautifulsoup4==4.11.1

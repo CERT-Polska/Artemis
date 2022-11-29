@@ -10,6 +10,7 @@ import requests
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.http import download_urls
 from artemis.module_base import ArtemisHTTPBase
 
 FILENAMES_WITHOUT_EXTENSIONS = [
@@ -58,18 +59,20 @@ class Bruter(ArtemisHTTPBase):
         dummy_url = url + "/" + dummy_random_token
         dummy = requests.get(dummy_url, verify=False, timeout=5)
 
-        for file in set(FILENAMES_TO_SCAN):
-            file_url = f"{url}/{file}"
-            res = requests.get(file_url, verify=False, timeout=5)
-
+        urls = [f"{url}/{file}" for file in set(FILENAMES_TO_SCAN)]
+        # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
+        # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
+        # not have access to response contents here.
+        results = download_urls(urls)
+        for response_url, response in results.items():
             if (
-                res.status_code == 200
-                and res.content
-                and "<center><h1>40" not in res.text
-                and "Error 403" not in res.text
-                and SequenceMatcher(None, res.content, dummy.content).quick_ratio() < 0.8
+                response.status_code == 200
+                and response.content
+                and "<center><h1>40" not in response.content
+                and "Error 403" not in response.content
+                and SequenceMatcher(None, response.content, dummy.content).quick_ratio() < 0.8
             ):
-                found_files.add(file)
+                found_files.add(response_url[len(url) + 1 :])
         return sorted(list(found_files))
 
     def run(self, current_task: Task) -> None:

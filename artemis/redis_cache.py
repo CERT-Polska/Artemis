@@ -4,7 +4,7 @@ from redis import Redis
 
 
 class RedisCache:
-    def __init__(self, redis: Redis[bytes], cache_name: str, duration: int = 24 * 60 * 60):
+    def __init__(self, redis: Redis, cache_name: str, duration: int = 24 * 60 * 60):  # type: ignore[type-arg]
         """
         duration: in seconds, by default 24h
         """

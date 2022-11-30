@@ -68,7 +68,6 @@ class WordPressScanner(ArtemisBase):
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
     def run(self, current_task: Task) -> None:
-        print(current_task)
         url = current_task.get_payload("url")
         self.scan(current_task, url)
 

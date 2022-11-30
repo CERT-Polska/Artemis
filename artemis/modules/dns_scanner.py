@@ -5,6 +5,7 @@ import dns.message
 import dns.query
 import dns.rcode
 import dns.resolver
+import dns.xfr
 import dns.zone
 from karton.core import Task
 
@@ -49,8 +50,10 @@ class DnsScanner(ArtemisBase):
             nameserver_ok = False
             if nameserver_ip:
                 try:
-                    message = dns.query.udp(dns.message.make_query(domain, "A"), nameserver_ip, timeout=1)
-                    if message.rcode() == dns.rcode.NXDOMAIN:
+                    message: dns.message.Message = dns.query.udp(
+                        dns.message.make_query(domain, "A"), nameserver_ip, timeout=1
+                    )
+                    if message.rcode() == dns.rcode.NXDOMAIN:  # type: ignore[attr-defined]
                         result["ns_not_knowing_domain"] = True
                         findings.append(f"the nameserver {nameserver_ip} doesn't know about the domain")
                     else:
@@ -61,10 +64,10 @@ class DnsScanner(ArtemisBase):
 
             if nameserver_ok:
                 try:
-                    if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, zone_name, timeout=1)):
+                    if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, zone_name, timeout=1)):  # type: ignore[arg-type]
                         result["zone"] = zone.to_text()
                         findings.append("DNS zone transfer is possible")
-                except dns.query.TransferError:
+                except dns.xfr.TransferError:
                     pass
 
         if len(findings) > 0:

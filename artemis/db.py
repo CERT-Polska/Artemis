@@ -115,6 +115,6 @@ class DB:
             }
         )
 
-    def task_to_dict(self, task: Task) -> dict:
+    def task_to_dict(self, task: Task) -> Dict[str, Any]:
         # TODO make this less ugly
-        return json.loads(task.serialize())
+        return json.loads(task.serialize())  # type: ignore

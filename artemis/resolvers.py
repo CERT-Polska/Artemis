@@ -1,11 +1,11 @@
-from typing import Dict, Set
+from typing import Any, Dict, List, Set
 
 import requests
 
 DOH_SERVER = "https://cloudflare-dns.com/dns-query"
 
 
-def _ips_from_answer(domain: str, answer: Dict) -> Set[str]:
+def _ips_from_answer(domain: str, answer: List[Dict[str, Any]]) -> Set[str]:
     found_ips = set()
     for entry in answer:
         if entry["name"] != domain:

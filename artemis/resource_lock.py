@@ -8,7 +8,7 @@ from redis import Redis
 
 
 class ResourceLock:
-    def __init__(self, redis: Redis, res_name: str):
+    def __init__(self, redis: Redis[str], res_name: str):
         self.redis = redis
         self.res_name = res_name
         self.lid = str(uuid4())

@@ -11,8 +11,16 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 
-# There are other kartons checking whether services on these ports are interesting
-NOT_INTERESTING_PORTS = [21, 25, 80, 443]
+NOT_INTERESTING_PORTS = [
+    # There are other kartons checking whether services on these ports are interesting
+    21,
+    25,
+    80,
+    443,
+] + [
+    22,  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    53,  # Not worth reporting (DNS)
+]
 
 
 class PortScanner(ArtemisBase):

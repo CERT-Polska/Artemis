@@ -8,7 +8,7 @@ docker compose -f docker-compose.test.yaml up -d --build --scale test=0
 # Wait for the dependency services to be available
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-joomla-mysql:3306
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-wordpress-mysql:3306
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-bruteable-backups:80
+docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-bruteable-files:80
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-robots-service:80
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-ftp-server-with-easy-password:21
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-joomla:80

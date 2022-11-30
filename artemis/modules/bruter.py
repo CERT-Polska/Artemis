@@ -27,19 +27,21 @@ FILENAMES_WITHOUT_EXTENSIONS = [
 ]
 EXTENSIONS = ["zip", "rar", "7z", "tar", "gz", "tgz"]
 with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt")) as common_db_backups_file:
-    FILENAMES_TO_SCAN: List[str] = (
-        [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
-        + [
-            ".env",
-            ".gitignore",
-            ".htaccess",
-            ".htpasswd",
-            ".ssh/id_rsa",
-            "server-status/",
-            "app_dev.php",
-        ]
-        + [line.strip().lstrip("/") for line in common_db_backups_file if not line.startswith("#")]
-    )
+    with open(os.path.join(os.path.dirname(__file__), "data", "quickhits.txt")) as quickhits_file:
+        FILENAMES_TO_SCAN: List[str] = (
+            [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
+            + [
+                ".env",
+                ".gitignore",
+                ".htaccess",
+                ".htpasswd",
+                ".ssh/id_rsa",
+                "server-status/",
+                "app_dev.php",
+            ]
+            + [line.strip().lstrip("/") for line in common_db_backups_file if not line.startswith("#")]
+            + [line.strip().lstrip("/") for line in quickhits_file if not line.startswith("#")]
+        )
 
 
 class Bruter(ArtemisHTTPBase):

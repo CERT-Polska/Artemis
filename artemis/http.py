@@ -26,6 +26,6 @@ async def _download_urls_async(urls: List[str], max_parallel_tasks: int) -> Dict
     return dict(zip(urls, await asyncio.gather(*jobs)))
 
 
-def download_urls(urls: List[str], max_parallel_tasks: int = 20) -> Dict[str, HTTPResponse]:
+def download_urls(urls: List[str], max_parallel_tasks: int = 5) -> Dict[str, HTTPResponse]:
     loop = asyncio.get_event_loop()
     return loop.run_until_complete(_download_urls_async(urls, max_parallel_tasks))

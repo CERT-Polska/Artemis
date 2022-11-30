@@ -24,11 +24,13 @@ class ReverseDNSLookupTest(ArtemisModuleTestCase):
             task = Task(
                 {"type": TaskType.IP},
                 payload={TaskType.IP: entry.ip},
+                payload_persistent={"original_domain": "mimuw.edu.pl"},
             )
             results = self.run_task(task)
 
             expected_task = Task(
                 {"type": TaskType.NEW, "origin": self.karton_class.identity},
                 payload={"data": entry.domain},
+                payload_persistent={"original_domain": "mimuw.edu.pl"},
             )
             self.assertTasksEqual(results, [expected_task])

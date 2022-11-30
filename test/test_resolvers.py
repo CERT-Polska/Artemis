@@ -9,7 +9,7 @@ class TestData(NamedTuple):
     expected: Set[str]
 
 
-class TestStringMethods(unittest.TestCase):
+class TestResolvers(unittest.TestCase):
     def test_domain_lookup(self):
         data = [TestData("lebihan.pl", {"146.59.80.63"})]
 

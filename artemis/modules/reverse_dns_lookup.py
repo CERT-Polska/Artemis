@@ -5,6 +5,7 @@ from typing import List
 from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
+from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 
 
@@ -27,11 +28,17 @@ class ReverseDNSLookup(ArtemisBase):
         return aliaslist
 
     def run(self, current_task: Task) -> None:
+        if "original_domain" not in current_task.payload_persistent:
+            # We will want to ensure the RevDNS result is a subdomain of the original
+            # one so that we don't scan outside of the given domain.
+            return
+
         ip = current_task.get_payload(TaskType.IP)
         found_domains = self._lookup(ip)
         for entry in found_domains:
-            new_task = Task({"type": TaskType.NEW}, payload={"data": entry})
-            self.add_task(current_task, new_task)
+            if is_subdomain(entry, current_task.payload_persistent["original_domain"]):
+                new_task = Task({"type": TaskType.NEW}, payload={"data": entry})
+                self.add_task(current_task, new_task)
 
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=found_domains)
 

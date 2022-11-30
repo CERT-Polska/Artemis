@@ -40,6 +40,7 @@ class ClassifierTest(ArtemisModuleTestCase):
             expected_task = Task(
                 {"type": entry.type, "origin": self.karton_class.identity},
                 payload={entry.type: entry.expected},
+                payload_persistent={f"original_{entry.type}": entry.expected},
             )
 
             self.assertTasksEqual(results, [expected_task])

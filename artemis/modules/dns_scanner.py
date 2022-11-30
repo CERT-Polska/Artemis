@@ -56,8 +56,7 @@ class DnsScanner(ArtemisBase):
                     else:
                         nameserver_ok = True
                 except dns.exception.Timeout:
-                    result["ns_not_responding"] = True
-                    findings.append(f"the nameserver {nameserver_ip} is not responding")
+                    pass
 
             if nameserver_ok:
                 try:

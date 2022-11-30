@@ -52,6 +52,7 @@ class WebappIdentifier(ArtemisHTTPBase):
         if application != Application.UNKNOWN:
             new_task = Task(
                 {
+                    "type": TaskType.WEBAPP,
                     "webapp": application,
                 },
                 payload={

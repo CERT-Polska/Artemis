@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Union
 import requests
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus
+from artemis.binds import Application, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 
 WP_MIN_SUPPORTED = 60
@@ -17,7 +17,7 @@ class WordPressScanner(ArtemisBase):
 
     identity = "wp_scanner"
     filters = [
-        {"webapp": Application.WORDPRESS},
+        {"type": TaskType.WEBAPP, "webapp": Application.WORDPRESS},
     ]
 
     def scan(self, current_task: Task, url: str) -> None:
@@ -68,6 +68,7 @@ class WordPressScanner(ArtemisBase):
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
     def run(self, current_task: Task) -> None:
+        print(current_task)
         url = current_task.get_payload("url")
         self.scan(current_task, url)
 

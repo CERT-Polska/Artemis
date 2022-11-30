@@ -44,6 +44,6 @@ class RobotsTest(ArtemisModuleTestCase):
                 call.kwargs["data"],
                 {
                     "status": 200,
-                    "groups": [{"user_agents": ["*"], "disallow": ["/secret-url/"], "allow": []}],
+                    "groups": [{"user_agents": ["*"], "disallow": ["/secret-url/", "/icons/"], "allow": []}],
                 },
             )

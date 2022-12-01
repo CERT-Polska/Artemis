@@ -72,7 +72,7 @@ class DnsScanner(ArtemisBase):
 
         if len(findings) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found problems: " + ", ".join(findings)
+            status_reason = "Found problems: " + ", ".join(sorted(findings))
         else:
             status = TaskStatus.OK
             status_reason = None

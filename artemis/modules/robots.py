@@ -99,7 +99,7 @@ class RobotsScanner(ArtemisHTTPBase):
 
         if interesting_paths:
             status = TaskStatus.INTERESTING
-            status_reason = f"Found potentially interesting paths in robots.txt: {', '.join(interesting_paths)}"
+            status_reason = f"Found potentially interesting paths in robots.txt: {', '.join(sorted(interesting_paths))}"
         else:
             status = TaskStatus.OK
             status_reason = None

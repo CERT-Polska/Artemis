@@ -52,7 +52,7 @@ class DnsScanner(ArtemisBase):
                     message = dns.query.udp(dns.message.make_query(domain, "A"), nameserver_ip, timeout=1)
                     if message.rcode() == dns.rcode.NXDOMAIN:
                         result["ns_not_knowing_domain"] = True
-                        findings.append(f"the nameserver {nameserver_ip} doesn't know about the domain")
+                        findings.append(f"the nameserver {nameserver_ip} ({nameserver}) doesn't know about the domain")
                     else:
                         nameserver_ok = True
                 except dns.exception.Timeout:

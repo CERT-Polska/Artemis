@@ -15,7 +15,8 @@ class TestData(NamedTuple):
 
 
 class VCSTest(ArtemisModuleTestCase):
-    karton_class = VCSScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = VCSScanner  # type: ignore
 
     def test_robots(self) -> None:
         data = [

@@ -39,9 +39,9 @@ class RobotsScanner(ArtemisHTTPBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def _parse_rule(self, line: str, pattern: Pattern) -> Optional[str]:
+    def _parse_rule(self, line: str, pattern: Pattern[str]) -> Optional[str]:
         if match := re.match(pattern, line):
-            return match.group(1).strip()  # type: ignore
+            return match.group(1).strip()
         return None
 
     def _parse_robots(self, content: str) -> List[RobotsGroup]:
@@ -70,7 +70,7 @@ class RobotsScanner(ArtemisHTTPBase):
 
     def _get_interesting_paths(self, result: RobotsResult) -> List[str]:
         if len(result.groups) == 0:
-            return False
+            return []
 
         # Iterate over all paths from all groups
         interesting_paths = []

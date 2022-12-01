@@ -57,7 +57,7 @@ class VCSScanner(ArtemisHTTPBase):
         self.log.info(f"{target} is not what we're looking for")
         return False
 
-    def scan(self, current_task: Task, url: str):
+    def scan(self, current_task: Task, url: str) -> None:
         configs: List[VCSConfig] = [
             VCSConfig(name="git", path=".git/HEAD", magic=GIT_MAGIC),
             VCSConfig(name="svn", path=".svn/wc.db", magic=SVN_MAGIC),

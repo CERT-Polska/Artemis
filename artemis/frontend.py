@@ -20,7 +20,7 @@ db = DB()
 
 @router.get("/", include_in_schema=False)
 def get_root(request: Request) -> Response:
-    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))  # type: ignore[no-untyped-call]
 
     entries = []
     for entry in db.list_analysis():

@@ -7,7 +7,8 @@ from artemis.modules.ftp_bruter import FTPBruter
 
 
 class FTPBruterTest(ArtemisModuleTestCase):
-    karton_class = FTPBruter
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = FTPBruter  # type: ignore
 
     def test_simple(self) -> None:
         task = Task(

@@ -7,7 +7,8 @@ from artemis.modules.mail_dns_scanner import MailDNSScanner
 
 
 class MailDNSScannerTest(ArtemisModuleTestCase):
-    karton_class = MailDNSScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = MailDNSScanner  # type: ignore
 
     def test_simple(self) -> None:
         task = Task({"type": TaskType.DOMAIN}, payload={TaskType.DOMAIN: "test-smtp-server"})

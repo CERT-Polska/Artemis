@@ -13,7 +13,8 @@ class TestData(NamedTuple):
 
 
 class ReverseDNSLookupTest(ArtemisModuleTestCase):
-    karton_class = ReverseDNSLookup
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = ReverseDNSLookup  # type: ignore
 
     def test_simple(self) -> None:
         data = [
@@ -28,7 +29,7 @@ class ReverseDNSLookupTest(ArtemisModuleTestCase):
             results = self.run_task(task)
 
             expected_task = Task(
-                {"type": TaskType.NEW, "origin": self.karton_class.identity},
+                {"type": TaskType.NEW, "origin": ReverseDNSLookup.identity},
                 payload={"data": entry.domain},
             )
             self.assertTasksEqual(results, [expected_task])

@@ -13,7 +13,8 @@ class TestData(NamedTuple):
 
 
 class IPLookupTest(ArtemisModuleTestCase):
-    karton_class = IPLookup
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = IPLookup  # type: ignore
 
     def test_simple(self) -> None:
         data = [
@@ -28,7 +29,7 @@ class IPLookupTest(ArtemisModuleTestCase):
             results = self.run_task(task)
 
             expected_task = Task(
-                {"type": TaskType.NEW, "origin": self.karton_class.identity},
+                {"type": TaskType.NEW, "origin": IPLookup.identity},
                 payload={"data": entry.ip},
             )
             self.assertTasksEqual(results, [expected_task])

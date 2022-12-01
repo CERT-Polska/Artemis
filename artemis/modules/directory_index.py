@@ -61,11 +61,11 @@ class DirectoryIndex(ArtemisHTTPBase):
                         if path == "" or path == "/":
                             break
 
-        path_candidates = list(path_candidates)
-        random.shuffle(path_candidates)
-        path_candidates = path_candidates[:MAX_TESTS_PER_URL]
+        path_candidates_list = list(path_candidates)
+        random.shuffle(path_candidates_list)
+        path_candidates_list = path_candidates_list[:MAX_TESTS_PER_URL]
         results = []
-        for path_candidate in path_candidates:
+        for path_candidate in path_candidates_list:
             response = requests.get(urllib.parse.urljoin(url, path_candidate), verify=False, timeout=5)
             content = response.content.decode("utf-8", errors="ignore")
             if "Index of /" in content or "ListBucketResult" in content:

@@ -7,7 +7,8 @@ from artemis.modules.port_scanner import PortScanner
 
 
 class PortScannerTest(ArtemisModuleTestCase):
-    karton_class = PortScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = PortScanner  # type: ignore
 
     def test_simple(self) -> None:
         task = Task(

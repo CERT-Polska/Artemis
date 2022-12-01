@@ -24,15 +24,18 @@ class WordPressScanner(ArtemisBase):
         if not self.cache.get(cache_key):
             data = requests.get("https://api.wordpress.org/core/stable-check/1.0/").json()
             data_as_json = json.dumps(data)
-            self.cache.set(cache_key, data_as_json)
+            self.cache.set(cache_key, data_as_json.encode("utf-8"))
         else:
-            data = json.load(self.cache.get(cache_key))
+            cache_result = self.cache.get(cache_key)
+            assert cache_result
+            data = json.loads(cache_result.decode("utf-8"))
 
         if version not in data:
             raise Exception(f"Cannot check version stability: {version}")
 
         assert data[version] in ["insecure", "outdated", "latest"]
-        return data[version]
+        # bool() is to silence mypy warning that the == result doesn't have to be bool
+        return bool(data[version] == "insecure")
 
     def scan(self, current_task: Task, url: str) -> None:
         found_problems = []

@@ -55,7 +55,7 @@ class DnsScanner(ArtemisBase):
                     )
                     if message.rcode() == dns.rcode.NXDOMAIN:  # type: ignore[attr-defined]
                         result["ns_not_knowing_domain"] = True
-                        findings.append(f"the nameserver {nameserver_ip} doesn't know about the domain")
+                        findings.append(f"the nameserver {nameserver_ip} ({nameserver}) doesn't know about the domain")
                     else:
                         nameserver_ok = True
                 except dns.exception.Timeout:
@@ -66,7 +66,9 @@ class DnsScanner(ArtemisBase):
                 try:
                     if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, zone_name, timeout=1)):  # type: ignore[arg-type]
                         result["zone"] = zone.to_text()
-                        findings.append("DNS zone transfer is possible")
+                        findings.append(
+                            f"DNS zone transfer is possible (nameserver {nameserver_ip}, zone_name {zone_name}"
+                        )
                 except dns.xfr.TransferError:
                     pass
 

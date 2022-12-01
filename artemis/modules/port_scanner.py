@@ -65,7 +65,7 @@ class PortScanner(ArtemisBase):
 
             result[str(port)] = self.PortResult(service, ssl).__dict__
 
-        self.cache.set(target_ip, json.dumps(result))
+        self.cache.set(target_ip, json.dumps(result).encode("utf-8"))
         return result
 
     def run(self, current_task: Task) -> None:

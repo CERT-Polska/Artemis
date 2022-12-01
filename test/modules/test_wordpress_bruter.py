@@ -7,7 +7,8 @@ from artemis.modules.wordpress_bruter import WordPressBruter
 
 
 class WordPressBruterTest(ArtemisModuleTestCase):
-    karton_class = WordPressBruter
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = WordPressBruter  # type: ignore
 
     def test_simple(self) -> None:
         task = Task(

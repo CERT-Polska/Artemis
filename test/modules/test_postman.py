@@ -7,7 +7,8 @@ from artemis.modules.postman import Postman
 
 
 class PostmanTest(ArtemisModuleTestCase):
-    karton_class = Postman
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = Postman  # type: ignore
 
     def test_simple(self) -> None:
         task = Task(

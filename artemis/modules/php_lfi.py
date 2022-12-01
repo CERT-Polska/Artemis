@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import dataclasses
 import re
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import requests
 from karton.core import Task
@@ -40,14 +40,14 @@ class PHPLFIScanner(ArtemisHTTPBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def scan(self, current_task: Task, url: str) -> Tuple[Dict[str, str], bool]:
+    def scan(self, current_task: Task, url: str) -> None:
         found_lfi_descriptions = []
-        result: Dict[Tuple[str, str], str] = {}
+        result: Dict[str, str] = {}
         response = requests.get(url, verify=False, allow_redirects=True, timeout=5)
 
         if response.status_code != 200:
             self.log.info("{url} does not exist".format(url=url))
-            return result, False
+            return
 
         for candidate in get_lfi_candidates(url, response.text):
             key = f"file={candidate.file}.php, param_name={candidate.param}"

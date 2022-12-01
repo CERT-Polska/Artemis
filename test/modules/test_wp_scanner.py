@@ -12,7 +12,7 @@ class WordPressScannerTest(ArtemisModuleTestCase):
 
     def test_no_problems_with_new_version(self) -> None:
         task = Task(
-            {"webapp": Application.WORDPRESS},
+            {"webapp": WebApplication.WORDPRESS},
             payload={"url": "http://test-wordpress-easy-password/"},
         )
         self.run_task(task)

@@ -27,14 +27,15 @@ services:
   karton-logger:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-system]
     command: "python3 -m artemis.stdout_logger"
 
   backend:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
     ports: ["5000:5000"]
     depends_on: [karton-logger]
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
@@ -51,7 +52,8 @@ services:
   karton-classifier:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -60,7 +62,8 @@ services:
   karton-port_scanner:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -69,7 +72,8 @@ services:
   karton-robots:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -78,7 +82,8 @@ services:
   karton-vcs:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -87,7 +92,8 @@ services:
   karton-php-lfi:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -96,7 +102,8 @@ services:
   karton-crtsh:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -105,7 +112,8 @@ services:
   karton-ip-lookup:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -114,7 +122,8 @@ services:
   karton-reverse-dns:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -123,7 +132,8 @@ services:
   karton-bruter:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -132,7 +142,8 @@ services:
   karton-directory_index:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -141,7 +152,8 @@ services:
   karton-identifier:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -150,7 +162,8 @@ services:
   karton-joomla_scanner:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -159,7 +172,8 @@ services:
   karton-wp_scanner:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -168,7 +182,8 @@ services:
   karton-dns_scanner:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -177,7 +192,8 @@ services:
   karton-ftp_bruter:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -186,7 +202,8 @@ services:
   karton-mail_dns_scanner:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -195,7 +212,8 @@ services:
   karton-postman:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -206,7 +224,8 @@ services:
   karton-wordpress_bruter:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db
@@ -215,7 +234,8 @@ services:
   shodan-vulns:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     environment:
      - DB_CONN_STR=mongodb://root:root@db

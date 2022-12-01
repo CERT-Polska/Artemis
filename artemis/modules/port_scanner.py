@@ -3,7 +3,7 @@
 import json
 import subprocess
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
 from karton.core import Task
 
@@ -35,13 +35,13 @@ class PortScanner(ArtemisBase):
         service: Service
         ssl: bool
 
-    def _scan(self, target_ip: str) -> Dict:
+    def _scan(self, target_ip: str) -> Dict[str, Dict[str, Any]]:
         # We deduplicate identical tasks, but even if two task are different (e.g. contain
         # different domain names), they may point to the same IP, and therefore scanning both
         # would be a waste of resources.
         if cache := self.cache.get(target_ip):
             self.log.info(f"host {target_ip} in redis cache")
-            return json.loads(cache)
+            return json.loads(cache)  # type: ignore
 
         self.log.info(f"scanning {target_ip}")
         naabu = subprocess.Popen(
@@ -51,7 +51,7 @@ class PortScanner(ArtemisBase):
         fingerprintx = subprocess.check_output(("fingerprintx", "--json"), stdin=naabu.stdout)
         naabu.wait()
 
-        result: Dict[str, Dict] = {}
+        result: Dict[str, Dict[str, Any]] = {}
         for line in fingerprintx.decode().split("\n"):
             if not line:
                 continue
@@ -76,7 +76,7 @@ class PortScanner(ArtemisBase):
         if task_type == TaskType.DOMAIN:
             hosts = ip_lookup(target)
         elif task_type == TaskType.IP:
-            hosts = [target]
+            hosts = {target}
         else:
             raise ValueError("Unknown task type")
 
@@ -105,7 +105,9 @@ class PortScanner(ArtemisBase):
 
         if len(potentially_interesting_ports):
             status = TaskStatus.INTERESTING
-            status_reason = "Found potentially interesting ports: " + ", ".join(map(str, potentially_interesting_ports))
+            status_reason = "Found potentially interesting ports: " + ", ".join(
+                sorted(map(str, potentially_interesting_ports))
+            )
         else:
             status = TaskStatus.OK
             status_reason = None

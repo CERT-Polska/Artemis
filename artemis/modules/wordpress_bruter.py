@@ -2,7 +2,7 @@
 import requests
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus
+from artemis.binds import Application, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 
 PASSWORDS = [
@@ -28,7 +28,7 @@ class WordPressBruter(ArtemisBase):
 
     identity = "wordpress_bruter"
     filters = [
-        {"webapp": Application.WORDPRESS},
+        {"type": TaskType.WEBAPP, "webapp": Application.WORDPRESS},
     ]
 
     def run(self, current_task: Task) -> None:
@@ -68,7 +68,7 @@ class WordPressBruter(ArtemisBase):
         if credentials:
             status = TaskStatus.INTERESTING
             status_reason = "Found working credentials for the WordPress admin: " + ", ".join(
-                [username + ":" + password for username, password in credentials]
+                sorted([username + ":" + password for username, password in credentials])
             )
         else:
             status = TaskStatus.OK

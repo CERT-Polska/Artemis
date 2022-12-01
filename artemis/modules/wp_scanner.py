@@ -1,13 +1,12 @@
+import json
 import re
 from typing import Any, Dict, List, Union
 
 import requests
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus
+from artemis.binds import Application, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
-
-WP_MIN_SUPPORTED = 60
 
 
 class WordPressScanner(ArtemisBase):
@@ -17,8 +16,23 @@ class WordPressScanner(ArtemisBase):
 
     identity = "wp_scanner"
     filters = [
-        {"webapp": Application.WORDPRESS},
+        {"type": TaskType.WEBAPP, "webapp": Application.WORDPRESS},
     ]
+
+    def _is_version_insecure(self, version: str) -> bool:
+        cache_key = "version-stability"
+        if not self.cache.get(cache_key):
+            data = requests.get("https://api.wordpress.org/core/stable-check/1.0/").json()
+            data_as_json = json.dumps(data)
+            self.cache.set(cache_key, data_as_json)
+        else:
+            data = json.load(self.cache.get(cache_key))
+
+        if version not in data:
+            raise Exception(f"Cannot check version stability: {version}")
+
+        assert data[version] in ["insecure", "outdated", "latest"]
+        return data[version]
 
     def scan(self, current_task: Task, url: str) -> None:
         found_problems = []
@@ -41,26 +55,15 @@ class WordPressScanner(ArtemisBase):
 
         if wp_version:
             result["wp_version"] = wp_version
-            major, minor, _ = wp_version.split(".")
-            if int(major + minor) < WP_MIN_SUPPORTED:
-                found_problems.append(f"version is too old: {major}.{minor}")
-            else:
-                # Returns all possible updates from current version
-                wp_api_response = requests.get(
-                    f"https://api.wordpress.org/core/version-check/1.7/?version={wp_version}", timeout=5
-                )
-                released_versions = [offer["version"] for offer in wp_api_response.json()["offers"]]
-                major_minor = f"{major}.{minor}"
-                for released_version in released_versions:
-                    if released_version.startswith(major_minor):
-                        found_problems.append("update is available")
+            if self._is_version_insecure(wp_version):
+                found_problems.append(f"WordPress {wp_version} is considered insecure")
 
             # Enumerate installed plugins
             result["wp_plugins"] = re.findall("wp-content/plugins/([^/]+)/.+ver=([0-9.]+)", response.text)
 
         if found_problems:
             status = TaskStatus.INTERESTING
-            status_reason = "Found WordPress problems: " + ", ".join(found_problems)
+            status_reason = "Found WordPress problems: " + ", ".join(sorted(found_problems))
         else:
             status = TaskStatus.OK
             status_reason = None

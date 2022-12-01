@@ -2,7 +2,7 @@
 import requests
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus, TaskType
+from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisBase
 
 PASSWORDS = [
@@ -28,7 +28,7 @@ class WordPressBruter(ArtemisBase):
 
     identity = "wordpress_bruter"
     filters = [
-        {"type": TaskType.WEBAPP, "webapp": Application.WORDPRESS},
+        {"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
     ]
 
     def run(self, current_task: Task) -> None:

@@ -2,7 +2,7 @@ from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus
+from artemis.binds import TaskStatus, WebApplication
 from artemis.modules.wp_scanner import WordPressScanner
 
 
@@ -12,7 +12,7 @@ class WordPressScannerTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         task = Task(
-            {"webapp": Application.WORDPRESS},
+            {"webapp": WebApplication.WORDPRESS},
             payload={"url": "http://test-old-wordpress/"},
         )
         self.run_task(task)

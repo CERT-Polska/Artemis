@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Union
 import requests
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus, TaskType
+from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisBase
 
 
@@ -15,7 +15,7 @@ class JoomlaScanner(ArtemisBase):
 
     identity = "joomla_scanner"
     filters = [
-        {"type": TaskType.WEBAPP, "webapp": Application.JOOMLA},
+        {"type": TaskType.WEBAPP, "webapp": WebApplication.JOOMLA},
     ]
 
     def run(self, current_task: Task) -> None:

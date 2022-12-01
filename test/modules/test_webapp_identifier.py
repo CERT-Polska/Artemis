@@ -13,7 +13,8 @@ class TestData(NamedTuple):
 
 
 class WebappIdentifierTest(ArtemisModuleTestCase):
-    karton_class = WebappIdentifier
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = WebappIdentifier  # type: ignore
 
     def test_simple(self) -> None:
         data = [

@@ -84,7 +84,7 @@ class Bruter(ArtemisHTTPBase):
 
         if len(found_files) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found files: " + ", ".join(found_files)
+            status_reason = "Found files: " + ", ".join(sorted(found_files))
         else:
             status = TaskStatus.OK
             status_reason = None

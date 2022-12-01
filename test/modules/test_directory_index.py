@@ -14,7 +14,8 @@ class TestData(NamedTuple):
 
 
 class DirectoryIndexTest(ArtemisModuleTestCase):
-    karton_class = DirectoryIndex
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = DirectoryIndex  # type: ignore
 
     def test_simple(self) -> None:
         data = [

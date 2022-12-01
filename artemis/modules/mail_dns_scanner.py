@@ -54,6 +54,7 @@ class MailDNSScanner(ArtemisBase):
                     if self.is_smtp_server(exchange, port):
                         new_task = Task(
                             {
+                                "type": TaskType.SERVICE,
                                 "service": Service.SMTP,
                             },
                             payload={
@@ -125,7 +126,7 @@ class MailDNSScanner(ArtemisBase):
                 status_reasons.append("DMARC record is not present")
             if status_reasons:
                 status = TaskStatus.INTERESTING
-                status_reason = "Found problems: " + ", ".join(status_reasons)
+                status_reason = "Found problems: " + ", ".join(sorted(status_reasons))
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
 

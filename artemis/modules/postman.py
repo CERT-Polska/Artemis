@@ -111,7 +111,7 @@ class Postman(ArtemisBase):
 
         if found_problems:
             status = TaskStatus.INTERESTING
-            status_reason = "Found problems: " + ", ".join(found_problems)
+            status_reason = "Found problems: " + ", ".join(sorted(found_problems))
         else:
             status = TaskStatus.OK
             status_reason = None

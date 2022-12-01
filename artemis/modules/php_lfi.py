@@ -83,7 +83,7 @@ class PHPLFIScanner(ArtemisHTTPBase):
 
         if len(found_lfi_descriptions) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found LFIs in " + ", ".join(found_lfi_descriptions)
+            status_reason = "Found LFIs in " + ", ".join(sorted(found_lfi_descriptions))
         else:
             status = TaskStatus.OK
             status_reason = None

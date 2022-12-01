@@ -70,7 +70,7 @@ class FTPBruter(ArtemisBase):
         if result.credentials:
             status = TaskStatus.INTERESTING
             status_reason = "Found working credentials for the FTP server: " + ", ".join(
-                [username + ":" + password for username, password in result.credentials]
+                sorted([username + ":" + password for username, password in result.credentials])
             )
         else:
             status = TaskStatus.OK

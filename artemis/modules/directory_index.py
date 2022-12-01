@@ -79,7 +79,7 @@ class DirectoryIndex(ArtemisHTTPBase):
 
         if len(found_dirs_with_index) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found directories with index enabled: " + ", ".join(found_dirs_with_index)
+            status_reason = "Found directories with index enabled: " + ", ".join(sorted(found_dirs_with_index))
         else:
             status = TaskStatus.OK
             status_reason = None

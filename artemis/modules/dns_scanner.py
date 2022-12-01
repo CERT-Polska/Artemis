@@ -66,7 +66,9 @@ class DnsScanner(ArtemisBase):
                 try:
                     if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, zone_name, timeout=1)):  # type: ignore[arg-type]
                         result["zone"] = zone.to_text()
-                        findings.append("DNS zone transfer is possible")
+                        findings.append(
+                            f"DNS zone transfer is possible (nameserver {nameserver_ip}, zone_name {zone_name}"
+                        )
                 except dns.xfr.TransferError:
                     pass
 

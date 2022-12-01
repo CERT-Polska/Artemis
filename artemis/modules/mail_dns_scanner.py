@@ -54,6 +54,7 @@ class MailDNSScanner(ArtemisBase):
                     if self.is_smtp_server(exchange, port):
                         new_task = Task(
                             {
+                                "type": TaskType.SERVICE,
                                 "service": Service.SMTP,
                             },
                             payload={

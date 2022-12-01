@@ -51,6 +51,7 @@
               "new": task.payload.data,
               "ip": task.payload.ip || task.payload_persistent.ip,
               "domain": task.payload.domain || task.payload_persistent.domain,
+              "webapp": task.payload.url || task.payload_persistent.url,
               "service": task.payload.host + ':' + task.payload.port,
             };
 

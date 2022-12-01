@@ -11,7 +11,7 @@ class HTTPResponse:
     content: str
 
 
-async def download(url, task_limitter):
+async def download(url: str, task_limitter: asyncio.BoundedSemaphore) -> HTTPResponse:
     async with task_limitter:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, allow_redirects=False, timeout=5, ssl=False) as response:

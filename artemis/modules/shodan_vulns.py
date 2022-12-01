@@ -76,7 +76,7 @@ class ShodanVulns(ArtemisBase):
 
         if len(found_vuln_descriptions) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found vulnerabilities from Shodan API: " + ", ".join(found_vuln_descriptions)
+            status_reason = "Found vulnerabilities from Shodan API: " + ", ".join(sorted(found_vuln_descriptions))
         else:
             status = TaskStatus.OK
             status_reason = None

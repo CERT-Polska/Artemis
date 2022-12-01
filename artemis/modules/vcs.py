@@ -74,7 +74,7 @@ class VCSScanner(ArtemisHTTPBase):
 
         if len(found_vcs_descriptions) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found version control system data: " + ", ".join(found_vcs_descriptions)
+            status_reason = "Found version control system data: " + ", ".join(sorted(found_vcs_descriptions))
         else:
             status = TaskStatus.OK
             status_reason = None

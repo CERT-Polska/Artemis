@@ -25,10 +25,10 @@ class WordPressScannerTest(ArtemisModuleTestCase):
             payload={"url": "http://test-old-wordpress/"},
         )
 
+        # We perform the check twice because this task caches WordPress API responses.
+        # Therefore let's check whether the flow with and without cache is correct.
         for _ in range(2):
             self.mock_db.reset_mock()
-            # We perform the check twice because this task caches server responses. Therefore let's check
-            # whether the flow with and without cache is correct.
             self.run_task(task)
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)

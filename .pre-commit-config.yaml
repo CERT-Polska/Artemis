@@ -19,6 +19,7 @@ repos:
   - id: mypy
     args: [--strict]
     additional_dependencies:
+    - aiohttp==3.8.3
     - dnspython==2.2.1
     - karton-core==4.2.0
     - fastapi==0.88.0

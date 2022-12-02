@@ -47,16 +47,7 @@
         {
           "data": null,
           "render": function(task) {
-            const type_map = {
-              "new": task.payload.data,
-              "ip": task.payload.ip || task.payload_persistent.ip,
-              "domain": task.payload.domain || task.payload_persistent.domain,
-              "webapp": task.payload.url || task.payload_persistent.url,
-              "service": task.payload.host + ':' + task.payload.port,
-            };
-
-            const result = type_map[task.headers.type] || (task.headers.type + ': ' + task.uid);
-            return `<a href="/task/${task.uid}">${result}</a>`
+            return `<a href="/task/${task.uid}">${task.target_string}</a>`
           }
         },
         {
@@ -97,6 +88,16 @@
         {
           "data": "status_reason"
         }
+        {
+          "data": null,
+          "render": function(task) {
+            if (task.decision) {
+                {{ task.decision.decision_type }} {{ task.decision.operator_comment }}
+            } else {
+                return `<a href="/task/${task.uid}">Decide</a>`;
+            }
+          }
+        },
       ],
       "order": []
     });

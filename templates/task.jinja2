@@ -7,6 +7,38 @@
     <dt class="col-3">UID</dt>
     <dd class="col-9">{{task._id}}</dd>
 
+    {% if task.status_reason %}
+        <h4>Message</4>
+        <p>
+            {{ task.status_reason }}
+        </p>
+    {% endif %}
+
+    <h4>Result</h4>
+    <pre><code>{{ pretty_printed }}</code></pre>
+
+    {% if task.decision %}
+        <h4>Decision</h4>
+        {{ task.decision.decision_type }} {{ task.decision.operator_comment }}
+    {% else %}
+        <h4>Decide</h4>
+        <form action="/add_decision" method="post">
+            <div class="form-group">
+                <label class="form-text">Decision</label>
+                <select class="form-control" name="decision_type">
+                    <option value="interesting">Interesting</option>
+                    <option value="not_interesting">Not interesting</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-text">Comment</label>
+                <textarea class="form-control" name="operator_comment"></textarea>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Add">
+        </form>
+    {% endif %}
+
+    <h4>Metadata</h4>
     <dt class="col-3">Priority</dt>
     <dd class="col-9">
         <span class="badge bg-dark">{{task.priority}}</span>
@@ -50,13 +82,6 @@
       {% endfor %}
     </dd>
   </dl>
-
-  <h4>Result</h4>
-
-  <details>
-    <summary>raw JSON</summary>
-    <pre><code>{{ pretty_printed }}</code></pre>
-  </details>
 
 </div>
 {% endblock %}

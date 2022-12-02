@@ -5,19 +5,19 @@ from typing import List, Tuple
 import requests
 from karton.core import Task
 
-from artemis.binds import Application, Service, TaskStatus, TaskType
+from artemis.binds import Service, TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisHTTPBase
 
-WEBAPP_SIGNATURES: List[Tuple[Application, str]] = [
-    (Application.WORDPRESS, '<meta name="generator" content="WordPress'),
-    (Application.JOOMLA, '<meta name="generator" content="Joomla!'),
-    (Application.DRUPAL, '<meta name="generator" content="Drupal'),
-    (Application.EZPUBLISH, '<meta name="generator" content="eZ Publish'),
-    (Application.TYPESETTER, '<meta name="generator" content="Typesetter CMS'),
-    (Application.ROUNDCUBE, "Copyright \\(C\\) The Roundcube Dev Team"),
-    (Application.MOODLE, '<meta name="keywords" content="moodle,'),
-    (Application.IDRAC, "<title>Dell Remote Access Controller 5</title>"),
-    (Application.IDRAC, "- iDRAC[6-8] -"),
+WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
+    (WebApplication.WORDPRESS, '<meta name="generator" content="WordPress'),
+    (WebApplication.JOOMLA, '<meta name="generator" content="Joomla!'),
+    (WebApplication.DRUPAL, '<meta name="generator" content="Drupal'),
+    (WebApplication.EZPUBLISH, '<meta name="generator" content="eZ Publish'),
+    (WebApplication.TYPESETTER, '<meta name="generator" content="Typesetter CMS'),
+    (WebApplication.ROUNDCUBE, "Copyright \\(C\\) The Roundcube Dev Team"),
+    (WebApplication.MOODLE, '<meta name="keywords" content="moodle,'),
+    (WebApplication.IDRAC, "<title>Dell Remote Access Controller 5</title>"),
+    (WebApplication.IDRAC, "- iDRAC[6-8] -"),
 ]
 
 
@@ -32,7 +32,7 @@ class WebappIdentifier(ArtemisHTTPBase):
     ]
 
     @staticmethod
-    def _identify(url: str) -> Application:
+    def _identify(url: str) -> WebApplication:
         response = requests.get(url, verify=False, allow_redirects=True, timeout=5)
 
         for webapp_id, webapp_sig in WEBAPP_SIGNATURES:
@@ -42,14 +42,14 @@ class WebappIdentifier(ArtemisHTTPBase):
         # Detect WordPress not advertising itself in generator
         response = requests.get(f"{url}/license.txt", verify=False, allow_redirects=True, timeout=5)
         if response.text.startswith("WordPress - Web publishing software"):
-            return Application.WORDPRESS
+            return WebApplication.WORDPRESS
 
-        return Application.UNKNOWN
+        return WebApplication.UNKNOWN
 
     def _process(self, current_task: Task, url: str) -> None:
         application = self._identify(url)
 
-        if application != Application.UNKNOWN:
+        if application != WebApplication.UNKNOWN:
             new_task = Task(
                 {
                     "type": TaskType.WEBAPP,

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Union
 import requests
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus, TaskType
+from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisBase
 
 
@@ -16,7 +16,7 @@ class WordPressScanner(ArtemisBase):
 
     identity = "wp_scanner"
     filters = [
-        {"type": TaskType.WEBAPP, "webapp": Application.WORDPRESS},
+        {"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
     ]
 
     def _is_version_insecure(self, version: str) -> bool:

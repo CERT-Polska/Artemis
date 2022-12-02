@@ -90,6 +90,7 @@ class PortScanner(ArtemisBase):
 
         all_results = {}
         open_ports = []
+        interesting_port_descriptions = []
         for host in hosts:
             scan_results = self._scan(host)
             all_results[host] = scan_results
@@ -108,14 +109,12 @@ class PortScanner(ArtemisBase):
                 )
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
+                if int(port) not in NOT_INTERESTING_PORTS:
+                    interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
 
-        potentially_interesting_ports = set(open_ports) - set(NOT_INTERESTING_PORTS)
-
-        if len(potentially_interesting_ports):
+        if len(interesting_port_descriptions):
             status = TaskStatus.INTERESTING
-            status_reason = "Found potentially interesting ports: " + ", ".join(
-                sorted(map(str, potentially_interesting_ports))
-            )
+            status_reason = "Found interesting ports: " + ", ".join(sorted(interesting_port_descriptions))
         else:
             status = TaskStatus.OK
             status_reason = None

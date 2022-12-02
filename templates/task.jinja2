@@ -3,42 +3,47 @@
 <div class="bs-component" style="padding-top: 100px">
   <h3 class="text-center">task {{ task._id }}</h3>
 
+  {% if task.status_reason %}
+      <div class="alert alert-primary">
+          {{ task.status_reason }}
+      </div>
+  {% endif %}
+
+  {% if task.decision %}
+      <h4>Decision</h4>
+      {{ task.decision.decision_type }} {{ task.decision.operator_comment }}
+  {% else %}
+      <h4>Decide</h4>
+      <form action="/add_decision" method="post" class="mb-1">
+          <div class="form-group">
+              <label class="form-text">Decision</label>
+              <select class="form-select" name="decision_type">
+                  <option value="interesting">Interesting</option>
+                  <option value="not_interesting">Not interesting</option>
+              </select>
+          </div>
+          <div class="form-group">
+              <label class="form-text">Scope</label>
+              <select class="form-select" name="decision_type">
+                  <option value="only_target">Mark only for this target</option>
+                  <option value="all">Mark all findings with this message</option>
+              </select>
+          </div>
+          <div class="form-group mb-1">
+              <label class="form-text">Comment</label>
+              <textarea class="form-control" name="operator_comment"></textarea>
+          </div>
+          <input type="submit" class="btn btn-primary" value="Decide">
+      </form>
+  {% endif %}
+
+  <h4>Result</h4>
+  <pre><code>{{ pretty_printed }}</code></pre>
+
+  <h4>Metadata</h4>
   <dl class="row">
     <dt class="col-3">UID</dt>
     <dd class="col-9">{{task._id}}</dd>
-
-    {% if task.status_reason %}
-        <h4>Message</4>
-        <p>
-            {{ task.status_reason }}
-        </p>
-    {% endif %}
-
-    <h4>Result</h4>
-    <pre><code>{{ pretty_printed }}</code></pre>
-
-    {% if task.decision %}
-        <h4>Decision</h4>
-        {{ task.decision.decision_type }} {{ task.decision.operator_comment }}
-    {% else %}
-        <h4>Decide</h4>
-        <form action="/add_decision" method="post">
-            <div class="form-group">
-                <label class="form-text">Decision</label>
-                <select class="form-control" name="decision_type">
-                    <option value="interesting">Interesting</option>
-                    <option value="not_interesting">Not interesting</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-text">Comment</label>
-                <textarea class="form-control" name="operator_comment"></textarea>
-            </div>
-            <input type="submit" class="btn btn-primary" value="Add">
-        </form>
-    {% endif %}
-
-    <h4>Metadata</h4>
     <dt class="col-3">Priority</dt>
     <dd class="col-9">
         <span class="badge bg-dark">{{task.priority}}</span>

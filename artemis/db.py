@@ -36,7 +36,7 @@ def get_task_target_as_string(task: Task) -> str:
         result = task.payload.get("url", None)
     elif task.headers["type"] == TaskType.SERVICE:
         if "host" in task.payload and "port" in task.payload:
-            result = task.payload["host"] + ":" + task.payload["port"]
+            result = task.payload["host"] + ":" + str(task.payload["port"])
 
     if not result:
         result = task.headers["type"] + ": " + task.uid
@@ -121,7 +121,7 @@ class DB:
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
         task_result = cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
         if task_result:
-            task_result["decision"] = self._get_decision_for_task_result(task_result["uid"])
+            task_result["decision"] = self._get_decision_for_task_result(task_result)
         return task_result
 
     def save_scheduled_task(self, task: Task) -> bool:
@@ -183,7 +183,7 @@ class DB:
         decision_dict = self.task_result_manual_decisions.find_one(
             {"message": task_result["status_reason"]}
         ) or self.task_result_manual_decisions.find_one(
-            {"message": task_result["status_reason"], "target_str": task_result["target_str"]}
+            {"message": task_result["status_reason"], "target_string": task_result["target_string"]}
         )
 
         if decision_dict:

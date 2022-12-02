@@ -25,6 +25,7 @@
                 <th scope="col">task</th>
                 <th scope="col">headers</th>
                 <th scope="col">status: reason</th>
+                <th scope="col">decision</th>
             </tr>
       </thead>
   </table>
@@ -87,12 +88,12 @@
         },
         {
           "data": "status_reason"
-        }
+        },
         {
           "data": null,
           "render": function(task) {
             if (task.decision) {
-                {{ task.decision.decision_type }} {{ task.decision.operator_comment }}
+                return `${task.decision.decision_type} ${task.decision.operator_comment}`;
             } else {
                 return `<a href="/task/${task.uid}">Decide</a>`;
             }

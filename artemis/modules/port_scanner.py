@@ -114,7 +114,7 @@ class PortScanner(ArtemisBase):
 
         if len(interesting_port_descriptions):
             status = TaskStatus.INTERESTING
-            status_reason = "Found interesting ports: " + ", ".join(sorted(interesting_port_descriptions))
+            status_reason = "Found ports: " + ", ".join(sorted(interesting_port_descriptions))
         else:
             status = TaskStatus.OK
             status_reason = None

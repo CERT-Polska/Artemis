@@ -2,11 +2,11 @@
 import os
 import random
 import string
-from difflib import SequenceMatcher
 from itertools import product
 from typing import List
 
 import requests
+import tlsh  # type: ignore
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
@@ -60,6 +60,7 @@ class Bruter(ArtemisHTTPBase):
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = url + "/" + dummy_random_token
         dummy = requests.get(dummy_url, verify=False, timeout=5)
+        dummy_hash = tlsh.hash(dummy.content)
 
         urls = [f"{url}/{file}" for file in set(FILENAMES_TO_SCAN)]
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
@@ -72,7 +73,7 @@ class Bruter(ArtemisHTTPBase):
                 and response.content
                 and "<center><h1>40" not in response.content
                 and "Error 403" not in response.content
-                and SequenceMatcher(None, response.content, dummy.content).quick_ratio() < 0.8
+                and tlsh.diff(tlsh.hash(response.content), dummy_hash) < 100
             ):
                 found_files.add(response_url[len(url) + 1 :])
         return sorted(list(found_files))

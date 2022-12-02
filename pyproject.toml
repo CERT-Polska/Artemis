@@ -9,6 +9,7 @@ authorized_licenses = [
     "bsd",
     "apache 2.0",
     "apache software",
+    "Apache or BSD",
     "isc",
     "isc license (iscl)",
     "gnu library or lesser general public license (lgpl)",

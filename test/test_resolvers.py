@@ -10,7 +10,7 @@ class TestData(NamedTuple):
 
 
 class TestStringMethods(unittest.TestCase):
-    def test_domain_lookup(self):
+    def test_domain_lookup(self) -> None:
         data = [TestData("lebihan.pl", {"146.59.80.63"})]
 
         for item in data:

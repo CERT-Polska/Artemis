@@ -23,7 +23,7 @@ BRUTE_CREDENTIALS = [
 class FTPBruterResult(BaseModel):
     welcome: Optional[str] = None
     credentials: List[Tuple[str, str]] = []
-    files: List = []
+    files: List[str] = []
 
 
 class FTPBruter(ArtemisBase):
@@ -55,7 +55,7 @@ class FTPBruter(ArtemisBase):
                 try:
                     ftp.login(username, password)
                     result.credentials.append((username, password))
-                    result.files.append(ftp.nlst())
+                    result.files.extend(ftp.nlst())
                 except ftplib.error_perm:
                     pass
                 except EOFError:
@@ -70,7 +70,7 @@ class FTPBruter(ArtemisBase):
         if result.credentials:
             status = TaskStatus.INTERESTING
             status_reason = "Found working credentials for the FTP server: " + ", ".join(
-                [username + ":" + password for username, password in result.credentials]
+                sorted([username + ":" + password for username, password in result.credentials])
             )
         else:
             status = TaskStatus.OK

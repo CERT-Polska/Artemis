@@ -1,6 +1,6 @@
 import traceback
 from abc import abstractmethod
-from typing import cast
+from typing import Any, List, Optional, cast
 
 import requests
 from karton.core import Karton, Task
@@ -10,7 +10,7 @@ from artemis.db import DB
 from artemis.redis_cache import RedisCache
 from artemis.resource_lock import ResourceLock
 
-requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
 
 class ArtemisBase(Karton):
@@ -18,7 +18,7 @@ class ArtemisBase(Karton):
     Artemis base module. Provides helpers (such as e.g. cache) for all modules.
     """
 
-    def __init__(self, db=None, *args, **kwargs):
+    def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(self.backend.redis, self.identity)
         self.lock = ResourceLock(self.backend.redis, self.identity)
@@ -31,13 +31,19 @@ class ArtemisBase(Karton):
         task_type = current_task.headers["type"]
 
         if task_type == TaskType.SERVICE:
-            return current_task.get_payload("host")
+            payload = current_task.get_payload("host")
+            assert isinstance(payload, str)
+            return payload
 
         if task_type == TaskType.DOMAIN:
-            return current_task.get_payload(TaskType.DOMAIN)
+            payload = current_task.get_payload(TaskType.DOMAIN)
+            assert isinstance(payload, str)
+            return payload
 
         if task_type == TaskType.IP:
-            return current_task.get_payload(TaskType.IP)
+            payload = current_task.get_payload(TaskType.IP)
+            assert isinstance(payload, str)
+            return payload
 
         raise ValueError("Unknown target found")
 
@@ -50,7 +56,7 @@ class ArtemisBase(Karton):
     def run(self, current_task: Task) -> None:
         raise NotImplementedError()
 
-    def process(self, *args) -> None:
+    def process(self, *args: List[Any]) -> None:
         current_task = cast(Task, args[0])
         try:
             self.run(current_task)

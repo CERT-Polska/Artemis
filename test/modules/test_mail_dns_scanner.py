@@ -7,7 +7,8 @@ from artemis.modules.mail_dns_scanner import MailDNSScanner
 
 
 class MailDNSScannerTest(ArtemisModuleTestCase):
-    karton_class = MailDNSScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = MailDNSScanner  # type: ignore
 
     def test_simple(self) -> None:
         task = Task({"type": TaskType.DOMAIN}, payload={TaskType.DOMAIN: "test-smtp-server"})
@@ -16,7 +17,7 @@ class MailDNSScannerTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "Found problems: SPF record is not present, DMARC record is not present",
+            "Found problems: DMARC record is not present, SPF record is not present",
         )
         self.assertEqual(call.kwargs["data"].mail_server_found, True)
         self.assertEqual(call.kwargs["data"].spf_record_present, False)

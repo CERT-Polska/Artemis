@@ -57,7 +57,7 @@ class DB:
         return cast(List[Dict[str, Any]], list(self.analysis.find()))
 
     def add_task_result_manual_decision(self, decision: TaskResultManualDecision) -> None:
-        self.task_result_manual_decisions.insert_one(decision.asdict())
+        self.task_result_manual_decisions.insert_one(dataclasses.asdict(decision))
 
     def create_analysis(self, analysis: Task) -> None:
         created_analysis = self.task_to_dict(analysis)
@@ -109,7 +109,7 @@ class DB:
         return task_results
 
     def get_undecided_task_results_by_analysis_id(self, analysis_id: str) -> List[Dict[str, Any]]:
-        task_results = self.task_result_manual_decisions.find()
+        task_results = list(self.task_result_manual_decisions.find())
         decisions_for_task_results = self._get_decisions_for_task_results(task_results)
 
         task_results_filtered = []
@@ -179,7 +179,7 @@ class DB:
         # TODO make this less ugly
         return json.loads(task.serialize())  # type: ignore
 
-    def _get_decision_for_task_result(self, task_result: Dict) -> Optional[TaskResultManualDecision]:
+    def _get_decision_for_task_result(self, task_result: Dict[str, Any]) -> Optional[TaskResultManualDecision]:
         decision_dict = self.task_result_manual_decisions.find_one(
             {"message": task_result["status_reason"]}
         ) or self.task_result_manual_decisions.find_one(
@@ -191,7 +191,9 @@ class DB:
         else:
             return None
 
-    def _get_decisions_for_task_results(self, task_results: List[Dict]) -> Dict[str, TaskResultManualDecision]:
+    def _get_decisions_for_task_results(
+        self, task_results: List[Dict[str, Any]]
+    ) -> Dict[str, TaskResultManualDecision]:
         decisions_for_message = {}
         decisions_for_message_and_target = {}
 
@@ -208,14 +210,16 @@ class DB:
             if task_result["status"] != TaskStatus.INTERESTING:
                 continue
 
-            decision = None
+            found_decision: Optional[TaskResultManualDecision] = None
 
             if task_result["status_reason"] in decisions_for_message:
-                decision = decisions_for_message[task_result["status_reason"]]
+                found_decision = decisions_for_message[task_result["status_reason"]]
 
             if (task_result["status_reason"], task_result["target_string"]) in decisions:
-                decision = decisions_for_message[(task_result["status_reason"], task_result["target_string"])]
+                found_decision = decisions_for_message_and_target[
+                    (task_result["status_reason"], task_result["target_string"])
+                ]
 
-            if decision:
-                decisions[task_result["uid"]] = decision
+            if found_decision:
+                decisions[task_result["uid"]] = found_decision
         return decisions

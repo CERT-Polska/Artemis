@@ -181,12 +181,13 @@ class DB:
 
     def _get_decision_for_task_result(self, task_result: Dict[str, Any]) -> Optional[TaskResultManualDecision]:
         decision_dict = self.task_result_manual_decisions.find_one(
-            {"message": task_result["status_reason"]}
+            {"message": task_result["status_reason"], "target_string": None}
         ) or self.task_result_manual_decisions.find_one(
             {"message": task_result["status_reason"], "target_string": task_result["target_string"]}
         )
 
         if decision_dict:
+            del decision_dict["_id"]
             return TaskResultManualDecision(**decision_dict)
         else:
             return None
@@ -198,6 +199,7 @@ class DB:
         decisions_for_message_and_target = {}
 
         for obj in self.task_result_manual_decisions.find():
+            del obj["_id"]
             decision = TaskResultManualDecision(**obj)
 
             if decision.target_string:
@@ -215,7 +217,7 @@ class DB:
             if task_result["status_reason"] in decisions_for_message:
                 found_decision = decisions_for_message[task_result["status_reason"]]
 
-            if (task_result["status_reason"], task_result["target_string"]) in decisions:
+            if (task_result["status_reason"], task_result["target_string"]) in decisions_for_message_and_target:
                 found_decision = decisions_for_message_and_target[
                     (task_result["status_reason"], task_result["target_string"])
                 ]

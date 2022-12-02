@@ -93,7 +93,12 @@
           "data": null,
           "render": function(task) {
             if (task.decision) {
-                return `${task.decision.decision_type} ${task.decision.operator_comment}`;
+                if (task.decision.decision_type == 'interesting') {
+                    badge = `<span class="badge bg-primary">interesting</span>`;
+                } else {
+                    badge = `<span class="badge bg-secondary">not interesting</span>`;
+                }
+                return badge + `(comment=${task.decision.operator_comment})`;
             } else {
                 return `<a href="/task/${task.uid}">Decide</a>`;
             }

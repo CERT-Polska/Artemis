@@ -10,12 +10,9 @@ import requests
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.http import download_urls
 from artemis.module_base import ArtemisHTTPBase
-
-# A threshold in case the server reports too much files with 200 status code,
-# and we want to skip this as a false positive.
-FOUND_FILES_THRESHOLD_TO_SKIP_REPORTING = 250
 
 FILENAMES_WITHOUT_EXTENSIONS = [
     "admin_backup",
@@ -79,6 +76,10 @@ class Bruter(ArtemisHTTPBase):
                 and SequenceMatcher(None, response.content, dummy.content).quick_ratio() < 0.8
             ):
                 found_files.add(response_url[len(url) + 1 :])
+
+        if len(found_files) > len(urls) * Config.BRUTER_FOUND_FILES_PERCENTAGE_THRESHOLD_TO_SKIP_REPORTING:
+            return []
+
         return sorted(list(found_files))
 
     def run(self, current_task: Task) -> None:
@@ -86,7 +87,7 @@ class Bruter(ArtemisHTTPBase):
         self.log.info(f"bruter scanning {url}")
         found_files = self.scan(url)
 
-        if len(found_files) > 0 and len(found_files) < FOUND_FILES_THRESHOLD_TO_SKIP_REPORTING:
+        if len(found_files) > 0:
             status = TaskStatus.INTERESTING
             status_reason = "Found files: " + ", ".join(sorted(found_files))
         else:

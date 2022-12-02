@@ -9,3 +9,7 @@ class Config:
 
     POSTMAN_MAIL_FROM = getenv("POSTMAN_MAIL_FROM", "")
     POSTMAN_MAIL_TO = getenv("POSTMAN_MAIL_TO", "")
+
+    # A threshold in case the server reports too much files with 200 status code,
+    # and we want to skip this as a false positive. 0.1 means 10%.
+    BRUTER_FOUND_FILES_PERCENTAGE_THRESHOLD_TO_SKIP_REPORTING = 0.1

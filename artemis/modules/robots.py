@@ -16,8 +16,7 @@ RE_DISALLOW = re.compile(r"^\s*disallow:\s*(/.*)", re.I)
 
 NOT_INTERESTING_PATHS = [
     re.compile(p, re.I)
-    for p in [r"/wp-admin/?.*", r"/wp-includes/?.*", "^/$"]
-    + [f"^{folder}" for folder in Config.FOLDERS_THAT_DONT_HAVE_INTERESTING_CONTENT]
+    for p in [r"/wp-admin/?.*", r"/wp-includes/?.*", "^/$"] + [f"^{folder}" for folder in Config.NOT_INTERESTING_PATHS]
 ]
 
 

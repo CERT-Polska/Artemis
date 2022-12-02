@@ -71,8 +71,8 @@ class DirectoryIndex(ArtemisHTTPBase):
             content = response.content.decode("utf-8", errors="ignore")
             if "Index of /" in content or "ListBucketResult" in content:
                 if (
-                    path_candidate not in Config.FOLDERS_THAT_DONT_HAVE_INTERESTING_CONTENT
-                    and path_candidate + "/" not in Config.FOLDERS_THAT_DONT_HAVE_INTERESTING_CONTENT
+                    path_candidate not in Config.NOT_INTERESTING_PATHS
+                    and path_candidate + "/" not in Config.NOT_INTERESTING_PATHS
                 ):
                     results.append(path_candidate)
         return sorted(results)

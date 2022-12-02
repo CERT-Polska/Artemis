@@ -115,7 +115,7 @@ services:
         FTP_USER_NAME: admin
         FTP_USER_PASS: 12345
         FTP_USER_HOME: /dev/shm
-        ADDED_FLAGS: "--bind 22"
+        ADDED_FLAGS: "--bind 23"
     networks:
       network:
         ipv4_address: 192.168.3.14

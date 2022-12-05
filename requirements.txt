@@ -8,7 +8,7 @@ click==8.1.3
 dnspython==2.2.1
 fastapi==0.88.0
 h11==0.14.0
-idna==3.2
+idna==3.4
 Jinja2==3.1.2
 karton-core==4.2.0
 liccheck==0.7.3

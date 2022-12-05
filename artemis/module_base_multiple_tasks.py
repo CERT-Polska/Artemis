@@ -4,8 +4,9 @@ import time
 import traceback
 from typing import Any, List, cast
 
-from karton.backend import KartonMetrics
-from karton.task import Task, TaskState
+from karton.core import Task
+from karton.core.backend import KartonMetrics
+from karton.core.task import TaskState
 
 from artemis.binds import TaskStatus
 from artemis.module_base import ArtemisBase

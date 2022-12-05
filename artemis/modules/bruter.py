@@ -11,8 +11,8 @@ from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.http import download_urls
-from artemis.module_base import ArtemisHTTPMixin
 from artemis.module_base_multiple_tasks import ArtemisMultipleTasksBase
+from artemis.task_utils import get_target_url
 
 FILENAMES_WITHOUT_EXTENSIONS = [
     "admin_backup",
@@ -45,7 +45,7 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
         )
 
 
-class Bruter(ArtemisMultipleTasksBase, ArtemisHTTPMixin):
+class Bruter(ArtemisMultipleTasksBase):
     """
     Tries to find common files
     """
@@ -59,7 +59,7 @@ class Bruter(ArtemisMultipleTasksBase, ArtemisHTTPMixin):
         """
         Brute-forces URLs. Returns a dict: task uid -> list of found URLs.
         """
-        base_urls = {task.uid: self.get_target_url(task) for task in tasks}
+        base_urls = {task.uid: get_target_url(task) for task in tasks}
 
         self.log.info(f"bruter scanning {', '.join(base_urls.values())}")
 

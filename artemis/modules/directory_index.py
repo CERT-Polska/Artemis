@@ -10,7 +10,8 @@ from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisHTTPBase
+from artemis.module_base import ArtemisSingleTaskBase
+from artemis.task_utils import get_target_url
 
 PATHS: List[str] = ["backup/", "backups/"]
 MAX_DIRS_PER_PATH = 4
@@ -18,7 +19,7 @@ MAX_TESTS_PER_URL = 20
 S3_BASE_DOMAIN = "s3.amazonaws.com"
 
 
-class DirectoryIndex(ArtemisHTTPBase):
+class DirectoryIndex(ArtemisSingleTaskBase):
     """
     Detects directory index enabled on the server
     """
@@ -78,7 +79,7 @@ class DirectoryIndex(ArtemisHTTPBase):
         return sorted(results)
 
     def run(self, current_task: Task) -> None:
-        url = self.get_target_url(current_task)
+        url = get_target_url(current_task)
         self.log.info(f"directory index scanning {url}")
         found_dirs_with_index = self.scan(url)
 

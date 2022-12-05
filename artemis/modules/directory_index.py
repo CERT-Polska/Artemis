@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisHTTPBase
 
 PATHS: List[str] = ["backup/", "backups/"]
@@ -69,7 +70,11 @@ class DirectoryIndex(ArtemisHTTPBase):
             response = requests.get(urllib.parse.urljoin(url, path_candidate), verify=False, timeout=5)
             content = response.content.decode("utf-8", errors="ignore")
             if "Index of /" in content or "ListBucketResult" in content:
-                results.append(path_candidate)
+                if (
+                    path_candidate not in Config.NOT_INTERESTING_PATHS
+                    and path_candidate + "/" not in Config.NOT_INTERESTING_PATHS
+                ):
+                    results.append(path_candidate)
         return sorted(results)
 
     def run(self, current_task: Task) -> None:

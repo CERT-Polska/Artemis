@@ -12,13 +12,15 @@ from artemis.config import Config
 
 
 class TaskFilter(str, Enum):
-    INTERESTING_UNDECIDED = "INTERESTING_UNDECIDED"
-    INTERESTING = "INTERESTING"
+    INTERESTING_UNDECIDED = "interesting_undecided"
+    INTERESTING = "interesting"
+    TRUE_POSITIVES = "true_positives"
+    FALSE_POSITIVES = "false_positives"
 
 
 class ManualDecisionType(str, Enum):
     TRUE_POSITIVE = "true_positive"
-    FALSE_POSTIVE = "false_positive"
+    FALSE_POSITIVE = "false_positive"
 
 
 @dataclasses.dataclass
@@ -107,8 +109,6 @@ class DB:
                 list(self.task_results.find({"root_uid": analysis_id, "status": TaskStatus.INTERESTING})),
             )
         else:
-            assert task_filter is None
-
             task_results = cast(List[Dict[str, Any]], list(self.task_results.find({"root_uid": analysis_id})))
 
         decisions = self._get_decisions_for_task_results(task_results)
@@ -118,9 +118,24 @@ class DB:
             decision = decisions.get(task_result["uid"], None)
             task_result["decision"] = decision
 
-            if (task_filter == TaskFilter.INTERESTING_UNDECIDED and not decision) or (
-                task_filter != TaskFilter.INTERESTING_UNDECIDED
-            ):
+            should_add = False
+
+            if task_filter == TaskFilter.INTERESTING_UNDECIDED:
+                if not decision:
+                    should_add = True
+            elif task_filter == TaskFilter.INTERESTING:
+                should_add = True
+            elif task_filter == TaskFilter.TRUE_POSITIVES:
+                if decision:
+                    should_add = decision.decision_type == ManualDecisionType.TRUE_POSITIVE
+            elif task_filter == TaskFilter.FALSE_POSITIVES:
+                if decision:
+                    should_add = decision.decision_type == ManualDecisionType.FALSE_POSITIVE
+            else:
+                assert task_filter is None
+                should_add = True
+
+            if should_add:
                 task_results_filtered.append(task_result)
         return task_results_filtered
 

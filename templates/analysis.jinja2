@@ -7,26 +7,33 @@
     <p>
     <p>
         <a
-            href="?task_filter=INTERESTING_UNDECIDED"
-            class="btn {% if task_filter == "INTERESTING_UNDECIDED" %}btn-primary{% else %}btn-default{% endif %}
+            href="?task_filter=true_positives"
+            class="btn {% if task_filter == "true_positives" %}btn-primary{% else %}btn-default{% endif %}
             id="show-interesting">
-                Show interesting findings without manual user decision
+                True positives
         </a>
         <a
-            href="?task_filter=INTERESTING"
-            class="btn {% if task_filter == "INTERESTING" %}btn-primary{% else %}btn-default{% endif %}
+            href="?task_filter=false_positives"
+            class="btn {% if task_filter == "false_positives" %}btn-primary{% else %}btn-default{% endif %}
             id="show-interesting">
-                Show all interesting findings
+                False positives
         </a>
         <a
-            href="?"
-            class="btn {% if task_filter != "INTERESTING_UNDECIDED" and task_filter != "INTERESTING" %}
-                            btn-primary
-                       {% else %}
-                            btn-default
-                       {% endif %}
+            href="?task_filter=interesting_undecided"
+            class="btn {% if task_filter == "interesting_undecided" %}btn-primary{% else %}btn-default{% endif %}
+            id="show-interesting">
+                Interesting findings without manual decision
+        </a>
+        <a
+            href="?task_filter=interesting"
+            class="btn {% if task_filter == "interesting" %}btn-primary{% else %}btn-default{% endif %}
+            id="show-interesting">
+                All interesting findings
+        </a>
+        <a
+            href="?" class="btn {% if not task_filter %}btn-primary{% else %}btn-default{% endif %}
             id="show-all">
-                Show all tasks
+                All tasks
         </a>
     </p>
     <table id="analysis" class="table table-hover">
@@ -104,7 +111,7 @@
           "data": null,
           "render": function(task) {
             if (task.decision) {
-                if (task.decision.decision_type == 'interesting') {
+                if (task.decision.decision_type == 'true_positive') {
                     badge = `<span class="badge bg-primary">true positive</span>`;
                 } else {
                     badge = `<span class="badge bg-secondary">false positive</span>`;

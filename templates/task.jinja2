@@ -11,10 +11,10 @@
 
   {% if task.decision %}
       <h4>Decision</h4>
-      {% if task.decision.decision_type == 'interesting' %}
-        <span class="badge bg-primary">interesting</span>
+      {% if task.decision.decision_type == 'true_positive' %}
+        <span class="badge bg-primary">true positive</span>
       {% else %}
-        <span class="badge bg-secondary">not interesting</span>
+        <span class="badge bg-secondary">false positive</span>
       {% endif %}
 
       (comment={{ task.decision.operator_comment }})
@@ -24,8 +24,8 @@
           <div class="form-group">
               <label class="form-text">Decision</label>
               <select class="form-select" name="decision_type">
-                  <option value="interesting">Interesting</option>
-                  <option value="not_interesting">Not interesting</option>
+                  <option value="true_positive">True positive</option>
+                  <option value="false_positive">False positive</option>
               </select>
           </div>
           <div class="form-group">

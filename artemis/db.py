@@ -11,9 +11,14 @@ from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 
 
+class TaskFilter(str, Enum):
+    INTERESTING_UNDECIDED = "INTERESTING_UNDECIDED"
+    INTERESTING = "INTERESTING"
+
+
 class ManualDecisionType(str, Enum):
-    INTERESTING = "interesting"
-    NOT_INTERESTING = "not_interesting"
+    TRUE_POSITIVE = "true_positive"
+    FALSE_POSTIVE = "false_positive"
 
 
 @dataclasses.dataclass
@@ -93,20 +98,31 @@ class DB:
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
         return cast(Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id}))
 
-    def get_task_results_by_analysis_id(self, analysis_id: str, status: Optional[str] = None) -> List[Dict[str, Any]]:
-        if status:
+    def get_task_results_by_analysis_id(
+        self, analysis_id: str, task_filter: Optional[TaskFilter] = None
+    ) -> List[Dict[str, Any]]:
+        if task_filter in [TaskFilter.INTERESTING, TaskFilter.INTERESTING_UNDECIDED]:
             task_results = cast(
                 List[Dict[str, Any]],
-                list(self.task_results.find({"root_uid": analysis_id, "status": TaskStatus(status)})),
+                list(self.task_results.find({"root_uid": analysis_id, "status": TaskStatus.INTERESTING})),
             )
         else:
+            assert task_filter is None
+
             task_results = cast(List[Dict[str, Any]], list(self.task_results.find({"root_uid": analysis_id})))
 
         decisions = self._get_decisions_for_task_results(task_results)
-        for task_result in task_results:
-            task_result["decision"] = decisions.get(task_result["uid"], None)
+        task_results_filtered = []
 
-        return task_results
+        for task_result in task_results:
+            decision = decisions.get(task_result["uid"], None)
+            task_result["decision"] = decision
+
+            if (task_filter == TaskFilter.INTERESTING_UNDECIDED and not decision) or (
+                task_filter != TaskFilter.INTERESTING_UNDECIDED
+            ):
+                task_results_filtered.append(task_result)
+        return task_results_filtered
 
     def get_undecided_task_results_by_analysis_id(self, analysis_id: str) -> List[Dict[str, Any]]:
         task_results = list(self.task_result_manual_decisions.find())
@@ -209,9 +225,6 @@ class DB:
 
         decisions = {}
         for task_result in task_results:
-            if task_result["status"] != TaskStatus.INTERESTING:
-                continue
-
             found_decision: Optional[TaskResultManualDecision] = None
 
             if task_result["status_reason"] in decisions_for_message:

@@ -9,7 +9,7 @@ from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
-from artemis.db import DB, ManualDecisionType, TaskResultManualDecision
+from artemis.db import DB, ManualDecisionType, TaskFilter, TaskResultManualDecision
 from artemis.json import JSONEncoderWithDataclasses
 from artemis.producer import create_tasks
 
@@ -94,7 +94,7 @@ def get_queue(request: Request) -> Response:
 
 
 @router.get("/analysis/{root_id}", include_in_schema=False)
-def get_analysis(request: Request, root_id: str, status: Optional[str] = None) -> Response:
+def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilter] = None) -> Response:
     analysis = db.get_analysis_by_id(root_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -103,7 +103,7 @@ def get_analysis(request: Request, root_id: str, status: Optional[str] = None) -
         "analysis.jinja2",
         {
             "request": request,
-            "status": status,
+            "task_filter": task_filter,
             "analysis": analysis,
             "pretty_printed": json.dumps(analysis, indent=4, cls=JSONEncoderWithDataclasses),
         },

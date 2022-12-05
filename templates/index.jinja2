@@ -17,7 +17,7 @@
                             <tr>
                                 <td>{{ entry.payload.data }}</td>
                                 <td>
-                                    <a href="/analysis/{{ entry.id }}?status=INTERESTING">{{ entry.id }}</a>
+                                    <a href="/analysis/{{ entry.id }}?task_filter=INTERESTING_UNDECIDED">{{ entry.id }}</a>
                                 </td>
                                 <td>
                                     {% if entry.num_active_tasks > 0 %}

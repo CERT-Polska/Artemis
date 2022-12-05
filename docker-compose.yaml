@@ -10,6 +10,8 @@ services:
 
   redis:
     image: redis
+    volumes:
+      - data-redis:/data
 
   db:
     image: mongo
@@ -17,7 +19,7 @@ services:
      - MONGO_INITDB_ROOT_USERNAME=root
      - MONGO_INITDB_ROOT_PASSWORD=root
     volumes:
-     - ./data/mongodb/:/data/db
+     - data-mongodb:/data/db
     ports: [27017:27017]
 
   karton-system:
@@ -243,3 +245,7 @@ services:
      - DB_CONN_STR=mongodb://root:root@db
      - SHODAN_API_KEY=
     command: "python3 -m artemis.modules.shodan_vulns"
+
+volumes:
+  data-mongodb:
+  data-redis:

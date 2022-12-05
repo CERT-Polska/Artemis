@@ -5,15 +5,26 @@
 
     <h4>Tasks</h4>
     <p>
+    <p>
         <a
-            href="?status=INTERESTING"
-            class="btn {% if status == "INTERESTING" %}btn-primary{% else %}btn-default {% endif %}
+            href="?task_filter=INTERESTING_UNDECIDED"
+            class="btn {% if task_filter == "INTERESTING_UNDECIDED" %}btn-primary{% else %}btn-default{% endif %}
             id="show-interesting">
-                Show only interesting findings
+                Show interesting findings without manual user decision
+        </a>
+        <a
+            href="?task_filter=INTERESTING"
+            class="btn {% if task_filter == "INTERESTING" %}btn-primary{% else %}btn-default{% endif %}
+            id="show-interesting">
+                Show all interesting findings
         </a>
         <a
             href="?"
-            class="btn {% if status != "INTERESTING" %}btn-primary{% else %}btn-default{% endif %}
+            class="btn {% if task_filter != "INTERESTING_UNDECIDED" and task_filter != "INTERESTING" %}
+                            btn-primary
+                       {% else %}
+                            btn-default
+                       {% endif %}
             id="show-all">
                 Show all tasks
         </a>
@@ -38,7 +49,7 @@
       "pageLength": 50,
       "search": "interesting",
       "ajax": {
-          "url": "/api/analysis/{{ analysis.root_uid }}/children{% if status %}?status={{ status }}{% endif %}",
+          "url": "/api/analysis/{{ analysis.root_uid }}/children{% if task_filter %}?task_filter={{ task_filter.value }}{% endif %}",
           "dataSrc": ""
       },
       "columns": [
@@ -94,11 +105,11 @@
           "render": function(task) {
             if (task.decision) {
                 if (task.decision.decision_type == 'interesting') {
-                    badge = `<span class="badge bg-primary">interesting</span>`;
+                    badge = `<span class="badge bg-primary">true positive</span>`;
                 } else {
-                    badge = `<span class="badge bg-secondary">not interesting</span>`;
+                    badge = `<span class="badge bg-secondary">false positive</span>`;
                 }
-                return badge + `(comment=${task.decision.operator_comment})`;
+                return badge + ` (comment=${task.decision.operator_comment})`;
             } else {
                 return `<a href="/task/${task.uid}">Decide</a>`;
             }

@@ -139,16 +139,6 @@ class DB:
                 task_results_filtered.append(task_result)
         return task_results_filtered
 
-    def get_undecided_task_results_by_analysis_id(self, analysis_id: str) -> List[Dict[str, Any]]:
-        task_results = list(self.task_result_manual_decisions.find())
-        decisions_for_task_results = self._get_decisions_for_task_results(task_results)
-
-        task_results_filtered = []
-        for task_result in task_results:
-            if task_result["uid"] not in decisions_for_task_results:
-                task_results_filtered.append(task_result)
-        return task_results_filtered
-
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
         task_result = cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
         if task_result:

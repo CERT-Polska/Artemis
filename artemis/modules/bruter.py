@@ -79,6 +79,8 @@ class Bruter(ArtemisMultipleTasksBase):
             for url_for_task in urls_for_task:
                 urls_to_task_uid_mapping[url_for_task] = task_uid
 
+        random.shuffle(urls)
+
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.

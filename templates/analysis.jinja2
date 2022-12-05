@@ -8,31 +8,26 @@
     <p>
         <a
             href="?task_filter=true_positives"
-            class="btn {% if task_filter == "true_positives" %}btn-primary{% else %}btn-default{% endif %}
-            id="show-interesting">
+            class="btn {% if task_filter == "true_positives" %}btn-primary{% else %}btn-default{% endif %}">
                 True positives
         </a>
         <a
             href="?task_filter=false_positives"
-            class="btn {% if task_filter == "false_positives" %}btn-primary{% else %}btn-default{% endif %}
-            id="show-interesting">
+            class="btn {% if task_filter == "false_positives" %}btn-primary{% else %}btn-default{% endif %}">
                 False positives
         </a>
         <a
             href="?task_filter=interesting_undecided"
-            class="btn {% if task_filter == "interesting_undecided" %}btn-primary{% else %}btn-default{% endif %}
-            id="show-interesting">
+            class="btn {% if task_filter == "interesting_undecided" %}btn-primary{% else %}btn-default{% endif %}">
                 Interesting findings without manual decision
         </a>
         <a
             href="?task_filter=interesting"
-            class="btn {% if task_filter == "interesting" %}btn-primary{% else %}btn-default{% endif %}
-            id="show-interesting">
+            class="btn {% if task_filter == "interesting" %}btn-primary{% else %}btn-default{% endif %}">
                 All interesting findings
         </a>
         <a
-            href="?" class="btn {% if not task_filter %}btn-primary{% else %}btn-default{% endif %}
-            id="show-all">
+            href="?" class="btn {% if not task_filter %}btn-primary{% else %}btn-default{% endif %}">
                 All tasks
         </a>
     </p>

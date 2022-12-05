@@ -68,7 +68,7 @@ class Bruter(ArtemisMultipleTasksBase):
             # random endpoint to filter out custom 404 pages
             dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
             dummy_url = base_url + "/" + dummy_random_token
-            dummy_contents[task_uid] = requests.get(dummy_url, verify=False, timeout=5).content
+            dummy_contents[task_uid] = requests.get(dummy_url, verify=False, timeout=5).content.decode("utf-8")
 
         urls: List[str] = []
         urls_to_task_uid_mapping = {}
@@ -112,7 +112,7 @@ class Bruter(ArtemisMultipleTasksBase):
         found_files_per_task_uid = self.scan(tasks)
 
         for task in tasks:
-            found_files = found_files_per_task_uid[task.uid]
+            found_files = found_files_per_task_uid.get(task.uid, [])
 
             if len(found_files) > 0:
                 status = TaskStatus.INTERESTING

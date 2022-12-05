@@ -19,7 +19,7 @@ pydantic==1.10.2
 pymongo==4.3.3
 python-multipart==0.0.5
 redis==3.5.3
-requests==2.26.0
+requests==2.28.1
 requests-mock==1.10.0
 shodan==1.25.0
 six==1.16.0

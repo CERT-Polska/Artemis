@@ -6,7 +6,7 @@ from karton.core import Task
 from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 
 BRUTE_CREDENTIALS = [
     ("anonymous", ""),
@@ -26,7 +26,7 @@ class FTPBruterResult(BaseModel):
     files: List[str] = []
 
 
-class FTPBruter(ArtemisBase):
+class FTPBruter(ArtemisSingleTaskBase):
     """
     Performs a brute force attack on FTP servers to guess login and password
     """

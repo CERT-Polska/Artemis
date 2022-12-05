@@ -8,7 +8,7 @@ from typing import Any, Dict
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 from artemis.resolvers import ip_lookup
 
 NOT_INTERESTING_PORTS = [
@@ -23,7 +23,7 @@ NOT_INTERESTING_PORTS = [
 ]
 
 
-class PortScanner(ArtemisBase):
+class PortScanner(ArtemisSingleTaskBase):
     """
     Consumes `type: IP`, scans them with naabu and fingerprintx and produces
     tasks separated into services (eg. `type: http`)

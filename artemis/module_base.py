@@ -52,6 +52,8 @@ class ArtemisBase(Karton):
         if self.db.save_scheduled_task(new_task):
             self.send_task(new_task)
 
+
+class ArtemisSingleTaskBase(ArtemisBase):
     @abstractmethod
     def run(self, current_task: Task) -> None:
         raise NotImplementedError()
@@ -65,7 +67,7 @@ class ArtemisBase(Karton):
             raise
 
 
-class ArtemisHTTPBase(ArtemisBase):
+class ArtemisHTTPMixin:
     def get_target_url(self, current_task: Task) -> str:
         assert current_task.headers["service"] == Service.HTTP
 

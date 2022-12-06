@@ -24,7 +24,7 @@ class ManualDecisionType(str, Enum):
 
 
 @dataclasses.dataclass
-class TaskResultManualDecision:
+class ManualDecision:
     target_string: Optional[str]
     message: str
     decision_type: ManualDecisionType

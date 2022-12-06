@@ -14,7 +14,7 @@ from artemis.module_base import ArtemisBase
 
 class ArtemisMultipleTasksBase(ArtemisBase):
     seconds_between_polling = 10
-    batch_size = 50
+    batch_size = 100
 
     @abc.abstractmethod
     def run_multiple(self, tasks: List[Task]) -> None:

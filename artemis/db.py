@@ -63,8 +63,8 @@ class DB:
     def list_analysis(self) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], list(self.analysis.find()))
 
-    def add_task_result_manual_decision(self, decision: TaskResultManualDecision) -> None:
-        self.task_result_manual_decisions.insert_one(dataclasses.asdict(decision))
+    def add_manual_decision(self, decision: ManualDecision) -> None:
+        self.manual_decisions.insert_one(dataclasses.asdict(decision))
 
     def create_analysis(self, analysis: Task) -> None:
         created_analysis = self.task_to_dict(analysis)

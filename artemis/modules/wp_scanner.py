@@ -28,7 +28,7 @@ class WordPressScanner(ArtemisBase):
         else:
             cache_result = self.cache.get(cache_key)
             assert cache_result
-            data = json.loads(cache_result.decode("utf-8"))
+            data = json.loads(cache_result)
 
         if version not in data:
             raise Exception(f"Cannot check version stability: {version}")

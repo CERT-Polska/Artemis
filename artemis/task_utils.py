@@ -25,6 +25,8 @@ def get_target(task: Task) -> str:
 
 
 def get_target_url(task: Task) -> str:
+    # HTTP covers both HTTP and HTTPS, as SSL is a separate payload
+    # parameter.
     assert task.headers["service"] == Service.HTTP
 
     target = get_target(task)

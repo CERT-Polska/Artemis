@@ -9,7 +9,7 @@ from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
-from artemis.db import DB, ManualDecisionType, TaskFilter, TaskResultManualDecision
+from artemis.db import DB, ManualDecisionType, TaskFilter, ManualDecision
 from artemis.json import JSONEncoderWithDataclasses
 from artemis.producer import create_tasks
 

@@ -22,6 +22,7 @@ NOT_INTERESTING_PORTS = [
     (143, "imap"),
     (443, "http"),
     (993, "imap"),
+    (995, "pop3"),
 ]
 
 

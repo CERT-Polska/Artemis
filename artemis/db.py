@@ -14,13 +14,13 @@ from artemis.config import Config
 class TaskFilter(str, Enum):
     INTERESTING_UNDECIDED = "interesting_undecided"
     INTERESTING = "interesting"
-    TRUE_POSITIVES = "true_positives"
-    FALSE_POSITIVES = "false_positives"
+    APPROVED = "approved"
+    DISMISSED = "dismissed"
 
 
 class ManualDecisionType(str, Enum):
-    TRUE_POSITIVE = "true_positive"
-    FALSE_POSITIVE = "false_positive"
+    APPROVED = "approved"
+    DISMISSED = "dismissed"
 
 
 @dataclasses.dataclass
@@ -125,12 +125,12 @@ class DB:
                     should_add = True
             elif task_filter == TaskFilter.INTERESTING:
                 should_add = True
-            elif task_filter == TaskFilter.TRUE_POSITIVES:
+            elif task_filter == TaskFilter.APPROVED:
                 if decision:
-                    should_add = decision.decision_type == ManualDecisionType.TRUE_POSITIVE
-            elif task_filter == TaskFilter.FALSE_POSITIVES:
+                    should_add = decision.decision_type == ManualDecisionType.APPROVED
+            elif task_filter == TaskFilter.DISMISSED:
                 if decision:
-                    should_add = decision.decision_type == ManualDecisionType.FALSE_POSITIVE
+                    should_add = decision.decision_type == ManualDecisionType.DISMISSED
             else:
                 assert task_filter is None
                 should_add = True

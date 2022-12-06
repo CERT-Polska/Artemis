@@ -31,7 +31,7 @@ class ManualDecision:
     operator_comment: str
 
 
-def get_task_target_as_string(task: Task) -> str:
+def get_task_target(task: Task) -> str:
     result = None
     if task.headers["type"] == TaskType.NEW:
         result = task.payload.get("data", None)

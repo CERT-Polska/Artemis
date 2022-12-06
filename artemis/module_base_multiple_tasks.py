@@ -13,7 +13,7 @@ from artemis.module_base import ArtemisBase
 
 
 class ArtemisMultipleTasksBase(ArtemisBase):
-    seconds_between_task_list_polling = 10
+    seconds_between_polling = 10
     batch_size = 50
 
     @abc.abstractmethod
@@ -45,7 +45,7 @@ class ArtemisMultipleTasksBase(ArtemisBase):
                 if tasks:
                     self.internal_process_multiple(tasks)
                 else:
-                    time.sleep(self.seconds_between_task_list_polling)
+                    time.sleep(self.seconds_between_polling)
         except KeyboardInterrupt as e:
             self.log.info("Hard shutting down!")
             raise e

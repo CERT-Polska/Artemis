@@ -71,8 +71,8 @@ def post_add_decision(
     operator_comment: str = Form(None),
     redirect_to: str = Form(None),
 ) -> Response:
-    db.add_task_result_manual_decision(
-        TaskResultManualDecision(
+    db.add_manual_decision(
+        ManualDecision(
             target_string=target_string,
             message=message,
             decision_type=decision_type,

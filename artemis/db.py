@@ -111,7 +111,7 @@ class DB:
         else:
             task_results = cast(List[Dict[str, Any]], list(self.task_results.find({"root_uid": analysis_id})))
 
-        decisions = self._get_decisions_for_task_results(task_results)
+        decisions = self._get_decisions(task_results)
         task_results_filtered = []
 
         for task_result in task_results:
@@ -142,7 +142,7 @@ class DB:
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
         task_result = cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
         if task_result:
-            task_result["decision"] = self._get_decision_for_task_result(task_result)
+            task_result["decision"] = self._get_decision(task_result)
         return task_result
 
     def save_scheduled_task(self, task: Task) -> bool:
@@ -200,28 +200,26 @@ class DB:
         # TODO make this less ugly
         return json.loads(task.serialize())  # type: ignore
 
-    def _get_decision_for_task_result(self, task_result: Dict[str, Any]) -> Optional[TaskResultManualDecision]:
-        decision_dict = self.task_result_manual_decisions.find_one(
+    def _get_decision(self, task_result: Dict[str, Any]) -> Optional[ManualDecision]:
+        decision_dict = self.manual_decisions.find_one(
             {"message": task_result["status_reason"], "target_string": None}
-        ) or self.task_result_manual_decisions.find_one(
+        ) or self.manual_decisions.find_one(
             {"message": task_result["status_reason"], "target_string": task_result["target_string"]}
         )
 
         if decision_dict:
             del decision_dict["_id"]
-            return TaskResultManualDecision(**decision_dict)
+            return ManualDecision(**decision_dict)
         else:
             return None
 
-    def _get_decisions_for_task_results(
-        self, task_results: List[Dict[str, Any]]
-    ) -> Dict[str, TaskResultManualDecision]:
+    def _get_decisions(self, task_results: List[Dict[str, Any]]) -> Dict[str, ManualDecision]:
         decisions_for_message = {}
         decisions_for_message_and_target = {}
 
-        for obj in self.task_result_manual_decisions.find():
+        for obj in self.manual_decisions.find():
             del obj["_id"]
-            decision = TaskResultManualDecision(**obj)
+            decision = ManualDecision(**obj)
 
             if decision.target_string:
                 decisions_for_message_and_target[(decision.message, decision.target_string)] = decision
@@ -230,7 +228,7 @@ class DB:
 
         decisions = {}
         for task_result in task_results:
-            found_decision: Optional[TaskResultManualDecision] = None
+            found_decision: Optional[ManualDecision] = None
 
             if task_result["status_reason"] in decisions_for_message:
                 found_decision = decisions_for_message[task_result["status_reason"]]

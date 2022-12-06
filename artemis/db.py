@@ -56,7 +56,7 @@ class DB:
     def __init__(self) -> None:
         self.client = MongoClient(Config.DB_CONN_STR)
         self.analysis = self.client.artemis.analysis
-        self.task_result_manual_decisions = self.client.artemis.task_result_manual_decisions
+        self.manual_decisions = self.client.artemis.manual_decisions
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
         self.task_results = self.client.artemis.task_results
 

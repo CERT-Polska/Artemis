@@ -73,13 +73,11 @@ class Bruter(ArtemisMultipleTasksBase):
         urls: List[str] = []
         urls_to_task_uid_mapping = {}
 
-        for task_uid, base_url in base_urls.items():
-            urls_for_task = [f"{base_url}/{file}" for file in set(FILENAMES_TO_SCAN)]
-            urls.extend(urls_for_task)
-            for url_for_task in urls_for_task:
-                urls_to_task_uid_mapping[url_for_task] = task_uid
-
-        random.shuffle(urls)
+        for file in set(FILENAMES_TO_SCAN):
+            for task_uid, base_url in base_urls.items():
+                url = f"{base_url}/{file}"
+                urls.append(url)
+                urls_to_task_uid_mapping[url] = task_uid
 
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would

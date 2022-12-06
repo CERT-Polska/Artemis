@@ -1,14 +1,26 @@
 import asyncio
 import dataclasses
 from typing import Dict, List, Union
+from urllib.parse import urlparse
 
 import aiohttp
+
+from artemis.config import Config
+from artemis.resolvers import ip_lookup
 
 
 @dataclasses.dataclass
 class HTTPResponse:
     status_code: int
     content: str
+
+
+def get_num_ips(urls: List[str]) -> int:
+    hosts = {urlparse(url).netloc for url in urls}
+    ips = set()
+    for host in hosts:
+        ips |= ip_lookup(host)
+    return len(ips)
 
 
 async def _download(url: str, task_limitter: asyncio.BoundedSemaphore) -> Union[HTTPResponse, Exception]:
@@ -35,10 +47,15 @@ async def _download_urls_async(urls: List[str], max_parallel_tasks: int) -> Dict
     return result
 
 
-def download_urls(urls: List[str], max_parallel_tasks: int = 5) -> Dict[str, HTTPResponse]:
+def download_urls(urls: List[str]) -> Dict[str, HTTPResponse]:
     """
     Downloads URLs from the list and returns a dict: url -> response. If a download resulted in an
     exception, no entry will be provided.
     """
+
+    max_parallel_tasks = min(
+        Config.MAX_HTTP_REQUEST_TASKS_TOTAL, Config.MAX_HTTP_REQUEST_TASKS_PER_IP * get_num_ips(urls)
+    )
+
     loop = asyncio.get_event_loop()
     return loop.run_until_complete(_download_urls_async(urls, max_parallel_tasks))

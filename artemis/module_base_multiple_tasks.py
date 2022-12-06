@@ -2,7 +2,7 @@ import abc
 import sys
 import time
 import traceback
-from typing import Any, List, cast
+from typing import Any, List
 
 from karton.core import Task
 from karton.core.backend import KartonMetrics
@@ -43,14 +43,14 @@ class ArtemisMultipleTasksBase(ArtemisBase):
                     break
                 tasks = self._consume_routed_tasks(self.identity, self.batch_size)
                 if tasks:
-                    self._handle_multiple(tasks)
+                    self._process_tasks(tasks)
                 else:
                     time.sleep(self.seconds_between_polling)
         except KeyboardInterrupt as e:
             self.log.info("Hard shutting down!")
             raise e
 
-    def _handle_multiple(self, tasks: List[Task]) -> None:
+    def _process_tasks(self, tasks: List[Task]) -> None:
         tasks_filtered = []
         for task in tasks:
             if not task.matches_filters(self.filters):
@@ -74,8 +74,10 @@ class ArtemisMultipleTasksBase(ArtemisBase):
 
             saved_exception = None
             try:
-                self._convert_and_run_multiple(tasks)
+                self.run_multiple(tasks)
             except Exception as exc:
+                for task in tasks:
+                    self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
                 saved_exception = exc
                 raise
             finally:
@@ -101,15 +103,6 @@ class ArtemisMultipleTasksBase(ArtemisBase):
                     task.error = exception_str
 
                 self.backend.set_task_status(task, task_state)
-
-    def _convert_and_run_multiple(self, task_dicts: List[Any]) -> None:
-        tasks = [cast(Task, task_dict) for task_dict in task_dicts]
-        try:
-            self.run_multiple(tasks)
-        except Exception:
-            for task in tasks:
-                self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
-            raise
 
     def _consume_routed_tasks(self, identity: str, max_count: int) -> List[Task]:
         task_uids: List[str] = []

@@ -9,8 +9,8 @@ from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
-from artemis.db import DB, ManualDecisionType, TaskFilter, ManualDecision
-from artemis.json import JSONEncoderWithDataclasses
+from artemis.db import DB, ManualDecision, ManualDecisionType, TaskFilter
+from artemis.json_utils import JSONEncoderWithDataclasses
 from artemis.producer import create_tasks
 
 templates_dir = path.join(path.dirname(__file__), "..", "templates")

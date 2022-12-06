@@ -14,12 +14,14 @@ from artemis.resolvers import ip_lookup
 NOT_INTERESTING_PORTS = [
     # There are other kartons checking whether services on these ports are interesting
     (21, "ftp"),
-    (25, "smtp"),
-    (80, "http"),
-    (443, "http"),
-] + [
     (22, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    (25, "smtp"),
     (53, "dns"),  # Not worth reporting (DNS)
+    (80, "http"),
+    (110, "pop3"),
+    (143, "imap"),
+    (443, "http"),
+    (993, "imap"),
 ]
 
 

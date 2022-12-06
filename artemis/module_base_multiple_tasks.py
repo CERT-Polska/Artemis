@@ -43,14 +43,14 @@ class ArtemisMultipleTasksBase(ArtemisBase):
                     break
                 tasks = self._consume_routed_tasks(self.identity, self.batch_size)
                 if tasks:
-                    self.internal_process_multiple(tasks)
+                    self._handle_multiple(tasks)
                 else:
                     time.sleep(self.seconds_between_polling)
         except KeyboardInterrupt as e:
             self.log.info("Hard shutting down!")
             raise e
 
-    def internal_process_multiple(self, tasks: List[Task]) -> None:
+    def _handle_multiple(self, tasks: List[Task]) -> None:
         tasks_filtered = []
         for task in tasks:
             if not task.matches_filters(self.filters):
@@ -74,7 +74,7 @@ class ArtemisMultipleTasksBase(ArtemisBase):
 
             saved_exception = None
             try:
-                self.process_multiple(tasks)
+                self._convert_and_run_multiple(tasks)
             except Exception as exc:
                 saved_exception = exc
                 raise
@@ -102,7 +102,7 @@ class ArtemisMultipleTasksBase(ArtemisBase):
 
                 self.backend.set_task_status(task, task_state)
 
-    def process_multiple(self, task_dicts: List[Any]) -> None:
+    def _convert_and_run_multiple(self, task_dicts: List[Any]) -> None:
         tasks = [cast(Task, task_dict) for task_dict in task_dicts]
         try:
             self.run_multiple(tasks)
@@ -135,4 +135,4 @@ class ArtemisMultipleTasksBase(ArtemisBase):
         This method is defined by Karton, but, as this class runs its task in batches, is not needed.
         We implement it to suppress abstract class instantiation warnings.
         """
-        assert(False, "process called instead of process_multiple")
+        assert False, "process called instead of process_multiple"

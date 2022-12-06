@@ -135,4 +135,4 @@ class ArtemisMultipleTasksBase(ArtemisBase):
         This method is defined by Karton, but, as this class runs its task in batches, is not needed.
         We implement it to suppress abstract class instantiation warnings.
         """
-        assert False
+        assert(False, "process called instead of process_multiple")

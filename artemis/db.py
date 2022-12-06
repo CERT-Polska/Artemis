@@ -82,7 +82,7 @@ class DB:
 
         created_task_result["_id"] = created_task_result["uid"]
         created_task_result["status"] = status
-        created_task_result["target_string"] = get_task_target_as_string(task)
+        created_task_result["target_string"] = get_task_target(task)
         created_task_result["status_reason"] = status_reason
 
         if isinstance(data, BaseModel):

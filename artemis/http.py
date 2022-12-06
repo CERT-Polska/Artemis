@@ -53,10 +53,10 @@ def download_urls(urls: List[str]) -> Dict[str, HTTPResponse]:
     exception, no entry will be provided.
     """
 
-    max_parallel_tasks = Config.MAX_HTTP_REQUEST_TASKS_PER_IP * get_num_ips(urls)
-    if max_parallel_tasks <= Config.MAX_HTTP_REQUEST_TASKS_PER_IP:
-        max_parallel_tasks = Config.MAX_HTTP_REQUEST_TASKS_PER_IP
-    if max_parallel_tasks >= Config.MAX_HTTP_REQUEST_TASKS_TOTAL:
-        max_parallel_tasks = Config.MAX_HTTP_REQUEST_TASKS_TOTAL
+    max_parallel_tasks = Config.MAX_HTTP_REQUESTS_PER_IP * get_num_ips(urls)
+    if max_parallel_tasks <= Config.MAX_HTTP_REQUESTS_PER_IP:
+        max_parallel_tasks = Config.MAX_HTTP_REQUESTS_PER_IP
+    if max_parallel_tasks >= Config.MAX_HTTP_REQUESTS_TOTAL:
+        max_parallel_tasks = Config.MAX_HTTP_REQUESTS_TOTAL
     loop = asyncio.get_event_loop()
     return loop.run_until_complete(_download_urls_async(urls, max_parallel_tasks))

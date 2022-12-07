@@ -13,4 +13,4 @@ class Config:
 
     # This determines the http parallelism for asyncio parallel scanning. For each container that runs
     # the scanning, the number of parallel requests would be CONTAINER_MAX_PARALLEL_HTTP_REQUESTS
-    CONTAINER_MAX_PARALLEL_HTTP_REQUESTS = int(getenv("CONTAINER_MAX_PARALLEL_HTTP_REQUESTS", 100))
+    CONTAINER_MAX_PARALLEL_HTTP_REQUESTS = int(getenv("CONTAINER_MAX_PARALLEL_HTTP_REQUESTS", 10))

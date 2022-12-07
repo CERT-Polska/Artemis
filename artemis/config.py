@@ -5,7 +5,6 @@ class Config:
     NOT_INTERESTING_PATHS = decouple.config("NOT_INTERESTING_PATHS", default="/icon/,/icons/", cast=decouple.Csv(str))
     DB_CONN_STR = decouple.config("DB_CONN_STR", default="")
     BROKER = decouple.config("BROKER", default="")
-    NMAP_CACHE_DURATION = decouple.config("NMAP_CACHE_DURATION", default=3600, cast=int)
     SHODAN_API_KEY = decouple.config("SHODAN_API_KEY", default="")
 
     POSTMAN_MAIL_FROM = decouple.config("POSTMAN_MAIL_FROM", default="")

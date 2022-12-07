@@ -3,22 +3,23 @@ from typing import NamedTuple
 
 from karton.core import Task
 
-from artemis.binds import Application, Service, TaskType
+from artemis.binds import Service, TaskType, WebApplication
 from artemis.modules.webapp_identifier import WebappIdentifier
 
 
 class TestData(NamedTuple):
     domain: str
-    application: Application
+    application: WebApplication
 
 
 class WebappIdentifierTest(ArtemisModuleTestCase):
-    karton_class = WebappIdentifier
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = WebappIdentifier  # type: ignore
 
     def test_simple(self) -> None:
         data = [
-            TestData("test-old-joomla", Application.JOOMLA),
-            TestData("test-old-wordpress", Application.WORDPRESS),
+            TestData("test-old-joomla", WebApplication.JOOMLA),
+            TestData("test-old-wordpress", WebApplication.WORDPRESS),
         ]
 
         for entry in data:

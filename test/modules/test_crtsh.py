@@ -13,7 +13,8 @@ class TestData(NamedTuple):
 
 
 class CrtshScannerTest(ArtemisModuleTestCase):
-    karton_class = CrtshScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = CrtshScanner  # type: ignore
 
     def test_simple(self) -> None:
         data = [

@@ -2,16 +2,17 @@ from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus
+from artemis.binds import TaskStatus, WebApplication
 from artemis.modules.wordpress_bruter import WordPressBruter
 
 
 class WordPressBruterTest(ArtemisModuleTestCase):
-    karton_class = WordPressBruter
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = WordPressBruter  # type: ignore
 
     def test_simple(self) -> None:
         task = Task(
-            headers={"webapp": Application.WORDPRESS},
+            headers={"webapp": WebApplication.WORDPRESS},
             payload={"url": "http://test-wordpress-easy-password"},
         )
         self.run_task(task)

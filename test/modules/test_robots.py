@@ -4,7 +4,7 @@ from typing import NamedTuple
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.modules.robots import RobotsResult, RobotsScanner  # noqa: E402
+from artemis.modules.robots import RobotsScanner  # noqa: E402
 
 
 class TestData(NamedTuple):
@@ -12,16 +12,16 @@ class TestData(NamedTuple):
     port: int
     ssl: bool
     task_type: TaskType
-    result: RobotsResult
 
 
 class RobotsTest(ArtemisModuleTestCase):
-    karton_class = RobotsScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = RobotsScanner  # type: ignore
 
     def test_robots(self) -> None:
         data = [
-            TestData("test-robots-service", 80, False, TaskType.SERVICE, RobotsResult([], ["/secret-url/"])),
-            TestData("192.168.3.5", 80, False, TaskType.SERVICE, RobotsResult([], ["/secret-url/"])),
+            TestData("test-robots-service", 80, False, TaskType.SERVICE),
+            TestData("192.168.3.5", 80, False, TaskType.SERVICE),
         ]
 
         for entry in data:
@@ -44,6 +44,12 @@ class RobotsTest(ArtemisModuleTestCase):
                 call.kwargs["data"],
                 {
                     "status": 200,
-                    "groups": [{"user_agents": ["*"], "disallow": ["/secret-url/"], "allow": []}],
+                    "groups": [
+                        {
+                            "user_agents": ["*"],
+                            "disallow": ["/secret-url/", "/wp-includes/", "/icons/", "/"],
+                            "allow": [],
+                        }
+                    ],
                 },
             )

@@ -2,16 +2,17 @@ from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus
+from artemis.binds import TaskStatus, WebApplication
 from artemis.modules.joomla_scanner import JoomlaScanner
 
 
 class JoomlaScannerTest(ArtemisModuleTestCase):
-    karton_class = JoomlaScanner
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = JoomlaScanner  # type: ignore
 
     def test_simple(self) -> None:
         task = Task(
-            {"webapp": Application.JOOMLA},
+            {"webapp": WebApplication.JOOMLA},
             payload={"url": "http://test-old-joomla/"},
         )
         self.run_task(task)

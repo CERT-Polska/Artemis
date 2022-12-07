@@ -7,13 +7,17 @@ import requests
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisHTTPBase
 
 RE_USER_AGENT = re.compile(r"^\s*user-agent:\s*(.*)", re.I)
 RE_ALLOW = re.compile(r"^\s*allow:\s*(/.*)", re.I)
 RE_DISALLOW = re.compile(r"^\s*disallow:\s*(/.*)", re.I)
 
-NOT_INTERESTING_PATHS = [re.compile(p, re.I) for p in [r"/wp-admin/?.*"]]
+NOT_INTERESTING_PATHS = [
+    re.compile(p, re.I)
+    for p in [r"/wp-admin/?.*", r"/wp-includes/?.*", "^/$"] + [f"^{folder}" for folder in Config.NOT_INTERESTING_PATHS]
+]
 
 
 @dataclass
@@ -39,9 +43,9 @@ class RobotsScanner(ArtemisHTTPBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def _parse_rule(self, line: str, pattern: Pattern) -> Optional[str]:
+    def _parse_rule(self, line: str, pattern: Pattern[str]) -> Optional[str]:
         if match := re.match(pattern, line):
-            return match.group(1).strip()  # type: ignore
+            return match.group(1).strip()
         return None
 
     def _parse_robots(self, content: str) -> List[RobotsGroup]:
@@ -70,7 +74,7 @@ class RobotsScanner(ArtemisHTTPBase):
 
     def _get_interesting_paths(self, result: RobotsResult) -> List[str]:
         if len(result.groups) == 0:
-            return False
+            return []
 
         # Iterate over all paths from all groups
         interesting_paths = []
@@ -99,7 +103,7 @@ class RobotsScanner(ArtemisHTTPBase):
 
         if interesting_paths:
             status = TaskStatus.INTERESTING
-            status_reason = f"Found potentially interesting paths in robots.txt: {', '.join(interesting_paths)}"
+            status_reason = f"Found potentially interesting paths in robots.txt: {', '.join(sorted(interesting_paths))}"
         else:
             status = TaskStatus.OK
             status_reason = None

@@ -1,11 +1,11 @@
-from typing import Dict, Set
+from typing import Any, Dict, List, Set
 
 import requests
 
 DOH_SERVER = "https://cloudflare-dns.com/dns-query"
 
 
-def _ips_from_answer(domain: str, answer: Dict) -> Set[str]:
+def _ips_from_answer(domain: str, answer: List[Dict[str, Any]]) -> Set[str]:
     found_ips = set()
     for entry in answer:
         if entry["name"] != domain:
@@ -46,8 +46,11 @@ def ip_lookup(domain: str) -> Set[str]:
     result = response.json()
     dns_rc = result["Status"]  # https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-6
     if dns_rc == 0:
-        return _ips_from_answer(domain, result["Answer"])
+        if "Answer" in result:
+            return _ips_from_answer(domain, result["Answer"])
+        else:
+            return set()
     elif dns_rc == 3:  # NXDomain
-        return {}
+        return set()
     else:
         raise RuntimeError(f"Unexpected DNS status ({dns_rc})")

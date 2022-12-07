@@ -3,7 +3,7 @@ services:
   test:
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
     command: python -m unittest discover
     environment:
       TEST_REDIS_HOST: test-redis
@@ -14,6 +14,7 @@ services:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
       - ./test/:/opt/test/
+      - ./docker/karton.ini:/etc/karton/karton.ini
     networks:
       network:
         ipv4_address: 192.168.3.2
@@ -25,9 +26,9 @@ services:
         ipv4_address: 192.168.3.3
 
   test-service-with-bruteable-files:
-    image: nginx:latest
+    image: php:7.4-apache
     volumes:
-      - ./test/data/bruteable_files/:/usr/share/nginx/html/
+      - ./test/data/bruteable_files/:/var/www/html/
     networks:
       network:
         ipv4_address: 192.168.3.4
@@ -114,7 +115,7 @@ services:
         FTP_USER_NAME: admin
         FTP_USER_PASS: 12345
         FTP_USER_HOME: /dev/shm
-        ADDED_FLAGS: "--bind 22"
+        ADDED_FLAGS: "--bind 23"
     networks:
       network:
         ipv4_address: 192.168.3.14

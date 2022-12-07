@@ -44,7 +44,6 @@ CRITICAL_VULN_NAMES = {
     "CVE-2019-19781": "citrx_vpn_rce",
     "CVE-2020-0688": "exchange_rce",
     "CVE-2020-1938": "tomcat_ghostcat",
-    "CVE-2021-27065": "exchange_rce",
     "MS17-010": "eternal_blue",
 }
 
@@ -76,7 +75,7 @@ class ShodanVulns(ArtemisBase):
 
         if len(found_vuln_descriptions) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found vulnerabilities from Shodan API: " + ", ".join(found_vuln_descriptions)
+            status_reason = "Found vulnerabilities from Shodan API: " + ", ".join(sorted(found_vuln_descriptions))
         else:
             status = TaskStatus.OK
             status_reason = None

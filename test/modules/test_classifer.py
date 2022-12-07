@@ -14,7 +14,8 @@ class TestData(NamedTuple):
 
 
 class ClassifierTest(ArtemisModuleTestCase):
-    karton_class = Classifier
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = Classifier  # type: ignore
 
     def test_parsing(self) -> None:
         urls = [
@@ -38,7 +39,7 @@ class ClassifierTest(ArtemisModuleTestCase):
             results = self.run_task(task)
 
             expected_task = Task(
-                {"type": entry.type, "origin": self.karton_class.identity},
+                {"type": entry.type, "origin": Classifier.identity},
                 payload={entry.type: entry.expected},
                 payload_persistent={f"original_{entry.type}": entry.expected},
             )

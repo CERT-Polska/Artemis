@@ -6,12 +6,12 @@ from redis import StrictRedis
 
 
 class KartonBackendMockWithRedis(KartonBackendMock):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self) -> None:
+        super().__init__()
 
         self.redis = StrictRedis(
             host=os.environ["TEST_REDIS_HOST"],
-            port=os.environ["TEST_REDIS_PORT"],
+            port=int(os.environ["TEST_REDIS_PORT"]),
         )
         self.redis.flushall()
 

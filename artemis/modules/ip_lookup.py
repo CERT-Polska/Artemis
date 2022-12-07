@@ -22,7 +22,7 @@ class IPLookup(ArtemisBase):
             new_task = Task({"type": TaskType.NEW}, payload={"data": found_ip})
             self.add_task(current_task, new_task)
 
-    def run(self, current_task: Task) -> None:  # type: ignore
+    def run(self, current_task: Task) -> None:
         domain = current_task.get_payload(TaskType.DOMAIN)
         self._process(current_task, domain)
 

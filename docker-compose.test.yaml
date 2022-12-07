@@ -4,10 +4,12 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: python -m unittest discover
+    command: python -m unittest discover -f
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
+      REDIS_CONN_STR: redis://test-redis:6379/1
+      SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP: 0
       POSTMAN_MAIL_FROM: artemis@localhost.com
       POSTMAN_MAIL_TO: artemis@localhost.com
     volumes:

@@ -69,7 +69,7 @@ class PHPLFIScanner(ArtemisHTTPBase):
                         zfilter=B64_FILTER,
                         extension=extension,
                     )
-                    response = scanning_requests.get(lfi_test_url, allow_redirects=True)
+                    response = scanning_requests.get(lfi_test_url, allow_redirects=False)
                     if response.status_code == 200 and re.match(B64_COMMON_PHP, response.text.replace("\n", "")):
                         self.log.info("LFI is exploitable")
                         result[key] = "confirmed"

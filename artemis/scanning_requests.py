@@ -64,7 +64,9 @@ async def _download(url: str, task_limitter: asyncio.BoundedSemaphore) -> Union[
                 async with session.get(
                     url, allow_redirects=False, timeout=TIMEOUT_SECONDS, ssl=False, headers=HEADERS
                 ) as response:
-                    return HTTPResponse(status_code=response.status, content=await response.text())
+                    response_bytes = await response.read()
+                    response_str = response_bytes.decode(response.charset or "utf-8", errors="ignore")
+                    return HTTPResponse(status_code=response.status, content=response_str)
     except Exception as e:
         return e
 

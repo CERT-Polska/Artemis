@@ -4,7 +4,7 @@ from artemis.domains import is_subdomain
 
 
 class TestDomainUtils(unittest.TestCase):
-    def test_is_subdomain(self):
+    def test_is_subdomain(self) -> None:
         self.assertTrue(is_subdomain("www.google.com", "google.com"))
         self.assertTrue(is_subdomain("google.com", "google.com"))
         self.assertTrue(is_subdomain(".google.com.", "google.com"))

@@ -1,12 +1,14 @@
-from os import getenv
+import decouple
 
 
 class Config:
-    NOT_INTERESTING_PATHS = getenv("NOT_INTERESTING_PATHS", "/icon/,/icons/").split(",")
-    DB_CONN_STR = getenv("DB_CONN_STR", "")
-    BROKER = getenv("BROKER", "")
-    NMAP_CACHE_DURATION = int(getenv("NMAP_CACHE_DURATION", "3600"))
-    SHODAN_API_KEY = getenv("SHODAN_API_KEY", "")
+    NOT_INTERESTING_PATHS = decouple.config("NOT_INTERESTING_PATHS", default="/icon/,/icons/", cast=decouple.Csv(str))
+    DB_CONN_STR = decouple.config("DB_CONN_STR", default="")
+    BROKER = decouple.config("BROKER", default="")
+    NMAP_CACHE_DURATION = decouple.config("NMAP_CACHE_DURATION", default=3600, cast=int)
+    SHODAN_API_KEY = decouple.config("SHODAN_API_KEY", default="")
 
-    POSTMAN_MAIL_FROM = getenv("POSTMAN_MAIL_FROM", "")
-    POSTMAN_MAIL_TO = getenv("POSTMAN_MAIL_TO", "")
+    POSTMAN_MAIL_FROM = decouple.config("POSTMAN_MAIL_FROM", default="")
+    POSTMAN_MAIL_TO = decouple.config("POSTMAN_MAIL_TO", default="")
+
+    ALLOW_SCANNING_PUBLIC_SUFFIXES = decouple.config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)

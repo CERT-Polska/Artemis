@@ -1,26 +1,16 @@
 import asyncio
 import dataclasses
 from typing import Dict, List, Union
-from urllib.parse import urlparse
 
 import aiohttp
 
 from artemis.config import Config
-from artemis.resolvers import ip_lookup
 
 
 @dataclasses.dataclass
 class HTTPResponse:
     status_code: int
     content: str
-
-
-def get_num_ips(urls: List[str]) -> int:
-    hosts = {urlparse(url).netloc for url in urls}
-    ips = set()
-    for host in hosts:
-        ips |= ip_lookup(host)
-    return len(ips)
 
 
 async def _download(url: str, task_limitter: asyncio.BoundedSemaphore) -> Union[HTTPResponse, Exception]:

@@ -4,10 +4,10 @@ import random
 import urllib.parse
 from typing import List
 
-import requests
 from bs4 import BeautifulSoup
 from karton.core import Task
 
+from artemis import scanning_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisHTTPBase
@@ -29,7 +29,7 @@ class DirectoryIndex(ArtemisHTTPBase):
     ]
 
     def scan(self, url: str) -> List[str]:
-        response = requests.get(url, verify=False, timeout=5)
+        response = scanning_requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
         original_url_parsed = urllib.parse.urlparse(url)
 
@@ -67,7 +67,7 @@ class DirectoryIndex(ArtemisHTTPBase):
         path_candidates_list = path_candidates_list[:MAX_TESTS_PER_URL]
         results = []
         for path_candidate in path_candidates_list:
-            response = requests.get(urllib.parse.urljoin(url, path_candidate), verify=False, timeout=5)
+            response = scanning_requests.get(urllib.parse.urljoin(url, path_candidate))
             content = response.content.decode("utf-8", errors="ignore")
             if "Index of /" in content or "ListBucketResult" in content:
                 if (

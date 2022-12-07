@@ -3,9 +3,9 @@ import re
 from dataclasses import asdict, dataclass
 from typing import List, Optional, Pattern
 
-import requests
 from karton.core import Task
 
+from artemis import scanning_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisHTTPBase
@@ -86,7 +86,7 @@ class RobotsScanner(ArtemisHTTPBase):
 
     def scan(self, url: str) -> RobotsResult:
         # Invalid certificate is probably more interesting then a valid one
-        response = requests.get(f"{url}/robots.txt", verify=False, timeout=5, allow_redirects=False)
+        response = scanning_requests.get(f"{url}/robots.txt", allow_redirects=False)
 
         result = RobotsResult(response.status_code, [])
         if result.status == 200:

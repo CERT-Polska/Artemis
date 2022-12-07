@@ -33,9 +33,10 @@ vulnerability information from Shodan) are not available because the credentials
 
 To run simply:
 
- - clone the repo
- - run `docker compose up`
- - visit `localhost:5000`
+ - clone the repo,
+ - copy `env.example` to `.env` and configure it (e.g. by providing a User-Agent to override the default one),
+ - run `docker compose up`,
+ - browse to `localhost:5000`.
 
 URLs you provide don't have to follow any strict rules (e.g. `hxxp://127.0.0.1:1337/someurl` should work as well).
 

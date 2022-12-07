@@ -6,11 +6,10 @@ from difflib import SequenceMatcher
 from itertools import product
 from typing import List
 
-import requests
 from karton.core import Task
 
+from artemis import scanning_requests
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.http import download_urls
 from artemis.module_base import ArtemisHTTPBase
 
 FILENAMES_WITHOUT_EXTENSIONS = [
@@ -59,13 +58,13 @@ class Bruter(ArtemisHTTPBase):
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = url + "/" + dummy_random_token
-        dummy = requests.get(dummy_url, verify=False, timeout=5)
+        dummy = scanning_requests.get(dummy_url)
 
         urls = [f"{url}/{file}" for file in set(FILENAMES_TO_SCAN)]
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
-        results = download_urls(urls)
+        results = scanning_requests.download_urls(urls)
         for response_url, response in results.items():
             if (
                 response.status_code == 200

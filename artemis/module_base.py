@@ -2,15 +2,12 @@ import traceback
 from abc import abstractmethod
 from typing import Any, List, Optional, cast
 
-import requests
 from karton.core import Karton, Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.db import DB
 from artemis.redis_cache import RedisCache
 from artemis.resource_lock import ResourceLock
-
-requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
 
 class ArtemisBase(Karton):

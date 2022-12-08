@@ -10,6 +10,7 @@ from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
 from artemis.db import DB
+from artemis.karton_utils import restart_crashed_tasks
 from artemis.producer import create_tasks
 
 templates_dir = path.join(path.dirname(__file__), "..", "templates")
@@ -59,6 +60,22 @@ def post_add(
     if file:
         total_list += (x.strip() for x in file.decode().split())
     create_tasks(total_list)
+    return RedirectResponse("/", status_code=301)
+
+
+@router.get("/restart-crashed-tasks")
+def get_restart_crashed_tasks(request: Request) -> Response:
+    return templates.TemplateResponse(
+        "/restart_crashed_tasks.jinja2",
+        {
+            "request": request,
+        },
+    )
+
+
+@router.post("/restart-crashed-tasks")
+def post_restart_crashed_tasks(request: Request) -> Response:
+    restart_crashed_tasks()
     return RedirectResponse("/", status_code=301)
 
 

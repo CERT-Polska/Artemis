@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import io
 import json
 import subprocess
 from dataclasses import dataclass
@@ -77,15 +76,19 @@ class PortScanner(ArtemisBase):
 
         result: Dict[str, Dict[str, Any]] = {}
         if naabu.stdout:
-            lines = naabu.stdout.read().decode("ascii").split("\n")
+            lines = naabu.stdout.read().split(b"\n")
+            naabu.stdout.close()
         else:
             lines = []
 
         for line in lines:
-            ip, _ = line.split(":")
+            if not line:
+                continue
 
-            scanning_requests.limit_requests_for_the_same_ip(ip)
-            output = subprocess.check_output(["fingerprintx", "--json"], stdin=io.StringIO(line)).strip()
+            ip, _ = line.split(b":")
+
+            scanning_requests.limit_requests_for_the_same_ip(ip.decode("ascii"))
+            output = subprocess.check_output(["fingerprintx", "--json"], input=line).strip()
 
             if not output:
                 continue

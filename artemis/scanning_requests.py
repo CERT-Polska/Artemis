@@ -1,8 +1,6 @@
 import asyncio
 import dataclasses
-import datetime
 import socket
-import sys
 import urllib.parse
 from typing import Dict, List, Optional, Union
 
@@ -41,7 +39,6 @@ def _request(
     ResourceLock(redis=Config.REDIS, res_name=_get_lock_key_for_url(url)).acquire(
         expiry=Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP
     )
-    sys.stderr.write("XXX" + repr(datetime.datetime.now()) + " " + url + "\n")
 
     response = getattr(requests, method_name)(
         url,
@@ -88,7 +85,6 @@ async def _download(url: str, task_limitter: asyncio.BoundedSemaphore) -> Union[
             await AsyncResourceLock(redis=Config.ASYNC_REDIS, res_name=_get_lock_key_for_url(url)).acquire(
                 expiry=Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP
             )
-            sys.stderr.write("XXX" + repr(datetime.datetime.now()) + " " + url + "\n")
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(

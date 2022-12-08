@@ -11,8 +11,20 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 
-# There are other kartons checking whether services on these ports are interesting
-NOT_INTERESTING_PORTS = [21, 25, 80, 443]
+NOT_INTERESTING_PORTS = [
+    # There are other kartons checking whether services on these ports are interesting
+    (21, "ftp"),
+    (22, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    (25, "smtp"),
+    (53, "dns"),  # Not worth reporting (DNS)
+    (80, "http"),
+    (110, "pop3"),
+    (143, "imap"),
+    (443, "http"),
+    (587, "smtp"),
+    (993, "imap"),
+    (995, "pop3"),
+]
 
 
 class PortScanner(ArtemisBase):
@@ -82,6 +94,7 @@ class PortScanner(ArtemisBase):
 
         all_results = {}
         open_ports = []
+        interesting_port_descriptions = []
         for host in hosts:
             scan_results = self._scan(host)
             all_results[host] = scan_results
@@ -100,14 +113,12 @@ class PortScanner(ArtemisBase):
                 )
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
+                if (int(port), result["service"]) not in NOT_INTERESTING_PORTS:
+                    interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
 
-        potentially_interesting_ports = set(open_ports) - set(NOT_INTERESTING_PORTS)
-
-        if len(potentially_interesting_ports):
+        if len(interesting_port_descriptions):
             status = TaskStatus.INTERESTING
-            status_reason = "Found potentially interesting ports: " + ", ".join(
-                sorted(map(str, potentially_interesting_ports))
-            )
+            status_reason = "Found ports: " + ", ".join(sorted(interesting_port_descriptions))
         else:
             status = TaskStatus.OK
             status_reason = None

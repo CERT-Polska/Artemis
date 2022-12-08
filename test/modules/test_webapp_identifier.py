@@ -3,13 +3,13 @@ from typing import NamedTuple
 
 from karton.core import Task
 
-from artemis.binds import Application, Service, TaskType
+from artemis.binds import Service, TaskType, WebApplication
 from artemis.modules.webapp_identifier import WebappIdentifier
 
 
 class TestData(NamedTuple):
     domain: str
-    application: Application
+    application: WebApplication
 
 
 class WebappIdentifierTest(ArtemisModuleTestCase):
@@ -18,8 +18,8 @@ class WebappIdentifierTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         data = [
-            TestData("test-old-joomla", Application.JOOMLA),
-            TestData("test-old-wordpress", Application.WORDPRESS),
+            TestData("test-old-joomla", WebApplication.JOOMLA),
+            TestData("test-old-wordpress", WebApplication.WORDPRESS),
         ]
 
         for entry in data:

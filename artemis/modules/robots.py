@@ -7,13 +7,17 @@ import requests
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisHTTPBase
 
 RE_USER_AGENT = re.compile(r"^\s*user-agent:\s*(.*)", re.I)
 RE_ALLOW = re.compile(r"^\s*allow:\s*(/.*)", re.I)
 RE_DISALLOW = re.compile(r"^\s*disallow:\s*(/.*)", re.I)
 
-NOT_INTERESTING_PATHS = [re.compile(p, re.I) for p in [r"/wp-admin/?.*"]]
+NOT_INTERESTING_PATHS = [
+    re.compile(p, re.I)
+    for p in [r"/wp-admin/?.*", r"/wp-includes/?.*", "^/$"] + [f"^{folder}" for folder in Config.NOT_INTERESTING_PATHS]
+]
 
 
 @dataclass

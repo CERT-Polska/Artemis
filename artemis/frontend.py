@@ -68,7 +68,7 @@ def post_add_decision(
     decision_type: ManualDecisionType = Form(None),
     target_string: Optional[str] = Form(None),
     message: str = Form(None),
-    operator_comment: str = Form(None),
+    operator_comment: Optional[str] = Form(None),
     redirect_to: str = Form(None),
 ) -> Response:
     db.add_manual_decision(

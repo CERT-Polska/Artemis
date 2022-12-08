@@ -28,7 +28,7 @@ class ManualDecision:
     target_string: Optional[str]
     message: str
     decision_type: ManualDecisionType
-    operator_comment: str
+    operator_comment: Optional[str]
 
 
 def get_task_target(task: Task) -> str:

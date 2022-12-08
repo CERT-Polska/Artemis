@@ -22,3 +22,4 @@ class Config:
 
     HTTP_TIMEOUT_SECONDS = decouple.config("HTTP_TIMEOUT_SECONDS", default=5, cast=int)
     SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP = decouple.config("SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP", default=5, cast=int)
+    SCANNING_PACKETS_PER_SECOND_PER_IP = decouple.config("SCANNING_PACKETS_PER_SECOND_PER_IP", default=1, cast=int)

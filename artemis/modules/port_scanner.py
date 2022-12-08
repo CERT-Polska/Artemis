@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import io
 import json
 import subprocess
 from dataclasses import dataclass
@@ -7,9 +7,12 @@ from typing import Any, Dict
 
 from karton.core import Task
 
+from artemis import scanning_requests
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
+from artemis.resource_lock import ResourceLock
 
 NOT_INTERESTING_PORTS = [
     # There are other kartons checking whether services on these ports are interesting
@@ -56,19 +59,38 @@ class PortScanner(ArtemisBase):
             return json.loads(cache)  # type: ignore
 
         self.log.info(f"scanning {target_ip}")
-        naabu = subprocess.Popen(
-            ("naabu", "-host", target_ip, "-top-ports", "1000", "-silent"),
-            stdout=subprocess.PIPE,
-        )
-        fingerprintx = subprocess.check_output(("fingerprintx", "--json"), stdin=naabu.stdout)
-        naabu.wait()
+        with ResourceLock(redis=Config.REDIS, res_name="scanning-" + target_ip):
+            naabu = subprocess.Popen(
+                (
+                    "naabu",
+                    "-host",
+                    target_ip,
+                    "-top-ports",
+                    "1000",
+                    "-silent",
+                    "-rate",
+                    str(Config.SCANNING_PACKETS_PER_SECOND_PER_IP),
+                ),
+                stdout=subprocess.PIPE,
+            )
+            naabu.wait()
 
         result: Dict[str, Dict[str, Any]] = {}
-        for line in fingerprintx.decode().split("\n"):
-            if not line:
+        if naabu.stdout:
+            lines = naabu.stdout.read().decode("ascii").split("\n")
+        else:
+            lines = []
+
+        for line in lines:
+            ip, _ = line.split(":")
+
+            scanning_requests.limit_requests_for_the_same_ip(ip)
+            output = subprocess.check_output(["fingerprintx", "--json"], stdin=io.StringIO(line)).strip()
+
+            if not output:
                 continue
 
-            data = json.loads(line)
+            data = json.loads(output)
             port = int(data["port"])
             ssl = data["transport"] == "tcptls"
             service = data["service"]

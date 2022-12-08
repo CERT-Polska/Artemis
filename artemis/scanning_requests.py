@@ -18,27 +18,47 @@ else:
     HEADERS = {}
 
 
-def _get_lock_key_for_url(url: str) -> str:
-    key_prefix = "ensuring-not-too-many-scans-per-host-"
+IP_SCAN_LOCK_KEY_PREFIX = "ensuring-not-too-many-scans-per_ip-"
 
+
+def url_to_ip(url: str) -> Optional[str]:
     host = urllib.parse.urlparse(url).hostname
+
     if not host:
-        return key_prefix + "unknown-ip"
+        return None
 
     # Here, we use the OS DNS mechanism instead of the DoH resolvers implemented in Artemis
     # on purpose - we want, if possible, to have a large chance of using the same IP that will
     # be used for actual requests.
-    return key_prefix + socket.gethostbyname(host)
+    return socket.gethostbyname(host)
+
+
+def limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
+    if ip is None:
+        ip = "unknown-ip"
+
+    # Therefore we make sure no more than one request for this host will happen in the
+    # next Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP seconds
+    ResourceLock(redis=Config.REDIS, res_name=IP_SCAN_LOCK_KEY_PREFIX + ip).acquire(
+        expiry=Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP
+    )
+
+
+async def async_limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
+    if ip is None:
+        ip = "unknown-ip"
+
+    # Therefore we make sure no more than one request for this host will happen in the
+    # next Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP seconds
+    await AsyncResourceLock(redis=Config.ASYNC_REDIS, res_name=IP_SCAN_LOCK_KEY_PREFIX + ip).acquire(
+        expiry=Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP
+    )
 
 
 def _request(
     method_name: str, url: str, allow_redirects: bool, data: Optional[Dict[str, str]], cookies: Optional[Dict[str, str]]
 ) -> requests.Response:
-    # Therefore we make sure no more than one request for this host will happen in the
-    # next Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP seconds
-    ResourceLock(redis=Config.REDIS, res_name=_get_lock_key_for_url(url)).acquire(
-        expiry=Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP
-    )
+    limit_requests_for_the_same_ip(url_to_ip(url))
 
     response = getattr(requests, method_name)(
         url,
@@ -80,11 +100,7 @@ class HTTPResponse:
 async def _download(url: str, task_limitter: asyncio.BoundedSemaphore) -> Union[HTTPResponse, Exception]:
     try:
         async with task_limitter:
-            # Therefore we make sure no more than one request for this host will happen in the
-            # next Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP seconds
-            await AsyncResourceLock(redis=Config.ASYNC_REDIS, res_name=_get_lock_key_for_url(url)).acquire(
-                expiry=Config.SECONDS_PER_HTTP_REQUEST_FOR_ONE_IP
-            )
+            await async_limit_requests_for_the_same_ip(url_to_ip(url))
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(

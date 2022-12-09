@@ -43,6 +43,6 @@ def download_urls(urls: List[str]) -> Dict[str, HTTPResponse]:
     exception, no entry will be provided.
     """
 
-    max_parallel_tasks = Config.CONTAINER_MAX_PARALLEL_HTTP_REQUESTS
+    max_parallel_tasks = Config.MAX_ASYNC_PER_LOOP
     loop = asyncio.get_event_loop()
     return loop.run_until_complete(_download_urls_async(urls, max_parallel_tasks))

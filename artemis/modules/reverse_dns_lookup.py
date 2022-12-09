@@ -37,9 +37,8 @@ class ReverseDNSLookup(ArtemisBase):
         ip = current_task.get_payload(TaskType.IP)
         found_domains = self._lookup(ip)
         for entry in found_domains:
-            if (
-                is_subdomain(entry, current_task.payload_persistent["original_domain"])
-                or not Config.CHECK_DOMAIN_IN_REVERSE_IP_LOOKUP
+            if not Config.CHECK_DOMAIN_IN_REVERSE_IP_LOOKUP or is_subdomain(
+                entry, current_task.payload_persistent["original_domain"]
             ):
                 new_task = Task({"type": TaskType.NEW}, payload={"data": entry})
                 self.add_task(current_task, new_task)

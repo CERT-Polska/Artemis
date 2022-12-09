@@ -40,6 +40,12 @@ To run simply:
 
 URLs you provide don't have to follow any strict rules (e.g. `hxxp://127.0.0.1:1337/someurl` should work as well).
 
+## FAQ
+### Artemis takes a long time to run - what is the reason?
+By default, the requests are limitted to **one in 5 seconds** for a single IP (and, separately, **one port connection
+attempt per second** for a single IP). To change that to more aggressive values, change the `SECONDS_PER_REQUEST_FOR_ONE_IP`
+and `SCANNING_PACKETS_PER_SECOND_PER_IP` environment variables.
+
 ## Development
 
 ### Tests

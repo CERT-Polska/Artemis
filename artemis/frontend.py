@@ -117,12 +117,26 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
         raise HTTPException(status_code=404, detail="Analysis not found")
 
     return templates.TemplateResponse(
-        "analysis.jinja2",
+        "task_list.jinja2",
         {
             "request": request,
+            "title": f"Analysis of { analysis['payload']['data'] }",
+            "api_url": f"/api/analysis/{ analysis['root_uid'] }/children"
+            + (f"?task_filter={ task_filter.value }" if task_filter else ""),
             "task_filter": task_filter,
-            "analysis": analysis,
-            "pretty_printed": json.dumps(analysis, indent=4, cls=JSONEncoderWithDataclasses),
+        },
+    )
+
+
+@router.get("/all-results", include_in_schema=False)
+def get_all_results(request: Request, task_filter: Optional[TaskFilter] = None) -> Response:
+    return templates.TemplateResponse(
+        "task_list.jinja2",
+        {
+            "request": request,
+            "title": "All task results",
+            "api_url": "/api/all-task-results" + (f"?task_filter={ task_filter.value }" if task_filter else ""),
+            "task_filter": task_filter,
         },
     )
 

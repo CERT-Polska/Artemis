@@ -32,3 +32,8 @@ def get_children(root_id: str, task_filter: Optional[TaskFilter] = None) -> List
     if not db.get_analysis_by_id(root_id):
         raise HTTPException(status_code=404, detail="Analysis not found")
     return db.get_task_results_by_analysis_id(root_id, task_filter)
+
+
+@router.get("/all-task-results")
+def get_all_task_results(task_filter: Optional[TaskFilter] = None) -> List[Dict[str, Any]]:
+    return db.get_task_results(task_filter)

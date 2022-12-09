@@ -1,7 +1,6 @@
 {% extends "components/base.jinja2" %}
 {% block main %}
-    <h1>Analysis of {{ analysis.payload.data }}</h1>
-    <p>ID: {{ analysis.root_uid }}</p>
+    <h1>{{ title }}</h1>
 
     <h4>Tasks</h4>
     <p>
@@ -31,7 +30,7 @@
                 All tasks
         </a>
     </p>
-    <table id="analysis" class="table table-hover">
+    <table id="task_list" class="table table-hover">
         <thead>
             <tr>
                 <th scope="col">receiver</th>
@@ -47,11 +46,11 @@
 {% block scripts %}
 <script>
   $(document).ready(function() {
-    const table = $("#analysis").dataTable({
+    const table = $("#task_list").dataTable({
       "pageLength": 50,
       "search": "interesting",
       "ajax": {
-          "url": "/api/analysis/{{ analysis.root_uid }}/children{% if task_filter %}?task_filter={{ task_filter.value }}{% endif %}",
+          "url": "{{ api_url }}",
           "dataSrc": ""
       },
       "columns": [

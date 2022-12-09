@@ -111,33 +111,18 @@ class DB:
         else:
             task_results = cast(List[Dict[str, Any]], list(self.task_results.find({"root_uid": analysis_id})))
 
-        decisions = self._get_decisions(task_results)
-        task_results_filtered = []
+        return self._filter_task_results(task_results, task_filter)
 
-        for task_result in task_results:
-            decision = decisions.get(task_result["uid"], None)
-            task_result["decision"] = decision
+    def get_task_results(self, task_filter: Optional[TaskFilter] = None) -> List[Dict[str, Any]]:
+        if task_filter in [TaskFilter.INTERESTING, TaskFilter.INTERESTING_UNDECIDED]:
+            task_results = cast(
+                List[Dict[str, Any]],
+                list(self.task_results.find({"status": TaskStatus.INTERESTING})),
+            )
+        else:
+            task_results = cast(List[Dict[str, Any]], list(self.task_results.find()))
 
-            should_add = False
-
-            if task_filter == TaskFilter.INTERESTING_UNDECIDED:
-                if not decision:
-                    should_add = True
-            elif task_filter == TaskFilter.INTERESTING:
-                should_add = True
-            elif task_filter == TaskFilter.APPROVED:
-                if decision:
-                    should_add = decision.decision_type == ManualDecisionType.APPROVED
-            elif task_filter == TaskFilter.DISMISSED:
-                if decision:
-                    should_add = decision.decision_type == ManualDecisionType.DISMISSED
-            else:
-                assert task_filter is None
-                should_add = True
-
-            if should_add:
-                task_results_filtered.append(task_result)
-        return task_results_filtered
+        return self._filter_task_results(task_results, task_filter)
 
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
         task_result = cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
@@ -241,3 +226,34 @@ class DB:
             if found_decision:
                 decisions[task_result["uid"]] = found_decision
         return decisions
+
+    def _filter_task_results(
+        self, task_results: List[Dict[str, Any]], task_filter: Optional[TaskFilter]
+    ) -> List[Dict[str, Any]]:
+        task_results_filtered = []
+        decisions = self._get_decisions(task_results)
+
+        for task_result in task_results:
+            decision = decisions.get(task_result["uid"], None)
+            task_result["decision"] = decision
+
+            should_add = False
+
+            if task_filter == TaskFilter.INTERESTING_UNDECIDED:
+                if not decision:
+                    should_add = True
+            elif task_filter == TaskFilter.INTERESTING:
+                should_add = True
+            elif task_filter == TaskFilter.APPROVED:
+                if decision:
+                    should_add = decision.decision_type == ManualDecisionType.APPROVED
+            elif task_filter == TaskFilter.DISMISSED:
+                if decision:
+                    should_add = decision.decision_type == ManualDecisionType.DISMISSED
+            else:
+                assert task_filter is None
+                should_add = True
+
+            if should_add:
+                task_results_filtered.append(task_result)
+        return task_results_filtered

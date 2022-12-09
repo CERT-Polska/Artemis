@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: python -m unittest discover
+    command: python -m unittest discover -f
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379

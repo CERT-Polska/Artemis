@@ -4,7 +4,7 @@ import random
 import string
 from difflib import SequenceMatcher
 from itertools import product
-from typing import List
+from typing import IO, List, Set
 
 import requests
 from karton.core import Task
@@ -12,6 +12,11 @@ from karton.core import Task
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.http import download_urls
 from artemis.module_base import ArtemisHTTPBase
+
+
+def read_paths_from_file(file: IO[str]) -> List[str]:
+    return [line.strip().lstrip("/") for line in file if not line.startswith("#")]
+
 
 FILENAMES_WITHOUT_EXTENSIONS = [
     "admin_backup",
@@ -25,10 +30,11 @@ FILENAMES_WITHOUT_EXTENSIONS = [
     "old",
     "sql",
 ]
+
 EXTENSIONS = ["zip", "rar", "7z", "tar", "gz", "tgz"]
 with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt")) as common_db_backups_file:
     with open(os.path.join(os.path.dirname(__file__), "data", "quickhits.txt")) as quickhits_file:
-        FILENAMES_TO_SCAN: List[str] = (
+        FILENAMES_TO_SCAN: Set[str] = set(
             [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
             + [
                 ".env",
@@ -39,9 +45,20 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
                 "server-status/",
                 "app_dev.php",
             ]
-            + [line.strip().lstrip("/") for line in common_db_backups_file if not line.startswith("#")]
-            + [line.strip().lstrip("/") for line in quickhits_file if not line.startswith("#")]
+            + read_paths_from_file(common_db_backups_file)
+            + read_paths_from_file(quickhits_file)
         )
+
+with open(os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")) as ignore_paths_file:
+    IGNORE_PATHS_ORIGINAL = read_paths_from_file(ignore_paths_file)
+    IGNORE_PATHS = set(IGNORE_PATHS_ORIGINAL) | {path + "/" for path in IGNORE_PATHS_ORIGINAL}
+    FILENAMES_TO_SCAN = FILENAMES_TO_SCAN - IGNORE_PATHS
+
+IGNORED_CONTENTS = [
+    "",
+    "<!DOCTYPE html><title></title>",  # Joomla! placeholder to suppress directory listing
+    "*\n!.gitignore",  # Not an interesting .gitignore
+]
 
 
 class Bruter(ArtemisHTTPBase):
@@ -61,7 +78,7 @@ class Bruter(ArtemisHTTPBase):
         dummy_url = url + "/" + dummy_random_token
         dummy = requests.get(dummy_url, verify=False, timeout=5)
 
-        urls = [f"{url}/{file}" for file in set(FILENAMES_TO_SCAN)]
+        urls = [f"{url}/{file}" for file in FILENAMES_TO_SCAN]
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
@@ -72,9 +89,11 @@ class Bruter(ArtemisHTTPBase):
                 and response.content
                 and "<center><h1>40" not in response.content
                 and "Error 403" not in response.content
+                and "<title>Access forbidden!</title>" not in response.content
+                and response.content.strip() not in IGNORED_CONTENTS
                 and SequenceMatcher(None, response.content, dummy.content).quick_ratio() < 0.8
             ):
-                found_files.add(response_url[len(url) + 1 :])
+                found_files.add(response_url)
         return sorted(list(found_files))
 
     def run(self, current_task: Task) -> None:

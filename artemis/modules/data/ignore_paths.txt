@@ -16,8 +16,6 @@
 # Application URLs related to features, even administrative,
 # aren't interesting for us, as we are looking directly for
 # vulnerabilities.
-/admin
-/administrator
 /admin_login
 /admin_logon
 /login

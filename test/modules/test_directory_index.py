@@ -41,22 +41,22 @@ class DirectoryIndexTest(ArtemisModuleTestCase):
                 self.run_task(task)
                 (call,) = self.mock_db.save_task_result.call_args_list
                 self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+
                 self.assertEqual(
                     call.kwargs["status_reason"],
-                    "Found directories with index enabled: /wp-content/, /wp-content/uploads/, "
-                    "/wp-content/uploads/2022/, /wp-content/uploads/2022/02/, "
-                    "/wp-content/uploads/2022/03/, backups/, https://bucket2.s3.amazonaws.com/, "
-                    "https://s3.amazonaws.com/bucket1/",
+                    "Found directories with index enabled: /backups/, /wp-content/, /wp-content/uploads/, "
+                    "/wp-content/uploads/2022/, /wp-content/uploads/2022/02/, /wp-content/uploads/2022/03/, "
+                    "https://bucket2.s3.amazonaws.com/, https://s3.amazonaws.com/bucket1/",
                 )
                 self.assertEqual(
                     call.kwargs["data"],
                     [
+                        "/backups/",
                         "/wp-content/",
                         "/wp-content/uploads/",
                         "/wp-content/uploads/2022/",
                         "/wp-content/uploads/2022/02/",
                         "/wp-content/uploads/2022/03/",
-                        "backups/",
                         "https://bucket2.s3.amazonaws.com/",
                         "https://s3.amazonaws.com/bucket1/",
                     ],

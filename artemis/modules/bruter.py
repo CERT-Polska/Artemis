@@ -26,9 +26,11 @@ FILENAMES_WITHOUT_EXTENSIONS = [
     "admin_old",
     "admin.old",
     "panel",
+    "pack",
     "backup",
     "old",
     "sql",
+    "www",
 ]
 
 EXTENSIONS = ["zip", "rar", "7z", "tar", "gz", "tgz"]
@@ -37,6 +39,9 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
         FILENAMES_TO_SCAN: Set[str] = set(
             [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
             + [
+                "adminbackups",
+                "core",
+                "errors",
                 ".env",
                 ".gitignore",
                 ".htaccess",
@@ -44,6 +49,8 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
                 ".ssh/id_rsa",
                 "server-status/",
                 "app_dev.php",
+                "TEST",
+                "_vti_bin",
             ]
             + read_paths_from_file(common_db_backups_file)
             + read_paths_from_file(quickhits_file)

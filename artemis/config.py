@@ -22,8 +22,8 @@ class Config:
     # a misconfigured Reverse DNS record (e.g. pointing to a completely different domain).
     #
     # The downside of that is that when you don't provide original domain (e.g. provide
-    # an IP to be scanned), the reverse DNS lookup won't happen. Therefore this behavior is
-    # configurable and may be turned off.
+    # an IP to be scanned), the domain from the reverse DNS lookup won't be scanned. Therefore this
+    # behavior is configurable and may be turned off.
     CHECK_DOMAIN_IN_REVERSE_IP_LOOKUP = decouple.config("CHECK_DOMAIN_IN_REVERSE_IP_LOOKUP", default=True, cast=bool)
 
     # This determines the parallelism for asyncio parallel scanning. For each async scanning

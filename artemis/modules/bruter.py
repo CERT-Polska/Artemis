@@ -4,14 +4,15 @@ import random
 import string
 from difflib import SequenceMatcher
 from itertools import product
-from typing import IO, List, Set
+from typing import IO, Dict, List, Set
 
 import requests
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.http import download_urls
-from artemis.module_base import ArtemisHTTPBase
+from artemis.module_base_multiple_tasks import ArtemisMultipleTasksBase
+from artemis.task_utils import get_target_url
 
 
 def read_paths_from_file(file: IO[str]) -> List[str]:
@@ -68,7 +69,7 @@ IGNORED_CONTENTS = [
 ]
 
 
-class Bruter(ArtemisHTTPBase):
+class Bruter(ArtemisMultipleTasksBase):
     """
     Tries to find common files
     """
@@ -78,19 +79,46 @@ class Bruter(ArtemisHTTPBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def scan(self, url: str) -> List[str]:
-        found_files = set()
-        # random endpoint to filter out custom 404 pages
-        dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
-        dummy_url = url + "/" + dummy_random_token
-        dummy = requests.get(dummy_url, verify=False, timeout=5)
+    def scan(self, tasks: List[Task]) -> Dict[str, List[str]]:
+        """
+        Brute-forces URLs. Returns a dict: task uid -> list of found URLs.
+        """
+        base_urls = {task.uid: get_target_url(task) for task in tasks}
 
-        urls = [f"{url}/{file}" for file in FILENAMES_TO_SCAN]
+        self.log.info(f"bruter scanning {', '.join(base_urls.values())}")
+
+        dummy_contents = {}
+        for task_uid, base_url in base_urls.items():
+            # random endpoint to filter out custom 404 pages
+            dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+            dummy_url = base_url + "/" + dummy_random_token
+            try:
+                dummy_contents[task_uid] = requests.get(dummy_url, verify=False, timeout=5).content.decode("utf-8")
+            except Exception:
+                dummy_contents[task_uid] = ""
+
+        urls: List[str] = []
+        urls_to_task_uid_mapping = {}
+
+        for file in set(FILENAMES_TO_SCAN):
+            for task_uid, base_url in base_urls.items():
+                url = f"{base_url}/{file}"
+                urls.append(url)
+                urls_to_task_uid_mapping[url] = task_uid
+
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
         results = download_urls(urls)
+
+        found_files: Dict[str, Set[str]] = {}
         for response_url, response in results.items():
+            task_uid = urls_to_task_uid_mapping[response_url]
+            base_url = base_urls[task_uid]
+
+            if task_uid not in found_files:
+                found_files[task_uid] = set()
+
             if (
                 response.status_code == 200
                 and response.content
@@ -98,24 +126,29 @@ class Bruter(ArtemisHTTPBase):
                 and "Error 403" not in response.content
                 and "<title>Access forbidden!</title>" not in response.content
                 and response.content.strip() not in IGNORED_CONTENTS
-                and SequenceMatcher(None, response.content, dummy.content).quick_ratio() < 0.8
+                and SequenceMatcher(None, response.content, dummy_contents[task_uid]).quick_ratio() < 0.8
             ):
-                found_files.add(response_url)
-        return sorted(list(found_files))
+                found_files[task_uid].add(response_url)
 
-    def run(self, current_task: Task) -> None:
-        url = self.get_target_url(current_task)
-        self.log.info(f"bruter scanning {url}")
-        found_files = self.scan(url)
+        found_files_as_lists = {}
+        for key in found_files.keys():
+            found_files_as_lists[key] = sorted(list(found_files[key]))
+        return found_files_as_lists
 
-        if len(found_files) > 0:
-            status = TaskStatus.INTERESTING
-            status_reason = "Found files: " + ", ".join(sorted(found_files))
-        else:
-            status = TaskStatus.OK
-            status_reason = None
+    def run_multiple(self, tasks: List[Task]) -> None:
+        found_files_per_task_uid = self.scan(tasks)
 
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=found_files)
+        for task in tasks:
+            found_files = found_files_per_task_uid.get(task.uid, [])
+
+            if len(found_files) > 0:
+                status = TaskStatus.INTERESTING
+                status_reason = "Found files: " + ", ".join(sorted(found_files))
+            else:
+                status = TaskStatus.OK
+                status_reason = None
+
+            self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=found_files)
 
 
 if __name__ == "__main__":

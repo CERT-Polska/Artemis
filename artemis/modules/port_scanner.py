@@ -8,8 +8,9 @@ from typing import Any, Dict
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 from artemis.resolvers import ip_lookup
+from artemis.task_utils import get_target
 
 NOT_INTERESTING_PORTS = [
     # There are other kartons checking whether services on these ports are interesting
@@ -27,7 +28,7 @@ NOT_INTERESTING_PORTS = [
 ]
 
 
-class PortScanner(ArtemisBase):
+class PortScanner(ArtemisSingleTaskBase):
     """
     Consumes `type: IP`, scans them with naabu and fingerprintx and produces
     tasks separated into services (eg. `type: http`)
@@ -81,7 +82,7 @@ class PortScanner(ArtemisBase):
         return result
 
     def run(self, current_task: Task) -> None:
-        target = self.get_target(current_task)
+        target = get_target(current_task)
         task_type = current_task.headers["type"]
 
         # convert domain to IPs

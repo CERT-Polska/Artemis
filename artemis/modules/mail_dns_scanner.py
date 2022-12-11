@@ -8,7 +8,7 @@ from karton.core import Task
 from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 
 
 class MailDNSScannerResult(BaseModel):
@@ -19,7 +19,7 @@ class MailDNSScannerResult(BaseModel):
     dmarc_record_present = False
 
 
-class MailDNSScanner(ArtemisBase):
+class MailDNSScanner(ArtemisSingleTaskBase):
     """
     Checks if there is a mail server associated with the current domain and checks if SPF and DMARC records are present
     """

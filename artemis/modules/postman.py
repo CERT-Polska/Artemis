@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 
 
 class PostmanResult(BaseModel):
@@ -22,7 +22,7 @@ class PostmanResult(BaseModel):
     unauthorized_local_from = False
 
 
-class Postman(ArtemisBase):
+class Postman(ArtemisSingleTaskBase):
     """
     Collects `service: SMTP` and tests if it verifies credentials,
     as well as trying out open relay.

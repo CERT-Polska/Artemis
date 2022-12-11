@@ -128,7 +128,7 @@ class Bruter(ArtemisMultipleTasksBase):
                 and response.content.strip() not in IGNORED_CONTENTS
                 and SequenceMatcher(None, response.content, dummy_contents[task_uid]).quick_ratio() < 0.8
             ):
-                found_files[task_uid].add(response_url[len(base_url) + 1 :])
+                found_files[task_uid].add(response_url)
 
         found_files_as_lists = {}
         for key in found_files.keys():

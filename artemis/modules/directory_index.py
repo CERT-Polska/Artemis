@@ -13,7 +13,7 @@ from artemis.config import Config
 from artemis.module_base import ArtemisSingleTaskBase
 from artemis.task_utils import get_target_url
 
-PATHS: List[str] = ["backup/", "backups/"]
+PATHS: List[str] = ["/backup/", "/backups/", "/_vti_bin/", "/wp-content/", "/wp-includes/"]
 MAX_DIRS_PER_PATH = 4
 MAX_TESTS_PER_URL = 20
 S3_BASE_DOMAIN = "s3.amazonaws.com"

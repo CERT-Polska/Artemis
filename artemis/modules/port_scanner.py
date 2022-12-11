@@ -14,13 +14,17 @@ from artemis.task_utils import get_target
 
 NOT_INTERESTING_PORTS = [
     # There are other kartons checking whether services on these ports are interesting
-    21,
-    25,
-    80,
-    443,
-] + [
-    22,  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
-    53,  # Not worth reporting (DNS)
+    (21, "ftp"),
+    (22, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    (25, "smtp"),
+    (53, "dns"),  # Not worth reporting (DNS)
+    (80, "http"),
+    (110, "pop3"),
+    (143, "imap"),
+    (443, "http"),
+    (587, "smtp"),
+    (993, "imap"),
+    (995, "pop3"),
 ]
 
 
@@ -110,7 +114,7 @@ class PortScanner(ArtemisSingleTaskBase):
                 )
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
-                if int(port) not in NOT_INTERESTING_PORTS:
+                if (int(port), result["service"]) not in NOT_INTERESTING_PORTS:
                     interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
 
         if len(interesting_port_descriptions):

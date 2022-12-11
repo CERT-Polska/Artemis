@@ -46,7 +46,10 @@ def ip_lookup(domain: str) -> Set[str]:
     result = response.json()
     dns_rc = result["Status"]  # https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-6
     if dns_rc == 0:
-        return _ips_from_answer(domain, result["Answer"])
+        if "Answer" in result:
+            return _ips_from_answer(domain, result["Answer"])
+        else:
+            return set()
     elif dns_rc == 3:  # NXDomain
         return set()
     else:

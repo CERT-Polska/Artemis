@@ -44,7 +44,6 @@ CRITICAL_VULN_NAMES = {
     "CVE-2019-19781": "citrx_vpn_rce",
     "CVE-2020-0688": "exchange_rce",
     "CVE-2020-1938": "tomcat_ghostcat",
-    "CVE-2021-27065": "exchange_rce",
     "MS17-010": "eternal_blue",
 }
 

@@ -5,7 +5,7 @@ from ipaddress import ip_address
 from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 
 domain_pattern = re.compile(
     r"^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|"
@@ -15,7 +15,7 @@ domain_pattern = re.compile(
 )
 
 
-class Classifier(ArtemisBase):
+class Classifier(ArtemisSingleTaskBase):
     """
     Collects `type: new` and converts them to `type: HAS_DOMAIN` or `type: HAS_IP`
     Expects data to be in `payload["data"]`.

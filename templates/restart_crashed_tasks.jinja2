@@ -1,0 +1,9 @@
+{% extends "components/base.jinja2" %}
+
+{% block main %}
+    <h1>Restart all crashed tasks</h1>
+
+    <form method="POST" action="/restart-crashed-tasks">
+        <input type="submit" value="restart" />
+    </form>
+{% endblock %}

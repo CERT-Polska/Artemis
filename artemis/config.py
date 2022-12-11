@@ -25,3 +25,8 @@ class Config:
     # an IP to be scanned), the reverse DNS lookup won't happen. Therefore this behavior is
     # configurable and may be turned off.
     CHECK_DOMAIN_IN_REVERSE_IP_LOOKUP = decouple.config("CHECK_DOMAIN_IN_REVERSE_IP_LOOKUP", default=True, cast=bool)
+
+    # This determines the parallelism for asyncio parallel scanning. For each async scanning
+    # (e.g. the one spawned by bruter) the maximum number of coroutines running concurrently
+    # will be MAX_ASYNC_PER_LOOP.
+    MAX_ASYNC_PER_LOOP = int(getenv("MAX_ASYNC_PER_LOOP", 10))

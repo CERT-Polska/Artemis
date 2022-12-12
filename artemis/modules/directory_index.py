@@ -70,7 +70,12 @@ class DirectoryIndex(ArtemisSingleTaskBase):
         for path_candidate in path_candidates_list:
             response = requests.get(urllib.parse.urljoin(url, path_candidate), verify=False, timeout=5)
             content = response.content.decode("utf-8", errors="ignore")
-            if "Index of /" in content or "ListBucketResult" in content:
+            if (
+                "Index of /" in content
+                or "ListBucketResult" in content
+                or "<title>directory listing" in content.lower()
+                or "<title>index of" in content.lower()
+            ):
                 if (
                     path_candidate not in Config.NOT_INTERESTING_PATHS
                     and path_candidate + "/" not in Config.NOT_INTERESTING_PATHS

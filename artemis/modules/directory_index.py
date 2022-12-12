@@ -10,15 +10,16 @@ from karton.core import Task
 from artemis import scanning_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisHTTPBase
+from artemis.module_base import ArtemisSingleTaskBase
+from artemis.task_utils import get_target_url
 
-PATHS: List[str] = ["backup/", "backups/"]
+PATHS: List[str] = ["/backup/", "/backups/", "/_vti_bin/", "/wp-content/", "/wp-includes/"]
 MAX_DIRS_PER_PATH = 4
 MAX_TESTS_PER_URL = 20
 S3_BASE_DOMAIN = "s3.amazonaws.com"
 
 
-class DirectoryIndex(ArtemisHTTPBase):
+class DirectoryIndex(ArtemisSingleTaskBase):
     """
     Detects directory index enabled on the server
     """
@@ -69,7 +70,12 @@ class DirectoryIndex(ArtemisHTTPBase):
         for path_candidate in path_candidates_list:
             response = scanning_requests.get(urllib.parse.urljoin(url, path_candidate))
             content = response.content.decode("utf-8", errors="ignore")
-            if "Index of /" in content or "ListBucketResult" in content:
+            if (
+                "Index of /" in content
+                or "ListBucketResult" in content
+                or "<title>directory listing" in content.lower()
+                or "<title>index of" in content.lower()
+            ):
                 if (
                     path_candidate not in Config.NOT_INTERESTING_PATHS
                     and path_candidate + "/" not in Config.NOT_INTERESTING_PATHS
@@ -78,7 +84,7 @@ class DirectoryIndex(ArtemisHTTPBase):
         return sorted(results)
 
     def run(self, current_task: Task) -> None:
-        url = self.get_target_url(current_task)
+        url = get_target_url(current_task)
         self.log.info(f"directory index scanning {url}")
         found_dirs_with_index = self.scan(url)
 

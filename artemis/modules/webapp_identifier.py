@@ -6,7 +6,8 @@ from karton.core import Task
 
 from artemis import scanning_requests
 from artemis.binds import Service, TaskStatus, TaskType, WebApplication
-from artemis.module_base import ArtemisHTTPBase
+from artemis.module_base import ArtemisSingleTaskBase
+from artemis.task_utils import get_target_url
 
 WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
     (WebApplication.WORDPRESS, '<meta name="generator" content="WordPress'),
@@ -21,7 +22,7 @@ WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
 ]
 
 
-class WebappIdentifier(ArtemisHTTPBase):
+class WebappIdentifier(ArtemisSingleTaskBase):
     """
     Tries to identify the webapp
     """
@@ -64,7 +65,7 @@ class WebappIdentifier(ArtemisHTTPBase):
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=application)
 
     def run(self, current_task: Task) -> None:
-        url = self.get_target_url(current_task)
+        url = get_target_url(current_task)
         self.log.info(f"application identifier scanning {url}")
 
         self._process(current_task, url)

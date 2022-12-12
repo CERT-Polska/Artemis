@@ -127,7 +127,7 @@ async def _download_urls_async(urls: List[str], max_parallel_tasks: int) -> Dict
     return result
 
 
-def download_urls(urls: List[str], max_parallel_tasks: int = 5) -> Dict[str, HTTPResponse]:
+def download_urls(urls: List[str], max_parallel_tasks: int = Config.MAX_ASYNC_PER_LOOP) -> Dict[str, HTTPResponse]:
     """
     Downloads URLs from the list and returns a dict: url -> response. If a download resulted in an
     exception, no entry will be provided.

@@ -6,12 +6,12 @@ from karton.core import Task
 from psycopg2 import OperationalError, connect
 
 from artemis.binds import TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 
 DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
 
 
-class CrtshScanner(ArtemisBase):
+class CrtshScanner(ArtemisSingleTaskBase):
     """
     Consumes `type: domain` and adds subdomains fetched from crt.sh
     Produces `type: new`

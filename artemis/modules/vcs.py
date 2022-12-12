@@ -6,7 +6,8 @@ from karton.core import Task
 
 from artemis import scanning_requests
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisHTTPBase
+from artemis.module_base import ArtemisSingleTaskBase
+from artemis.task_utils import get_target_url
 
 GIT_MAGIC = [
     r"^(ref:.*|[0-9a-f]{40}$)",
@@ -30,7 +31,7 @@ class VCSConfig(NamedTuple):
     magic: List[str]
 
 
-class VCSScanner(ArtemisHTTPBase):
+class VCSScanner(ArtemisSingleTaskBase):
     """
     Tries to find open git/svm/hg repositories
     """
@@ -81,7 +82,7 @@ class VCSScanner(ArtemisHTTPBase):
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
     def run(self, current_task: Task) -> None:
-        url = self.get_target_url(current_task)
+        url = get_target_url(current_task)
         self.log.info(f"VCSScanner scanning {url}")
 
         self.scan(current_task, url)

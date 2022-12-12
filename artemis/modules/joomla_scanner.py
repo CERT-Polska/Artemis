@@ -6,10 +6,10 @@ from karton.core import Task
 
 from artemis import scanning_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 
 
-class JoomlaScanner(ArtemisBase):
+class JoomlaScanner(ArtemisSingleTaskBase):
     """
     Joomla scanner
     """

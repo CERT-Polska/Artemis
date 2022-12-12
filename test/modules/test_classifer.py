@@ -17,6 +17,12 @@ class ClassifierTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = Classifier  # type: ignore
 
+    def test_skipping_public_suffixes(self) -> None:
+        task = Task({"type": TaskType.NEW}, payload={"data": "gov.pl."})
+        results = self.run_task(task)
+
+        self.assertTasksEqual(results, [])
+
     def test_parsing(self) -> None:
         urls = [
             TestData("https://cert.pl", "cert.pl", TaskType.DOMAIN),

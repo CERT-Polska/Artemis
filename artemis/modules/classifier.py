@@ -3,8 +3,10 @@ import re
 from ipaddress import ip_address
 
 from karton.core import Task
+from publicsuffixlist import PublicSuffixList
 
 from artemis.binds import TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisSingleTaskBase
 
 domain_pattern = re.compile(
@@ -13,6 +15,9 @@ domain_pattern = re.compile(
     r"([a-zA-Z0-9][-_.a-zA-Z0-9]{0,61}[a-zA-Z0-9]))\."
     r"([a-zA-Z]{2,13}|[a-zA-Z0-9-]{2,30}.[a-zA-Z]{2,3})$"
 )
+
+
+PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
 class Classifier(ArtemisSingleTaskBase):
@@ -47,6 +52,9 @@ class Classifier(ArtemisSingleTaskBase):
         if ":" in data:
             data = data.rsplit(":")[0]
 
+        # Strip leading and trailing dots (e.g. domain.com.)
+        data = data.strip(".")
+
         return data
 
     @staticmethod
@@ -70,6 +78,19 @@ class Classifier(ArtemisSingleTaskBase):
         data = current_task.get_payload("data")
         sanitized = self._sanitize(data)
         task_type = self._classify(sanitized)
+
+        if task_type == TaskType.DOMAIN:
+            if PUBLIC_SUFFIX_LIST.publicsuffix(sanitized) == sanitized:
+                if not Config.ALLOW_SCANNING_PUBLIC_SUFFIXES:
+                    message = (
+                        f"{sanitized} is a public suffix - adding it to the list of "
+                        "scanned targets may result in scanning too much. Quitting."
+                    )
+                    self.log.warning(message)
+                    self.db.save_task_result(
+                        task=current_task, status=TaskStatus.ERROR, status_reason=message, data=task_type
+                    )
+                    return
 
         new_task = Task(
             {"type": task_type},

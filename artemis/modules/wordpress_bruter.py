@@ -10,6 +10,8 @@ PASSWORDS = [
     "administrator",
     "admin1",
     "wordpress",
+    "password",
+    "haslo",
     "1234",
     "12345",
     "123456",

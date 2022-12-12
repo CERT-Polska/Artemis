@@ -18,6 +18,7 @@ psycopg2-binary==2.9.5
 publicsuffixlist==0.9.1
 pydantic==1.10.2
 pymongo==4.3.3
+PyMySQL==1.0.2
 python-decouple==3.6
 python-multipart==0.0.5
 redis==3.5.3

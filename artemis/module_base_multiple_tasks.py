@@ -19,7 +19,7 @@ class ArtemisMultipleTasksBase(ArtemisBase):
     batch_size = 100
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
-        super().__init__(*args, **kwargs)
+        super().__init__(db, *args, **kwargs)
         self._get_random_queue_element = self.backend.redis.register_script(
             """
             local random_seed = ARGV[1]

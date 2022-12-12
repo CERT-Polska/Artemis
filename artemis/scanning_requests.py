@@ -18,7 +18,7 @@ else:
     HEADERS = {}
 
 
-IP_SCAN_LOCK_KEY_PREFIX = "ensuring-not-too-many-scans-per-ip-"
+IP_REQUEST_LOCK_KEY_PREFIX = "ip-request-lock-"
 
 
 def url_to_ip(url: str) -> Optional[str]:
@@ -39,7 +39,7 @@ def limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
 
     # Therefore we make sure no more than one request for this host will happen in the
     # next Config.SECONDS_PER_REQUEST_FOR_ONE_IP seconds
-    ResourceLock(redis=Config.REDIS, res_name=IP_SCAN_LOCK_KEY_PREFIX + ip).acquire(
+    ResourceLock(redis=Config.REDIS, res_name=IP_REQUEST_LOCK_KEY_PREFIX + ip).acquire(
         expiry=Config.SECONDS_PER_REQUEST_FOR_ONE_IP
     )
 
@@ -50,7 +50,7 @@ async def async_limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
 
     # Therefore we make sure no more than one request for this host will happen in the
     # next Config.SECONDS_PER_REQUEST_FOR_ONE_IP seconds
-    await AsyncResourceLock(redis=Config.ASYNC_REDIS, res_name=IP_SCAN_LOCK_KEY_PREFIX + ip).acquire(
+    await AsyncResourceLock(redis=Config.ASYNC_REDIS, res_name=IP_REQUEST_LOCK_KEY_PREFIX + ip).acquire(
         expiry=Config.SECONDS_PER_REQUEST_FOR_ONE_IP
     )
 

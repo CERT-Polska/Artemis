@@ -23,7 +23,7 @@ class Config:
     # The downside of that is that when you don't provide original domain (e.g. provide
     # an IP to be scanned), the domain from the reverse DNS lookup won't be scanned. Therefore this
     # behavior is configurable and may be turned off.
-    CHECK_DOMAIN_IN_REVERSE_IP_LOOKUP = decouple.config("CHECK_DOMAIN_IN_REVERSE_IP_LOOKUP", default=True, cast=bool)
+    VERIFY_REVDNS_IN_SCOPE = decouple.config("VERIFY_REVDNS_IN_SCOPE", default=True, cast=bool)
 
     # This determines the parallelism for asyncio parallel scanning. For each async scanning
     # (e.g. the one spawned by bruter) the maximum number of coroutines running concurrently

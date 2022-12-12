@@ -20,9 +20,12 @@ class Config:
     # will be MAX_ASYNC_PER_LOOP.
     MAX_ASYNC_PER_LOOP = decouple.config("MAX_ASYNC_PER_LOOP", cast=int, default=10)
 
+    # These are not three separate Redis instances. What follows is a connection string (describing
+    # how to connect to Redis) and two already constructed Redis clients - sync and async, **both
+    # connecting to the same Redis instance**.
+    REDIS_CONN_STR = decouple.config("REDIS_CONN_STR")
     REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
     ASYNC_REDIS = AsyncRedis.from_url(decouple.config("REDIS_CONN_STR"))
-    REDIS_CONN_STR = decouple.config("REDIS_CONN_STR")
 
     HTTP_TIMEOUT_SECONDS = decouple.config("HTTP_TIMEOUT_SECONDS", default=5, cast=int)
     SECONDS_PER_REQUEST_FOR_ONE_IP = decouple.config("SECONDS_PER_REQUEST_FOR_ONE_IP", default=5, cast=int)

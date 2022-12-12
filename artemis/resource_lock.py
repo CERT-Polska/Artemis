@@ -7,8 +7,7 @@ from uuid import uuid4
 from redis import Redis
 from redis.asyncio import Redis as AsyncRedis
 
-LOCK_SLEEP_MIN_SECONDS = 1
-LOCK_SLEEP_MAX_SECONDS = 5
+from artemis.config import Config
 
 
 class ResourceLock:
@@ -25,7 +24,7 @@ class ResourceLock:
             if self.redis.set(self.res_name, self.lid, nx=True, ex=expiry):
                 return
             else:
-                time.sleep(randrange(LOCK_SLEEP_MIN_SECONDS, LOCK_SLEEP_MAX_SECONDS))
+                time.sleep(randrange(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
 
     def __enter__(self) -> None:
         self.acquire()
@@ -48,7 +47,7 @@ class AsyncResourceLock:
             if await self.redis.set(self.res_name, self.lid, nx=True, ex=expiry):
                 return
             else:
-                await asyncio.sleep(randrange(LOCK_SLEEP_MIN_SECONDS, LOCK_SLEEP_MAX_SECONDS))
+                await asyncio.sleep(randrange(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
 
     async def __enter__(self) -> None:
         await self.acquire()

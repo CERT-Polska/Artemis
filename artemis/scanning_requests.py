@@ -8,7 +8,7 @@ import aiohttp
 import requests
 
 from artemis.config import Config
-from artemis.resource_lock import AsyncResourceLock, ResourceLock
+from artemis.resource_lock import AsyncResourceLock
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
@@ -33,17 +33,6 @@ def url_to_ip(url: str) -> Optional[str]:
     return socket.gethostbyname(host)
 
 
-def limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
-    if ip is None:
-        ip = "unknown-ip"
-
-    # Therefore we make sure no more than one request for this host will happen in the
-    # next Config.SECONDS_PER_REQUEST_FOR_ONE_IP seconds
-    ResourceLock(redis=Config.REDIS, res_name=IP_REQUEST_LOCK_KEY_PREFIX + ip).acquire(
-        expiry=Config.SECONDS_PER_REQUEST_FOR_ONE_IP
-    )
-
-
 async def async_limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
     if ip is None:
         ip = "unknown-ip"
@@ -53,6 +42,10 @@ async def async_limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
     await AsyncResourceLock(redis=Config.ASYNC_REDIS, res_name=IP_REQUEST_LOCK_KEY_PREFIX + ip).acquire(
         expiry=Config.SECONDS_PER_REQUEST_FOR_ONE_IP
     )
+
+
+def limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
+    asyncio.run(async_limit_requests_for_the_same_ip(ip))
 
 
 def _request(

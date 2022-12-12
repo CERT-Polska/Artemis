@@ -18,11 +18,12 @@ class ShodanVulnsTest(ArtemisModuleTestCase):
                 TaskType.IP: "127.0.0.1",
             },
         )
-        with mock.patch("shodan.Shodan.host", return_value={"vulns": ["CVE-2020-1938"]}):
+        with mock.patch("shodan.Shodan.host", return_value={"vulns": ["CVE-2020-1938", "CVE-1-1"]}):
             self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
-            call.kwargs["status_reason"], "Found vulnerabilities from Shodan API: CVE-2020-1938: tomcat_ghostcat"
+            call.kwargs["status_reason"],
+            "Found vulnerabilities from Shodan API: CVE-2020-1938: tomcat_ghostcat, CVE-1-1",
         )
-        self.assertEqual(call.kwargs["data"].critical_vulns, {"CVE-2020-1938": "tomcat_ghostcat"})
+        self.assertEqual(call.kwargs["data"].critical_vulns, {"CVE-2020-1938": "tomcat_ghostcat", "CVE-1-1": "CVE-1-1"})

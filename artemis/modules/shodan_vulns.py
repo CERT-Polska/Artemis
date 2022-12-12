@@ -10,7 +10,7 @@ from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisSingleTaskBase
 
-CRITICAL_VULN_NAMES = {
+VULN_NAMES = {
     "CVE-2020-10188": "cisco_os_telnetd",
     "CVE-2016-1421": "cisco_voip_rce",
     "CVE-2020-4448": "websphere_rce",
@@ -69,9 +69,12 @@ class ShodanVulns(ArtemisSingleTaskBase):
         if vulns := shodan_client.host(ip).get("vulns"):
             result.vulns = vulns
             for vuln in vulns:
-                if vuln in CRITICAL_VULN_NAMES:
-                    result.critical_vulns[vuln] = CRITICAL_VULN_NAMES[vuln]
-                    found_vuln_descriptions.append(f"{vuln}: {CRITICAL_VULN_NAMES[vuln]}")
+                if vuln in VULN_NAMES:
+                    result.critical_vulns[vuln] = VULN_NAMES[vuln]
+                    found_vuln_descriptions.append(f"{vuln}: {VULN_NAMES[vuln]}")
+                else:
+                    result.critical_vulns[vuln] = vuln
+                    found_vuln_descriptions.append(f"{vuln}")
 
         if len(found_vuln_descriptions) > 0:
             status = TaskStatus.INTERESTING

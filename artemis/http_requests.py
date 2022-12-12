@@ -15,8 +15,8 @@ from artemis.request_limit import (
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
-if Config.SCANNING_USER_AGENT_OVERRIDE:
-    HEADERS = {"User-Agent": Config.SCANNING_USER_AGENT_OVERRIDE}
+if Config.CUSTOM_USER_AGENT:
+    HEADERS = {"User-Agent": Config.CUSTOM_USER_AGENT}
 else:
     HEADERS = {}
 

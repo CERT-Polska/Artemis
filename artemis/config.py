@@ -8,7 +8,7 @@ class Config:
     DB_CONN_STR = decouple.config("DB_CONN_STR", default="")
     BROKER = decouple.config("BROKER", default="")
     SHODAN_API_KEY = decouple.config("SHODAN_API_KEY", default="")
-    SCANNING_USER_AGENT_OVERRIDE = decouple.config("SCANNING_USER_AGENT_OVERRIDE", default="")
+    CUSTOM_USER_AGENT = decouple.config("CUSTOM_USER_AGENT", default="")
 
     POSTMAN_MAIL_FROM = decouple.config("POSTMAN_MAIL_FROM", default="")
     POSTMAN_MAIL_TO = decouple.config("POSTMAN_MAIL_TO", default="")

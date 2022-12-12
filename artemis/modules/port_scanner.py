@@ -6,7 +6,7 @@ from typing import Any, Dict
 
 from karton.core import Task
 
-from artemis import scanning_requests
+from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisSingleTaskBase
@@ -88,7 +88,7 @@ class PortScanner(ArtemisSingleTaskBase):
 
             ip, _ = line.split(b":")
 
-            scanning_requests.limit_requests_for_the_same_ip(ip.decode("ascii"))
+            request_limit.limit_requests_for_the_same_ip(ip.decode("ascii"))
             output = subprocess.check_output(["fingerprintx", "--json"], input=line).strip()
 
             if not output:

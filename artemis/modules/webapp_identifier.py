@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 from karton.core import Task
 
-from artemis import scanning_requests
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisSingleTaskBase
 from artemis.task_utils import get_target_url
@@ -34,14 +34,14 @@ class WebappIdentifier(ArtemisSingleTaskBase):
 
     @staticmethod
     def _identify(url: str) -> WebApplication:
-        response = scanning_requests.get(url, allow_redirects=True)
+        response = http_requests.get(url, allow_redirects=True)
 
         for webapp_id, webapp_sig in WEBAPP_SIGNATURES:
             if re.search(webapp_sig, response.text):
                 return webapp_id
 
         # Detect WordPress not advertising itself in generator
-        response = scanning_requests.get(f"{url}/license.txt", allow_redirects=True)
+        response = http_requests.get(f"{url}/license.txt", allow_redirects=True)
         if response.text.startswith("WordPress - Web publishing software"):
             return WebApplication.WORDPRESS
 

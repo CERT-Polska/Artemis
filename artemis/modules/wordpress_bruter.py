@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from karton.core import Task
 
-from artemis import scanning_requests
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisSingleTaskBase
 
@@ -39,7 +39,7 @@ class WordPressBruter(ArtemisSingleTaskBase):
         usernames = []
 
         try:
-            users = scanning_requests.get(url + "?rest_route=/wp/v2/users").json()
+            users = http_requests.get(url + "?rest_route=/wp/v2/users").json()
             for user_entry in users:
                 usernames.append(user_entry["name"])
         except Exception:
@@ -51,7 +51,7 @@ class WordPressBruter(ArtemisSingleTaskBase):
         credentials = []
         for username in usernames:
             for password in PASSWORDS:
-                content = scanning_requests.post(
+                content = http_requests.post(
                     url + "/wp-login.php",
                     data={
                         "log": username,

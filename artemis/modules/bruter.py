@@ -8,7 +8,7 @@ from typing import IO, Dict, List, Set
 
 from karton.core import Task
 
-from artemis import scanning_requests
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base_multiple_tasks import ArtemisMultipleTasksBase
 from artemis.task_utils import get_target_url
@@ -92,7 +92,7 @@ class Bruter(ArtemisMultipleTasksBase):
             dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
             dummy_url = base_url + "/" + dummy_random_token
             try:
-                dummy_contents[task_uid] = scanning_requests.get(dummy_url).content.decode("utf-8", errors="ignore")
+                dummy_contents[task_uid] = http_requests.get(dummy_url).content.decode("utf-8", errors="ignore")
             except Exception:
                 dummy_contents[task_uid] = ""
 
@@ -108,7 +108,7 @@ class Bruter(ArtemisMultipleTasksBase):
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
-        results = scanning_requests.download_urls(urls)
+        results = http_requests.download_urls(urls)
 
         found_files: Dict[str, Set[str]] = {}
         for response_url, response in results.items():

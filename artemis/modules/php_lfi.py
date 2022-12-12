@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from karton.core import Task
 
-from artemis import scanning_requests
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisSingleTaskBase
 from artemis.task_utils import get_target_url
@@ -44,7 +44,7 @@ class PHPLFIScanner(ArtemisSingleTaskBase):
     def scan(self, current_task: Task, url: str) -> None:
         found_lfi_descriptions = []
         result: Dict[str, str] = {}
-        response = scanning_requests.get(url)
+        response = http_requests.get(url)
 
         if response.status_code != 200:
             self.log.info("{url} does not exist".format(url=url))
@@ -70,7 +70,7 @@ class PHPLFIScanner(ArtemisSingleTaskBase):
                         zfilter=B64_FILTER,
                         extension=extension,
                     )
-                    response = scanning_requests.get(lfi_test_url, allow_redirects=False)
+                    response = http_requests.get(lfi_test_url, allow_redirects=False)
                     if response.status_code == 200 and re.match(B64_COMMON_PHP, response.text.replace("\n", "")):
                         self.log.info("LFI is exploitable")
                         result[key] = "confirmed"

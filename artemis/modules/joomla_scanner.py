@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Union
 import requests
 from karton.core import Task
 
-from artemis import scanning_requests
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisSingleTaskBase
 
@@ -26,13 +26,13 @@ class JoomlaScanner(ArtemisSingleTaskBase):
 
         # Check for open registration
         registration_url = f"{url}/index.php?option=com_users&view=registration"
-        response = scanning_requests.get(registration_url)
+        response = http_requests.get(registration_url)
         if "registration.register" in response.text:
             found_problems.append(f"Joomla registration is enabled in {registration_url}")
             result["registration_url"] = registration_url
 
         # Check if they are running latest patch version
-        response = scanning_requests.get(f"{url}/administrator/manifests/files/joomla.xml")
+        response = http_requests.get(f"{url}/administrator/manifests/files/joomla.xml")
         if match := re.search("<version>([0-9]+\\.[0-9]+\\.[0-9]+)</version>", response.text):
             joomla_version = match.group(1)
             result["joomla_version"] = joomla_version

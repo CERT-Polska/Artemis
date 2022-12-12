@@ -8,7 +8,10 @@ import aiohttp
 import requests
 
 from artemis.config import Config
-from artemis.resource_lock import AsyncResourceLock
+from artemis.request_limit import (
+    async_limit_requests_for_the_same_ip,
+    limit_requests_for_the_same_ip,
+)
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
@@ -16,9 +19,6 @@ if Config.SCANNING_USER_AGENT_OVERRIDE:
     HEADERS = {"User-Agent": Config.SCANNING_USER_AGENT_OVERRIDE}
 else:
     HEADERS = {}
-
-
-IP_REQUEST_LOCK_KEY_PREFIX = "ip-request-lock-"
 
 
 def url_to_ip(url: str) -> Optional[str]:
@@ -31,21 +31,6 @@ def url_to_ip(url: str) -> Optional[str]:
     # on purpose - we want, if possible, to have a large chance of using the same IP that will
     # be used for actual requests.
     return socket.gethostbyname(host)
-
-
-async def async_limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
-    if ip is None:
-        ip = "unknown-ip"
-
-    # Therefore we make sure no more than one request for this host will happen in the
-    # next Config.SECONDS_PER_REQUEST_FOR_ONE_IP seconds
-    await AsyncResourceLock(redis=Config.ASYNC_REDIS, res_name=IP_REQUEST_LOCK_KEY_PREFIX + ip).acquire(
-        expiry=Config.SECONDS_PER_REQUEST_FOR_ONE_IP
-    )
-
-
-def limit_requests_for_the_same_ip(ip: Optional[str]) -> None:
-    asyncio.run(async_limit_requests_for_the_same_ip(ip))
 
 
 def _request(
@@ -125,5 +110,4 @@ def download_urls(urls: List[str], max_parallel_tasks: int = Config.MAX_ASYNC_PE
     Downloads URLs from the list and returns a dict: url -> response. If a download resulted in an
     exception, no entry will be provided.
     """
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(_download_urls_async(urls, max_parallel_tasks))
+    return asyncio.run(_download_urls_async(urls, max_parallel_tasks))

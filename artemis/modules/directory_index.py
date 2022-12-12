@@ -7,7 +7,7 @@ from typing import List
 from bs4 import BeautifulSoup
 from karton.core import Task
 
-from artemis import scanning_requests
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisSingleTaskBase
@@ -30,7 +30,7 @@ class DirectoryIndex(ArtemisSingleTaskBase):
     ]
 
     def scan(self, url: str) -> List[str]:
-        response = scanning_requests.get(url)
+        response = http_requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
         original_url_parsed = urllib.parse.urlparse(url)
 
@@ -68,7 +68,7 @@ class DirectoryIndex(ArtemisSingleTaskBase):
         path_candidates_list = path_candidates_list[:MAX_TESTS_PER_URL]
         results = []
         for path_candidate in path_candidates_list:
-            response = scanning_requests.get(urllib.parse.urljoin(url, path_candidate))
+            response = http_requests.get(urllib.parse.urljoin(url, path_candidate))
             content = response.content.decode("utf-8", errors="ignore")
             if (
                 "Index of /" in content

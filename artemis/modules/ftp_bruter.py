@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 from karton.core import Task
 from pydantic import BaseModel
 
+from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisSingleTaskBase
 
@@ -53,6 +54,7 @@ class FTPBruter(ArtemisSingleTaskBase):
                 result.welcome = ftp.welcome
 
                 try:
+                    request_limit.limit_requests_for_the_same_ip(ip)
                     ftp.login(username, password)
                     result.credentials.append((username, password))
                     result.files.extend(ftp.nlst())

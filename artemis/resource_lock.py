@@ -17,6 +17,12 @@ class ResourceLock:
         self.lid = str(uuid4())
 
     def acquire(self, expiry: Optional[int] = None) -> None:
+        """
+        Acquires a lock.
+
+        If expiry is set, the lock will be set to expire after `expiry` seconds
+        (so if expiry is 0, it won't even be acquired).
+        """
         if expiry == 0:
             return
 
@@ -40,6 +46,12 @@ class AsyncResourceLock:
         self.lid = str(uuid4())
 
     async def acquire(self, expiry: Optional[int] = None) -> None:
+        """
+        Acquires a lock.
+
+        If expiry is set, the lock will be set to expire after `expiry` seconds
+        (so if expiry is 0, it won't even be acquired).
+        """
         if expiry == 0:
             return
 

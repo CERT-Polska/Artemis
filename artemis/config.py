@@ -1,7 +1,5 @@
 import decouple
 
-import decouple
-
 
 class Config:
     NOT_INTERESTING_PATHS = decouple.config("NOT_INTERESTING_PATHS", default="/icon/,/icons/", cast=decouple.Csv(str))

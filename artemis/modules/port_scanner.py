@@ -59,7 +59,7 @@ class PortScanner(ArtemisSingleTaskBase):
             return json.loads(cache)  # type: ignore
 
         self.log.info(f"scanning {target_ip}")
-        with ResourceLock(redis=Config.REDIS, res_name="scanning-" + target_ip):
+        with ResourceLock(redis=Config.REDIS, res_name="port_scanner-" + target_ip):
             naabu = subprocess.Popen(
                 (
                     "naabu",

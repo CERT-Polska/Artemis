@@ -1,20 +1,44 @@
 import abc
+import random
 import sys
 import time
 import traceback
-from typing import Any, List
+from typing import Any, List, Optional
 
 from karton.core import Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState
 
 from artemis.binds import TaskStatus
+from artemis.db import DB
 from artemis.module_base import ArtemisBase
 
 
 class ArtemisMultipleTasksBase(ArtemisBase):
     seconds_between_polling = 10
     batch_size = 100
+
+    def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
+        super().__init__(*args, **kwargs)
+        self._get_random_queue_element = self.backend.redis.register_script(
+            """
+            local random_seed = ARGV[1]
+            local queue_name = ARGV[2]
+
+            local length = redis.call('LLEN', queue_name)
+
+            if length == 0 or length == nil then
+                return nil
+            end
+
+            math.randomseed(random_seed)
+            local member_id = math.random(length) - 1
+
+            local values = redis.call('LRANGE', queue_name, member_id, member_id)
+            redis.call('LREM', queue_name, 1, values[1])
+            return values[1]
+        """
+        )
 
     @abc.abstractmethod
     def run_multiple(self, tasks: List[Task]) -> None:
@@ -106,13 +130,22 @@ class ArtemisMultipleTasksBase(ArtemisBase):
 
     def _consume_routed_tasks(self, identity: str, max_count: int) -> List[Task]:
         task_uids: List[str] = []
-        for queue in self.backend.get_queue_names(identity):
-            task_uids.extend(
-                self.backend.consume_queues_batch(
-                    queue,
-                    max_count=max_count - len(task_uids),
-                )
-            )
+        while len(task_uids) < max_count:
+            added = False
+
+            for queue in self.backend.get_queue_names(identity):
+                if len(task_uids) == max_count:
+                    break
+
+                uid = self._get_random_queue_element(args=[random.randint(0, 2**31 - 1), queue])
+                if uid:
+                    task_uids.append(uid)
+                    added = True
+                else:
+                    continue
+            if not added:
+                break
+
         tasks = []
         for task_uid in task_uids:
             task = self.backend.get_task(task_uid)

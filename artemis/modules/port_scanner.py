@@ -8,14 +8,28 @@ from typing import Any, Dict
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 from artemis.resolvers import ip_lookup
+from artemis.task_utils import get_target
 
-# There are other kartons checking whether services on these ports are interesting
-NOT_INTERESTING_PORTS = [21, 25, 80, 443]
+NOT_INTERESTING_PORTS = [
+    # There are other kartons checking whether services on these ports are interesting
+    (21, "ftp"),  # There is a module that checks FTP
+    (22, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    (25, "smtp"),
+    (53, "dns"),  # Not worth reporting (DNS)
+    (80, "http"),
+    (110, "pop3"),
+    (143, "imap"),
+    (443, "http"),
+    (587, "smtp"),
+    (993, "imap"),
+    (995, "pop3"),
+    (3306, "MySQL"),  # There is a module that checks MySQL
+]
 
 
-class PortScanner(ArtemisBase):
+class PortScanner(ArtemisSingleTaskBase):
     """
     Consumes `type: IP`, scans them with naabu and fingerprintx and produces
     tasks separated into services (eg. `type: http`)
@@ -69,7 +83,7 @@ class PortScanner(ArtemisBase):
         return result
 
     def run(self, current_task: Task) -> None:
-        target = self.get_target(current_task)
+        target = get_target(current_task)
         task_type = current_task.headers["type"]
 
         # convert domain to IPs
@@ -82,6 +96,7 @@ class PortScanner(ArtemisBase):
 
         all_results = {}
         open_ports = []
+        interesting_port_descriptions = []
         for host in hosts:
             scan_results = self._scan(host)
             all_results[host] = scan_results
@@ -90,7 +105,7 @@ class PortScanner(ArtemisBase):
                 new_task = Task(
                     {
                         "type": TaskType.SERVICE,
-                        "service": Service(result["service"]),
+                        "service": Service(result["service"].lower()),
                     },
                     payload={
                         "host": target,
@@ -100,14 +115,12 @@ class PortScanner(ArtemisBase):
                 )
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
+                if (int(port), result["service"]) not in NOT_INTERESTING_PORTS:
+                    interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
 
-        potentially_interesting_ports = set(open_ports) - set(NOT_INTERESTING_PORTS)
-
-        if len(potentially_interesting_ports):
+        if len(interesting_port_descriptions):
             status = TaskStatus.INTERESTING
-            status_reason = "Found potentially interesting ports: " + ", ".join(
-                sorted(map(str, potentially_interesting_ports))
-            )
+            status_reason = "Found ports: " + ", ".join(sorted(interesting_port_descriptions))
         else:
             status = TaskStatus.OK
             status_reason = None

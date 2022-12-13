@@ -10,12 +10,12 @@ import dns.zone
 from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 
 KNOWN_BAD_NAMESERVERS = ["fns1.42.pl", "fns2.42.pl"]
 
 
-class DnsScanner(ArtemisBase):
+class DnsScanner(ArtemisSingleTaskBase):
     """
     Check for AXFR and known bad nameservers
     """
@@ -59,8 +59,7 @@ class DnsScanner(ArtemisBase):
                     else:
                         nameserver_ok = True
                 except dns.exception.Timeout:
-                    result["ns_not_responding"] = True
-                    findings.append(f"the nameserver {nameserver_ip} is not responding")
+                    pass
 
             if nameserver_ok:
                 try:

@@ -5,18 +5,18 @@ from typing import Any, Dict, List, Union
 import requests
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.binds import TaskStatus, TaskType, WebApplication
+from artemis.module_base import ArtemisSingleTaskBase
 
 
-class WordPressScanner(ArtemisBase):
+class WordPressScanner(ArtemisSingleTaskBase):
     """
     WordPress scanner
     """
 
     identity = "wp_scanner"
     filters = [
-        {"type": TaskType.WEBAPP, "webapp": Application.WORDPRESS},
+        {"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
     ]
 
     def _is_version_insecure(self, version: str) -> bool:
@@ -28,7 +28,7 @@ class WordPressScanner(ArtemisBase):
         else:
             cache_result = self.cache.get(cache_key)
             assert cache_result
-            data = json.loads(cache_result.decode("utf-8"))
+            data = json.loads(cache_result)
 
         if version not in data:
             raise Exception(f"Cannot check version stability: {version}")

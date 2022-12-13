@@ -19,7 +19,7 @@ authorized_licenses = [
 
 [tool.liccheck.authorized_packages]
 # BSD, not properly provided in package metadata
-karton-core = "4.2.0"
+karton-core = "4.4.1"
 
 # Apache 2, not properly provided in package metadata
 aiofiles = "0.7.0"

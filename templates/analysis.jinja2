@@ -5,17 +5,30 @@
 
     <h4>Tasks</h4>
     <p>
+    <p>
         <a
-            href="?status=INTERESTING"
-            class="btn {% if status == "INTERESTING" %}btn-primary{% else %}btn-default {% endif %}
-            id="show-interesting">
-                Show only interesting findings
+            href="?task_filter=approved"
+            class="btn {% if task_filter == "approved" %}btn-primary{% else %}btn-default{% endif %}">
+                Approved
         </a>
         <a
-            href="?"
-            class="btn {% if status != "INTERESTING" %}btn-primary{% else %}btn-default{% endif %}
-            id="show-all">
-                Show all tasks
+            href="?task_filter=dismissed"
+            class="btn {% if task_filter == "dismissed" %}btn-primary{% else %}btn-default{% endif %}">
+                Dismissed
+        </a>
+        <a
+            href="?task_filter=interesting_undecided"
+            class="btn {% if task_filter == "interesting_undecided" %}btn-primary{% else %}btn-default{% endif %}">
+                Interesting findings without manual decision
+        </a>
+        <a
+            href="?task_filter=interesting"
+            class="btn {% if task_filter == "interesting" %}btn-primary{% else %}btn-default{% endif %}">
+                All interesting findings
+        </a>
+        <a
+            href="?" class="btn {% if not task_filter %}btn-primary{% else %}btn-default{% endif %}">
+                All tasks
         </a>
     </p>
     <table id="analysis" class="table table-hover">
@@ -25,6 +38,7 @@
                 <th scope="col">task</th>
                 <th scope="col">headers</th>
                 <th scope="col">status: reason</th>
+                <th scope="col">decision</th>
             </tr>
       </thead>
   </table>
@@ -37,7 +51,7 @@
       "pageLength": 50,
       "search": "interesting",
       "ajax": {
-          "url": "/api/analysis/{{ analysis.root_uid }}/children{% if status %}?status={{ status }}{% endif %}",
+          "url": "/api/analysis/{{ analysis.root_uid }}/children{% if task_filter %}?task_filter={{ task_filter.value }}{% endif %}",
           "dataSrc": ""
       },
       "columns": [
@@ -47,16 +61,7 @@
         {
           "data": null,
           "render": function(task) {
-            const type_map = {
-              "new": task.payload.data,
-              "ip": task.payload.ip || task.payload_persistent.ip,
-              "domain": task.payload.domain || task.payload_persistent.domain,
-              "webapp": task.payload.url || task.payload_persistent.url,
-              "service": task.payload.host + ':' + task.payload.port,
-            };
-
-            const result = type_map[task.headers.type] || (task.headers.type + ': ' + task.uid);
-            return `<a href="/task/${task.uid}">${result}</a>`
+            return `<a href="/task/${task.uid}">${task.target_string}</a>`
           }
         },
         {
@@ -96,7 +101,22 @@
         },
         {
           "data": "status_reason"
-        }
+        },
+        {
+          "data": null,
+          "render": function(task) {
+            if (task.decision) {
+                if (task.decision.decision_type == 'approved') {
+                    badge = `<span class="badge bg-primary">approved</span>`;
+                } else {
+                    badge = `<span class="badge bg-secondary">dismissed</span>`;
+                }
+                return badge + ` (comment=${task.decision.operator_comment})`;
+            } else {
+                return `<a href="/task/${task.uid}">Decide</a>`;
+            }
+          }
+        },
       ],
       "order": []
     });

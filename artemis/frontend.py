@@ -2,14 +2,16 @@ import json
 from os import getenv, path
 from typing import List, Optional
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, Response
+from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
-from artemis.db import DB
+from artemis.db import DB, ManualDecision, ManualDecisionType, TaskFilter
+from artemis.json_utils import JSONEncoderWithDataclasses
+from artemis.karton_utils import restart_crashed_tasks
 from artemis.producer import create_tasks
 
 templates_dir = path.join(path.dirname(__file__), "..", "templates")
@@ -62,6 +64,41 @@ def post_add(
     return RedirectResponse("/", status_code=301)
 
 
+@router.post("/add-decision", include_in_schema=False)
+def post_add_decision(
+    decision_type: ManualDecisionType = Form(None),
+    target_string: Optional[str] = Form(None),
+    message: str = Form(None),
+    operator_comment: Optional[str] = Form(None),
+    redirect_to: str = Form(None),
+) -> Response:
+    db.add_manual_decision(
+        ManualDecision(
+            target_string=target_string,
+            message=message,
+            decision_type=decision_type,
+            operator_comment=operator_comment,
+        )
+    )
+    return RedirectResponse(redirect_to, status_code=302)
+
+
+@router.get("/restart-crashed-tasks")
+def get_restart_crashed_tasks(request: Request) -> Response:
+    return templates.TemplateResponse(
+        "/restart_crashed_tasks.jinja2",
+        {
+            "request": request,
+        },
+    )
+
+
+@router.post("/restart-crashed-tasks")
+def post_restart_crashed_tasks(request: Request) -> Response:
+    restart_crashed_tasks()
+    return RedirectResponse("/", status_code=301)
+
+
 @router.get("/queue", include_in_schema=False)
 def get_queue(request: Request) -> Response:
     return templates.TemplateResponse(
@@ -74,7 +111,7 @@ def get_queue(request: Request) -> Response:
 
 
 @router.get("/analysis/{root_id}", include_in_schema=False)
-def get_analysis(request: Request, root_id: str, status: Optional[str] = None) -> Response:
+def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilter] = None) -> Response:
     analysis = db.get_analysis_by_id(root_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -83,15 +120,15 @@ def get_analysis(request: Request, root_id: str, status: Optional[str] = None) -
         "analysis.jinja2",
         {
             "request": request,
-            "status": status,
+            "task_filter": task_filter,
             "analysis": analysis,
-            "pretty_printed": json.dumps(analysis, indent=4),
+            "pretty_printed": json.dumps(analysis, indent=4, cls=JSONEncoderWithDataclasses),
         },
     )
 
 
 @router.get("/task/{task_id}", include_in_schema=False)
-def get_task(task_id: str, request: Request) -> Response:
+def get_task(task_id: str, request: Request, referer: str = Header(default="/")) -> Response:
     task = db.get_task_by_id(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -101,6 +138,7 @@ def get_task(task_id: str, request: Request) -> Response:
         {
             "request": request,
             "task": task,
-            "pretty_printed": json.dumps(task, indent=4),
+            "referer": referer,
+            "pretty_printed": json.dumps(task, indent=4, cls=JSONEncoderWithDataclasses),
         },
     )

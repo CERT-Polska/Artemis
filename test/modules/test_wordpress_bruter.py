@@ -2,7 +2,7 @@ from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
-from artemis.binds import Application, TaskStatus
+from artemis.binds import TaskStatus, WebApplication
 from artemis.modules.wordpress_bruter import WordPressBruter
 
 
@@ -12,7 +12,7 @@ class WordPressBruterTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         task = Task(
-            headers={"webapp": Application.WORDPRESS},
+            headers={"webapp": WebApplication.WORDPRESS},
             payload={"url": "http://test-wordpress-easy-password"},
         )
         self.run_task(task)

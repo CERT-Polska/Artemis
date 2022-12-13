@@ -28,8 +28,20 @@ class BruterTest(ArtemisModuleTestCase):
                 {"type": entry.task_type, "service": Service.HTTP},
                 payload={"host": entry.host, "port": 80},
             )
-            self.run_task(task)
+            self.karton.run_multiple([task])
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-            self.assertEqual(call.kwargs["status_reason"], "Found files: config.dist, localhost.sql, sql.gz")
-            self.assertEqual(call.kwargs["data"], ["config.dist", "localhost.sql", "sql.gz"])
+            self.assertEqual(
+                call.kwargs["status_reason"],
+                f"Found files: http://{entry.host}:80/config.dist, "
+                f"http://{entry.host}:80/localhost.sql, "
+                f"http://{entry.host}:80/sql.gz",
+            )
+            self.assertEqual(
+                call.kwargs["data"],
+                [
+                    f"http://{entry.host}:80/config.dist",
+                    f"http://{entry.host}:80/localhost.sql",
+                    f"http://{entry.host}:80/sql.gz",
+                ],
+            )

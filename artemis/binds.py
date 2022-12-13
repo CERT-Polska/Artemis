@@ -16,7 +16,7 @@ class TaskType(str, Enum):
     # {service: lidl.com:443}
     SERVICE = "service"
 
-    # {webapp: having a URL, e.g. https://lidl.com/new/, and a type, e.g. Application.WORDPRESS}
+    # {webapp: having a URL, e.g. https://lidl.com/new/, and a type, e.g. WebApplication.WORDPRESS}
     WEBAPP = "webapp"
 
 
@@ -28,13 +28,14 @@ class Service(str, Enum):
     HTTP = "http"
     SMTP = "smtp"
     IMAP = "imap"
+    MYSQL = "mysql"
 
     @classmethod
     def _missing_(cls, value: object) -> Service:
         return Service.UNKNOWN
 
 
-class Application(str, Enum):
+class WebApplication(str, Enum):
     UNKNOWN = "unknown"
 
     WORDPRESS = "wordpress"
@@ -50,8 +51,8 @@ class Application(str, Enum):
     IDRAC = "idrac"
 
     @classmethod
-    def _missing_(cls, value: object) -> Application:
-        return Application.UNKNOWN
+    def _missing_(cls, value: object) -> WebApplication:
+        return WebApplication.UNKNOWN
 
 
 class TaskStatus(str, Enum):

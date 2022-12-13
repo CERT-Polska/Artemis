@@ -6,7 +6,8 @@ from karton.core import Task
 from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
+from artemis.task_utils import get_target
 
 BRUTE_CREDENTIALS = [
     ("anonymous", ""),
@@ -26,7 +27,7 @@ class FTPBruterResult(BaseModel):
     files: List[str] = []
 
 
-class FTPBruter(ArtemisBase):
+class FTPBruter(ArtemisSingleTaskBase):
     """
     Performs a brute force attack on FTP servers to guess login and password
     """
@@ -37,7 +38,7 @@ class FTPBruter(ArtemisBase):
     ]
 
     def run(self, current_task: Task) -> None:
-        ip = current_task.get_payload(TaskType.IP)
+        host = get_target(current_task)
         port = current_task.get_payload("port")
 
         result = FTPBruterResult()
@@ -49,7 +50,7 @@ class FTPBruter(ArtemisBase):
                 # with multiple failed login attempts followed by a successful
                 # one.
                 ftp = ftplib.FTP()
-                ftp.connect(host=ip, port=port, timeout=10)
+                ftp.connect(host=host, port=port, timeout=10)
                 result.welcome = ftp.welcome
 
                 try:

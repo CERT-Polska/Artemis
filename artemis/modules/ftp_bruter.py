@@ -56,7 +56,7 @@ class FTPBruter(ArtemisSingleTaskBase):
                 result.welcome = ftp.welcome
 
                 try:
-                    request_limit.limit_requests_for_the_same_ip(socket.gethostbyname(host))
+                    request_limit.limit_requests_for_ip(socket.gethostbyname(host))
                     ftp.login(username, password)
                     result.credentials.append((username, password))
                     result.files.extend(ftp.nlst())

@@ -8,10 +8,7 @@ import aiohttp
 import requests
 
 from artemis.config import Config
-from artemis.request_limit import (
-    async_limit_requests_for_the_same_ip,
-    limit_requests_for_the_same_ip,
-)
+from artemis.request_limit import async_limit_requests_for_ip, limit_requests_for_ip
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
@@ -36,7 +33,7 @@ def url_to_ip(url: str) -> Optional[str]:
 def _request(
     method_name: str, url: str, allow_redirects: bool, data: Optional[Dict[str, str]], cookies: Optional[Dict[str, str]]
 ) -> requests.Response:
-    limit_requests_for_the_same_ip(url_to_ip(url))
+    limit_requests_for_ip(url_to_ip(url))
 
     response = getattr(requests, method_name)(
         url,
@@ -78,7 +75,7 @@ class HTTPResponse:
 async def _download(url: str, task_limitter: asyncio.BoundedSemaphore) -> Union[HTTPResponse, Exception]:
     try:
         async with task_limitter:
-            await async_limit_requests_for_the_same_ip(url_to_ip(url))
+            await async_limit_requests_for_ip(url_to_ip(url))
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(

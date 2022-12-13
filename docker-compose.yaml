@@ -237,8 +237,6 @@ services:
       dockerfile: docker/Dockerfile
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
-    environment:
-     - SHODAN_API_KEY=
     env_file: .env
     command: "python3 -m artemis.modules.shodan_vulns"
 

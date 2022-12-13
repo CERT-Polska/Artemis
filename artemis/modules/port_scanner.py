@@ -91,7 +91,7 @@ class PortScanner(ArtemisSingleTaskBase):
 
             ip, _ = line.split(b":")
 
-            request_limit.limit_requests_for_the_same_ip(ip.decode("ascii"))
+            request_limit.limit_requests_for_ip(ip.decode("ascii"))
             output = subprocess.check_output(["fingerprintx", "--json"], input=line).strip()
 
             if not output:

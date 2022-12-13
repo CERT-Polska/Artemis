@@ -90,18 +90,15 @@ class Postman(ArtemisSingleTaskBase):
     def run(self, current_task: Task) -> None:
         result = PostmanResult()
 
-        domain = current_task.get_payload(TaskType.DOMAIN)
+        original_domain = current_task.get_payload("original_domain")
         host = current_task.get_payload("host")
-        ip = current_task.get_payload(TaskType.IP)
         port = current_task.get_payload("port")
 
-        if domain:
-            if not host:
-                host = domain
-            result.unauthorized_local_from = self._check_outgoing_email(domain, host, port)
-            result.open_relay = self._check_open_relay(host, port)
+        if original_domain:
+            result.unauthorized_local_from = self._check_outgoing_email(original_domain, host, port)
         else:
-            result.open_relay = self._check_open_relay(ip, port)
+            result.unauthorized_local_from = self._check_outgoing_email(host, host, port)
+        result.open_relay = self._check_open_relay(host, port)
 
         found_problems = []
         if result.unauthorized_local_from:

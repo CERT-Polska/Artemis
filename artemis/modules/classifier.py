@@ -97,6 +97,9 @@ class Classifier(ArtemisSingleTaskBase):
             payload={
                 task_type: sanitized,
             },
+            payload_persistent={
+                f"original_{task_type}": sanitized,
+            },
         )
 
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=new_task.headers["type"])

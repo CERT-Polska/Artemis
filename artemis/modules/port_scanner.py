@@ -16,7 +16,7 @@ from artemis.task_utils import get_target
 
 NOT_INTERESTING_PORTS = [
     # There are other kartons checking whether services on these ports are interesting
-    (21, "ftp"),
+    (21, "ftp"),  # There is a module that checks FTP
     (22, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
     (25, "smtp"),
     (53, "dns"),  # Not worth reporting (DNS)
@@ -27,6 +27,7 @@ NOT_INTERESTING_PORTS = [
     (587, "smtp"),
     (993, "imap"),
     (995, "pop3"),
+    (3306, "MySQL"),  # There is a module that checks MySQL
 ]
 
 
@@ -129,7 +130,7 @@ class PortScanner(ArtemisSingleTaskBase):
                 new_task = Task(
                     {
                         "type": TaskType.SERVICE,
-                        "service": Service(result["service"]),
+                        "service": Service(result["service"].lower()),
                     },
                     payload={
                         "host": target,

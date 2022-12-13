@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisSingleTaskBase
+from artemis.task_utils import get_target
 
 BRUTE_CREDENTIALS = [
     ("anonymous", ""),
@@ -38,7 +39,7 @@ class FTPBruter(ArtemisSingleTaskBase):
     ]
 
     def run(self, current_task: Task) -> None:
-        ip = current_task.get_payload(TaskType.IP)
+        host = get_target(current_task)
         port = current_task.get_payload("port")
 
         result = FTPBruterResult()
@@ -50,7 +51,7 @@ class FTPBruter(ArtemisSingleTaskBase):
                 # with multiple failed login attempts followed by a successful
                 # one.
                 ftp = ftplib.FTP()
-                ftp.connect(host=ip, port=port, timeout=10)
+                ftp.connect(host=host, port=port, timeout=10)
                 result.welcome = ftp.welcome
 
                 try:

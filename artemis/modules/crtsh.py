@@ -6,6 +6,7 @@ from karton.core import Task
 from psycopg2 import OperationalError, connect
 
 from artemis.binds import TaskStatus, TaskType
+from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisSingleTaskBase
 
 DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
@@ -66,6 +67,7 @@ class CrtshScanner(ArtemisSingleTaskBase):
             except OperationalError:
                 ct_domains = self.query_json(domain)
             for entry in ct_domains:
+                assert is_subdomain(entry, domain)
                 task = Task(
                     {"type": TaskType.NEW},
                     payload={

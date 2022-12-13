@@ -133,7 +133,7 @@ class Bruter(ArtemisMultipleTasksBase):
 
         found_files_as_lists: Dict[str, List[str]] = {}
         for key in found_files.keys():
-            if len(found_files[key]) > len(urls) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+            if len(found_files[key]) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
                 found_files_as_lists[key] = []
             else:
                 found_files_as_lists[key] = sorted(list(found_files[key]))

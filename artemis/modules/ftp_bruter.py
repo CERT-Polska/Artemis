@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import ftplib
+import socket
 from typing import List, Optional, Tuple
 
 from karton.core import Task
@@ -55,7 +56,7 @@ class FTPBruter(ArtemisSingleTaskBase):
                 result.welcome = ftp.welcome
 
                 try:
-                    request_limit.limit_requests_for_the_same_ip(ip)
+                    request_limit.limit_requests_for_the_same_ip(socket.gethostbyname(host))
                     ftp.login(username, password)
                     result.credentials.append((username, password))
                     result.files.extend(ftp.nlst())

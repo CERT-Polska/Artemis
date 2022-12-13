@@ -30,6 +30,5 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.run_task(task)
         self.run_task(task)
         call1, call2 = self.mock_db.save_task_result.call_args_list
-        print(call1, call2)
         self.assertEqual(call1.kwargs["status_reason"], "Found ports: 23 (service: ftp ssl: False)")
         self.assertEqual(call2.kwargs["status_reason"], "Found ports: 23 (service: ftp ssl: False)")

@@ -19,5 +19,4 @@ async def async_limit_requests_for_ip(ip: Optional[str]) -> None:
 
 
 def limit_requests_for_ip(ip: Optional[str]) -> None:
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(async_limit_requests_for_ip(ip))
+    asyncio.run(async_limit_requests_for_ip(ip))

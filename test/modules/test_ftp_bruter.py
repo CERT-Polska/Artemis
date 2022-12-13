@@ -12,8 +12,8 @@ class FTPBruterTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         task = Task(
-            {"service": Service.FTP},
-            payload={TaskType.IP: "192.168.3.6", "port": 21},
+            {"type": TaskType.SERVICE.value, "service": Service.FTP},
+            payload={"host": "192.168.3.6", "port": 21},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list

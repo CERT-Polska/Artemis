@@ -203,6 +203,16 @@ services:
      - DB_CONN_STR=mongodb://root:root@db
     command: "python3 -m artemis.modules.ftp_bruter"
 
+  karton-mysql_bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    depends_on: [karton-logger]
+    environment:
+     - DB_CONN_STR=mongodb://root:root@db
+    command: "python3 -m artemis.modules.mysql_bruter"
+
   karton-mail_dns_scanner:
     build:
       context: .

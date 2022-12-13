@@ -10,6 +10,7 @@ import requests
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.http import download_urls
 from artemis.module_base_multiple_tasks import ArtemisMultipleTasksBase
 from artemis.task_utils import get_target_url
@@ -130,9 +131,13 @@ class Bruter(ArtemisMultipleTasksBase):
             ):
                 found_files[task_uid].add(response_url)
 
-        found_files_as_lists = {}
+        found_files_as_lists: Dict[str, List[str]] = {}
         for key in found_files.keys():
-            found_files_as_lists[key] = sorted(list(found_files[key]))
+            if len(found_files[key]) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+                found_files_as_lists[key] = []
+            else:
+                found_files_as_lists[key] = sorted(list(found_files[key]))
+
         return found_files_as_lists
 
     def run_multiple(self, tasks: List[Task]) -> None:

@@ -29,3 +29,7 @@ class Config:
     # (e.g. the one spawned by bruter) the maximum number of coroutines running concurrently
     # will be MAX_ASYNC_PER_LOOP.
     MAX_ASYNC_PER_LOOP = decouple.config("MAX_ASYNC_PER_LOOP", cast=int, default=10)
+
+    # A threshold in case the server reports too much files with 200 status code,
+    # and we want to skip this as a false positive. 0.1 means 10%.
+    BRUTER_FALSE_POSITIVE_THRESHOLD = 0.1

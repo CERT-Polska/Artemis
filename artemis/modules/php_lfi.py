@@ -7,7 +7,7 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
 LFI_REGEX = r"(({url})?/)?([a-zA-Z0-9-_]+).php\?([a-zA-Z-_]+)=[a-zA-Z0-9-_]+"
@@ -31,7 +31,7 @@ def get_lfi_candidates(url: str, response_text: str) -> List[LFICandidate]:
     return result
 
 
-class PHPLFIScanner(ArtemisSingleTaskBase):
+class PHPLFIScanner(ArtemisBase):
     """
     Tries to detect and verify PHP LFI
     """

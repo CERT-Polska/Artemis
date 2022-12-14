@@ -7,7 +7,7 @@ from publicsuffixlist import PublicSuffixList
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 domain_pattern = re.compile(
     r"^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|"
@@ -20,7 +20,7 @@ domain_pattern = re.compile(
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
-class Classifier(ArtemisSingleTaskBase):
+class Classifier(ArtemisBase):
     """
     Collects `type: new` and converts them to `type: HAS_DOMAIN` or `type: HAS_IP`
     Expects data to be in `payload["data"]`.

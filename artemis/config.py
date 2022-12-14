@@ -41,6 +41,9 @@ class Config:
     ASYNC_REDIS = AsyncRedis.from_url(decouple.config("REDIS_CONN_STR"))
 
     HTTP_TIMEOUT_SECONDS = decouple.config("HTTP_TIMEOUT_SECONDS", default=5, cast=int)
+
+    # These two limits are independent - whether the port scanning limits are used doesn't affect
+    # the requests limit and vice versa.
     SECONDS_PER_REQUEST_FOR_ONE_IP = decouple.config("SECONDS_PER_REQUEST_FOR_ONE_IP", default=5, cast=int)
     SCANNING_PACKETS_PER_SECOND_PER_IP = decouple.config("SCANNING_PACKETS_PER_SECOND_PER_IP", default=2, cast=int)
 

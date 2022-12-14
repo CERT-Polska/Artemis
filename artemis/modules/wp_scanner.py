@@ -7,10 +7,10 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 
-class WordPressScanner(ArtemisSingleTaskBase):
+class WordPressScanner(ArtemisBase):
     """
     WordPress scanner
     """

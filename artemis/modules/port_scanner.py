@@ -9,7 +9,7 @@ from karton.core import Task
 from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.resource_lock import ResourceLock
 from artemis.task_utils import get_target
@@ -31,7 +31,7 @@ NOT_INTERESTING_PORTS = [
 ]
 
 
-class PortScanner(ArtemisSingleTaskBase):
+class PortScanner(ArtemisBase):
     """
     Consumes `type: IP`, scans them with naabu and fingerprintx and produces
     tasks separated into services (eg. `type: http`)

@@ -15,16 +15,16 @@ from artemis.resource_lock import ResourceLock
 from artemis.task_utils import get_target
 
 NOT_INTERESTING_PORTS = [
-    # There are other kartons checking whether services on these ports are interesting
+    # None means "any port" - (None, "http") means "http on any port"
     (21, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
-    (22, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
-    (25, "smtp"),
+    (None, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    (25, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
     (53, "dns"),  # Not worth reporting (DNS)
-    (80, "http"),
+    (None, "http"),  # Regardles of what port the HTTP server is on, we will run related checks on that
     (110, "pop3"),
     (143, "imap"),
-    (443, "http"),
-    (587, "smtp"),
+    (465, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
+    (587, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
     (993, "imap"),
     (995, "pop3"),
     (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL
@@ -142,7 +142,10 @@ class PortScanner(ArtemisBase):
                 )
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
-                if (int(port), result["service"]) not in NOT_INTERESTING_PORTS:
+                if (int(port), result["service"]) not in NOT_INTERESTING_PORTS and (
+                    None,
+                    result["service"],
+                ) not in NOT_INTERESTING_PORTS:
                     interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
 
         if len(interesting_port_descriptions):

@@ -2,15 +2,13 @@ import traceback
 from abc import abstractmethod
 from typing import Any, List, Optional, cast
 
-import requests
 from karton.core import Karton, Task
 
 from artemis.binds import TaskStatus
+from artemis.config import Config
 from artemis.db import DB
 from artemis.redis_cache import RedisCache
 from artemis.resource_lock import ResourceLock
-
-requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
 
 class ArtemisBase(Karton):
@@ -20,8 +18,8 @@ class ArtemisBase(Karton):
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
-        self.cache = RedisCache(self.backend.redis, self.identity)
-        self.lock = ResourceLock(self.backend.redis, self.identity)
+        self.cache = RedisCache(Config.REDIS, self.identity)
+        self.lock = ResourceLock(redis=Config.REDIS, res_name=self.identity)
         if db:
             self.db = db
         else:

@@ -2,9 +2,9 @@
 import re
 from typing import List, NamedTuple
 
-import requests
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisSingleTaskBase
 from artemis.task_utils import get_target_url
@@ -44,7 +44,7 @@ class VCSScanner(ArtemisSingleTaskBase):
     def _detect_vcs(self, url: str, path: str, patterns: List[str]) -> bool:
         target = f"{url}/{path}"
         self.log.info(f"Testing {target}")
-        response = requests.get(target, verify=False, allow_redirects=False, timeout=5)
+        response = http_requests.get(target, allow_redirects=False)
 
         if response.status_code != 200:
             self.log.info(f"{target} does not exist")

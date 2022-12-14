@@ -5,6 +5,7 @@ import pymysql
 from karton.core import Task
 from pydantic import BaseModel
 
+from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisSingleTaskBase
 from artemis.task_utils import get_target
@@ -34,6 +35,7 @@ class MySQLBruter(ArtemisSingleTaskBase):
 
         for username, password in BRUTE_CREDENTIALS:
             try:
+                request_limit.limit_requests_for_host(host)
                 pymysql.connect(host=host, port=port, user=username, password=password)
                 result.credentials.append((username, password))
             except pymysql.err.OperationalError:

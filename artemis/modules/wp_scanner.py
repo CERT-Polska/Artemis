@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Union
 import requests
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisSingleTaskBase
 
@@ -43,13 +44,13 @@ class WordPressScanner(ArtemisSingleTaskBase):
 
         # Check for open registration
         registration_url = f"{url}/wp-login.php?action=register"
-        response = requests.get(registration_url, verify=False, timeout=5)
+        response = http_requests.get(registration_url)
         if '<form name="registerform" id="registerform"' in response.text:
             found_problems.append(f"registration is open on {registration_url}")
             result["registration_url"] = registration_url
 
         # Check if they are running latest patch version
-        response = requests.get(url, verify=False, timeout=5)
+        response = http_requests.get(url)
         wp_version = None
         if match := re.search('<meta name="generator" content="WordPress ([0-9]+\\.[0-9]+\\.[0-9]+)', response.text):
             wp_version = match.group(1)

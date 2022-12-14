@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import socket
 from typing import List, Tuple
 
 import pymysql
@@ -36,7 +35,7 @@ class MySQLBruter(ArtemisSingleTaskBase):
 
         for username, password in BRUTE_CREDENTIALS:
             try:
-                request_limit.limit_requests_for_ip(socket.gethostbyname(host))
+                request_limit.limit_requests_for_host(host)
                 pymysql.connect(host=host, port=port, user=username, password=password)
                 result.credentials.append((username, password))
             except pymysql.err.OperationalError:

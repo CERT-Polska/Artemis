@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import socket
 from smtplib import (
     SMTP,
     SMTPDataError,
@@ -52,7 +51,7 @@ class Postman(ArtemisSingleTaskBase):
         """
         try:
             local_hostname = Config.POSTMAN_MAIL_FROM.split("@")[1]
-            request_limit.limit_requests_for_ip(socket.gethostbyname(host))
+            request_limit.limit_requests_for_host(host)
             with SMTP(host, port, local_hostname=local_hostname) as smtp:
                 smtp.set_debuglevel(1)
                 smtp.sendmail(
@@ -75,7 +74,7 @@ class Postman(ArtemisSingleTaskBase):
         Tests if SMTP server allows sending as domain to any address.
         """
         try:
-            request_limit.limit_requests_for_ip(socket.gethostbyname(host))
+            request_limit.limit_requests_for_host(host)
             with SMTP(host, port) as smtp:
                 smtp.set_debuglevel(1)
                 mail_from = f"root@{domain}"

@@ -1,6 +1,5 @@
 import asyncio
 import dataclasses
-import socket
 import urllib.parse
 from typing import Dict, List, Optional, Union
 
@@ -8,7 +7,12 @@ import aiohttp
 import requests
 
 from artemis.config import Config
-from artemis.request_limit import async_limit_requests_for_ip, limit_requests_for_ip
+from artemis.request_limit import (
+    UnknownIPException,
+    async_limit_requests_for_ip,
+    get_ip_for_locking,
+    limit_requests_for_ip,
+)
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
@@ -18,16 +22,13 @@ else:
     HEADERS = {}
 
 
-def url_to_ip(url: str) -> Optional[str]:
+def url_to_ip(url: str) -> str:
     host = urllib.parse.urlparse(url).hostname
 
     if not host:
-        return None
+        raise UnknownIPException(f"Unknown host for URL: {url}")
 
-    # Here, we use the OS DNS mechanism instead of the DoH resolvers implemented in Artemis
-    # on purpose - we want, if possible, to have a large chance of using the same IP that will
-    # be used for actual requests.
-    return socket.gethostbyname(host)
+    return get_ip_for_locking(host)
 
 
 def _request(

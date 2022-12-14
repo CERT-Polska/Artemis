@@ -30,7 +30,7 @@ class MailDNSScanner(ArtemisSingleTaskBase):
 
     @staticmethod
     def is_smtp_server(host: str, port: int) -> bool:
-        request_limit.limit_requests_for_ip(socket.gethostbyname(host))
+        request_limit.limit_requests_for_host(host)
         smtp = SMTP(timeout=1)
         try:
             smtp.connect(host, port=port)

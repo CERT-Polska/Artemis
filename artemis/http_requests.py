@@ -107,4 +107,5 @@ def download_urls(urls: List[str], max_parallel_tasks: int = Config.MAX_ASYNC_PE
     Downloads URLs from the list and returns a dict: url -> response. If a download resulted in an
     exception, no entry will be provided.
     """
-    return asyncio.run(_download_urls_async(urls, max_parallel_tasks))
+    with asyncio.Runner() as runner:
+        return runner.run(_download_urls_async(urls, max_parallel_tasks))

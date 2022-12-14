@@ -16,7 +16,7 @@ from artemis.module_base import ArtemisBase
 
 class ArtemisMultipleTasksBase(ArtemisBase):
     seconds_between_polling = 10
-    batch_size = 100
+    batch_size = 2
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(db, *args, **kwargs)

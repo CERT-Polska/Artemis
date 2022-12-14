@@ -19,6 +19,8 @@ class KartonBackendMockWithRedis(KartonBackendMock):
 
 class ArtemisModuleTestCase(KartonTestCase):
     def setUp(self) -> None:
+        # We cannot use Artemis default DoH resolvers as they wouldn't be able to resolve
+        # internal test services' addresses.
         self._ip_lookup_mock = patch(
             "artemis.request_limit.ip_lookup", MagicMock(side_effect=lambda host: {socket.gethostbyname(host)})
         )

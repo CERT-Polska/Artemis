@@ -1,5 +1,6 @@
 import os
-from unittest.mock import MagicMock
+import socket
+from unittest.mock import MagicMock, patch
 
 from karton.core.test import ConfigMock, KartonBackendMock, KartonTestCase
 from redis import StrictRedis
@@ -18,8 +19,16 @@ class KartonBackendMockWithRedis(KartonBackendMock):
 
 class ArtemisModuleTestCase(KartonTestCase):
     def setUp(self) -> None:
+        self._ip_lookup_mock = patch(
+            "artemis.request_limit.ip_lookup", MagicMock(side_effect=lambda host: {socket.gethostbyname(host)})
+        )
+        self._ip_lookup_mock.__enter__()
+
         self.mock_db = MagicMock()
         self.mock_db.contains_scheduled_task.return_value = False
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=self.mock_db
         )
+
+    def tearDown(self) -> None:
+        self._ip_lookup_mock.__exit__([])  # type: ignore

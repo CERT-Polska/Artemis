@@ -28,7 +28,7 @@ class BruterTest(ArtemisModuleTestCase):
                 {"type": entry.task_type, "service": Service.HTTP},
                 payload={"host": entry.host, "port": 80},
             )
-            self.karton.run_multiple([task])
+            self.run_task(task)
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             self.assertEqual(

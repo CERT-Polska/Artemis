@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 
 class MailDNSScannerResult(BaseModel):
@@ -20,7 +20,7 @@ class MailDNSScannerResult(BaseModel):
     dmarc_record_present = False
 
 
-class MailDNSScanner(ArtemisSingleTaskBase):
+class MailDNSScanner(ArtemisBase):
     """
     Checks if there is a mail server associated with the current domain and checks if SPF and DMARC records are present
     """

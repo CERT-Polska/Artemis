@@ -10,7 +10,7 @@ from karton.core import Task
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
 PATHS: List[str] = ["/backup/", "/backups/", "/_vti_bin/", "/wp-content/", "/wp-includes/"]
@@ -19,7 +19,7 @@ MAX_TESTS_PER_URL = 20
 S3_BASE_DOMAIN = "s3.amazonaws.com"
 
 
-class DirectoryIndex(ArtemisSingleTaskBase):
+class DirectoryIndex(ArtemisBase):
     """
     Detects directory index enabled on the server
     """

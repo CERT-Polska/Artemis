@@ -10,12 +10,12 @@ import dns.zone
 from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 KNOWN_BAD_NAMESERVERS = ["fns1.42.pl", "fns2.42.pl"]
 
 
-class DnsScanner(ArtemisSingleTaskBase):
+class DnsScanner(ArtemisBase):
     """
     Check for AXFR and known bad nameservers
     """

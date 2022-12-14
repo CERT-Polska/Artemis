@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target
 
 BRUTE_CREDENTIALS = [
@@ -28,7 +28,7 @@ class FTPBruterResult(BaseModel):
     files: List[str] = []
 
 
-class FTPBruter(ArtemisSingleTaskBase):
+class FTPBruter(ArtemisBase):
     """
     Performs a brute force attack on FTP servers to guess login and password
     """

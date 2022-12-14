@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target
 
 BRUTE_CREDENTIALS = [("root", ""), ("admin", "admin"), ("root", "root"), ("mysql", "mysql"), ("sql", "sql")]
@@ -17,7 +17,7 @@ class MySQLBruterResult(BaseModel):
     credentials: List[Tuple[str, str]] = []
 
 
-class MySQLBruter(ArtemisSingleTaskBase):
+class MySQLBruter(ArtemisBase):
     """
     Performs a brute force attack on MySQL servers to guess login and password
     """

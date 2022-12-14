@@ -6,7 +6,7 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType, WebApplication
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
 WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
@@ -22,7 +22,7 @@ WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
 ]
 
 
-class WebappIdentifier(ArtemisSingleTaskBase):
+class WebappIdentifier(ArtemisBase):
     """
     Tries to identify the webapp
     """

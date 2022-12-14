@@ -8,7 +8,7 @@ from karton.core import Task
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
 RE_USER_AGENT = re.compile(r"^\s*user-agent:\s*(.*)", re.I)
@@ -34,7 +34,7 @@ class RobotsResult:
     groups: List[RobotsGroup]
 
 
-class RobotsScanner(ArtemisSingleTaskBase):
+class RobotsScanner(ArtemisBase):
     """
     Looks for robots.txt file and finds disallowed and allowed paths
     """

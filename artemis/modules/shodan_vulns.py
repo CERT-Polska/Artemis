@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 VULN_NAMES = {
     "CVE-2020-10188": "cisco_os_telnetd",
@@ -53,7 +53,7 @@ class ShodanVulnsResult(BaseModel):
     vulns: List[str] = []
 
 
-class ShodanVulns(ArtemisSingleTaskBase):
+class ShodanVulns(ArtemisBase):
     """
     Lists vulns from shodan
     """

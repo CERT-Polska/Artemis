@@ -49,3 +49,7 @@ class Config:
     # next LOCK_SLEEP_MIN_SECONDS..LOCK_SLEEP_MAX_SECONDS seconds.
     LOCK_SLEEP_MIN_SECONDS = decouple.config("LOCK_SLEEP_MIN_SECONDS", default=1, cast=int)
     LOCK_SLEEP_MAX_SECONDS = decouple.config("LOCK_SLEEP_MAX_SECONDS", default=5, cast=int)
+
+    # A threshold in case the server reports too much files with 200 status code,
+    # and we want to skip this as a false positive. 0.1 means 10%.
+    BRUTER_FALSE_POSITIVE_THRESHOLD = 0.1

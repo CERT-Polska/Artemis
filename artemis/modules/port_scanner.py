@@ -16,17 +16,13 @@ from artemis.task_utils import get_target
 
 NOT_INTERESTING_PORTS = [
     # None means "any port" - (None, "http") means "http on any port"
-    (21, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
+    (None, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
     (None, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
-    (25, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
+    (None, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
     (53, "dns"),  # Not worth reporting (DNS)
     (None, "http"),  # Regardles of what port the HTTP server is on, we will run related checks on that
-    (110, "pop3"),
-    (143, "imap"),
-    (465, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
-    (587, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
-    (993, "imap"),
-    (995, "pop3"),
+    (None, "pop3"),
+    (None, "imap"),
     (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL
 ]
 

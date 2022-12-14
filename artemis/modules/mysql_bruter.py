@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+from typing import List, Tuple
+
+import pymysql
+from karton.core import Task
+from pydantic import BaseModel
+
+from artemis import request_limit
+from artemis.binds import Service, TaskStatus, TaskType
+from artemis.module_base import ArtemisSingleTaskBase
+from artemis.task_utils import get_target
+
+BRUTE_CREDENTIALS = [("root", ""), ("admin", "admin"), ("root", "root"), ("mysql", "mysql"), ("sql", "sql")]
+
+
+class MySQLBruterResult(BaseModel):
+    credentials: List[Tuple[str, str]] = []
+
+
+class MySQLBruter(ArtemisSingleTaskBase):
+    """
+    Performs a brute force attack on MySQL servers to guess login and password
+    """
+
+    identity = "mysql_bruter"
+    filters = [
+        {"type": TaskType.SERVICE, "service": Service.MYSQL},
+    ]
+
+    def run(self, current_task: Task) -> None:
+        host = get_target(current_task)
+        port = current_task.get_payload("port")
+
+        result = MySQLBruterResult()
+
+        for username, password in BRUTE_CREDENTIALS:
+            try:
+                request_limit.limit_requests_for_host(host)
+                pymysql.connect(host=host, port=port, user=username, password=password)
+                result.credentials.append((username, password))
+            except pymysql.err.OperationalError:
+                pass
+
+        if result.credentials:
+            status = TaskStatus.INTERESTING
+            status_reason = "Found working credentials for the MySQL server: " + ", ".join(
+                sorted([username + ":" + password for username, password in result.credentials])
+            )
+        else:
+            status = TaskStatus.OK
+            status_reason = None
+        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+
+
+if __name__ == "__main__":
+    MySQLBruter().loop()

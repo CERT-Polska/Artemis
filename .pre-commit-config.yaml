@@ -21,9 +21,10 @@ repos:
     additional_dependencies:
     - aiohttp==3.8.3
     - dnspython==2.2.1
-    - karton-core==4.2.0
+    - karton-core==4.4.1
     - fastapi==0.88.0
     - pymongo-stubs==0.2.0
+    - types-PyMySQL==1.0.19.1
     - requests_mock==1.10.0
     - types-beautifulsoup4==4.11.6.1
     - types-psycopg2==2.9.21.2

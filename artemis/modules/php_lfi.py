@@ -3,11 +3,12 @@ import dataclasses
 import re
 from typing import Dict, List
 
-import requests
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisHTTPBase
+from artemis.module_base import ArtemisSingleTaskBase
+from artemis.task_utils import get_target_url
 
 LFI_REGEX = r"(({url})?/)?([a-zA-Z0-9-_]+).php\?([a-zA-Z-_]+)=[a-zA-Z0-9-_]+"
 B64_FILTER = "php://filter/convert.base64-encode/resource="
@@ -30,7 +31,7 @@ def get_lfi_candidates(url: str, response_text: str) -> List[LFICandidate]:
     return result
 
 
-class PHPLFIScanner(ArtemisHTTPBase):
+class PHPLFIScanner(ArtemisSingleTaskBase):
     """
     Tries to detect and verify PHP LFI
     """
@@ -43,7 +44,7 @@ class PHPLFIScanner(ArtemisHTTPBase):
     def scan(self, current_task: Task, url: str) -> None:
         found_lfi_descriptions = []
         result: Dict[str, str] = {}
-        response = requests.get(url, verify=False, allow_redirects=True, timeout=5)
+        response = http_requests.get(url)
 
         if response.status_code != 200:
             self.log.info("{url} does not exist".format(url=url))
@@ -69,12 +70,7 @@ class PHPLFIScanner(ArtemisHTTPBase):
                         zfilter=B64_FILTER,
                         extension=extension,
                     )
-                    response = requests.get(
-                        lfi_test_url,
-                        verify=False,
-                        allow_redirects=False,
-                        timeout=5,
-                    )
+                    response = http_requests.get(lfi_test_url, allow_redirects=False)
                     if response.status_code == 200 and re.match(B64_COMMON_PHP, response.text.replace("\n", "")):
                         self.log.info("LFI is exploitable")
                         result[key] = "confirmed"
@@ -91,7 +87,7 @@ class PHPLFIScanner(ArtemisHTTPBase):
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
     def run(self, current_task: Task) -> None:
-        url = self.get_target_url(current_task)
+        url = get_target_url(current_task)
         self.log.info(f"php lfi scanning {url}")
 
         self.scan(current_task, url)

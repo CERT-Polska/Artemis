@@ -33,11 +33,18 @@ vulnerability information from Shodan) are not available because the credentials
 
 To run simply:
 
- - clone the repo
- - run `docker compose up`
- - visit `localhost:5000`
+ - clone the repo,
+ - copy `env.example` to `.env` and configure it (e.g. by providing a User-Agent to override the default one),
+ - run `docker compose up`,
+ - browse to `localhost:5000`.
 
 URLs you provide don't have to follow any strict rules (e.g. `hxxp://127.0.0.1:1337/someurl` should work as well).
+
+## FAQ
+### Artemis takes a long time to run - what is the reason?
+By default, the requests are limitted to **one in 5 seconds** for a single IP (and, separately, **two packets
+per second for port scanning** for a single IP). To change that to more aggressive values, change the
+`SECONDS_PER_REQUEST_FOR_ONE_IP` and `SCANNING_PACKETS_PER_SECOND_PER_IP` environment variables.
 
 ## Development
 

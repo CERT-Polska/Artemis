@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import json
 import subprocess
 from dataclasses import dataclass
@@ -7,13 +6,17 @@ from typing import Any, Dict
 
 from karton.core import Task
 
+from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.module_base import ArtemisBase
+from artemis.config import Config
+from artemis.module_base import ArtemisSingleTaskBase
 from artemis.resolvers import ip_lookup
+from artemis.resource_lock import ResourceLock
+from artemis.task_utils import get_target
 
 NOT_INTERESTING_PORTS = [
     # There are other kartons checking whether services on these ports are interesting
-    (21, "ftp"),
+    (21, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
     (22, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
     (25, "smtp"),
     (53, "dns"),  # Not worth reporting (DNS)
@@ -24,10 +27,11 @@ NOT_INTERESTING_PORTS = [
     (587, "smtp"),
     (993, "imap"),
     (995, "pop3"),
+    (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL
 ]
 
 
-class PortScanner(ArtemisBase):
+class PortScanner(ArtemisSingleTaskBase):
     """
     Consumes `type: IP`, scans them with naabu and fingerprintx and produces
     tasks separated into services (eg. `type: http`)
@@ -56,19 +60,44 @@ class PortScanner(ArtemisBase):
             return json.loads(cache)  # type: ignore
 
         self.log.info(f"scanning {target_ip}")
-        naabu = subprocess.Popen(
-            ("naabu", "-host", target_ip, "-top-ports", "1000", "-silent"),
-            stdout=subprocess.PIPE,
-        )
-        fingerprintx = subprocess.check_output(("fingerprintx", "--json"), stdin=naabu.stdout)
-        naabu.wait()
+        with ResourceLock(redis=Config.REDIS, res_name="port_scanner-" + target_ip):
+            naabu = subprocess.Popen(
+                (
+                    "naabu",
+                    "-host",
+                    target_ip,
+                    "-top-ports",
+                    "1000",
+                    "-silent",
+                    "-retries",
+                    "1",
+                    "-rate",
+                    str(Config.SCANNING_PACKETS_PER_SECOND_PER_IP),
+                ),
+                stdout=subprocess.PIPE,
+            )
+            naabu.wait()
 
         result: Dict[str, Dict[str, Any]] = {}
-        for line in fingerprintx.decode().split("\n"):
+        if naabu.stdout:
+            lines = naabu.stdout.read().split(b"\n")
+            naabu.stdout.close()
+        else:
+            lines = []
+
+        for line in lines:
             if not line:
                 continue
 
-            data = json.loads(line)
+            ip, _ = line.split(b":")
+
+            request_limit.limit_requests_for_ip(ip.decode("ascii"))
+            output = subprocess.check_output(["fingerprintx", "--json"], input=line).strip()
+
+            if not output:
+                continue
+
+            data = json.loads(output)
             port = int(data["port"])
             ssl = data["transport"] == "tcptls"
             service = data["service"]
@@ -81,7 +110,7 @@ class PortScanner(ArtemisBase):
         return result
 
     def run(self, current_task: Task) -> None:
-        target = self.get_target(current_task)
+        target = get_target(current_task)
         task_type = current_task.headers["type"]
 
         # convert domain to IPs
@@ -103,7 +132,7 @@ class PortScanner(ArtemisBase):
                 new_task = Task(
                     {
                         "type": TaskType.SERVICE,
-                        "service": Service(result["service"]),
+                        "service": Service(result["service"].lower()),
                     },
                     payload={
                         "host": target,

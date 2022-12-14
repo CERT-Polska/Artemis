@@ -4,11 +4,12 @@ from typing import Any, Dict, List, Union
 import requests
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.module_base import ArtemisBase
+from artemis.module_base import ArtemisSingleTaskBase
 
 
-class JoomlaScanner(ArtemisBase):
+class JoomlaScanner(ArtemisSingleTaskBase):
     """
     Joomla scanner
     """
@@ -25,18 +26,18 @@ class JoomlaScanner(ArtemisBase):
 
         # Check for open registration
         registration_url = f"{url}/index.php?option=com_users&view=registration"
-        response = requests.get(registration_url, verify=False, timeout=5)
+        response = http_requests.get(registration_url)
         if "registration.register" in response.text:
             found_problems.append(f"Joomla registration is enabled in {registration_url}")
             result["registration_url"] = registration_url
 
         # Check if they are running latest patch version
-        response = requests.get(f"{url}/administrator/manifests/files/joomla.xml", verify=False, timeout=5)
+        response = http_requests.get(f"{url}/administrator/manifests/files/joomla.xml")
         if match := re.search("<version>([0-9]+\\.[0-9]+\\.[0-9]+)</version>", response.text):
             joomla_version = match.group(1)
             result["joomla_version"] = joomla_version
             # Get latest release in repo from GitHub API
-            gh_api_response = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases/latest", timeout=5)
+            gh_api_response = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases/latest")
             if gh_api_response.json()["tag_name"] != joomla_version:
                 found_problems.append(f"Joomla version is too old: {joomla_version}")
 

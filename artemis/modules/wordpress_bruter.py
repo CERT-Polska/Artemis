@@ -62,7 +62,7 @@ class WordPressBruter(ArtemisBase):
                     },
                     cookies={"wordpress_test_cookie": "WP%20Cookie%20check"},
                 ).content
-                if "<title>Dashboard" in content.decode("utf-8", errors="ignore"):
+                if "<title>Dashboard" in content:
                     credentials.append((username, password))
 
         if credentials:

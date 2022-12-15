@@ -1,6 +1,7 @@
 import dataclasses
+import json
 import urllib.parse
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import requests
 
@@ -28,9 +29,27 @@ def url_to_ip(url: str) -> str:
     return get_ip_for_locking(host)
 
 
+@dataclasses.dataclass
+class HTTPResponse:
+    status_code: int
+    content: str
+
+    def json(self) -> Any:
+        return json.loads(self.content)
+
+    @property
+    def text(self) -> str:
+        return self.content
+
+
 def _request(
-    method_name: str, url: str, allow_redirects: bool, data: Optional[Dict[str, str]], cookies: Optional[Dict[str, str]]
-) -> requests.Response:
+    method_name: str,
+    url: str,
+    allow_redirects: bool,
+    data: Optional[Dict[str, str]],
+    cookies: Optional[Dict[str, str]],
+    max_size: int = 100_000,
+) -> HTTPResponse:
     limit_requests_for_ip(url_to_ip(url))
 
     response = getattr(requests, method_name)(
@@ -42,8 +61,11 @@ def _request(
         timeout=Config.HTTP_TIMEOUT_SECONDS,
         headers=HEADERS,
     )
-    assert isinstance(response, requests.Response)
-    return response
+
+    # Handling situations where the response is very long, which is not handled by requests timeout
+    for item in response.iter_content(max_size):
+        return HTTPResponse(status_code=response.status_code, content=item.decode("utf-8", errors="ignore"))
+    return HTTPResponse(status_code=response.status_code, content="")
 
 
 def get(
@@ -51,7 +73,7 @@ def get(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
-) -> requests.Response:
+) -> HTTPResponse:
     return _request("get", url, allow_redirects, data, cookies)
 
 
@@ -60,11 +82,5 @@ def post(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
-) -> requests.Response:
+) -> HTTPResponse:
     return _request("post", url, allow_redirects, data, cookies)
-
-
-@dataclasses.dataclass
-class HTTPResponse:
-    status_code: int
-    content: str

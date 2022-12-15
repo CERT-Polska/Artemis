@@ -91,7 +91,7 @@ class Bruter(ArtemisBase):
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = base_url + "/" + dummy_random_token
         try:
-            dummy_content = http_requests.get(dummy_url).content.decode("utf-8", errors="ignore")
+            dummy_content = http_requests.get(dummy_url).content
         except Exception:
             dummy_content = ""
 
@@ -116,7 +116,7 @@ class Bruter(ArtemisBase):
             if response.status_code != 200:
                 continue
 
-            decoded_content = response.content.decode("utf-8", errors="ignore")
+            decoded_content = response.content
 
             if (
                 decoded_content

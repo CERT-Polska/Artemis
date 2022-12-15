@@ -74,7 +74,6 @@ class DB:
         self.analysis = self.client.artemis.analysis
         self.manual_decisions = self.client.artemis.manual_decisions
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
-        self.scheduled_tasks.create_index("analysis_id")
         self.task_results = self.client.artemis.task_results
         self.task_results.create_index(
             [
@@ -102,15 +101,6 @@ class DB:
             del created_analysis["status_reason"]
         self.analysis.insert_one(created_analysis)
 
-    def get_counts_of_scheduled_tasks(self) -> Dict[str, int]:
-        """Returns a dict: analysis id -> int."""
-        result = {}
-        for item in self.scheduled_tasks.aggregate(
-            [{"$match": {"done": False}}, {"$group": {"_id": "$analysis_id", "count": {"$sum": 1}}}]
-        ):
-            result[item["_id"]] = item["count"]
-        return result
-
     def save_task_result(
         self, task: Task, *, status: TaskStatus, status_reason: Optional[str] = None, data: Optional[Any] = None
     ) -> None:
@@ -129,9 +119,6 @@ class DB:
             created_task_result["result"] = data
 
         self.task_results.update_one({"_id": created_task_result["uid"]}, {"$set": created_task_result}, upsert=True)
-        self.scheduled_tasks.update_one(
-            {"deduplication_data": self._get_task_deduplication_data(task)}, {"$set": {"done": True}}, upsert=True
-        )
 
         self._apply_manual_decisions()
 
@@ -167,7 +154,6 @@ class DB:
         created_task = {
             "analysis_id": task.root_uid,
             "deduplication_data": self._get_task_deduplication_data(task),
-            "done": False,
         }
         result = self.scheduled_tasks.update_one(created_task, {"$set": created_task}, upsert=True)
         return bool(result.upserted_id)

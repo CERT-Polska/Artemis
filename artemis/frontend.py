@@ -5,6 +5,9 @@ from typing import List, Optional
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from karton.core.backend import KartonBackend
+from karton.core.config import Config as KartonConfig
+from karton.core.inspect import KartonState
 
 from artemis.db import DB, ManualDecision, ManualDecisionType, TaskFilter
 from artemis.json_utils import JSONEncoderWithDataclasses
@@ -19,11 +22,12 @@ db = DB()
 
 @router.get("/", include_in_schema=False)
 def get_root(request: Request) -> Response:
-    counts = db.get_counts_of_scheduled_tasks()
+    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))  # type: ignore[no-untyped-call]
+
     entries = []
     for entry in db.list_analysis():
-        if entry["_id"] in counts:
-            num_active_tasks = counts[entry["_id"]]
+        if entry["_id"] in karton_state.analyses:
+            num_active_tasks = len(karton_state.analyses[entry["_id"]].pending_tasks)
         else:
             num_active_tasks = 0
 

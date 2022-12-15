@@ -170,10 +170,12 @@ class PortScanner(ArtemisBase):
                 )
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
-                if (int(port), result["service"]) not in NOT_INTERESTING_PORTS and (
-                    None,
-                    result["service"],
-                ) not in NOT_INTERESTING_PORTS:
+
+                # Find whether relevant entries exist in the NOT_INTERESTING_PORTS list
+                entry = (int(port), result["service"])
+                entry_any_port = (None, result["service"])
+
+                if entry not in NOT_INTERESTING_PORTS and entry_any_port not in NOT_INTERESTING_PORTS:
                     interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
 
         if len(interesting_port_descriptions):

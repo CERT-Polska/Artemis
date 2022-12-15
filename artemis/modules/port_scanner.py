@@ -29,7 +29,6 @@ for port in PORTS_NAABU.split(","):
 
 # Additional ports we want to check for
 PORTS_SET.add(23)  # telnet
-PORTS_SET.add(69)  # TFTP
 PORTS_SET.add(139)  # SMB
 PORTS_SET.add(445)  # SMB
 PORTS_SET.add(6379)  # redis
@@ -90,8 +89,8 @@ class PortScanner(ArtemisBase):
                     "naabu",
                     "-host",
                     target_ip,
-                    "-top-ports",
-                    "1000",
+                    "-port",
+                    ",".join(map(str, PORTS)),
                     "-silent",
                     "-retries",
                     "1",

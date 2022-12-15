@@ -1,15 +1,12 @@
-import asyncio
 import dataclasses
 import urllib.parse
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional
 
-import aiohttp
 import requests
 
 from artemis.config import Config
 from artemis.request_limit import (
     UnknownIPException,
-    async_limit_requests_for_ip,
     get_ip_for_locking,
     limit_requests_for_ip,
 )
@@ -71,42 +68,3 @@ def post(
 class HTTPResponse:
     status_code: int
     content: str
-
-
-async def _download(url: str, task_limitter: asyncio.BoundedSemaphore) -> Union[HTTPResponse, Exception]:
-    try:
-        async with task_limitter:
-            await async_limit_requests_for_ip(url_to_ip(url))
-
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url, allow_redirects=False, timeout=Config.HTTP_TIMEOUT_SECONDS, ssl=False, headers=HEADERS
-                ) as response:
-                    response_bytes = await response.read()
-                    response_str = response_bytes.decode(response.charset or "utf-8", errors="ignore")
-                    return HTTPResponse(status_code=response.status, content=response_str)
-    except Exception as e:
-        return e
-
-
-async def _download_urls_async(urls: List[str], max_parallel_tasks: int) -> Dict[str, HTTPResponse]:
-    task_limitter = asyncio.BoundedSemaphore(max_parallel_tasks)
-    jobs = []
-    for url in urls:
-        jobs.append(asyncio.ensure_future(_download(url, task_limitter)))
-
-    result = {}
-    for url, response in zip(urls, await asyncio.gather(*jobs)):
-        if isinstance(response, Exception):
-            continue
-        result[url] = response
-    return result
-
-
-def download_urls(urls: List[str], max_parallel_tasks: int = Config.MAX_ASYNC_PER_LOOP) -> Dict[str, HTTPResponse]:
-    """
-    Downloads URLs from the list and returns a dict: url -> response. If a download resulted in an
-    exception, no entry will be provided.
-    """
-    with asyncio.Runner() as runner:
-        return runner.run(_download_urls_async(urls, max_parallel_tasks))

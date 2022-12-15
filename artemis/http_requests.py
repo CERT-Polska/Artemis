@@ -58,6 +58,7 @@ def _request(
         data=data,
         cookies=cookies,
         verify=False,
+        stream=True,
         timeout=Config.HTTP_TIMEOUT_SECONDS,
         headers=HEADERS,
     )

@@ -1,14 +1,18 @@
 import dataclasses
 import json
+import time
 from enum import Enum
 from typing import Any, Dict, List, Optional, cast
 
+import pymongo
 from karton.core import Task
 from pydantic import BaseModel
-from pymongo import MongoClient
 
+from artemis.artemis_logging import build_logger
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+
+LOGGER = build_logger(__name__)
 
 
 class TaskFilter(str, Enum):
@@ -16,6 +20,18 @@ class TaskFilter(str, Enum):
     INTERESTING = "interesting"
     APPROVED = "approved"
     DISMISSED = "dismissed"
+
+    def as_dict(self) -> Dict[str, Any]:
+        if self.value == TaskFilter.INTERESTING_UNDECIDED:
+            return {"status": "INTERESTING", "decision_type": None}
+        elif self.value == TaskFilter.INTERESTING:
+            return {"status": "INTERESTING"}
+        elif self.value == TaskFilter.APPROVED:
+            return {"decision_type": "approved"}
+        elif self.value == TaskFilter.DISMISSED:
+            return {"decision_type": "dismissed"}
+        else:
+            assert False
 
 
 class ManualDecisionType(str, Enum):
@@ -54,17 +70,27 @@ def get_task_target(task: Task) -> str:
 
 class DB:
     def __init__(self) -> None:
-        self.client = MongoClient(Config.DB_CONN_STR)
+        self.client = pymongo.MongoClient(Config.DB_CONN_STR)
         self.analysis = self.client.artemis.analysis
         self.manual_decisions = self.client.artemis.manual_decisions
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
         self.task_results = self.client.artemis.task_results
+        self.task_results.create_index(
+            [
+                ("target_string", pymongo.ASCENDING),
+                ("status_reason", pymongo.ASCENDING),
+                ("decision_type", pymongo.ASCENDING),
+            ]
+        )
+        self.task_results.create_index([("status_reason", pymongo.ASCENDING), ("decision_type", pymongo.ASCENDING)])
+        self.task_results.create_index([("status", pymongo.ASCENDING)])
 
     def list_analysis(self) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], list(self.analysis.find()))
 
     def add_manual_decision(self, decision: ManualDecision) -> None:
         self.manual_decisions.insert_one(dataclasses.asdict(decision))
+        self._apply_manual_decisions()
 
     def create_analysis(self, analysis: Task) -> None:
         created_analysis = self.task_to_dict(analysis)
@@ -94,6 +120,8 @@ class DB:
 
         self.task_results.update_one({"_id": created_task_result["uid"]}, {"$set": created_task_result}, upsert=True)
 
+        self._apply_manual_decisions()
+
     def get_analysis_by_url(self, url: str) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], self.analysis.find({"data": {"$regex": f".*{url}.*"}}))
 
@@ -103,32 +131,19 @@ class DB:
     def get_task_results_by_analysis_id(
         self, analysis_id: str, task_filter: Optional[TaskFilter] = None
     ) -> List[Dict[str, Any]]:
-        if task_filter in [TaskFilter.INTERESTING, TaskFilter.INTERESTING_UNDECIDED]:
-            task_results = cast(
-                List[Dict[str, Any]],
-                list(self.task_results.find({"root_uid": analysis_id, "status": TaskStatus.INTERESTING})),
-            )
-        else:
-            task_results = cast(List[Dict[str, Any]], list(self.task_results.find({"root_uid": analysis_id})))
-
-        return self._filter_task_results(task_results, task_filter)
+        return cast(
+            List[Dict[str, Any]],
+            list(self.task_results.find({"root_uid": analysis_id, **(task_filter.as_dict() if task_filter else {})})),
+        )
 
     def get_task_results(self, task_filter: Optional[TaskFilter] = None) -> List[Dict[str, Any]]:
-        if task_filter in [TaskFilter.INTERESTING, TaskFilter.INTERESTING_UNDECIDED]:
-            task_results = cast(
-                List[Dict[str, Any]],
-                list(self.task_results.find({"status": TaskStatus.INTERESTING})),
-            )
-        else:
-            task_results = cast(List[Dict[str, Any]], list(self.task_results.find()))
-
-        return self._filter_task_results(task_results, task_filter)
+        return cast(
+            List[Dict[str, Any]],
+            list(self.task_results.find(task_filter.as_dict() if task_filter else {})),
+        )
 
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
-        task_result = cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
-        if task_result:
-            task_result["decision"] = self._get_decision(task_result)
-        return task_result
+        return cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
 
     def save_scheduled_task(self, task: Task) -> bool:
         """
@@ -198,62 +213,27 @@ class DB:
         else:
             return None
 
-    def _get_decisions(self, task_results: List[Dict[str, Any]]) -> Dict[str, ManualDecision]:
-        decisions_for_message = {}
-        decisions_for_message_and_target = {}
+    def _apply_manual_decisions(self) -> None:
+        time_start = time.time()
+        for manual_decision in self.manual_decisions.find():
+            del manual_decision["_id"]
+            manual_decision_obj = ManualDecision(**manual_decision)
 
-        for obj in self.manual_decisions.find():
-            del obj["_id"]
-            decision = ManualDecision(**obj)
-
-            if decision.target_string:
-                decisions_for_message_and_target[(decision.message, decision.target_string)] = decision
+            decision_data = {
+                "decision_type": manual_decision_obj.decision_type,
+                "operator_comment": manual_decision_obj.operator_comment,
+            }
+            if manual_decision_obj.target_string:
+                self.task_results.update_many(
+                    {
+                        "target_string": manual_decision_obj.target_string,
+                        "status_reason": manual_decision_obj.message,
+                        "decision_type": None,
+                    },
+                    {"$set": decision_data},
+                )
             else:
-                decisions_for_message[decision.message] = decision
-
-        decisions = {}
-        for task_result in task_results:
-            found_decision: Optional[ManualDecision] = None
-
-            if task_result["status_reason"] in decisions_for_message:
-                found_decision = decisions_for_message[task_result["status_reason"]]
-
-            if (task_result["status_reason"], task_result["target_string"]) in decisions_for_message_and_target:
-                found_decision = decisions_for_message_and_target[
-                    (task_result["status_reason"], task_result["target_string"])
-                ]
-
-            if found_decision:
-                decisions[task_result["uid"]] = found_decision
-        return decisions
-
-    def _filter_task_results(
-        self, task_results: List[Dict[str, Any]], task_filter: Optional[TaskFilter]
-    ) -> List[Dict[str, Any]]:
-        task_results_filtered = []
-        decisions = self._get_decisions(task_results)
-
-        for task_result in task_results:
-            decision = decisions.get(task_result["uid"], None)
-            task_result["decision"] = decision
-
-            should_add = False
-
-            if task_filter == TaskFilter.INTERESTING_UNDECIDED:
-                if not decision:
-                    should_add = True
-            elif task_filter == TaskFilter.INTERESTING:
-                should_add = True
-            elif task_filter == TaskFilter.APPROVED:
-                if decision:
-                    should_add = decision.decision_type == ManualDecisionType.APPROVED
-            elif task_filter == TaskFilter.DISMISSED:
-                if decision:
-                    should_add = decision.decision_type == ManualDecisionType.DISMISSED
-            else:
-                assert task_filter is None
-                should_add = True
-
-            if should_add:
-                task_results_filtered.append(task_result)
-        return task_results_filtered
+                self.task_results.update_many(
+                    {"status_reason": manual_decision_obj.message, "decision_type": None}, {"$set": decision_data}
+                )
+        LOGGER.info("Manual decisions applied for existing tasks in %.02fs", time.time() - time_start)

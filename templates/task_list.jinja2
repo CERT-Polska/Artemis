@@ -104,13 +104,13 @@
         {
           "data": null,
           "render": function(task) {
-            if (task.decision) {
-                if (task.decision.decision_type == 'approved') {
+            if (task.decision_type) {
+                if (task.decision_type == 'approved') {
                     badge = `<span class="badge bg-primary">approved</span>`;
                 } else {
                     badge = `<span class="badge bg-secondary">dismissed</span>`;
                 }
-                return badge + ` (comment=${task.decision.operator_comment})`;
+                return badge + ` (comment=${task.operator_comment})`;
             } else {
                 return `<a href="/task/${task.uid}">Decide</a>`;
             }

@@ -4,6 +4,8 @@ A modular web reconnaisance tool and vulnerability scanner based on Karton
 
 The Artemis project has been initiated by the [KN Cyber](https://kncyber.pl/) science club of [Warsaw University of Technology](https://pw.edu.pl) and is currently being maintained by [CERT Polska](https://cert.pl).
 
+## [Quick Start 🔨](https://artemis-scanner.readthedocs.io/en/latest/quick-start.html) | [Docs 📚](https://artemis-scanner.readthedocs.io/en/latest/) |
+
 **Artemis is experimental software, under active development - use at your own risk.**
 
 To chat about Artemis, join the Discord server:

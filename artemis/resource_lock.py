@@ -1,5 +1,5 @@
 import time
-from random import randrange
+from random import uniform
 from typing import Any, Optional
 from uuid import uuid4
 
@@ -28,7 +28,7 @@ class ResourceLock:
             if self.redis.set(self.res_name, self.lid, nx=True, ex=expiry):
                 return
             else:
-                time.sleep(randrange(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
+                time.sleep(uniform(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
 
     def __enter__(self) -> None:
         self.acquire()

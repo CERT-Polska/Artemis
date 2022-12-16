@@ -1,15 +1,13 @@
-import asyncio
 import dataclasses
+import json
 import urllib.parse
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
-import aiohttp
 import requests
 
 from artemis.config import Config
 from artemis.request_limit import (
     UnknownIPException,
-    async_limit_requests_for_ip,
     get_ip_for_locking,
     limit_requests_for_ip,
 )
@@ -31,9 +29,30 @@ def url_to_ip(url: str) -> str:
     return get_ip_for_locking(host)
 
 
+# We create a simple response class that is just a container for a status code and decoded
+# string, without any streaming capabilities - returning a Response would require us to implement
+# more.
+@dataclasses.dataclass
+class HTTPResponse:
+    status_code: int
+    content: str
+
+    def json(self) -> Any:
+        return json.loads(self.content)
+
+    @property
+    def text(self) -> str:
+        return self.content
+
+
 def _request(
-    method_name: str, url: str, allow_redirects: bool, data: Optional[Dict[str, str]], cookies: Optional[Dict[str, str]]
-) -> requests.Response:
+    method_name: str,
+    url: str,
+    allow_redirects: bool,
+    data: Optional[Dict[str, str]],
+    cookies: Optional[Dict[str, str]],
+    max_size: int = 100_000,
+) -> HTTPResponse:
     limit_requests_for_ip(url_to_ip(url))
 
     response = getattr(requests, method_name)(
@@ -42,11 +61,17 @@ def _request(
         data=data,
         cookies=cookies,
         verify=False,
+        stream=True,
         timeout=Config.HTTP_TIMEOUT_SECONDS,
         headers=HEADERS,
     )
-    assert isinstance(response, requests.Response)
-    return response
+
+    # Handling situations where the response is very long, which is not handled by requests timeout
+    for item in response.iter_content(max_size):
+        # Return the first item (at most `max_size` length)
+        return HTTPResponse(status_code=response.status_code, content=item.decode("utf-8", errors="ignore"))
+    # If there was no content, we will fall back to the second statement, which returns an empty string
+    return HTTPResponse(status_code=response.status_code, content="")
 
 
 def get(
@@ -54,7 +79,7 @@ def get(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
-) -> requests.Response:
+) -> HTTPResponse:
     return _request("get", url, allow_redirects, data, cookies)
 
 
@@ -63,50 +88,5 @@ def post(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
-) -> requests.Response:
+) -> HTTPResponse:
     return _request("post", url, allow_redirects, data, cookies)
-
-
-@dataclasses.dataclass
-class HTTPResponse:
-    status_code: int
-    content: str
-
-
-async def _download(url: str, task_limitter: asyncio.BoundedSemaphore) -> Union[HTTPResponse, Exception]:
-    try:
-        async with task_limitter:
-            await async_limit_requests_for_ip(url_to_ip(url))
-
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url, allow_redirects=False, timeout=Config.HTTP_TIMEOUT_SECONDS, ssl=False, headers=HEADERS
-                ) as response:
-                    response_bytes = await response.read()
-                    response_str = response_bytes.decode(response.charset or "utf-8", errors="ignore")
-                    return HTTPResponse(status_code=response.status, content=response_str)
-    except Exception as e:
-        return e
-
-
-async def _download_urls_async(urls: List[str], max_parallel_tasks: int) -> Dict[str, HTTPResponse]:
-    task_limitter = asyncio.BoundedSemaphore(max_parallel_tasks)
-    jobs = []
-    for url in urls:
-        jobs.append(asyncio.ensure_future(_download(url, task_limitter)))
-
-    result = {}
-    for url, response in zip(urls, await asyncio.gather(*jobs)):
-        if isinstance(response, Exception):
-            continue
-        result[url] = response
-    return result
-
-
-def download_urls(urls: List[str], max_parallel_tasks: int = Config.MAX_ASYNC_PER_LOOP) -> Dict[str, HTTPResponse]:
-    """
-    Downloads URLs from the list and returns a dict: url -> response. If a download resulted in an
-    exception, no entry will be provided.
-    """
-    with asyncio.Runner() as runner:
-        return runner.run(_download_urls_async(urls, max_parallel_tasks))

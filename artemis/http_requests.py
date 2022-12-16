@@ -29,6 +29,9 @@ def url_to_ip(url: str) -> str:
     return get_ip_for_locking(host)
 
 
+# We create a simple response class that is just a container for a status code and decoded
+# string, without any streaming capabilities - returning a Response would require us to implement
+# more.
 @dataclasses.dataclass
 class HTTPResponse:
     status_code: int
@@ -65,7 +68,9 @@ def _request(
 
     # Handling situations where the response is very long, which is not handled by requests timeout
     for item in response.iter_content(max_size):
+        # Return the first item (at most `max_size` length)
         return HTTPResponse(status_code=response.status_code, content=item.decode("utf-8", errors="ignore"))
+    # If there was no content, we will fall back to the second statement, which returns an empty string
     return HTTPResponse(status_code=response.status_code, content="")
 
 

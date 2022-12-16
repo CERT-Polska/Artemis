@@ -48,7 +48,7 @@
   $(document).ready(function() {
     const table = $("#task_list").dataTable({
       ajax: {{ api_url|tojson }},  // we want to prevent & being converted to &amp; here
-      pageLength: 10,
+      pageLength: 100,
       serverSide: true,
       searching: false,
       columnDefs: [{

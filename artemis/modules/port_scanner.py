@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import subprocess
 from dataclasses import dataclass
 from typing import Any, Dict
@@ -14,19 +15,46 @@ from artemis.resolvers import ip_lookup
 from artemis.resource_lock import ResourceLock
 from artemis.task_utils import get_target
 
+with open(os.path.join(os.path.dirname(__file__), "data", "ports-naabu.txt")) as f:
+    PORTS_NAABU = ",".join([line for line in f if not line.startswith("#")])
+
+PORTS_SET = set()
+
+for port in PORTS_NAABU.split(","):
+    port = port.strip()
+    if not port:
+        continue
+
+    if "-" in port:
+        port_from, port_to = port.split("-")
+        for port_int in range(int(port_from), int(port_to) + 1):
+            PORTS_SET.add(port_int)
+    else:
+        PORTS_SET.add(int(port))
+
+# Additional ports we want to check for
+PORTS_SET.add(23)  # telnet
+PORTS_SET.add(139)  # SMB
+PORTS_SET.add(445)  # SMB
+PORTS_SET.add(6379)  # redis
+PORTS_SET.add(8000)  # http
+PORTS_SET.add(8080)  # http
+PORTS_SET.add(3389)  # RDP
+PORTS_SET.add(9200)  # Elasticsearch
+PORTS_SET.add(27017)  # MongoDB
+PORTS_SET.add(27018)  # MongoDB
+
+PORTS = sorted(list(PORTS_SET))
+
 NOT_INTERESTING_PORTS = [
-    # There are other kartons checking whether services on these ports are interesting
-    (21, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
-    (22, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
-    (25, "smtp"),
+    # None means "any port" - (None, "http") means "http on any port"
+    (None, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
+    (None, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    (None, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
     (53, "dns"),  # Not worth reporting (DNS)
-    (80, "http"),
-    (110, "pop3"),
-    (143, "imap"),
-    (443, "http"),
-    (587, "smtp"),
-    (993, "imap"),
-    (995, "pop3"),
+    (None, "http"),  # Regardles of what port the HTTP server is on, we will run related checks on that
+    (None, "pop3"),
+    (None, "imap"),
     (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL
 ]
 
@@ -66,8 +94,8 @@ class PortScanner(ArtemisBase):
                     "naabu",
                     "-host",
                     target_ip,
-                    "-top-ports",
-                    "1000",
+                    "-port",
+                    ",".join(map(str, PORTS)),
                     "-silent",
                     "-retries",
                     "1",
@@ -142,7 +170,12 @@ class PortScanner(ArtemisBase):
                 )
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
-                if (int(port), result["service"]) not in NOT_INTERESTING_PORTS:
+
+                # Find whether relevant entries exist in the NOT_INTERESTING_PORTS list
+                entry = (int(port), result["service"])
+                entry_any_port = (None, result["service"])
+
+                if entry not in NOT_INTERESTING_PORTS and entry_any_port not in NOT_INTERESTING_PORTS:
                     interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
 
         if len(interesting_port_descriptions):

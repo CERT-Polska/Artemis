@@ -104,12 +104,18 @@ class PortScanner(ArtemisBase):
                 ),
                 stdout=subprocess.PIPE,
             )
-            naabu.wait()
+            # We don't use `wait()` because of the following warning in the doc:
+            #
+            # This will deadlock when using stdout=PIPE and/or stderr=PIPE and the child process generates enough
+            # output to a pipe such that it blocks waiting for the OS pipe buffer to accept more data. Use
+            # communicate() to avoid that.
+            stdout, stderr = naabu.communicate()
+            if stderr:
+                self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
 
         result: Dict[str, Dict[str, Any]] = {}
-        if naabu.stdout:
-            lines = naabu.stdout.read().split(b"\n")
-            naabu.stdout.close()
+        if stdout:
+            lines = stdout.split(b"\n")
         else:
             lines = []
 

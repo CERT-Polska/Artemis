@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 import json
 import time
 from enum import Enum
@@ -125,7 +126,13 @@ class DB:
         else:
             created_task_result["result"] = data
 
-        self.task_results.update_one({"_id": created_task_result["uid"]}, {"$set": created_task_result}, upsert=True)
+        result = self.task_results.update_one(
+            {"_id": created_task_result["uid"]}, {"$set": created_task_result}, upsert=True
+        )
+        if result.upserted_id:  # If the record has been created, set creation date
+            result = self.task_results.update_one(
+                {"_id": created_task_result["uid"]}, {"$set": {"created_at": datetime.datetime.now()}}
+            )
 
         self._apply_manual_decisions()
 

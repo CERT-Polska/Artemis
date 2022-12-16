@@ -37,7 +37,7 @@ def get_task_results(
     analysis_id: Optional[str] = None,
     task_filter: Optional[TaskFilter] = None,
 ) -> Dict[str, Any]:
-    column_names = ["headers.receiver", "target_str", None, "status_reason", "decision_type"]
+    column_names = ["created_at", "headers.receiver", "target_str", None, "status_reason", "decision_type"]
     ordering = []
 
     # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]

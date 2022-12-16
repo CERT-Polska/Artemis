@@ -91,7 +91,7 @@ class Bruter(ArtemisBase):
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = base_url + "/" + dummy_random_token
         try:
-            dummy_content = http_requests.get(dummy_url).content.decode("utf-8", errors="ignore")
+            dummy_content = http_requests.get(dummy_url).content
         except Exception:
             dummy_content = ""
 
@@ -104,18 +104,27 @@ class Bruter(ArtemisBase):
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
-        results = http_requests.download_urls(urls)
+        results = {}
+        for url in urls:
+            try:
+                results[url] = http_requests.get(url)
+            except Exception:
+                pass
 
         found_files = set()
         for response_url, response in results.items():
+            if response.status_code != 200:
+                continue
+
+            decoded_content = response.content
+
             if (
-                response.status_code == 200
-                and response.content
-                and "<center><h1>40" not in response.content
-                and "Error 403" not in response.content
-                and "<title>Access forbidden!</title>" not in response.content
-                and response.content.strip() not in IGNORED_CONTENTS
-                and SequenceMatcher(None, response.content, dummy_content).quick_ratio() < 0.8
+                decoded_content
+                and "<center><h1>40" not in decoded_content
+                and "Error 403" not in decoded_content
+                and "<title>Access forbidden!</title>" not in decoded_content
+                and decoded_content.strip() not in IGNORED_CONTENTS
+                and SequenceMatcher(None, decoded_content, dummy_content).quick_ratio() < 0.8
             ):
                 found_files.add(response_url)
 

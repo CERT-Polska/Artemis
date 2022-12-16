@@ -3,21 +3,13 @@ from ipaddress import ip_address
 
 from artemis.config import Config
 from artemis.resolvers import ip_lookup
-from artemis.resource_lock import AsyncResourceLock, ResourceLock
+from artemis.resource_lock import ResourceLock
 
 IP_REQUEST_LOCK_KEY_PREFIX = "ip-request-lock-"
 
 
 class UnknownIPException(Exception):
     pass
-
-
-async def async_limit_requests_for_ip(ip: str) -> None:
-    # Therefore we make sure no more than one request for this host will happen in the
-    # next Config.SECONDS_PER_REQUEST_FOR_ONE_IP seconds
-    await AsyncResourceLock(redis=Config.ASYNC_REDIS, res_name=IP_REQUEST_LOCK_KEY_PREFIX + ip).acquire(
-        expiry=Config.SECONDS_PER_REQUEST_FOR_ONE_IP
-    )
 
 
 def limit_requests_for_ip(ip: str) -> None:

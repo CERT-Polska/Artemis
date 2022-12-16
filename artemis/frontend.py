@@ -128,14 +128,14 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
     )
 
 
-@router.get("/all-results", include_in_schema=False)
-def get_all_results(request: Request, task_filter: Optional[TaskFilter] = None) -> Response:
+@router.get("/results", include_in_schema=False)
+def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> Response:
     return templates.TemplateResponse(
         "task_list.jinja2",
         {
             "request": request,
             "title": "All task results",
-            "api_url": "/api/all-task-results" + (f"?task_filter={ task_filter.value }" if task_filter else ""),
+            "api_url": "/api/task-results" + (f"?task_filter={ task_filter.value }" if task_filter else ""),
             "task_filter": task_filter,
         },
     )

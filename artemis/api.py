@@ -48,10 +48,10 @@ def get_task_results(
         dir_key = f"order[{i}][dir]"
         if column_key not in request.query_params or dir_key not in request.query_params:
             break
-        i += 1
         column_name = column_names[int(request.query_params[column_key])]
         if column_name:
             ordering.append((column_name, request.query_params[dir_key]))
+        i += 1
 
     if analysis_id:
         if not db.get_analysis_by_id(analysis_id):

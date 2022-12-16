@@ -5,7 +5,7 @@
         <span class="badge bg-secondary">dismissed</span>
     {% endif %}
 
-    (comment=${task.operator_comment})
+    (comment={{ task.operator_comment }})
 {% else %}
     <a href="/task/{{ task.uid }}">Decide</a>
 {% endif %}

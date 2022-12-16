@@ -117,10 +117,6 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
 
     api_url_parameters = {"analysis_id": analysis["root_uid"]}
 
-    import sys
-
-    sys.stderr.write(repr(task_filter) + "\n")
-
     if task_filter:
         api_url_parameters["task_filter"] = task_filter.value
 

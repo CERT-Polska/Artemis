@@ -47,77 +47,14 @@
 <script>
   $(document).ready(function() {
     const table = $("#task_list").dataTable({
-      "pageLength": 50,
-      "search": "interesting",
-      "ajax": {
-          "url": "{{ api_url }}",
-          "dataSrc": ""
-      },
-      "columns": [
-        {
-          "data": "headers.receiver"
-        },
-        {
-          "data": null,
-          "render": function(task) {
-            return `<a href="/task/${task.uid}">${task.target_string}</a>`
-          }
-        },
-        {
-          "data": "headers",
-          "render": function(_, _, task) {
-            let result = "";
-            const append_badge = (color, value) => {
-              result += `<span class="badge bg-${color}">${value}</span> `
-            };
-
-            if (task.priority !== "normal")
-              append_badge("dark", task.priority);
-
-            const status_map = {
-              "CACHED": "info",
-              "ERROR": "danger",
-              "INTERESTING": "warning",
-              "OK": "success",
-            };
-            append_badge(status_map[task.status], task.status);
-
-            const headers_map = {
-              "type": "primary",
-              "service": "info",
-            };
-
-            for (const [header, value] of Object.entries(task.headers))
-            {
-              // blacklist
-              if (["receiver"].includes(header))
-                continue;
-
-              append_badge(headers_map[header] || "info", `${header}:${value}`);
-            }
-            return result;
-          },
-        },
-        {
-          "data": "status_reason"
-        },
-        {
-          "data": null,
-          "render": function(task) {
-            if (task.decision_type) {
-                if (task.decision_type == 'approved') {
-                    badge = `<span class="badge bg-primary">approved</span>`;
-                } else {
-                    badge = `<span class="badge bg-secondary">dismissed</span>`;
-                }
-                return badge + ` (comment=${task.operator_comment})`;
-            } else {
-                return `<a href="/task/${task.uid}">Decide</a>`;
-            }
-          }
-        },
-      ],
-      "order": []
+      ajax: {{ api_url|tojson }},  // we want to prevent & being converted to &amp; here
+      pageLength: 10,
+      serverSide: true,
+      searching: false,
+      columnDefs: [{
+        "targets": [2],
+        "orderable": false
+      }]
     });
   })
 </script>

@@ -1,10 +1,10 @@
 import json
-from os import getenv, path
+import urllib
+from os import getenv
 from typing import List, Optional
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
@@ -13,9 +13,8 @@ from artemis.db import DB, ManualDecision, ManualDecisionType, TaskFilter
 from artemis.json_utils import JSONEncoderWithDataclasses
 from artemis.karton_utils import restart_crashed_tasks
 from artemis.producer import create_tasks
+from artemis.templating import TEMPLATES
 
-templates_dir = path.join(path.dirname(__file__), "..", "templates")
-templates = Jinja2Templates(directory=templates_dir)
 router = APIRouter()
 db = DB()
 
@@ -39,7 +38,7 @@ def get_root(request: Request) -> Response:
             }
         )
 
-    return templates.TemplateResponse(
+    return TEMPLATES.TemplateResponse(
         "index.jinja2",
         {"request": request, "entries": entries},
     )
@@ -47,7 +46,7 @@ def get_root(request: Request) -> Response:
 
 @router.get("/add", include_in_schema=False)
 def get_add_form(request: Request) -> Response:
-    return templates.TemplateResponse("add.jinja2", {"request": request})
+    return TEMPLATES.TemplateResponse("add.jinja2", {"request": request})
 
 
 @router.post("/add", include_in_schema=False)
@@ -85,7 +84,7 @@ def post_add_decision(
 
 @router.get("/restart-crashed-tasks")
 def get_restart_crashed_tasks(request: Request) -> Response:
-    return templates.TemplateResponse(
+    return TEMPLATES.TemplateResponse(
         "/restart_crashed_tasks.jinja2",
         {
             "request": request,
@@ -101,7 +100,7 @@ def post_restart_crashed_tasks(request: Request) -> Response:
 
 @router.get("/queue", include_in_schema=False)
 def get_queue(request: Request) -> Response:
-    return templates.TemplateResponse(
+    return TEMPLATES.TemplateResponse(
         "queue.jinja2",
         {
             "request": request,
@@ -116,13 +115,21 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
 
-    return templates.TemplateResponse(
+    api_url_parameters = {"analysis_id": analysis["root_uid"]}
+
+    import sys
+
+    sys.stderr.write(repr(task_filter) + "\n")
+
+    if task_filter:
+        api_url_parameters["task_filter"] = task_filter.value
+
+    return TEMPLATES.TemplateResponse(
         "task_list.jinja2",
         {
             "request": request,
             "title": f"Analysis of { analysis['payload']['data'] }",
-            "api_url": f"/api/analysis/{ analysis['root_uid'] }/children"
-            + (f"?task_filter={ task_filter.value }" if task_filter else ""),
+            "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },
     )
@@ -130,12 +137,16 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
 
 @router.get("/results", include_in_schema=False)
 def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> Response:
-    return templates.TemplateResponse(
+    if task_filter:
+        api_url_parameters = {"task_filter": task_filter.value}
+    else:
+        api_url_parameters = {}
+    return TEMPLATES.TemplateResponse(
         "task_list.jinja2",
         {
             "request": request,
             "title": "All task results",
-            "api_url": "/api/task-results" + (f"?task_filter={ task_filter.value }" if task_filter else ""),
+            "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },
     )
@@ -147,7 +158,7 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    return templates.TemplateResponse(
+    return TEMPLATES.TemplateResponse(
         "task.jinja2",
         {
             "request": request,

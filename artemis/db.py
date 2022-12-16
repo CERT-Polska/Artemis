@@ -2,7 +2,7 @@ import dataclasses
 import json
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import pymongo
 from karton.core import Task
@@ -45,6 +45,13 @@ class ManualDecision:
     message: str
     decision_type: ManualDecisionType
     operator_comment: Optional[str]
+
+
+@dataclasses.dataclass
+class PaginatedTaskResults:
+    records_count_total: int
+    records_count_filtered: int
+    data: List[Dict[str, Any]]
 
 
 def get_task_target(task: Task) -> str:
@@ -128,18 +135,33 @@ class DB:
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
         return cast(Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id}))
 
-    def get_task_results_by_analysis_id(
-        self, analysis_id: str, task_filter: Optional[TaskFilter] = None
-    ) -> List[Dict[str, Any]]:
-        return cast(
-            List[Dict[str, Any]],
-            list(self.task_results.find({"root_uid": analysis_id, **(task_filter.as_dict() if task_filter else {})})),
-        )
+    def get_paginated_task_results(
+        self,
+        start: int,
+        length: int,
+        ordering: List[Tuple[str, str]],
+        *,
+        analysis_id: Optional[str] = None,
+        task_filter: Optional[TaskFilter] = None,
+    ) -> PaginatedTaskResults:
+        filter_dict = {}
+        if analysis_id:
+            filter_dict["root_uid"] = analysis_id
 
-    def get_task_results(self, task_filter: Optional[TaskFilter] = None) -> List[Dict[str, Any]]:
-        return cast(
-            List[Dict[str, Any]],
-            list(self.task_results.find(task_filter.as_dict() if task_filter else {})),
+        if task_filter:
+            filter_dict.update(task_filter.as_dict())
+
+        ordering_pymongo = [
+            (key, pymongo.ASCENDING if direction == "asc" else pymongo.DESCENDING) for key, direction in ordering
+        ]
+
+        records_count_total = self.task_results.count_documents(filter_dict)
+        records_count_filtered = records_count_total  # filtering is not implemented yet
+        results_page = self.task_results.find(filter_dict).sort(ordering_pymongo)[start : start + length]
+        return PaginatedTaskResults(
+            records_count_total=records_count_total,
+            records_count_filtered=records_count_filtered,
+            data=cast(List[Dict[str, Any]], results_page),
         )
 
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:

@@ -4,7 +4,7 @@ import random
 import string
 from difflib import SequenceMatcher
 from itertools import product
-from typing import IO, List, Set
+from typing import IO, List, Set, Tuple
 
 from karton.core import Task
 
@@ -12,6 +12,7 @@ from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
+from artemis.modules.utils.directory_index import is_directory_index
 from artemis.task_utils import get_target_url
 
 
@@ -71,7 +72,7 @@ IGNORED_CONTENTS = [
 
 class Bruter(ArtemisBase):
     """
-    Tries to find common files
+    Tries to find common URLs
     """
 
     identity = "bruter"
@@ -79,9 +80,10 @@ class Bruter(ArtemisBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def scan(self, task: Task) -> List[str]:
+    def scan(self, task: Task) -> Tuple[List[str], List[str]]:
         """
-        Brute-forces URLs. Returns a dict: task uid -> list of found URLs.
+        Brute-forces URLs. Returns two lists: all found URLs and the ones detected to be
+        a directory index.
         """
         base_url = get_target_url(task)
 
@@ -111,41 +113,53 @@ class Bruter(ArtemisBase):
             except Exception:
                 pass
 
-        found_files = set()
+        found_urls = set()
+        found_urls_with_directory_index = set()
         for response_url, response in results.items():
             if response.status_code != 200:
                 continue
 
-            decoded_content = response.content
-
             if (
-                decoded_content
-                and "<center><h1>40" not in decoded_content
-                and "Error 403" not in decoded_content
-                and "<title>Access forbidden!</title>" not in decoded_content
-                and decoded_content.strip() not in IGNORED_CONTENTS
-                and SequenceMatcher(None, decoded_content, dummy_content).quick_ratio() < 0.8
+                response.content
+                and "<center><h1>40" not in response.content
+                and "Error 403" not in response.content
+                and "<title>Access forbidden!</title>" not in response.content
+                and response.content.strip() not in IGNORED_CONTENTS
+                and SequenceMatcher(None, response.content, dummy_content).quick_ratio() < 0.8
             ):
-                found_files.add(response_url)
+                found_urls.add(response_url)
 
-        if len(found_files) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
-            found_files_as_list = []
+                if is_directory_index(response.content):
+                    found_urls_with_directory_index.add(response_url)
+
+        if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+            found_urls_as_list = []
         else:
-            found_files_as_list = sorted(list(found_files))
+            found_urls_as_list = sorted(list(found_urls))
 
-        return found_files_as_list
+        return found_urls_as_list, sorted(list(found_urls_with_directory_index))
 
     def run(self, task: Task) -> None:
-        found_files = self.scan(task)
+        found_urls, found_urls_with_directory_index = self.scan(task)
 
-        if len(found_files) > 0:
+        if len(found_urls) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found files: " + ", ".join(sorted(found_files))
+            status_reason = "Found URLs: " + ", ".join(found_urls)
+            if found_urls_with_directory_index:
+                status_reason += " (" + ", ".join(found_urls_with_directory_index) + " with directory index)"
         else:
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=found_files)
+        self.db.save_task_result(
+            task=task,
+            status=status,
+            status_reason=status_reason,
+            data={
+                "found_urls": found_urls,
+                "found_urls_with_directory_index": found_urls_with_directory_index,
+            },
+        )
 
 
 if __name__ == "__main__":

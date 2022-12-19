@@ -58,6 +58,7 @@ NOT_INTERESTING_PORTS = [
     (443, "http"),
     (8000, "http"),
     (8080, "http"),
+    (8443, "http"),
     (None, "pop3"),
     (None, "imap"),
     (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL

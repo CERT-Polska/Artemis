@@ -52,7 +52,10 @@ NOT_INTERESTING_PORTS = [
     (None, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
     (None, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
     (53, "dns"),  # Not worth reporting (DNS)
-    (None, "http"),  # Regardles of what port the HTTP server is on, we will run related checks on that
+    # We explicitely enumerate not interesting HTTP ports so that HTTP services
+    # such as Elasticsearch API would be reported.
+    (80, "http"),
+    (443, "http"),
     (None, "pop3"),
     (None, "imap"),
     (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL

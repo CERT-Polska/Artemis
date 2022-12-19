@@ -57,7 +57,7 @@ def get_task_results(
 
 
 def _build_ordering_from_datatables_column_ids(request: Request) -> List[ColumnOrdering]:
-    column_names = ["created_at", "headers.receiver", "target_str", None, "status_reason", "decision_type"]
+    column_names = ["created_at", "headers.receiver", "target_string", None, "status_reason", "decision_type"]
     ordering = []
 
     # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]

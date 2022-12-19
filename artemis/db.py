@@ -13,8 +13,6 @@ from artemis.artemis_logging import build_logger
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 
-LOGGER = build_logger(__name__)
-
 
 class TaskFilter(str, Enum):
     INTERESTING_UNDECIDED = "interesting_undecided"
@@ -92,6 +90,7 @@ class DB:
         )
         self.task_results.create_index([("status_reason", pymongo.ASCENDING), ("decision_type", pymongo.ASCENDING)])
         self.task_results.create_index([("status", pymongo.ASCENDING)])
+        self.logger = build_logger(__name__)
 
     def list_analysis(self) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], list(self.analysis.find()))
@@ -266,4 +265,4 @@ class DB:
                 self.task_results.update_many(
                     {"status_reason": manual_decision_obj.message, "decision_type": None}, {"$set": decision_data}
                 )
-        LOGGER.info("Manual decisions applied for existing tasks in %.02fs", time.time() - time_start)
+        self.logger.info("Manual decisions applied for existing tasks in %.02fs", time.time() - time_start)

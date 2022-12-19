@@ -3,7 +3,7 @@ import datetime
 import json
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, cast
 
 import pymongo
 from karton.core import Task
@@ -12,6 +12,12 @@ from pydantic import BaseModel
 from artemis.artemis_logging import build_logger
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+
+
+@dataclasses.dataclass
+class ColumnOrdering:
+    column_name: str
+    ascending: bool
 
 
 class TaskFilter(str, Enum):
@@ -145,7 +151,7 @@ class DB:
         self,
         start: int,
         length: int,
-        ordering: List[Tuple[str, str]],
+        ordering: List[ColumnOrdering],
         *,
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
@@ -158,7 +164,8 @@ class DB:
             filter_dict.update(task_filter.as_dict())
 
         ordering_pymongo = [
-            (key, pymongo.ASCENDING if direction == "asc" else pymongo.DESCENDING) for key, direction in ordering
+            (ordering_rule.column_name, pymongo.ASCENDING if ordering_rule.ascending else pymongo.DESCENDING)
+            for ordering_rule in ordering
         ]
 
         records_count_total = self.task_results.count_documents(filter_dict)

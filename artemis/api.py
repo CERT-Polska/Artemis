@@ -1,8 +1,8 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Request
 
-from artemis.db import DB, TaskFilter
+from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.templating import render_table_row
 
 router = APIRouter()
@@ -56,7 +56,7 @@ def get_task_results(
     }
 
 
-def _build_ordering_from_datatables_column_ids(request: Request) -> List[Tuple[str, str]]:
+def _build_ordering_from_datatables_column_ids(request: Request) -> List[ColumnOrdering]:
     column_names = ["created_at", "headers.receiver", "target_str", None, "status_reason", "decision_type"]
     ordering = []
 
@@ -70,6 +70,6 @@ def _build_ordering_from_datatables_column_ids(request: Request) -> List[Tuple[s
             break
         column_name = column_names[int(request.query_params[column_key])]
         if column_name:
-            ordering.append((column_name, request.query_params[dir_key]))
+            ordering.append(ColumnOrdering(column_name=column_name, ascending=request.query_params[dir_key] == "asc"))
         i += 1
     return ordering

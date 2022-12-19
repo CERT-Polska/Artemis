@@ -127,7 +127,9 @@ class DB:
             created_task_result["result"] = data
 
         result = self.task_results.update_one(
-            {"_id": created_task_result["uid"]}, {"$set": created_task_result}, upsert=True
+            {"_id": created_task_result["uid"]},
+            {"$set": created_task_result},
+            upsert=True
         )
         if result.upserted_id:  # If the record has been created, set creation date
             result = self.task_results.update_one(

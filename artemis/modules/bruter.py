@@ -64,6 +64,7 @@ with open(os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")) a
 
 IGNORED_CONTENTS = [
     "",
+    "<!-- dummy index.html -->",
     "<!DOCTYPE html><title></title>",  # Joomla! placeholder to suppress directory listing
     "*\n!.gitignore",  # Not an interesting .gitignore
 ]

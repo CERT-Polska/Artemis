@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, HTTPException, Request
 
@@ -37,21 +37,7 @@ def get_task_results(
     analysis_id: Optional[str] = None,
     task_filter: Optional[TaskFilter] = None,
 ) -> Dict[str, Any]:
-    column_names = ["created_at", "headers.receiver", "target_str", None, "status_reason", "decision_type"]
-    ordering = []
-
-    # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]
-    # parameters from FastAPI query string. Feel free to refactor these lines.
-    i = 0
-    while True:
-        column_key = f"order[{i}][column]"
-        dir_key = f"order[{i}][dir]"
-        if column_key not in request.query_params or dir_key not in request.query_params:
-            break
-        column_name = column_names[int(request.query_params[column_key])]
-        if column_name:
-            ordering.append((column_name, request.query_params[dir_key]))
-        i += 1
+    ordering = _build_ordering_from_datatables_column_ids(request)
 
     if analysis_id:
         if not db.get_analysis_by_id(analysis_id):
@@ -68,3 +54,22 @@ def get_task_results(
         "recordsFiltered": result.records_count_filtered,
         "data": [render_table_row(task) for task in result.data],
     }
+
+
+def _build_ordering_from_datatables_column_ids(request: Request) -> List[Tuple[str, str]]:
+    column_names = ["created_at", "headers.receiver", "target_str", None, "status_reason", "decision_type"]
+    ordering = []
+
+    # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]
+    # parameters from FastAPI query string. Feel free to refactor these lines.
+    i = 0
+    while True:
+        column_key = f"order[{i}][column]"
+        dir_key = f"order[{i}][dir]"
+        if column_key not in request.query_params or dir_key not in request.query_params:
+            break
+        column_name = column_names[int(request.query_params[column_key])]
+        if column_name:
+            ordering.append((column_name, request.query_params[dir_key]))
+        i += 1
+    return ordering

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Request
 
 from artemis.db import DB, TaskFilter
-from artemis.results_table_row import render_table_row
+from artemis.templating import render_table_row
 
 router = APIRouter()
 db = DB()

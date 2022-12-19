@@ -2,9 +2,10 @@
 import os
 import random
 import string
+from dataclasses import dataclass
 from difflib import SequenceMatcher
 from itertools import product
-from typing import IO, List, Set, Tuple
+from typing import IO, List, Set
 
 from karton.core import Task
 
@@ -12,7 +13,7 @@ from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
-from artemis.modules.utils.directory_index import is_directory_index
+from artemis.response_utils import is_directory_index
 from artemis.task_utils import get_target_url
 
 
@@ -70,6 +71,12 @@ IGNORED_CONTENTS = [
 ]
 
 
+@dataclass
+class BruterResult:
+    found_urls: List[str]
+    found_urls_with_directory_index: List[str]
+
+
 class Bruter(ArtemisBase):
     """
     Tries to find common URLs
@@ -80,7 +87,7 @@ class Bruter(ArtemisBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def scan(self, task: Task) -> Tuple[List[str], List[str]]:
+    def scan(self, task: Task) -> BruterResult:
         """
         Brute-forces URLs. Returns two lists: all found URLs and the ones detected to be
         a directory index.
@@ -133,18 +140,23 @@ class Bruter(ArtemisBase):
                     found_urls_with_directory_index.add(response_url)
 
         if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
-            return [], []
+            return BruterResult(found_urls=[], found_urls_with_directory_index=[])
 
-        return sorted(list(found_urls)), sorted(list(found_urls_with_directory_index))
+        return BruterResult(
+            found_urls=sorted(list(found_urls)),
+            found_urls_with_directory_index=sorted(list(found_urls_with_directory_index)),
+        )
 
     def run(self, task: Task) -> None:
-        found_urls, found_urls_with_directory_index = self.scan(task)
+        scan_result = self.scan(task)
 
-        if len(found_urls) > 0:
+        if len(scan_result.found_urls) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found URLs: " + ", ".join(found_urls)
-            if found_urls_with_directory_index:
-                status_reason += " (" + ", ".join(found_urls_with_directory_index) + " with directory index)"
+            status_reason = "Found URLs: " + ", ".join(scan_result.found_urls)
+            if scan_result.found_urls_with_directory_index:
+                status_reason += (
+                    " (" + ", ".join(scan_result.found_urls_with_directory_index) + " with directory index)"
+                )
         else:
             status = TaskStatus.OK
             status_reason = None
@@ -154,8 +166,8 @@ class Bruter(ArtemisBase):
             status=status,
             status_reason=status_reason,
             data={
-                "found_urls": found_urls,
-                "found_urls_with_directory_index": found_urls_with_directory_index,
+                "found_urls": scan_result.found_urls,
+                "found_urls_with_directory_index": scan_result.found_urls_with_directory_index,
             },
         )
 

@@ -56,9 +56,6 @@ NOT_INTERESTING_PORTS = [
     # such as Elasticsearch API would be reported.
     (80, "http"),
     (443, "http"),
-    (8000, "http"),
-    (8080, "http"),
-    (8443, "http"),
     (None, "pop3"),
     (None, "imap"),
     (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL

@@ -127,9 +127,7 @@ class DB:
             created_task_result["result"] = data
 
         result = self.task_results.update_one(
-            {"_id": created_task_result["uid"]},
-            {"$set": created_task_result},
-            upsert=True
+            {"_id": created_task_result["uid"]}, {"$set": created_task_result}, upsert=True
         )
         if result.upserted_id:  # If the record has been created, set creation date
             result = self.task_results.update_one(
@@ -165,7 +163,8 @@ class DB:
         ]
 
         records_count_total = self.task_results.count_documents(filter_dict)
-        records_count_filtered = records_count_total  # filtering is not implemented yet
+        # TODO(https://github.com/CERT-Polska/Artemis/issues/96) add filtering support
+        records_count_filtered = records_count_total
         results_page = self.task_results.find(filter_dict).sort(ordering_pymongo)[start : start + length]
         return PaginatedTaskResults(
             records_count_total=records_count_total,

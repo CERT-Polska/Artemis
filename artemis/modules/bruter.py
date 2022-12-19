@@ -133,11 +133,9 @@ class Bruter(ArtemisBase):
                     found_urls_with_directory_index.add(response_url)
 
         if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
-            found_urls_as_list = []
-        else:
-            found_urls_as_list = sorted(list(found_urls))
+            return [], []
 
-        return found_urls_as_list, sorted(list(found_urls_with_directory_index))
+        return sorted(list(found_urls)), sorted(list(found_urls_with_directory_index))
 
     def run(self, task: Task) -> None:
         found_urls, found_urls_with_directory_index = self.scan(task)

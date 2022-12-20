@@ -34,7 +34,7 @@ FILENAMES_WITHOUT_EXTENSIONS = [
     "www",
 ]
 
-EXTENSIONS = ["zip", "rar", "7z", "tar", "gz", "tgz"]
+EXTENSIONS = ["zip", "tar.gz", "7z", "tar", "gz", "tgz"]
 with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt")) as common_db_backups_file:
     with open(os.path.join(os.path.dirname(__file__), "data", "quickhits.txt")) as quickhits_file:
         FILENAMES_TO_SCAN: Set[str] = set(
@@ -85,7 +85,7 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
-        self.log.info(f"bruter scanning {base_url}")
+        self.log.info(f"bruter scanning {base_url} ({len(FILENAMES_TO_SCAN)} URLs)")
 
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))

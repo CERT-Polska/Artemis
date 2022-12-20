@@ -1,3 +1,6 @@
+# Most probably nothing interesting
+/%3f/
+
 # Identifying web services is not interesting for us,
 # as we are looking directly for vulnerabilities.
 /contributing.md

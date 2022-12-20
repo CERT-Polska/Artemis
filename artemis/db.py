@@ -87,15 +87,7 @@ class DB:
         self.manual_decisions = self.client.artemis.manual_decisions
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
         self.task_results = self.client.artemis.task_results
-        self.task_results.create_index(
-            [
-                ("target_string", pymongo.ASCENDING),
-                ("status_reason", pymongo.ASCENDING),
-                ("decision_type", pymongo.ASCENDING),
-            ]
-        )
-        self.task_results.create_index([("status_reason", pymongo.ASCENDING), ("decision_type", pymongo.ASCENDING)])
-        self.task_results.create_index([("status", pymongo.ASCENDING)])
+        self._create_indices()
         self.logger = build_logger(__name__)
 
     def list_analysis(self) -> List[Dict[str, Any]]:
@@ -273,3 +265,16 @@ class DB:
                     {"status_reason": manual_decision_obj.message, "decision_type": None}, {"$set": decision_data}
                 )
         self.logger.info("Manual decisions applied for existing tasks in %.02fs", time.time() - time_start)
+
+    def _create_indices(self) -> None:
+        """Creates MongoDB indexes. create_index() creates an index if it doesn't exist, so
+        this method will not recreate existing indexes."""
+        self.task_results.create_index(
+            [
+                ("target_string", pymongo.ASCENDING),
+                ("status_reason", pymongo.ASCENDING),
+                ("decision_type", pymongo.ASCENDING),
+            ]
+        )
+        self.task_results.create_index([("status_reason", pymongo.ASCENDING), ("decision_type", pymongo.ASCENDING)])
+        self.task_results.create_index([("status", pymongo.ASCENDING)])

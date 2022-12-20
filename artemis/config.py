@@ -53,6 +53,10 @@ class Config:
     LOCK_SLEEP_MIN_SECONDS = decouple.config("LOCK_SLEEP_MIN_SECONDS", default=0.1, cast=float)
     LOCK_SLEEP_MAX_SECONDS = decouple.config("LOCK_SLEEP_MAX_SECONDS", default=1, cast=float)
 
+    # Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
+    # This is the lock default expiry time.
+    DEFAULT_LOCK_EXPIRY_SECONDS = decouple.config("DEFAULT_LOCK_EXPIRY_SECONDS", default=3600, cast=int)
+
     # A threshold in case the server reports too much files with 200 status code,
     # and we want to skip this as a false positive. 0.1 means 10%.
     BRUTER_FALSE_POSITIVE_THRESHOLD = 0.1

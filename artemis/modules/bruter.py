@@ -13,8 +13,8 @@ from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
-from artemis.response_utils import is_directory_index
 from artemis.task_utils import get_target_url
+from artemis.utils import is_directory_index
 
 
 def read_paths_from_file(file: IO[str]) -> List[str]:

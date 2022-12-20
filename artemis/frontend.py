@@ -13,7 +13,7 @@ from artemis.db import DB, ManualDecision, ManualDecisionType, TaskFilter
 from artemis.json_utils import JSONEncoderWithDataclasses
 from artemis.karton_utils import restart_crashed_tasks
 from artemis.producer import create_tasks
-from artemis.templating import TEMPLATES
+from artemis.templating import templates
 
 router = APIRouter()
 db = DB()
@@ -38,7 +38,7 @@ def get_root(request: Request) -> Response:
             }
         )
 
-    return TEMPLATES.TemplateResponse(
+    return templates.TemplateResponse(
         "index.jinja2",
         {"request": request, "entries": entries},
     )
@@ -46,7 +46,7 @@ def get_root(request: Request) -> Response:
 
 @router.get("/add", include_in_schema=False)
 def get_add_form(request: Request) -> Response:
-    return TEMPLATES.TemplateResponse("add.jinja2", {"request": request})
+    return templates.TemplateResponse("add.jinja2", {"request": request})
 
 
 @router.post("/add", include_in_schema=False)
@@ -84,7 +84,7 @@ def post_add_decision(
 
 @router.get("/restart-crashed-tasks")
 def get_restart_crashed_tasks(request: Request) -> Response:
-    return TEMPLATES.TemplateResponse(
+    return templates.TemplateResponse(
         "/restart_crashed_tasks.jinja2",
         {
             "request": request,
@@ -100,7 +100,7 @@ def post_restart_crashed_tasks(request: Request) -> Response:
 
 @router.get("/queue", include_in_schema=False)
 def get_queue(request: Request) -> Response:
-    return TEMPLATES.TemplateResponse(
+    return templates.TemplateResponse(
         "queue.jinja2",
         {
             "request": request,
@@ -120,7 +120,7 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
     if task_filter:
         api_url_parameters["task_filter"] = task_filter.value
 
-    return TEMPLATES.TemplateResponse(
+    return templates.TemplateResponse(
         "task_list.jinja2",
         {
             "request": request,
@@ -137,7 +137,7 @@ def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> R
         api_url_parameters = {"task_filter": task_filter.value}
     else:
         api_url_parameters = {}
-    return TEMPLATES.TemplateResponse(
+    return templates.TemplateResponse(
         "task_list.jinja2",
         {
             "request": request,
@@ -154,7 +154,7 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    return TEMPLATES.TemplateResponse(
+    return templates.TemplateResponse(
         "task.jinja2",
         {
             "request": request,

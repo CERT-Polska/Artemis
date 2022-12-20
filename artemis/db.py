@@ -9,9 +9,9 @@ import pymongo
 from karton.core import Task
 from pydantic import BaseModel
 
-from artemis.artemis_logging import build_logger
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.utils import build_logger
 
 
 @dataclasses.dataclass

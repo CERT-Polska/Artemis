@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.templating import render_table_row
@@ -31,11 +31,11 @@ def get_analysis(root_id: str) -> Dict[str, Any]:
 @router.get("/task-results")
 def get_task_results(
     request: Request,
-    draw: int,
-    start: int,
-    length: int,
-    analysis_id: Optional[str] = None,
-    task_filter: Optional[TaskFilter] = None,
+    analysis_id: Optional[str] = Query(default=None),
+    task_filter: Optional[TaskFilter] = Query(default=None),
+    draw: int = Query(),
+    start: int = Query(),
+    length: int = Query(),
 ) -> Dict[str, Any]:
     ordering = _build_ordering_from_datatables_column_ids(request)
 

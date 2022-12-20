@@ -38,7 +38,7 @@
 /search
 /wp-content/plugins/akismet/akismet.php
 
-# We don't consider phpmyadmin a vulnerability
+# We don't consider phpmyadmin, phppgadmin etc. a vulnerability
 /_phpmyadmin/
 /_PHPMYADMIN/
 /_pHpMyAdMiN/
@@ -182,8 +182,6 @@
 /pma4/
 /pmadmin/
 /pmyadmin/
-/phpMyAdmin/scripts/setup.php
-/phpmyadmin/scripts/setup.php
 /typo3/phpmyadmin/
 /uber/phpMemcachedAdmin/
 /uber/phpMyAdmin/

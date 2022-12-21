@@ -47,7 +47,7 @@ class ClassifierTest(ArtemisModuleTestCase):
             expected_task = Task(
                 {"type": entry.type, "origin": Classifier.identity},
                 payload={entry.type: entry.expected},
-                payload_persistent={f"original_{entry.type}": entry.expected},
+                payload_persistent={f"original_{entry.type.value}": entry.expected},
             )
 
             self.assertTasksEqual(results, [expected_task])

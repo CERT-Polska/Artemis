@@ -15,6 +15,12 @@ class Config:
 
     ALLOW_SCANNING_PUBLIC_SUFFIXES = decouple.config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
 
+    # HTTP scanning is costly, especially paths bruting. With this setting enabled, we will
+    # skip scanning of port 80 if both 80 and 443 are open.
+    ASSUME_PORTS_443_AND_80_CONTAIN_THE_SAME = decouple.config(
+        "ASSUME_PORTS_443_AND_80_CONTAIN_THE_SAME", default=True, cast=bool
+    )
+
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches
     # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to
     # new.example.com, Artemis will check whether it is a subdomain of the original task

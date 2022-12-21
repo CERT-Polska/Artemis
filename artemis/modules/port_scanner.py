@@ -163,6 +163,12 @@ class PortScanner(ArtemisBase):
         interesting_port_descriptions = []
         for host in hosts:
             scan_results = self._scan(host)
+
+            if Config.ASSUME_PORTS_443_AND_80_CONTAIN_THE_SAME:
+                if "443" in scan_results and "80" in scan_results:
+                    # In case there are services on both ports, we assume they serve the same site. This is to make analyzes faster.
+                    del scan_results["80"]
+
             all_results[host] = scan_results
 
             for port, result in all_results[host].items():

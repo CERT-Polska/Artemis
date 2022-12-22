@@ -98,7 +98,7 @@ class Classifier(ArtemisBase):
                 task_type: sanitized,
             },
             payload_persistent={
-                f"original_{task_type}": sanitized,
+                f"original_{task_type.value}": sanitized,
             },
         )
 

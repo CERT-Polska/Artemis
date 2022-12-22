@@ -1,0 +1,62 @@
+{% extends "components/base.jinja2" %}
+{% block main %}
+    <h1>{{ title }}</h1>
+
+    <h4>Tasks</h4>
+    <p>
+    <p>
+        <a
+            href="?task_filter=approved"
+            class="btn {% if task_filter == "approved" %}btn-primary{% else %}btn-default{% endif %}">
+                Approved
+        </a>
+        <a
+            href="?task_filter=dismissed"
+            class="btn {% if task_filter == "dismissed" %}btn-primary{% else %}btn-default{% endif %}">
+                Dismissed
+        </a>
+        <a
+            href="?task_filter=interesting_undecided"
+            class="btn {% if task_filter == "interesting_undecided" %}btn-primary{% else %}btn-default{% endif %}">
+                Interesting findings without manual decision
+        </a>
+        <a
+            href="?task_filter=interesting"
+            class="btn {% if task_filter == "interesting" %}btn-primary{% else %}btn-default{% endif %}">
+                All interesting findings
+        </a>
+        <a
+            href="?" class="btn {% if not task_filter %}btn-primary{% else %}btn-default{% endif %}">
+                All tasks
+        </a>
+    </p>
+    <table id="task_list" class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">created at</th>
+                <th scope="col">receiver</th>
+                <th scope="col">task</th>
+                <th scope="col">headers</th>
+                <th scope="col">status: reason</th>
+                <th scope="col">decision</th>
+            </tr>
+      </thead>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function() {
+    const table = $("#task_list").dataTable({
+      ajax: {{ api_url|tojson }},  // we want to prevent & being converted to &amp; here
+      pageLength: 100,
+      serverSide: true,
+      searching: false,
+      columnDefs: [{
+        "targets": [3],
+        "orderable": false
+      }]
+    });
+  })
+</script>
+{% endblock %}

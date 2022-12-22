@@ -9,15 +9,15 @@
       </div>
   {% endif %}
 
-  {% if task.decision %}
+  {% if task.decision_type %}
       <h4>Decision</h4>
-      {% if task.decision.decision_type == 'approved' %}
+      {% if task.decision_type == 'approved' %}
         <span class="badge bg-primary">approved</span>
       {% else %}
         <span class="badge bg-secondary">dismissed</span>
       {% endif %}
 
-      (comment={{ task.decision.operator_comment }})
+      (comment={{ task.operator_comment }})
   {% else %}
       <h4>Decide</h4>
       <form action="/add-decision" method="post" class="mb-4">

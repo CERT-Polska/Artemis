@@ -5,9 +5,9 @@ import time
 from enum import Enum
 from typing import Any, Dict, List, Optional, cast
 
-import pymongo
 from karton.core import Task
 from pydantic import BaseModel
+from pymongo import ASCENDING, DESCENDING, MongoClient
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
@@ -82,7 +82,7 @@ def get_task_target(task: Task) -> str:
 
 class DB:
     def __init__(self) -> None:
-        self.client = pymongo.MongoClient(Config.DB_CONN_STR)
+        self.client = MongoClient(Config.DB_CONN_STR)
         self.analysis = self.client.artemis.analysis
         self.manual_decisions = self.client.artemis.manual_decisions
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
@@ -155,7 +155,7 @@ class DB:
             filter_dict.update(task_filter.as_dict())
 
         ordering_pymongo = [
-            (ordering_rule.column_name, pymongo.ASCENDING if ordering_rule.ascending else pymongo.DESCENDING)
+            (ordering_rule.column_name, ASCENDING if ordering_rule.ascending else DESCENDING)
             for ordering_rule in ordering
         ]
 
@@ -232,13 +232,13 @@ class DB:
         this method will not recreate existing indexes."""
         self.task_results.create_index(
             [
-                ("target_string", pymongo.ASCENDING),
-                ("status_reason", pymongo.ASCENDING),
-                ("decision_type", pymongo.ASCENDING),
+                ("target_string", ASCENDING),
+                ("status_reason", ASCENDING),
+                ("decision_type", ASCENDING),
             ]
         )
-        self.task_results.create_index([("status_reason", pymongo.ASCENDING), ("decision_type", pymongo.ASCENDING)])
-        self.task_results.create_index([("status", pymongo.ASCENDING)])
+        self.task_results.create_index([("status_reason", ASCENDING), ("decision_type", ASCENDING)])
+        self.task_results.create_index([("status", ASCENDING)])
 
     def _get_decision(self, task_result: Dict[str, Any]) -> Optional[ManualDecision]:
         decision_dict = self.manual_decisions.find_one(

@@ -37,7 +37,7 @@ def get_task_results(
     start: int = Query(),
     length: int = Query(),
 ) -> Dict[str, Any]:
-    ordering = _build_ordering_from_datatables_column_ids(request)
+    ordering = _get_ordering(request)
 
     if analysis_id:
         if not db.get_analysis_by_id(analysis_id):
@@ -56,7 +56,7 @@ def get_task_results(
     }
 
 
-def _build_ordering_from_datatables_column_ids(request: Request) -> List[ColumnOrdering]:
+def _get_ordering(request: Request) -> List[ColumnOrdering]:
     column_names = ["created_at", "headers.receiver", "target_string", None, "status_reason", "decision_type"]
     ordering = []
 

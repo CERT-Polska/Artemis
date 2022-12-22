@@ -62,25 +62,25 @@ class DnsScanner(ArtemisBase):
                     pass
 
             if nameserver_ok:
-                topmost_transferable_zone = None
+                topmost_transferable_zone_name = None
                 try:
                     if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, zone_name, timeout=1)):  # type: ignore[arg-type]
                         zone_components = str(zone_name).split(".")
-                        topmost_transferable_zone = str(zone_name)
+                        topmost_transferable_zone_name = str(zone_name)
                         for i in range(len(zone_components) - 1):
                             new_zone_name = ".".join(zone_components[i + 1 :])
                             if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, new_zone_name, timeout=1)):  # type: ignore[arg-type]
-                                topmost_transferable_zone = new_zone_name
+                                topmost_transferable_zone_name = new_zone_name
                                 result["zone"] = zone.to_text()
                                 result["zone_size"] = len(zone.nodes)
                 except dns.xfr.TransferError:
                     pass
 
-                if topmost_transferable_zone:
-                    result["topmost_transferable_zone"] = topmost_transferable_zone
+                if topmost_transferable_zone_name:
+                    result["topmost_transferable_zone_name"] = topmost_transferable_zone_name
                     findings.add(
                         f"DNS zone transfer is possible (nameserver {nameserver_ip}, zone_name "
-                        f"{result['topmost_transferable_zone']})"
+                        f"{result['topmost_transferable_zone_name']})"
                     )
 
         if len(findings) > 0:

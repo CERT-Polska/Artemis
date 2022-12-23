@@ -39,14 +39,31 @@ def get_task_results(
 ) -> Dict[str, Any]:
     ordering = _get_ordering(request)
 
+    i = 0
+    while True:
+        search_value_key = f"columns[{i}][search][value]"
+        search_regex_key = f"columns[{i}][search][regex]"
+        if search_value_key not in request.query_params:
+            break
+        if request.query_params[search_value_key].strip() != "":
+            raise NotImplementedError("Per-column search is not yet implemented")
+        if request.query_params[search_regex_key] != "false":
+            raise NotImplementedError("Regex search is not yet implemented")
+        i += 1
+
+    if request.query_params["search[regex]"] != "false":
+        raise NotImplementedError("Regex search is not yet implemented")
+
+    search_query = request.query_params["search[value]"]
+
     if analysis_id:
         if not db.get_analysis_by_id(analysis_id):
             raise HTTPException(status_code=404, detail="Analysis not found")
         result = db.get_paginated_task_results(
-            start, length, ordering, analysis_id=analysis_id, task_filter=task_filter
+            start, length, ordering, search_query, analysis_id=analysis_id, task_filter=task_filter
         )
     else:
-        result = db.get_paginated_task_results(start, length, ordering, task_filter=task_filter)
+        result = db.get_paginated_task_results(start, length, ordering, search_query, task_filter=task_filter)
 
     return {
         "draw": draw,

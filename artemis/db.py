@@ -115,6 +115,9 @@ class DB:
         created_task_result["target_string"] = get_task_target(task)
         created_task_result["status_reason"] = status_reason
 
+        # Used to allow searching in the names and values of all existing headers
+        created_task_result["headers_string"] = " ".join([key + " " + value for key, value in task.headers.items()])
+
         if isinstance(data, BaseModel):
             created_task_result["result"] = data.dict()
         elif isinstance(data, Exception):
@@ -143,11 +146,12 @@ class DB:
         start: int,
         length: int,
         ordering: List[ColumnOrdering],
+        search_query: str,
         *,
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
     ) -> PaginatedTaskResults:
-        filter_dict = {}
+        filter_dict: Dict[str, Any] = {}
         if analysis_id:
             filter_dict["root_uid"] = analysis_id
 
@@ -160,8 +164,9 @@ class DB:
         ]
 
         records_count_total = self.task_results.count_documents(filter_dict)
-        # TODO(https://github.com/CERT-Polska/Artemis/issues/96) add filtering support
-        records_count_filtered = records_count_total
+        if search_query:
+            filter_dict.update({"$text": {"$search": search_query}})
+        records_count_filtered = self.task_results.count_documents(filter_dict)
         results_page = self.task_results.find(filter_dict).sort(ordering_pymongo)[start : start + length]
         return PaginatedTaskResults(
             records_count_total=records_count_total,
@@ -239,6 +244,17 @@ class DB:
         )
         self.task_results.create_index([("status_reason", ASCENDING), ("decision_type", ASCENDING)])
         self.task_results.create_index([("status", ASCENDING)])
+        self.task_results.create_index(
+            [
+                ("status", "text"),
+                ("priority", "text"),
+                ("target_string", "text"),
+                ("headers_string", "text"),
+                ("status_reason", "text"),
+                ("decision_type", "text"),
+                ("operator_comment", "text"),
+            ],
+        )
 
     def _get_decision(self, task_result: Dict[str, Any]) -> Optional[ManualDecision]:
         decision_dict = self.manual_decisions.find_one(

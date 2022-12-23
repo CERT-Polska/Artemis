@@ -4,7 +4,7 @@ if [ ! -f .env ]; then
     cp env.example .env
 fi
 
-docker compose -f docker-compose.test.yaml down --volumes --remove-orphans
+docker compose -f docker-compose.test.yaml down --remove-orphans
 
 # Let's first start everything except the test container and perform relevant setup
 docker compose -f docker-compose.test.yaml up -d --build --scale test=0
@@ -58,11 +58,28 @@ docker compose \
     --scale test=0 \
     --scale test-e2e=0
 
+docker compose logs -f &
+
 # Now we are ready to start the tests
-docker compose -f docker-compose.test.yaml -f docker-compose.yaml run test-e2e
+docker compose \
+    -f docker-compose.test.yaml \
+    -f docker-compose.yaml \
+    -f docker-compose.test-e2e.yaml \
+    run \
+    test-e2e
 
 EXIT_CODE=$?
 
-docker compose -f docker-compose.test.yaml -f docker-compose.yaml down --volumes --remove-orphans
+docker compose \
+    -f docker-compose.test.yaml \
+    -f docker-compose.yaml \
+    -f docker-compose.test-e2e.yaml \
+    down \
+    --remove-orphans
+
+docker volume rm artemis_data-test-redis
+docker volume rm artemis_data-test-mongodb
+
+kill %1
 
 exit $EXIT_CODE

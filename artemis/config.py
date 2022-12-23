@@ -17,8 +17,8 @@ class Config:
 
     # HTTP scanning is costly, especially paths bruting. With this setting enabled, we will
     # skip scanning of port 80 if both 80 and 443 are open.
-    ASSUME_PORTS_443_AND_80_CONTAIN_THE_SAME = decouple.config(
-        "ASSUME_PORTS_443_AND_80_CONTAIN_THE_SAME", default=True, cast=bool
+    ASSUME_PORT_443_AND_80_CONTENT_IS_EQUAL = decouple.config(
+        "ASSUME_PORT_443_AND_80_CONTENT_IS_EQUAL", default=True, cast=bool
     )
 
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches

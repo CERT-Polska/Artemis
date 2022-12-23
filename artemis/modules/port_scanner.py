@@ -164,26 +164,33 @@ class PortScanner(ArtemisBase):
         for host in hosts:
             scan_results = self._scan(host)
 
-            if Config.ASSUME_PORTS_443_AND_80_CONTAIN_THE_SAME:
-                if "443" in scan_results and "80" in scan_results:
+            skip_creating_task_for_port_80 = False
+            if Config.ASSUME_PORT_443_AND_80_CONTENT_IS_EQUAL:
+                if (
+                    "443" in scan_results
+                    and "80" in scan_results
+                    and scan_results["80"]["service"] == "http"
+                    and scan_results["443"]["service"] == "http"
+                ):
                     # In case there are services on both ports, we assume they serve the same site. This is to make analyzes faster.
-                    del scan_results["80"]
+                    skip_creating_task_for_port_80 = True
 
             all_results[host] = scan_results
 
             for port, result in all_results[host].items():
-                new_task = Task(
-                    {
-                        "type": TaskType.SERVICE,
-                        "service": Service(result["service"].lower()),
-                    },
-                    payload={
-                        "host": target,
-                        "port": int(port),
-                        "ssl": result["ssl"],
-                    },
-                )
-                self.add_task(current_task, new_task)
+                if not (int(port) == 80 and skip_creating_task_for_port_80):
+                    new_task = Task(
+                        {
+                            "type": TaskType.SERVICE,
+                            "service": Service(result["service"].lower()),
+                        },
+                        payload={
+                            "host": target,
+                            "port": int(port),
+                            "ssl": result["ssl"],
+                        },
+                    )
+                    self.add_task(current_task, new_task)
                 open_ports.append(int(port))
 
                 # Find whether relevant entries exist in the NOT_INTERESTING_PORTS list

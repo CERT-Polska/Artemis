@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ ! -f .env ]; then
+    cp env.example .env
+fi
+
 docker compose -f docker-compose.test.yaml down --volumes --remove-orphans
 
 # Let's first start everything except the test container and perform relevant setup

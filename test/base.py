@@ -19,8 +19,9 @@ class KartonBackendMockWithRedis(KartonBackendMock):
 
 class ArtemisModuleTestCase(KartonTestCase):
     def setUp(self) -> None:
-        # Unfortunately, in this context, to mock ip_lookup we need to mock it in modules it has been imported to,
-        # so we need to enumerate the locations it's used here.
+        # Unfortunately, in the context of a test that is about to run and a respective module has already been
+        # imported, to mock ip_lookup we need to mock it in modules it has been imported to,
+        # so we need to enumerate the locations it's used in in the list below.
         for item in ["artemis.request_limit.ip_lookup", "artemis.modules.port_scanner.ip_lookup"]:
             # We cannot use Artemis default DoH resolvers as they wouldn't be able to resolve
             # internal test services' addresses.

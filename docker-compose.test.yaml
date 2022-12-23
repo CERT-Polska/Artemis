@@ -152,6 +152,15 @@ services:
       network:
         ipv4_address: 192.168.3.18
 
+  test-postgresql-with-easy-password:
+    image: postgres
+    environment:
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example
+    networks:
+      network:
+        ipv4_address: 192.168.3.19
+
 networks:
   network:
     internal: false

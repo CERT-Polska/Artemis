@@ -95,7 +95,6 @@ class Postman(ArtemisBase):
 
         domain = current_task.get_payload(TaskType.DOMAIN)
         host = current_task.get_payload("host")
-        ip = current_task.get_payload(TaskType.IP)
         port = current_task.get_payload("port")
 
         if domain:
@@ -104,7 +103,7 @@ class Postman(ArtemisBase):
             result.unauthorized_local_from = self._check_outgoing_email(domain, host, port)
             result.open_relay = self._check_open_relay(host, port)
         else:
-            result.open_relay = self._check_open_relay(ip, port)
+            result.open_relay = self._check_open_relay(host, port)
 
         found_problems = []
         if result.unauthorized_local_from:

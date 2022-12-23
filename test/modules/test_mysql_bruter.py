@@ -13,7 +13,7 @@ class MySQLBruterTest(ArtemisModuleTestCase):
     def test_simple(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.MYSQL},
-            payload={"host": "192.168.3.18", "port": 3306},
+            payload={"host": "test-mysql-with-easy-password", "port": 3306},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list

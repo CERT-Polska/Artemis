@@ -12,8 +12,8 @@ class PostmanTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         task = Task(
-            {"service": Service.SMTP},
-            payload={TaskType.IP: "192.168.3.9", "port": 25},
+            {"type": TaskType.SERVICE, "service": Service.SMTP},
+            payload={"host": "test-smtp-server", "port": 25},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list

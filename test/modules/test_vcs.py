@@ -21,7 +21,6 @@ class VCSTest(ArtemisModuleTestCase):
     def test_robots(self) -> None:
         data = [
             TestData("test-service-with-exposed-git", 80, False, TaskType.SERVICE),
-            TestData("192.168.3.11", 80, False, TaskType.SERVICE),
         ]
 
         for entry in data:

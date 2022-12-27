@@ -28,6 +28,7 @@ class Service(str, Enum):
     HTTP = "http"
     SMTP = "smtp"
     IMAP = "imap"
+    MYSQL = "mysql"
 
     @classmethod
     def _missing_(cls, value: object) -> Service:

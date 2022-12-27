@@ -2,17 +2,19 @@
 import os
 import random
 import string
+from dataclasses import dataclass
 from difflib import SequenceMatcher
 from itertools import product
-from typing import IO, Dict, List, Set
+from typing import IO, List, Set
 
-import requests
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.http import download_urls
-from artemis.module_base_multiple_tasks import ArtemisMultipleTasksBase
+from artemis.config import Config
+from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
+from artemis.utils import is_directory_index
 
 
 def read_paths_from_file(file: IO[str]) -> List[str]:
@@ -34,7 +36,7 @@ FILENAMES_WITHOUT_EXTENSIONS = [
     "www",
 ]
 
-EXTENSIONS = ["zip", "rar", "7z", "tar", "gz", "tgz"]
+EXTENSIONS = ["zip", "tar.gz", "7z", "tar", "gz", "tgz"]
 with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt")) as common_db_backups_file:
     with open(os.path.join(os.path.dirname(__file__), "data", "quickhits.txt")) as quickhits_file:
         FILENAMES_TO_SCAN: Set[str] = set(
@@ -64,14 +66,21 @@ with open(os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")) a
 
 IGNORED_CONTENTS = [
     "",
+    "<!-- dummy index.html -->",
     "<!DOCTYPE html><title></title>",  # Joomla! placeholder to suppress directory listing
     "*\n!.gitignore",  # Not an interesting .gitignore
 ]
 
 
-class Bruter(ArtemisMultipleTasksBase):
+@dataclass
+class BruterResult:
+    found_urls: List[str]
+    found_urls_with_directory_index: List[str]
+
+
+class Bruter(ArtemisBase):
     """
-    Tries to find common files
+    Tries to find common URLs
     """
 
     identity = "bruter"
@@ -79,76 +88,89 @@ class Bruter(ArtemisMultipleTasksBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def scan(self, tasks: List[Task]) -> Dict[str, List[str]]:
+    def scan(self, task: Task) -> BruterResult:
         """
-        Brute-forces URLs. Returns a dict: task uid -> list of found URLs.
+        Brute-forces URLs. Returns two lists: all found URLs and the ones detected to be
+        a directory index.
         """
-        base_urls = {task.uid: get_target_url(task) for task in tasks}
+        base_url = get_target_url(task)
 
-        self.log.info(f"bruter scanning {', '.join(base_urls.values())}")
+        self.log.info(f"bruter scanning {base_url} ({len(FILENAMES_TO_SCAN)} URLs)")
 
-        dummy_contents = {}
-        for task_uid, base_url in base_urls.items():
-            # random endpoint to filter out custom 404 pages
-            dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
-            dummy_url = base_url + "/" + dummy_random_token
-            try:
-                dummy_contents[task_uid] = requests.get(dummy_url, verify=False, timeout=5).content.decode("utf-8")
-            except Exception:
-                dummy_contents[task_uid] = ""
+        # random endpoint to filter out custom 404 pages
+        dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+        dummy_url = base_url + "/" + dummy_random_token
+        try:
+            dummy_content = http_requests.get(dummy_url).content
+        except Exception:
+            dummy_content = ""
 
         urls: List[str] = []
-        urls_to_task_uid_mapping = {}
 
         for file in set(FILENAMES_TO_SCAN):
-            for task_uid, base_url in base_urls.items():
-                url = f"{base_url}/{file}"
-                urls.append(url)
-                urls_to_task_uid_mapping[url] = task_uid
+            url = f"{base_url}/{file}"
+            urls.append(url)
 
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
-        results = download_urls(urls)
+        results = {}
+        for url in urls:
+            try:
+                results[url] = http_requests.get(url)
+            except Exception:
+                pass
 
-        found_files: Dict[str, Set[str]] = {}
+        found_urls = set()
+        found_urls_with_directory_index = set()
         for response_url, response in results.items():
-            task_uid = urls_to_task_uid_mapping[response_url]
-            base_url = base_urls[task_uid]
-
-            if task_uid not in found_files:
-                found_files[task_uid] = set()
+            if response.status_code != 200:
+                continue
 
             if (
-                response.status_code == 200
-                and response.content
+                response.content
                 and "<center><h1>40" not in response.content
                 and "Error 403" not in response.content
                 and "<title>Access forbidden!</title>" not in response.content
                 and response.content.strip() not in IGNORED_CONTENTS
-                and SequenceMatcher(None, response.content, dummy_contents[task_uid]).quick_ratio() < 0.8
+                and SequenceMatcher(None, response.content, dummy_content).quick_ratio() < 0.8
             ):
-                found_files[task_uid].add(response_url)
+                found_urls.add(response_url)
 
-        found_files_as_lists = {}
-        for key in found_files.keys():
-            found_files_as_lists[key] = sorted(list(found_files[key]))
-        return found_files_as_lists
+                if is_directory_index(response.content):
+                    found_urls_with_directory_index.add(response_url)
 
-    def run_multiple(self, tasks: List[Task]) -> None:
-        found_files_per_task_uid = self.scan(tasks)
+        if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+            return BruterResult(found_urls=[], found_urls_with_directory_index=[])
 
-        for task in tasks:
-            found_files = found_files_per_task_uid.get(task.uid, [])
+        return BruterResult(
+            found_urls=sorted(list(found_urls)),
+            found_urls_with_directory_index=sorted(list(found_urls_with_directory_index)),
+        )
 
-            if len(found_files) > 0:
-                status = TaskStatus.INTERESTING
-                status_reason = "Found files: " + ", ".join(sorted(found_files))
-            else:
-                status = TaskStatus.OK
-                status_reason = None
+    def run(self, task: Task) -> None:
+        scan_result = self.scan(task)
 
-            self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=found_files)
+        if len(scan_result.found_urls) > 0:
+            status = TaskStatus.INTERESTING
+            status_reason = "Found URLs: " + ", ".join(scan_result.found_urls)
+            if scan_result.found_urls_with_directory_index:
+                status_reason += (
+                    " (" + ", ".join(scan_result.found_urls_with_directory_index) + " with directory index)"
+                )
+        else:
+            status = TaskStatus.OK
+            status_reason = None
+
+        self.db.save_task_result(
+            task=task,
+            status=status,
+            status_reason=status_reason,
+            data={
+                "found_urls": scan_result.found_urls,
+                "found_urls_with_directory_index": scan_result.found_urls_with_directory_index,
+            },
+        )
 
 
 if __name__ == "__main__":

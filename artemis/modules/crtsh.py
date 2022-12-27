@@ -7,12 +7,12 @@ from psycopg2 import OperationalError, connect
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.domains import is_subdomain
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
 
 
-class CrtshScanner(ArtemisSingleTaskBase):
+class CrtshScanner(ArtemisBase):
     """
     Consumes `type: domain` and adds subdomains fetched from crt.sh
     Produces `type: new`

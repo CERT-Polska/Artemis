@@ -1,14 +1,23 @@
 import dataclasses
+import datetime
 import json
+import time
 from enum import Enum
 from typing import Any, Dict, List, Optional, cast
 
 from karton.core import Task
 from pydantic import BaseModel
-from pymongo import MongoClient
+from pymongo import ASCENDING, DESCENDING, MongoClient
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.utils import build_logger
+
+
+@dataclasses.dataclass
+class ColumnOrdering:
+    column_name: str
+    ascending: bool
 
 
 class TaskFilter(str, Enum):
@@ -16,6 +25,18 @@ class TaskFilter(str, Enum):
     INTERESTING = "interesting"
     APPROVED = "approved"
     DISMISSED = "dismissed"
+
+    def as_dict(self) -> Dict[str, Any]:
+        if self.value == TaskFilter.INTERESTING_UNDECIDED:
+            return {"status": "INTERESTING", "decision_type": None}
+        elif self.value == TaskFilter.INTERESTING:
+            return {"status": "INTERESTING"}
+        elif self.value == TaskFilter.APPROVED:
+            return {"decision_type": "approved"}
+        elif self.value == TaskFilter.DISMISSED:
+            return {"decision_type": "dismissed"}
+        else:
+            assert False
 
 
 class ManualDecisionType(str, Enum):
@@ -29,6 +50,13 @@ class ManualDecision:
     message: str
     decision_type: ManualDecisionType
     operator_comment: Optional[str]
+
+
+@dataclasses.dataclass
+class PaginatedTaskResults:
+    records_count_total: int
+    records_count_filtered: int
+    data: List[Dict[str, Any]]
 
 
 def get_task_target(task: Task) -> str:
@@ -59,12 +87,14 @@ class DB:
         self.manual_decisions = self.client.artemis.manual_decisions
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
         self.task_results = self.client.artemis.task_results
+        self.logger = build_logger(__name__)
 
     def list_analysis(self) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], list(self.analysis.find()))
 
     def add_manual_decision(self, decision: ManualDecision) -> None:
         self.manual_decisions.insert_one(dataclasses.asdict(decision))
+        self._apply_manual_decisions()
 
     def create_analysis(self, analysis: Task) -> None:
         created_analysis = self.task_to_dict(analysis)
@@ -92,7 +122,15 @@ class DB:
         else:
             created_task_result["result"] = data
 
-        self.task_results.update_one({"_id": created_task_result["uid"]}, {"$set": created_task_result}, upsert=True)
+        result = self.task_results.update_one(
+            upsert=True, filter={"_id": created_task_result["uid"]}, update={"$set": created_task_result}
+        )
+        if result.upserted_id:  # If the record has been created, set creation date
+            result = self.task_results.update_one(
+                {"_id": created_task_result["uid"]}, {"$set": {"created_at": datetime.datetime.now()}}
+            )
+
+        self._apply_manual_decisions()
 
     def get_analysis_by_url(self, url: str) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], self.analysis.find({"data": {"$regex": f".*{url}.*"}}))
@@ -100,50 +138,39 @@ class DB:
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
         return cast(Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id}))
 
-    def get_task_results_by_analysis_id(
-        self, analysis_id: str, task_filter: Optional[TaskFilter] = None
-    ) -> List[Dict[str, Any]]:
-        if task_filter in [TaskFilter.INTERESTING, TaskFilter.INTERESTING_UNDECIDED]:
-            task_results = cast(
-                List[Dict[str, Any]],
-                list(self.task_results.find({"root_uid": analysis_id, "status": TaskStatus.INTERESTING})),
-            )
-        else:
-            task_results = cast(List[Dict[str, Any]], list(self.task_results.find({"root_uid": analysis_id})))
+    def get_paginated_task_results(
+        self,
+        start: int,
+        length: int,
+        ordering: List[ColumnOrdering],
+        *,
+        analysis_id: Optional[str] = None,
+        task_filter: Optional[TaskFilter] = None,
+    ) -> PaginatedTaskResults:
+        filter_dict = {}
+        if analysis_id:
+            filter_dict["root_uid"] = analysis_id
 
-        decisions = self._get_decisions(task_results)
-        task_results_filtered = []
+        if task_filter:
+            filter_dict.update(task_filter.as_dict())
 
-        for task_result in task_results:
-            decision = decisions.get(task_result["uid"], None)
-            task_result["decision"] = decision
+        ordering_pymongo = [
+            (ordering_rule.column_name, ASCENDING if ordering_rule.ascending else DESCENDING)
+            for ordering_rule in ordering
+        ]
 
-            should_add = False
-
-            if task_filter == TaskFilter.INTERESTING_UNDECIDED:
-                if not decision:
-                    should_add = True
-            elif task_filter == TaskFilter.INTERESTING:
-                should_add = True
-            elif task_filter == TaskFilter.APPROVED:
-                if decision:
-                    should_add = decision.decision_type == ManualDecisionType.APPROVED
-            elif task_filter == TaskFilter.DISMISSED:
-                if decision:
-                    should_add = decision.decision_type == ManualDecisionType.DISMISSED
-            else:
-                assert task_filter is None
-                should_add = True
-
-            if should_add:
-                task_results_filtered.append(task_result)
-        return task_results_filtered
+        records_count_total = self.task_results.count_documents(filter_dict)
+        # TODO(https://github.com/CERT-Polska/Artemis/issues/96) add filtering support
+        records_count_filtered = records_count_total
+        results_page = self.task_results.find(filter_dict).sort(ordering_pymongo)[start : start + length]
+        return PaginatedTaskResults(
+            records_count_total=records_count_total,
+            records_count_filtered=records_count_filtered,
+            data=cast(List[Dict[str, Any]], results_page),
+        )
 
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
-        task_result = cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
-        if task_result:
-            task_result["decision"] = self._get_decision(task_result)
-        return task_result
+        return cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
 
     def save_scheduled_task(self, task: Task) -> bool:
         """
@@ -200,6 +227,19 @@ class DB:
         # TODO make this less ugly
         return json.loads(task.serialize())  # type: ignore
 
+    def create_indices(self) -> None:
+        """Creates MongoDB indexes. create_index() creates an index if it doesn't exist, so
+        this method will not recreate existing indexes."""
+        self.task_results.create_index(
+            [
+                ("target_string", ASCENDING),
+                ("status_reason", ASCENDING),
+                ("decision_type", ASCENDING),
+            ]
+        )
+        self.task_results.create_index([("status_reason", ASCENDING), ("decision_type", ASCENDING)])
+        self.task_results.create_index([("status", ASCENDING)])
+
     def _get_decision(self, task_result: Dict[str, Any]) -> Optional[ManualDecision]:
         decision_dict = self.manual_decisions.find_one(
             {"message": task_result["status_reason"], "target_string": None}
@@ -213,31 +253,27 @@ class DB:
         else:
             return None
 
-    def _get_decisions(self, task_results: List[Dict[str, Any]]) -> Dict[str, ManualDecision]:
-        decisions_for_message = {}
-        decisions_for_message_and_target = {}
+    def _apply_manual_decisions(self) -> None:
+        time_start = time.time()
+        for manual_decision in self.manual_decisions.find():
+            del manual_decision["_id"]
+            manual_decision_obj = ManualDecision(**manual_decision)
 
-        for obj in self.manual_decisions.find():
-            del obj["_id"]
-            decision = ManualDecision(**obj)
-
-            if decision.target_string:
-                decisions_for_message_and_target[(decision.message, decision.target_string)] = decision
+            decision_data = {
+                "decision_type": manual_decision_obj.decision_type,
+                "operator_comment": manual_decision_obj.operator_comment,
+            }
+            if manual_decision_obj.target_string:
+                self.task_results.update_many(
+                    {
+                        "target_string": manual_decision_obj.target_string,
+                        "status_reason": manual_decision_obj.message,
+                        "decision_type": None,
+                    },
+                    {"$set": decision_data},
+                )
             else:
-                decisions_for_message[decision.message] = decision
-
-        decisions = {}
-        for task_result in task_results:
-            found_decision: Optional[ManualDecision] = None
-
-            if task_result["status_reason"] in decisions_for_message:
-                found_decision = decisions_for_message[task_result["status_reason"]]
-
-            if (task_result["status_reason"], task_result["target_string"]) in decisions_for_message_and_target:
-                found_decision = decisions_for_message_and_target[
-                    (task_result["status_reason"], task_result["target_string"])
-                ]
-
-            if found_decision:
-                decisions[task_result["uid"]] = found_decision
-        return decisions
+                self.task_results.update_many(
+                    {"status_reason": manual_decision_obj.message, "decision_type": None}, {"$set": decision_data}
+                )
+        self.logger.info("Manual decisions applied for existing tasks in %.02fs", time.time() - time_start)

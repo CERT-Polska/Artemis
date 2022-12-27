@@ -4,14 +4,15 @@ import random
 import urllib.parse
 from typing import List
 
-import requests
 from bs4 import BeautifulSoup
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
+from artemis.utils import is_directory_index
 
 PATHS: List[str] = ["/backup/", "/backups/", "/_vti_bin/", "/wp-content/", "/wp-includes/"]
 MAX_DIRS_PER_PATH = 4
@@ -19,7 +20,7 @@ MAX_TESTS_PER_URL = 20
 S3_BASE_DOMAIN = "s3.amazonaws.com"
 
 
-class DirectoryIndex(ArtemisSingleTaskBase):
+class DirectoryIndex(ArtemisBase):
     """
     Detects directory index enabled on the server
     """
@@ -30,7 +31,7 @@ class DirectoryIndex(ArtemisSingleTaskBase):
     ]
 
     def scan(self, url: str) -> List[str]:
-        response = requests.get(url, verify=False, timeout=5)
+        response = http_requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
         original_url_parsed = urllib.parse.urlparse(url)
 
@@ -68,14 +69,9 @@ class DirectoryIndex(ArtemisSingleTaskBase):
         path_candidates_list = path_candidates_list[:MAX_TESTS_PER_URL]
         results = []
         for path_candidate in path_candidates_list:
-            response = requests.get(urllib.parse.urljoin(url, path_candidate), verify=False, timeout=5)
-            content = response.content.decode("utf-8", errors="ignore")
-            if (
-                "Index of /" in content
-                or "ListBucketResult" in content
-                or "<title>directory listing" in content.lower()
-                or "<title>index of" in content.lower()
-            ):
+            response = http_requests.get(urllib.parse.urljoin(url, path_candidate))
+            content = response.content
+            if is_directory_index(content):
                 if (
                     path_candidate not in Config.NOT_INTERESTING_PATHS
                     and path_candidate + "/" not in Config.NOT_INTERESTING_PATHS

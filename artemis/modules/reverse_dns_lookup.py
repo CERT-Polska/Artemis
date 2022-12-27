@@ -7,10 +7,10 @@ from karton.core import Task
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.domains import is_subdomain
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 
-class ReverseDNSLookup(ArtemisSingleTaskBase):
+class ReverseDNSLookup(ArtemisBase):
     """
     Collects `type: IP`, performs reverse DNS lookup and produces `type: NEW`
     """

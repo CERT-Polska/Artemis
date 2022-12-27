@@ -2,11 +2,11 @@
 from karton.core import Task
 
 from artemis.binds import TaskType
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 
 
-class IPLookup(ArtemisSingleTaskBase):
+class IPLookup(ArtemisBase):
     """
     Collects `type: domain`, performs IP lookup and produces `type: NEW`
     """

@@ -1,10 +1,10 @@
 import json
-from os import getenv, path
+import urllib
+from os import getenv
 from typing import List, Optional
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
@@ -13,9 +13,8 @@ from artemis.db import DB, ManualDecision, ManualDecisionType, TaskFilter
 from artemis.json_utils import JSONEncoderWithDataclasses
 from artemis.karton_utils import restart_crashed_tasks
 from artemis.producer import create_tasks
+from artemis.templating import templates
 
-templates_dir = path.join(path.dirname(__file__), "..", "templates")
-templates = Jinja2Templates(directory=templates_dir)
 router = APIRouter()
 db = DB()
 
@@ -116,13 +115,35 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
 
+    api_url_parameters = {"analysis_id": analysis["root_uid"]}
+
+    if task_filter:
+        api_url_parameters["task_filter"] = task_filter.value
+
     return templates.TemplateResponse(
-        "analysis.jinja2",
+        "task_list.jinja2",
         {
             "request": request,
+            "title": f"Analysis of { analysis['payload']['data'] }",
+            "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
-            "analysis": analysis,
-            "pretty_printed": json.dumps(analysis, indent=4, cls=JSONEncoderWithDataclasses),
+        },
+    )
+
+
+@router.get("/results", include_in_schema=False)
+def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> Response:
+    if task_filter:
+        api_url_parameters = {"task_filter": task_filter.value}
+    else:
+        api_url_parameters = {}
+    return templates.TemplateResponse(
+        "task_list.jinja2",
+        {
+            "request": request,
+            "title": "All task results",
+            "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
+            "task_filter": task_filter,
         },
     )
 

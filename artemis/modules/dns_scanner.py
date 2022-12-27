@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 import dns.exception
 import dns.message
@@ -10,12 +10,12 @@ import dns.zone
 from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 KNOWN_BAD_NAMESERVERS = ["fns1.42.pl", "fns2.42.pl"]
 
 
-class DnsScanner(ArtemisSingleTaskBase):
+class DnsScanner(ArtemisBase):
     """
     Check for AXFR and known bad nameservers
     """
@@ -26,8 +26,8 @@ class DnsScanner(ArtemisSingleTaskBase):
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload(TaskType.DOMAIN)
 
-        findings = []
-        result: Dict[str, Union[bool, str, List[str]]] = {}
+        findings = set()
+        result: Dict[str, Any] = {}
 
         zone_name = dns.resolver.zone_for_name(domain)
         soa_result = [str(ns.mname) for ns in dns.resolver.resolve(zone_name, "SOA")]
@@ -37,7 +37,7 @@ class DnsScanner(ArtemisSingleTaskBase):
 
         for nameserver in nameservers:
             if nameserver in KNOWN_BAD_NAMESERVERS:
-                findings.append(f"{nameserver} in known bad nameservers")
+                findings.add(f"{nameserver} in known bad nameservers")
 
             nameserver_ip: Optional[str]
             try:
@@ -45,7 +45,7 @@ class DnsScanner(ArtemisSingleTaskBase):
             except dns.resolver.NXDOMAIN:
                 nameserver_ip = None
                 result["ns_does_not_exist"] = True
-                findings.append(f"{nameserver} domain does not exist, and therefore can be registered by a bad actor")
+                findings.add(f"{nameserver} domain does not exist, and therefore can be registered by a bad actor")
 
             nameserver_ok = False
             if nameserver_ip:
@@ -55,21 +55,31 @@ class DnsScanner(ArtemisSingleTaskBase):
                     )
                     if message.rcode() == dns.rcode.NXDOMAIN:  # type: ignore[attr-defined]
                         result["ns_not_knowing_domain"] = True
-                        findings.append(f"the nameserver {nameserver_ip} ({nameserver}) doesn't know about the domain")
+                        findings.add(f"the nameserver {nameserver_ip} ({nameserver}) doesn't know about the domain")
                     else:
                         nameserver_ok = True
                 except dns.exception.Timeout:
                     pass
 
             if nameserver_ok:
+                topmost_transferable_zone_name = None
                 try:
-                    if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, zone_name, timeout=1)):  # type: ignore[arg-type]
-                        result["zone"] = zone.to_text()
-                        findings.append(
-                            f"DNS zone transfer is possible (nameserver {nameserver_ip}, zone_name {zone_name}"
-                        )
+                    zone_components = str(zone_name).split(".")
+                    for i in range(len(zone_components) - 1):
+                        new_zone_name = ".".join(zone_components[i:])
+                        if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, new_zone_name, timeout=1)):  # type: ignore[arg-type]
+                            topmost_transferable_zone_name = new_zone_name
+                            result["zone"] = zone.to_text()
+                            result["zone_size"] = len(zone.nodes)
                 except dns.xfr.TransferError:
                     pass
+
+                if topmost_transferable_zone_name:
+                    result["topmost_transferable_zone_name"] = topmost_transferable_zone_name
+                    findings.add(
+                        f"DNS zone transfer is possible (nameserver {nameserver_ip}, zone_name "
+                        f"{result['topmost_transferable_zone_name']})"
+                    )
 
         if len(findings) > 0:
             status = TaskStatus.INTERESTING

@@ -28,20 +28,28 @@ class BruterTest(ArtemisModuleTestCase):
                 {"type": entry.task_type, "service": Service.HTTP},
                 payload={"host": entry.host, "port": 80},
             )
-            self.karton.run_multiple([task])
+            self.run_task(task)
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             self.assertEqual(
                 call.kwargs["status_reason"],
-                f"Found files: http://{entry.host}:80/config.dist, "
+                f"Found URLs: http://{entry.host}:80/config.dist, "
                 f"http://{entry.host}:80/localhost.sql, "
-                f"http://{entry.host}:80/sql.gz",
+                f"http://{entry.host}:80/sql.gz, "
+                f"http://{entry.host}:80/test "
+                f"(http://{entry.host}:80/test with directory index)",
             )
             self.assertEqual(
                 call.kwargs["data"],
-                [
-                    f"http://{entry.host}:80/config.dist",
-                    f"http://{entry.host}:80/localhost.sql",
-                    f"http://{entry.host}:80/sql.gz",
-                ],
+                {
+                    "found_urls": [
+                        f"http://{entry.host}:80/config.dist",
+                        f"http://{entry.host}:80/localhost.sql",
+                        f"http://{entry.host}:80/sql.gz",
+                        f"http://{entry.host}:80/test",
+                    ],
+                    "found_urls_with_directory_index": [
+                        f"http://{entry.host}:80/test",
+                    ],
+                },
             )

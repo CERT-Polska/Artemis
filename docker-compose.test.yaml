@@ -114,3 +114,10 @@ services:
     image: mysql:5.6
     environment:
       MYSQL_ROOT_PASSWORD: root
+
+
+  test-postgresql-with-easy-password:
+    image: postgres
+    environment:
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example

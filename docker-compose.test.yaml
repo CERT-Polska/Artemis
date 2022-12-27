@@ -4,18 +4,18 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: python -m unittest discover test_e2e
+    command: python -m unittest discover test.e2e
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
-      - ./test_e2e/:/opt/test_e2e/
+      - ./test/:/opt/test/
       - ./docker/karton.ini:/etc/karton/karton.ini
 
   test:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: python -m unittest discover test
+    command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.unit"
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379

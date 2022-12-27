@@ -1,6 +1,5 @@
 import socket
-
-from test_e2e.base import BaseE2ETestCase
+from test.e2e.base import BaseE2ETestCase
 
 
 class FTPE2ETestCase(BaseE2ETestCase):

@@ -8,16 +8,12 @@ from pydantic import BaseModel
 from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
+from artemis.modules.data.common_sql_credentials import COMMON_SQL_CREDENTIALS
 from artemis.task_utils import get_target
 
-BRUTE_CREDENTIALS = [
-    ("root", ""),
-    ("admin", "admin"),
-    ("root", "root"),
+BRUTE_CREDENTIALS = COMMON_SQL_CREDENTIALS + [
     ("postgresql", "postgresql"),
     ("postgres", "postgres"),
-    ("example", "example"),
-    ("sql", "sql"),
 ]
 
 

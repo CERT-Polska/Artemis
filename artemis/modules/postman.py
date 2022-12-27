@@ -97,7 +97,7 @@ class Postman(ArtemisSingleTaskBase):
 
         # If the host is a MX for a domain found by mail_dns_scanner, this is the domain
         # (it may be different from original_domain if e.g. original_domain led to the finding
-        # of a subdomain and mail_dns_scanner was ran on a subdomain.
+        # of a subdomain and mail_dns_scanner was ran on that subdomain).
         mail_domain = current_task.get_payload("mail_domain")
 
         host = current_task.get_payload("host")

@@ -8,4 +8,5 @@ class FTPE2ETestCase(BaseE2ETestCase):
         self.submit_tasks([socket.gethostbyname("test-ftp-server-with-easy-password")])
         self.wait_for_tasks_finished()
         messages = self.get_task_messages()
+        print(messages)
         self.assertTrue("Found working credentials for the FTP server: admin:12345" in messages)

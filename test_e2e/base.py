@@ -45,6 +45,7 @@ class BaseE2ETestCase(TestCase):
 
     def get_task_messages(self) -> List[str]:
         task_results = self.get_task_results()["data"]
+        print(task_results)
         messages = []
         for task_result in task_results:
             task_result = TaskListRow(*task_result)

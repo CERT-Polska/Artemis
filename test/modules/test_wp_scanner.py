@@ -35,4 +35,6 @@ class WordPressScannerTest(ArtemisModuleTestCase):
             self.assertEqual(
                 call.kwargs["status_reason"], "Found WordPress problems: WordPress 5.9.3 is considered insecure"
             )
-            self.assertEqual(call.kwargs["data"], {"wp_version": "5.9.3", "wp_plugins": []})
+            self.assertEqual(
+                call.kwargs["data"], {"wp_version": "5.9.3", "wp_plugins": [], "wp_version_insecure": True}
+            )

@@ -5,11 +5,12 @@ from typing import Any, Dict, List, Union
 import requests
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 
-class WordPressScanner(ArtemisSingleTaskBase):
+class WordPressScanner(ArtemisBase):
     """
     WordPress scanner
     """
@@ -39,17 +40,17 @@ class WordPressScanner(ArtemisSingleTaskBase):
 
     def scan(self, current_task: Task, url: str) -> None:
         found_problems = []
-        result: Dict[str, Union[str, List[Any]]] = {}
+        result: Dict[str, Union[bool, str, List[Any]]] = {}
 
         # Check for open registration
         registration_url = f"{url}/wp-login.php?action=register"
-        response = requests.get(registration_url, verify=False, timeout=5)
+        response = http_requests.get(registration_url)
         if '<form name="registerform" id="registerform"' in response.text:
             found_problems.append(f"registration is open on {registration_url}")
             result["registration_url"] = registration_url
 
         # Check if they are running latest patch version
-        response = requests.get(url, verify=False, timeout=5)
+        response = http_requests.get(url)
         wp_version = None
         if match := re.search('<meta name="generator" content="WordPress ([0-9]+\\.[0-9]+\\.[0-9]+)', response.text):
             wp_version = match.group(1)
@@ -60,6 +61,7 @@ class WordPressScanner(ArtemisSingleTaskBase):
             result["wp_version"] = wp_version
             if self._is_version_insecure(wp_version):
                 found_problems.append(f"WordPress {wp_version} is considered insecure")
+                result["wp_version_insecure"] = True
 
             # Enumerate installed plugins
             result["wp_plugins"] = re.findall("wp-content/plugins/([^/]+)/.+ver=([0-9.]+)", response.text)

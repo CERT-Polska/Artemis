@@ -13,9 +13,10 @@ from uuid import uuid4
 from karton.core import Task
 from pydantic import BaseModel
 
+from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 
 class PostmanResult(BaseModel):
@@ -23,7 +24,7 @@ class PostmanResult(BaseModel):
     unauthorized_local_from: Optional[str] = None
 
 
-class Postman(ArtemisSingleTaskBase):
+class Postman(ArtemisBase):
     """
     Collects `service: SMTP` and tests if it verifies credentials,
     as well as trying out open relay.
@@ -51,6 +52,7 @@ class Postman(ArtemisSingleTaskBase):
         """
         try:
             local_hostname = Config.POSTMAN_MAIL_FROM.split("@")[1]
+            request_limit.limit_requests_for_host(host)
             with SMTP(host, port, local_hostname=local_hostname) as smtp:
                 smtp.set_debuglevel(1)
                 smtp.sendmail(
@@ -73,6 +75,7 @@ class Postman(ArtemisSingleTaskBase):
         Tests if SMTP server allows sending as domain to any address.
         """
         try:
+            request_limit.limit_requests_for_host(host)
             with SMTP(host, port) as smtp:
                 smtp.set_debuglevel(1)
                 mail_from = f"root@{domain}"

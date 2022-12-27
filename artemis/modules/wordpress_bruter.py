@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import requests
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.module_base import ArtemisSingleTaskBase
+from artemis.module_base import ArtemisBase
 
 PASSWORDS = [
     "admin",
@@ -23,7 +23,7 @@ PASSWORDS = [
 MAX_USERNAMES_TO_CHECK = 3
 
 
-class WordPressBruter(ArtemisSingleTaskBase):
+class WordPressBruter(ArtemisBase):
     """
     Performs a brute force attack on WordPress credentials
     """
@@ -39,7 +39,7 @@ class WordPressBruter(ArtemisSingleTaskBase):
         usernames = []
 
         try:
-            users = requests.get(url + "?rest_route=/wp/v2/users").json()
+            users = http_requests.get(url + "?rest_route=/wp/v2/users").json()
             for user_entry in users:
                 usernames.append(user_entry["name"])
         except Exception:
@@ -51,7 +51,7 @@ class WordPressBruter(ArtemisSingleTaskBase):
         credentials = []
         for username in usernames:
             for password in PASSWORDS:
-                content = requests.post(
+                content = http_requests.post(
                     url + "/wp-login.php",
                     data={
                         "log": username,
@@ -61,10 +61,8 @@ class WordPressBruter(ArtemisSingleTaskBase):
                         "testcookie": "1",
                     },
                     cookies={"wordpress_test_cookie": "WP%20Cookie%20check"},
-                    verify=False,
-                    timeout=5,
                 ).content
-                if "<title>Dashboard" in content.decode("utf-8", errors="ignore"):
+                if "<title>Dashboard" in content:
                     credentials.append((username, password))
 
         if credentials:

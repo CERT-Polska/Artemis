@@ -1,3 +1,4 @@
+import functools
 from typing import Any, Dict, List, Set
 
 import requests
@@ -33,6 +34,7 @@ def _ips_from_answer(domain: str, answer: List[Dict[str, Any]]) -> Set[str]:
     return found_ips
 
 
+@functools.lru_cache(maxsize=8192)
 def ip_lookup(domain: str) -> Set[str]:
     """
     :return List of IP addresses

@@ -12,11 +12,14 @@ class PostmanTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         task = Task(
-            {"service": Service.SMTP},
-            payload={TaskType.IP: "192.168.3.9", "port": 25},
+            {"type": TaskType.SERVICE, "service": Service.SMTP},
+            payload={"host": "192.168.3.9", "port": 25},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["status_reason"], "Found problems: the server is an open relay")
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "Found problems: possible to send e-mails without autorisation (from @192.168.3.9), the server is an open relay",
+        )
         self.assertTrue(call.kwargs["data"].open_relay)

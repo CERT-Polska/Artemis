@@ -59,6 +59,7 @@ NOT_INTERESTING_PORTS = [
     (None, "pop3"),
     (None, "imap"),
     (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL
+    (5432, "postgres"),  # There is a module (artemis.modules.mysql_bruter) that checks PostgreSQL
 ]
 
 

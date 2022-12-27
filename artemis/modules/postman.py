@@ -7,6 +7,7 @@ from smtplib import (
     SMTPRecipientsRefused,
     SMTPSenderRefused,
 )
+from typing import Optional
 from uuid import uuid4
 
 from karton.core import Task
@@ -19,7 +20,7 @@ from artemis.module_base import ArtemisSingleTaskBase
 
 class PostmanResult(BaseModel):
     open_relay = False
-    unauthorized_local_from = False
+    unauthorized_local_from: Optional[str] = None
 
 
 class Postman(ArtemisSingleTaskBase):
@@ -90,19 +91,38 @@ class Postman(ArtemisSingleTaskBase):
     def run(self, current_task: Task) -> None:
         result = PostmanResult()
 
+        # This is the root domain for our task, if present - the one that was provided
+        # on the "add URLs" page.
         original_domain = current_task.get_payload("original_domain")
+
+        # If the host is a MX for a domain found by mail_dns_scanner, this is the domain
+        # (it may be different from original_domain if e.g. original_domain led to the finding
+        # of a subdomain and mail_dns_scanner was ran on a subdomain.
+        mail_domain = current_task.get_payload("mail_domain")
+
         host = current_task.get_payload("host")
         port = current_task.get_payload("port")
 
         if original_domain:
-            result.unauthorized_local_from = self._check_outgoing_email(original_domain, host, port)
-        else:
-            result.unauthorized_local_from = self._check_outgoing_email(host, host, port)
+            if self._check_outgoing_email(original_domain, host, port):
+                result.unauthorized_local_from = original_domain
+
+        if mail_domain:
+            if self._check_outgoing_email(mail_domain, host, port):
+                result.unauthorized_local_from = mail_domain
+
+        # Because SERVICE tasks would get emitted for the domain and all its IPs, we will
+        # test outgoing e-mail for @domain and @ip e-mails.
+        if self._check_outgoing_email(host, host, port):
+            result.unauthorized_local_from = host
+
         result.open_relay = self._check_open_relay(host, port)
 
         found_problems = []
         if result.unauthorized_local_from:
-            found_problems.append("possible to send e-mails without autorisation")
+            found_problems.append(
+                f"possible to send e-mails without autorisation (from @{result.unauthorized_local_from})"
+            )
         if result.open_relay:
             found_problems.append("the server is an open relay")
 

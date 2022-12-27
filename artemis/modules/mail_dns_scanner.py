@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisSingleTaskBase
+from artemis.resolvers import ip_lookup
 
 
 class MailDNSScannerResult(BaseModel):
@@ -52,17 +53,19 @@ class MailDNSScanner(ArtemisSingleTaskBase):
                 result.mail_server_found = True
                 for port in (25, 465, 587):
                     if self.is_smtp_server(exchange, port):
-                        new_task = Task(
-                            {
-                                "type": TaskType.SERVICE,
-                                "service": Service.SMTP,
-                            },
-                            payload={
-                                "host": exchange,
-                                "port": port,
-                            },
-                        )
-                        self.add_task(current_task, new_task)
+                        for host in [exchange] + list(ip_lookup(exchange)):
+                            new_task = Task(
+                                {
+                                    "type": TaskType.SERVICE,
+                                    "service": Service.SMTP,
+                                },
+                                payload={
+                                    "host": host,
+                                    "port": port,
+                                    "mail_domain": domain,
+                                },
+                            )
+                            self.add_task(current_task, new_task)
         except dns.resolver.NoAnswer:
             if self.is_smtp_server(domain, 25):
                 result.mail_server_found = True

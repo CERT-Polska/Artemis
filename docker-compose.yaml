@@ -221,6 +221,15 @@ services:
     env_file: .env
     command: "python3 -m artemis.modules.postman"
 
+  karton-postgresql_bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    depends_on: [karton-logger]
+    env_file: .env
+    command: "python3 -m artemis.modules.postgresql_bruter"
+
   karton-wordpress_bruter:
     build:
       context: .

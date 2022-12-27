@@ -45,12 +45,16 @@ class BaseE2ETestCase(TestCase):
 
     def get_task_messages(self) -> List[str]:
         task_results = self.get_task_results()["data"]
-        print(task_results)
         messages = []
         for task_result in task_results:
             task_result = TaskListRow(*task_result)
             messages.append(task_result.message)
         return messages
+
+    # This method has a camelCase name for consistency with other unittest methods
+    def assertMessagesContain(self, message: str) -> None:
+        messages = self.get_task_messages()
+        self.assertIn(message, messages)
 
     def _wait_for_backend(self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES) -> None:
         for retry in range(num_retries):

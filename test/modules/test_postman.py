@@ -20,6 +20,6 @@ class PostmanTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "Found problems: possible to send e-mails without autorisation (from @192.168.3.9), the server is an open relay",
+            "Found problems: possible to send e-mails without autorisation (from @test-smtp-server), the server is an open relay",
         )
         self.assertTrue(call.kwargs["data"].open_relay)

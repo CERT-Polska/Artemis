@@ -60,10 +60,12 @@ def get_task_results(
         if not db.get_analysis_by_id(analysis_id):
             raise HTTPException(status_code=404, detail="Analysis not found")
         result = db.get_paginated_task_results(
-            start, length, ordering, search_query, analysis_id=analysis_id, task_filter=task_filter
+            start, length, ordering, search_query=search_query, analysis_id=analysis_id, task_filter=task_filter
         )
     else:
-        result = db.get_paginated_task_results(start, length, ordering, search_query, task_filter=task_filter)
+        result = db.get_paginated_task_results(
+            start, length, ordering, search_query=search_query, task_filter=task_filter
+        )
 
     return {
         "draw": draw,

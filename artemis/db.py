@@ -146,8 +146,8 @@ class DB:
         start: int,
         length: int,
         ordering: List[ColumnOrdering],
-        search_query: str,
         *,
+        search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
     ) -> PaginatedTaskResults:

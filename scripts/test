@@ -58,8 +58,6 @@ docker compose \
     --scale test=0 \
     --scale test-e2e=0
 
-docker compose logs -f &
-
 # Now we are ready to start the tests
 docker compose \
     -f docker-compose.test.yaml \
@@ -79,7 +77,5 @@ docker compose \
 
 docker volume rm artemis_data-test-redis
 docker volume rm artemis_data-test-mongodb
-
-kill %1
 
 exit $EXIT_CODE

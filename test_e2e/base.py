@@ -1,4 +1,5 @@
 import time
+from collections import namedtuple
 from typing import Any, Dict, List
 from unittest import TestCase
 
@@ -9,6 +10,11 @@ from artemis.utils import build_logger
 BACKEND_URL = "http://backend:5000/"
 NUM_RETRIES = 100
 RETRY_TIME_SECONDS = 2
+
+
+TaskListRow = namedtuple(
+    "TaskListRow", ["created_at", "receiver", "task_link", "headers_html", "message", "decision_html"]
+)
 
 
 class BaseE2ETestCase(TestCase):
@@ -36,6 +42,14 @@ class BaseE2ETestCase(TestCase):
         return requests.get(  # type: ignore
             BACKEND_URL + "api/task-results?draw=1&start=0&length=100&order[0][column]=0&order[0][dir]=asc"
         ).json()
+
+    def get_task_messages(self) -> List[str]:
+        task_results = self.get_task_results()["data"]
+        messages = []
+        for task_result in task_results:
+            task_result = TaskListRow(*task_result)
+            messages.append(task_result.message)
+        return messages
 
     def _wait_for_backend(self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES) -> None:
         for retry in range(num_retries):

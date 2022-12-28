@@ -40,7 +40,8 @@ class BaseE2ETestCase(TestCase):
 
     def get_task_results(self) -> Dict[str, Any]:
         return requests.get(  # type: ignore
-            BACKEND_URL + "api/task-results?draw=1&start=0&length=100&order[0][column]=0&order[0][dir]=asc"
+            BACKEND_URL
+            + "api/task-results?draw=1&start=0&length=100&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=asc&search[regex]=false&search[value]="
         ).json()
 
     def get_task_messages(self) -> List[str]:

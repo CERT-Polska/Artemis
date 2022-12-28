@@ -58,12 +58,6 @@ docker compose \
     --scale test=0 \
     --scale test-e2e=0
 
-docker compose \
-    -f docker-compose.test.yaml \
-    -f docker-compose.yaml \
-    -f docker-compose.test-e2e.yaml \
-    logs -f &
-
 # Now we are ready to start the tests
 docker compose \
     -f docker-compose.test.yaml \
@@ -73,9 +67,6 @@ docker compose \
     test-e2e
 
 EXIT_CODE=$?
-
-
-kill %1
 
 docker compose \
     -f docker-compose.test.yaml \

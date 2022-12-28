@@ -1,6 +1,9 @@
+import datetime
+import json
 import re
 from typing import Any, Dict, List, Union
 
+import pytz
 import requests
 from karton.core import Task
 
@@ -19,10 +22,32 @@ class JoomlaScanner(ArtemisBase):
         {"type": TaskType.WEBAPP, "webapp": WebApplication.JOOMLA},
     ]
 
+    # This is a heuristic so that we can avoid parsing CVE list
+    def _is_version_old(self, version: str, age_threshold_days: int = 365) -> bool:
+        cache_key = "versions"
+        if not self.cache.get(cache_key):
+            data = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases").json()
+            data_as_json = json.dumps(data)
+            self.cache.set(cache_key, data_as_json.encode("utf-8"))
+        else:
+            cache_result = self.cache.get(cache_key)
+            assert cache_result
+            data = json.loads(cache_result)
+
+        for release in data:
+            if release["tag_name"] == version:
+                return (
+                    datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+                    - datetime.datetime.fromisoformat(release["published_at"])
+                ).days > age_threshold_days
+
+        # Cannot check version age
+        return True
+
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
         found_problems = []
-        result: Dict[str, Union[str, List[Any]]] = {}
+        result: Dict[str, Union[str, bool, List[Any]]] = {}
 
         # Check for open registration
         registration_url = f"{url}/index.php?option=com_users&view=registration"
@@ -38,8 +63,9 @@ class JoomlaScanner(ArtemisBase):
             result["joomla_version"] = joomla_version
             # Get latest release in repo from GitHub API
             gh_api_response = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases/latest")
-            if gh_api_response.json()["tag_name"] != joomla_version:
+            if gh_api_response.json()["tag_name"] != joomla_version and self._is_version_old(joomla_version):
                 found_problems.append(f"Joomla version is too old: {joomla_version}")
+                result["joomla_version_is_too_old"] = True
 
         if found_problems:
             status = TaskStatus.INTERESTING

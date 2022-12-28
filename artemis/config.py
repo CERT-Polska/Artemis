@@ -60,3 +60,7 @@ class Config:
     # A threshold in case the server reports too much files with 200 status code,
     # and we want to skip this as a false positive. 0.1 means 10%.
     BRUTER_FALSE_POSITIVE_THRESHOLD = 0.1
+
+    # If set to True, Bruter will follow redirects. If false, a redirect will be interpreted that this URL
+    # doesn't exist, greatly decreasing the number of false positives at the cost of some true positives.
+    BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)

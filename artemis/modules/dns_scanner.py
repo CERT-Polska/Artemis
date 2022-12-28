@@ -76,6 +76,7 @@ class DnsScanner(ArtemisBase):
 
                 if topmost_transferable_zone_name:
                     result["topmost_transferable_zone_name"] = topmost_transferable_zone_name
+                    result["zone_transfer_nameserver"] = nameserver_ip
                     findings.add(
                         f"DNS zone transfer is possible (nameserver {nameserver_ip}, zone_name "
                         f"{result['topmost_transferable_zone_name']})"

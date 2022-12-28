@@ -57,7 +57,7 @@ services:
         ipv4_address: 192.168.3.6
 
   test-old-joomla:
-    image: joomla:3-php7.4-apache  # this is an old image on purpose
+    image: joomla:4.0.5-php8.0-apache  # this is an old image on purpose
     environment:
       JOOMLA_DB_HOST: test-old-joomla-mysql
       JOOMLA_DB_PASSWORD: example

@@ -19,7 +19,6 @@ class BruterTest(ArtemisModuleTestCase):
     def test_simple(self) -> None:
         data = [
             TestData("test-service-with-bruteable-files", TaskType.SERVICE),
-            TestData("192.168.3.4", TaskType.SERVICE),
         ]
 
         for entry in data:

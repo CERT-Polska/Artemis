@@ -12,20 +12,20 @@ class PortScannerTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         task = Task(
-            {"type": TaskType.IP},
-            payload={TaskType.IP: "192.168.3.3"},
+            {"type": TaskType.DOMAIN},
+            payload={TaskType.DOMAIN: "test-redis"},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(call.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False)")
-        self.assertEqual(call.kwargs["data"]["192.168.3.3"], {"6379": {"service": "redis", "ssl": False}})
+        self.assertEqual(list(call.kwargs["data"].values()), [{"6379": {"service": "redis", "ssl": False}}])
 
     def test_multiple(self) -> None:
         # Makes sure that the caching mechanism doesn't prevent returning correct results
         task = Task(
-            {"type": TaskType.IP},
-            payload={TaskType.IP: "192.168.3.3"},
+            {"type": TaskType.DOMAIN},
+            payload={TaskType.DOMAIN: "test-redis"},
         )
         self.run_task(task)
         self.run_task(task)

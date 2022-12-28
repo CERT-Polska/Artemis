@@ -1,0 +1,16 @@
+services:
+  karton-port_scanner:
+    environment:
+        SCANNING_PACKETS_PER_SECOND_PER_IP: 100
+
+  redis:
+    volumes:
+      - data-test-redis:/data
+
+  db:
+    volumes:
+     - data-test-mongodb:/data/db
+
+volumes:
+  data-test-mongodb:
+  data-test-redis:

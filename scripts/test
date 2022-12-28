@@ -22,8 +22,8 @@ docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service
 docker compose -f docker-compose.test.yaml cp test/data/joomla/configuration.php test-old-joomla:/var/www/html
 docker compose -f docker-compose.test.yaml exec test-old-joomla rm -rf /var/www/html/installation
 docker compose -f docker-compose.test.yaml cp test/data/joomla/db.sql test-old-joomla-mysql:/
-docker compose -f docker-compose.test.yaml exec test-old-joomla-mysql bash -c 'mysql --password=example -e "CREATE DATABASE IF NOT EXISTS example";'
-docker compose -f docker-compose.test.yaml exec test-old-joomla-mysql bash -c 'mysql --password=example example < /db.sql'
+docker compose -f docker-compose.test.yaml exec test-old-joomla-mysql bash -c 'mysql --password=example -e "CREATE DATABASE IF NOT EXISTS joomla_db";'
+docker compose -f docker-compose.test.yaml exec test-old-joomla-mysql bash -c 'mysql --password=example joomla_db < /db.sql'
 
 # Set up Wordpress instance with old Wordpress
 docker compose -f docker-compose.test.yaml cp test/data/old_wordpress/db.sql test-old-wordpress-mysql:/

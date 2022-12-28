@@ -37,7 +37,8 @@ class RobotsTest(ArtemisModuleTestCase):
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             self.assertEqual(
-                call.kwargs["status_reason"], "Found potentially interesting paths in robots.txt: /secret-url/"
+                call.kwargs["status_reason"],
+                "Found potentially interesting paths (having directory index) in robots.txt: /secret-url/",
             )
             self.assertEqual(
                 call.kwargs["data"],
@@ -46,7 +47,7 @@ class RobotsTest(ArtemisModuleTestCase):
                     "groups": [
                         {
                             "user_agents": ["*"],
-                            "disallow": ["/secret-url/", "/wp-includes/", "/icons/", "/"],
+                            "disallow": ["/secret-url/", "/secret-url-noindex/", "/wp-includes/", "/icons/", "/"],
                             "allow": [],
                         }
                     ],

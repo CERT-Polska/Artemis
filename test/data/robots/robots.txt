@@ -1,5 +1,6 @@
 User-Agent: *
 Disallow: /secret-url/
+Disallow: /secret-url-noindex/
 Disallow: /wp-includes/
 Disallow: /icons/
 Disallow: /

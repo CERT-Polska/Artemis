@@ -8,6 +8,7 @@ from karton.core import Task
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
+from artemis.models import FoundURL
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 from artemis.utils import is_directory_index
@@ -33,6 +34,7 @@ class RobotsGroup:
 class RobotsResult:
     status: int
     groups: List[RobotsGroup]
+    found_urls: List[FoundURL]
 
 
 class RobotsScanner(ArtemisBase):
@@ -74,13 +76,13 @@ class RobotsScanner(ArtemisBase):
 
         return groups
 
-    def _get_interesting_paths(self, url: str, result: RobotsResult) -> List[str]:
-        if len(result.groups) == 0:
+    def _download(self, url: str, groups: List[RobotsGroup]) -> List[FoundURL]:
+        if len(groups) == 0:
             return []
 
         # Iterate over all paths from all groups
-        interesting_paths = []
-        for g in result.groups:
+        found_urls = []
+        for g in groups:
             for path in g.allow + g.disallow:
                 if not any([re.match(p, path) for p in NOT_INTERESTING_PATHS]):
                     if "*" in path:
@@ -88,18 +90,26 @@ class RobotsScanner(ArtemisBase):
 
                     path = path.rstrip("$")
 
-                    content = http_requests.get(f"{url}{path}").content
+                    full_url = f"{url}{path}"
+                    content = http_requests.get(full_url).content
                     if is_directory_index(content):
-                        interesting_paths.append(path)
-        return interesting_paths
+                        found_urls.append(
+                            FoundURL(
+                                url=full_url,
+                                content_prefix=content[: Config.CONTENT_PREFIX_SIZE],
+                                has_directory_index=True,
+                            )
+                        )
+        return found_urls
 
     def download_robots(self, url: str) -> RobotsResult:
         response = http_requests.get(f"{url}/robots.txt", allow_redirects=False)
 
-        result = RobotsResult(response.status_code, [])
-        if result.status == 200:
-            result.groups.extend(self._parse_robots(response.text))
+        groups = []
+        if response.status_code == 200:
+            groups.extend(self._parse_robots(response.text))
 
+        result = RobotsResult(response.status_code, groups, self._download(url, groups))
         return result
 
     def run(self, current_task: Task) -> None:
@@ -107,18 +117,19 @@ class RobotsScanner(ArtemisBase):
         self.log.info(f"robots looking for {url}/robots.txt")
 
         result = self.download_robots(url)
-        interesting_paths = self._get_interesting_paths(url, result)
 
-        if interesting_paths:
+        if result.found_urls:
             status = TaskStatus.INTERESTING
             status_reason = (
                 "Found potentially interesting paths (having directory index) in "
-                f"robots.txt: {', '.join(sorted(interesting_paths))}"
+                f"robots.txt: {', '.join(sorted([item.url for item in result.found_urls]))}"
             )
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=asdict(result))
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data={"result": asdict(result)}
+        )
 
 
 if __name__ == "__main__":

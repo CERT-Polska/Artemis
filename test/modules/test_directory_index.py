@@ -44,19 +44,23 @@ class DirectoryIndexTest(ArtemisModuleTestCase):
 
                 self.assertEqual(
                     call.kwargs["status_reason"],
-                    "Found directories with index enabled: /backups/, /wp-content/, /wp-content/uploads/, "
-                    "/wp-content/uploads/2022/, /wp-content/uploads/2022/02/, /wp-content/uploads/2022/03/, "
+                    "Found directories with index enabled: http://test-service-with-directory-index:80/backups/, "
+                    "http://test-service-with-directory-index:80/wp-content/, "
+                    "http://test-service-with-directory-index:80/wp-content/uploads/, "
+                    "http://test-service-with-directory-index:80/wp-content/uploads/2022/, "
+                    "http://test-service-with-directory-index:80/wp-content/uploads/2022/02/, "
+                    "http://test-service-with-directory-index:80/wp-content/uploads/2022/03/, "
                     "https://bucket2.s3.amazonaws.com/, https://s3.amazonaws.com/bucket1/",
                 )
                 self.assertEqual(
-                    call.kwargs["data"],
+                    sorted([item["url"] for item in call.kwargs["data"]]),
                     [
-                        "/backups/",
-                        "/wp-content/",
-                        "/wp-content/uploads/",
-                        "/wp-content/uploads/2022/",
-                        "/wp-content/uploads/2022/02/",
-                        "/wp-content/uploads/2022/03/",
+                        "http://test-service-with-directory-index:80/backups/",
+                        "http://test-service-with-directory-index:80/wp-content/",
+                        "http://test-service-with-directory-index:80/wp-content/uploads/",
+                        "http://test-service-with-directory-index:80/wp-content/uploads/2022/",
+                        "http://test-service-with-directory-index:80/wp-content/uploads/2022/02/",
+                        "http://test-service-with-directory-index:80/wp-content/uploads/2022/03/",
                         "https://bucket2.s3.amazonaws.com/",
                         "https://s3.amazonaws.com/bucket1/",
                     ],

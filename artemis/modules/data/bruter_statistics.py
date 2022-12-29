@@ -1,5 +1,7 @@
 # TODO This is just a random initial list
 BRUTER_STATISTICS = [
+    {"name": "bruter", "count": 1, "value": "backup/"},
+    {"name": "bruter", "count": 1, "value": "backups/"},
     {"name": "bruter", "count": 1, "value": "temp/"},
     {"name": "bruter", "count": 1, "value": "tmp/"},
     {"name": "bruter", "count": 1, "value": "ws_ftp.ini"},

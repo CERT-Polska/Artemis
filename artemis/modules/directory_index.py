@@ -14,7 +14,6 @@ from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 from artemis.utils import is_directory_index
 
-PATHS: List[str] = ["/backup/", "/backups/", "/_vti_bin/", "/wp-content/", "/wp-includes/"]
 MAX_DIRS_PER_PATH = 4
 MAX_TESTS_PER_URL = 20
 S3_BASE_DOMAIN = "s3.amazonaws.com"
@@ -35,7 +34,7 @@ class DirectoryIndex(ArtemisBase):
         soup = BeautifulSoup(response.content, "html.parser")
         original_url_parsed = urllib.parse.urlparse(url)
 
-        path_candidates = set(PATHS)
+        path_candidates = set()
         for tag in soup.find_all():
             new_url = None
             for attribute in ["src", "href"]:

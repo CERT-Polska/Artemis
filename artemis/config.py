@@ -1,6 +1,5 @@
 import decouple
 from redis import Redis
-from redis.asyncio import Redis as AsyncRedis
 
 
 class Config:
@@ -28,17 +27,11 @@ class Config:
     # behavior is configurable and may be turned off.
     VERIFY_REVDNS_IN_SCOPE = decouple.config("VERIFY_REVDNS_IN_SCOPE", default=True, cast=bool)
 
-    # This determines the parallelism for asyncio parallel scanning. For each async scanning
-    # (e.g. the one spawned by bruter) the maximum number of coroutines running concurrently
-    # will be MAX_ASYNC_PER_LOOP.
-    MAX_ASYNC_PER_LOOP = decouple.config("MAX_ASYNC_PER_LOOP", cast=int, default=10)
-
-    # These are not three separate Redis instances. What follows is a connection string (describing
-    # how to connect to Redis) and two already constructed Redis clients - sync and async, **both
-    # connecting to the same Redis instance**.
+    # Connection string (describing how to connect to Redis)
     REDIS_CONN_STR = decouple.config("REDIS_CONN_STR")
+
+    # An already constructed Redis client
     REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
-    ASYNC_REDIS = AsyncRedis.from_url(decouple.config("REDIS_CONN_STR"))
 
     HTTP_TIMEOUT_SECONDS = decouple.config("HTTP_TIMEOUT_SECONDS", default=2, cast=int)
 
@@ -60,3 +53,9 @@ class Config:
     # A threshold in case the server reports too much files with 200 status code,
     # and we want to skip this as a false positive. 0.1 means 10%.
     BRUTER_FALSE_POSITIVE_THRESHOLD = 0.1
+
+    # Each bruter scan would consist of BRUTER_NUM_TOP_PATHS_TO_USE most popular paths that existed on the servers
+    # and BRUTER_NUM_RANDOM_PATHS_TO_USE random paths so that we explore random paths from the list to know what
+    # would be the most popular paths.
+    BRUTER_NUM_TOP_PATHS_TO_USE = 400
+    BRUTER_NUM_RANDOM_PATHS_TO_USE = 200

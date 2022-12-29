@@ -1,5 +1,6 @@
 import os
 import socket
+from typing import List
 from unittest.mock import MagicMock, patch
 
 from karton.core.test import ConfigMock, KartonBackendMock, KartonTestCase
@@ -28,7 +29,13 @@ class ArtemisModuleTestCase(KartonTestCase):
             self._ip_lookup_mock = patch(item, MagicMock(side_effect=lambda host: {socket.gethostbyname(host)}))
             self._ip_lookup_mock.__enter__()
 
+        def mock_get_top_values_for_statistic(name: str, count: int) -> List[str]:
+            if name == "bruter":
+                return ["config.dist"]
+            raise NotImplementedError()
+
         self.mock_db = MagicMock()
+        self.mock_db.get_top_values_for_statistic = mock_get_top_values_for_statistic
         self.mock_db.contains_scheduled_task.return_value = False
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=self.mock_db

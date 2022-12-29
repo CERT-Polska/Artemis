@@ -95,7 +95,7 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
-        self.log.info(f"bruter scanning {base_url} ({len(FILENAMES_TO_SCAN)} URLs)")
+        self.log.info(f"bruter scanning {base_url}")
 
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
@@ -105,22 +105,22 @@ class Bruter(ArtemisBase):
         except Exception:
             dummy_content = ""
 
-        urls: List[str] = []
+        random_paths = list(FILENAMES_TO_SCAN)
+        random.shuffle(random_paths)
+        random_paths = random_paths[: Config.BRUTER_NUM_RANDOM_PATHS_TO_USE]
 
-        for file in set(FILENAMES_TO_SCAN):
-            url = f"{base_url}/{file}"
-            urls.append(url)
+        top_paths = self.db.get_top_values_for_statistic("bruter", Config.BRUTER_NUM_TOP_PATHS_TO_USE)
+
+        results = {}
+        for url in set(random_paths) | set(top_paths):
+            try:
+                results[url] = http_requests.get(base_url + "/" + url)
+            except Exception:
+                pass
 
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
-        results = {}
-        for url in urls:
-            try:
-                results[url] = http_requests.get(url)
-            except Exception:
-                pass
-
         found_urls = set()
         found_urls_with_directory_index = set()
         for response_url, response in results.items():
@@ -137,8 +137,15 @@ class Bruter(ArtemisBase):
             ):
                 found_urls.add(response_url)
 
+                url = response_url[len(base_url) + 1 :]
+                if url in random_paths:
+                    self.db.statistic_increase("bruter", url)
+
                 if is_directory_index(response.content):
                     found_urls_with_directory_index.add(response_url)
+
+                    if url in random_paths:
+                        self.db.statistic_increase("bruter-with-directory-index", url)
 
         if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
             return BruterResult(found_urls=[], found_urls_with_directory_index=[])

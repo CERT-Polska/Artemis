@@ -1,3 +1,7 @@
+# Not a vulnerability for us
+/wp-register.php
+/wp-json/wp/v2/users
+
 # Most probably nothing interesting
 /%3f/
 

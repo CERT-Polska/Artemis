@@ -1,0 +1,3 @@
+from .bruter_statistics import BRUTER_STATISTICS
+
+STATISTICS = BRUTER_STATISTICS

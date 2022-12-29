@@ -10,7 +10,6 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
-from artemis.utils import is_directory_index
 
 RE_USER_AGENT = re.compile(r"^\s*user-agent:\s*(.*)", re.I)
 RE_ALLOW = re.compile(r"^\s*allow:\s*(/.*)", re.I)
@@ -74,7 +73,7 @@ class RobotsScanner(ArtemisBase):
 
         return groups
 
-    def _get_interesting_paths(self, url: str, result: RobotsResult) -> List[str]:
+    def _get_interesting_paths(self, result: RobotsResult) -> List[str]:
         if len(result.groups) == 0:
             return []
 
@@ -83,17 +82,11 @@ class RobotsScanner(ArtemisBase):
         for g in result.groups:
             for path in g.allow + g.disallow:
                 if not any([re.match(p, path) for p in NOT_INTERESTING_PATHS]):
-                    if "*" in path:
-                        continue
-
-                    path = path.rstrip("$")
-
-                    content = http_requests.get(f"{url}{path}").content
-                    if is_directory_index(content):
-                        interesting_paths.append(path)
+                    interesting_paths.append(path)
         return interesting_paths
 
-    def download_robots(self, url: str) -> RobotsResult:
+    def scan(self, url: str) -> RobotsResult:
+        # Invalid certificate is probably more interesting then a valid one
         response = http_requests.get(f"{url}/robots.txt", allow_redirects=False)
 
         result = RobotsResult(response.status_code, [])
@@ -106,15 +99,12 @@ class RobotsScanner(ArtemisBase):
         url = get_target_url(current_task)
         self.log.info(f"robots looking for {url}/robots.txt")
 
-        result = self.download_robots(url)
-        interesting_paths = self._get_interesting_paths(url, result)
+        result = self.scan(url)
+        interesting_paths = self._get_interesting_paths(result)
 
         if interesting_paths:
             status = TaskStatus.INTERESTING
-            status_reason = (
-                "Found potentially interesting paths (having directory index) in "
-                f"robots.txt: {', '.join(sorted(interesting_paths))}"
-            )
+            status_reason = f"Found potentially interesting paths in robots.txt: {', '.join(sorted(interesting_paths))}"
         else:
             status = TaskStatus.OK
             status_reason = None

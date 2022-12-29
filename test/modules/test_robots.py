@@ -38,18 +38,21 @@ class RobotsTest(ArtemisModuleTestCase):
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             self.assertEqual(
                 call.kwargs["status_reason"],
-                "Found potentially interesting paths (having directory index) in robots.txt: /secret-url/",
+                "Found potentially interesting paths (having directory index) in robots.txt: "
+                "http://test-robots-service:80/secret-url/",
+            )
+            self.assertEqual(call.kwargs["data"]["result"]["status"], 200)
+            self.assertEqual(
+                call.kwargs["data"]["result"]["groups"],
+                [
+                    {
+                        "user_agents": ["*"],
+                        "disallow": ["/secret-url/", "/secret-url-noindex/", "/wp-includes/", "/icons/", "/"],
+                        "allow": [],
+                    }
+                ],
             )
             self.assertEqual(
-                call.kwargs["data"],
-                {
-                    "status": 200,
-                    "groups": [
-                        {
-                            "user_agents": ["*"],
-                            "disallow": ["/secret-url/", "/secret-url-noindex/", "/wp-includes/", "/icons/", "/"],
-                            "allow": [],
-                        }
-                    ],
-                },
+                [path["url"] for path in call.kwargs["data"]["result"]["found_urls"]],
+                ["http://test-robots-service:80/secret-url/"],
             )

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
+import dataclasses
 import os
 import random
 import string
-from dataclasses import dataclass
 from difflib import SequenceMatcher
 from itertools import product
 from typing import IO, List, Set
@@ -12,6 +12,7 @@ from karton.core import Task
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
+from artemis.models import FoundURL
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 from artemis.utils import is_directory_index
@@ -71,11 +72,12 @@ IGNORED_CONTENTS = [
 ]
 
 
-@dataclass
+@dataclasses.dataclass
 class BruterResult:
     too_many_urls_detected: bool
-    found_urls: List[str]
-    found_urls_with_directory_index: List[str]
+    found_urls: List[FoundURL]
+    checked_top_paths: List[str]
+    checked_random_paths: List[str]
 
 
 class Bruter(ArtemisBase):
@@ -121,9 +123,9 @@ class Bruter(ArtemisBase):
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
-        found_urls = set()
-        found_urls_with_directory_index = set()
-        for response_url, response in results.items():
+
+        found_urls = []
+        for response_url, response in sorted(results.items()):
             if response.status_code != 200:
                 continue
 
@@ -135,25 +137,34 @@ class Bruter(ArtemisBase):
                 and response.content.strip() not in IGNORED_CONTENTS
                 and SequenceMatcher(None, response.content, dummy_content).quick_ratio() < 0.8
             ):
-                found_urls.add(response_url)
+                found_urls.append(
+                    FoundURL(
+                        url=response_url,
+                        content_prefix=response.content[: Config.CONTENT_PREFIX_SIZE],
+                        has_directory_index=is_directory_index(response.content),
+                    )
+                )
 
                 url = response_url[len(base_url) + 1 :]
                 if url in random_paths:
                     self.db.statistic_increase("bruter", url)
 
-                if is_directory_index(response.content):
-                    found_urls_with_directory_index.add(response_url)
-
-                    if url in random_paths:
+                    if is_directory_index(response.content):
                         self.db.statistic_increase("bruter-with-directory-index", url)
 
         if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
-            return BruterResult(too_many_urls_detected=True, found_urls=[], found_urls_with_directory_index=[])
+            return BruterResult(
+                too_many_urls_detected=True,
+                found_urls=[],
+                checked_top_paths=top_paths,
+                checked_random_paths=random_paths,
+            )
 
         return BruterResult(
             too_many_urls_detected=False,
-            found_urls=sorted(list(found_urls)),
-            found_urls_with_directory_index=sorted(list(found_urls_with_directory_index)),
+            found_urls=found_urls,
+            checked_top_paths=top_paths,
+            checked_random_paths=random_paths,
         )
 
     def run(self, task: Task) -> None:
@@ -161,23 +172,24 @@ class Bruter(ArtemisBase):
 
         if len(scan_result.found_urls) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found URLs: " + ", ".join(scan_result.found_urls)
-            if scan_result.found_urls_with_directory_index:
-                status_reason += (
-                    " (" + ", ".join(scan_result.found_urls_with_directory_index) + " with directory index)"
-                )
+
+            found_urls = []
+            found_urls_with_directory_index = []
+            for item in scan_result.found_urls:
+                found_urls.append(item.url)
+
+                if item.has_directory_index:
+                    found_urls_with_directory_index.append(item.url)
+
+            status_reason = "Found URLs: " + ", ".join(sorted(found_urls))
+            if found_urls_with_directory_index:
+                status_reason += " (" + ", ".join(sorted(found_urls_with_directory_index)) + " with directory index)"
         else:
             status = TaskStatus.OK
             status_reason = None
 
         self.db.save_task_result(
-            task=task,
-            status=status,
-            status_reason=status_reason,
-            data={
-                "found_urls": scan_result.found_urls,
-                "found_urls_with_directory_index": scan_result.found_urls_with_directory_index,
-            },
+            task=task, status=status, status_reason=status_reason, data=dataclasses.asdict(scan_result)
         )
 
 

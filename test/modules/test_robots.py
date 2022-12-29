@@ -53,6 +53,6 @@ class RobotsTest(ArtemisModuleTestCase):
                 ],
             )
             self.assertEqual(
-                [path["url"] for path in call.kwargs["data"]["found_urls"]],
+                [path["url"] for path in call.kwargs["data"]["result"]["found_urls"]],
                 ["http://test-robots-service:80/secret-url/"],
             )

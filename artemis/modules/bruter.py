@@ -117,7 +117,8 @@ class Bruter(ArtemisBase):
         results = {}
         for url in set(random_paths) | set(top_paths):
             try:
-                results[url] = http_requests.get(base_url + "/" + url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
+                full_url = base_url + "/" + url
+                results[full_url] = http_requests.get(full_url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
             except Exception:
                 pass
 

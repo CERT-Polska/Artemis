@@ -47,7 +47,6 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
                 "core",
                 "errors",
                 ".env",
-                ".gitignore",
                 ".htaccess",
                 ".htpasswd",
                 ".ssh/id_rsa",
@@ -73,6 +72,12 @@ IGNORED_CONTENTS = [
 ]
 
 
+@dataclasses.dataclass
+class BruterResult:
+    too_many_urls_detected: bool
+    found_urls: List[FoundURL]
+
+
 class Bruter(ArtemisBase):
     """
     Tries to find common URLs
@@ -83,7 +88,7 @@ class Bruter(ArtemisBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def scan(self, task: Task) -> List[FoundURL]:
+    def scan(self, task: Task) -> BruterResult:
         """
         Brute-forces URLs. Returns two lists: all found URLs and the ones detected to be
         a directory index.
@@ -112,7 +117,7 @@ class Bruter(ArtemisBase):
         results = {}
         for url in urls:
             try:
-                results[url] = http_requests.get(url)
+                results[url] = http_requests.get(url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
             except Exception:
                 pass
 
@@ -138,19 +143,22 @@ class Bruter(ArtemisBase):
                 )
 
         if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
-            return []
+            return BruterResult(too_many_urls_detected=True, found_urls=[])
 
-        return found_urls
+        return BruterResult(
+            too_many_urls_detected=False,
+            found_urls=found_urls,
+        )
 
     def run(self, task: Task) -> None:
         scan_result = self.scan(task)
 
-        if len(scan_result) > 0:
+        if len(scan_result.found_urls) > 0:
             status = TaskStatus.INTERESTING
 
             found_urls = []
             found_urls_with_directory_index = []
-            for item in scan_result:
+            for item in scan_result.found_urls:
                 found_urls.append(item.url)
 
                 if item.has_directory_index:
@@ -164,10 +172,7 @@ class Bruter(ArtemisBase):
             status_reason = None
 
         self.db.save_task_result(
-            task=task,
-            status=status,
-            status_reason=status_reason,
-            data=[dataclasses.asdict(item) for item in scan_result],
+            task=task, status=status, status_reason=status_reason, data=dataclasses.asdict(scan_result)
         )
 
 

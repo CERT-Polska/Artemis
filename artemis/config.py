@@ -64,3 +64,7 @@ class Config:
     # We save response content in some cases - in order not to overload the DB, this determines how long
     # the saved content would be.
     CONTENT_PREFIX_SIZE = 2048
+
+    # If set to True, bruter will follow redirects. If to False, a redirect will be interpreted that a URL
+    # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
+    BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)

@@ -42,7 +42,6 @@ class DirectoryIndexTest(ArtemisModuleTestCase):
                 (call,) = self.mock_db.save_task_result.call_args_list
                 self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
 
-                self.maxDiff = None
                 self.assertEqual(
                     call.kwargs["status_reason"],
                     "Found directories with index enabled: http://test-service-with-directory-index:80/backups/, "

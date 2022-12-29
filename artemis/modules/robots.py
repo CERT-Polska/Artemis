@@ -8,6 +8,7 @@ from karton.core import Task
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
+from artemis.models import FoundURL
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 from artemis.utils import is_directory_index
@@ -74,12 +75,12 @@ class RobotsScanner(ArtemisBase):
 
         return groups
 
-    def _get_interesting_paths(self, url: str, result: RobotsResult) -> List[str]:
+    def _get_interesting_path_data(self, url: str, result: RobotsResult) -> List[FoundURL]:
         if len(result.groups) == 0:
             return []
 
         # Iterate over all paths from all groups
-        interesting_paths = []
+        interesting_path_data = []
         for g in result.groups:
             for path in g.allow + g.disallow:
                 if not any([re.match(p, path) for p in NOT_INTERESTING_PATHS]):
@@ -88,10 +89,17 @@ class RobotsScanner(ArtemisBase):
 
                     path = path.rstrip("$")
 
-                    content = http_requests.get(f"{url}{path}").content
+                    full_url = f"{url}{path}"
+                    content = http_requests.get(full_url).content
                     if is_directory_index(content):
-                        interesting_paths.append(path)
-        return interesting_paths
+                        interesting_path_data.append(
+                            FoundURL(
+                                url=full_url,
+                                content_prefix=content[: Config.CONTENT_PREFIX_SIZE],
+                                has_directory_index=True,
+                            )
+                        )
+        return interesting_path_data
 
     def download_robots(self, url: str) -> RobotsResult:
         response = http_requests.get(f"{url}/robots.txt", allow_redirects=False)
@@ -107,18 +115,23 @@ class RobotsScanner(ArtemisBase):
         self.log.info(f"robots looking for {url}/robots.txt")
 
         result = self.download_robots(url)
-        interesting_paths = self._get_interesting_paths(url, result)
+        interesting_path_data = self._get_interesting_path_data(url, result)
 
-        if interesting_paths:
+        if result:
             status = TaskStatus.INTERESTING
             status_reason = (
                 "Found potentially interesting paths (having directory index) in "
-                f"robots.txt: {', '.join(sorted(interesting_paths))}"
+                f"robots.txt: {', '.join(sorted([item.url for item in interesting_path_data]))}"
             )
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=asdict(result))
+        self.db.save_task_result(
+            task=current_task,
+            status=status,
+            status_reason=status_reason,
+            data={"result": asdict(result), "interesting_path_data": [asdict(item) for item in interesting_path_data]},
+        )
 
 
 if __name__ == "__main__":

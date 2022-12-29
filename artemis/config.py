@@ -60,3 +60,7 @@ class Config:
     # A threshold in case the server reports too much files with 200 status code,
     # and we want to skip this as a false positive. 0.1 means 10%.
     BRUTER_FALSE_POSITIVE_THRESHOLD = 0.1
+
+    # We save response content in some cases - in order not to overload the DB, this determines how long
+    # the saved content would be.
+    CONTENT_PREFIX_SIZE = 2048

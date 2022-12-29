@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
+import dataclasses
 import os
 import random
 import string
-from dataclasses import dataclass
 from difflib import SequenceMatcher
 from itertools import product
 from typing import IO, List, Set
@@ -12,6 +12,7 @@ from karton.core import Task
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
+from artemis.models import FoundURL
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 from artemis.utils import is_directory_index
@@ -72,12 +73,6 @@ IGNORED_CONTENTS = [
 ]
 
 
-@dataclass
-class BruterResult:
-    found_urls: List[str]
-    found_urls_with_directory_index: List[str]
-
-
 class Bruter(ArtemisBase):
     """
     Tries to find common URLs
@@ -88,7 +83,7 @@ class Bruter(ArtemisBase):
         {"type": TaskType.SERVICE, "service": Service.HTTP},
     ]
 
-    def scan(self, task: Task) -> BruterResult:
+    def scan(self, task: Task) -> List[FoundURL]:
         """
         Brute-forces URLs. Returns two lists: all found URLs and the ones detected to be
         a directory index.
@@ -121,9 +116,8 @@ class Bruter(ArtemisBase):
             except Exception:
                 pass
 
-        found_urls = set()
-        found_urls_with_directory_index = set()
-        for response_url, response in results.items():
+        found_urls = []
+        for response_url, response in sorted(results.items()):
             if response.status_code != 200:
                 continue
 
@@ -135,29 +129,36 @@ class Bruter(ArtemisBase):
                 and response.content.strip() not in IGNORED_CONTENTS
                 and SequenceMatcher(None, response.content, dummy_content).quick_ratio() < 0.8
             ):
-                found_urls.add(response_url)
-
-                if is_directory_index(response.content):
-                    found_urls_with_directory_index.add(response_url)
+                found_urls.append(
+                    FoundURL(
+                        url=response_url,
+                        content_prefix=response.content[: Config.CONTENT_PREFIX_SIZE],
+                        has_directory_index=is_directory_index(response.content),
+                    )
+                )
 
         if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
-            return BruterResult(found_urls=[], found_urls_with_directory_index=[])
+            return []
 
-        return BruterResult(
-            found_urls=sorted(list(found_urls)),
-            found_urls_with_directory_index=sorted(list(found_urls_with_directory_index)),
-        )
+        return found_urls
 
     def run(self, task: Task) -> None:
         scan_result = self.scan(task)
 
-        if len(scan_result.found_urls) > 0:
+        if len(scan_result) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found URLs: " + ", ".join(scan_result.found_urls)
-            if scan_result.found_urls_with_directory_index:
-                status_reason += (
-                    " (" + ", ".join(scan_result.found_urls_with_directory_index) + " with directory index)"
-                )
+
+            found_urls = []
+            found_urls_with_directory_index = []
+            for item in scan_result:
+                found_urls.append(item.url)
+
+                if item.has_directory_index:
+                    found_urls_with_directory_index.append(item.url)
+
+            status_reason = "Found URLs: " + ", ".join(sorted(found_urls))
+            if found_urls_with_directory_index:
+                status_reason += " (" + ", ".join(sorted(found_urls_with_directory_index)) + " with directory index)"
         else:
             status = TaskStatus.OK
             status_reason = None
@@ -166,10 +167,7 @@ class Bruter(ArtemisBase):
             task=task,
             status=status,
             status_reason=status_reason,
-            data={
-                "found_urls": scan_result.found_urls,
-                "found_urls_with_directory_index": scan_result.found_urls_with_directory_index,
-            },
+            data=[dataclasses.asdict(item) for item in scan_result],
         )
 
 

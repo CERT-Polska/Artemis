@@ -3,7 +3,7 @@ import datetime
 import json
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from karton.core import Task
 from pydantic import BaseModel
@@ -234,10 +234,10 @@ class DB:
         # TODO make this less ugly
         return json.loads(task.serialize())  # type: ignore
 
-    def get_top_values_for_statistic(self, name: str, count: int) -> List[str]:
+    def get_top_for_statistic(self, name: str, count: int) -> List[Tuple[int, str]]:
         result = []
         for item in self.statistics.find({"name": name}).sort("count", DESCENDING)[:count]:
-            result.append(item["value"])
+            result.append((item["count"], item["value"]))
         return result
 
     def statistic_increase(self, name: str, value: str) -> None:

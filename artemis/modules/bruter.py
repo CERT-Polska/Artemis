@@ -97,7 +97,8 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
-        self.log.info(f"bruter scanning {base_url}")
+        top_counts_and_paths = self.db.get_top_for_statistic("bruter", Config.BRUTER_NUM_TOP_PATHS_TO_USE)
+        self.log.info(f"bruter scanning {base_url}, most popular paths={top_counts_and_paths}")
 
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
@@ -111,7 +112,7 @@ class Bruter(ArtemisBase):
         random.shuffle(random_paths)
         random_paths = random_paths[: Config.BRUTER_NUM_RANDOM_PATHS_TO_USE]
 
-        top_paths = self.db.get_top_values_for_statistic("bruter", Config.BRUTER_NUM_TOP_PATHS_TO_USE)
+        top_paths = [path for _, path in top_counts_and_paths]
 
         results = {}
         for url in set(random_paths) | set(top_paths):

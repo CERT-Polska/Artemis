@@ -59,3 +59,7 @@ class Config:
     # would be the most popular paths.
     BRUTER_NUM_TOP_PATHS_TO_USE = 400
     BRUTER_NUM_RANDOM_PATHS_TO_USE = 200
+
+    # If set to True, bruter will follow redirects. If to False, a redirect will be interpreted that a URL
+    # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
+    BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)

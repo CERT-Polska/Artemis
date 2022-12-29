@@ -46,7 +46,6 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
                 "core",
                 "errors",
                 ".env",
-                ".gitignore",
                 ".htaccess",
                 ".htpasswd",
                 ".ssh/id_rsa",
@@ -74,6 +73,7 @@ IGNORED_CONTENTS = [
 
 @dataclass
 class BruterResult:
+    too_many_urls_detected: bool
     found_urls: List[str]
     found_urls_with_directory_index: List[str]
 
@@ -114,7 +114,7 @@ class Bruter(ArtemisBase):
         results = {}
         for url in set(random_paths) | set(top_paths):
             try:
-                results[url] = http_requests.get(base_url + "/" + url)
+                results[url] = http_requests.get(base_url + "/" + url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
             except Exception:
                 pass
 
@@ -148,9 +148,10 @@ class Bruter(ArtemisBase):
                         self.db.statistic_increase("bruter-with-directory-index", url)
 
         if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
-            return BruterResult(found_urls=[], found_urls_with_directory_index=[])
+            return BruterResult(too_many_urls_detected=True, found_urls=[], found_urls_with_directory_index=[])
 
         return BruterResult(
+            too_many_urls_detected=False,
             found_urls=sorted(list(found_urls)),
             found_urls_with_directory_index=sorted(list(found_urls_with_directory_index)),
         )

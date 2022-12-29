@@ -40,7 +40,7 @@ class BruterTest(ArtemisModuleTestCase):
             )
 
             self.assertEqual(
-                call.kwargs["data"],
+                call.kwargs["data"]["found_urls"],
                 [
                     {
                         "url": "http://test-service-with-bruteable-files:80/config.dist",

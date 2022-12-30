@@ -124,8 +124,6 @@ services:
 
   test-phpmyadmin-easy-password-subdirectory-nginx:
     image: nginx
-    ports:
-      - 8081:80
     volumes:
       - ./test/data/phpmyadmin_subdirectory_proxy/default.conf:/etc/nginx/conf.d/default.conf
 

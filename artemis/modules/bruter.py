@@ -150,9 +150,6 @@ class Bruter(ArtemisBase):
                 )
 
                 url = response_url[len(base_url) + 1 :]
-                import sys
-
-                sys.stderr.write(url + "/" + repr(random_paths) + "/" + repr(url in random_paths) + "\n")
                 if url in random_paths:
                     self.db.statistic_increase("bruter", url)
 

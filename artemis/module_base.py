@@ -49,9 +49,6 @@ class ArtemisBase(Karton):
     def add_task(self, current_task: Task, new_task: Task) -> None:
         new_task.root_uid = current_task.root_uid
         if self.db.save_scheduled_task(new_task):
-            import sys
-
-            sys.stderr.write("Actually Adding task " + repr(new_task) + "\n")
             self.send_task(new_task)
 
     def loop(self) -> None:

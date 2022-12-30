@@ -33,7 +33,7 @@ class BaseE2ETestCase(TestCase):
         self,
         retry_time_seconds: float = RETRY_TIME_SECONDS,
         num_retries: int = NUM_RETRIES,
-        num_tries_without_tasks_needed: int = 3,
+        num_tries_without_tasks_needed: int = 5,
     ) -> None:
         num_tries_without_tasks = 0
         for retry in range(num_retries):

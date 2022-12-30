@@ -9,7 +9,7 @@ from artemis.utils import build_logger
 
 BACKEND_URL = "http://backend:5000/"
 NUM_RETRIES = 100
-RETRY_TIME_SECONDS = 2
+RETRY_TIME_SECONDS = 3
 
 
 TaskListRow = namedtuple(

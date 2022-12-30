@@ -268,7 +268,7 @@ class DB:
         )
 
         for statistic in statistics.STATISTICS:
-            self.task_results.update_one(
+            self.statistics.update_one(
                 upsert=True,
                 filter={"name": statistic["name"], "value": statistic["value"]},
                 update={"$setOnInsert": {"count": statistic["count"]}},

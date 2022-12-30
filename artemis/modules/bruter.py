@@ -113,9 +113,11 @@ class Bruter(ArtemisBase):
         random_paths = random_paths[: Config.BRUTER_NUM_RANDOM_PATHS_TO_USE]
 
         top_paths = [path for _, path in top_counts_and_paths]
+        paths_to_scan = set(random_paths) | set(top_paths)
+        self.log.info(f"bruter scanning {base_url}: {len(paths_to_scan)} paths to scan")
 
         results = {}
-        for url in set(random_paths) | set(top_paths):
+        for url in paths_to_scan:
             try:
                 full_url = base_url + "/" + url
                 results[full_url] = http_requests.get(full_url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
@@ -148,13 +150,16 @@ class Bruter(ArtemisBase):
                 )
 
                 url = response_url[len(base_url) + 1 :]
+                import sys
+
+                sys.stderr.write(url + "/" + repr(random_paths) + "/" + repr(url in random_paths) + "\n")
                 if url in random_paths:
                     self.db.statistic_increase("bruter", url)
 
                     if is_directory_index(response.content):
                         self.db.statistic_increase("bruter-with-directory-index", url)
 
-        if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+        if len(found_urls) > len(paths_to_scan) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
             return BruterResult(
                 too_many_urls_detected=True,
                 found_urls=[],

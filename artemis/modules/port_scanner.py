@@ -178,6 +178,9 @@ class PortScanner(ArtemisBase):
                         "ssl": result["ssl"],
                     },
                 )
+                import sys
+
+                sys.stderr.write("Adding task " + repr(new_task) + "\n")
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
 

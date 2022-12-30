@@ -104,8 +104,6 @@ services:
       WORDPRESS_DB_USER: root
       WORDPRESS_DB_PASSWORD: example
       WORDPRESS_DB_NAME: example
-    ports:
-      - 8080:80
 
   test-wordpress-easy-password-mysql:
     image: mysql:5.6
@@ -123,3 +121,26 @@ services:
     environment:
       POSTGRES_USER: example
       POSTGRES_PASSWORD: example
+
+  test-phpmyadmin-easy-password-subdirectory-nginx:
+    image: nginx
+    ports:
+      - 8081:80
+    volumes:
+      - ./test/data/phpmyadmin_subdirectory_proxy/default.conf:/etc/nginx/conf.d/default.conf
+
+  test-phpmyadmin-easy-password-subdirectory:
+    image: phpmyadmin
+    environment:
+      - PMA_ABSOLUTE_URI=http://test-phpmyadmin-easy-password-subdirectory-nginx/phpmyadmin/
+      - PMA_HOST=test-phpmyadmin-easy-password-mysql
+
+  test-phpmyadmin-easy-password:
+    image: phpmyadmin
+    environment:
+      - PMA_HOST=test-phpmyadmin-easy-password-mysql
+
+  test-phpmyadmin-easy-password-mysql:
+    image: mariadb:10.3
+    environment:
+      MYSQL_ROOT_PASSWORD: root

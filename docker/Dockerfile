@@ -2,10 +2,14 @@ FROM python:3.11-alpine3.17
 
 COPY docker/wait-for-it.sh /wait-for-it.sh
 
-RUN apk add --no-cache --virtual .build-deps go gcc libc-dev make libffi-dev libpcap-dev postgresql-dev && \
+RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq
 RUN GOBIN=/usr/local/bin/ go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest && \
     GOBIN=/usr/local/bin/ go install github.com/praetorian-inc/fingerprintx/cmd/fingerprintx@latest
+
+RUN git clone https://github.com/projectdiscovery/nuclei.git -b v2.8.3 /nuclei
+COPY artemis/patches/nuclei-rate-limiting.patch /nuclei/
+RUN cd /nuclei && git apply nuclei-rate-limiting.patch  && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install
 
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt

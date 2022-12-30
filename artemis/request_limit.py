@@ -20,6 +20,11 @@ def limit_requests_for_ip(ip: str) -> None:
     )
 
 
+def lock_requests_for_ip(ip: str) -> ResourceLock:
+    # Therefore we make sure no more than one request for this host will happen under lock
+    return ResourceLock(redis=Config.REDIS, res_name=IP_REQUEST_LOCK_KEY_PREFIX + ip)
+
+
 def get_ip_for_locking(host: str) -> str:
     try:
         # if this doesn't throw then we have an IP address

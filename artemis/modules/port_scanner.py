@@ -48,7 +48,7 @@ else:
     PORTS_SET.add(27017)  # MongoDB
     PORTS_SET.add(27018)  # MongoDB
 
-    PORTS = sorted(list(PORTS_SET))
+PORTS = sorted(list(PORTS_SET))
 
 NOT_INTERESTING_PORTS = [
     # None means "any port" - (None, "http") means "http on any port"

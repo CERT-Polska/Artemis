@@ -15,36 +15,40 @@ from artemis.resolvers import ip_lookup
 from artemis.resource_lock import ResourceLock
 from artemis.task_utils import get_target
 
-with open(os.path.join(os.path.dirname(__file__), "data", "ports-naabu.txt")) as f:
-    PORTS_NAABU = ",".join([line for line in f if not line.startswith("#")])
+if Config.CUSTOM_PORT_SCANNER_PORTS:
+    PORTS_SET = set(Config.CUSTOM_PORT_SCANNER_PORTS)
 
-PORTS_SET = set()
+else:
+    with open(os.path.join(os.path.dirname(__file__), "data", "ports-naabu.txt")) as f:
+        PORTS_NAABU = ",".join([line for line in f if not line.startswith("#")])
 
-for port in PORTS_NAABU.split(","):
-    port = port.strip()
-    if not port:
-        continue
+    PORTS_SET = set()
 
-    if "-" in port:
-        port_from, port_to = port.split("-")
-        for port_int in range(int(port_from), int(port_to) + 1):
-            PORTS_SET.add(port_int)
-    else:
-        PORTS_SET.add(int(port))
+    for port in PORTS_NAABU.split(","):
+        port = port.strip()
+        if not port:
+            continue
 
-# Additional ports we want to check for
-PORTS_SET.add(23)  # telnet
-PORTS_SET.add(139)  # SMB
-PORTS_SET.add(445)  # SMB
-PORTS_SET.add(6379)  # redis
-PORTS_SET.add(8000)  # http
-PORTS_SET.add(8080)  # http
-PORTS_SET.add(3389)  # RDP
-PORTS_SET.add(9200)  # Elasticsearch
-PORTS_SET.add(27017)  # MongoDB
-PORTS_SET.add(27018)  # MongoDB
+        if "-" in port:
+            port_from, port_to = port.split("-")
+            for port_int in range(int(port_from), int(port_to) + 1):
+                PORTS_SET.add(port_int)
+        else:
+            PORTS_SET.add(int(port))
 
-PORTS = sorted(list(PORTS_SET))
+    # Additional ports we want to check for
+    PORTS_SET.add(23)  # telnet
+    PORTS_SET.add(139)  # SMB
+    PORTS_SET.add(445)  # SMB
+    PORTS_SET.add(6379)  # redis
+    PORTS_SET.add(8000)  # http
+    PORTS_SET.add(8080)  # http
+    PORTS_SET.add(3389)  # RDP
+    PORTS_SET.add(9200)  # Elasticsearch
+    PORTS_SET.add(27017)  # MongoDB
+    PORTS_SET.add(27018)  # MongoDB
+
+    PORTS = sorted(list(PORTS_SET))
 
 NOT_INTERESTING_PORTS = [
     # None means "any port" - (None, "http") means "http on any port"

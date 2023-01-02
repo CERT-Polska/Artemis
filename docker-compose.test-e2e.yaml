@@ -2,7 +2,7 @@ services:
   karton-port_scanner:
     environment:
         SCANNING_PACKETS_PER_SECOND_PER_IP: 5
-        CUSTOM_PORT_SCANNER_PORTS: 22,80,6379
+        CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
 
   karton-bruter:
     environment:

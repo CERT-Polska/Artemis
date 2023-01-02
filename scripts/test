@@ -47,6 +47,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+docker compose \
+    -f docker-compose.test.yaml \
+    -f docker-compose.yaml \
+    -f docker-compose.test-e2e.yaml \
+    logs -f &
 # Let's first start everything except the test container and perform relevant setup
 docker compose \
     -f docker-compose.test.yaml \
@@ -67,6 +72,8 @@ docker compose \
     test-e2e
 
 EXIT_CODE=$?
+
+kill %1
 
 docker compose \
     -f docker-compose.test.yaml \

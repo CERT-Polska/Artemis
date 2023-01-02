@@ -149,13 +149,6 @@ class Bruter(ArtemisBase):
                     )
                 )
 
-                url = response_url[len(base_url) + 1 :]
-                if url in random_paths:
-                    self.db.statistic_increase("bruter", url)
-
-                    if is_directory_index(response.content):
-                        self.db.statistic_increase("bruter-with-directory-index", url)
-
         if len(found_urls) > len(paths_to_scan) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
             return BruterResult(
                 too_many_urls_detected=True,
@@ -165,6 +158,13 @@ class Bruter(ArtemisBase):
             )
 
         for found_url in found_urls:
+            url = found_url.url[len(base_url) + 1 :]
+            if url in random_paths:
+                self.db.statistic_increase("bruter", url)
+
+                if is_directory_index(found_url.content_prefix):
+                    self.db.statistic_increase("bruter-with-directory-index", url)
+
             new_task = Task(
                 {
                     "type": TaskType.URL,

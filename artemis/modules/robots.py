@@ -76,7 +76,7 @@ class RobotsScanner(ArtemisBase):
 
         return groups
 
-    def _download(self, url: str, groups: List[RobotsGroup]) -> List[FoundURL]:
+    def _download(self, current_task: Task, url: str, groups: List[RobotsGroup]) -> List[FoundURL]:
         if len(groups) == 0:
             return []
 
@@ -100,23 +100,34 @@ class RobotsScanner(ArtemisBase):
                                 has_directory_index=True,
                             )
                         )
+
+                    new_task = Task(
+                        {
+                            "type": TaskType.URL,
+                        },
+                        payload={
+                            "url": full_url,
+                            "content": content,
+                        },
+                    )
+                    self.add_task(current_task, new_task)
         return found_urls
 
-    def download_robots(self, url: str) -> RobotsResult:
+    def download_robots(self, current_task: Task, url: str) -> RobotsResult:
         response = http_requests.get(f"{url}/robots.txt", allow_redirects=False)
 
         groups = []
         if response.status_code == 200:
             groups.extend(self._parse_robots(response.text))
 
-        result = RobotsResult(response.status_code, groups, self._download(url, groups))
+        result = RobotsResult(response.status_code, groups, self._download(current_task, url, groups))
         return result
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
         self.log.info(f"robots looking for {url}/robots.txt")
 
-        result = self.download_robots(url)
+        result = self.download_robots(current_task, url)
 
         if result.found_urls:
             status = TaskStatus.INTERESTING

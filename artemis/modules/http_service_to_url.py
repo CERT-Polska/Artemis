@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+from karton.core import Task
+
+from artemis import http_requests
+from artemis.binds import Service, TaskStatus, TaskType
+from artemis.module_base import ArtemisBase
+from artemis.task_utils import get_target_url
+
+
+class HTTPServiceToURL(ArtemisBase):
+    """
+    Converts HTTP SERVICE tasks to URL tasks for the service root URL.
+    """
+
+    identity = "http_service_to_url"
+    filters = [
+        {"type": TaskType.SERVICE, "service": Service.HTTP},
+    ]
+
+    def _process(self, current_task: Task, url: str) -> None:
+        content = http_requests.get(url).content
+
+        new_task = Task(
+            {
+                "type": TaskType.URL,
+            },
+            payload={
+                "url": url,
+                "content": content,
+            },
+        )
+        self.add_task(current_task, new_task)
+        self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+
+    def run(self, current_task: Task) -> None:
+        url = get_target_url(current_task)
+        self.log.info(f"HTTPServiceToURL: {url}")
+
+        self._process(current_task, url)
+
+
+if __name__ == "__main__":
+    HTTPServiceToURL().loop()

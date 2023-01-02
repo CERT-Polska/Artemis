@@ -1,0 +1,52 @@
+diff --git a/v2/cmd/nuclei/main.go b/v2/cmd/nuclei/main.go
+index 94cfa113..0320c5a8 100644
+--- a/v2/cmd/nuclei/main.go
++++ b/v2/cmd/nuclei/main.go
+@@ -226,12 +226,11 @@ on extensive configurability, massive extensibility and ease of use.`)
+ 		flagSet.IntVarP(&options.UncoverLimit, "uncover-limit", "ul", 100, "uncover results to return"),
+ 		flagSet.IntVarP(&options.UncoverDelay, "uncover-delay", "ucd", 1, "delay between uncover query requests in seconds (0 to disable)"),
+ 	)
+
+ 	flagSet.CreateGroup("rate-limit", "Rate-Limit",
+-		flagSet.IntVarP(&options.RateLimit, "rate-limit", "rl", 150, "maximum number of requests to send per second"),
+-		flagSet.IntVarP(&options.RateLimitMinute, "rate-limit-minute", "rlm", 0, "maximum number of requests to send per minute"),
++		flagSet.IntVarP(&options.SecondsPerRequest, "seconds-per-request", "spr", 1, "Allow at most one request in given number of seconds"),
+ 		flagSet.IntVarP(&options.BulkSize, "bulk-size", "bs", 25, "maximum number of hosts to be analyzed in parallel per template"),
+ 		flagSet.IntVarP(&options.TemplateThreads, "concurrency", "c", 25, "maximum number of templates to be executed in parallel"),
+ 		flagSet.IntVarP(&options.HeadlessBulkSize, "headless-bulk-size", "hbs", 10, "maximum number of headless hosts to be analyzed in parallel per template"),
+ 		flagSet.IntVarP(&options.HeadlessTemplateThreads, "headless-concurrency", "headc", 10, "maximum number of headless templates to be executed in parallel"),
+ 	)
+diff --git a/v2/internal/runner/runner.go b/v2/internal/runner/runner.go
+index 1fccc6fc..c2362baa 100644
+--- a/v2/internal/runner/runner.go
++++ b/v2/internal/runner/runner.go
+@@ -258,10 +258,12 @@ func New(options *types.Options) (*Runner, error) {
+
+ 	if options.RateLimitMinute > 0 {
+ 		runner.ratelimiter = ratelimit.New(context.Background(), uint(options.RateLimitMinute), time.Minute)
+ 	} else if options.RateLimit > 0 {
+ 		runner.ratelimiter = ratelimit.New(context.Background(), uint(options.RateLimit), time.Second)
++	} else if options.SecondsPerRequest > 0 {
++		runner.ratelimiter = ratelimit.New(context.Background(), 1, time.Duration(options.SecondsPerRequest) * time.Second)
+ 	} else {
+ 		runner.ratelimiter = ratelimit.NewUnlimited(context.Background())
+ 	}
+ 	return runner, nil
+ }
+diff --git a/v2/pkg/types/types.go b/v2/pkg/types/types.go
+index 9d5e9ed0..f0defafe 100644
+--- a/v2/pkg/types/types.go
++++ b/v2/pkg/types/types.go
+@@ -126,10 +126,12 @@ type Options struct {
+ 	// Rate-Limit is the maximum number of requests per specified target
+ 	RateLimit int
+ 	// Rate-Limit is the maximum number of requests per minute for specified target
+ 	RateLimitMinute int
+ 	// PageTimeout is the maximum time to wait for a page in seconds
++	SecondsPerRequest int
++	// at most one request can happen in SecondsPerRequest seconds
+ 	PageTimeout int
+ 	// InteractionsCacheSize is the number of interaction-url->req to keep in cache at a time.
+ 	InteractionsCacheSize int
+ 	// InteractionsPollDuration is the number of seconds to wait before each interaction poll
+ 	InteractionsPollDuration int

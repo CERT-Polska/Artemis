@@ -70,6 +70,8 @@ def get_task_target(task: Task) -> str:
         result = task.payload.get("domain", None)
     elif task.headers["type"] == TaskType.WEBAPP:
         result = task.payload.get("url", None)
+    elif task.headers["type"] == TaskType.URL:
+        result = task.payload.get("url", None)
     elif task.headers["type"] == TaskType.SERVICE:
         if "host" in task.payload and "port" in task.payload:
             result = task.payload["host"] + ":" + str(task.payload["port"])

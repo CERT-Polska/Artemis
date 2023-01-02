@@ -164,6 +164,18 @@ class Bruter(ArtemisBase):
                 checked_random_paths=random_paths,
             )
 
+        for found_url in found_urls:
+            new_task = Task(
+                {
+                    "type": TaskType.URL,
+                },
+                payload={
+                    "url": found_url.url,
+                    "content": results[found_url.url].content,
+                },
+            )
+            self.add_task(task, new_task)
+
         return BruterResult(
             too_many_urls_detected=False,
             found_urls=found_urls,

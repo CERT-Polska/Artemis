@@ -19,6 +19,9 @@ class TaskType(str, Enum):
     # {webapp: having a URL, e.g. https://lidl.com/new/, and a type, e.g. WebApplication.WORDPRESS}
     WEBAPP = "webapp"
 
+    # {URL: just a HTTP URL. Must have content attached to make further operations faster}
+    URL = "url"
+
 
 class Service(str, Enum):
     # Each of the services can have the SSL flag enabled - therefore HTTP covers both HTTP and HTTPS.

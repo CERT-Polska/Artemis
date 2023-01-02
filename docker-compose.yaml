@@ -191,6 +191,15 @@ services:
     env_file: .env
     command: "python3 -m artemis.modules.ftp_bruter"
 
+  karton-http_service_to_url:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    depends_on: [karton-logger]
+    env_file: .env
+    command: "python3 -m artemis.modules.http_service_to_url"
+
   karton-mysql_bruter:
     build:
       context: .
@@ -208,6 +217,15 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     command: "python3 -m artemis.modules.mail_dns_scanner"
+
+  karton-nuclei:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    depends_on: [karton-logger]
+    env_file: .env
+    command: "python3 -m artemis.modules.nuclei"
 
   karton-postman:
     build:

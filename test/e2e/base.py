@@ -9,7 +9,7 @@ from artemis.utils import build_logger
 
 BACKEND_URL = "http://backend:5000/"
 NUM_RETRIES = 100
-RETRY_TIME_SECONDS = 3
+RETRY_TIME_SECONDS = 2
 
 
 TaskListRow = namedtuple(
@@ -30,23 +30,11 @@ class BaseE2ETestCase(TestCase):
         requests.post(BACKEND_URL + "add", data={"urls": "\n".join(tasks)})
 
     def wait_for_tasks_finished(
-        self,
-        retry_time_seconds: float = RETRY_TIME_SECONDS,
-        num_retries: int = NUM_RETRIES,
-        num_tries_without_tasks_needed: int = 5,
+        self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES
     ) -> None:
-        num_tries_without_tasks = 0
         for retry in range(num_retries):
             if "pending tasks:" not in requests.get(BACKEND_URL).content.decode("utf-8"):
-                num_tries_without_tasks += 1
-
-                # We want to observe no pending tasks not once, but `num_tries_without_tasks_needed`
-                # times because sometimes there are no pending tasks because one task has ended and
-                # a new task is being routed.
-                if num_tries_without_tasks >= num_tries_without_tasks_needed:
-                    return
-            else:
-                num_tries_without_tasks = 0
+                return
             self._logger.info("There are still pending tasks, retrying")
             time.sleep(retry_time_seconds)
 

@@ -153,10 +153,6 @@ class DB:
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
     ) -> PaginatedTaskResults:
-        import sys
-
-        sys.stderr.write(repr(list(self.task_results.find({}))) + "\n")
-
         filter_dict: Dict[str, Any] = {}
         if analysis_id:
             filter_dict["root_uid"] = analysis_id

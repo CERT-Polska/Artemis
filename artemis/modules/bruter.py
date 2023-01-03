@@ -45,6 +45,7 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
             + [
                 "adminbackups",
                 "core",
+                "webmail/temp/",
                 "errors",
                 ".env",
                 ".htaccess",

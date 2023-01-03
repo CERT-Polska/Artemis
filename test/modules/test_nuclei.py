@@ -21,4 +21,7 @@ class NucleiTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["status_reason"], "[high] phpMyAdmin default admin credentials were discovered")
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "[high] phpMyAdmin Default Login phpMyAdmin default admin credentials were discovered",
+        )

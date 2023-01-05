@@ -30,11 +30,14 @@ class Nuclei(ArtemisBase):
         target = current_task.payload["url"]
         content = current_task.payload["content"]
 
-        templates = ["exposures/tokens/"]
+        templates = []
         # We want to run PhpMyAdmin Nuclei templates only when we identified that a given URL runs
         # PhpMyAdmin.
         if 'name="imLogo" alt="phpMyAdmin"' in content:
             templates.append("default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
+
+        if not templates:
+            return
 
         if Config.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.CUSTOM_USER_AGENT]

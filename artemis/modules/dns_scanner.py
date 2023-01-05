@@ -55,7 +55,6 @@ class DnsScanner(ArtemisBase):
                     )
                     if message.rcode() == dns.rcode.NXDOMAIN:  # type: ignore[attr-defined]
                         result["ns_not_knowing_domain"] = True
-                        findings.add(f"the nameserver {nameserver_ip} ({nameserver}) doesn't know about the domain")
                     else:
                         nameserver_ok = True
                 except dns.exception.Timeout:

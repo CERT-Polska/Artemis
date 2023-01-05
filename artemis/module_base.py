@@ -105,6 +105,7 @@ class ArtemisBase(Karton):
 
     def process(self, *args: List[Any]) -> None:
         current_task = cast(Task, args[0])
+
         try:
             self.run(current_task)
         except Exception:

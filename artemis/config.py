@@ -33,7 +33,7 @@ class Config:
     # An already constructed Redis client
     REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
 
-    HTTP_TIMEOUT_SECONDS = decouple.config("HTTP_TIMEOUT_SECONDS", default=2, cast=int)
+    HTTP_TIMEOUT_SECONDS = decouple.config("HTTP_TIMEOUT_SECONDS", default=5, cast=int)
 
     # These two limits are independent - whether the port scanning limits are used doesn't affect
     # the requests limit and vice versa.

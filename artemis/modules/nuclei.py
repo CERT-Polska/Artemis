@@ -64,7 +64,9 @@ class Nuclei(ArtemisBase):
             if line.strip():
                 finding = json.loads(line)
                 result.append(finding)
-                messages.append(f"[{finding['info']['severity']}] {finding['info']['description']}")
+                messages.append(
+                    f"[{finding['info']['severity']}] {finding['info'].get('name')} {finding['info'].get('description')}"
+                )
 
         if messages:
             status = TaskStatus.INTERESTING

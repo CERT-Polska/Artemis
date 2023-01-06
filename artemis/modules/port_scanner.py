@@ -105,8 +105,6 @@ class PortScanner(ArtemisBase):
                     "-port",
                     ",".join(map(str, PORTS)),
                     "-silent",
-                    "-retries",
-                    "1",
                     "-rate",
                     str(Config.SCANNING_PACKETS_PER_SECOND_PER_IP),
                 ),

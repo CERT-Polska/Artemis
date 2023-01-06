@@ -131,6 +131,8 @@ class Bruter(ArtemisBase):
                 and "<center><h1>40" not in response.content
                 and "Error 403" not in response.content
                 and "<title>Access forbidden!</title>" not in response.content
+                and "<title>cPanel Redirect</title>" not in response.content
+                and "jest utrzymywana na serwerach nazwa.pl</title>" not in response.content
                 and response.content.strip() not in IGNORED_CONTENTS
                 and SequenceMatcher(None, response.content, dummy_content).quick_ratio() < 0.8
             ):

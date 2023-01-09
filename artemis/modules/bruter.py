@@ -145,16 +145,21 @@ class Bruter(ArtemisBase):
             if response.status_code != 200:
                 continue
 
-            if (
-                response.content
-                and "<center><h1>40" not in response.content
-                and "Error 403" not in response.content
-                and "<title>Access forbidden!</title>" not in response.content
-                and "<title>cPanel Redirect</title>" not in response.content
-                and "jest utrzymywana na serwerach nazwa.pl</title>" not in response.content
-                and response.content.strip() not in IGNORED_CONTENTS
-                and SequenceMatcher(None, response.content, dummy_content).quick_ratio() < 0.8
-            ):
+            interesting_content = (
+                "<title>phpMyAdmin</title>" in response.content
+                or "<title>phpinfo()</title>" in response.content
+                or "<?" in response.content  # php src
+                or "<html" not in response.content[:200].lower()
+                or is_directory_index(response.content)
+            )
+
+            filtered_content = (
+                "Error 403" in response.content
+                or response.content.strip() in IGNORED_CONTENTS
+                or SequenceMatcher(None, response.content, dummy_content).quick_ratio() >= 0.8
+            )
+
+            if interesting_content and not filtered_content:
                 found_urls.append(
                     FoundURL(
                         url=response_url,

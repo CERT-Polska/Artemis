@@ -53,7 +53,7 @@ class Postman(ArtemisBase):
         try:
             local_hostname = Config.POSTMAN_MAIL_FROM.split("@")[1]
             request_limit.limit_requests_for_host(host)
-            with SMTP(host, port, local_hostname=local_hostname) as smtp:
+            with SMTP(host, port, local_hostname=local_hostname, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
                 smtp.set_debuglevel(1)
                 smtp.sendmail(
                     Config.POSTMAN_MAIL_FROM,
@@ -76,7 +76,7 @@ class Postman(ArtemisBase):
         """
         try:
             request_limit.limit_requests_for_host(host)
-            with SMTP(host, port) as smtp:
+            with SMTP(host, port, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
                 smtp.set_debuglevel(1)
                 mail_from = f"root@{domain}"
                 smtp.sendmail(

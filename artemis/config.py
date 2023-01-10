@@ -14,6 +14,8 @@ class Config:
 
     ALLOW_SCANNING_PUBLIC_SUFFIXES = decouple.config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
 
+    TASK_TIMEOUT_SECONDS = 3600
+
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches
     # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to
     # new.example.com, Artemis will check whether it is a subdomain of the original task
@@ -33,7 +35,7 @@ class Config:
     # An already constructed Redis client
     REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
 
-    HTTP_TIMEOUT_SECONDS = decouple.config("HTTP_TIMEOUT_SECONDS", default=5, cast=int)
+    REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 
     # These two limits are independent - whether the port scanning limits are used doesn't affect
     # the requests limit and vice versa.

@@ -129,15 +129,17 @@ class DB:
         else:
             created_task_result["result"] = data
 
-        result = self.task_results.update_one(
-            upsert=True, filter={"_id": created_task_result["uid"]}, update={"$set": created_task_result}
-        )
-        if result.upserted_id:  # If the record has been created, set creation date
-            result = self.task_results.update_one(
-                {"_id": created_task_result["uid"]}, {"$set": {"created_at": datetime.datetime.now()}}
-            )
+        with self.client.start_session() as session:
+            with session.start_transaction():
+                result = self.task_results.update_one(
+                    upsert=True, filter={"_id": created_task_result["uid"]}, update={"$set": created_task_result}
+                )
+                if result.upserted_id:  # If the record has been created, set creation date
+                    result = self.task_results.update_one(
+                        {"_id": created_task_result["uid"]}, {"$set": {"created_at": datetime.datetime.now()}}
+                    )
 
-        self._apply_manual_decisions()
+                self._apply_manual_decisions()
 
     def get_analysis_by_url(self, url: str) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], self.analysis.find({"data": {"$regex": f".*{url}.*"}}))

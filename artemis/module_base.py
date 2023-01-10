@@ -3,6 +3,7 @@ import traceback
 from abc import abstractmethod
 from typing import Any, List, Optional, cast
 
+import timeout_decorator
 from karton.core import Karton, Task
 
 from artemis.binds import TaskStatus
@@ -107,7 +108,7 @@ class ArtemisBase(Karton):
         current_task = cast(Task, args[0])
 
         try:
-            self.run(current_task)
+            timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
         except Exception:
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise

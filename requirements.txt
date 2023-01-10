@@ -11,7 +11,7 @@ h11==0.14.0
 idna==3.4
 Jinja2==3.1.2
 karton-core==4.4.1
-liccheck==0.8.1
+liccheck==0.8.3
 MarkupSafe==2.1.1
 minio==7.1.12
 psycopg2-binary==2.9.5

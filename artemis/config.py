@@ -15,6 +15,8 @@ class Config:
 
     ALLOW_SCANNING_PUBLIC_SUFFIXES = decouple.config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
 
+    TASK_TIMEOUT_SECONDS = 3600
+
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches
     # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to
     # new.example.com, Artemis will check whether it is a subdomain of the original task

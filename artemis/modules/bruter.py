@@ -126,16 +126,20 @@ class Bruter(ArtemisBase):
 
         top_paths = [path for _, path in top_counts_and_paths]
         paths_to_scan = set(random_paths) | set(top_paths)
-        self.log.info(f"bruter scanning {base_url}: {len(paths_to_scan)} paths to scan")
+        self.log.info(
+            f"bruter scanning {base_url}: {len(paths_to_scan)} paths to scan (chosen out of {len(FILENAMES_TO_SCAN)})"
+        )
 
         results = {}
-        for url in paths_to_scan:
+        for i, url in enumerate(paths_to_scan):
+            self.log.info(f"bruter url {i}/{len(paths_to_scan)}: {url}")
             try:
                 full_url = base_url + "/" + url
                 results[full_url] = http_requests.get(full_url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
             except Exception:
                 pass
 
+        self.log.info("bruter finished")
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
@@ -148,6 +152,8 @@ class Bruter(ArtemisBase):
             interesting_content = (
                 "<title>phpMyAdmin</title>" in response.content
                 or "<title>phpinfo()</title>" in response.content
+                or "<title>Apache Status</title>" in response.content
+                or "<title>Server Information</title>" in response.content
                 or "<?" in response.content  # php src
                 or "<html" not in response.content[:200].lower()
                 or is_directory_index(response.content)

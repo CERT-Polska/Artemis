@@ -139,8 +139,8 @@ class PortScanner(ArtemisBase):
 
             data = json.loads(output)
             port = int(data["port"])
-            ssl = data["transport"] == "tcptls"
-            service = data["service"]
+            ssl = data["tls"]
+            service = data["protocol"]
             if ssl:
                 service = service.rstrip("s")
 

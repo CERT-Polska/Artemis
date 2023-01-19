@@ -30,11 +30,14 @@ class Nuclei(ArtemisBase):
         target = current_task.payload["url"]
         content = current_task.payload["content"]
 
-        templates = ["exposures/tokens/"]
+        templates = []
         # We want to run PhpMyAdmin Nuclei templates only when we identified that a given URL runs
         # PhpMyAdmin.
-        if 'name="imLogo" alt="phpMyAdmin"' in content:
+        if "<title>phpMyAdmin</title>" in content:
             templates.append("default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
+
+        if len(templates) == 0:
+            self.db.save_task_result(task=current_task, status=TaskStatus.OK, status_reason=None, data={})
 
         if Config.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.CUSTOM_USER_AGENT]
@@ -43,18 +46,19 @@ class Nuclei(ArtemisBase):
 
         host = urllib.parse.urlparse(target).hostname
         with lock_requests_for_ip(get_ip_for_locking(host)):
+            command = [
+                "nuclei",
+                "-target",
+                target,
+                "-templates",
+                ",".join(templates),
+                "-json",
+                "-spr",
+                str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
+            ] + additional_configuration
+
             data = subprocess.check_output(
-                [
-                    "nuclei",
-                    "-target",
-                    target,
-                    "-templates",
-                    ",".join(templates),
-                    "-json",
-                    "-spr",
-                    str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
-                ]
-                + additional_configuration,
+                command,
                 stderr=subprocess.DEVNULL,
             )
 

@@ -15,7 +15,7 @@ class NucleiTest(ArtemisModuleTestCase):
             {"type": TaskType.URL.value},
             payload={
                 "url": "http://test-phpmyadmin-easy-password/",
-                "content": '(...)<img src="./themes/pmahomme/img/logo_right.png" id="imLogo" name="imLogo" alt="phpMyAdmin" border="0">',
+                "content": "(...)<title>phpMyAdmin</title>",
             },
         )
         self.run_task(task)

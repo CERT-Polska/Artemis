@@ -36,6 +36,8 @@ def url_to_ip(url: str) -> str:
 class HTTPResponse:
     status_code: int
     content: str
+    is_redirect: bool
+    url: str
 
     def json(self) -> Any:
         return json.loads(self.content)
@@ -69,9 +71,14 @@ def _request(
     # Handling situations where the response is very long, which is not handled by requests timeout
     for item in response.iter_content(max_size):
         # Return the first item (at most `max_size` length)
-        return HTTPResponse(status_code=response.status_code, content=item.decode("utf-8", errors="ignore"))
+        return HTTPResponse(
+            status_code=response.status_code,
+            content=item.decode("utf-8", errors="ignore"),
+            is_redirect=bool(response.history),
+            url=response.url,
+        )
     # If there was no content, we will fall back to the second statement, which returns an empty string
-    return HTTPResponse(status_code=response.status_code, content="")
+    return HTTPResponse(status_code=response.status_code, content="", is_redirect=False, url=response.url)
 
 
 def get(

@@ -78,7 +78,9 @@ def _request(
             url=response.url,
         )
     # If there was no content, we will fall back to the second statement, which returns an empty string
-    return HTTPResponse(status_code=response.status_code, content="", is_redirect=False, url=response.url)
+    return HTTPResponse(
+        status_code=response.status_code, content="", is_redirect=bool(response.history), url=response.url
+    )
 
 
 def get(

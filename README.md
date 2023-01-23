@@ -42,8 +42,8 @@ URLs you provide don't have to follow any strict rules (e.g. `hxxp://127.0.0.1:1
 
 ## FAQ
 ### Does Artemis support proxying the requests?
-Not yet. Besides, currently Artemis may leak the information about the targets e.g. via the Nuclei module that uses
-system DNS resolvers.
+Not yet. If you wish to add such a feature, remember to proxy the DNS resolving (e.g. in the Nuclei module
+that currently uses the system DNS resolvers).
 
 ### Artemis takes a long time to run - what is the reason?
 By default, the requests are limitted to **one in 5 seconds** for a single IP (and, separately, **two packets

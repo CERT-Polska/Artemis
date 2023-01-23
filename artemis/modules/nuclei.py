@@ -53,6 +53,8 @@ class Nuclei(ArtemisBase):
                 "-templates",
                 ",".join(templates),
                 "-json",
+                "-resolvers",
+                "/dev/null",
                 "-system-resolvers",
                 "-spr",
                 str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),

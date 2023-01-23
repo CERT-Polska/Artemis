@@ -23,5 +23,5 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "[high] phpMyAdmin Default Login phpMyAdmin default admin credentials were discovered",
+            "[high] phpMyAdmin - Default Login phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.",
         )

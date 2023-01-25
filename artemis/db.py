@@ -171,7 +171,7 @@ class DB:
 
         records_count_total = self.task_results.count_documents(filter_dict)
         if search_query:
-            filter_dict.update({"$text": {"$search": search_query}})
+            filter_dict.update({"$text": {"$search": self._to_mongo_query(search_query)}})
         records_count_filtered = self.task_results.count_documents(filter_dict)
         results_page = self.task_results.find(filter_dict).sort(ordering_pymongo)[start : start + length]
         return PaginatedTaskResults(
@@ -315,3 +315,12 @@ class DB:
                     {"status_reason": manual_decision_obj.message, "decision_type": None}, {"$set": decision_data}
                 )
         self.logger.info("Manual decisions applied for existing tasks in %.02fs", time.time() - time_start)
+
+    def _to_mongo_query(self, query: str) -> str:
+        """Converts a space-separated query (e.g. directory_index wp-content) to a MongoDB query
+        that requires all words to be present (in that case it would be "directory_index" AND "wp-content").
+        """
+
+        query = query.replace("\\", " ")  # just in case
+        query = query.replace('"', " ")  # just in case
+        return " AND ".join([f'"{item}"' for item in query.split(" ") if item])

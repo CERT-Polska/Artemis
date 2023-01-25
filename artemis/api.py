@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query, Request
+from karton.core.backend import KartonBackend
+from karton.core.config import Config as KartonConfig
 
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.templating import render_table_row
@@ -19,6 +21,14 @@ def get_task(task_id: str) -> Dict[str, Any]:
 @router.get("/analysis")
 def list_analysis() -> List[Dict[str, Any]]:
     return db.list_analysis()
+
+
+@router.get("/num-queued-tasks")
+def num_queued_tasks() -> int:
+    # We check the backend redis queue length directly to avoid the long runtimes of
+    # KartonState.get_all_tasks()
+    backend = KartonBackend(config=KartonConfig())  # type: ignore[no-untyped-call]
+    return sum([backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")])
 
 
 @router.get("/analysis/{root_id}")

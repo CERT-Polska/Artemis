@@ -59,8 +59,8 @@ class Config:
     # Each bruter scan would consist of BRUTER_NUM_TOP_PATHS_TO_USE most popular paths that existed on the servers
     # and BRUTER_NUM_RANDOM_PATHS_TO_USE random paths so that we explore random paths from the list to know what
     # would be the most popular paths.
-    BRUTER_NUM_TOP_PATHS_TO_USE = 600
-    BRUTER_NUM_RANDOM_PATHS_TO_USE = 200
+    BRUTER_NUM_TOP_PATHS_TO_USE = decouple.config("BRUTER_NUM_TOP_PATHS_TO_USE", default=600, cast=int)
+    BRUTER_NUM_RANDOM_PATHS_TO_USE = decouple.config("BRUTER_NUM_RANDOM_PATHS_TO_USE", default=200, cast=int)
 
     # We save response content in some cases - in order not to overload the DB, this determines how long
     # the saved content would be.

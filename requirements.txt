@@ -12,7 +12,7 @@ idna==3.4
 Jinja2==3.1.2
 karton-core==4.4.1
 liccheck==0.8.3
-MarkupSafe==2.1.1
+MarkupSafe==2.1.2
 minio==7.1.13
 psycopg2-binary==2.9.5
 publicsuffixlist==0.9.2

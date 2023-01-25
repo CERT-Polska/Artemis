@@ -38,6 +38,7 @@ class Nuclei(ArtemisBase):
 
         if len(templates) == 0:
             self.db.save_task_result(task=current_task, status=TaskStatus.OK, status_reason=None, data={})
+            return
 
         if Config.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.CUSTOM_USER_AGENT]

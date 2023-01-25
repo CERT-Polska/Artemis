@@ -41,6 +41,10 @@ To run simply:
 URLs you provide don't have to follow any strict rules (e.g. `hxxp://127.0.0.1:1337/someurl` should work as well).
 
 ## FAQ
+### Does Artemis support proxying the requests?
+Not yet. If you wish to add such a feature, remember to proxy the DNS resolving (e.g. in the Nuclei module
+that currently uses the system DNS resolvers).
+
 ### Artemis takes a long time to run - what is the reason?
 By default, the requests are limitted to **one in 5 seconds** for a single IP (and, separately, **two packets
 per second for port scanning** for a single IP). To change that to more aggressive values, change the

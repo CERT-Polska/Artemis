@@ -19,3 +19,4 @@ and can be scaled independently if such a need arises.
    user-guide/k8s-deployment
    user-guide/rest-api
    user-guide/manual-verification
+   user-guide/writing-module

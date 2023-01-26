@@ -8,3 +8,4 @@ Features
  - a check for VCS folders (e.g. `.git`)
  - a check for enabled directory index
  - port scanning
+ - easy extensibility via plug-and-play modules

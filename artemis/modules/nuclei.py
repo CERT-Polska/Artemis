@@ -25,6 +25,7 @@ class Nuclei(ArtemisBase):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         subprocess.call(["nuclei", "-update-templates"])
+        self._critical_templates = subprocess.check_output(["nuclei", "-s", "critical", "-tl"]).decode("ascii").split()
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]
@@ -35,6 +36,11 @@ class Nuclei(ArtemisBase):
         # PhpMyAdmin.
         if "<title>phpMyAdmin</title>" in content:
             templates.append("default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
+
+        if urllib.parse.urlparse(target).path == "/":
+            templates.extend(self._critical_templates)
+
+        self.log.info(f"nuclei: running {len(templates)} templates on {target}")
 
         if len(templates) == 0:
             self.db.save_task_result(task=current_task, status=TaskStatus.OK, status_reason=None, data={})

@@ -27,7 +27,7 @@ and can be scaled independently if such a need arises.
 ![Artemis - scan](.github/screenshots/scan.png)
 
 ## Getting started
-If you plan using Artemis on production highly consider [k8s deployment](k8s/README.md). Development
+If you plan using Artemis on production highly consider kubernetes deployment. Development
 environment doesn't scale properly and has hardcoded credentials.
 
 For development / testing pruposes a docker-compose configuration exists. Some modules (e.g. downloading

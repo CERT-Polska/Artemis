@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import re
+import string
 
 import requests
 from karton.core import Task
@@ -28,9 +29,8 @@ class CrtshScanner(ArtemisBase):
         conn = connect("postgresql://guest@crt.sh:5432/certwatch")
         conn.set_session(readonly=True, autocommit=True)
         with conn.cursor() as cursor:
-            # TODO: fix SQL injection
-            # yes, this IS an SQL injection, but it's on crt.sh read-only database
-            # When fixing, remember to escape % as well, as we are inside the LIKE clause.
+            # Validate characters as we are putting the domain inside a SQL query
+            assert all([c in string.ascii_letters + "-" + string.digits + "." for c in domain])
             cursor.execute(
                 (
                     f"SELECT name_value FROM certificate_and_identities"

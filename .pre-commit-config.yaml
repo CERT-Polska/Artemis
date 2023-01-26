@@ -38,3 +38,4 @@ repos:
   hooks:
   - id: flake8
     args: [artemis]
+    exclude: ^docs/ 

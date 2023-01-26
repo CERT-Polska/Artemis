@@ -1,6 +1,5 @@
 import decouple
 from redis import Redis
-from redis.asyncio import Redis as AsyncRedis
 
 
 class Config:
@@ -40,7 +39,6 @@ class Config:
     # connecting to the same Redis instance**.
     REDIS_CONN_STR = decouple.config("REDIS_CONN_STR")
     REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
-    ASYNC_REDIS = AsyncRedis.from_url(decouple.config("REDIS_CONN_STR"))
 
     REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 

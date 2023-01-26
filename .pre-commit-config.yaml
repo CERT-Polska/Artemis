@@ -32,6 +32,7 @@ repos:
     - types-redis==4.3.21.6
     - types-requests==2.28.11.5
     - uvicorn==0.20.0
+    exclude: ^docs/ 
 - repo: https://github.com/PyCQA/flake8
   rev: 6.0.0
   hooks:

@@ -9,7 +9,6 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 TEMPLATE_TABLE_ROW_TASK_LINK = templates.get_template("table_row/task_link.jinja2")
 TEMPLATE_TABLE_ROW_BADGES = templates.get_template("table_row/badges.jinja2")
-TEMPLATE_TABLE_ROW_DECISION = templates.get_template("table_row/decision.jinja2")
 
 
 def render_table_row(task: Dict[str, Any]) -> List[str]:
@@ -19,5 +18,4 @@ def render_table_row(task: Dict[str, Any]) -> List[str]:
         TEMPLATE_TABLE_ROW_TASK_LINK.render({"task": task}),
         TEMPLATE_TABLE_ROW_BADGES.render({"task": task}),
         task["status_reason"],
-        TEMPLATE_TABLE_ROW_DECISION.render({"task": task}),
     ]

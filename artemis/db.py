@@ -150,6 +150,7 @@ class DB:
         start: int,
         length: int,
         ordering: List[ColumnOrdering],
+        fields: List[str],
         *,
         search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
@@ -167,11 +168,13 @@ class DB:
             for ordering_rule in ordering
         ]
 
-        records_count_total = self.task_results.count_documents(filter_dict)
+        records_count_total = self.task_results.estimated_document_count()
         if search_query:
             filter_dict.update({"$text": {"$search": self._to_mongo_query(search_query)}})
         records_count_filtered = self.task_results.count_documents(filter_dict)
-        results_page = self.task_results.find(filter_dict).sort(ordering_pymongo)[start : start + length]
+        results_page = self.task_results.find(filter_dict, {field: 1 for field in fields}).sort(ordering_pymongo)[
+            start : start + length
+        ]
         return PaginatedTaskResults(
             records_count_total=records_count_total,
             records_count_filtered=records_count_filtered,
@@ -248,6 +251,8 @@ class DB:
         )
         self.task_results.create_index([("status_reason", ASCENDING), ("decision_type", ASCENDING)])
         self.task_results.create_index([("status", ASCENDING)])
+        self.task_results.create_index([("decision_type", ASCENDING)])
+        self.task_results.create_index([("status", ASCENDING), ("decision_type", ASCENDING)])
         self.task_results.create_index(
             [
                 ("status", "text"),

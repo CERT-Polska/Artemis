@@ -5,6 +5,7 @@ import urllib
 from typing import Any
 
 from karton.core import Task
+from more_itertools import chunked
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
@@ -52,35 +53,42 @@ class Nuclei(ArtemisBase):
             additional_configuration = []
 
         host = urllib.parse.urlparse(target).hostname
-        with lock_requests_for_ip(get_ip_for_locking(host)):
-            command = [
-                "nuclei",
-                "-target",
-                target,
-                "-templates",
-                ",".join(templates),
-                "-json",
-                "-resolvers",
-                "/dev/null",
-                "-system-resolvers",
-                "-spr",
-                str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
-            ] + additional_configuration
-
-            data = subprocess.check_output(
-                command,
-                stderr=subprocess.DEVNULL,
-            )
 
         result = []
         messages = []
-        for line in data.decode("ascii", errors="ignore").split("\n"):
-            if line.strip():
-                finding = json.loads(line)
-                result.append(finding)
-                messages.append(
-                    f"[{finding['info']['severity']}] {finding['info'].get('name')} {finding['info'].get('description')}"
+        # See a comment in Config for the reason behind chunking
+        for template_chunk in chunked(templates, Config.NUCLEI_TEMPLATES_CHUNK_SIZE):
+            with lock_requests_for_ip(get_ip_for_locking(host)):
+                command = [
+                    "nuclei",
+                    "-disable-update-check",
+                    "-ni",
+                    "-target",
+                    target,
+                    "-templates",
+                    ",".join(template_chunk),
+                    "-json",
+                    "-resolvers",
+                    "/dev/null",
+                    "-system-resolvers",
+                    "-timeout",
+                    str(Config.REQUEST_TIMEOUT_SECONDS),
+                    "-spr",
+                    str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
+                ] + additional_configuration
+
+                data = subprocess.check_output(
+                    command,
+                    stderr=subprocess.DEVNULL,
                 )
+
+            for line in data.decode("ascii", errors="ignore").split("\n"):
+                if line.strip():
+                    finding = json.loads(line)
+                    result.append(finding)
+                    messages.append(
+                        f"[{finding['info']['severity']}] {finding['info'].get('name')} {finding['info'].get('description')}"
+                    )
 
         if messages:
             status = TaskStatus.INTERESTING

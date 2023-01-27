@@ -70,3 +70,9 @@ class Config:
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
     CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
+
+    # When running Nuclei templates, we don't run the full list against a host, but on chunks of
+    # NUCLEI_TEMPLATES_CHUNK_SIZE templates. Because Artemis makes sure no more than one module is
+    # testing a host, this is to avoid locking access to a host for too long a time (and blocking other
+    # queues).
+    NUCLEI_TEMPLATES_CHUNK_SIZE = decouple.config("NUCLEI_TEMPLATES_CHUNK_SIZE", default=50, cast=int)

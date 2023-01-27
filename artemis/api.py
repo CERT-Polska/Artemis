@@ -66,7 +66,17 @@ def get_task_results(
 
     search_query = request.query_params["search[value]"]
 
-    fields = ["created_at", "target_string", "headers", "status", "status_reason", "decision_type", "operator_comment"]
+    fields = [
+        "created_at",
+        "target_string",
+        "headers",
+        "status",
+        "status_reason",
+        "priority",
+        "uid",
+        "decision_type",
+        "operator_comment",
+    ]
 
     if analysis_id:
         if not db.get_analysis_by_id(analysis_id):

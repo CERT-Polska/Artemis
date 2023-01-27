@@ -17,7 +17,7 @@
                             <tr>
                                 <td>{{ entry.payload.data }}</td>
                                 <td>
-                                    <a href="/analysis/{{ entry.id }}?task_filter=interesting_undecided">{{ entry.id }}</a>
+                                    <a href="/analysis/{{ entry.id }}?task_filter=interesting">{{ entry.id }}</a>
                                 </td>
                                 <td>
                                     {% if entry.num_active_tasks > 0 %}
@@ -37,7 +37,7 @@
             </div>
         </div>
         <p>
-            <a class="btn btn-primary" href="/results?task_filter=interesting_undecided">Show all findings</a>
+            <a class="btn btn-primary" href="/results?task_filter=interesting">Show all findings</a>
         </p>
         <p>
             Hint: Browse to the <a href="/queue">task queue</a> to see how the tasks are progressing.

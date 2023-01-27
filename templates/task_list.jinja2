@@ -6,21 +6,6 @@
     <p>
     <p>
         <a
-            href="?task_filter=approved"
-            class="btn {% if task_filter == "approved" %}btn-primary{% else %}btn-default{% endif %}">
-                Approved
-        </a>
-        <a
-            href="?task_filter=dismissed"
-            class="btn {% if task_filter == "dismissed" %}btn-primary{% else %}btn-default{% endif %}">
-                Dismissed
-        </a>
-        <a
-            href="?task_filter=interesting_undecided"
-            class="btn {% if task_filter == "interesting_undecided" %}btn-primary{% else %}btn-default{% endif %}">
-                Interesting findings without manual decision
-        </a>
-        <a
             href="?task_filter=interesting"
             class="btn {% if task_filter == "interesting" %}btn-primary{% else %}btn-default{% endif %}">
                 All interesting findings
@@ -38,7 +23,6 @@
                 <th scope="col">task</th>
                 <th scope="col">headers</th>
                 <th scope="col">status: reason</th>
-                <th scope="col">decision</th>
             </tr>
       </thead>
   </table>

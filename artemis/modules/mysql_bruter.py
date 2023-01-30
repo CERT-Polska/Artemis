@@ -13,6 +13,7 @@ from artemis.task_utils import get_target
 
 BRUTE_CREDENTIALS = COMMON_SQL_CREDENTIALS + [
     ("mysql", "mysql"),
+    ("root", "MyNewPass"),
 ]
 
 

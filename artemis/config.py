@@ -48,6 +48,10 @@ class Config:
     LOCK_SLEEP_MIN_SECONDS = decouple.config("LOCK_SLEEP_MIN_SECONDS", default=0.1, cast=float)
     LOCK_SLEEP_MAX_SECONDS = decouple.config("LOCK_SLEEP_MAX_SECONDS", default=1, cast=float)
 
+    # Amount of times module will try to get a lock (with sleeps inbetween)
+    # before rescheduling task for later.
+    LOCK_RETRY_MAX = decouple.config("LOCK_RETRY_MAX", default=5, cast=int)
+
     # Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
     # This is the lock default expiry time.
     DEFAULT_LOCK_EXPIRY_SECONDS = decouple.config("DEFAULT_LOCK_EXPIRY_SECONDS", default=3600, cast=int)

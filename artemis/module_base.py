@@ -11,7 +11,7 @@ from artemis.binds import TaskStatus
 from artemis.config import Config
 from artemis.db import DB
 from artemis.redis_cache import RedisCache
-from artemis.resource_lock import ResourceLock
+from artemis.resource_lock import ResourceLock, RescheduleException
 
 
 class ArtemisBase(Karton):
@@ -105,6 +105,25 @@ class ArtemisBase(Karton):
                 return task
         return None
 
+    def reschedule_task(self, task: Task) -> None:
+        """
+        Puts task back into the queue.
+        Used when performing task requires taking a lock, which is already taken by a long running task.
+        In that case, we "reschedule" task for later execution to not block the karton instance.
+        This saves task into the DB.
+        """
+        new_task = Task(
+                headers=task.headers,
+                payload=task.payload,
+                payload_persistent=task.payload_persistent,
+                priority=task.priority,
+                parent_uid=task.parent)
+        # this doesn't need to use self.add_task
+        if self.db.save_scheduled_task(new_task):
+            self.send_task(new_task)
+
+        self.db.save_task_result(task=current_task, status=TaskStatus.RESCHEDULED, data=traceback.format_exc())
+
     @abstractmethod
     def run(self, current_task: Task) -> None:
         raise NotImplementedError()
@@ -114,6 +133,8 @@ class ArtemisBase(Karton):
 
         try:
             timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
+        except RescheduleException:
+            self.reschedule_task(current_task)
         except Exception:
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise

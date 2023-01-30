@@ -8,6 +8,12 @@ from redis import Redis
 from artemis.config import Config
 
 
+class RescheduleException(Exception):
+    """
+    Used to indicate a task should be rescheduled due to hitting Config.LOCK_RETRY_MAX.
+    """
+
+
 class ResourceLock:
     def __init__(self, redis: Redis, res_name: str):  # type: ignore[type-arg]
         self.redis = redis
@@ -25,11 +31,16 @@ class ResourceLock:
         if expiry == 0:
             return
 
-        while True:
+        attempts = 0
+        while attempts < Config.LOCK_RETRY_MAX:
             if self.redis.set(self.res_name, self.lid, nx=True, ex=expiry):
                 return
-            else:
-                time.sleep(uniform(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
+
+            attempts += 1
+            time.sleep(uniform(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
+
+        # failed to aquire lock, reschedule!
+        raise RescheduleException
 
     def __enter__(self) -> None:
         self.acquire()

@@ -41,10 +41,9 @@ class DirectoryIndexTest(ArtemisModuleTestCase):
                 self.run_task(task)
                 (call,) = self.mock_db.save_task_result.call_args_list
                 self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-
                 self.assertEqual(
                     call.kwargs["status_reason"],
-                    "Found directories with index enabled: http://test-service-with-directory-index:80/backups/, "
+                    "Found directories with index enabled: "
                     "http://test-service-with-directory-index:80/wp-content/, "
                     "http://test-service-with-directory-index:80/wp-content/uploads/, "
                     "http://test-service-with-directory-index:80/wp-content/uploads/2022/, "
@@ -55,7 +54,6 @@ class DirectoryIndexTest(ArtemisModuleTestCase):
                 self.assertEqual(
                     sorted([item["url"] for item in call.kwargs["data"]]),
                     [
-                        "http://test-service-with-directory-index:80/backups/",
                         "http://test-service-with-directory-index:80/wp-content/",
                         "http://test-service-with-directory-index:80/wp-content/uploads/",
                         "http://test-service-with-directory-index:80/wp-content/uploads/2022/",

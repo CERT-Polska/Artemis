@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 import json
 from enum import Enum
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from karton.core import Task
 from pydantic import BaseModel
@@ -10,6 +10,7 @@ from pymongo import ASCENDING, DESCENDING, MongoClient
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.modules.data import statistics
 from artemis.utils import build_logger
 
 
@@ -65,6 +66,7 @@ class DB:
         self.analysis = self.client.artemis.analysis
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
         self.task_results = self.client.artemis.task_results
+        self.statistics = self.client.artemis.statistics
         self.logger = build_logger(__name__)
 
     def list_analysis(self) -> List[Dict[str, Any]]:
@@ -209,7 +211,16 @@ class DB:
         # TODO make this less ugly
         return json.loads(task.serialize())  # type: ignore
 
-    def create_indices(self) -> None:
+    def get_top_for_statistic(self, name: str, count: int) -> List[Tuple[int, str]]:
+        result = []
+        for item in self.statistics.find({"name": name}).sort("count", DESCENDING)[:count]:
+            result.append((item["count"], item["value"]))
+        return result
+
+    def statistic_increase(self, name: str, value: str) -> None:
+        self.statistics.find_one_and_update({"name": name, "value": value}, {"$inc": {"count": 1}})
+
+    def initialize_database(self) -> None:
         """Creates MongoDB indexes. create_index() creates an index if it doesn't exist, so
         this method will not recreate existing indexes."""
         self.task_results.create_index(
@@ -230,6 +241,13 @@ class DB:
             ],
             name="fulltext",
         )
+
+        for statistic in statistics.STATISTICS:
+            self.statistics.update_one(
+                upsert=True,
+                filter={"name": statistic["name"], "value": statistic["value"]},
+                update={"$setOnInsert": {"count": statistic["count"]}},
+            )
 
     def _to_mongo_query(self, query: str) -> str:
         """Converts a space-separated query (e.g. directory_index wp-content) to a MongoDB query

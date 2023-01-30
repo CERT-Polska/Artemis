@@ -34,7 +34,7 @@ class Config:
     # An already constructed Redis client
     REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
 
-    # default HTTP request timeout
+    # default request timeout (for all protocols)
     REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 
     # These two limits are independent - whether the port scanning limits are used doesn't affect
@@ -70,5 +70,5 @@ class Config:
     # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
-    # Additional port list to scan in csv form
+    # custom port list to scan in CSV form (replaces default list)
     CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))

@@ -37,7 +37,7 @@ class Nuclei(ArtemisBase):
         if "<title>phpMyAdmin</title>" in content:
             templates.append("default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
 
-        if urllib.parse.urlparse(target).path == "/":
+        if urllib.parse.urlparse(target).path.strip("/") == "":
             templates.extend(self._critical_templates)
 
         self.log.info(f"nuclei: running {len(templates)} templates on {target}")

@@ -1,7 +1,6 @@
 import dataclasses
 import datetime
 import json
-import time
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, cast
 
@@ -22,35 +21,13 @@ class ColumnOrdering:
 
 
 class TaskFilter(str, Enum):
-    INTERESTING_UNDECIDED = "interesting_undecided"
     INTERESTING = "interesting"
-    APPROVED = "approved"
-    DISMISSED = "dismissed"
 
     def as_dict(self) -> Dict[str, Any]:
-        if self.value == TaskFilter.INTERESTING_UNDECIDED:
-            return {"status": "INTERESTING", "decision_type": None}
-        elif self.value == TaskFilter.INTERESTING:
+        if self.value == TaskFilter.INTERESTING.value:
             return {"status": "INTERESTING"}
-        elif self.value == TaskFilter.APPROVED:
-            return {"decision_type": "approved"}
-        elif self.value == TaskFilter.DISMISSED:
-            return {"decision_type": "dismissed"}
         else:
             assert False
-
-
-class ManualDecisionType(str, Enum):
-    APPROVED = "approved"
-    DISMISSED = "dismissed"
-
-
-@dataclasses.dataclass
-class ManualDecision:
-    target_string: Optional[str]
-    message: str
-    decision_type: ManualDecisionType
-    operator_comment: Optional[str]
 
 
 @dataclasses.dataclass
@@ -87,7 +64,6 @@ class DB:
     def __init__(self) -> None:
         self.client = MongoClient(Config.DB_CONN_STR)
         self.analysis = self.client.artemis.analysis
-        self.manual_decisions = self.client.artemis.manual_decisions
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
         self.task_results = self.client.artemis.task_results
         self.statistics = self.client.artemis.statistics
@@ -95,10 +71,6 @@ class DB:
 
     def list_analysis(self) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], list(self.analysis.find()))
-
-    def add_manual_decision(self, decision: ManualDecision) -> None:
-        self.manual_decisions.insert_one(dataclasses.asdict(decision))
-        self._apply_manual_decisions()
 
     def create_analysis(self, analysis: Task) -> None:
         created_analysis = self.task_to_dict(analysis)
@@ -139,8 +111,6 @@ class DB:
                         {"_id": created_task_result["uid"]}, {"$set": {"created_at": datetime.datetime.now()}}
                     )
 
-                self._apply_manual_decisions()
-
     def get_analysis_by_url(self, url: str) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], self.analysis.find({"data": {"$regex": f".*{url}.*"}}))
 
@@ -152,6 +122,7 @@ class DB:
         start: int,
         length: int,
         ordering: List[ColumnOrdering],
+        fields: List[str],
         *,
         search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
@@ -169,11 +140,13 @@ class DB:
             for ordering_rule in ordering
         ]
 
-        records_count_total = self.task_results.count_documents(filter_dict)
+        records_count_total = self.task_results.estimated_document_count()
         if search_query:
             filter_dict.update({"$text": {"$search": self._to_mongo_query(search_query)}})
         records_count_filtered = self.task_results.count_documents(filter_dict)
-        results_page = self.task_results.find(filter_dict).sort(ordering_pymongo)[start : start + length]
+        results_page = self.task_results.find(filter_dict, {field: 1 for field in fields}).sort(ordering_pymongo)[
+            start : start + length
+        ]
         return PaginatedTaskResults(
             records_count_total=records_count_total,
             records_count_filtered=records_count_filtered,
@@ -254,10 +227,9 @@ class DB:
             [
                 ("target_string", ASCENDING),
                 ("status_reason", ASCENDING),
-                ("decision_type", ASCENDING),
             ]
         )
-        self.task_results.create_index([("status_reason", ASCENDING), ("decision_type", ASCENDING)])
+        self.task_results.create_index([("status_reason", ASCENDING)])
         self.task_results.create_index([("status", ASCENDING)])
         self.task_results.create_index(
             [
@@ -266,9 +238,8 @@ class DB:
                 ("target_string", "text"),
                 ("headers_string", "text"),
                 ("status_reason", "text"),
-                ("decision_type", "text"),
-                ("operator_comment", "text"),
             ],
+            name="fulltext",
         )
 
         for statistic in statistics.STATISTICS:
@@ -277,44 +248,6 @@ class DB:
                 filter={"name": statistic["name"], "value": statistic["value"]},
                 update={"$setOnInsert": {"count": statistic["count"]}},
             )
-
-    def _get_decision(self, task_result: Dict[str, Any]) -> Optional[ManualDecision]:
-        decision_dict = self.manual_decisions.find_one(
-            {"message": task_result["status_reason"], "target_string": None}
-        ) or self.manual_decisions.find_one(
-            {"message": task_result["status_reason"], "target_string": task_result["target_string"]}
-        )
-
-        if decision_dict:
-            del decision_dict["_id"]
-            return ManualDecision(**decision_dict)
-        else:
-            return None
-
-    def _apply_manual_decisions(self) -> None:
-        time_start = time.time()
-        for manual_decision in self.manual_decisions.find():
-            del manual_decision["_id"]
-            manual_decision_obj = ManualDecision(**manual_decision)
-
-            decision_data = {
-                "decision_type": manual_decision_obj.decision_type,
-                "operator_comment": manual_decision_obj.operator_comment,
-            }
-            if manual_decision_obj.target_string:
-                self.task_results.update_many(
-                    {
-                        "target_string": manual_decision_obj.target_string,
-                        "status_reason": manual_decision_obj.message,
-                        "decision_type": None,
-                    },
-                    {"$set": decision_data},
-                )
-            else:
-                self.task_results.update_many(
-                    {"status_reason": manual_decision_obj.message, "decision_type": None}, {"$set": decision_data}
-                )
-        self.logger.info("Manual decisions applied for existing tasks in %.02fs", time.time() - time_start)
 
     def _to_mongo_query(self, query: str) -> str:
         """Converts a space-separated query (e.g. directory_index wp-content) to a MongoDB query

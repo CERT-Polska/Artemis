@@ -35,7 +35,8 @@ def url_to_ip(url: str) -> str:
 @dataclasses.dataclass
 class HTTPResponse:
     status_code: int
-    content: str
+    content_bytes: bytes
+    apparent_encoding: str
     is_redirect: bool
     url: str
 
@@ -45,6 +46,10 @@ class HTTPResponse:
     @property
     def text(self) -> str:
         return self.content
+
+    @property
+    def content(self) -> str:
+        return self.content_bytes.decode(self.apparent_encoding or "utf-8", errors="ignore")
 
 
 def _request(
@@ -73,13 +78,18 @@ def _request(
         # Return the first item (at most `max_size` length)
         return HTTPResponse(
             status_code=response.status_code,
-            content=item.decode("utf-8", errors="ignore"),
+            content_bytes=item,
+            apparent_encoding=response.apparent_encoding,
             is_redirect=bool(response.history),
             url=response.url,
         )
     # If there was no content, we will fall back to the second statement, which returns an empty string
     return HTTPResponse(
-        status_code=response.status_code, content="", is_redirect=bool(response.history), url=response.url
+        status_code=response.status_code,
+        content_bytes=b"",
+        apparent_encoding="utf-8",
+        is_redirect=bool(response.history),
+        url=response.url,
     )
 
 

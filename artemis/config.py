@@ -5,7 +5,6 @@ from redis import Redis
 class Config:
     NOT_INTERESTING_PATHS = decouple.config("NOT_INTERESTING_PATHS", default="/icon/,/icons/", cast=decouple.Csv(str))
     DB_CONN_STR = decouple.config("DB_CONN_STR", default="")
-    BROKER = decouple.config("BROKER", default="")
     SHODAN_API_KEY = decouple.config("SHODAN_API_KEY", default="")
     CUSTOM_USER_AGENT = decouple.config("CUSTOM_USER_AGENT", default="")
 
@@ -35,6 +34,7 @@ class Config:
     # An already constructed Redis client
     REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
 
+    # default request timeout (for all protocols)
     REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 
     # These two limits are independent - whether the port scanning limits are used doesn't affect
@@ -70,4 +70,5 @@ class Config:
     # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
+    # custom port list to scan in CSV form (replaces default list)
     CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))

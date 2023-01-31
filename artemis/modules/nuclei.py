@@ -55,6 +55,8 @@ class Nuclei(ArtemisBase):
         with lock_requests_for_ip(get_ip_for_locking(host)):
             command = [
                 "nuclei",
+                "-disable-update-check",
+                "-ni",
                 "-target",
                 target,
                 "-templates",

@@ -9,7 +9,7 @@ from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
-from artemis.db import DB, ManualDecision, ManualDecisionType, TaskFilter
+from artemis.db import DB, TaskFilter
 from artemis.json_utils import JSONEncoderWithDataclasses
 from artemis.karton_utils import restart_crashed_tasks
 from artemis.producer import create_tasks
@@ -61,25 +61,6 @@ def post_add(
         total_list += (x.strip() for x in file.decode().split())
     create_tasks(total_list)
     return RedirectResponse("/", status_code=301)
-
-
-@router.post("/add-decision", include_in_schema=False)
-def post_add_decision(
-    decision_type: ManualDecisionType = Form(None),
-    target_string: Optional[str] = Form(None),
-    message: str = Form(None),
-    operator_comment: Optional[str] = Form(None),
-    redirect_to: str = Form(None),
-) -> Response:
-    db.add_manual_decision(
-        ManualDecision(
-            target_string=target_string,
-            message=message,
-            decision_type=decision_type,
-            operator_comment=operator_comment,
-        )
-    )
-    return RedirectResponse(redirect_to, status_code=302)
 
 
 @router.get("/restart-crashed-tasks")

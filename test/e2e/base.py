@@ -12,9 +12,7 @@ NUM_RETRIES = 100
 RETRY_TIME_SECONDS = 2
 
 
-TaskListRow = namedtuple(
-    "TaskListRow", ["created_at", "receiver", "task_link", "headers_html", "message", "decision_html"]
-)
+TaskListRow = namedtuple("TaskListRow", ["created_at", "receiver", "task_link", "headers_html", "message"])
 
 
 class BaseE2ETestCase(TestCase):

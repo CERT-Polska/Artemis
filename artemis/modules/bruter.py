@@ -43,8 +43,20 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
         FILENAMES_TO_SCAN: Set[str] = set(
             [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
             + [
+                "backup.tar.gz",
+                "db.sql",
+                "backup.sql",
+                "database.sql",
                 "adminbackups",
                 "core",
+                "logs/errors",
+                "logs/sendmail",
+                "mail/temp/",
+                "mail/logs/sendmail",
+                "mail/logs/errors",
+                "webmail/temp/",
+                "webmail/logs/sendmail",
+                "webmail/logs/errors",
                 "errors",
                 ".env",
                 ".htaccess",
@@ -76,6 +88,8 @@ IGNORED_CONTENTS = [
 class BruterResult:
     too_many_urls_detected: bool
     found_urls: List[FoundURL]
+    checked_top_paths: List[str]
+    checked_random_paths: List[str]
 
 
 class Bruter(ArtemisBase):
@@ -95,7 +109,8 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
-        self.log.info(f"bruter scanning {base_url} ({len(FILENAMES_TO_SCAN)} URLs)")
+        top_counts_and_paths = self.db.get_top_for_statistic("bruter", Config.BRUTER_NUM_TOP_PATHS_TO_USE)
+        self.log.info(f"bruter scanning {base_url}, most popular paths={top_counts_and_paths}")
 
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
@@ -105,37 +120,52 @@ class Bruter(ArtemisBase):
         except Exception:
             dummy_content = ""
 
-        urls: List[str] = []
+        random_paths = list(FILENAMES_TO_SCAN)
+        random.shuffle(random_paths)
+        random_paths = random_paths[: Config.BRUTER_NUM_RANDOM_PATHS_TO_USE]
 
-        for file in set(FILENAMES_TO_SCAN):
-            url = f"{base_url}/{file}"
-            urls.append(url)
+        top_paths = [path for _, path in top_counts_and_paths]
+        paths_to_scan = set(random_paths) | set(top_paths)
+        self.log.info(
+            f"bruter scanning {base_url}: {len(paths_to_scan)} paths to scan (chosen out of {len(FILENAMES_TO_SCAN)})"
+        )
 
+        results = {}
+        for i, url in enumerate(paths_to_scan):
+            self.log.info(f"bruter url {i}/{len(paths_to_scan)}: {url}")
+            try:
+                full_url = base_url + "/" + url
+                results[full_url] = http_requests.get(full_url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
+            except Exception:
+                pass
+
+        self.log.info("bruter finished")
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
-        results = {}
-        for url in urls:
-            try:
-                results[url] = http_requests.get(url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
-            except Exception:
-                pass
 
         found_urls = []
         for response_url, response in sorted(results.items()):
             if response.status_code != 200:
                 continue
 
-            if (
-                response.content
-                and "<center><h1>40" not in response.content
-                and "Error 403" not in response.content
-                and "<title>Access forbidden!</title>" not in response.content
-                and "<title>cPanel Redirect</title>" not in response.content
-                and "jest utrzymywana na serwerach nazwa.pl</title>" not in response.content
-                and response.content.strip() not in IGNORED_CONTENTS
-                and SequenceMatcher(None, response.content, dummy_content).quick_ratio() < 0.8
-            ):
+            interesting_content = (
+                "<title>phpMyAdmin</title>" in response.content
+                or "<title>phpinfo()</title>" in response.content
+                or "<title>Apache Status</title>" in response.content
+                or "<title>Server Information</title>" in response.content
+                or "<?" in response.content  # php src
+                or "<html" not in response.content[:200].lower()
+                or is_directory_index(response.content)
+            )
+
+            filtered_content = (
+                "Error 403" in response.content
+                or response.content.strip() in IGNORED_CONTENTS
+                or SequenceMatcher(None, response.content, dummy_content).quick_ratio() >= 0.8
+            )
+
+            if interesting_content and not filtered_content:
                 found_urls.append(
                     FoundURL(
                         url=response_url,
@@ -144,10 +174,22 @@ class Bruter(ArtemisBase):
                     )
                 )
 
-        if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
-            return BruterResult(too_many_urls_detected=True, found_urls=[])
+        if len(found_urls) > len(paths_to_scan) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+            return BruterResult(
+                too_many_urls_detected=True,
+                found_urls=[],
+                checked_top_paths=top_paths,
+                checked_random_paths=random_paths,
+            )
 
         for found_url in found_urls:
+            url = found_url.url[len(base_url) + 1 :]
+            if url in random_paths:
+                self.db.statistic_increase("bruter", url)
+
+                if is_directory_index(found_url.content_prefix):
+                    self.db.statistic_increase("bruter-with-directory-index", url)
+
             new_task = Task(
                 {
                     "type": TaskType.URL,
@@ -162,6 +204,8 @@ class Bruter(ArtemisBase):
         return BruterResult(
             too_many_urls_detected=False,
             found_urls=found_urls,
+            checked_top_paths=top_paths,
+            checked_random_paths=random_paths,
         )
 
     def run(self, task: Task) -> None:

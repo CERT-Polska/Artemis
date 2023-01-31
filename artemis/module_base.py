@@ -1,4 +1,5 @@
 import random
+import time
 import traceback
 from abc import abstractmethod
 from typing import Any, List, Optional, cast
@@ -17,6 +18,8 @@ class ArtemisBase(Karton):
     """
     Artemis base module. Provides helpers (such as e.g. cache) for all modules.
     """
+
+    TASK_POLL_INTERVAL_SECONDS = 2
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
@@ -83,6 +86,8 @@ class ArtemisBase(Karton):
                 task = self._consume_random_routed_task(self.identity)
                 if task:
                     self.internal_process(task)
+                else:
+                    time.sleep(self.TASK_POLL_INTERVAL_SECONDS)
         except KeyboardInterrupt as e:
             self.log.info("Hard shutting down!")
             raise e

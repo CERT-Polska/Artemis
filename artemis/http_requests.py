@@ -36,7 +36,7 @@ def url_to_ip(url: str) -> str:
 class HTTPResponse:
     status_code: int
     content_bytes: bytes
-    apparent_encoding: str
+    encoding: str
     is_redirect: bool
     url: str
 
@@ -49,7 +49,7 @@ class HTTPResponse:
 
     @property
     def content(self) -> str:
-        return self.content_bytes.decode(self.apparent_encoding or "utf-8", errors="ignore")
+        return self.content_bytes.decode(self.encoding or "utf-8", errors="ignore")
 
 
 def _request(
@@ -79,7 +79,7 @@ def _request(
         return HTTPResponse(
             status_code=response.status_code,
             content_bytes=item,
-            apparent_encoding=response.apparent_encoding,
+            encoding=response.encoding,
             is_redirect=bool(response.history),
             url=response.url,
         )
@@ -87,7 +87,7 @@ def _request(
     return HTTPResponse(
         status_code=response.status_code,
         content_bytes=b"",
-        apparent_encoding="utf-8",
+        encoding="utf-8",
         is_redirect=bool(response.history),
         url=response.url,
     )

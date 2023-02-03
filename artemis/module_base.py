@@ -2,7 +2,7 @@ import random
 import time
 import traceback
 from abc import abstractmethod
-from typing import Any, List, Optional, cast
+from typing import Optional
 
 import timeout_decorator
 from karton.core import Karton, Task
@@ -109,9 +109,7 @@ class ArtemisBase(Karton):
     def run(self, current_task: Task) -> None:
         raise NotImplementedError()
 
-    def process(self, *args: List[Any]) -> None:
-        current_task = cast(Task, args[0])
-
+    def process(self, current_task: Task) -> None:
         try:
             timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
         except Exception:

@@ -75,9 +75,7 @@ class ArtemisBase(Karton):
         for task_filter in self.filters:
             self.log.info("Binding on: %s", task_filter)
 
-        self.backend.set_consumer_identity(self.identity)
-
-        try:
+        with self.graceful_killer():
             while not self.shutdown:
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
@@ -88,9 +86,6 @@ class ArtemisBase(Karton):
                     self.internal_process(task)
                 else:
                     time.sleep(self.TASK_POLL_INTERVAL_SECONDS)
-        except KeyboardInterrupt as e:
-            self.log.info("Hard shutting down!")
-            raise e
 
     def _consume_random_routed_task(self, identity: str) -> Optional[Task]:
         uid = None

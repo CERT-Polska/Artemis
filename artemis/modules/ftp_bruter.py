@@ -35,7 +35,7 @@ class FTPBruter(ArtemisBase):
 
     identity = "ftp_bruter"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.FTP},
+        {"type": TaskType.SERVICE.value, "service": Service.FTP.value},
     ]
 
     def run(self, current_task: Task) -> None:

@@ -17,7 +17,7 @@ class ReverseDNSLookup(ArtemisBase):
 
     identity = "ReverseDNSLookup"
     filters = [
-        {"type": TaskType.IP},
+        {"type": TaskType.IP.value},
     ]
 
     @staticmethod

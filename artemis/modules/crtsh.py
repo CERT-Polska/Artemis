@@ -21,7 +21,7 @@ class CrtshScanner(ArtemisBase):
 
     identity = "crtsh"
     filters = [
-        {"type": TaskType.DOMAIN},
+        {"type": TaskType.DOMAIN.value},
     ]
 
     def query_sql(self, domain: str) -> set[str]:

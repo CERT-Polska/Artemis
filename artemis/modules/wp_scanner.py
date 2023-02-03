@@ -17,7 +17,7 @@ class WordPressScanner(ArtemisBase):
 
     identity = "wp_scanner"
     filters = [
-        {"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
+        {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
 
     def _is_version_insecure(self, version: str) -> bool:

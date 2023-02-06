@@ -162,10 +162,10 @@ class ArtemisBase(Karton):
             except UnknownIPException:
                 result = task.payload["domain"]
         elif task.headers["type"] == TaskType.WEBAPP:
-            host = urllib.parse.urlparse(task.payload["url"]).host
+            host = urllib.parse.urlparse(task.payload["url"]).hostname
             result = self._get_ip_for_locking(host)
         elif task.headers["type"] == TaskType.URL:
-            host = urllib.parse.urlparse(task.payload["url"]).host
+            host = urllib.parse.urlparse(task.payload["url"]).hostname
             result = self._get_ip_for_locking(host)
         elif task.headers["type"] == TaskType.SERVICE:
             result = self._get_ip_for_locking(task.payload["host"])

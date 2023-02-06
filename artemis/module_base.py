@@ -88,11 +88,10 @@ class ArtemisBase(Karton):
                     self.log.info("Binds changed, shutting down.")
                     break
 
+                time.sleep(self.TASK_POLL_INTERVAL_SECONDS)
                 task = self._consume_random_routed_task(self.identity)
                 if task:
                     self.internal_process(task)
-                else:
-                    time.sleep(self.TASK_POLL_INTERVAL_SECONDS)
 
     def _consume_random_routed_task(self, identity: str) -> Optional[Task]:
         uid = None

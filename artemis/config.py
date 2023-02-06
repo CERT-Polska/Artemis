@@ -47,7 +47,7 @@ class Config:
 
     # Amount of times module will try to get a lock on scanned destination (with sleeps inbetween)
     # before rescheduling task for later.
-    SCAN_DESTINATION_LOCK_MAX_TRIES = decouple.config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=5, cast=int)
+    SCAN_DESTINATION_LOCK_MAX_TRIES = decouple.config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
 
     # Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
     # This is the lock default expiry time.

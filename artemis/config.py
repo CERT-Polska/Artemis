@@ -72,6 +72,4 @@ class Config:
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
     # custom port list to scan in CSV form (replaces default list)
-    CUSTOM_PORT_SCANNER_PORTS = decouple.config(
-        "CUSTOM_PORT_SCANNER_PORTS", default="80,443,8011", cast=decouple.Csv(int)
-    )
+    CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))

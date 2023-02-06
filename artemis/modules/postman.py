@@ -16,6 +16,7 @@ from pydantic import BaseModel
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
+from artemis.utils import throttle_request
 
 
 class PostmanResult(BaseModel):
@@ -51,13 +52,17 @@ class Postman(ArtemisBase):
         """
         try:
             local_hostname = Config.POSTMAN_MAIL_FROM.split("@")[1]
-            with SMTP(host, port, local_hostname=local_hostname, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
-                smtp.set_debuglevel(1)
-                smtp.sendmail(
-                    Config.POSTMAN_MAIL_FROM,
-                    Config.POSTMAN_MAIL_TO,
-                    Postman._create_email(Config.POSTMAN_MAIL_FROM, Config.POSTMAN_MAIL_TO, "open-relay"),
-                )
+
+            def check() -> None:
+                with SMTP(host, port, local_hostname=local_hostname, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
+                    smtp.set_debuglevel(1)
+                    smtp.sendmail(
+                        Config.POSTMAN_MAIL_FROM,
+                        Config.POSTMAN_MAIL_TO,
+                        Postman._create_email(Config.POSTMAN_MAIL_FROM, Config.POSTMAN_MAIL_TO, "open-relay"),
+                    )
+
+            throttle_request(check)
         except (SMTPHeloError, SMTPNotSupportedError):
             return False
         except (SMTPSenderRefused, SMTPDataError):
@@ -73,12 +78,18 @@ class Postman(ArtemisBase):
         Tests if SMTP server allows sending as domain to any address.
         """
         try:
-            with SMTP(host, port, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
-                smtp.set_debuglevel(1)
-                mail_from = f"root@{domain}"
-                smtp.sendmail(
-                    mail_from, Config.POSTMAN_MAIL_TO, Postman._create_email(mail_from, Config.POSTMAN_MAIL_TO, "auth")
-                )
+
+            def check() -> None:
+                with SMTP(host, port, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
+                    smtp.set_debuglevel(1)
+                    mail_from = f"root@{domain}"
+                    smtp.sendmail(
+                        mail_from,
+                        Config.POSTMAN_MAIL_TO,
+                        Postman._create_email(mail_from, Config.POSTMAN_MAIL_TO, "auth"),
+                    )
+
+            throttle_request(check)
         except (SMTPHeloError, SMTPNotSupportedError):
             return False
         except (SMTPSenderRefused, SMTPDataError):

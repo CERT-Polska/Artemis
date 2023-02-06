@@ -1,3 +1,4 @@
+import sys
 import time
 from random import uniform
 from typing import Any, Optional
@@ -12,7 +13,8 @@ class ResourceLock:
     def __init__(self, redis: Redis, res_name: str):  # type: ignore[type-arg]
         self.redis = redis
         self.res_name = res_name
-        self.lid = str(uuid4())
+        # we put the argv in the value so that we can know who took the lock
+        self.lid = str(uuid4()) + "_" + repr(sys.argv)
 
     def acquire(self, expiry: Optional[int] = Config.DEFAULT_LOCK_EXPIRY_SECONDS) -> None:
         """

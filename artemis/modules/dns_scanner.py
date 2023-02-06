@@ -21,7 +21,7 @@ class DnsScanner(ArtemisBase):
     """
 
     identity = "dns_scanner"
-    filters = [{"type": TaskType.DOMAIN}]
+    filters = [{"type": TaskType.DOMAIN.value}]
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload(TaskType.DOMAIN)

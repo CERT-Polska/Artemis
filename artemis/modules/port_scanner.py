@@ -78,8 +78,8 @@ class PortScanner(ArtemisBase):
     # matters e.g. for HTTP vhosts).
     identity = "port_scanner"
     filters = [
-        {"type": TaskType.IP},
-        {"type": TaskType.DOMAIN},
+        {"type": TaskType.IP.value},
+        {"type": TaskType.DOMAIN.value},
     ]
 
     @dataclass

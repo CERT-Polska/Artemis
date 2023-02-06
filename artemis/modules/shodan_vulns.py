@@ -59,7 +59,7 @@ class ShodanVulns(ArtemisBase):
     """
 
     identity = "shodan_vulns"
-    filters = [{"type": TaskType.IP}]
+    filters = [{"type": TaskType.IP.value}]
 
     def scan(self, current_task: Task, ip: str) -> None:
         result = ShodanVulnsResult()

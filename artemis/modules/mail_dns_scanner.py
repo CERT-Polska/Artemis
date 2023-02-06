@@ -27,7 +27,7 @@ class MailDNSScanner(ArtemisBase):
     """
 
     identity = "mail_dns_scanner"
-    filters = [{"type": TaskType.DOMAIN}]
+    filters = [{"type": TaskType.DOMAIN.value}]
 
     @staticmethod
     def is_smtp_server(host: str, port: int) -> bool:

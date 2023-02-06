@@ -10,7 +10,7 @@ fastapi==0.89.1
 h11==0.14.0
 idna==3.4
 Jinja2==3.1.2
-karton-core==4.4.1
+karton-core==5.0.0
 liccheck==0.8.3
 MarkupSafe==2.1.2
 minio==7.1.13

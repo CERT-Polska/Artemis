@@ -19,7 +19,7 @@ class Nuclei(ArtemisBase):
 
     identity = "nuclei"
     filters = [
-        {"type": TaskType.URL},
+        {"type": TaskType.URL.value},
     ]
 
     def __init__(self, *args: Any, **kwargs: Any):

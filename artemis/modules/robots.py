@@ -44,7 +44,7 @@ class RobotsScanner(ArtemisBase):
 
     identity = "robots"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.HTTP},
+        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
     def _parse_rule(self, line: str, pattern: Pattern[str]) -> Optional[str]:

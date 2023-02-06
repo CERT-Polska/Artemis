@@ -26,6 +26,8 @@ class Nuclei(ArtemisBase):
         super().__init__(*args, **kwargs)
         subprocess.call(["nuclei", "-update-templates"])
         self._critical_templates = subprocess.check_output(["nuclei", "-s", "critical", "-tl"]).decode("ascii").split()
+        if len(self._critical_templates) == 0:
+            raise Exception("Unable to obtain Nuclei critical templates list")
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]
@@ -37,7 +39,9 @@ class Nuclei(ArtemisBase):
         if "<title>phpMyAdmin</title>" in content:
             templates.append("default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
 
+        self.log.info(f"path is {urllib.parse.urlparse(target).path}")
         if urllib.parse.urlparse(target).path.strip("/") == "":
+            self.log.info(f"adding {len(self._critical_templates)} critical templates")
             templates.extend(self._critical_templates)
 
         self.log.info(f"nuclei: running {len(templates)} templates on {target}")
@@ -65,6 +69,8 @@ class Nuclei(ArtemisBase):
                 "-resolvers",
                 "/dev/null",
                 "-system-resolvers",
+                "-timeout",
+                str(Config.REQUEST_TIMEOUT_SECONDS),
                 "-spr",
                 str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
             ] + additional_configuration

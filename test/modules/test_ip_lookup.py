@@ -37,7 +37,7 @@ class IPLookupTest(ArtemisModuleTestCase):
     def test_invalid_url(self) -> None:
         task = Task(
             {"type": TaskType.DOMAIN},
-            payload_persistent={TaskType.DOMAIN.value: "INVALID_DATA"},
+            payload={TaskType.DOMAIN.value: "INVALID_DATA"},
         )
 
         results = self.run_task(task)

@@ -115,16 +115,14 @@ class ArtemisBase(Karton):
         This saves task into the DB.
         """
         new_task = Task(
+            uid=task.uid,
             headers=task.headers,
             payload=task.payload,
             payload_persistent=task.payload_persistent,
             priority=task.priority,
             parent_uid=task.parent_uid,
         )
-        # this doesn't need to use self.add_task
-        if self.db.save_scheduled_task(new_task):
-            self.send_task(new_task)
-
+        self.send_task(new_task)
         self.db.save_task_result(task=task, status=TaskStatus.RESCHEDULED, data=traceback.format_exc())
 
     @abstractmethod
@@ -132,12 +130,18 @@ class ArtemisBase(Karton):
         raise NotImplementedError()
 
     def process(self, current_task: Task) -> None:
-        lock = ResourceLock(Config.REDIS, f"lock-{self._get_scan_destination(current_task)}")
+        scan_destination = self._get_scan_destination(current_task)
+
+        lock = ResourceLock(Config.REDIS, f"lock-{scan_destination}")
+
         try:
             lock.acquire(max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES)
         except FailedToAcquireLockException:
+            self.log.info("Rescheduling task %s (destination=%s)", current_task.uid, scan_destination)
             self.reschedule_task(current_task)
             return
+
+        self.log.info("Succeeded to lock task %s (destination=%s)", current_task.uid, scan_destination)
 
         try:
             timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()

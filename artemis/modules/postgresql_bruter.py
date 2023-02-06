@@ -28,7 +28,7 @@ class PostgreSQLBruter(ArtemisBase):
 
     identity = "postgresql_bruter"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.POSTGRES},
+        {"type": TaskType.SERVICE.value, "service": Service.POSTGRES.value},
     ]
 
     def run(self, current_task: Task) -> None:

@@ -28,7 +28,7 @@ class Classifier(ArtemisBase):
 
     identity = "classifier"
     filters = [
-        {"type": TaskType.NEW},
+        {"type": TaskType.NEW.value},
     ]
 
     @staticmethod

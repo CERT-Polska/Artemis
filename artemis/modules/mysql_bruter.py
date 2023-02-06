@@ -28,7 +28,7 @@ class MySQLBruter(ArtemisBase):
 
     identity = "mysql_bruter"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.MYSQL},
+        {"type": TaskType.SERVICE.value, "service": Service.MYSQL.value},
     ]
 
     def run(self, current_task: Task) -> None:

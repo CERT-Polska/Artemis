@@ -32,7 +32,7 @@ class Postman(ArtemisBase):
 
     identity = "postman"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.SMTP},
+        {"type": TaskType.SERVICE.value, "service": Service.SMTP.value},
     ]
 
     @staticmethod

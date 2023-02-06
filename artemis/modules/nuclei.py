@@ -19,7 +19,7 @@ class Nuclei(ArtemisBase):
 
     identity = "nuclei"
     filters = [
-        {"type": TaskType.URL},
+        {"type": TaskType.URL.value},
     ]
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -55,6 +55,8 @@ class Nuclei(ArtemisBase):
         with lock_requests_for_ip(get_ip_for_locking(host)):
             command = [
                 "nuclei",
+                "-disable-update-check",
+                "-ni",
                 "-target",
                 target,
                 "-templates",

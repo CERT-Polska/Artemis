@@ -30,7 +30,7 @@ class WordPressBruter(ArtemisBase):
 
     identity = "wordpress_bruter"
     filters = [
-        {"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
+        {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
 
     def run(self, current_task: Task) -> None:

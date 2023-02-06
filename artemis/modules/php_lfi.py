@@ -38,7 +38,7 @@ class PHPLFIScanner(ArtemisBase):
 
     identity = "php_lfi"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.HTTP},
+        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
     def scan(self, current_task: Task, url: str) -> None:

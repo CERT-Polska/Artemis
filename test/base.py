@@ -3,11 +3,11 @@ import socket
 from typing import List, Tuple
 from unittest.mock import MagicMock, patch
 
-from karton.core.test import ConfigMock, KartonBackendMock, KartonTestCase
+from karton.core.test import BackendMock, ConfigMock, KartonTestCase
 from redis import StrictRedis
 
 
-class KartonBackendMockWithRedis(KartonBackendMock):
+class KartonBackendMockWithRedis(BackendMock):
     def __init__(self) -> None:
         super().__init__()
 

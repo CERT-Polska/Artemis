@@ -114,16 +114,7 @@ class ArtemisBase(Karton):
         In that case, we "reschedule" task for later execution to not block the karton instance.
         This saves task into the DB.
         """
-        new_task = Task(
-            uid=task.uid,
-            headers=task.headers,
-            payload=task.payload,
-            payload_persistent=task.payload_persistent,
-            priority=task.priority,
-            parent_uid=task.parent_uid,
-        )
-        self.send_task(new_task)
-        self.db.save_task_result(task=task, status=TaskStatus.RESCHEDULED, data=traceback.format_exc())
+        self.backend.produce_routed_task(self.identity, task)
 
     @abstractmethod
     def run(self, current_task: Task) -> None:

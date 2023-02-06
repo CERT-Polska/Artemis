@@ -122,7 +122,7 @@ class Bruter(ArtemisBase):
 
         random_paths = list(FILENAMES_TO_SCAN)
         random.shuffle(random_paths)
-        random_paths = random_paths[: Config.BRUTER_NUM_RANDOM_PATHS_TO_USE]
+        random_paths = ["config.dist"] + random_paths[: Config.BRUTER_NUM_RANDOM_PATHS_TO_USE]
 
         top_paths = [path for _, path in top_counts_and_paths]
         paths_to_scan = set(random_paths) | set(top_paths)

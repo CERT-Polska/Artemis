@@ -37,8 +37,6 @@ class Config:
     # default request timeout (for all protocols)
     REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 
-    # These two limits are independent - whether the port scanning limits are used doesn't affect
-    # the requests limit and vice versa.
     SECONDS_PER_REQUEST_FOR_ONE_IP = decouple.config("SECONDS_PER_REQUEST_FOR_ONE_IP", default=2, cast=int)
     SCANNING_PACKETS_PER_SECOND_PER_IP = decouple.config("SCANNING_PACKETS_PER_SECOND_PER_IP", default=2, cast=int)
 
@@ -74,4 +72,6 @@ class Config:
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
     # custom port list to scan in CSV form (replaces default list)
-    CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
+    CUSTOM_PORT_SCANNER_PORTS = decouple.config(
+        "CUSTOM_PORT_SCANNER_PORTS", default="80,443,8011", cast=decouple.Csv(int)
+    )

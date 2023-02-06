@@ -23,7 +23,7 @@ class ArtemisModuleTestCase(KartonTestCase):
         # Unfortunately, in the context of a test that is about to run and a respective module has already been
         # imported, to mock ip_lookup we need to mock it in modules it has been imported to,
         # so we need to enumerate the locations it's used in in the list below.
-        for item in ["artemis.module_base.ip_lookup"]:
+        for item in ["artemis.module_base.ip_lookup", "artemis.modules.port_scanner.ip_lookup"]:
             # We cannot use Artemis default DoH resolvers as they wouldn't be able to resolve
             # internal test services' addresses.
             self._ip_lookup_mock = patch(item, MagicMock(side_effect=lambda host: {socket.gethostbyname(host)}))

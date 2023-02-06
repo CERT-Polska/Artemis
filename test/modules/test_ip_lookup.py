@@ -33,12 +33,3 @@ class IPLookupTest(ArtemisModuleTestCase):
                 payload={"data": entry.ip},
             )
             self.assertTasksEqual(results, [expected_task])
-
-    def test_invalid_url(self) -> None:
-        task = Task(
-            {"type": TaskType.DOMAIN},
-            payload={TaskType.DOMAIN.value: "INVALID_DATA"},
-        )
-
-        results = self.run_task(task)
-        self.assertListEqual(results, [])

@@ -42,15 +42,14 @@ class Config:
     SECONDS_PER_REQUEST_FOR_ONE_IP = decouple.config("SECONDS_PER_REQUEST_FOR_ONE_IP", default=2, cast=int)
     SCANNING_PACKETS_PER_SECOND_PER_IP = decouple.config("SCANNING_PACKETS_PER_SECOND_PER_IP", default=2, cast=int)
 
-    # When a resource is locked using artemis.resource_lock.ResourceLock or
-    # artemis.resource_lock.AsyncResourceLock, a retry will be performed in the
+    # When a resource is locked using artemis.resource_lock.ResourceLock, a retry will be performed in the
     # next LOCK_SLEEP_MIN_SECONDS..LOCK_SLEEP_MAX_SECONDS seconds.
     LOCK_SLEEP_MIN_SECONDS = decouple.config("LOCK_SLEEP_MIN_SECONDS", default=0.1, cast=float)
     LOCK_SLEEP_MAX_SECONDS = decouple.config("LOCK_SLEEP_MAX_SECONDS", default=1, cast=float)
 
-    # Amount of times module will try to get a lock (with sleeps inbetween)
+    # Amount of times module will try to get a lock on scanned destination (with sleeps inbetween)
     # before rescheduling task for later.
-    LOCK_RETRY_MAX = decouple.config("LOCK_RETRY_MAX", default=5, cast=int)
+    SCAN_DESTINATION_LOCK_MAX_TRIES = decouple.config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=5, cast=int)
 
     # Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
     # This is the lock default expiry time.

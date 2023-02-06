@@ -7,12 +7,10 @@ from typing import Any, Dict
 
 from karton.core import Task
 
-from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
-from artemis.resource_lock import ResourceLock
 from artemis.task_utils import get_target
 
 if Config.CUSTOM_PORT_SCANNER_PORTS:
@@ -96,28 +94,27 @@ class PortScanner(ArtemisBase):
             return json.loads(cache)  # type: ignore
 
         self.log.info(f"scanning {target_ip}")
-        with ResourceLock(redis=Config.REDIS, res_name="port_scanner-" + target_ip):
-            naabu = subprocess.Popen(
-                (
-                    "naabu",
-                    "-host",
-                    target_ip,
-                    "-port",
-                    ",".join(map(str, PORTS)),
-                    "-silent",
-                    "-rate",
-                    str(Config.SCANNING_PACKETS_PER_SECOND_PER_IP),
-                ),
-                stdout=subprocess.PIPE,
-            )
-            # We don't use `wait()` because of the following warning in the doc:
-            #
-            # This will deadlock when using stdout=PIPE and/or stderr=PIPE and the child process generates enough
-            # output to a pipe such that it blocks waiting for the OS pipe buffer to accept more data. Use
-            # communicate() to avoid that.
-            stdout, stderr = naabu.communicate()
-            if stderr:
-                self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
+        naabu = subprocess.Popen(
+            (
+                "naabu",
+                "-host",
+                target_ip,
+                "-port",
+                ",".join(map(str, PORTS)),
+                "-silent",
+                "-rate",
+                str(Config.SCANNING_PACKETS_PER_SECOND_PER_IP),
+            ),
+            stdout=subprocess.PIPE,
+        )
+        # We don't use `wait()` because of the following warning in the doc:
+        #
+        # This will deadlock when using stdout=PIPE and/or stderr=PIPE and the child process generates enough
+        # output to a pipe such that it blocks waiting for the OS pipe buffer to accept more data. Use
+        # communicate() to avoid that.
+        stdout, stderr = naabu.communicate()
+        if stderr:
+            self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
 
         result: Dict[str, Dict[str, Any]] = {}
         if stdout:
@@ -131,7 +128,6 @@ class PortScanner(ArtemisBase):
 
             ip, _ = line.split(b":")
 
-            request_limit.limit_requests_for_ip(ip.decode("ascii"))
             output = subprocess.check_output(["fingerprintx", "--json"], input=line).strip()
 
             if not output:

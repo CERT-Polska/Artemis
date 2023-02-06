@@ -1,17 +1,24 @@
 import random
 import time
 import traceback
+import urllib.parse
 from abc import abstractmethod
+from ipaddress import ip_address
 from typing import Optional
 
 import timeout_decorator
 from karton.core import Karton, Task
 
-from artemis.binds import TaskStatus
+from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.db import DB
 from artemis.redis_cache import RedisCache
-from artemis.resource_lock import ResourceLock, RescheduleException
+from artemis.resolvers import ip_lookup
+from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
+
+
+class UnknownIPException(Exception):
+    pass
 
 
 class ArtemisBase(Karton):
@@ -108,26 +115,80 @@ class ArtemisBase(Karton):
         This saves task into the DB.
         """
         new_task = Task(
-                headers=task.headers,
-                payload=task.payload,
-                payload_persistent=task.payload_persistent,
-                priority=task.priority,
-                parent_uid=task.parent)
+            headers=task.headers,
+            payload=task.payload,
+            payload_persistent=task.payload_persistent,
+            priority=task.priority,
+            parent_uid=task.parent_uid,
+        )
         # this doesn't need to use self.add_task
         if self.db.save_scheduled_task(new_task):
             self.send_task(new_task)
 
-        self.db.save_task_result(task=current_task, status=TaskStatus.RESCHEDULED, data=traceback.format_exc())
+        self.db.save_task_result(task=task, status=TaskStatus.RESCHEDULED, data=traceback.format_exc())
 
     @abstractmethod
     def run(self, current_task: Task) -> None:
         raise NotImplementedError()
 
     def process(self, current_task: Task) -> None:
+        lock = ResourceLock(Config.REDIS, f"lock-{self._get_scan_destination(current_task)}")
+        try:
+            lock.acquire(max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES)
+        except FailedToAcquireLockException:
+            self.reschedule_task(current_task)
+            return
+
         try:
             timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
-        except RescheduleException:
-            self.reschedule_task(current_task)
         except Exception:
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
+        finally:
+            lock.release()
+
+    def _get_scan_destination(self, task: Task) -> str:
+        result = None
+        if task.headers["type"] == TaskType.NEW:
+            result = task.payload["data"]
+        elif task.headers["type"] == TaskType.IP:
+            result = task.payload["ip"]
+        elif task.headers["type"] == TaskType.DOMAIN:
+            # This is an approximation. Sometimes, when we scan domain, we actually scan the IP the domain
+            # resolves to (e.g. in port_scan karton), sometimes the domain itself (e.g. the DNS kartons) or
+            # even the MX servers. Therefore this will not map 1:1 to the actual host being scanned.
+            try:
+                result = self._get_ip_for_locking(task.payload["domain"])
+            except UnknownIPException:
+                result = task.payload["domain"]
+        elif task.headers["type"] == TaskType.WEBAPP:
+            host = urllib.parse.urlparse(task.payload["url"]).host
+            result = self._get_ip_for_locking(host)
+        elif task.headers["type"] == TaskType.URL:
+            host = urllib.parse.urlparse(task.payload["url"]).host
+            result = self._get_ip_for_locking(host)
+        elif task.headers["type"] == TaskType.SERVICE:
+            result = self._get_ip_for_locking(task.payload["host"])
+
+        assert isinstance(result, str)
+        return result
+
+    def _get_ip_for_locking(self, host: str) -> str:
+        try:
+            # if this doesn't throw then we have an IP address
+            ip_address(host)
+            return host
+        except ValueError:
+            pass
+
+        # Here, we use the the DoH resolvers so that we don't leak information if using proxies.
+        # There is a chance that the IP returned here (chosen randomly from a set of IP adresses)
+        # would be different from the one chosen for the actual connection - but we hope that over
+        # time and across multiple scanner instances the overall load would be approximately similar
+        # to one request per Config.SECONDS_PER_REQUEST_FOR_ONE_IP.
+        ip_addresses = list(ip_lookup(host))
+
+        if not ip_addresses:
+            raise UnknownIPException(f"Unknown IP for host {host}")
+
+        return random.choice(ip_addresses)

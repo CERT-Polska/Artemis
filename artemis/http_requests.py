@@ -1,16 +1,10 @@
 import dataclasses
 import json
-import urllib.parse
 from typing import Any, Dict, Optional
 
 import requests
 
 from artemis.config import Config
-from artemis.request_limit import (
-    UnknownIPException,
-    get_ip_for_locking,
-    limit_requests_for_ip,
-)
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
@@ -18,15 +12,6 @@ if Config.CUSTOM_USER_AGENT:
     HEADERS = {"User-Agent": Config.CUSTOM_USER_AGENT}
 else:
     HEADERS = {}
-
-
-def url_to_ip(url: str) -> str:
-    host = urllib.parse.urlparse(url).hostname
-
-    if not host:
-        raise UnknownIPException(f"Unknown host for URL: {url}")
-
-    return get_ip_for_locking(host)
 
 
 # We create a simple response class that is just a container for a status code and decoded
@@ -60,7 +45,6 @@ def _request(
     cookies: Optional[Dict[str, str]],
     max_size: int = 100_000,
 ) -> HTTPResponse:
-    limit_requests_for_ip(url_to_ip(url))
 
     response = getattr(requests, method_name)(
         url,

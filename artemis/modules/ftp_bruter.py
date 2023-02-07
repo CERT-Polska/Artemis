@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target
+from artemis.utils import throttle_request
 
 BRUTE_CREDENTIALS = [
     ("anonymous", ""),
@@ -54,7 +55,7 @@ class FTPBruter(ArtemisBase):
                 result.welcome = ftp.welcome
 
                 try:
-                    ftp.login(username, password)
+                    throttle_request(lambda: ftp.login(username, password))
                     result.credentials.append((username, password))
                     result.files.extend(ftp.nlst())
                 except ftplib.error_perm:

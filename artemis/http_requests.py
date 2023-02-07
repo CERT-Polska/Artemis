@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 import requests
 
 from artemis.config import Config
+from artemis.utils import throttle_request
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
@@ -45,36 +46,38 @@ def _request(
     cookies: Optional[Dict[str, str]],
     max_size: int = 100_000,
 ) -> HTTPResponse:
+    def _internal_request() -> HTTPResponse:
+        response = getattr(requests, method_name)(
+            url,
+            allow_redirects=allow_redirects,
+            data=data,
+            cookies=cookies,
+            verify=False,
+            stream=True,
+            timeout=Config.REQUEST_TIMEOUT_SECONDS,
+            headers=HEADERS,
+        )
 
-    response = getattr(requests, method_name)(
-        url,
-        allow_redirects=allow_redirects,
-        data=data,
-        cookies=cookies,
-        verify=False,
-        stream=True,
-        timeout=Config.REQUEST_TIMEOUT_SECONDS,
-        headers=HEADERS,
-    )
-
-    # Handling situations where the response is very long, which is not handled by requests timeout
-    for item in response.iter_content(max_size):
-        # Return the first item (at most `max_size` length)
+        # Handling situations where the response is very long, which is not handled by requests timeout
+        for item in response.iter_content(max_size):
+            # Return the first item (at most `max_size` length)
+            return HTTPResponse(
+                status_code=response.status_code,
+                content_bytes=item,
+                encoding=response.encoding,
+                is_redirect=bool(response.history),
+                url=response.url,
+            )
+        # If there was no content, we will fall back to the second statement, which returns an empty string
         return HTTPResponse(
             status_code=response.status_code,
-            content_bytes=item,
-            encoding=response.encoding,
+            content_bytes=b"",
+            encoding="utf-8",
             is_redirect=bool(response.history),
             url=response.url,
         )
-    # If there was no content, we will fall back to the second statement, which returns an empty string
-    return HTTPResponse(
-        status_code=response.status_code,
-        content_bytes=b"",
-        encoding="utf-8",
-        is_redirect=bool(response.history),
-        url=response.url,
-    )
+
+    return throttle_request(_internal_request)  # type: ignore
 
 
 def get(

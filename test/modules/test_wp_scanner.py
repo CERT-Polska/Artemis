@@ -2,7 +2,7 @@ from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
-from artemis.binds import TaskStatus, WebApplication
+from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.modules.wp_scanner import WordPressScanner
 
 
@@ -12,7 +12,7 @@ class WordPressScannerTest(ArtemisModuleTestCase):
 
     def test_no_problems_with_new_version(self) -> None:
         task = Task(
-            {"webapp": WebApplication.WORDPRESS},
+            {"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
             payload={"url": "http://test-wordpress-easy-password/"},
         )
         self.run_task(task)
@@ -21,7 +21,7 @@ class WordPressScannerTest(ArtemisModuleTestCase):
 
     def test_detecting_old_version(self) -> None:
         task = Task(
-            {"webapp": WebApplication.WORDPRESS},
+            {"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
             payload={"url": "http://test-old-wordpress/"},
         )
 

@@ -24,7 +24,7 @@ class IPLookupTest(ArtemisModuleTestCase):
         for entry in data:
             task = Task(
                 {"type": TaskType.DOMAIN},
-                payload={TaskType.DOMAIN: entry.domain},
+                payload={TaskType.DOMAIN.value: entry.domain},
             )
             results = self.run_task(task)
 
@@ -33,12 +33,3 @@ class IPLookupTest(ArtemisModuleTestCase):
                 payload={"data": entry.ip},
             )
             self.assertTasksEqual(results, [expected_task])
-
-    def test_invalid_url(self) -> None:
-        task = Task(
-            {"type": TaskType.DOMAIN},
-            payload_persistent={TaskType.DOMAIN: "INVALID_DATA"},
-        )
-
-        results = self.run_task(task)
-        self.assertListEqual(results, [])

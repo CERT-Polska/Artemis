@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    environment:
+      REDIS_CONN_STR: redis://test-redis:6379/1
     command: python -m unittest discover test.e2e
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image

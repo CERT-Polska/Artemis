@@ -8,13 +8,21 @@ from redis import Redis
 from artemis.config import Config
 
 
+class FailedToAcquireLockException(Exception):
+    """
+    Used to indicate a lock that was not acquired in max_tries attempts.
+    """
+
+
 class ResourceLock:
     def __init__(self, redis: Redis, res_name: str):  # type: ignore[type-arg]
         self.redis = redis
         self.res_name = res_name
         self.lid = str(uuid4())
 
-    def acquire(self, expiry: Optional[int] = Config.DEFAULT_LOCK_EXPIRY_SECONDS) -> None:
+    def acquire(
+        self, expiry: Optional[int] = Config.DEFAULT_LOCK_EXPIRY_SECONDS, max_tries: Optional[int] = None
+    ) -> None:
         """
         Acquires a lock.
 
@@ -25,14 +33,21 @@ class ResourceLock:
         if expiry == 0:
             return
 
-        while True:
+        attempts = 0
+        while max_tries is None or attempts < max_tries:
             if self.redis.set(self.res_name, self.lid, nx=True, ex=expiry):
                 return
-            else:
-                time.sleep(uniform(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
+
+            attempts += 1
+            time.sleep(uniform(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
+
+        raise FailedToAcquireLockException()
+
+    def release(self) -> None:
+        self.redis.delete(self.res_name)
 
     def __enter__(self) -> None:
         self.acquire()
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        self.redis.delete(self.res_name)
+        self.release()

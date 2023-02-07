@@ -38,7 +38,7 @@ class VCSScanner(ArtemisBase):
 
     identity = "vcs"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.HTTP},
+        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
     def _detect_vcs(self, url: str, path: str, patterns: List[str]) -> bool:

@@ -6,7 +6,7 @@ from karton.core.task import TaskState
 
 
 def restart_crashed_tasks() -> None:
-    backend = KartonBackend(config=KartonConfig())  # type: ignore[no-untyped-call]
+    backend = KartonBackend(config=KartonConfig())
     state = KartonState(backend=backend)
 
     for queue in state.queues.values():

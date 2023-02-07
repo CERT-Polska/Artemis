@@ -14,7 +14,7 @@ class HTTPServiceToURL(ArtemisBase):
 
     identity = "http_service_to_url"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.HTTP},
+        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
     def _process(self, current_task: Task, url: str) -> None:

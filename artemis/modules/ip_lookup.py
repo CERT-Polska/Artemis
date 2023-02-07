@@ -13,7 +13,7 @@ class IPLookup(ArtemisBase):
 
     identity = "IPLookup"
     filters = [
-        {"type": TaskType.DOMAIN},
+        {"type": TaskType.DOMAIN.value},
     ]
 
     def _process(self, current_task: Task, domain: str) -> None:

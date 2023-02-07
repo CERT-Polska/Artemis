@@ -29,7 +29,7 @@ class WebappIdentifier(ArtemisBase):
 
     identity = "webapp_identifier"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.HTTP},
+        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
     @staticmethod

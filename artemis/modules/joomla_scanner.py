@@ -19,7 +19,7 @@ class JoomlaScanner(ArtemisBase):
 
     identity = "joomla_scanner"
     filters = [
-        {"type": TaskType.WEBAPP, "webapp": WebApplication.JOOMLA},
+        {"type": TaskType.WEBAPP.value, "webapp": WebApplication.JOOMLA.value},
     ]
 
     # This is a heuristic so that we can avoid parsing CVE list

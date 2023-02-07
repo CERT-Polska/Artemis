@@ -99,7 +99,7 @@ class Bruter(ArtemisBase):
 
     identity = "bruter"
     filters = [
-        {"type": TaskType.SERVICE, "service": Service.HTTP},
+        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
     def scan(self, task: Task) -> BruterResult:

@@ -27,7 +27,7 @@ def list_analysis() -> List[Dict[str, Any]]:
 def num_queued_tasks() -> int:
     # We check the backend redis queue length directly to avoid the long runtimes of
     # KartonState.get_all_tasks()
-    backend = KartonBackend(config=KartonConfig())  # type: ignore[no-untyped-call]
+    backend = KartonBackend(config=KartonConfig())
     return sum([backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")])
 
 

@@ -7,10 +7,10 @@ import dns.resolver
 from karton.core import Task
 from pydantic import BaseModel
 
-from artemis import request_limit
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
+from artemis.utils import throttle_request
 
 
 class MailDNSScannerResult(BaseModel):
@@ -31,18 +31,20 @@ class MailDNSScanner(ArtemisBase):
 
     @staticmethod
     def is_smtp_server(host: str, port: int) -> bool:
-        request_limit.limit_requests_for_host(host)
-        smtp = SMTP(timeout=1)
-        try:
-            smtp.connect(host, port=port)
-            smtp.close()
-            return True
-        except socket.timeout:
-            return False
-        except ConnectionRefusedError:
-            return False
-        except SMTPServerDisconnected:
-            return False
+        def test() -> bool:
+            smtp = SMTP(timeout=1)
+            try:
+                smtp.connect(host, port=port)
+                smtp.close()
+                return True
+            except socket.timeout:
+                return False
+            except ConnectionRefusedError:
+                return False
+            except SMTPServerDisconnected:
+                return False
+
+        return throttle_request(test)  # type: ignore
 
     def scan(self, current_task: Task, domain: str) -> MailDNSScannerResult:
         result = MailDNSScannerResult()

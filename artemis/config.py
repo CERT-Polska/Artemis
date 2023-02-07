@@ -13,7 +13,10 @@ class Config:
 
     ALLOW_SCANNING_PUBLIC_SUFFIXES = decouple.config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
 
-    TASK_TIMEOUT_SECONDS = 3600
+    # additional domains that will be treated as public suffixes (even though they're not on the default Public Suffix List)
+    ADDITIONAL_PUBLIC_SUFFIXES = decouple.config("ADDITIONAL_PUBLIC_SUFFIXES", default="", cast=decouple.Csv(str))
+
+    TASK_TIMEOUT_SECONDS = 24 * 3600
 
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches
     # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to
@@ -37,16 +40,17 @@ class Config:
     # default request timeout (for all protocols)
     REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 
-    # These two limits are independent - whether the port scanning limits are used doesn't affect
-    # the requests limit and vice versa.
     SECONDS_PER_REQUEST_FOR_ONE_IP = decouple.config("SECONDS_PER_REQUEST_FOR_ONE_IP", default=2, cast=int)
     SCANNING_PACKETS_PER_SECOND_PER_IP = decouple.config("SCANNING_PACKETS_PER_SECOND_PER_IP", default=2, cast=int)
 
-    # When a resource is locked using artemis.resource_lock.ResourceLock or
-    # artemis.resource_lock.AsyncResourceLock, a retry will be performed in the
+    # When a resource is locked using artemis.resource_lock.ResourceLock, a retry will be performed in the
     # next LOCK_SLEEP_MIN_SECONDS..LOCK_SLEEP_MAX_SECONDS seconds.
     LOCK_SLEEP_MIN_SECONDS = decouple.config("LOCK_SLEEP_MIN_SECONDS", default=0.1, cast=float)
     LOCK_SLEEP_MAX_SECONDS = decouple.config("LOCK_SLEEP_MAX_SECONDS", default=1, cast=float)
+
+    # Amount of times module will try to get a lock on scanned destination (with sleeps inbetween)
+    # before rescheduling task for later.
+    SCAN_DESTINATION_LOCK_MAX_TRIES = decouple.config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
 
     # Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
     # This is the lock default expiry time.
@@ -59,8 +63,8 @@ class Config:
     # Each bruter scan would consist of BRUTER_NUM_TOP_PATHS_TO_USE most popular paths that existed on the servers
     # and BRUTER_NUM_RANDOM_PATHS_TO_USE random paths so that we explore random paths from the list to know what
     # would be the most popular paths.
-    BRUTER_NUM_TOP_PATHS_TO_USE = decouple.config("BRUTER_NUM_TOP_PATHS_TO_USE", default=600, cast=int)
-    BRUTER_NUM_RANDOM_PATHS_TO_USE = decouple.config("BRUTER_NUM_RANDOM_PATHS_TO_USE", default=400, cast=int)
+    BRUTER_NUM_TOP_PATHS_TO_USE = decouple.config("BRUTER_NUM_TOP_PATHS_TO_USE", default=800, cast=int)
+    BRUTER_NUM_RANDOM_PATHS_TO_USE = decouple.config("BRUTER_NUM_RANDOM_PATHS_TO_USE", default=600, cast=int)
 
     # We save response content in some cases - in order not to overload the DB, this determines how long
     # the saved content would be.

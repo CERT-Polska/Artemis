@@ -9,7 +9,6 @@ from karton.core import Task
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
-from artemis.request_limit import get_ip_for_locking, lock_requests_for_ip
 
 
 class Nuclei(ArtemisBase):
@@ -55,30 +54,28 @@ class Nuclei(ArtemisBase):
         else:
             additional_configuration = []
 
-        host = urllib.parse.urlparse(target).hostname
-        with lock_requests_for_ip(get_ip_for_locking(host)):
-            command = [
-                "nuclei",
-                "-disable-update-check",
-                "-ni",
-                "-target",
-                target,
-                "-templates",
-                ",".join(templates),
-                "-json",
-                "-resolvers",
-                "/dev/null",
-                "-system-resolvers",
-                "-timeout",
-                str(Config.REQUEST_TIMEOUT_SECONDS),
-                "-spr",
-                str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
-            ] + additional_configuration
+        command = [
+            "nuclei",
+            "-disable-update-check",
+            "-ni",
+            "-target",
+            target,
+            "-templates",
+            ",".join(templates),
+            "-timeout",
+            str(Config.REQUEST_TIMEOUT_SECONDS),
+            "-json",
+            "-resolvers",
+            "/dev/null",
+            "-system-resolvers",
+            "-spr",
+            str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
+        ] + additional_configuration
 
-            data = subprocess.check_output(
-                command,
-                stderr=subprocess.DEVNULL,
-            )
+        data = subprocess.check_output(
+            command,
+            stderr=subprocess.DEVNULL,
+        )
 
         result = []
         messages = []

@@ -1,16 +1,11 @@
 import dataclasses
 import json
-import urllib.parse
 from typing import Any, Dict, Optional
 
 import requests
 
 from artemis.config import Config
-from artemis.request_limit import (
-    UnknownIPException,
-    get_ip_for_locking,
-    limit_requests_for_ip,
-)
+from artemis.utils import throttle_request
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
@@ -18,15 +13,6 @@ if Config.CUSTOM_USER_AGENT:
     HEADERS = {"User-Agent": Config.CUSTOM_USER_AGENT}
 else:
     HEADERS = {}
-
-
-def url_to_ip(url: str) -> str:
-    host = urllib.parse.urlparse(url).hostname
-
-    if not host:
-        raise UnknownIPException(f"Unknown host for URL: {url}")
-
-    return get_ip_for_locking(host)
 
 
 # We create a simple response class that is just a container for a status code and decoded
@@ -60,37 +46,38 @@ def _request(
     cookies: Optional[Dict[str, str]],
     max_size: int = 100_000,
 ) -> HTTPResponse:
-    limit_requests_for_ip(url_to_ip(url))
+    def _internal_request() -> HTTPResponse:
+        response = getattr(requests, method_name)(
+            url,
+            allow_redirects=allow_redirects,
+            data=data,
+            cookies=cookies,
+            verify=False,
+            stream=True,
+            timeout=Config.REQUEST_TIMEOUT_SECONDS,
+            headers=HEADERS,
+        )
 
-    response = getattr(requests, method_name)(
-        url,
-        allow_redirects=allow_redirects,
-        data=data,
-        cookies=cookies,
-        verify=False,
-        stream=True,
-        timeout=Config.REQUEST_TIMEOUT_SECONDS,
-        headers=HEADERS,
-    )
-
-    # Handling situations where the response is very long, which is not handled by requests timeout
-    for item in response.iter_content(max_size):
-        # Return the first item (at most `max_size` length)
+        # Handling situations where the response is very long, which is not handled by requests timeout
+        for item in response.iter_content(max_size):
+            # Return the first item (at most `max_size` length)
+            return HTTPResponse(
+                status_code=response.status_code,
+                content_bytes=item,
+                encoding=response.encoding,
+                is_redirect=bool(response.history),
+                url=response.url,
+            )
+        # If there was no content, we will fall back to the second statement, which returns an empty string
         return HTTPResponse(
             status_code=response.status_code,
-            content_bytes=item,
-            encoding=response.encoding,
+            content_bytes=b"",
+            encoding="utf-8",
             is_redirect=bool(response.history),
             url=response.url,
         )
-    # If there was no content, we will fall back to the second statement, which returns an empty string
-    return HTTPResponse(
-        status_code=response.status_code,
-        content_bytes=b"",
-        encoding="utf-8",
-        is_redirect=bool(response.history),
-        url=response.url,
-    )
+
+    return throttle_request(_internal_request)  # type: ignore
 
 
 def get(

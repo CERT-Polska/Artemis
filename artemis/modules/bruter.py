@@ -44,6 +44,7 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
             [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
             + [
                 "backup.tar.gz",
+                # Nginx merge_slashes path traversal
                 "///////../../../etc/passwd",
                 "db.sql",
                 "backup.sql",

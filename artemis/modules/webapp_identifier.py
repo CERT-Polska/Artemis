@@ -50,17 +50,16 @@ class WebappIdentifier(ArtemisBase):
     def _process(self, current_task: Task, url: str) -> None:
         application = self._identify(url)
 
-        if application != WebApplication.UNKNOWN:
-            new_task = Task(
-                {
-                    "type": TaskType.WEBAPP,
-                    "webapp": application,
-                },
-                payload={
-                    "url": url,
-                },
-            )
-            self.add_task(current_task, new_task)
+        new_task = Task(
+            {
+                "type": TaskType.WEBAPP,
+                "webapp": application,
+            },
+            payload={
+                "url": url,
+            },
+        )
+        self.add_task(current_task, new_task)
 
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=application)
 

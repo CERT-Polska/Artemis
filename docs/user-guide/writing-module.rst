@@ -1,5 +1,5 @@
 Writing custom modules
-===================
+======================
 
 Since Artemis uses karton underneath, modules are karton services:
 
@@ -61,12 +61,23 @@ You may want to create resource locks during development. Such example is shodan
 HTTP requests
 -------------
 
-To prevent Artemis from disrupting scanned services, Artemis introduces request limiting. For this reason all HTTP requests should be performed using ``get`` and ``post`` methods from `http_requests.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/http_requests.py>`_.
 
 DNS requests
 ------------
 
 All DNS requests are performed by default using DNS-Over-HTTPS. This is done to avoid leaking DNS queries in case of tunneling Artemis requests via TCP proxy such as SOCKS5. DNS requests should be performed using ``ip_lookup`` from `resolvers.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/resolvers.py>`_.
+
+Outgoing requests limiting
+--------------------------
+
+To prevent Artemis from disrupting scanned services, Artemis introduces request limiting. This is why all modules should use ``throttle_request`` function from ``artemis.utils`` while performing requests.
+
+.. code-block:: python
+
+    throttle_request(lambda: ftp.login(username, password))
+
+
+Artemis provides helper functions for HTTP requests: ``get`` and ``post`` methods from `http_requests.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/http_requests.py>`_.
 
 Going even further
 ------------------

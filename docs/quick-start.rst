@@ -17,7 +17,7 @@ To start Artemis simply execute following 2 commands in your terminal:
 
 After that you should be able to access Artemis dashboard at ``localhost:5000``.
 
-.. node ::
+.. note ::
    If you get error that ``docker compose`` is not a valid command, try ``docker-compose``.
 
 Adding target to scan

@@ -40,6 +40,8 @@ extensions = [
     "sphinx_rtd_theme",
     "IPython.sphinxext.ipython_console_highlighting",
     "sphinx.ext.graphviz",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary"
 ]
 
 graphviz_output_format = 'svg'

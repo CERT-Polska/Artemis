@@ -8,6 +8,7 @@ from typing import Optional
 
 import timeout_decorator
 from karton.core import Karton, Task
+from karton.core.task import TaskState as KartonTaskState
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
@@ -92,6 +93,7 @@ class ArtemisBase(Karton):
                 task = self._consume_random_routed_task(self.identity)
                 if task:
                     self.internal_process(task)
+        self.log.info("Exiting loop, shutdown={self.shutdown}")
 
     def _consume_random_routed_task(self, identity: str) -> Optional[Task]:
         uid = None
@@ -113,13 +115,14 @@ class ArtemisBase(Karton):
         In that case, we "reschedule" task for later execution to not block the karton instance.
         This saves task into the DB.
         """
+        task.status = KartonTaskState.DECLARED
         self.backend.produce_routed_task(self.identity, task)
 
     @abstractmethod
     def run(self, current_task: Task) -> None:
         raise NotImplementedError()
 
-    def process(self, current_task: Task) -> None:
+    def internal_process(self, current_task: Task) -> None:
         scan_destination = self._get_scan_destination(current_task)
 
         lock = ResourceLock(Config.REDIS, f"lock-{scan_destination}")
@@ -127,19 +130,33 @@ class ArtemisBase(Karton):
         try:
             lock.acquire(max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES)
         except FailedToAcquireLockException:
-            self.log.info("Rescheduling task %s (destination=%s)", current_task.uid, scan_destination)
+            self.log.info(
+                "Rescheduling task %s (orig_uid=%s destination=%s)",
+                current_task.uid,
+                current_task.orig_uid,
+                scan_destination,
+            )
             self.reschedule_task(current_task)
             return
 
-        self.log.info("Succeeded to lock task %s (destination=%s)", current_task.uid, scan_destination)
+        self.log.info(
+            "Succeeded to lock task %s (orig_uid=%s destination=%s)",
+            current_task.uid,
+            current_task.orig_uid,
+            scan_destination,
+        )
 
+        try:
+            super().internal_process(current_task)
+        finally:
+            lock.release()
+
+    def process(self, current_task: Task) -> None:
         try:
             timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
         except Exception:
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
-        finally:
-            lock.release()
 
     def _get_scan_destination(self, task: Task) -> str:
         result = None
@@ -180,7 +197,10 @@ class ArtemisBase(Karton):
         # would be different from the one chosen for the actual connection - but we hope that over
         # time and across multiple scanner instances the overall load would be approximately similar
         # to one request per Config.SECONDS_PER_REQUEST_FOR_ONE_IP.
-        ip_addresses = list(ip_lookup(host))
+        try:
+            ip_addresses = list(ip_lookup(host))
+        except Exception as e:
+            raise UnknownIPException(f"Exception while trying to obtain IP for host {host}", e)
 
         if not ip_addresses:
             raise UnknownIPException(f"Unknown IP for host {host}")

@@ -174,12 +174,21 @@ class ArtemisBase(Karton):
                 result = task.payload["domain"]
         elif task.headers["type"] == TaskType.WEBAPP:
             host = urllib.parse.urlparse(task.payload["url"]).hostname
-            result = self._get_ip_for_locking(host)
+            try:
+                result = self._get_ip_for_locking(host)
+            except UnknownIPException:
+                result = host
         elif task.headers["type"] == TaskType.URL:
             host = urllib.parse.urlparse(task.payload["url"]).hostname
-            result = self._get_ip_for_locking(host)
+            try:
+                result = self._get_ip_for_locking(host)
+            except UnknownIPException:
+                result = host
         elif task.headers["type"] == TaskType.SERVICE:
-            result = self._get_ip_for_locking(task.payload["host"])
+            try:
+                result = self._get_ip_for_locking(task.payload["host"])
+            except UnknownIPException:
+                result = task.payload["host"]
 
         assert isinstance(result, str)
         return result

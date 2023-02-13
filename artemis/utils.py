@@ -1,8 +1,18 @@
 import logging
+import subprocess
+import sys
 import time
-from typing import Any, Callable
+from typing import Any, Callable, List
 
 from artemis.config import Config
+
+
+def check_output_and_print_content_on_error(command: List[str], **kwargs: Any) -> bytes:
+    try:
+        return subprocess.check_output(command, stderr=subprocess.PIPE, **kwargs)  # type: ignore
+    except subprocess.CalledProcessError as e:
+        sys.stderr.write(e.stderr.decode("ascii", errors="ignore") + "\n")
+        raise
 
 
 def build_logger(name: str) -> logging.Logger:

@@ -164,6 +164,7 @@ class DB:
         """
         created_task = {
             "uid": task.uid,
+            "created_at": datetime.datetime.now(),
             "analysis_id": task.root_uid,
             "deduplication_data": self._get_task_deduplication_data(task),
         }

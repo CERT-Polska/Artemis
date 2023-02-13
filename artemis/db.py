@@ -163,10 +163,18 @@ class DB:
         The purpose of this method is deduplication - making sure identical tasks aren't run twice.
         """
         created_task = {
+            "uid": task.uid,
             "analysis_id": task.root_uid,
             "deduplication_data": self._get_task_deduplication_data(task),
         }
-        result = self.scheduled_tasks.update_one(created_task, {"$set": created_task}, upsert=True)
+        result = self.scheduled_tasks.update_one(
+            {
+                "analysis_id": created_task["analysis_id"],
+                "deduplication_data": created_task["deduplication_data"],
+            },
+            {"$set": created_task},
+            upsert=True,
+        )
         return bool(result.upserted_id)
 
     def _get_task_deduplication_data(self, task: Task) -> List[List[Any]]:

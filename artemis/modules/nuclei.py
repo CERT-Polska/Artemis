@@ -23,7 +23,8 @@ class Nuclei(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        subprocess.call(["nuclei", "-update-templates"])
+        with self.lock:
+            subprocess.call(["nuclei", "-update-templates"])
         self._critical_templates = subprocess.check_output(["nuclei", "-s", "critical", "-tl"]).decode("ascii").split()
 
     def run(self, current_task: Task) -> None:

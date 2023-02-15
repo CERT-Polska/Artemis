@@ -9,30 +9,30 @@ Since Artemis uses karton underneath, modules are karton services:
     from artemis.binds import Service, TaskStatus, TaskType
     from artemis.module_base import ArtemisBase
     from artemis.task_utils import get_target_url
-    
+
     class CustomScanner(ArtemisBase):
         """
         My first custom artemis module
         """
-    
+
         identity = "custom"
         filters = [
             {"type": TaskType.SERVICE, "service": Service.HTTP},
         ]
-    
+
         def run(self, current_task: Task) -> None:
             url = get_target_url(current_task)
             self.log.info(f"custom module running {url}")
-    
+
             status = TaskStatus.OK
             status_reason = None
-    
+
             if "sus" in url:
                 status = TaskStatus.INTERESTING
                 status_reason = "suspicious link detected!"
-    
+
             self.db.save_task_result(task=current_task, status=status, status_reason=status_reason)
-    
+
     if __name__ == "__main__":
         ReverseDNSLookup().loop()
 

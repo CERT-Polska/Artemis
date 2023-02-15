@@ -1,9 +1,9 @@
 Quick Start
 ===========
 
-The fastest way to try out Artemis is to use docker compose based deployment.
-Such deployment is **very** discouraged, as it is very slow and unreliable.
-Proper way to deploy Artemis is to use :ref:`kubernetes <k8s-deployment>`.
+The fastest way to try out Artemis is to use Docker Compose based deployment.
+Such deployment is discouraged in production, as it is slow and unreliable.
+The proper way to deploy Artemis is to use :ref:`kubernetes <k8s-deployment>`.
 
 Using docker compose
 --------------------

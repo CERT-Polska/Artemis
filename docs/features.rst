@@ -10,8 +10,21 @@ Features
  - port scanning
  - easy extensibility via plug-and-play modules
 
+Exploration vs exploitation in URL bruting
+------------------------------------------
+
+Artemis ``bruter`` module that bruteforces paths such as ``/server-info`` doesn't run the full list of paths.
+Instead, it always chooses:
+
+``BRUTER_NUM_TOP_PATHS_TO_USE`` most popular paths (so that the paths that have previously been found on the servers
+are checked) and ``BRUTER_NUM_RANDOM_PATHS_TO_USE`` random paths (so that it also checks what other files could
+potentially be found on the servers).
+
+You may tune these variables by changing the .env file.
+
 Rate limiting
 -------------
+
 Artemis is build in such a way that no particular host is overloaded with requests.
 To enable that behavior, configure the following two variables:
 

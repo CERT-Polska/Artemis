@@ -76,3 +76,7 @@ class Config:
 
     # custom port list to scan in CSV form (replaces default list)
     CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
+
+    # whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI when the
+    # Github API rate limits are spent)
+    NUCLEI_CHECK_TEMPLATE_LIST = decouple.config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)

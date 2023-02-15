@@ -25,7 +25,7 @@ class Nuclei(ArtemisBase):
         super().__init__(*args, **kwargs)
         subprocess.call(["nuclei", "-update-templates"])
         self._critical_templates = subprocess.check_output(["nuclei", "-s", "critical", "-tl"]).decode("ascii").split()
-        if len(self._critical_templates) == 0:
+        if Config.NUCLEI_CHECK_TEMPLATE_LIST and len(self._critical_templates) == 0:
             raise Exception("Unable to obtain Nuclei critical templates list")
 
     def run(self, current_task: Task) -> None:

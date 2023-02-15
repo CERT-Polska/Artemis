@@ -17,4 +17,4 @@ and can be scaled independently if such a need arises.
    features
    user-guide/configuration
    user-guide/k8s-deployment
-   user-guide/writing-module
+   user-guide/writing-a-module

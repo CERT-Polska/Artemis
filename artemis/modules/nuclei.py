@@ -9,7 +9,7 @@ from karton.core import Task
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
-from artemis.utils import check_output_and_print_content_on_error
+from artemis.utils import check_output_log_error
 
 
 class Nuclei(ArtemisBase):
@@ -26,7 +26,7 @@ class Nuclei(ArtemisBase):
         super().__init__(*args, **kwargs)
         subprocess.call(["nuclei", "-update-templates"])
         self._critical_templates = (
-            check_output_and_print_content_on_error(["nuclei", "-s", "critical", "-tl"]).decode("ascii").split()
+            check_output_log_error(["nuclei", "-s", "critical", "-tl"], self.log).decode("ascii").split()
         )
 
     def run(self, current_task: Task) -> None:
@@ -69,8 +69,9 @@ class Nuclei(ArtemisBase):
             str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
         ] + additional_configuration
 
-        data = check_output_and_print_content_on_error(
+        data = check_output_log_error(
             command,
+            self.log,
         )
 
         result = []

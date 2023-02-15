@@ -79,6 +79,18 @@ To setup `pre-commit` so that it runs before each commit, use:
 pre-commit install
 ```
 
+### Building the docs
+
+To build the documentation, use:
+
+```
+cd docs
+python3 -m venv venv
+. venv/bin/activate
+pip install -r requirements.txt
+make html
+```
+
 ## How do I write my own module?
 
 [Karton documentation](https://karton-core.readthedocs.io/en/latest/) as well

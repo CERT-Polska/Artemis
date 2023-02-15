@@ -30,4 +30,4 @@ both ``1.1.1.1`` and ``hxxps://cert.pl``.
 Viewing results
 ---------------
 
-Results are available on main page of Artemis (select ``Artemis`` from top navbar).
+Results are available on the Artemis homepage (select ``Artemis`` from top navbar).

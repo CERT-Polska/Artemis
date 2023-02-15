@@ -62,9 +62,4 @@ make html
 
 ## How do I write my own module?
 
-[Karton documentation](https://karton-core.readthedocs.io/en/latest/) as well
-as [existing modules](artemis/modules) are great place to start.
-
-If you want to contribute a new module to Artemis, remember to write a good test - one
-that spawns an application and checks that Artemis would find the vulnerability there.
-An example could be `test/modules/test_vcs.py`.
+Please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/user-guide/writing-a-module.html).

@@ -18,31 +18,10 @@ For an up-to-date list of features, please refer to [the documentation](https://
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)
 
-## Getting started
-If you plan using Artemis on production highly consider kubernetes deployment. Development
-environment doesn't scale properly and has hardcoded credentials.
-
-For development / testing pruposes a docker-compose configuration exists. Some modules (e.g. downloading
-vulnerability information from Shodan) are not available because the credentials aren't provided.
-
-To run simply:
-
- - clone the repo,
- - copy `env.example` to `.env` and configure it (e.g. by providing a User-Agent to override the default one),
- - run `docker compose up`,
- - browse to `localhost:5000`.
-
-URLs you provide don't have to follow any strict rules (e.g. `hxxp://127.0.0.1:1337/someurl` should work as well).
-
 ## FAQ
 ### Does Artemis support proxying the requests?
 Not yet. If you wish to add such a feature, remember to proxy the DNS resolving (e.g. in the Nuclei module
 that currently uses the system DNS resolvers).
-
-### Artemis takes a long time to run - what is the reason?
-By default, the requests are limitted to **one in 5 seconds** for a single IP (and, separately, **two packets
-per second for port scanning** for a single IP). To change that to more aggressive values, change the
-`SECONDS_PER_REQUEST_FOR_ONE_IP` and `SCANNING_PACKETS_PER_SECOND_PER_IP` environment variables.
 
 ## Development
 

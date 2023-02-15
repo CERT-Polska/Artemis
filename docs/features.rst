@@ -10,6 +10,19 @@ Features
  - port scanning
  - easy extensibility via plug-and-play modules
 
+Rate limiting
+-------------
+Artemis is build in such a way that no particular host is overloaded with requests.
+To enable that behavior, configure the following two variables:
+
+ - ``SECONDS_PER_REQUEST_FOR_ONE_IP`` - e.g. when set to 2, Artemis will strive to make no more than
+   one HTTP/MySQL connect/... request per two seconds for any host,
+ - ``SCANNING_PACKETS_PER_SECOND_PER_IP`` - e.g. when set to 100, Artemis will strive to send no more than
+   100 port scanning packets per seconds to any host.
+
+Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X
+requests per second.
+
 REST API
 --------
 

@@ -5,14 +5,14 @@ The fastest way to try out Artemis is to use Docker Compose based deployment.
 Such deployment is discouraged in production, as it is slow and unreliable.
 The proper way to deploy Artemis is to use :ref:`kubernetes <k8s-deployment>`.
 
-Using docker compose
+Using Docker Compose
 --------------------
 
 To start Artemis simply execute following 2 commands in your terminal:
 
 .. code-block:: console
 
-   cp example.env .env
+   cp env.example .env  # you may also configure the settings (e.g. by providing a User-Agent to override the default one)
    docker compose up
 
 After that you should be able to access Artemis dashboard at ``localhost:5000``.
@@ -20,7 +20,7 @@ After that you should be able to access Artemis dashboard at ``localhost:5000``.
 .. note ::
    If you get error that ``docker compose`` is not a valid command, try ``docker-compose``.
 
-Adding target to scan
+Adding targets to scan
 ---------------------
 
 Select ``Add URLs`` from navigation bar at the top. Artemis takes input in form

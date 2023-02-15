@@ -13,17 +13,7 @@ To chat about Artemis, join the Discord server:
 [![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
 
 ## Features
-Artemis includes, among others:
-
- - subdomain scan using `crt.sh`,
- - Shodan integration,
- - email configuration verification (misconfigured SPF/DMARC, open relays),
- - Wordpress/Joomla vulnerability scanning,
- - a check for VCS folders (e.g. `.git`),
- - a check for enabled directory index.
-
-Artemis is built with scalability in mind -- different scanners are separate microservices
-and can be scaled independently if such a need arises.
+For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html).
 
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)

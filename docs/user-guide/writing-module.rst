@@ -1,7 +1,7 @@
 Writing custom modules
 ======================
 
-Since Artemis uses karton underneath, modules are karton services:
+Since Artemis uses the Karton framework (https://github.com/CERT-Polska/karton) underneath, modules are karton services:
 
 .. code-block:: python
 
@@ -34,7 +34,7 @@ Since Artemis uses karton underneath, modules are karton services:
             self.db.save_task_result(task=current_task, status=status, status_reason=status_reason)
 
     if __name__ == "__main__":
-        ReverseDNSLookup().loop()
+        CustomScanner().loop()
 
 .. warning::
     If you know how to use karton you might know ``self.send_task`` method on karton producers.

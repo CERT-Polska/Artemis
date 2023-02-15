@@ -7,7 +7,8 @@ Configuration Options
 Karton configuration
 --------------------
 
-Artemis is based on karton project. Refer to `karton documentation <https://karton-core.readthedocs.io/en/latest/getting_started.html#configuration>`_ for more information.
+Artemis is based on the Karton framework (https://github.com/CERT-Polska/karton). Please refer to
+`karton documentation <https://karton-core.readthedocs.io/en/latest/getting_started.html#configuration>`_ for more information.
 
 
 Artemis configuration

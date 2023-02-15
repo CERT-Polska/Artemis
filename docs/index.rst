@@ -1,7 +1,7 @@
 Welcome to Artemis documentation!
 =================================
 
-A modular web reconnaisance tool and vulnerability scanner based on Karton
+Artemis is a modular web reconnaisance tool and vulnerability scanner based on Karton
 (https://github.com/CERT-Polska/karton).
 
 **Artemis is experimental software, under active development - use at your own risk.**

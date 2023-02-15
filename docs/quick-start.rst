@@ -21,7 +21,7 @@ After that you should be able to access Artemis dashboard at ``localhost:5000``.
    If you get error that ``docker compose`` is not a valid command, try ``docker-compose``.
 
 Adding targets to scan
----------------------
+----------------------
 
 Select ``Add URLs`` from navigation bar at the top. Artemis takes input in form
 of newline separated entries. No specific format is required, Artemis should parse

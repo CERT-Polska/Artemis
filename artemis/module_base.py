@@ -93,7 +93,7 @@ class ArtemisBase(Karton):
                 task = self._consume_random_routed_task(self.identity)
                 if task:
                     self.internal_process(task)
-        self.log.info("Exiting loop, shutdown={self.shutdown}")
+        self.log.info("Exiting loop, shutdown=%s", self.shutdown)
 
     def _consume_random_routed_task(self, identity: str) -> Optional[Task]:
         uid = None

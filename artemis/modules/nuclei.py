@@ -24,10 +24,11 @@ class Nuclei(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        subprocess.call(["nuclei", "-update-templates"])
-        self._critical_templates = (
-            check_output_log_error(["nuclei", "-s", "critical", "-tl"], self.log).decode("ascii").split()
-        )
+        with self.lock:
+            subprocess.call(["nuclei", "-update-templates"])
+            self._critical_templates = (
+                check_output_log_error(["nuclei", "-s", "critical", "-tl"], self.log).decode("ascii").split()
+            )
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]

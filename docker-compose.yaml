@@ -222,7 +222,10 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes:
+      - "./docker/karton.ini:/etc/karton/karton.ini"
+      - data-nuclei-templates:/root/nuclei-templates
+      - data-nuclei-config:/root/.config/nuclei
     depends_on: [karton-logger]
     env_file: .env
     command: "python3 -m artemis.modules.nuclei"
@@ -269,3 +272,5 @@ services:
 volumes:
   data-mongodb:
   data-redis:
+  data-nuclei-templates:
+  data-nuclei-config:

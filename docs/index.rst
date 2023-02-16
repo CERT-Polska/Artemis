@@ -11,7 +11,8 @@ and can be scaled independently if such a need arises.
 
 To chat about Artemis, join the Discord server:
 
-[![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
+.. image:: https://dcbadge.vercel.app/api/server/GfUW4mZmy9
+   :target: https://discord.gg/GfUW4mZmy9
 
 .. warning::
   Artemis doesn't yet support proxying the requests and will leak your IP address.

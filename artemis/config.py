@@ -67,8 +67,8 @@ class Config:
     # This is the lock default expiry time.
     DEFAULT_LOCK_EXPIRY_SECONDS = decouple.config("DEFAULT_LOCK_EXPIRY_SECONDS", default=3600, cast=int)
 
-    # We save response content in some cases - in order not to overload the DB, this determines how long
-    # the saved content would be (in bytes).
+    # In order not to overload the DB and bandwidth, this determines how long
+    # the downloaded content would be (in bytes).
     CONTENT_PREFIX_SIZE = decouple.config("CONTENT_PREFIX_SIZE", default=10240, cast=int)
 
     # == bruter settings (artemis/modules/bruter.py)

@@ -12,7 +12,7 @@ Since Artemis uses the Karton framework (https://github.com/CERT-Polska/karton) 
 
     class CustomScanner(ArtemisBase):
         """
-        My first custom artemis module
+        My first custom Artemis module
         """
 
         # Module name that will be displayed
@@ -45,7 +45,9 @@ Since Artemis uses the Karton framework (https://github.com/CERT-Polska/karton) 
         CustomScanner().loop()
 
 .. warning::
-    If you know how to use karton you might know ``self.send_task`` method on karton producers.
+    If you know how to use Karton you might know the ``self.send_task`` method on Karton producers that creates
+    a new task.
+
     Since Artemis saves all task information in the database, you need to use a wrapper - ``self.add_task``.
 
 
@@ -54,20 +56,32 @@ However, Artemis adds a few helpers to make your job easier.
 Database
 --------
 
-Artemis uses MongoDB to save task results and is available via ``self.save_task_result``.
+Artemis uses MongoDB to save task results - this feature is available via ``self.save_task_result``.
 
 Cache
 -----
 
-Modules often perform long running tasks, which we want to cache. Such example may be port scanning. Artemis provides simple redis based cache API to each karton service which extends ``ArtemisBase`` class under ``self.cache``. Rather than describing how it works it's easier to read `redis_cache.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/redis_cache.py>`_.
+Modules often perform long running tasks, which we want to cache. Such example may be port scanning. Artemis provides simple Redis-based
+cache API for each module. The cache is available under ``self.cache``. Rather than describing how it works it's easier to read
+`redis_cache.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/redis_cache.py>`_.
 
 Resource Locking
 ----------------
 
-You may want to create resource locks during development. Such example is shodan module, which requests a lock using ``self.lock`` to prevent hitting API request limit.
+You may want to lock a resource. An example can be the Shodan module
+(https://github.com/CERT-Polska/Artemis/blob/main/artemis/modules/shodan_vulns.py), which requests
+a lock using ``self.lock`` to prevent hitting API request limits.
 
 HTTP requests
 -------------
+
+To perform a HTTP request, use the ``artemis.http_requests`` module that:
+
+ - provides correct user-agent,
+ - doesn't verify the SSL certificate as many interesting findings are on sites with expired SSL certificates,
+ - reads only the first ``Config.CONTENT_PREFIX_SIZE`` to save bandwidth.
+
+To perform a request use ``http_requests.get`` or ``http_requests.post`` functions.
 
 
 DNS requests
@@ -84,10 +98,4 @@ To prevent Artemis from disrupting scanned services, Artemis introduces request 
 
     throttle_request(lambda: ftp.login(username, password))
 
-
-Artemis provides helper functions for HTTP requests: ``get`` and ``post`` methods from `http_requests.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/http_requests.py>`_.
-
-Going even further
-------------------
-
-You can always read more at `karton documentation <https://karton-core.readthedocs.io/en/latest/>`_.
+This method ensures that it will take at least ``Config.SECONDS_PER_REQUEST_FOR_ONE_IP`` seconds, sleeping if needed.

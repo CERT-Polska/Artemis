@@ -15,7 +15,12 @@ Since Artemis uses the Karton framework (https://github.com/CERT-Polska/karton) 
         My first custom artemis module
         """
 
+        # Module name that will be displayed
         identity = "custom"
+
+        # Types of tasks that will be consumed by the module - here, open ports that were identified
+        # to contain a HTTP/HTTPS service. To know what types are possible, look at other modules' source:
+        # https://github.com/CERT-Polska/Artemis/tree/main/artemis/modules
         filters = [
             {"type": TaskType.SERVICE, "service": Service.HTTP},
         ]
@@ -28,10 +33,13 @@ Since Artemis uses the Karton framework (https://github.com/CERT-Polska/karton) 
             status_reason = None
 
             if "sus" in url:
+                # On the default task result view only the interesting task results will be displayed
                 status = TaskStatus.INTERESTING
                 status_reason = "suspicious link detected!"
 
-            self.db.save_task_result(task=current_task, status=status, status_reason=status_reason)
+            # In the data dictionary, you may provide any additional results - the user will be able to view them
+            # in the interface on the single task result page.
+            self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data={})
 
     if __name__ == "__main__":
         CustomScanner().loop()

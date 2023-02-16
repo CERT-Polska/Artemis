@@ -3,7 +3,7 @@ from redis import Redis
 
 
 class Config:
-    # Connection string to MongoDB database
+    # Connection string to the MongoDB database
     DB_CONN_STR = decouple.config("DB_CONN_STR", default="")
 
     # Connection string to Redis store
@@ -12,7 +12,7 @@ class Config:
     # An already constructed Redis client
     REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
 
-    # Custom User-Agent string used by Artemis
+    # Custom User-Agent string used by Artemis (if not set, the tool defaults will be used: requests, Nuclei etc.)
     CUSTOM_USER_AGENT = decouple.config("CUSTOM_USER_AGENT", default="")
 
     # Whether we will scan a public suffix (e.g. .pl) if it appears on the target list. This may cause very large
@@ -47,6 +47,7 @@ class Config:
     # == Rate limit settings
     # Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X
     # requests per second.
+
     # E.g. when set to 2, Artemis will strive to make no more than one HTTP/MySQL connect/... request per two seconds for any host.
     SECONDS_PER_REQUEST_FOR_ONE_IP = decouple.config("SECONDS_PER_REQUEST_FOR_ONE_IP", default=0, cast=int)
 

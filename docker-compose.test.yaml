@@ -29,6 +29,7 @@ services:
       SECONDS_PER_REQUEST_FOR_ONE_IP: 0
       SCANNING_PACKETS_PER_SECOND_PER_IP: 5
       CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
+      NUCLEI_CHECK_TEMPLATE_LIST: False
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.

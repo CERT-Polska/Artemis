@@ -26,7 +26,7 @@ class Nuclei(ArtemisBase):
         subprocess.call(["nuclei", "-update-templates"])
         self._critical_templates = subprocess.check_output(["nuclei", "-s", "critical", "-tl"]).decode("ascii").split()
         if Config.NUCLEI_CHECK_TEMPLATE_LIST and len(self._critical_templates) == 0:
-            raise Exception("Unable to obtain Nuclei critical templates list")
+            raise RuntimeError("Unable to obtain Nuclei critical templates list")
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]

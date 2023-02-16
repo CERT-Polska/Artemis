@@ -9,6 +9,10 @@ Artemis is a modular web reconnaisance tool and vulnerability scanner based on K
 Artemis is built with scalability in mind -- different scanners are separate microservices
 and can be scaled independently if such a need arises.
 
+To chat about Artemis, join the Discord server:
+
+[![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
+
 .. warning::
   Artemis doesn't yet support proxying the requests and will leak your IP address.
 

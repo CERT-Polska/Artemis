@@ -1,14 +1,18 @@
 Features
 ========
 
- - subdomain scan using ``crt.sh``
- - Shodan integration
- - email configuration verification (misconfigured SPF/DMARC, open relays)
- - Wordpress/Joomla vulnerability scanning
- - a check for VCS folders (e.g. ``.git``)
- - a check for enabled directory index
- - port scanning
- - easy extensibility via plug-and-play modules
+Artemis includes:
+
+ - subdomain scan using ``crt.sh``,
+ - Shodan integration,
+ - brute-forcing of interesting paths (e.g. ``.env``),
+ - brute-forcing of easy WordPress/MySQL/PostgreSQL/FTP passwords,
+ - email configuration verification (misconfigured SPF/DMARC, open relays),
+ - Wordpress/Joomla version check,
+ - a check for VCS folders (e.g. ``.git``),
+ - a check for enabled directory index,
+ - port scanning,
+ - easy extensibility via plug-and-play modules.
 
 Exploration vs exploitation in URL bruting
 ------------------------------------------
@@ -16,11 +20,12 @@ Exploration vs exploitation in URL bruting
 Artemis ``bruter`` module that bruteforces paths such as ``/server-info`` doesn't run the full list of paths.
 Instead, it always chooses:
 
-``BRUTER_NUM_TOP_PATHS_TO_USE`` most popular paths (so that the paths that have previously been found on the servers
-are checked) and ``BRUTER_NUM_RANDOM_PATHS_TO_USE`` random paths (so that it also checks what other files could
-potentially be found on the servers).
+ - ``BRUTER_NUM_TOP_PATHS_TO_USE`` most popular paths (so that the paths that have previously been found on the servers
+   are checked),
+ - ``BRUTER_NUM_RANDOM_PATHS_TO_USE`` random paths (so that it also checks what other paths could potentially be
+   found on the servers).
 
-You may tune these variables by changing the .env file.
+You may tune these variables by providing the values in the ``.env`` file.
 
 Rate limiting
 -------------
@@ -29,10 +34,11 @@ Artemis is build in such a way that no particular host is overloaded with reques
 To enable that behavior, configure the following two variables:
 
  - ``SECONDS_PER_REQUEST_FOR_ONE_IP`` - e.g. when set to 2, Artemis will strive to make no more than
-   one HTTP/MySQL connect/... request per two seconds for any host,
+   one HTTP/MySQL connect/... request per two seconds for any IP,
  - ``SCANNING_PACKETS_PER_SECOND_PER_IP`` - e.g. when set to 100, Artemis will strive to send no more than
-   100 port scanning packets per seconds to any host.
+   100 port scanning packets per seconds to any IP.
 
+The IP lock is global - Artemis strives to allow at most one module to communicate with a given IP.
 Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X
 requests per second.
 

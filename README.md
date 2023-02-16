@@ -18,11 +18,6 @@ For an up-to-date list of features, please refer to [the documentation](https://
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)
 
-## FAQ
-### Does Artemis support proxying the requests?
-Not yet. If you wish to add such a feature, remember to proxy the DNS resolving (e.g. in the Nuclei module
-that currently uses the system DNS resolvers).
-
 ## Development
 
 ### Tests

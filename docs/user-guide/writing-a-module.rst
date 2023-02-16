@@ -73,7 +73,7 @@ HTTP requests
 DNS requests
 ------------
 
-All DNS requests are performed by default using DNS-Over-HTTPS. This is done to avoid leaking DNS queries in case of tunneling Artemis requests via TCP proxy such as SOCKS5. DNS requests should be performed using ``ip_lookup`` from `resolvers.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/resolvers.py>`_.
+DNS requests should be performed using ``ip_lookup`` from `resolvers.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/resolvers.py>`_.
 
 Outgoing requests limiting
 --------------------------

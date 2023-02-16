@@ -9,6 +9,13 @@ Artemis is a modular web reconnaisance tool and vulnerability scanner based on K
 Artemis is built with scalability in mind -- different scanners are separate microservices
 and can be scaled independently if such a need arises.
 
+.. warning::
+  Artemis doesn't yet support proxying the requests and will leak your IP address.
+
+  If you wish to add such a feature, remember to proxy the DNS resolving (e.g. in the Nuclei module
+  that currently uses the system DNS resolvers).
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

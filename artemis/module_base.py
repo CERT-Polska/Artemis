@@ -115,7 +115,7 @@ class ArtemisBase(Karton):
         In that case, we "reschedule" task for later execution to not block the karton instance.
         This saves task into the DB.
         """
-        task.status = KartonTaskState.DECLARED
+        task.status = KartonTaskState.SPAWNED
         self.backend.produce_routed_task(self.identity, task)
 
     @abstractmethod

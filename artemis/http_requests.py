@@ -44,7 +44,7 @@ def _request(
     allow_redirects: bool,
     data: Optional[Dict[str, str]],
     cookies: Optional[Dict[str, str]],
-    max_size: int = 100_000,
+    max_size: int = Config.CONTENT_PREFIX_SIZE,
 ) -> HTTPResponse:
     def _internal_request() -> HTTPResponse:
         response = getattr(requests, method_name)(

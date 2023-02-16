@@ -9,6 +9,7 @@ from karton.core import Task
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
+from artemis.utils import check_output_log_error
 
 
 class Nuclei(ArtemisBase):
@@ -23,10 +24,13 @@ class Nuclei(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        subprocess.call(["nuclei", "-update-templates"])
-        self._critical_templates = subprocess.check_output(["nuclei", "-s", "critical", "-tl"]).decode("ascii").split()
-        if Config.NUCLEI_CHECK_TEMPLATE_LIST and len(self._critical_templates) == 0:
-            raise RuntimeError("Unable to obtain Nuclei critical templates list")
+        with self.lock:
+            subprocess.call(["nuclei", "-update-templates"])
+            self._critical_templates = (
+                check_output_log_error(["nuclei", "-s", "critical", "-tl"], self.log).decode("ascii").split()
+            )
+            if Config.NUCLEI_CHECK_TEMPLATE_LIST and len(self._critical_templates) == 0:
+                raise RuntimeError("Unable to obtain Nuclei critical templates list")
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]
@@ -72,9 +76,9 @@ class Nuclei(ArtemisBase):
             str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
         ] + additional_configuration
 
-        data = subprocess.check_output(
+        data = check_output_log_error(
             command,
-            stderr=subprocess.DEVNULL,
+            self.log,
         )
 
         result = []

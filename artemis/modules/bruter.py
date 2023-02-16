@@ -44,8 +44,13 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
             [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
             + [
                 "backup.tar.gz",
+                # Nginx merge_slashes path traversal
+                "///////../../../etc/passwd",
                 "db.sql",
                 "backup.sql",
+                "appsettings.json",
+                "_search",
+                "graph",
                 "database.sql",
                 "adminbackups",
                 "core",
@@ -86,6 +91,7 @@ IGNORED_CONTENTS = [
 
 @dataclasses.dataclass
 class BruterResult:
+    content_404: str
     too_many_urls_detected: bool
     found_urls: List[FoundURL]
     checked_top_paths: List[str]
@@ -166,6 +172,7 @@ class Bruter(ArtemisBase):
 
         if len(found_urls) > len(paths_to_scan) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
             return BruterResult(
+                content_404=dummy_content,
                 too_many_urls_detected=True,
                 found_urls=[],
                 checked_top_paths=top_paths,
@@ -192,6 +199,7 @@ class Bruter(ArtemisBase):
             self.add_task(task, new_task)
 
         return BruterResult(
+            content_404=dummy_content,
             too_many_urls_detected=False,
             found_urls=found_urls,
             checked_top_paths=top_paths,

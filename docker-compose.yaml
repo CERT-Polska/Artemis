@@ -23,7 +23,7 @@ services:
     ports: [27017:27017]
 
   karton-system:
-    image: "certpl/karton-system:d94ce4e263ae381b998d44c37475b88044ad896c"
+    image: "certpl/karton-system:3d8d3c905e73fc1f56885619355d69d2c2d9f7ca"
     depends_on: ["db", "redis", "minio"]
     command: ["--setup-bucket"]
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
@@ -222,7 +222,10 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes:
+      - "./docker/karton.ini:/etc/karton/karton.ini"
+      - data-nuclei-templates:/root/nuclei-templates
+      - data-nuclei-config:/root/.config/nuclei
     depends_on: [karton-logger]
     env_file: .env
     command: "python3 -m artemis.modules.nuclei"
@@ -269,3 +272,5 @@ services:
 volumes:
   data-mongodb:
   data-redis:
+  data-nuclei-templates:
+  data-nuclei-config:

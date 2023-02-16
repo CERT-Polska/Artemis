@@ -6,6 +6,10 @@ import requests
 DOH_SERVER = "https://cloudflare-dns.com/dns-query"
 
 
+class IPResolutionException(Exception):
+    pass
+
+
 def _ips_from_answer(domain: str, answer: List[Dict[str, Any]]) -> Set[str]:
     found_ips = set()
     for entry in answer:
@@ -39,11 +43,11 @@ def ip_lookup(domain: str) -> Set[str]:
     """
     :return List of IP addresses
 
-    :raise RuntimeError if something fails
+    :raise IPResolutionException if something fails
     """
     response = requests.get(f"{DOH_SERVER}?name={domain}&type=A", headers={"accept": "application/dns-json"})
     if not response.ok:
-        raise RuntimeError(f"DOH server invalid response ({response.status_code})")
+        raise IPResolutionException(f"DOH server invalid response ({response.status_code})")
 
     result = response.json()
     dns_rc = result["Status"]  # https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-6
@@ -55,4 +59,4 @@ def ip_lookup(domain: str) -> Set[str]:
     elif dns_rc == 3:  # NXDomain
         return set()
     else:
-        raise RuntimeError(f"Unexpected DNS status ({dns_rc})")
+        raise IPResolutionException(f"Unexpected DNS status ({dns_rc})")

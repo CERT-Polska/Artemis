@@ -22,7 +22,8 @@ class Config:
     # additional domains that will be treated as public suffixes (even though they're not on the default Public Suffix List)
     ADDITIONAL_PUBLIC_SUFFIXES = decouple.config("ADDITIONAL_PUBLIC_SUFFIXES", default="", cast=decouple.Csv(str))
 
-    TASK_TIMEOUT_SECONDS = 24 * 3600
+    # What is the maximum task run time (after which it will get killed)
+    TASK_TIMEOUT_SECONDS = 4 * 3600
 
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches
     # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to

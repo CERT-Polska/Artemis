@@ -97,8 +97,8 @@ class Config:
     # == postman settings (artemis/modules/postman.py)
     # E-mail addresses (from and to) that will be used to test whether a server is an open relay or allows
     # sending e-mails to any address.
-    POSTMAN_MAIL_FROM = decouple.config("POSTMAN_MAIL_FROM", default="")
-    POSTMAN_MAIL_TO = decouple.config("POSTMAN_MAIL_TO", default="")
+    POSTMAN_MAIL_FROM = decouple.config("POSTMAN_MAIL_FROM", default="from@example.com")
+    POSTMAN_MAIL_TO = decouple.config("POSTMAN_MAIL_TO", default="to@example.com")
 
     # == shodan settings (artemis/modules/shodan_vulns.py)
     # Shodan API key so that Shodan vulnerabilities will be displayed in Artemis

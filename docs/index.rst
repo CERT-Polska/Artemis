@@ -16,5 +16,4 @@ and can be scaled independently if such a need arises.
    quick-start
    features
    user-guide/configuration
-   user-guide/k8s-deployment
    user-guide/writing-a-module

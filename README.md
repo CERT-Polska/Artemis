@@ -1,4 +1,6 @@
 # Artemis
+![logo](.github/images/logo.png)
+
 A modular web reconnaisance tool and vulnerability scanner based on Karton
 (https://github.com/CERT-Polska/karton).
 

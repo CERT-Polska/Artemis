@@ -30,7 +30,7 @@ class FTPBruterResult(BaseModel):
 
 class FTPBruter(ArtemisBase):
     """
-    Performs a brute force attack on FTP servers to guess login and password
+    Performs a brute force attack on FTP servers to guess login and password.
     """
 
     identity = "ftp_bruter"

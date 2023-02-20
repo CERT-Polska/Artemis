@@ -100,7 +100,8 @@ class BruterResult:
 
 class Bruter(ArtemisBase):
     """
-    Tries to find common URLs
+    Brute-forces common paths such as /index.php.bak. Tries commonly found paths on each target and experiments with random other paths
+    to dynamically update the common paths list.
     """
 
     identity = "bruter"

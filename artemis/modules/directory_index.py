@@ -23,7 +23,7 @@ S3_BASE_DOMAIN = "s3.amazonaws.com"
 
 class DirectoryIndex(ArtemisBase):
     """
-    Detects directory index enabled on the server
+    Detects directory index enabled on the server by checking paths mentioned in the home page source (e.g. with <link href="/styles/..." ...>).
     """
 
     identity = "directory_index"

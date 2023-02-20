@@ -33,7 +33,7 @@ def get_lfi_candidates(url: str, response_text: str) -> List[LFICandidate]:
 
 class PHPLFIScanner(ArtemisBase):
     """
-    Tries to detect and verify PHP LFI
+    Tries to detect and verify PHP LFI vulnerabilities.
     """
 
     identity = "php_lfi"

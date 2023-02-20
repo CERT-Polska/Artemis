@@ -25,7 +25,7 @@ MAX_USERNAMES_TO_CHECK = 3
 
 class WordPressBruter(ArtemisBase):
     """
-    Performs a brute force attack on WordPress credentials
+    Performs a brute-force attack on WordPress credentials.
     """
 
     identity = "wordpress_bruter"

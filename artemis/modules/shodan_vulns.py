@@ -55,7 +55,7 @@ class ShodanVulnsResult(BaseModel):
 
 class ShodanVulns(ArtemisBase):
     """
-    Lists vulns from shodan
+    Lists vulnerabilities from Shodan.
     """
 
     identity = "shodan_vulns"

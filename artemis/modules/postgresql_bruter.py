@@ -23,7 +23,7 @@ class PostgreSQLBruterResult(BaseModel):
 
 class PostgreSQLBruter(ArtemisBase):
     """
-    Performs a brute force attack on PostgreSQL servers to guess login and password
+    Performs a brute force attack on PostgreSQL servers to guess login and password.
     """
 
     identity = "postgresql_bruter"

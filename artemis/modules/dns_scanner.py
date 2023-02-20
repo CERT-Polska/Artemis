@@ -17,7 +17,7 @@ KNOWN_BAD_NAMESERVERS = ["fns1.42.pl", "fns2.42.pl"]
 
 class DnsScanner(ArtemisBase):
     """
-    Check for AXFR and known bad nameservers
+    Check for domain transfer and known bad nameservers.
     """
 
     identity = "dns_scanner"

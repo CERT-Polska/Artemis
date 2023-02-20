@@ -16,7 +16,7 @@ DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
 class CrtshScanner(ArtemisBase):
     """
     Consumes `type: domain` and adds subdomains fetched from crt.sh
-    Produces `type: new`
+    Produces `type: domain`.
     """
 
     identity = "crtsh"

@@ -12,7 +12,7 @@ from artemis.module_base import ArtemisBase
 
 class ReverseDNSLookup(ArtemisBase):
     """
-    Collects `type: IP`, performs reverse DNS lookup and produces `type: NEW`
+    Collects `type: IP`, performs reverse DNS lookup and produces `type: NEW` tasks.
     """
 
     identity = "ReverseDNSLookup"

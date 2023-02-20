@@ -23,7 +23,7 @@ class MySQLBruterResult(BaseModel):
 
 class MySQLBruter(ArtemisBase):
     """
-    Performs a brute force attack on MySQL servers to guess login and password
+    Performs a brute force attack on MySQL servers to guess login and password.
     """
 
     identity = "mysql_bruter"

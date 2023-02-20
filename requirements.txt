@@ -16,7 +16,7 @@ MarkupSafe==2.1.2
 minio==7.1.13
 psycopg2-binary==2.9.5
 publicsuffixlist==0.9.3
-pydantic==1.10.4
+pydantic==1.10.5
 pymongo==4.3.3
 PyMySQL==1.0.2
 python-decouple==3.7

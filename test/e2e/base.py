@@ -25,7 +25,7 @@ class BaseE2ETestCase(TestCase):
         self._wait_for_backend()
 
     def submit_tasks(self, tasks: List[str]) -> None:
-        requests.post(BACKEND_URL + "add", data={"urls": "\n".join(tasks)})
+        requests.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks)})
 
     def wait_for_tasks_finished(
         self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES

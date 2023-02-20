@@ -1,13 +1,13 @@
 {% extends "components/base.jinja2" %}
 {% block main %}
-    <h1>Add URLs</h1>
+    <h1>Add targets</h1>
     <form action="/add" method="post" class="w-100">
         <div class="form-group">
-            <label class="form-text">URLs (new line separated)</label>
-            <textarea class="form-control" name="urls"></textarea>
+            <label class="form-text">Targets (new line separated)</label>
+            <textarea class="form-control" name="targets"></textarea>
         </div>
         <div class="form-group">
-            <label class="form-text">Batch File</label>
+            <label class="form-text">Batch file (should contain one target per line)</label>
             <input class="form-control btn" type="file" name="file">
         </div>
         <input type="submit" class="btn btn-primary" value="Start scan">

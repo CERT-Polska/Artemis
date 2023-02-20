@@ -51,12 +51,12 @@ def get_add_form(request: Request) -> Response:
 
 @router.post("/add", include_in_schema=False)
 def post_add(
-    urls: Optional[str] = Form(None),
+    targets: Optional[str] = Form(None),
     file: Optional[bytes] = File(None),
 ) -> Response:
     total_list: List[str] = []
-    if urls:
-        total_list += (x.strip() for x in urls.split())
+    if targets:
+        total_list += (x.strip() for x in targets.split())
     if file:
         total_list += (x.strip() for x in file.decode().split())
     create_tasks(total_list)
@@ -122,7 +122,7 @@ def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> R
         "task_list.jinja2",
         {
             "request": request,
-            "title": "All task results",
+            "title": "Results",
             "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },

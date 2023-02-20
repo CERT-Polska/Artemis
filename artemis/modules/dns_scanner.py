@@ -45,7 +45,7 @@ class DnsScanner(ArtemisBase):
             except dns.resolver.NXDOMAIN:
                 nameserver_ip = None
                 result["ns_does_not_exist"] = True
-                findings.add(f"{nameserver} domain does not exist, and therefore can be registered by a bad actor")
+                findings.add(f"{nameserver} domain does not exist - maybe it can be registered?")
 
             nameserver_ok = False
             if nameserver_ip:

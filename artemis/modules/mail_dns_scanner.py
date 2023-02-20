@@ -23,7 +23,7 @@ class MailDNSScannerResult(BaseModel):
 
 class MailDNSScanner(ArtemisBase):
     """
-    Checks if there is a mail server associated with the current domain and checks if SPF and DMARC records are present
+    Checks whether there is a mail server associated with the current domain and checks if SPF and DMARC records are present.
     """
 
     identity = "mail_dns_scanner"

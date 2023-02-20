@@ -33,7 +33,7 @@ class VCSConfig(NamedTuple):
 
 class VCSScanner(ArtemisBase):
     """
-    Tries to find open git/svm/hg repositories
+    Tries to find exposed git/SVN/Mercurial repositories.
     """
 
     identity = "vcs"

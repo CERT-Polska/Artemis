@@ -39,7 +39,7 @@ class RobotsResult:
 
 class RobotsScanner(ArtemisBase):
     """
-    Looks for robots.txt file and finds disallowed and allowed paths
+    Looks for robots.txt file, emits a URL task for each found path and checks whether the paths have a directory index enabled.
     """
 
     identity = "robots"

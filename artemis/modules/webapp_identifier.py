@@ -24,7 +24,7 @@ WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
 
 class WebappIdentifier(ArtemisBase):
     """
-    Tries to identify the webapp
+    Tries to identify the web application and produces a WEBAPP task with proper type (e.g. WebApplication.WORDPRESS).
     """
 
     identity = "webapp_identifier"

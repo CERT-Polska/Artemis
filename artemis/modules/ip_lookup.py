@@ -8,7 +8,7 @@ from artemis.resolvers import ip_lookup
 
 class IPLookup(ArtemisBase):
     """
-    Collects `type: domain`, performs IP lookup and produces `type: NEW`
+    Collects `type: domain`, performs IP lookup and produces `type: NEW`.
     """
 
     identity = "IPLookup"

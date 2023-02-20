@@ -26,8 +26,8 @@ class PostmanResult(BaseModel):
 
 class Postman(ArtemisBase):
     """
-    Collects `service: SMTP` and tests if it verifies credentials,
-    as well as trying out open relay.
+    Consumes `service: SMTP` tasks and tests if the server verifies credentials,
+    as well as whether it is an open relay.
     """
 
     identity = "postman"

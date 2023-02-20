@@ -9,7 +9,8 @@ from artemis.task_utils import get_target_url
 
 class HTTPServiceToURL(ArtemisBase):
     """
-    Converts HTTP SERVICE tasks to URL tasks for the service root URL.
+    Converts HTTP SERVICE tasks to URL tasks for the service root URL so that the URLs can be consumed by other kartons
+    that expect URLs (e.g. Nuclei).
     """
 
     identity = "http_service_to_url"

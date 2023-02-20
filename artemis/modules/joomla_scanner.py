@@ -14,7 +14,7 @@ from artemis.module_base import ArtemisBase
 
 class JoomlaScanner(ArtemisBase):
     """
-    Joomla scanner
+    Joomla scanner - checks whether the version is old or registration is enabled.
     """
 
     identity = "joomla_scanner"

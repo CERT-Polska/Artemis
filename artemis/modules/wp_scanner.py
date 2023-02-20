@@ -12,7 +12,7 @@ from artemis.module_base import ArtemisBase
 
 class WordPressScanner(ArtemisBase):
     """
-    WordPress scanner
+    WordPress scanner - checks e.g. whether the verson is secure or whether registration is enabled.
     """
 
     identity = "wp_scanner"

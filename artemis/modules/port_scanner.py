@@ -68,8 +68,8 @@ NOT_INTERESTING_PORTS = [
 
 class PortScanner(ArtemisBase):
     """
-    Consumes `type: IP`, scans them with naabu and fingerprintx and produces
-    tasks separated into services (eg. `type: http`)
+    Consumes `type: IP` or `type: DOMAIN`, scans them with naabu and fingerprintx and produces
+    SERVICE tasks for each service detected on a port (eg. `type: http`).
     """
 
     # We want to scan domains (but maybe using cached results for given IP) so that if there

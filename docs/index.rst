@@ -1,4 +1,4 @@
-.. image:: ../.github/images/logo.png
+.. image:: ../static/images/logo.png
    :width: 300px
 
 .. raw:: html

@@ -34,8 +34,8 @@ Adding targets to scan
 ----------------------
 
 Select ``Add targets`` from the top navigation bar. Artemis takes input in the form
-of entries separated with newlines. No specific format is required, Artemis works with
-both IPs and domains. If a URL is provided, the domain from this URL will be scanned.
+of entries separated with newlines. Artemis works with both IPs and domains. If
+a URL is provided, the domain from this URL will be scanned.
 
 Viewing results
 ---------------

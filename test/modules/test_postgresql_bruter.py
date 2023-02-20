@@ -12,7 +12,7 @@ class PostgreSQLBruterTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.POSTGRES},
+            {"type": TaskType.SERVICE.value, "service": Service.POSTGRESQL},
             payload={"host": "test-postgresql-with-easy-password", "port": 5432},
         )
         self.run_task(task)

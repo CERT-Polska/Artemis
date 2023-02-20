@@ -69,9 +69,9 @@ class CrtshScanner(ArtemisBase):
             for entry in ct_domains:
                 assert is_subdomain(entry, domain)
                 task = Task(
-                    {"type": TaskType.NEW},
+                    {"type": TaskType.DOMAIN},
                     payload={
-                        "data": entry,
+                        "domain": entry,
                     },
                 )
                 self.add_task(current_task, task)

@@ -30,6 +30,6 @@ class CrtshScannerTest(ArtemisModuleTestCase):
 
             found = False
             for item in results:
-                if item.payload["data"] == entry.expected_subdomain:
+                if item.payload["domain"] == entry.expected_subdomain:
                     found = True
             self.assertTrue(found)

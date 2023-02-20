@@ -13,5 +13,6 @@ def restart_crashed_tasks() -> None:
             # spawn a new task and mark the original one as finished
             new_task = task.fork_task()
             new_task.status = TaskState.SPAWNED
+            backend.register_task(new_task)
             backend.produce_routed_task(task.headers["receiver"], new_task)
             backend.set_task_status(task=task, status=TaskState.FINISHED)

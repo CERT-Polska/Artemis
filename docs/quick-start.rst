@@ -33,11 +33,11 @@ After that you should be able to access the Artemis dashboard at ``localhost:500
 Adding targets to scan
 ----------------------
 
-Select ``Add URLs`` from navigation bar at the top. Artemis takes input in form
-of entries separated with newlines. No specific format is required, Artemis should parse
-both ``1.1.1.1`` and ``hxxps://cert.pl``.
+Select ``Add URLs`` from the top navigation bar. Artemis takes input in the form
+of entries separated with newlines. No specific format is required, Artemis works with
+both IPs and domains and should parse both ``1.1.1.1`` and ``hxxps://cert.pl``.
 
 Viewing results
 ---------------
 
-Results are available on the Artemis homepage (select ``Artemis`` from top navbar).
+Results are available on the Artemis homepage (click the Artemis logo in the top navbar).

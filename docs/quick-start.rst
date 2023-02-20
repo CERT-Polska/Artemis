@@ -18,6 +18,15 @@ To start Artemis simply execute following 2 commands in your terminal:
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 
+**If you want to start multiple instances of a module to speed up scanning, use a command such as:**
+
+.. code-block:: console
+
+   docker compose up \
+       --scale=karton-nuclei=10 \
+       --scale=karton-bruter=10 \
+       --scale=karton-port_scanner=10
+
 .. note ::
    If you get an error that ``docker compose`` is not a valid command, try ``docker-compose``.
 

@@ -30,6 +30,10 @@ After that you should be able to access the Artemis dashboard at ``localhost:500
 .. note ::
    If you get an error that ``docker compose`` is not a valid command, try ``docker-compose``.
 
+.. note ::
+   In case of the ``no available IPv4 addresses on this network's address pools: artemis_default`` error
+   try increasing the network size either by editing docker daemon config or recreating the network manually.
+
 Adding targets to scan
 ----------------------
 

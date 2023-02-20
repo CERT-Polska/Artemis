@@ -27,8 +27,6 @@ class ClassifierTest(ArtemisModuleTestCase):
         urls = [
             TestData("https://cert.pl", "cert.pl", TaskType.DOMAIN),
             TestData("http://cert.pl", "cert.pl", TaskType.DOMAIN),
-            TestData("hxxps://cert.pl", "cert.pl", TaskType.DOMAIN),
-            TestData("hxxp://cert.pl", "cert.pl", TaskType.DOMAIN),
             TestData("https://cert[.]pl", "cert.pl", TaskType.DOMAIN),
             TestData("cert.pl", "cert.pl", TaskType.DOMAIN),
             TestData("cert.pl:8080", "cert.pl", TaskType.DOMAIN),

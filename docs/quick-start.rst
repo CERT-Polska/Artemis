@@ -35,7 +35,7 @@ Adding targets to scan
 
 Select ``Add targets`` from the top navigation bar. Artemis takes input in the form
 of entries separated with newlines. No specific format is required, Artemis works with
-both IPs and domains and should parse both ``1.1.1.1`` and ``hxxps://cert.pl``.
+both IPs and domains. If a URL is provided, the domain from this URL will be scanned.
 
 Viewing results
 ---------------

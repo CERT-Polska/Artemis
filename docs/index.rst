@@ -1,3 +1,10 @@
+.. image:: ../static/images/logo.png
+   :width: 300px
+
+.. raw:: html
+
+   <div style="height: 15px"></div>
+
 Welcome to Artemis documentation!
 =================================
 

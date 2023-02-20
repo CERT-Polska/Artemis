@@ -50,7 +50,7 @@ services:
     env_file: .env
 
   karton-dashboard:
-    image: certpl/karton-dashboard:ed8c453c791e83829fa46c52b64386fe9e7f5a84
+    image: certpl/karton-dashboard:d0a2a1ffd21e9066acca77434acaff7b20e460d0
     ports: [5001:5000]
     depends_on: [karton-logger]
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]

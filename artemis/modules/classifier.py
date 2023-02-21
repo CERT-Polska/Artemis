@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import re
+import urllib.parse
 from ipaddress import ip_address
 
 from karton.core import Task
@@ -33,12 +34,16 @@ class Classifier(ArtemisBase):
 
     @staticmethod
     def _sanitize(data: str) -> str:
-        # replace common tricks
-        data = data.replace("[.]", ".")
+        if "hxxp://" in data.lower() or "hxxps://" in data.lower() or "[.]" in data:
+            raise RuntimeError(
+                "Defanged URL detected. If you really want to scan it, please provide it as a standard one."
+            )
 
         # strip URL schemes
-        for x in ["https", "hxxps", "http", "hxxp", "git", "gopher", "imap", "ssh", "ws"]:
-            data = data.removeprefix(x + "://")
+        if "://" in data:
+            hostname = urllib.parse.urlparse(data).hostname
+            assert hostname is not None
+            data = hostname
 
         # strip after slash
         if "/" in data:

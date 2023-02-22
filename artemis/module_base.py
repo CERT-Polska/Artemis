@@ -149,6 +149,8 @@ class ArtemisBase(Karton):
                 )
                 self.reschedule_task(current_task)
                 return
+        else:
+            super().internal_process(current_task)
 
     def process(self, current_task: Task) -> None:
         try:

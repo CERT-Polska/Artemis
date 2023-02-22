@@ -128,10 +128,18 @@ class ArtemisBase(Karton):
         scan_destination = self._get_scan_destination(current_task)
 
         if self.lock_target:
-            lock = ResourceLock(Config.REDIS, f"lock-{scan_destination}")
-
             try:
-                lock.acquire(max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES)
+                with ResourceLock(
+                    Config.REDIS, f"lock-{scan_destination}", max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES
+                ):
+                    self.log.info(
+                        "Succeeded to lock task %s (orig_uid=%s destination=%s)",
+                        current_task.uid,
+                        current_task.orig_uid,
+                        scan_destination,
+                    )
+
+                    super().internal_process(current_task)
             except FailedToAcquireLockException:
                 self.log.info(
                     "Rescheduling task %s (orig_uid=%s destination=%s)",
@@ -141,20 +149,6 @@ class ArtemisBase(Karton):
                 )
                 self.reschedule_task(current_task)
                 return
-
-            self.log.info(
-                "Succeeded to lock task %s (orig_uid=%s destination=%s)",
-                current_task.uid,
-                current_task.orig_uid,
-                scan_destination,
-            )
-        else:
-            lock = None
-        try:
-            super().internal_process(current_task)
-        finally:
-            if lock:
-                lock.release()
 
     def process(self, current_task: Task) -> None:
         try:

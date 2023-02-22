@@ -22,7 +22,7 @@ After that you should be able to access the Artemis dashboard at ``localhost:500
 
 .. code-block:: console
 
-   docker compose up \
+   docker compose up --build \
        --scale=karton-nuclei=10 \
        --scale=karton-bruter=10 \
        --scale=karton-port_scanner=10

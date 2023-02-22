@@ -24,7 +24,7 @@ class CrtshScanner(ArtemisBase):
         {"type": TaskType.DOMAIN.value},
     ]
     # We don't ensure we're the only module touching the target, as actually we interact with crt.sh, not
-    # the target
+    # the target. We lock crt.sh instead in the run() method.
     lock_target = False
 
     def query_sql(self, domain: str) -> set[str]:

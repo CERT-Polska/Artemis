@@ -15,14 +15,13 @@ class FailedToAcquireLockException(Exception):
 
 
 class ResourceLock:
-    def __init__(self, redis: Redis, res_name: str):  # type: ignore[type-arg]
+    def __init__(self, redis: Redis, res_name: str, max_tries: Optional[int] = None):  # type: ignore[type-arg]
         self.redis = redis
         self.res_name = res_name
         self.lid = str(uuid4())
+        self.max_tries = max_tries
 
-    def acquire(
-        self, expiry: Optional[int] = Config.DEFAULT_LOCK_EXPIRY_SECONDS, max_tries: Optional[int] = None
-    ) -> None:
+    def acquire(self, expiry: Optional[int] = Config.DEFAULT_LOCK_EXPIRY_SECONDS) -> None:
         """
         Acquires a lock.
 
@@ -34,7 +33,7 @@ class ResourceLock:
             return
 
         attempts = 0
-        while max_tries is None or attempts < max_tries:
+        while self.max_tries is None or attempts < self.max_tries:
             if self.redis.set(self.res_name, self.lid, nx=True, ex=expiry):
                 return
 

@@ -27,7 +27,9 @@ class ArtemisBase(Karton):
     Artemis base module. Provides helpers (such as e.g. cache) for all modules.
     """
 
-    TASK_POLL_INTERVAL_SECONDS = 2
+    task_poll_interval_seconds = 2
+
+    lock_target = Config.LOCK_SCANNED_TARGETS
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
@@ -89,7 +91,7 @@ class ArtemisBase(Karton):
                     self.log.info("Binds changed, shutting down.")
                     break
 
-                time.sleep(self.TASK_POLL_INTERVAL_SECONDS)
+                time.sleep(self.task_poll_interval_seconds)
                 task = self._consume_random_routed_task(self.identity)
                 if task:
                     self.internal_process(task)
@@ -125,31 +127,30 @@ class ArtemisBase(Karton):
     def internal_process(self, current_task: Task) -> None:
         scan_destination = self._get_scan_destination(current_task)
 
-        lock = ResourceLock(Config.REDIS, f"lock-{scan_destination}")
+        if self.lock_target:
+            try:
+                with ResourceLock(
+                    Config.REDIS, f"lock-{scan_destination}", max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES
+                ):
+                    self.log.info(
+                        "Succeeded to lock task %s (orig_uid=%s destination=%s)",
+                        current_task.uid,
+                        current_task.orig_uid,
+                        scan_destination,
+                    )
 
-        try:
-            lock.acquire(max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES)
-        except FailedToAcquireLockException:
-            self.log.info(
-                "Rescheduling task %s (orig_uid=%s destination=%s)",
-                current_task.uid,
-                current_task.orig_uid,
-                scan_destination,
-            )
-            self.reschedule_task(current_task)
-            return
-
-        self.log.info(
-            "Succeeded to lock task %s (orig_uid=%s destination=%s)",
-            current_task.uid,
-            current_task.orig_uid,
-            scan_destination,
-        )
-
-        try:
+                    super().internal_process(current_task)
+            except FailedToAcquireLockException:
+                self.log.info(
+                    "Rescheduling task %s (orig_uid=%s destination=%s)",
+                    current_task.uid,
+                    current_task.orig_uid,
+                    scan_destination,
+                )
+                self.reschedule_task(current_task)
+                return
+        else:
             super().internal_process(current_task)
-        finally:
-            lock.release()
 
     def process(self, current_task: Task) -> None:
         try:

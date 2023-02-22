@@ -54,10 +54,13 @@ class Config:
     # E.g. when set to 100, Artemis will strive to send no more than 100 port scanning packets per seconds to any host.
     SCANNING_PACKETS_PER_SECOND_PER_IP = decouple.config("SCANNING_PACKETS_PER_SECOND_PER_IP", default=100, cast=int)
 
+    # Whether Artemis should strive to make at most one module scan a target at a given time
+    LOCK_SCANNED_TARGETS = decouple.config("LOCK_SCANNED_TARGETS", default=False, cast=bool)
+
     # When a resource is locked using artemis.resource_lock.ResourceLock, a retry will be performed in the
     # next LOCK_SLEEP_MIN_SECONDS..LOCK_SLEEP_MAX_SECONDS seconds.
     LOCK_SLEEP_MIN_SECONDS = decouple.config("LOCK_SLEEP_MIN_SECONDS", default=0.1, cast=float)
-    LOCK_SLEEP_MAX_SECONDS = decouple.config("LOCK_SLEEP_MAX_SECONDS", default=1, cast=float)
+    LOCK_SLEEP_MAX_SECONDS = decouple.config("LOCK_SLEEP_MAX_SECONDS", default=0.5, cast=float)
 
     # Amount of times module will try to get a lock on scanned destination (with sleeps inbetween)
     # before rescheduling task for later.

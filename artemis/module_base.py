@@ -29,7 +29,7 @@ class ArtemisBase(Karton):
 
     task_poll_interval_seconds = 2
 
-    lock_target = True
+    lock_target = Config.LOCK_SCANNED_TARGETS
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)

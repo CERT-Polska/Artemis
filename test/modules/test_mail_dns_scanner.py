@@ -16,5 +16,6 @@ class MailDNSScannerTest(ArtemisModuleTestCase):
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(call.kwargs["status_reason"], "Found problems: DMARC record not found, SPF record not found")
+        self.assertEqual(call.kwargs["data"]["mail_server_found"], True)
         self.assertEqual(call.kwargs["data"]["spf_dmarc_scan_result"]["dmarc"]["valid"], False)
         self.assertEqual(call.kwargs["data"]["spf_dmarc_scan_result"]["spf"]["valid"], False)

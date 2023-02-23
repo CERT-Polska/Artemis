@@ -50,7 +50,7 @@ class MailDNSScanner(ArtemisBase):
     def scan(self, current_task: Task, domain: str) -> MailDNSScannerResult:
         result = MailDNSScannerResult()
 
-        # A heuristic, that domain is used to send e-mails if it has MX records
+        # We check according to a heuristic that a domain is used to send e-mails if it has MX records
         is_parked = False
 
         # Try to find an SMTP for current domain

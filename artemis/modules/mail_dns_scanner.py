@@ -9,7 +9,8 @@ import dns.resolver
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.mail_utils import DomainScanResult, check_domain
+from artemis.mail_utils import DomainScanResult as SPFDMARCScanResult
+from artemis.mail_utils import check_domain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.utils import throttle_request
@@ -18,7 +19,7 @@ from artemis.utils import throttle_request
 @dataclasses.dataclass
 class MailDNSScannerResult:
     mail_server_found = False
-    spf_dmarc_scan_result: Optional[DomainScanResult] = None
+    spf_dmarc_scan_result: Optional[SPFDMARCScanResult] = None
 
 
 class MailDNSScanner(ArtemisBase):

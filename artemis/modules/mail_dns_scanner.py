@@ -88,7 +88,7 @@ class MailDNSScanner(ArtemisBase):
         # sending e-mail, we don't require SPF (but require DMARC). Mail_utils can't be modified as it's
         # used by CERT internal tools as well.
         if is_parked:
-            result.spf_dmarc_scan_result.spf.valid = False
+            result.spf_dmarc_scan_result.spf.valid = True
         return result
 
     def run(self, current_task: Task) -> None:

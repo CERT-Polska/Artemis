@@ -12,7 +12,9 @@ NUM_RETRIES = 100
 RETRY_TIME_SECONDS = 2
 
 
-TaskListRow = namedtuple("TaskListRow", ["created_at", "receiver", "task_link", "headers_html", "message"])
+TaskListRow = namedtuple(
+    "TaskListRow", ["created_at", "receiver", "task_link", "headers_html", "message"]
+)
 
 
 class BaseE2ETestCase(TestCase):
@@ -28,10 +30,14 @@ class BaseE2ETestCase(TestCase):
         requests.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks)})
 
     def wait_for_tasks_finished(
-        self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES
+        self,
+        retry_time_seconds: float = RETRY_TIME_SECONDS,
+        num_retries: int = NUM_RETRIES,
     ) -> None:
         for retry in range(num_retries):
-            if "pending tasks:" not in requests.get(BACKEND_URL).content.decode("utf-8"):
+            if "pending tasks:" not in requests.get(BACKEND_URL).content.decode(
+                "utf-8"
+            ):
                 return
             self._logger.info("There are still pending tasks, retrying")
             time.sleep(retry_time_seconds)
@@ -55,7 +61,11 @@ class BaseE2ETestCase(TestCase):
         messages = self.get_task_messages()
         self.assertIn(message, messages)
 
-    def _wait_for_backend(self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES) -> None:
+    def _wait_for_backend(
+        self,
+        retry_time_seconds: float = RETRY_TIME_SECONDS,
+        num_retries: int = NUM_RETRIES,
+    ) -> None:
         for retry in range(num_retries):
             try:
                 response = requests.get(BACKEND_URL)
@@ -70,5 +80,10 @@ class BaseE2ETestCase(TestCase):
                         num_retries,
                     )
             except Exception as e:
-                self._logger.error("Error when trying to access backend: %s try %d/%d", e, retry + 1, num_retries)
+                self._logger.error(
+                    "Error when trying to access backend: %s try %d/%d",
+                    e,
+                    retry + 1,
+                    num_retries,
+                )
             time.sleep(retry_time_seconds)

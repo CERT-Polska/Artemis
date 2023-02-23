@@ -100,7 +100,9 @@ class ArtemisBase(Karton):
     def _consume_random_routed_task(self, identity: str) -> Optional[Task]:
         uid = None
         for queue in self.backend.get_queue_names(identity):
-            uid = self._get_random_queue_element(args=[random.randint(0, 2**31 - 1), queue])
+            uid = self._get_random_queue_element(
+                args=[random.randint(0, 2**31 - 1), queue]
+            )
             if uid:
                 break
 
@@ -130,7 +132,9 @@ class ArtemisBase(Karton):
         if self.lock_target:
             try:
                 with ResourceLock(
-                    Config.REDIS, f"lock-{scan_destination}", max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES
+                    Config.REDIS,
+                    f"lock-{scan_destination}",
+                    max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES,
                 ):
                     self.log.info(
                         "Succeeded to lock task %s (orig_uid=%s destination=%s)",
@@ -154,9 +158,13 @@ class ArtemisBase(Karton):
 
     def process(self, current_task: Task) -> None:
         try:
-            timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
+            timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(
+                lambda: self.run(current_task)
+            )()
         except Exception:
-            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc())
+            self.db.save_task_result(
+                task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc()
+            )
             raise
 
     def _get_scan_destination(self, task: Task) -> str:
@@ -210,7 +218,9 @@ class ArtemisBase(Karton):
         try:
             ip_addresses = list(ip_lookup(host))
         except Exception as e:
-            raise UnknownIPException(f"Exception while trying to obtain IP for host {host}", e)
+            raise UnknownIPException(
+                f"Exception while trying to obtain IP for host {host}", e
+            )
 
         if not ip_addresses:
             raise UnknownIPException(f"Unknown IP for host {host}")

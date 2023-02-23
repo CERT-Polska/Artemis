@@ -18,5 +18,8 @@ class MySQLBruterTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["status_reason"], "Found working credentials for the MySQL server: root:root")
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "Found working credentials for the MySQL server: root:root",
+        )
         self.assertEqual(call.kwargs["data"].credentials, [("root", "root")])

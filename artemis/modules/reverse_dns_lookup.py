@@ -29,7 +29,10 @@ class ReverseDNSLookup(ArtemisBase):
         return aliaslist
 
     def run(self, current_task: Task) -> None:
-        if Config.VERIFY_REVDNS_IN_SCOPE and "original_domain" not in current_task.payload_persistent:
+        if (
+            Config.VERIFY_REVDNS_IN_SCOPE
+            and "original_domain" not in current_task.payload_persistent
+        ):
             # We will want to ensure the RevDNS result is a subdomain of the original
             # one so that we don't scan outside of the given domain.
             return
@@ -43,7 +46,9 @@ class ReverseDNSLookup(ArtemisBase):
                 new_task = Task({"type": TaskType.NEW}, payload={"data": entry})
                 self.add_task(current_task, new_task)
 
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=found_domains)
+        self.db.save_task_result(
+            task=current_task, status=TaskStatus.OK, data=found_domains
+        )
 
 
 if __name__ == "__main__":

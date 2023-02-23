@@ -96,7 +96,10 @@ class Classifier(ArtemisBase):
                     )
                     self.log.warning(message)
                     self.db.save_task_result(
-                        task=current_task, status=TaskStatus.ERROR, status_reason=message, data=task_type
+                        task=current_task,
+                        status=TaskStatus.ERROR,
+                        status_reason=message,
+                        data=task_type,
                     )
                     return
 
@@ -110,7 +113,9 @@ class Classifier(ArtemisBase):
             },
         )
 
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=new_task.headers["type"])
+        self.db.save_task_result(
+            task=current_task, status=TaskStatus.OK, data=new_task.headers["type"]
+        )
         self.add_task(current_task, new_task)
 
 

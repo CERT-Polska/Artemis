@@ -17,7 +17,9 @@ db.initialize_database()
 
 app.include_router(router_front, prefix="")
 app.include_router(router_api, prefix="/api")
-app.mount("/static", StaticFiles(directory=path.join(path.dirname(__file__), "..", "static")))
+app.mount(
+    "/static", StaticFiles(directory=path.join(path.dirname(__file__), "..", "static"))
+)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000)

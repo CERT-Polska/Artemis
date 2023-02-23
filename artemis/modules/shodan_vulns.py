@@ -78,12 +78,16 @@ class ShodanVulns(ArtemisBase):
 
         if len(found_vuln_descriptions) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found vulnerabilities from Shodan API: " + ", ".join(sorted(found_vuln_descriptions))
+            status_reason = "Found vulnerabilities from Shodan API: " + ", ".join(
+                sorted(found_vuln_descriptions)
+            )
         else:
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
     def run(self, current_task: Task) -> None:
         ip = current_task.get_payload(TaskType.IP)

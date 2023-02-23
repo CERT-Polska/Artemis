@@ -23,7 +23,10 @@ class LFICandidate:
 
 def get_lfi_candidates(url: str, response_text: str) -> List[LFICandidate]:
     result = []
-    for i in re.split("'|\"|>| ", response_text.replace("\n", "").replace("href=", "").replace("src=", "")):
+    for i in re.split(
+        "'|\"|>| ",
+        response_text.replace("\n", "").replace("href=", "").replace("src=", ""),
+    ):
         if match := re.match(LFI_REGEX.format(url=url), i):
             file = match.group(3)
             param = match.group(4)
@@ -63,15 +66,19 @@ class PHPLFIScanner(ArtemisBase):
                 result[key] = "possible"
 
                 for extension in ["", ".php"]:
-                    lfi_test_url = "{url}/{file}.php?{param}={zfilter}{file}{extension}".format(
-                        url=url,
-                        file=candidate.file,
-                        param=candidate.param,
-                        zfilter=B64_FILTER,
-                        extension=extension,
+                    lfi_test_url = (
+                        "{url}/{file}.php?{param}={zfilter}{file}{extension}".format(
+                            url=url,
+                            file=candidate.file,
+                            param=candidate.param,
+                            zfilter=B64_FILTER,
+                            extension=extension,
+                        )
                     )
                     response = http_requests.get(lfi_test_url, allow_redirects=False)
-                    if response.status_code == 200 and re.match(B64_COMMON_PHP, response.text.replace("\n", "")):
+                    if response.status_code == 200 and re.match(
+                        B64_COMMON_PHP, response.text.replace("\n", "")
+                    ):
                         self.log.info("LFI is exploitable")
                         result[key] = "confirmed"
 
@@ -84,7 +91,9 @@ class PHPLFIScanner(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)

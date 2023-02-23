@@ -75,11 +75,15 @@ class VCSScanner(ArtemisBase):
 
         if len(found_vcs_descriptions) > 0:
             status = TaskStatus.INTERESTING
-            status_reason = "Found version control system data: " + ", ".join(sorted(found_vcs_descriptions))
+            status_reason = "Found version control system data: " + ", ".join(
+                sorted(found_vcs_descriptions)
+            )
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)

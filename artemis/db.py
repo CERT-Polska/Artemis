@@ -82,7 +82,12 @@ class DB:
         self.analysis.insert_one(created_analysis)
 
     def save_task_result(
-        self, task: Task, *, status: TaskStatus, status_reason: Optional[str] = None, data: Optional[Any] = None
+        self,
+        task: Task,
+        *,
+        status: TaskStatus,
+        status_reason: Optional[str] = None,
+        data: Optional[Any] = None,
     ) -> None:
         created_task_result = self.task_to_dict(task)
 
@@ -92,7 +97,9 @@ class DB:
         created_task_result["status_reason"] = status_reason
 
         # Used to allow searching in the names and values of all existing headers
-        created_task_result["headers_string"] = " ".join([key + " " + value for key, value in task.headers.items()])
+        created_task_result["headers_string"] = " ".join(
+            [key + " " + value for key, value in task.headers.items()]
+        )
 
         if isinstance(data, BaseModel):
             created_task_result["result"] = data.dict()
@@ -104,18 +111,27 @@ class DB:
         with self.client.start_session() as session:
             with session.start_transaction():
                 result = self.task_results.update_one(
-                    upsert=True, filter={"_id": created_task_result["uid"]}, update={"$set": created_task_result}
+                    upsert=True,
+                    filter={"_id": created_task_result["uid"]},
+                    update={"$set": created_task_result},
                 )
-                if result.upserted_id:  # If the record has been created, set creation date
+                if (
+                    result.upserted_id
+                ):  # If the record has been created, set creation date
                     result = self.task_results.update_one(
-                        {"_id": created_task_result["uid"]}, {"$set": {"created_at": datetime.datetime.now()}}
+                        {"_id": created_task_result["uid"]},
+                        {"$set": {"created_at": datetime.datetime.now()}},
                     )
 
     def get_analysis_by_url(self, url: str) -> List[Dict[str, Any]]:
-        return cast(List[Dict[str, Any]], self.analysis.find({"data": {"$regex": f".*{url}.*"}}))
+        return cast(
+            List[Dict[str, Any]], self.analysis.find({"data": {"$regex": f".*{url}.*"}})
+        )
 
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
-        return cast(Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id}))
+        return cast(
+            Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id})
+        )
 
     def get_paginated_task_results(
         self,
@@ -136,17 +152,22 @@ class DB:
             filter_dict.update(task_filter.as_dict())
 
         ordering_pymongo = [
-            (ordering_rule.column_name, ASCENDING if ordering_rule.ascending else DESCENDING)
+            (
+                ordering_rule.column_name,
+                ASCENDING if ordering_rule.ascending else DESCENDING,
+            )
             for ordering_rule in ordering
         ]
 
         records_count_total = self.task_results.estimated_document_count()
         if search_query:
-            filter_dict.update({"$text": {"$search": self._to_mongo_query(search_query)}})
+            filter_dict.update(
+                {"$text": {"$search": self._to_mongo_query(search_query)}}
+            )
         records_count_filtered = self.task_results.count_documents(filter_dict)
-        results_page = self.task_results.find(filter_dict, {field: 1 for field in fields}).sort(ordering_pymongo)[
-            start : start + length
-        ]
+        results_page = self.task_results.find(
+            filter_dict, {field: 1 for field in fields}
+        ).sort(ordering_pymongo)[start : start + length]
         return PaginatedTaskResults(
             records_count_total=records_count_total,
             records_count_filtered=records_count_filtered,
@@ -154,7 +175,9 @@ class DB:
         )
 
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
-        return cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
+        return cast(
+            Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id})
+        )
 
     def save_scheduled_task(self, task: Task) -> bool:
         """
@@ -222,12 +245,16 @@ class DB:
 
     def get_top_for_statistic(self, name: str, count: int) -> List[Tuple[int, str]]:
         result = []
-        for item in self.statistics.find({"name": name}).sort("count", DESCENDING)[:count]:
+        for item in self.statistics.find({"name": name}).sort("count", DESCENDING)[
+            :count
+        ]:
             result.append((item["count"], item["value"]))
         return result
 
     def statistic_increase(self, name: str, value: str) -> None:
-        self.statistics.find_one_and_update({"name": name, "value": value}, {"$inc": {"count": 1}})
+        self.statistics.find_one_and_update(
+            {"name": name, "value": value}, {"$inc": {"count": 1}}
+        )
 
     def initialize_database(self) -> None:
         """Creates MongoDB indexes. create_index() creates an index if it doesn't exist, so

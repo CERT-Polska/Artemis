@@ -86,7 +86,9 @@ class MailDNSScanner(ArtemisBase):
                 if raw_domain_txt_record.startswith("v=spf1"):
                     result.multiple_spf_records = result.spf_record_present
                     result.spf_record_present = True
-                    result.spf_rejecting_all = any(x in raw_domain_txt_record for x in ["-all", "~all"])
+                    result.spf_rejecting_all = any(
+                        x in raw_domain_txt_record for x in ["-all", "~all"]
+                    )
         except dns.resolver.NoAnswer:
             pass
         except dns.resolver.NXDOMAIN:
@@ -97,11 +99,14 @@ class MailDNSScanner(ArtemisBase):
         domain_dmarc_candidate = dns.name.from_text(domain)
         while not result.dmarc_record_present and str(domain_dmarc_candidate) != ".":
             try:
-                domain_txt_records = dns.resolver.resolve("_dmarc." + str(domain_dmarc_candidate), "TXT")
+                domain_txt_records = dns.resolver.resolve(
+                    "_dmarc." + str(domain_dmarc_candidate), "TXT"
+                )
                 for domain_txt_record in domain_txt_records:
                     raw_domain_txt_record = str(domain_txt_record).strip('"')
-                    result.dmarc_record_present = result.dmarc_record_present or raw_domain_txt_record.startswith(
-                        "v=DMARC1"
+                    result.dmarc_record_present = (
+                        result.dmarc_record_present
+                        or raw_domain_txt_record.startswith("v=DMARC1")
                     )
             except dns.resolver.NoAnswer:
                 pass
@@ -128,13 +133,17 @@ class MailDNSScanner(ArtemisBase):
             if result.multiple_spf_records:
                 status_reasons.append("multiple SPF records are present")
             if result.spf_record_present and not result.spf_rejecting_all:
-                status_reasons.append("SPF record doesn't contain the 'reject all' directive")
+                status_reasons.append(
+                    "SPF record doesn't contain the 'reject all' directive"
+                )
             if not result.dmarc_record_present:
                 status_reasons.append("DMARC record is not present")
             if status_reasons:
                 status = TaskStatus.INTERESTING
                 status_reason = "Found problems: " + ", ".join(sorted(status_reasons))
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
 
 if __name__ == "__main__":

@@ -19,7 +19,8 @@ RE_DISALLOW = re.compile(r"^\s*disallow:\s*(/.*)", re.I)
 
 NOT_INTERESTING_PATHS = [
     re.compile(p, re.I)
-    for p in [r"/wp-admin/?.*", r"/wp-includes/?.*", "^/$"] + [f"^{folder}" for folder in Config.NOT_INTERESTING_PATHS]
+    for p in [r"/wp-admin/?.*", r"/wp-includes/?.*", "^/$"]
+    + [f"^{folder}" for folder in Config.NOT_INTERESTING_PATHS]
 ]
 
 
@@ -76,7 +77,9 @@ class RobotsScanner(ArtemisBase):
 
         return groups
 
-    def _download(self, current_task: Task, url: str, groups: List[RobotsGroup]) -> List[FoundURL]:
+    def _download(
+        self, current_task: Task, url: str, groups: List[RobotsGroup]
+    ) -> List[FoundURL]:
         if len(groups) == 0:
             return []
 
@@ -120,7 +123,9 @@ class RobotsScanner(ArtemisBase):
         if response.status_code == 200:
             groups.extend(self._parse_robots(response.text))
 
-        result = RobotsResult(response.status_code, groups, self._download(current_task, url, groups))
+        result = RobotsResult(
+            response.status_code, groups, self._download(current_task, url, groups)
+        )
         return result
 
     def run(self, current_task: Task) -> None:
@@ -139,7 +144,10 @@ class RobotsScanner(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
         self.db.save_task_result(
-            task=current_task, status=status, status_reason=status_reason, data={"result": asdict(result)}
+            task=current_task,
+            status=status,
+            status_reason=status_reason,
+            data={"result": asdict(result)},
         )
 
 

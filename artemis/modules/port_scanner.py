@@ -52,7 +52,10 @@ PORTS = sorted(list(PORTS_SET))
 NOT_INTERESTING_PORTS = [
     # None means "any port" - (None, "http") means "http on any port"
     (None, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
-    (None, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    (
+        None,
+        "ssh",
+    ),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
     (None, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
     (53, "dns"),  # Not worth reporting (DNS)
     # We explicitely enumerate not interesting HTTP ports so that HTTP services
@@ -61,8 +64,14 @@ NOT_INTERESTING_PORTS = [
     (443, "http"),
     (None, "pop3"),
     (None, "imap"),
-    (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL
-    (5432, "postgres"),  # There is a module (artemis.modules.postgresql_bruter) that checks PostgreSQL
+    (
+        3306,
+        "MySQL",
+    ),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL
+    (
+        5432,
+        "postgres",
+    ),  # There is a module (artemis.modules.postgresql_bruter) that checks PostgreSQL
 ]
 
 
@@ -115,7 +124,9 @@ class PortScanner(ArtemisBase):
         # communicate() to avoid that.
         stdout, stderr = naabu.communicate()
         if stderr:
-            self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
+            self.log.info(
+                f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}"
+            )
 
         result: Dict[str, Dict[str, Any]] = {}
         if stdout:
@@ -130,7 +141,9 @@ class PortScanner(ArtemisBase):
             ip, _ = line.split(b":")
 
             output = throttle_request(
-                lambda: check_output_log_error(["fingerprintx", "--json"], self.log, input=line).strip()
+                lambda: check_output_log_error(
+                    ["fingerprintx", "--json"], self.log, input=line
+                ).strip()
             )
 
             if not output:
@@ -187,17 +200,29 @@ class PortScanner(ArtemisBase):
                 entry = (int(port), result["service"])
                 entry_any_port = (None, result["service"])
 
-                if entry not in NOT_INTERESTING_PORTS and entry_any_port not in NOT_INTERESTING_PORTS:
-                    interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
+                if (
+                    entry not in NOT_INTERESTING_PORTS
+                    and entry_any_port not in NOT_INTERESTING_PORTS
+                ):
+                    interesting_port_descriptions.append(
+                        f"{port} (service: {result['service']} ssl: {result['ssl']})"
+                    )
 
         if len(interesting_port_descriptions):
             status = TaskStatus.INTERESTING
-            status_reason = "Found ports: " + ", ".join(sorted(interesting_port_descriptions))
+            status_reason = "Found ports: " + ", ".join(
+                sorted(interesting_port_descriptions)
+            )
         else:
             status = TaskStatus.OK
             status_reason = None
         # save raw results
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=all_results)
+        self.db.save_task_result(
+            task=current_task,
+            status=status,
+            status_reason=status_reason,
+            data=all_results,
+        )
 
 
 if __name__ == "__main__":

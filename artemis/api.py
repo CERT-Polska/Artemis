@@ -28,7 +28,9 @@ def num_queued_tasks() -> int:
     # We check the backend redis queue length directly to avoid the long runtimes of
     # KartonState.get_all_tasks()
     backend = KartonBackend(config=KartonConfig())
-    return sum([backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")])
+    return sum(
+        [backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")]
+    )
 
 
 @router.get("/analysis/{root_id}")
@@ -92,7 +94,12 @@ def get_task_results(
         )
     else:
         result = db.get_paginated_task_results(
-            start, length, ordering, fields=fields, search_query=search_query, task_filter=task_filter
+            start,
+            length,
+            ordering,
+            fields=fields,
+            search_query=search_query,
+            task_filter=task_filter,
         )
 
     return {
@@ -104,7 +111,14 @@ def get_task_results(
 
 
 def _get_ordering(request: Request) -> List[ColumnOrdering]:
-    column_names = ["created_at", "headers.receiver", "target_string", None, "status_reason", "decision_type"]
+    column_names = [
+        "created_at",
+        "headers.receiver",
+        "target_string",
+        None,
+        "status_reason",
+        "decision_type",
+    ]
     ordering = []
 
     # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]
@@ -113,10 +127,18 @@ def _get_ordering(request: Request) -> List[ColumnOrdering]:
     while True:
         column_key = f"order[{i}][column]"
         dir_key = f"order[{i}][dir]"
-        if column_key not in request.query_params or dir_key not in request.query_params:
+        if (
+            column_key not in request.query_params
+            or dir_key not in request.query_params
+        ):
             break
         column_name = column_names[int(request.query_params[column_key])]
         if column_name:
-            ordering.append(ColumnOrdering(column_name=column_name, ascending=request.query_params[dir_key] == "asc"))
+            ordering.append(
+                ColumnOrdering(
+                    column_name=column_name,
+                    ascending=request.query_params[dir_key] == "asc",
+                )
+            )
         i += 1
     return ordering

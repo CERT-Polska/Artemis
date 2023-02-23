@@ -2,7 +2,9 @@ import os
 
 STATISTICS = []
 
-for line in open(os.path.join(os.path.dirname(__file__), "bruter_initial_statistics.txt")):
+for line in open(
+    os.path.join(os.path.dirname(__file__), "bruter_initial_statistics.txt")
+):
     if line:
         count_str, path = line.strip().split(" ", 1)
         count_int = int(count_str)

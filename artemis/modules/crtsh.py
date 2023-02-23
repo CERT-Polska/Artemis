@@ -33,7 +33,9 @@ class CrtshScanner(ArtemisBase):
         conn.set_session(readonly=True, autocommit=True)
         with conn.cursor() as cursor:
             # Validate characters as we are putting the domain inside a SQL query
-            assert all([c in string.ascii_letters + "-" + string.digits + "." for c in domain])
+            assert all(
+                [c in string.ascii_letters + "-" + string.digits + "." for c in domain]
+            )
             cursor.execute(
                 (
                     f"SELECT name_value FROM certificate_and_identities"
@@ -79,7 +81,9 @@ class CrtshScanner(ArtemisBase):
                 )
                 self.add_task(current_task, task)
 
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(ct_domains))
+            self.db.save_task_result(
+                task=current_task, status=TaskStatus.OK, data=list(ct_domains)
+            )
             self.log.info(f"Added {len(ct_domains)} subdomains to scan")
 
 

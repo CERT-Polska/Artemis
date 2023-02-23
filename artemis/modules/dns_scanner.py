@@ -45,7 +45,9 @@ class DnsScanner(ArtemisBase):
             except dns.resolver.NXDOMAIN:
                 nameserver_ip = None
                 result["ns_does_not_exist"] = True
-                findings.add(f"{nameserver} domain does not exist - maybe it can be registered?")
+                findings.add(
+                    f"{nameserver} domain does not exist - maybe it can be registered?"
+                )
 
             nameserver_ok = False
             if nameserver_ip:
@@ -74,7 +76,9 @@ class DnsScanner(ArtemisBase):
                     pass
 
                 if topmost_transferable_zone_name:
-                    result["topmost_transferable_zone_name"] = topmost_transferable_zone_name
+                    result[
+                        "topmost_transferable_zone_name"
+                    ] = topmost_transferable_zone_name
                     result["zone_transfer_nameserver"] = nameserver_ip
                     findings.add(
                         f"DNS zone transfer is possible (nameserver {nameserver_ip}, zone_name "
@@ -87,7 +91,9 @@ class DnsScanner(ArtemisBase):
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
 
 if __name__ == "__main__":

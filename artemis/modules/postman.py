@@ -54,12 +54,21 @@ class Postman(ArtemisBase):
             local_hostname = Config.POSTMAN_MAIL_FROM.split("@")[1]
 
             def check() -> None:
-                with SMTP(host, port, local_hostname=local_hostname, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
+                with SMTP(
+                    host,
+                    port,
+                    local_hostname=local_hostname,
+                    timeout=Config.REQUEST_TIMEOUT_SECONDS,
+                ) as smtp:
                     smtp.set_debuglevel(1)
                     smtp.sendmail(
                         Config.POSTMAN_MAIL_FROM,
                         Config.POSTMAN_MAIL_TO,
-                        Postman._create_email(Config.POSTMAN_MAIL_FROM, Config.POSTMAN_MAIL_TO, "open-relay"),
+                        Postman._create_email(
+                            Config.POSTMAN_MAIL_FROM,
+                            Config.POSTMAN_MAIL_TO,
+                            "open-relay",
+                        ),
                     )
 
             throttle_request(check)
@@ -86,7 +95,9 @@ class Postman(ArtemisBase):
                     smtp.sendmail(
                         mail_from,
                         Config.POSTMAN_MAIL_TO,
-                        Postman._create_email(mail_from, Config.POSTMAN_MAIL_TO, "auth"),
+                        Postman._create_email(
+                            mail_from, Config.POSTMAN_MAIL_TO, "auth"
+                        ),
                     )
 
             throttle_request(check)
@@ -143,7 +154,9 @@ class Postman(ArtemisBase):
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
 
 if __name__ == "__main__":

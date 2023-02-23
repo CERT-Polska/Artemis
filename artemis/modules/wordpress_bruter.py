@@ -67,13 +67,26 @@ class WordPressBruter(ArtemisBase):
 
         if credentials:
             status = TaskStatus.INTERESTING
-            status_reason = "Found working credentials for the WordPress admin: " + ", ".join(
-                sorted([username + ":" + password for username, password in credentials])
+            status_reason = (
+                "Found working credentials for the WordPress admin: "
+                + ", ".join(
+                    sorted(
+                        [
+                            username + ":" + password
+                            for username, password in credentials
+                        ]
+                    )
+                )
             )
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=credentials)
+        self.db.save_task_result(
+            task=current_task,
+            status=status,
+            status_reason=status_reason,
+            data=credentials,
+        )
 
 
 if __name__ == "__main__":

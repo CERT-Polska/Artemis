@@ -61,7 +61,9 @@ class WebappIdentifier(ArtemisBase):
         )
         self.add_task(current_task, new_task)
 
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=application)
+        self.db.save_task_result(
+            task=current_task, status=TaskStatus.OK, data=application
+        )
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)

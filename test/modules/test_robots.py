@@ -47,7 +47,13 @@ class RobotsTest(ArtemisModuleTestCase):
                 [
                     {
                         "user_agents": ["*"],
-                        "disallow": ["/secret-url/", "/secret-url-noindex/", "/wp-includes/", "/icons/", "/"],
+                        "disallow": [
+                            "/secret-url/",
+                            "/secret-url-noindex/",
+                            "/wp-includes/",
+                            "/icons/",
+                            "/",
+                        ],
                         "allow": [],
                     }
                 ],

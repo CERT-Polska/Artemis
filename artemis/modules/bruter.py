@@ -38,8 +38,12 @@ FILENAMES_WITHOUT_EXTENSIONS = [
 ]
 
 EXTENSIONS = ["zip", "tar.gz", "7z", "tar", "gz", "tgz"]
-with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt")) as common_db_backups_file:
-    with open(os.path.join(os.path.dirname(__file__), "data", "quickhits.txt")) as quickhits_file:
+with open(
+    os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt")
+) as common_db_backups_file:
+    with open(
+        os.path.join(os.path.dirname(__file__), "data", "quickhits.txt")
+    ) as quickhits_file:
         FILENAMES_TO_SCAN: Set[str] = set(
             [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
             + [
@@ -76,9 +80,13 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
             + read_paths_from_file(quickhits_file)
         )
 
-with open(os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")) as ignore_paths_file:
+with open(
+    os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")
+) as ignore_paths_file:
     IGNORE_PATHS_ORIGINAL = read_paths_from_file(ignore_paths_file)
-    IGNORE_PATHS = set(IGNORE_PATHS_ORIGINAL) | {path + "/" for path in IGNORE_PATHS_ORIGINAL}
+    IGNORE_PATHS = set(IGNORE_PATHS_ORIGINAL) | {
+        path + "/" for path in IGNORE_PATHS_ORIGINAL
+    }
     FILENAMES_TO_SCAN = FILENAMES_TO_SCAN - IGNORE_PATHS
 
 IGNORED_CONTENTS = [
@@ -116,11 +124,17 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
-        top_counts_and_paths = self.db.get_top_for_statistic("bruter", Config.BRUTER_NUM_TOP_PATHS_TO_USE)
-        self.log.info(f"bruter scanning {base_url}, most popular paths={top_counts_and_paths}")
+        top_counts_and_paths = self.db.get_top_for_statistic(
+            "bruter", Config.BRUTER_NUM_TOP_PATHS_TO_USE
+        )
+        self.log.info(
+            f"bruter scanning {base_url}, most popular paths={top_counts_and_paths}"
+        )
 
         # random endpoint to filter out custom 404 pages
-        dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+        dummy_random_token = "".join(
+            random.choices(string.ascii_letters + string.digits, k=16)
+        )
         dummy_url = base_url + "/" + dummy_random_token
         try:
             dummy_content = http_requests.get(dummy_url).content
@@ -142,7 +156,9 @@ class Bruter(ArtemisBase):
             self.log.info(f"bruter url {i}/{len(paths_to_scan)}: {url}")
             try:
                 full_url = base_url + "/" + url
-                results[full_url] = http_requests.get(full_url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
+                results[full_url] = http_requests.get(
+                    full_url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS
+                )
             except Exception:
                 pass
 
@@ -159,7 +175,8 @@ class Bruter(ArtemisBase):
             filtered_content = (
                 "Error 403" in response.content
                 or response.content.strip() in IGNORED_CONTENTS
-                or SequenceMatcher(None, response.content, dummy_content).quick_ratio() >= 0.8
+                or SequenceMatcher(None, response.content, dummy_content).quick_ratio()
+                >= 0.8
             )
 
             if not filtered_content:
@@ -171,7 +188,10 @@ class Bruter(ArtemisBase):
                     )
                 )
 
-        if len(found_urls) > len(paths_to_scan) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+        if (
+            len(found_urls)
+            > len(paths_to_scan) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD
+        ):
             return BruterResult(
                 content_404=dummy_content,
                 too_many_urls_detected=True,
@@ -223,13 +243,20 @@ class Bruter(ArtemisBase):
 
             status_reason = "Found URLs: " + ", ".join(sorted(found_urls))
             if found_urls_with_directory_index:
-                status_reason += " (" + ", ".join(sorted(found_urls_with_directory_index)) + " with directory index)"
+                status_reason += (
+                    " ("
+                    + ", ".join(sorted(found_urls_with_directory_index))
+                    + " with directory index)"
+                )
         else:
             status = TaskStatus.OK
             status_reason = None
 
         self.db.save_task_result(
-            task=task, status=status, status_reason=status_reason, data=dataclasses.asdict(scan_result)
+            task=task,
+            status=status,
+            status_reason=status_reason,
+            data=dataclasses.asdict(scan_result),
         )
 
 

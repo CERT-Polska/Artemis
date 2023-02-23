@@ -91,7 +91,9 @@ def get_queue(request: Request) -> Response:
 
 
 @router.get("/analysis/{root_id}", include_in_schema=False)
-def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilter] = None) -> Response:
+def get_analysis(
+    request: Request, root_id: str, task_filter: Optional[TaskFilter] = None
+) -> Response:
     analysis = db.get_analysis_by_id(root_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -106,7 +108,8 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
         {
             "request": request,
             "title": f"Analysis of { analysis['payload']['data'] }",
-            "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
+            "api_url": "/api/task-results?"
+            + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },
     )
@@ -123,14 +126,17 @@ def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> R
         {
             "request": request,
             "title": "Results",
-            "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
+            "api_url": "/api/task-results?"
+            + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },
     )
 
 
 @router.get("/task/{task_id}", include_in_schema=False)
-def get_task(task_id: str, request: Request, referer: str = Header(default="/")) -> Response:
+def get_task(
+    task_id: str, request: Request, referer: str = Header(default="/")
+) -> Response:
     task = db.get_task_by_id(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -141,6 +147,8 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
             "request": request,
             "task": task,
             "referer": referer,
-            "pretty_printed": json.dumps(task, indent=4, cls=JSONEncoderWithDataclasses),
+            "pretty_printed": json.dumps(
+                task, indent=4, cls=JSONEncoderWithDataclasses
+            ),
         },
     )

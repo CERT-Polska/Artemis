@@ -19,6 +19,7 @@ class PostgreSQLBruterTest(ArtemisModuleTestCase):
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
-            call.kwargs["status_reason"], "Found working credentials for the PostgreSQL server: example:example"
+            call.kwargs["status_reason"],
+            "Found working credentials for the PostgreSQL server: example:example",
         )
         self.assertEqual(call.kwargs["data"].credentials, [("example", "example")])

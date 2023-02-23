@@ -27,7 +27,9 @@ class Nuclei(ArtemisBase):
         with self.lock:
             subprocess.call(["nuclei", "-update-templates"])
             self._critical_templates = (
-                check_output_log_error(["nuclei", "-s", "critical", "-tl"], self.log).decode("ascii").split()
+                check_output_log_error(["nuclei", "-s", "critical", "-tl"], self.log)
+                .decode("ascii")
+                .split()
             )
             if Config.NUCLEI_CHECK_TEMPLATE_LIST and len(self._critical_templates) == 0:
                 raise RuntimeError("Unable to obtain Nuclei critical templates list")
@@ -50,7 +52,9 @@ class Nuclei(ArtemisBase):
         self.log.info(f"nuclei: running {len(templates)} templates on {target}")
 
         if len(templates) == 0:
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, status_reason=None, data={})
+            self.db.save_task_result(
+                task=current_task, status=TaskStatus.OK, status_reason=None, data={}
+            )
             return
 
         if Config.CUSTOM_USER_AGENT:
@@ -97,7 +101,9 @@ class Nuclei(ArtemisBase):
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
 
 if __name__ == "__main__":

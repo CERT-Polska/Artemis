@@ -23,7 +23,9 @@ class WordPressScanner(ArtemisBase):
     def _is_version_insecure(self, version: str) -> bool:
         cache_key = "version-stability"
         if not self.cache.get(cache_key):
-            data = requests.get("https://api.wordpress.org/core/stable-check/1.0/").json()
+            data = requests.get(
+                "https://api.wordpress.org/core/stable-check/1.0/"
+            ).json()
             data_as_json = json.dumps(data)
             self.cache.set(cache_key, data_as_json.encode("utf-8"))
         else:
@@ -52,9 +54,15 @@ class WordPressScanner(ArtemisBase):
         # Check if they are running latest patch version
         response = http_requests.get(url)
         wp_version = None
-        if match := re.search('<meta name="generator" content="WordPress ([0-9]+\\.[0-9]+\\.[0-9]+)', response.text):
+        if match := re.search(
+            '<meta name="generator" content="WordPress ([0-9]+\\.[0-9]+\\.[0-9]+)',
+            response.text,
+        ):
             wp_version = match.group(1)
-        elif match := re.search("wp-includes/js/wp-embed.min.js\\?ver=([0-9]+\\.[0-9]+\\.[0-9]+)", response.text):
+        elif match := re.search(
+            "wp-includes/js/wp-embed.min.js\\?ver=([0-9]+\\.[0-9]+\\.[0-9]+)",
+            response.text,
+        ):
             wp_version = match.group(1)
 
         if wp_version:
@@ -64,16 +72,22 @@ class WordPressScanner(ArtemisBase):
                 result["wp_version_insecure"] = True
 
             # Enumerate installed plugins
-            result["wp_plugins"] = re.findall("wp-content/plugins/([^/]+)/.+ver=([0-9.]+)", response.text)
+            result["wp_plugins"] = re.findall(
+                "wp-content/plugins/([^/]+)/.+ver=([0-9.]+)", response.text
+            )
 
         if found_problems:
             status = TaskStatus.INTERESTING
-            status_reason = "Found WordPress problems: " + ", ".join(sorted(found_problems))
+            status_reason = "Found WordPress problems: " + ", ".join(
+                sorted(found_problems)
+            )
         else:
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")

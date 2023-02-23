@@ -22,4 +22,6 @@ class WordPressBruterTest(ArtemisModuleTestCase):
             call.kwargs["status_reason"],
             "Found working credentials for the WordPress admin: long_and_hard_to_guess_username:12345",
         )
-        self.assertEqual(call.kwargs["data"], [("long_and_hard_to_guess_username", "12345")])
+        self.assertEqual(
+            call.kwargs["data"], [("long_and_hard_to_guess_username", "12345")]
+        )

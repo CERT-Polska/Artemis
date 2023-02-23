@@ -53,7 +53,9 @@ class DirectoryIndex(ArtemisBase):
                         path = urllib.parse.urljoin(path, "..")
                         if path == "" or path == "/":
                             if new_url_parsed.netloc != S3_BASE_DOMAIN:
-                                path_candidates.add("https://" + new_url_parsed.netloc + path)
+                                path_candidates.add(
+                                    "https://" + new_url_parsed.netloc + path
+                                )
                             break
 
                 if original_base_url_parsed.netloc == new_url_parsed.netloc:

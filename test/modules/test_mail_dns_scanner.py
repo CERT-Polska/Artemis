@@ -11,7 +11,9 @@ class MailDNSScannerTest(ArtemisModuleTestCase):
     karton_class = MailDNSScanner  # type: ignore
 
     def test_simple(self) -> None:
-        task = Task({"type": TaskType.DOMAIN}, payload={TaskType.DOMAIN: "test-smtp-server"})
+        task = Task(
+            {"type": TaskType.DOMAIN}, payload={TaskType.DOMAIN: "test-smtp-server"}
+        )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)

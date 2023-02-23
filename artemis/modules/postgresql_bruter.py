@@ -39,20 +39,34 @@ class PostgreSQLBruter(ArtemisBase):
 
         for username, password in BRUTE_CREDENTIALS:
             try:
-                throttle_request(lambda: psycopg2.connect(host=host, port=port, user=username, password=password))
+                throttle_request(
+                    lambda: psycopg2.connect(
+                        host=host, port=port, user=username, password=password
+                    )
+                )
                 result.credentials.append((username, password))
             except psycopg2.OperationalError:
                 pass
 
         if result.credentials:
             status = TaskStatus.INTERESTING
-            status_reason = "Found working credentials for the PostgreSQL server: " + ", ".join(
-                sorted([username + ":" + password for username, password in result.credentials])
+            status_reason = (
+                "Found working credentials for the PostgreSQL server: "
+                + ", ".join(
+                    sorted(
+                        [
+                            username + ":" + password
+                            for username, password in result.credentials
+                        ]
+                    )
+                )
             )
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=result
+        )
 
 
 if __name__ == "__main__":

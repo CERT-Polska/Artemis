@@ -33,8 +33,10 @@ class WordPressScannerTest(ArtemisModuleTestCase):
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             self.assertEqual(
-                call.kwargs["status_reason"], "Found WordPress problems: WordPress 5.9.3 is considered insecure"
+                call.kwargs["status_reason"],
+                "Found WordPress problems: WordPress 5.9.3 is considered insecure",
             )
             self.assertEqual(
-                call.kwargs["data"], {"wp_version": "5.9.3", "wp_plugins": [], "wp_version_insecure": True}
+                call.kwargs["data"],
+                {"wp_version": "5.9.3", "wp_plugins": [], "wp_version_insecure": True},
             )

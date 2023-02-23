@@ -18,5 +18,11 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["status_reason"], "Found problems: Joomla version is too old: 4.0.5")
-        self.assertEqual(call.kwargs["data"], {"joomla_version": "4.0.5", "joomla_version_is_too_old": True})
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "Found problems: Joomla version is too old: 4.0.5",
+        )
+        self.assertEqual(
+            call.kwargs["data"],
+            {"joomla_version": "4.0.5", "joomla_version_is_too_old": True},
+        )

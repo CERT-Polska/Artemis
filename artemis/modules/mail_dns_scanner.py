@@ -18,7 +18,7 @@ from artemis.utils import throttle_request
 @dataclasses.dataclass
 class MailDNSScannerResult:
     mail_server_found = False
-    domain_scan_result: Optional[DomainScanResult] = None
+    spf_dmarc_scan_result: Optional[DomainScanResult] = None
 
 
 class MailDNSScanner(ArtemisBase):
@@ -81,13 +81,13 @@ class MailDNSScanner(ArtemisBase):
         except dns.resolver.NXDOMAIN:
             is_parked = True
 
-        result.domain_scan_result = check_domain(domain=domain, parked=is_parked)
+        result.spf_dmarc_scan_result = check_domain(domain=domain, parked=is_parked)
 
         # For Artemis we have a slightly relaxed requirement than mail_utils - if a domain is not used for
         # sending e-mail, we don't require SPF (but require DMARC). Mail_utils can't be modified as it's
         # used by CERT internal tools as well.
         if is_parked:
-            result.domain_scan_result.spf.valid = False
+            result.spf_dmarc_scan_result.spf.valid = False
         return result
 
     def run(self, current_task: Task) -> None:
@@ -102,14 +102,18 @@ class MailDNSScanner(ArtemisBase):
         status_reason = None
         if result.mail_server_found:
             status_reasons: List[str] = []
-            if result.domain_scan_result and result.domain_scan_result.spf and not result.domain_scan_result.spf.valid:
-                status_reasons.extend(result.domain_scan_result.spf.errors)
             if (
-                result.domain_scan_result
-                and result.domain_scan_result.dmarc
-                and not result.domain_scan_result.dmarc.valid
+                result.spf_dmarc_scan_result
+                and result.spf_dmarc_scan_result.spf
+                and not result.spf_dmarc_scan_result.spf.valid
             ):
-                status_reasons.extend(result.domain_scan_result.dmarc.errors)
+                status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
+            if (
+                result.spf_dmarc_scan_result
+                and result.spf_dmarc_scan_result.dmarc
+                and not result.spf_dmarc_scan_result.dmarc.valid
+            ):
+                status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
             if status_reasons:
                 status = TaskStatus.INTERESTING
                 status_reason = "Found problems: " + ", ".join(sorted(status_reasons))

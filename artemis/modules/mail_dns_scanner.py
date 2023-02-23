@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
+import dataclasses
 import socket
 from smtplib import SMTP, SMTPServerDisconnected
+from typing import List, Optional
 
 import dns.name
 import dns.resolver
 from karton.core import Task
-from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.mail_utils import DomainScanResult, check_domain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.utils import throttle_request
 
 
-class MailDNSScannerResult(BaseModel):
+@dataclasses.dataclass
+class MailDNSScannerResult:
     mail_server_found = False
-    spf_record_present = False
-    spf_rejecting_all = False
-    multiple_spf_records = False
-    dmarc_record_present = False
+    domain_scan_result: Optional[DomainScanResult] = None
 
 
 class MailDNSScanner(ArtemisBase):
@@ -49,6 +49,9 @@ class MailDNSScanner(ArtemisBase):
     def scan(self, current_task: Task, domain: str) -> MailDNSScannerResult:
         result = MailDNSScannerResult()
 
+        # A heuristic, that domain is used to send e-mails if it has MX records
+        is_parked = False
+
         # Try to find an SMTP for current domain
         try:
             domain_mx_records = dns.resolver.resolve(domain, "MX")
@@ -74,41 +77,17 @@ class MailDNSScanner(ArtemisBase):
             if self.is_smtp_server(domain, 25):
                 result.mail_server_found = True
             else:
-                return result
+                is_parked = True
         except dns.resolver.NXDOMAIN:
-            return result
+            is_parked = True
 
-        # Check SPF
-        try:
-            domain_txt_records = dns.resolver.resolve(domain, "TXT")
-            for domain_txt_record in domain_txt_records:
-                raw_domain_txt_record = str(domain_txt_record).strip('"')
-                if raw_domain_txt_record.startswith("v=spf1"):
-                    result.multiple_spf_records = result.spf_record_present
-                    result.spf_record_present = True
-                    result.spf_rejecting_all = any(x in raw_domain_txt_record for x in ["-all", "~all"])
-        except dns.resolver.NoAnswer:
-            pass
-        except dns.resolver.NXDOMAIN:
-            # For example the Docker dns server returns NXDOMAIN in such case.
-            pass
+        result.domain_scan_result = check_domain(domain=domain, parked=is_parked)
 
-        # Check DMARC
-        domain_dmarc_candidate = dns.name.from_text(domain)
-        while not result.dmarc_record_present and str(domain_dmarc_candidate) != ".":
-            try:
-                domain_txt_records = dns.resolver.resolve("_dmarc." + str(domain_dmarc_candidate), "TXT")
-                for domain_txt_record in domain_txt_records:
-                    raw_domain_txt_record = str(domain_txt_record).strip('"')
-                    result.dmarc_record_present = result.dmarc_record_present or raw_domain_txt_record.startswith(
-                        "v=DMARC1"
-                    )
-            except dns.resolver.NoAnswer:
-                pass
-            except dns.resolver.NXDOMAIN:
-                pass
-            domain_dmarc_candidate = domain_dmarc_candidate.parent()
-
+        # For Artemis we have a slightly relaxed requirement than mail_utils - if a domain is not used for
+        # sending e-mail, we don't require SPF (but require DMARC). Mail_utils can't be modified as it's
+        # used by CERT internal tools as well.
+        if is_parked:
+            result.domain_scan_result.spf.valid = False
         return result
 
     def run(self, current_task: Task) -> None:
@@ -122,19 +101,21 @@ class MailDNSScanner(ArtemisBase):
         status = TaskStatus.OK
         status_reason = None
         if result.mail_server_found:
-            status_reasons = []
-            if not result.spf_record_present:
-                status_reasons.append("SPF record is not present")
-            if result.multiple_spf_records:
-                status_reasons.append("multiple SPF records are present")
-            if result.spf_record_present and not result.spf_rejecting_all:
-                status_reasons.append("SPF record doesn't contain the 'reject all' directive")
-            if not result.dmarc_record_present:
-                status_reasons.append("DMARC record is not present")
+            status_reasons: List[str] = []
+            if result.domain_scan_result and result.domain_scan_result.spf and not result.domain_scan_result.spf.valid:
+                status_reasons.extend(result.domain_scan_result.spf.errors)
+            if (
+                result.domain_scan_result
+                and result.domain_scan_result.dmarc
+                and not result.domain_scan_result.dmarc.valid
+            ):
+                status_reasons.extend(result.domain_scan_result.dmarc.errors)
             if status_reasons:
                 status = TaskStatus.INTERESTING
                 status_reason = "Found problems: " + ", ".join(sorted(status_reasons))
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task, status=status, status_reason=status_reason, data=dataclasses.asdict(result)
+        )
 
 
 if __name__ == "__main__":

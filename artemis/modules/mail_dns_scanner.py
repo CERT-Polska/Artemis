@@ -18,7 +18,7 @@ from artemis.utils import throttle_request
 
 @dataclasses.dataclass
 class MailDNSScannerResult:
-    mail_server_found = False
+    mail_server_found: bool = False
     spf_dmarc_scan_result: Optional[SPFDMARCScanResult] = None
 
 

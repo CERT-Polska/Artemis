@@ -50,8 +50,7 @@ class MailDNSScanner(ArtemisBase):
     def scan(self, current_task: Task, domain: str) -> MailDNSScannerResult:
         result = MailDNSScannerResult()
 
-        # We check according to a heuristic that a domain is used to send e-mails if it has MX records
-        is_parked = False
+        has_mx_records = False
 
         # Try to find an SMTP for current domain
         try:
@@ -59,6 +58,7 @@ class MailDNSScanner(ArtemisBase):
             for domain_mx_record in domain_mx_records:
                 exchange = str(domain_mx_record.exchange).removesuffix(".")
                 result.mail_server_found = True
+                has_mx_records = True
                 for port in (25, 465, 587):
                     if self.is_smtp_server(exchange, port):
                         for host in [exchange] + list(ip_lookup(exchange)):
@@ -77,18 +77,15 @@ class MailDNSScanner(ArtemisBase):
         except dns.resolver.NoAnswer:
             if self.is_smtp_server(domain, 25):
                 result.mail_server_found = True
-            else:
-                is_parked = True
-        except dns.resolver.NXDOMAIN:
-            is_parked = True
 
-        result.spf_dmarc_scan_result = check_domain(domain=domain, parked=is_parked)
+        # We check according to a heuristic that a domain is used to send e-mails if it has MX records
+        result.spf_dmarc_scan_result = check_domain(domain=domain, parked=not has_mx_records)
 
         # For Artemis we have a slightly relaxed requirement than mail_utils - if a domain is not used for
         # sending e-mail, we don't require SPF (but require DMARC). Mail_utils can't be modified as it's
         # used by CERT internal tools as well.
-        if is_parked:
-            result.spf_dmarc_scan_result.spf.valid = False
+        if not has_mx_records:
+            result.spf_dmarc_scan_result.spf.valid = True
         return result
 
     def run(self, current_task: Task) -> None:

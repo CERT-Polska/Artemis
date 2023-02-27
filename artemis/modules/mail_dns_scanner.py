@@ -10,7 +10,7 @@ from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.mail_utils import DomainScanResult as SPFDMARCScanResult
-from artemis.mail_utils import check_domain
+from artemis.mail_utils import ScanningException, check_domain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.utils import throttle_request
@@ -79,12 +79,15 @@ class MailDNSScanner(ArtemisBase):
                 result.mail_server_found = True
 
         # We check according to a heuristic that a domain is used to send e-mails if it has MX records
-        result.spf_dmarc_scan_result = check_domain(domain=domain, parked=not has_mx_records)
+        try:
+            result.spf_dmarc_scan_result = check_domain(domain=domain, parked=not has_mx_records)
+        except ScanningException:
+            self.log.exception("Unable to check domain %s", domain)
 
         # For Artemis we have a slightly relaxed requirement than mail_utils - if a domain is not used for
         # sending e-mail, we don't require SPF (but require DMARC). Mail_utils can't be modified as it's
         # used by CERT internal tools as well.
-        if not has_mx_records:
+        if result.spf_dmarc_scan_result and not has_mx_records:
             result.spf_dmarc_scan_result.spf.valid = True
         return result
 

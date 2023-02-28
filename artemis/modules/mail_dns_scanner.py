@@ -91,7 +91,13 @@ class MailDNSScanner(ArtemisBase):
             result.spf_dmarc_scan_result.spf.valid = True
 
         random_token = binascii.hexlify(os.urandom(8)).decode("ascii")
-        random_subdomain_has_mx_records = len(dns.resolver.resolve(random_token + "." + domain, "MX")) > 0
+        try:
+            random_subdomain_has_mx_records = len(dns.resolver.resolve(random_token + "." + domain, "MX")) > 0
+        except dns.resolver.NoAnswer:
+            random_subdomain_has_mx_records = False
+        except dns.resolver.NXDOMAIN:
+            random_subdomain_has_mx_records = False
+
         if has_mx_records and random_subdomain_has_mx_records:
             # Some domains return a MX records for all subdomains, even nonexistent ones.
             # In that case we shouldn't expect a SPF record to exist on all of them.

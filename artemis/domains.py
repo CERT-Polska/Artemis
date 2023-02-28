@@ -11,7 +11,8 @@ def is_main_domain(domain: str) -> bool:
     if len(domain_items) <= 1:
         return False
 
-    return bool(PUBLIC_SUFFIX_LIST.publicsuffix(".".join(domain_items[1:])))
+    parent_domain = ".".join(domain_items[1:])
+    return PUBLIC_SUFFIX_LIST.publicsuffix(parent_domain) == parent_domain  # type: ignore
 
 
 def is_subdomain(subdomain_candidate: str, parent_domain_candidate: str) -> bool:

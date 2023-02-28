@@ -51,7 +51,10 @@ class JoomlaScanner(ArtemisBase):
         for release in data:
             release_version = release["tag_name"]
             release_version_parsed = semver.VersionInfo.parse(release_version)
-            if release_version_parsed.major == version_parsed.major and semver.compare(release_version, version) > 0:
+            if (
+                release_version_parsed.major == version_parsed.major
+                and release_version_parsed.compare(version_parsed) > 0
+            ):
                 is_newer_version_available = True
 
         # To consider a version old, it must:

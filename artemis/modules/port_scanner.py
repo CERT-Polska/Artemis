@@ -12,7 +12,7 @@ from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.task_utils import get_target
-from artemis.utils import check_output_log_error, throttle_request
+from artemis.utils import check_output_log_on_error, throttle_request
 
 if Config.CUSTOM_PORT_SCANNER_PORTS:
     PORTS_SET = set(Config.CUSTOM_PORT_SCANNER_PORTS)
@@ -130,7 +130,7 @@ class PortScanner(ArtemisBase):
             ip, _ = line.split(b":")
 
             output = throttle_request(
-                lambda: check_output_log_error(["fingerprintx", "--json"], self.log, input=line).strip()
+                lambda: check_output_log_on_error(["fingerprintx", "--json"], self.log, input=line).strip()
             )
 
             if not output:

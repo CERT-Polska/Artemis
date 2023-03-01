@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import binascii
 import dataclasses
 import os
 import socket

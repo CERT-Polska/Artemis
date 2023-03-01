@@ -7,12 +7,7 @@ def is_main_domain(domain: str) -> bool:
     """
     Main domain (e.g. of an institution) is one that is registered directly under a public suffix.
     """
-    domain_items = [item for item in domain.split(".") if item]
-    if len(domain_items) <= 1:
-        return False
-
-    parent_domain = ".".join(domain_items[1:])
-    return PUBLIC_SUFFIX_LIST.publicsuffix(parent_domain) == parent_domain  # type: ignore
+    return PUBLIC_SUFFIX_LIST.privatesuffix(domain) == domain  # type: ignore
 
 
 def is_subdomain(subdomain_candidate: str, parent_domain_candidate: str) -> bool:

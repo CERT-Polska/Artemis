@@ -70,7 +70,7 @@ class CrtshScanner(ArtemisBase):
             except OperationalError:
                 ct_domains = self.query_json(domain)
             for entry in ct_domains:
-                assert is_subdomain(entry, domain)
+                assert is_subdomain(entry, domain), f"Non-subdomain returned: {entry} from {domain}"
                 task = Task(
                     {"type": TaskType.DOMAIN},
                     payload={

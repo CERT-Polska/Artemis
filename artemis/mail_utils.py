@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 import checkdmarc  # type: ignore
+import dns.resolver
 
 
 @dataclass
@@ -33,6 +34,11 @@ class DomainScanResult:
     base_domain: str
 
 
+class ScanningException(Exception):
+    def __init__(self, message: str) -> None:
+        self.message = message
+
+
 def contains_spf_all_fail(parsed: Dict[str, Any]) -> bool:
     if parsed["all"] in ["softfail", "fail"]:
         return True
@@ -46,7 +52,7 @@ def check_domain(
     parked: bool = False,
     include_dmarc_tag_descriptions: bool = False,
     nameservers: Optional[List[str]] = None,
-    timeout: float = 2.0,
+    timeout: float = 5.0,
 ) -> DomainScanResult:
     domain = domain.lower()
     logging.debug("Checking: {0}".format(domain))
@@ -82,7 +88,11 @@ def check_domain(
         if not contains_spf_all_fail(parsed_spf["parsed"]):
             domain_result.spf.errors = ["SPF ~all or -all directive not found"]
             domain_result.spf.valid = False
-    except checkdmarc.SPFRecordNotFound:
+    except checkdmarc.SPFRecordNotFound as e:
+        # https://github.com/domainaware/checkdmarc/issues/90
+        if isinstance(e.args[0], dns.exception.DNSException):
+            raise ScanningException(e.args[0].msg if e.args[0].msg else repr(e.args[0]))  # type: ignore
+
         domain_result.spf.errors = ["SPF record not found"]
         domain_result.spf.valid = False
     except checkdmarc.SPFIncludeLoop:
@@ -121,7 +131,11 @@ def check_domain(
         domain_result.dmarc.warnings = list(
             set(dmarc_query["warnings"]) | set(parsed_dmarc_record["warnings"]) | set(p_warnings)
         )
-    except checkdmarc.DMARCRecordNotFound:
+    except checkdmarc.DMARCRecordNotFound as e:
+        # https://github.com/domainaware/checkdmarc/issues/90
+        if isinstance(e.args[0], dns.exception.DNSException):
+            raise ScanningException(e.args[0].msg if e.args[0].msg else repr(e.args[0]))  # type: ignore
+
         domain_result.dmarc.errors = ["DMARC record not found"]
         domain_result.dmarc.valid = False
     except checkdmarc.DMARCRecordInWrongLocation:

@@ -95,6 +95,9 @@ def check_domain(
 
         domain_result.spf.errors = ["SPF record not found"]
         domain_result.spf.valid = False
+    except checkdmarc.SPFTooManyVoidDNSLookups:
+        domain_result.spf.errors = ["SPF record causes too many void DNS lookups"]
+        domain_result.spf.valid = False
     except checkdmarc.SPFIncludeLoop:
         domain_result.spf.errors = ["SPF record includes an endless loop"]
         domain_result.spf.valid = False

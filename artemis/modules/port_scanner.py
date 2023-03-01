@@ -129,9 +129,13 @@ class PortScanner(ArtemisBase):
 
             ip, _ = line.split(b":")
 
-            output = throttle_request(
-                lambda: check_output_log_error(["fingerprintx", "--json"], self.log, input=line).strip()
-            )
+            try:
+                output = throttle_request(
+                    lambda: check_output_log_error(["fingerprintx", "--json"], self.log, input=line).strip()
+                )
+            except subprocess.CalledProcessError:
+                self.log.exception("Unable to fingerprint %s", line)
+                continue
 
             if not output:
                 continue

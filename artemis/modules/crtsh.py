@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 import re
 import string
+import time
 
 import requests
 from karton.core import Task
 from psycopg2 import OperationalError, connect
 
 from artemis.binds import TaskStatus, TaskType
+from artemis.config import Config
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 
 DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
+
+
+class UnableToObtainSubdomainsException(Exception):
+    pass
 
 
 class CrtshScanner(ArtemisBase):
@@ -53,22 +59,33 @@ class CrtshScanner(ArtemisBase):
         return ct_domains
 
     def query_json(self, domain: str) -> set[str]:
-        ct_domains: set[str] = set()
         response = requests.get(f"https://crt.sh/?q={domain}&output=json")
         if response.ok:
+            ct_domains: set[str] = set()
             for cert in response.json():
                 for entry in cert["name_value"].split("\n"):
                     if re.fullmatch(DOMAIN_REGEX, entry):
                         ct_domains.add(entry)
-        return ct_domains
+            return ct_domains
+        else:
+            raise UnableToObtainSubdomainsException()
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
         with self.lock:
-            try:
-                ct_domains = self.query_sql(domain)
-            except OperationalError:
-                ct_domains = self.query_json(domain)
+            for retry_id in range(Config.CRTSH_NUM_RETRIES):
+                try:
+                    ct_domains = self.query_sql(domain)
+                except OperationalError:
+                    try:
+                        ct_domains = self.query_json(domain)
+                    except UnableToObtainSubdomainsException:
+                        self.log.info("crtsh: retrying for domain %s", domain)
+                        if retry_id < Config.CRTSH_NUM_RETRIES - 1:
+                            time.sleep(Config.CRTSH_SLEEP_ON_RETRY_SECONDS)
+                        else:
+                            raise
+
             for entry in ct_domains:
                 assert is_subdomain(entry, domain)
                 task = Task(

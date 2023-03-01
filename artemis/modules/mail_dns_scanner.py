@@ -90,7 +90,7 @@ class MailDNSScanner(ArtemisBase):
         if not has_mx_records:
             result.spf_dmarc_scan_result.spf.valid = True
 
-        random_token = binascii.hexlify(os.urandom(8)).decode("ascii")
+        random_token = os.urandom(8).hex()
         try:
             random_subdomain_has_mx_records = len(dns.resolver.resolve(random_token + "." + domain, "MX")) > 0
         except dns.resolver.NoAnswer:

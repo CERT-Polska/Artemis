@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import ftplib
+import ssl
 from typing import List, Optional, Tuple
 
 from karton.core import Task
@@ -26,6 +27,7 @@ class FTPBruterResult(BaseModel):
     welcome: Optional[str] = None
     credentials: List[Tuple[str, str]] = []
     files: List[str] = []
+    tls: bool = False
 
 
 class FTPBruter(ArtemisBase):
@@ -50,20 +52,43 @@ class FTPBruter(ArtemisBase):
                 # (e.g. delfer/alpine-ftp-server:latest) don't work well
                 # with multiple failed login attempts followed by a successful
                 # one.
-                ftp = ftplib.FTP()
-                ftp.connect(host=host, port=port, timeout=10)
-                result.welcome = ftp.welcome
 
-                try:
-                    throttle_request(lambda: ftp.login(username, password))
-                    result.credentials.append((username, password))
-                    result.files.extend(ftp.nlst())
-                except ftplib.error_perm:
-                    pass
-                except EOFError:
-                    pass
-                finally:
-                    ftp.close()
+                # We want to check both FTP servers that require TLS and don't allow
+                # cleartext connections and servers that don't support TLS.
+                for tls in [False, True]:
+                    if tls:
+                        ssl_context = ssl.create_default_context()
+                        ssl_context.check_hostname = False
+                        ssl_context.verify_mode = ssl.VerifyMode.CERT_NONE
+                        ftp = ftplib.FTP_TLS(context=ssl_context)
+                    else:
+                        ftp = ftplib.FTP()  # type: ignore
+
+                    ftp.connect(host=host, port=port, timeout=10)
+
+                    if tls:
+                        try:
+                            ftp.prot_p()
+                        except ftplib.error_temp:
+                            pass
+                        except ftplib.error_perm:
+                            pass
+
+                    result.welcome = ftp.welcome
+                    result.tls = tls
+
+                    try:
+                        throttle_request(lambda: ftp.login(username, password))
+                        result.credentials.append((username, password))
+                        result.files.extend(ftp.nlst())
+                    except ftplib.error_temp:
+                        pass
+                    except ftplib.error_perm:
+                        pass
+                    except EOFError:
+                        pass
+                    finally:
+                        ftp.close()
         except ConnectionRefusedError:
             pass
         except TimeoutError:

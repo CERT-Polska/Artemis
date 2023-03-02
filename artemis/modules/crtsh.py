@@ -92,7 +92,7 @@ class CrtshScanner(ArtemisBase):
 
             assert ct_domains is not None
             for entry in ct_domains:
-                assert is_subdomain(entry, domain)
+                assert is_subdomain(entry, domain), f"Non-subdomain returned: {entry} from {domain}"
                 task = Task(
                     {"type": TaskType.DOMAIN},
                     payload={

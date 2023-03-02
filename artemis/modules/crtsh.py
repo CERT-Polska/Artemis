@@ -2,6 +2,7 @@
 import re
 import string
 import time
+from typing import Optional, Set
 
 import requests
 from karton.core import Task
@@ -33,32 +34,35 @@ class CrtshScanner(ArtemisBase):
     # the target. We lock crt.sh instead in the run() method.
     lock_target = False
 
-    def query_sql(self, domain: str) -> set[str]:
-        ct_domains: set[str] = set()
-        conn = connect("postgresql://guest@crt.sh:5432/certwatch")
-        conn.set_session(readonly=True, autocommit=True)
-        with conn.cursor() as cursor:
-            # Validate characters as we are putting the domain inside a SQL query
-            assert all([c in string.ascii_letters + "-" + string.digits + "." for c in domain])
-            cursor.execute(
-                (
-                    f"SELECT name_value FROM certificate_and_identities"
-                    f" WHERE plainto_tsquery('certwatch', '{domain}') @@ identities(certificate)"
-                    f" AND name_value ILIKE '%.{domain}'"
-                    f" AND (name_type = '2.5.4.3' OR name_type = 'san:dNSName')"
-                    f" GROUP BY name_value"
+    def query_sql(self, domain: str) -> Optional[Set[str]]:
+        try:
+            ct_domains: set[str] = set()
+            conn = connect("postgresql://guest@crt.sh:5432/certwatch")
+            conn.set_session(readonly=True, autocommit=True)
+            with conn.cursor() as cursor:
+                # Validate characters as we are putting the domain inside a SQL query
+                assert all([c in string.ascii_letters + "-" + string.digits + "." for c in domain])
+                cursor.execute(
+                    (
+                        f"SELECT name_value FROM certificate_and_identities"
+                        f" WHERE plainto_tsquery('certwatch', '{domain}') @@ identities(certificate)"
+                        f" AND name_value ILIKE '%.{domain}'"
+                        f" AND (name_type = '2.5.4.3' OR name_type = 'san:dNSName')"
+                        f" GROUP BY name_value"
+                    )
                 )
-            )
-            results = cursor.fetchall()
+                results = cursor.fetchall()
 
-            for row in results:
-                for entry in row:
-                    if re.fullmatch(DOMAIN_REGEX, entry):
-                        ct_domains.add(entry)
-        conn.close()
-        return ct_domains
+                for row in results:
+                    for entry in row:
+                        if re.fullmatch(DOMAIN_REGEX, entry):
+                            ct_domains.add(entry)
+            conn.close()
+            return ct_domains
+        except OperationalError:
+            return None
 
-    def query_json(self, domain: str) -> set[str]:
+    def query_json(self, domain: str) -> Optional[Set[str]]:
         response = requests.get(f"https://crt.sh/?q={domain}&output=json")
         if response.ok:
             ct_domains: set[str] = set()
@@ -68,24 +72,25 @@ class CrtshScanner(ArtemisBase):
                         ct_domains.add(entry)
             return ct_domains
         else:
-            raise UnableToObtainSubdomainsException()
+            return None
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
         with self.lock:
             for retry_id in range(Config.CRTSH_NUM_RETRIES):
-                try:
-                    ct_domains = self.query_sql(domain)
-                except OperationalError:
-                    try:
-                        ct_domains = self.query_json(domain)
-                    except UnableToObtainSubdomainsException:
-                        self.log.info("crtsh: retrying for domain %s", domain)
-                        if retry_id < Config.CRTSH_NUM_RETRIES - 1:
-                            time.sleep(Config.CRTSH_SLEEP_ON_RETRY_SECONDS)
-                        else:
-                            raise
+                ct_domains = self.query_sql(domain)
 
+                if ct_domains is None:
+                    ct_domains = self.query_json(domain)
+
+                if ct_domains is None:
+                    self.log.info("crtsh: retrying for domain %s", domain)
+                    if retry_id < Config.CRTSH_NUM_RETRIES - 1:
+                        time.sleep(Config.CRTSH_SLEEP_ON_RETRY_SECONDS)
+                    else:
+                        raise UnableToObtainSubdomainsException()
+
+            assert ct_domains is not None
             for entry in ct_domains:
                 assert is_subdomain(entry, domain)
                 task = Task(

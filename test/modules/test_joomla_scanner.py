@@ -1,6 +1,7 @@
 from test.base import ArtemisModuleTestCase
 
 import requests_mock
+from freezegun import freeze_time
 from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType, WebApplication
@@ -11,6 +12,7 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = JoomlaScanner  # type: ignore
 
+    @freeze_time("2023-02-21")
     def test_is_version_old(self) -> None:
         with requests_mock.Mocker() as requests_mocker:
             requests_mocker.get(
@@ -21,19 +23,30 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
                         "published_at": "2023-02-21T16:00:00Z",
                     },
                     {
+                        "tag_name": "3.10.9",
+                        "published_at": "2022-02-21T16:00:00Z",
+                    },
+                    {
+                        "tag_name": "3.10.10",
+                        "published_at": "2023-02-21T16:00:00Z",
+                    },
+                    {
                         "tag_name": "3.10.11",
                         "published_at": "2023-02-21T16:00:00Z",
                     },
                 ],
             )
 
-        self.assertTrue(self.karton.is_version_old("2.8.6"))
-        self.assertTrue(self.karton.is_version_old("2.99999.99999"))
-        self.assertTrue(self.karton.is_version_old("3.10.10"))
-        self.assertFalse(self.karton.is_version_old("3.10.11"))
-        self.assertTrue(self.karton.is_version_old("4.0.0"))
-        self.assertFalse(self.karton.is_version_old("4.3.0"))
-        self.assertFalse(self.karton.is_version_old("4.99999.99999"))
+            self.assertTrue(self.karton.is_version_old("2.8.6"))
+            self.assertTrue(self.karton.is_version_old("2.99999.99999"))
+
+            self.assertTrue(self.karton.is_version_old("3.10.9"))
+            # The 30 days from release didn't pass so the version is not yet old
+            self.assertFalse(self.karton.is_version_old("3.10.10"))
+            self.assertFalse(self.karton.is_version_old("3.10.11"))
+            self.assertTrue(self.karton.is_version_old("4.0.0"))
+            self.assertFalse(self.karton.is_version_old("4.3.0"))
+            self.assertFalse(self.karton.is_version_old("4.99999.99999"))
 
     def test_simple(self) -> None:
         task = Task(

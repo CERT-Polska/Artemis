@@ -29,8 +29,17 @@ class Nuclei(ArtemisBase):
             self._critical_templates = (
                 check_output_log_on_error(["nuclei", "-s", "critical", "-tl"], self.log).decode("ascii").split()
             )
-            if Config.NUCLEI_CHECK_TEMPLATE_LIST and len(self._critical_templates) == 0:
-                raise RuntimeError("Unable to obtain Nuclei critical templates list")
+            self._high_templates = (
+                check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log).decode("ascii").split()
+            )
+
+            if Config.NUCLEI_CHECK_TEMPLATE_LIST:
+                if len(self._critical_templates) == 0:
+                    raise RuntimeError("Unable to obtain Nuclei critical-severity templates list")
+                if len(self._high_templates) == 0:
+                    raise RuntimeError("Unable to obtain Nuclei high-severity templates list")
+
+            self._templates = self._critical_templates + self._high_templates
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]
@@ -44,8 +53,8 @@ class Nuclei(ArtemisBase):
 
         self.log.info(f"path is {urllib.parse.urlparse(target).path}")
         if urllib.parse.urlparse(target).path.strip("/") == "":
-            self.log.info(f"adding {len(self._critical_templates)} critical templates")
-            templates.extend(self._critical_templates)
+            self.log.info(f"adding {len(self._templates)} templates")
+            templates.extend(self._templates)
 
         self.log.info(f"nuclei: running {len(templates)} templates on {target}")
 

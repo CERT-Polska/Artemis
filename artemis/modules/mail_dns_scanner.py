@@ -106,7 +106,12 @@ class MailDNSScanner(ArtemisBase):
             #
             # Therefore, let's check them only on the main domain - on all others,
             # it's allowed to skip them (but we should report if they're invalid)
-            if not is_main_domain(domain) and result.spf_dmarc_scan_result.spf.error_not_found:
+            if (
+                not is_main_domain(domain)
+                and result.spf_dmarc_scan_result
+                and result.spf_dmarc_scan_result.spf
+                and result.spf_dmarc_scan_result.spf.error_not_found
+            ):
                 result.spf_dmarc_scan_result.spf.valid = True
 
         return result

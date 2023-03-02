@@ -110,6 +110,15 @@ services:
     env_file: .env
     command: "python3 -m artemis.modules.crtsh"
 
+  karton-gau:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    depends_on: [karton-logger]
+    env_file: .env
+    command: "python3 -m artemis.modules.gau"
+
   karton-ip-lookup:
     build:
       context: .

@@ -139,8 +139,16 @@ def check_domain(
         if isinstance(e.args[0], dns.exception.DNSException):
             raise ScanningException(e.args[0].msg if e.args[0].msg else repr(e.args[0]))  # type: ignore
 
-        domain_result.dmarc.errors = ["DMARC record not found"]
-        domain_result.dmarc.valid = False
+        # Before https://github.com/domainaware/checkdmarc/issues/91 gets done,
+        # UnrelatedTXTRecordFoundAtDMARC blocks further checks and we are not able to
+        # check whether the record is indeed valid. Therefore for now let's assume it
+        # is so that no false positive "not found" error is returned.
+        if isinstance(e.args[0], checkdmarc.UnrelatedTXTRecordFoundAtDMARC):
+            domain_result.dmarc.warnings = ["Unrelated TXT record found"]
+            domain_result.dmarc.valid = True
+        else:
+            domain_result.dmarc.errors = ["DMARC record not found"]
+            domain_result.dmarc.valid = False
     except checkdmarc.DMARCRecordInWrongLocation:
         domain_result.dmarc.errors = ["DMARC record should be stored in the `_dmarc` subdomain"]
         domain_result.dmarc.valid = False

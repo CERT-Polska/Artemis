@@ -1,3 +1,15 @@
+from publicsuffixlist import PublicSuffixList
+
+PUBLIC_SUFFIX_LIST = PublicSuffixList()
+
+
+def is_main_domain(domain: str) -> bool:
+    """
+    Main domain (e.g. of an institution) is one that is registered directly under a public suffix.
+    """
+    return PUBLIC_SUFFIX_LIST.privatesuffix(domain) == domain  # type: ignore
+
+
 def is_subdomain(subdomain_candidate: str, parent_domain_candidate: str) -> bool:
     # Split both domains by dots, so that www.google.com becomes ['www', 'google', 'com']
     subdomain_candidate_items = [item for item in subdomain_candidate.split(".") if item]

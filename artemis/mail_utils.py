@@ -11,6 +11,9 @@ class SPFScanResult:
     dns_lookups: Optional[int]
     parsed: Optional[Dict[str, Any]]
     record: Optional[str]
+    # As this error is interpreted in a special way by downstream tools,
+    # let's have a flag (not only a string message) whether it happened.
+    error_not_found: bool
     valid: bool
     errors: List[str]
     warnings: List[str]
@@ -62,6 +65,7 @@ def check_domain(
             parsed=None,
             valid=True,
             dns_lookups=None,
+            error_not_found=False,
             errors=[],
             warnings=[],
         ),
@@ -94,6 +98,7 @@ def check_domain(
             raise ScanningException(e.args[0].msg if e.args[0].msg else repr(e.args[0]))  # type: ignore
 
         domain_result.spf.errors = ["SPF record not found"]
+        domain_result.spf.error_not_found = True
         domain_result.spf.valid = False
     except checkdmarc.SPFTooManyVoidDNSLookups:
         domain_result.spf.errors = ["SPF record causes too many void DNS lookups"]

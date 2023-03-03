@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import dataclasses
+import os
 import socket
 from smtplib import SMTP, SMTPServerDisconnected
 from typing import List, Optional
@@ -9,8 +10,9 @@ import dns.resolver
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.domains import is_main_domain
 from artemis.mail_utils import DomainScanResult as SPFDMARCScanResult
-from artemis.mail_utils import check_domain
+from artemis.mail_utils import ScanningException, check_domain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.utils import throttle_request
@@ -79,13 +81,39 @@ class MailDNSScanner(ArtemisBase):
                 result.mail_server_found = True
 
         # We check according to a heuristic that a domain is used to send e-mails if it has MX records
-        result.spf_dmarc_scan_result = check_domain(domain=domain, parked=not has_mx_records)
+        try:
+            result.spf_dmarc_scan_result = check_domain(domain=domain, parked=not has_mx_records)
+        except ScanningException:
+            self.log.exception("Unable to check domain %s", domain)
 
         # For Artemis we have a slightly relaxed requirement than mail_utils - if a domain is not used for
         # sending e-mail, we don't require SPF (but require DMARC). Mail_utils can't be modified as it's
         # used by CERT internal tools as well.
-        if not has_mx_records:
+        if result.spf_dmarc_scan_result and not has_mx_records:
             result.spf_dmarc_scan_result.spf.valid = True
+
+        random_token = os.urandom(8).hex()
+        try:
+            random_subdomain_has_mx_records = len(dns.resolver.resolve(random_token + "." + domain, "MX")) > 0
+        except dns.resolver.NoAnswer:
+            random_subdomain_has_mx_records = False
+        except dns.resolver.NXDOMAIN:
+            random_subdomain_has_mx_records = False
+
+        if has_mx_records and random_subdomain_has_mx_records:
+            # Some domains return a MX records for all subdomains, even nonexistent ones.
+            # In that case we shouldn't expect a SPF record to exist on all of them.
+            #
+            # Therefore, let's check them only on the main domain - on all others,
+            # it's allowed to skip them (but we should report if they're invalid)
+            if (
+                not is_main_domain(domain)
+                and result.spf_dmarc_scan_result
+                and result.spf_dmarc_scan_result.spf
+                and result.spf_dmarc_scan_result.spf.error_not_found
+            ):
+                result.spf_dmarc_scan_result.spf.valid = True
+
         return result
 
     def run(self, current_task: Task) -> None:

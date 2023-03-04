@@ -29,6 +29,10 @@ class ArtemisBase(Karton):
 
     task_poll_interval_seconds = 2
 
+    # After this number of tasks, the service will get restarted. This is to prevent
+    # situations such as slow memory leaks.
+    max_num_tasks_to_process = 1000
+
     lock_target = Config.LOCK_SCANNED_TARGETS
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
@@ -85,8 +89,11 @@ class ArtemisBase(Karton):
         for task_filter in self.filters:
             self.log.info("Binding on: %s", task_filter)
 
+        task_id = 0
         with self.graceful_killer():
-            while not self.shutdown:
+            while not self.shutdown and task_id < self.max_num_tasks_to_process:
+                task_id += 1
+
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break

@@ -28,8 +28,5 @@ class GAUTest(ArtemisModuleTestCase):
             )
             results = self.run_task(task)
 
-            found = False
-            for item in results:
-                if item.payload["domain"] == entry.expected_subdomain:
-                    found = True
+            found = any(item.payload["domain"] == entry.expected_subdomain for item in results)
             self.assertTrue(found)

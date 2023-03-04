@@ -37,7 +37,7 @@ class GAU(ArtemisBase):
             )
 
             domains = set()
-            for line in output.decode("ascii", errors="ignore").split("\n"):
+            for line in output.decode("ascii", errors="ignore").splitlines():
                 url_parsed = urllib.parse.urlparse(line)
                 if not url_parsed.hostname:
                     continue

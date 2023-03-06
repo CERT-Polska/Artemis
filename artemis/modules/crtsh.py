@@ -40,16 +40,17 @@ class CrtshScanner(ArtemisBase):
             conn = connect("postgresql://guest@crt.sh:5432/certwatch")
             conn.set_session(readonly=True, autocommit=True)
             with conn.cursor() as cursor:
-                # Validate characters as we are putting the domain inside a SQL query
+                # Validate characters as we are putting the domain inside a LIKE query
                 assert all([c in string.ascii_letters + "-" + string.digits + "." for c in domain])
                 cursor.execute(
                     (
-                        f"SELECT name_value FROM certificate_and_identities"
-                        f" WHERE plainto_tsquery('certwatch', '{domain}') @@ identities(certificate)"
-                        f" AND name_value ILIKE '%.{domain}'"
-                        f" AND (name_type = '2.5.4.3' OR name_type = 'san:dNSName')"
-                        f" GROUP BY name_value"
-                    )
+                        "SELECT name_value FROM certificate_and_identities"
+                        " WHERE plainto_tsquery('certwatch', %s) @@ identities(certificate)"
+                        " AND name_value ILIKE %s"
+                        " AND (name_type = '2.5.4.3' OR name_type = 'san:dNSName')"
+                        " GROUP BY name_value"
+                    ),
+                    (domain, "%." + domain),
                 )
                 results = cursor.fetchall()
 

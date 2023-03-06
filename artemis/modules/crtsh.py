@@ -41,7 +41,10 @@ class CrtshScanner(ArtemisBase):
             conn.set_session(readonly=True, autocommit=True)
             with conn.cursor() as cursor:
                 # Validate characters as we are putting the domain inside a LIKE query
-                assert all([c in string.ascii_letters + "-" + string.digits + "." for c in domain])
+                # Escaping LIKE queries is complex:
+                # https://stackoverflow.com/questions/2106207/escape-sql-like-value-for-postgres-with-psycopg2
+                # so for now let's just whitelist domain characters.
+                assert all([c in string.ascii_letters + "-" + string.digits + "." or ord(c) >= 0x80 for c in domain])
                 cursor.execute(
                     (
                         "SELECT name_value FROM certificate_and_identities"

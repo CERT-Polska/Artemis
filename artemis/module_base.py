@@ -85,8 +85,11 @@ class ArtemisBase(Karton):
         for task_filter in self.filters:
             self.log.info("Binding on: %s", task_filter)
 
+        task_id = 0
         with self.graceful_killer():
-            while not self.shutdown:
+            while not self.shutdown and task_id < Config.MAX_NUM_TASKS_TO_PROCESS:
+                task_id += 1
+
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break

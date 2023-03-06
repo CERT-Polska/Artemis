@@ -25,6 +25,10 @@ class Config:
     # What is the maximum task run time (after which it will get killed)
     TASK_TIMEOUT_SECONDS = 4 * 3600
 
+    # After this number of tasks, the service will get restarted. This is to prevent
+    # situations such as slow memory leaks.
+    MAX_NUM_TASKS_TO_PROCESS = 1000
+
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches
     # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to
     # new.example.com, Artemis will check whether it is a subdomain of the original task

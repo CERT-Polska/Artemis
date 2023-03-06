@@ -1,6 +1,6 @@
-import datetime
 import json
 import re
+from datetime import datetime
 from typing import Any, Dict, List, Union
 
 import pytz
@@ -42,19 +42,20 @@ class JoomlaScanner(ArtemisBase):
         is_current_version_old = True  # If we don't find the version on releases list, that means, it's old
         for release in data:
             if release["tag_name"] == version:
-                is_current_version_old = (
-                    datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-                    - datetime.datetime.fromisoformat(release["published_at"])
-                ).days > age_threshold_days
+                version_age = datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.fromisoformat(
+                    release["published_at"]
+                )
+                is_current_version_old = version_age.days > age_threshold_days
 
         is_newer_version_available = False
         for release in data:
-            release_version = release["tag_name"]
-            release_version_parsed = semver.VersionInfo.parse(release_version)
-            if (
-                release_version_parsed.major == version_parsed.major
-                and release_version_parsed.compare(version_parsed) > 0
-            ):
+            release_version_parsed = semver.VersionInfo.parse(release["tag_name"])
+            have_same_major_version = release_version_parsed.major == version_parsed.major
+
+            # Semver compare returns 1 if the latter version is greater, 0 if they are equal, and -1 if
+            # the latter version is smaller.
+            is_release_newer = release_version_parsed.compare(version_parsed) > 0
+            if have_same_major_version and is_release_newer:
                 is_newer_version_available = True
 
         # To consider a version old, it must:

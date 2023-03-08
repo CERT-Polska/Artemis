@@ -21,7 +21,7 @@ publicsuffixlist==0.9.3
 pydantic==1.10.5
 pymongo==4.3.3
 PyMySQL==1.0.2
-python-decouple==3.7
+python-decouple==3.8
 python-multipart==0.0.6
 pytz==2022.7.1
 redis==4.5.1

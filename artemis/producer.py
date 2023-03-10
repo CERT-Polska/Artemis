@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from karton.core import Producer, Task
 
@@ -9,7 +9,7 @@ producer = Producer(identity="frontend")
 db = DB()
 
 
-def create_tasks(tag: str, uris: List[str]) -> None:
+def create_tasks(tag: Optional[str], uris: List[str]) -> None:
     for uri in uris:
         task = Task({"type": TaskType.NEW})
         task.add_payload("data", uri)

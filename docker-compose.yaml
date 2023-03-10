@@ -123,6 +123,7 @@ services:
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     depends_on: [karton-logger]
     env_file: .env
+    restart: always
     command: "python3 -m artemis.modules.gau"
 
   karton-ip-lookup:

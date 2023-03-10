@@ -1,6 +1,10 @@
 {% extends "components/base.jinja2" %}
 {% block main %}
     <h1>Analysed targets</h1>
+    <p>
+        Total pending tasks: {{ num_active_tasks }}
+    </p>
+
     {% if entries %}
         <div class="container">
             <div class="table-responsive">
@@ -8,6 +12,7 @@
                     <thead>
                         <tr>
                             <th scope="col">URL</th>
+                            <th scope="col">Tag</th>
                             <th scope="col">Status</th>
                             <th scope="col">Actions</th>
                         </tr>
@@ -16,6 +21,7 @@
                         {% for entry in entries %}
                             <tr>
                                 <td>{{ entry.payload.data }}</td>
+                                <td>{{ entry.payload_persistent.tag }}</td>
                                 <td>
                                     {% if entry.num_active_tasks > 0 %}
                                         <span class="badge bg-warning">

@@ -33,6 +33,7 @@ def get_root(request: Request) -> Response:
         entries.append(
             {
                 "payload": entry["payload"],
+                "payload_persistent": entry["payload_persistent"],
                 "id": entry["_id"],
                 "num_active_tasks": num_active_tasks,
             }
@@ -40,7 +41,11 @@ def get_root(request: Request) -> Response:
 
     return templates.TemplateResponse(
         "index.jinja2",
-        {"request": request, "entries": entries},
+        {
+            "request": request,
+            "entries": entries,
+            "num_active_tasks": sum([len(analysis.pending_tasks) for analysis in karton_state.analyses.values()]),
+        },
     )
 
 
@@ -51,6 +56,7 @@ def get_add_form(request: Request) -> Response:
 
 @router.post("/add", include_in_schema=False)
 def post_add(
+    tag: str = Form(),
     targets: Optional[str] = Form(None),
     file: Optional[bytes] = File(None),
 ) -> Response:
@@ -59,7 +65,7 @@ def post_add(
         total_list += (x.strip() for x in targets.split())
     if file:
         total_list += (x.strip() for x in file.decode().split())
-    create_tasks(total_list)
+    create_tasks(tag, total_list)
     return RedirectResponse("/", status_code=301)
 
 

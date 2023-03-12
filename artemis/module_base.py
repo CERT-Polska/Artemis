@@ -85,8 +85,9 @@ class ArtemisBase(Karton):
         for task_filter in self.filters:
             self.log.info("Binding on: %s", task_filter)
 
+        task_id = 0
         with self.graceful_killer():
-            while not self.shutdown:
+            while not self.shutdown and task_id < Config.MAX_NUM_TASKS_TO_PROCESS:
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break
@@ -94,8 +95,13 @@ class ArtemisBase(Karton):
                 time.sleep(self.task_poll_interval_seconds)
                 task = self._consume_random_routed_task(self.identity)
                 if task:
+                    task_id += 1
+
                     self.internal_process(task)
-        self.log.info("Exiting loop, shutdown=%s", self.shutdown)
+        if task_id >= Config.MAX_NUM_TASKS_TO_PROCESS:
+            self.log.info("Exiting loop after processing %d tasks", task_id)
+        else:
+            self.log.info("Exiting loop, shutdown=%s", self.shutdown)
 
     def _consume_random_routed_task(self, identity: str) -> Optional[Task]:
         uid = None

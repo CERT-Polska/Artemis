@@ -23,6 +23,7 @@ repos:
     - dnspython==2.2.1
     - karton-core==5.0.0
     - fastapi==0.88.0
+    - freezegun==1.2.2
     - pymongo-stubs==0.2.0
     - types-PyMySQL==1.0.19.1
     - requests_mock==1.10.0

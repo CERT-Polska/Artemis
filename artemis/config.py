@@ -25,6 +25,10 @@ class Config:
     # What is the maximum task run time (after which it will get killed)
     TASK_TIMEOUT_SECONDS = 4 * 3600
 
+    # After this number of tasks, the service will get restarted. This is to prevent
+    # situations such as slow memory leaks.
+    MAX_NUM_TASKS_TO_PROCESS = 1000
+
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches
     # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to
     # new.example.com, Artemis will check whether it is a subdomain of the original task
@@ -89,8 +93,11 @@ class Config:
     # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
+    # == gau settings (artemis/modules/gau.py)
     # custom port list to scan in CSV form (replaces default list)
-    CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
+    GAU_ADDITIONAL_OPTIONS = decouple.config(
+        "GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" ")
+    )
 
     # == crtsh settings (artemis/modules/crtsh.py)
     # How many times should we try to obtain subdomains list
@@ -102,6 +109,10 @@ class Config:
     # whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI when the
     # Github API rate limits are spent)
     NUCLEI_CHECK_TEMPLATE_LIST = decouple.config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
+
+    # == port_scanner settings (artemis/modules/port_scanner.py)
+    # custom port list to scan in CSV form (replaces default list)
+    CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
 
     # == postman settings (artemis/modules/postman.py)
     # E-mail addresses (from and to) that will be used to test whether a server is an open relay or allows

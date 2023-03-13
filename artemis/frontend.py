@@ -65,7 +65,7 @@ def post_add(
         total_list += (x.strip() for x in targets.split())
     if file:
         total_list += (x.strip() for x in file.decode().split())
-    create_tasks(tag, total_list)
+    create_tasks(total_list, tag)
     return RedirectResponse("/", status_code=301)
 
 

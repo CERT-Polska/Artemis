@@ -99,6 +99,12 @@ class Config:
         "GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" ")
     )
 
+    # == crtsh settings (artemis/modules/crtsh.py)
+    # How many times should we try to obtain subdomains list
+    CRTSH_NUM_RETRIES = decouple.config("CRTSH_NUM_RETRIES", default=10, cast=int)
+    # How long to sleep between tries
+    CRTSH_SLEEP_ON_RETRY_SECONDS = decouple.config("CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int)
+
     # == nuclei settings (artemis/modules/nuclei.py)
     # whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI when the
     # Github API rate limits are spent)

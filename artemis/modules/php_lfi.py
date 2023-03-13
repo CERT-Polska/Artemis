@@ -10,7 +10,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
-LFI_REGEX = r"(({url})?/)?([a-zA-Z0-9-_]+).php\?([a-zA-Z-_]+)=[a-zA-Z0-9-_]+"
+LFI_REGEX = r"(({url})?/)?([a-zA-Z0-9-_]+).php\?([a-zA-Z0-9-_]+)=[a-zA-Z0-9-_]+"
 B64_FILTER = "php://filter/convert.base64-encode/resource="
 B64_COMMON_PHP = r".*(PD9waHA|PD9QSFA|PCFET0NUWVBFIEhUTUw\+|PGh0bWw\+).*"
 

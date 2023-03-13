@@ -56,9 +56,9 @@ def get_add_form(request: Request) -> Response:
 
 @router.post("/add", include_in_schema=False)
 def post_add(
-    tag: Optional[str] = Form(None),
     targets: Optional[str] = Form(None),
     file: Optional[bytes] = File(None),
+    tag: Optional[str] = Form(None),
 ) -> Response:
     total_list: List[str] = []
     if targets:

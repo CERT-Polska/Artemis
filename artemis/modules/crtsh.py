@@ -58,9 +58,9 @@ class CrtshScanner(ArtemisBase):
                 results = cursor.fetchall()
 
                 for row in results:
-                    for entry in row:
-                        if re.fullmatch(DOMAIN_REGEX, entry):
-                            ct_domains.add(entry)
+                    (entry,) = row
+                    if re.fullmatch(DOMAIN_REGEX, entry):
+                        ct_domains.add(entry)
             conn.close()
             return ct_domains
         except OperationalError:
@@ -93,10 +93,17 @@ class CrtshScanner(ArtemisBase):
                         time.sleep(Config.CRTSH_SLEEP_ON_RETRY_SECONDS)
                     else:
                         raise UnableToObtainSubdomainsException()
+                else:
+                    break
 
             assert ct_domains is not None
             for entry in ct_domains:
-                assert is_subdomain(entry, domain), f"Non-subdomain returned: {entry} from {domain}"
+                if not is_subdomain(entry, domain):
+                    # Sometimes crt.sh returns a certificate for both a subdomain and some other domain - let's
+                    # ignore these other domains.
+                    self.log.info("Non-subdomain returned: %s from %s", entry, domain)
+                    continue
+
                 task = Task(
                     {"type": TaskType.DOMAIN},
                     payload={

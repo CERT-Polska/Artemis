@@ -20,7 +20,6 @@ services:
      - MONGO_INITDB_ROOT_PASSWORD=root
     volumes:
      - data-mongodb:/data/db
-    command: ["--wiredTigerCacheSizeGB", "2"]
     ports: [27017:27017]
 
   karton-system:

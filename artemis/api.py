@@ -70,6 +70,7 @@ def get_task_results(
         "created_at",
         "target_string",
         "headers",
+        "payload_persistent",
         "status",
         "status_reason",
         "priority",

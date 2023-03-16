@@ -244,6 +244,7 @@ class DB:
             [
                 ("status", "text"),
                 ("priority", "text"),
+                ("payload_persistent.tag", "text"),
                 ("target_string", "text"),
                 ("headers_string", "text"),
                 ("status_reason", "text"),

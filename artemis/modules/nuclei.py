@@ -39,7 +39,13 @@ class Nuclei(ArtemisBase):
                 if len(self._high_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei high-severity templates list")
 
-            self._templates = self._critical_templates + self._high_templates
+            # Skipping these two templates as they caused panic: runtime error: integer divide by zero in
+            # github.com/projectdiscovery/retryabledns
+            self._templates = [
+                template
+                for template in self._critical_templates + self._high_templates
+                if template != "dns/azure-takeover-detection.yaml" and template != "dns/elasticbeantalk-takeover.yaml"
+            ]
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]

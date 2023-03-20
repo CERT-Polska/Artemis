@@ -2,306 +2,313 @@ version: "3"
 
 services:
   minio:
-    image: minio/minio
+    command: "server /data"
     environment:
      - MINIO_ACCESS_KEY=example-access-key
      - MINIO_SECRET_KEY=example-secret-key
-    command: "server /data"
+    image: minio/minio
+    restart: always
 
   redis:
     image: redis
+    restart: always
     volumes:
       - data-redis:/data
 
   db:
-    image: mongo
+    command: ["--wiredTigerCacheSizeGB", "2"]
     environment:
      - MONGO_INITDB_ROOT_USERNAME=root
      - MONGO_INITDB_ROOT_PASSWORD=root
+    image: mongo
+    ports: [27017:27017]
+    restart: always
     volumes:
      - data-mongodb:/data/db
-    command: ["--wiredTigerCacheSizeGB", "2"]
-    ports: [27017:27017]
 
   karton-system:
-    image: "certpl/karton-system:3d8d3c905e73fc1f56885619355d69d2c2d9f7ca"
-    depends_on: ["db", "redis", "minio"]
     command: ["--setup-bucket"]
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    depends_on: ["db", "redis", "minio"]
     env_file: .env
+    image: "certpl/karton-system:3d8d3c905e73fc1f56885619355d69d2c2d9f7ca"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    restart: always
 
   karton-logger:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
-    depends_on: [karton-system]
     command: "python3 -m artemis.stdout_logger"
+    depends_on: [karton-system]
     env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   backend:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    ports: ["5000:5000"]
     depends_on: [karton-logger]
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    env_file: .env
     environment:
      - DASHBOARD_URL=http://127.0.0.1:5001
-    env_file: .env
+    ports: ["5000:5000"]
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-dashboard:
+    depends_on: [karton-logger]
+    env_file: .env
     image: certpl/karton-dashboard:d0a2a1ffd21e9066acca77434acaff7b20e460d0
     ports: [5001:5000]
-    depends_on: [karton-logger]
+    restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
-    env_file: .env
 
   karton-classifier:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.classifier"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.classifier"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-port_scanner:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.port_scanner"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.port_scanner"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-robots:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.robots"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.robots"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-vcs:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.vcs"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.vcs"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-php-lfi:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.php_lfi"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.php_lfi"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-crtsh:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.crtsh"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.crtsh"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-gau:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.gau"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.gau"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-ip-lookup:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.ip_lookup"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.ip_lookup"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-reverse-dns:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.reverse_dns_lookup"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.reverse_dns_lookup"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-bruter:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.bruter"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.bruter"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-directory_index:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.directory_index"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.directory_index"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-identifier:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.webapp_identifier"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.webapp_identifier"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-joomla_scanner:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.joomla_scanner"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.joomla_scanner"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-wp_scanner:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.wp_scanner"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.wp_scanner"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-dns_scanner:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.dns_scanner"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.dns_scanner"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-ftp_bruter:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.ftp_bruter"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.ftp_bruter"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-http_service_to_url:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.http_service_to_url"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.http_service_to_url"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-mysql_bruter:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.mysql_bruter"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.mysql_bruter"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-mail_dns_scanner:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.mail_dns_scanner"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.mail_dns_scanner"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-nuclei:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.nuclei"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
     volumes:
       - "./docker/karton.ini:/etc/karton/karton.ini"
       - data-nuclei-templates:/root/nuclei-templates
       - data-nuclei-config:/root/.config/nuclei
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    command: "python3 -m artemis.modules.nuclei"
 
   karton-postman:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
-    depends_on: [karton-logger]
-    environment:
-     - POSTMAN_MAIL_FROM=artemis@localhost.com
-     - POSTMAN_MAIL_TO=artemis@localhost.com
-    env_file: .env
-    restart: always
     command: "python3 -m artemis.modules.postman"
+    depends_on: [karton-logger]
+    env_file: .env
+    environment:
+     - POSTMAN_MAIL_FROM=artemis@example.com
+     - POSTMAN_MAIL_TO=artemis@example.com
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-postgresql_bruter:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.postgresql_bruter"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.postgresql_bruter"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   karton-wordpress_bruter:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.wordpress_bruter"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.wordpress_bruter"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
   shodan-vulns:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.modules.shodan_vulns"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    command: "python3 -m artemis.modules.shodan_vulns"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
 volumes:
   data-mongodb:

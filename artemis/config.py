@@ -110,7 +110,8 @@ class Config:
     # Github API rate limits are spent)
     NUCLEI_CHECK_TEMPLATE_LIST = decouple.config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
-    # These two templates are skipped because they cause Nuclei to crash
+    # Skipping these two templates as they caused panic: runtime error: integer divide by zero in
+    # github.com/projectdiscovery/retryabledns
     NUCLEI_TEMPLATES_TO_SKIP = decouple.config(
         "NUCLEI_TEMPLATES_TO_SKIP",
         default="dns/azure-takeover-detection.yaml,dns/elasticbeantalk-takeover.yaml",

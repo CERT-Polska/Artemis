@@ -44,7 +44,7 @@ class Nuclei(ArtemisBase):
             self._templates = [
                 template
                 for template in self._critical_templates + self._high_templates
-                if template != "dns/azure-takeover-detection.yaml" and template != "dns/elasticbeantalk-takeover.yaml"
+                if template not in Config.NUCLEI_TEMPLATES_TO_SKIP
             ]
 
     def run(self, current_task: Task) -> None:

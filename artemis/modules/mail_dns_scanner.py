@@ -124,25 +124,28 @@ class MailDNSScanner(ArtemisBase):
         domain = current_task.get_payload(TaskType.DOMAIN)
         result = self.scan(current_task, domain)
 
-        status = TaskStatus.OK
-        status_reason = None
+        status_reasons: List[str] = []
         if result.mail_server_found:
-            status_reasons: List[str] = []
             if (
                 result.spf_dmarc_scan_result
                 and result.spf_dmarc_scan_result.spf
                 and not result.spf_dmarc_scan_result.spf.valid
             ):
                 status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
-            if (
-                result.spf_dmarc_scan_result
-                and result.spf_dmarc_scan_result.dmarc
-                and not result.spf_dmarc_scan_result.dmarc.valid
-            ):
-                status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
-            if status_reasons:
-                status = TaskStatus.INTERESTING
-                status_reason = "Found problems: " + ", ".join(sorted(status_reasons))
+        if (
+            result.spf_dmarc_scan_result
+            and result.spf_dmarc_scan_result.dmarc
+            and not result.spf_dmarc_scan_result.dmarc.valid
+        ):
+            status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
+
+        if status_reasons:
+            status = TaskStatus.INTERESTING
+            status_reason = "Found problems: " + ", ".join(sorted(status_reasons))
+        else:
+            status = TaskStatus.OK
+            status_reason = None
+
         self.db.save_task_result(
             task=current_task, status=status, status_reason=status_reason, data=dataclasses.asdict(result)
         )

@@ -110,6 +110,14 @@ class Config:
     # Github API rate limits are spent)
     NUCLEI_CHECK_TEMPLATE_LIST = decouple.config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
+    # Skipping these two templates as they caused panic: runtime error: integer divide by zero in
+    # github.com/projectdiscovery/retryabledns
+    NUCLEI_TEMPLATES_TO_SKIP = decouple.config(
+        "NUCLEI_TEMPLATES_TO_SKIP",
+        default="dns/azure-takeover-detection.yaml,dns/elasticbeantalk-takeover.yaml",
+        cast=decouple.Csv(str),
+    )
+
     # == port_scanner settings (artemis/modules/port_scanner.py)
     # custom port list to scan in CSV form (replaces default list)
     CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))

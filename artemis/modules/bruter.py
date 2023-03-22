@@ -133,6 +133,10 @@ class Bruter(ArtemisBase):
         random_paths = random_paths[: Config.BRUTER_NUM_RANDOM_PATHS_TO_USE]
 
         top_paths = [path for _, path in top_counts_and_paths]
+
+        # Every path from the statistics should be a path we actually could scan
+        assert all([x in FILENAMES_TO_SCAN for x in random_paths])
+
         paths_to_scan = set(random_paths) | set(top_paths)
         self.log.info(
             f"bruter scanning {base_url}: {len(paths_to_scan)} paths to scan (chosen out of {len(FILENAMES_TO_SCAN)})"

@@ -54,6 +54,7 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
                 "database.sql",
                 "adminbackups",
                 "core",
+                "wp-admin/install.php",
                 "logs/errors",
                 "logs/sendmail",
                 "mail/temp/",

@@ -82,7 +82,13 @@ class MailDNSScanner(ArtemisBase):
 
         # We check according to a heuristic that a domain is used to send e-mails if it has MX records
         try:
-            result.spf_dmarc_scan_result = check_domain(domain=domain, parked=not has_mx_records)
+            # Ignore_void_dns_lookups is set because:
+            # - the checkdmarc check is buggy and sometimes counts the void DNS lookups wrongly,
+            # - sometimes the DNS lookups are void because of timeouts which can happen if there is
+            #   a lot of scanning going on.
+            result.spf_dmarc_scan_result = check_domain(
+                domain=domain, parked=not has_mx_records, ignore_void_dns_lookups=True
+            )
         except ScanningException:
             self.log.exception("Unable to check domain %s", domain)
 

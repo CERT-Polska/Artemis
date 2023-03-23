@@ -56,6 +56,7 @@ def check_domain(
     include_dmarc_tag_descriptions: bool = False,
     nameservers: Optional[List[str]] = None,
     timeout: float = 5.0,
+    ignore_void_dns_lookups: bool = False,
 ) -> DomainScanResult:
     domain = domain.lower()
     logging.debug("Checking: {0}".format(domain))
@@ -76,21 +77,30 @@ def check_domain(
 
     try:
         spf_query = checkdmarc.query_spf_record(domain, nameservers=nameservers, timeout=timeout)
+
         domain_result.spf.record = spf_query["record"]
         domain_result.spf.warnings = spf_query["warnings"]
-        parsed_spf = checkdmarc.parse_spf_record(
-            domain_result.spf.record,
-            domain_result.domain,
-            parked=parked,
-            nameservers=nameservers,
-            timeout=timeout,
-        )
-        domain_result.spf.dns_lookups = parsed_spf["dns_lookups"]
-        domain_result.spf.parsed = parsed_spf["parsed"]
-        domain_result.spf.warnings = list(set(domain_result.spf.warnings) | set(parsed_spf["warnings"]))
 
-        if not contains_spf_all_fail(parsed_spf["parsed"]):
-            domain_result.spf.errors = ["SPF ~all or -all directive not found"]
+        try:
+            parsed_spf = checkdmarc.parse_spf_record(
+                domain_result.spf.record,
+                domain_result.domain,
+                parked=parked,
+                nameservers=nameservers,
+                timeout=timeout,
+            )
+            domain_result.spf.dns_lookups = parsed_spf["dns_lookups"]
+            domain_result.spf.parsed = parsed_spf["parsed"]
+            domain_result.spf.warnings = list(set(domain_result.spf.warnings) | set(parsed_spf["warnings"]))
+
+            if not contains_spf_all_fail(parsed_spf["parsed"]):
+                domain_result.spf.errors = ["SPF ~all or -all directive not found"]
+                domain_result.spf.valid = False
+        except checkdmarc.SPFRecordNotFound:
+            # This is a different type from standard SPFRecordNotFound - it occurs
+            # during *parsing*, so it is not caused by lack of SPF record, but
+            # a malformed one (e.g. including a domain that doesn't have a SPF record).
+            domain_result.spf.errors = ["SPF record not found in domain referenced from other SPF record"]
             domain_result.spf.valid = False
     except checkdmarc.SPFRecordNotFound as e:
         # https://github.com/domainaware/checkdmarc/issues/90
@@ -101,8 +111,9 @@ def check_domain(
         domain_result.spf.error_not_found = True
         domain_result.spf.valid = False
     except checkdmarc.SPFTooManyVoidDNSLookups:
-        domain_result.spf.errors = ["SPF record causes too many void DNS lookups"]
-        domain_result.spf.valid = False
+        if not ignore_void_dns_lookups:
+            domain_result.spf.errors = ["SPF record causes too many void DNS lookups"]
+            domain_result.spf.valid = False
     except checkdmarc.SPFIncludeLoop:
         domain_result.spf.errors = ["SPF record includes an endless loop"]
         domain_result.spf.valid = False
@@ -131,7 +142,14 @@ def check_domain(
         )
 
         if parsed_dmarc_record["tags"]["p"]["value"] == "none":
-            p_warnings = ["DMARC policy is none, which means that besides " "reporting no action will be taken"]
+            if "rua" not in parsed_dmarc_record["tags"]:
+                domain_result.dmarc.errors = [
+                    "DMARC policy is none and rua is not set, which " "means that the DMARC setting is not effective."
+                ]
+                domain_result.dmarc.valid = False
+                p_warnings = []
+            else:
+                p_warnings = ["DMARC policy is none, which means that besides " "reporting no action will be taken"]
         else:
             p_warnings = []
 
@@ -169,7 +187,7 @@ def check_domain(
     # except checkdmarc.InvalidDMARCTag:
     #     domain_result.dmarc.errors = ["SPF record includes an endless loop"]
     #     domain_result.dmarc.valid = False
-    except checkdmarc.InvaliddDMARCTagValue:
+    except checkdmarc.InvalidDMARCTagValue:
         domain_result.dmarc.errors = ["DMARC record uses an invalid tag"]
         domain_result.dmarc.valid = False
     except checkdmarc.InvalidDMARCReportURI:
@@ -180,7 +198,7 @@ def check_domain(
             "The destination of a DMARC report URI does not " "indicate that it accepts reports for the domain"
         ]
         domain_result.dmarc.valid = False
-    except checkdmarc.UnrelatedTXTRecordFound:
+    except checkdmarc.UnrelatedTXTRecordFoundAtDMARC:
         domain_result.dmarc.errors = ["Unrelated TXT record found"]
         domain_result.dmarc.valid = False
     except checkdmarc.DMARCReportEmailAddressMissingMXRecords:

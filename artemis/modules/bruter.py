@@ -135,7 +135,7 @@ class Bruter(ArtemisBase):
         top_paths = [path for _, path in top_counts_and_paths]
 
         # Every path from the statistics should be a path we actually could scan
-        assert all([x in FILENAMES_TO_SCAN for x in random_paths])
+        assert all([x in FILENAMES_TO_SCAN for x in top_paths])
 
         paths_to_scan = set(random_paths) | set(top_paths)
         self.log.info(

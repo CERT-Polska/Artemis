@@ -401,3 +401,5 @@
 1 wp-register.php
 1 %3f/
 1 wp-json/wp/v2/users
+1 wp-admin/install.php
+1 wp-admin/setup_config.php

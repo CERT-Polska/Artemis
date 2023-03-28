@@ -31,7 +31,7 @@ class ArtemisModuleTestCase(KartonTestCase):
 
         def mock_get_top_values_for_statistic(name: str, count: int) -> List[Tuple[int, str]]:
             if name == "bruter":
-                return [(10, "config.dist"), (5, "sql.gz"), (5, "nonexistent.gz"), (3, "localhost.sql"), (2, "test")]
+                return [(10, "config.dist"), (5, "sql.gz"), (5, "mysql.sql"), (3, "localhost.sql"), (2, "test")]
             raise NotImplementedError()
 
         self.mock_db = MagicMock()

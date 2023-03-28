@@ -15,7 +15,7 @@ Jinja2==3.1.2
 karton-core==5.0.1
 liccheck==0.8.3
 MarkupSafe==2.1.2
-minio==7.1.13
+minio==7.1.14
 psycopg2-binary==2.9.5
 publicsuffixlist==0.9.3
 pydantic==1.10.7

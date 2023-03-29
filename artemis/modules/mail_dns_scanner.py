@@ -120,6 +120,16 @@ class MailDNSScanner(ArtemisBase):
             ):
                 result.spf_dmarc_scan_result.spf.valid = True
 
+        # Some www. domains have MX set for some reason - but as they aren't used to send e-mail,
+        # we don't require SPF (but we do require DMARC).
+        if (
+            has_mx_records
+            and domain.startswith("www.")
+            and result.spf_dmarc_scan_result
+            and result.spf_dmarc_scan_result.spf
+            and result.spf_dmarc_scan_result.spf.error_not_found
+        ):
+            result.spf_dmarc_scan_result.spf.valid = True
         return result
 
     def run(self, current_task: Task) -> None:

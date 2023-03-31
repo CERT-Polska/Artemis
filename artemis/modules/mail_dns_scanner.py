@@ -116,7 +116,7 @@ class MailDNSScanner(ArtemisBase):
                 not is_main_domain(domain)
                 and result.spf_dmarc_scan_result
                 and result.spf_dmarc_scan_result.spf
-                and result.spf_dmarc_scan_result.spf.error_not_found
+                and result.spf_dmarc_scan_result.spf.record_not_found
             ):
                 result.spf_dmarc_scan_result.spf.valid = True
 
@@ -127,7 +127,7 @@ class MailDNSScanner(ArtemisBase):
             and domain.startswith("www.")
             and result.spf_dmarc_scan_result
             and result.spf_dmarc_scan_result.spf
-            and result.spf_dmarc_scan_result.spf.error_not_found
+            and result.spf_dmarc_scan_result.spf.record_not_found
         ):
             result.spf_dmarc_scan_result.spf.valid = True
         return result

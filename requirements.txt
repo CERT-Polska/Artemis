@@ -20,7 +20,7 @@ psycopg2-binary==2.9.6
 publicsuffixlist==0.9.3
 pydantic==1.10.7
 pymongo==4.3.3
-PyMySQL==1.0.2
+PyMySQL==1.0.3
 python-decouple==3.8
 python-multipart==0.0.6
 pytz==2023.2

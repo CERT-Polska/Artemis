@@ -28,7 +28,7 @@ class WordPressScanner(ArtemisBase):
             if tag["ref"] == "refs/tags/" + version:
                 tag_data = json.loads(self.cached_get(tag["object"]["url"], "tag-" + version))
                 version_age = datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.fromisoformat(
-                    tag_data["commiter"]["date"]
+                    tag_data["committer"]["date"]
                 )
                 return version_age.days > age_threshold_days
         return True  # If we didn't find the version on the release list, it must be old

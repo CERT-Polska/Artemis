@@ -1,7 +1,4 @@
-<h1>
-    ![logo](static/images/logo_dark.png#gh-dark-mode-only|width=400)
-    ![logo](static/images/logo.png#gh-light-mode-only|width=400)
-</h1>
+#![logo](static/images/logo_dark.png#gh-dark-mode-only|width=400)![logo](static/images/logo.png#gh-light-mode-only|width=400)
 
 A modular web reconnaissance tool and vulnerability scanner based on Karton
 (https://github.com/CERT-Polska/karton).

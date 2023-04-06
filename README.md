@@ -1,6 +1,6 @@
 <h1>
-    <img src="static/images/logo.png" class="gh-light-mode-only" alt="logo" style="width: 400px" />
-    <img src="static/images/logo_dark.png" class="gh-dark-mode-only" alt="logo" style="width: 400px" />
+    ![logo](static/images/logo_dark.png#gh-dark-mode-only|width=400)
+    ![logo](static/images/logo.png#gh-light-mode-only|width=400)
 </h1>
 
 A modular web reconnaissance tool and vulnerability scanner based on Karton

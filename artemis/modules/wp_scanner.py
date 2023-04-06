@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import Any, Dict, List, Union
 
 import pytz
-import requests
 from karton.core import Task
 
 from artemis import http_requests
@@ -35,15 +34,7 @@ class WordPressScanner(ArtemisBase):
         return True  # If we didn't find the version on the release list, it must be old
 
     def _is_version_insecure(self, version: str) -> bool:
-        cache_key = "version-stability"
-        if not self.cache.get(cache_key):
-            data = requests.get("https://api.wordpress.org/core/stable-check/1.0/").json()
-            data_as_json = json.dumps(data)
-            self.cache.set(cache_key, data_as_json.encode("utf-8"))
-        else:
-            cache_result = self.cache.get(cache_key)
-            assert cache_result
-            data = json.loads(cache_result)
+        data = json.loads(self.cached_get("https://api.wordpress.org/core/stable-check/1.0/", "version-stability"))
 
         if version not in data:
             raise Exception(f"Cannot check version stability: {version}")

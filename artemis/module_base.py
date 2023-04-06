@@ -6,6 +6,7 @@ from abc import abstractmethod
 from ipaddress import ip_address
 from typing import Optional
 
+import requests
 import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.task import TaskState as KartonTaskState
@@ -59,6 +60,16 @@ class ArtemisBase(Karton):
             return values[1]
         """
         )
+
+    def cached_get(self, url: str, cache_key: str) -> bytes:
+        if not self.cache.get(cache_key):
+            data = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases").content
+            self.cache.set(cache_key, data)
+            return data
+        else:
+            cache_result = self.cache.get(cache_key)
+            assert cache_result
+            return cache_result
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         new_task.root_uid = current_task.root_uid

@@ -50,7 +50,6 @@ services:
   test-robots-service:
     image: nginx:latest
     volumes:
-    volumes:
       - ./test/data/robots/default.conf:/etc/nginx/conf.d/default.conf
       - ./test/data/robots/:/usr/share/nginx/html/
 
@@ -121,7 +120,6 @@ services:
     image: mysql:5.6
     environment:
       MYSQL_ROOT_PASSWORD: root
-
 
   test-postgresql-with-easy-password:
     image: postgres

@@ -1,7 +1,9 @@
 import json
 import re
+from datetime import datetime
 from typing import Any, Dict, List, Union
 
+import pytz
 import requests
 from karton.core import Task
 
@@ -19,6 +21,18 @@ class WordPressScanner(ArtemisBase):
     filters = [
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
+
+    def _is_version_old(self, version: str, age_threshold_days: int = 30) -> bool:
+        data = json.loads(self.cached_get("https://api.github.com/repos/WordPress/WordPress/git/refs/tags", "tags"))
+
+        for tag in data:
+            if tag["name"] == version:
+                tag_data = json.loads(self.cached_get(tag["object"]["url"], "tag-" + version))
+                version_age = datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.fromisoformat(
+                    tag_data["commiter"]["date"]
+                )
+                return version_age.days > age_threshold_days
+        return True  # If we didn't find the version on the release list, it must be old
 
     def _is_version_insecure(self, version: str) -> bool:
         cache_key = "version-stability"
@@ -62,6 +76,10 @@ class WordPressScanner(ArtemisBase):
             if self._is_version_insecure(wp_version):
                 found_problems.append(f"WordPress {wp_version} is considered insecure")
                 result["wp_version_insecure"] = True
+
+            if self._is_version_old(wp_version):
+                found_problems.append(f"WordPress {wp_version} is old")
+                result["wp_version_old"] = True
 
             # Enumerate installed plugins
             result["wp_plugins"] = re.findall("wp-content/plugins/([^/]+)/.+ver=([0-9.]+)", response.text)

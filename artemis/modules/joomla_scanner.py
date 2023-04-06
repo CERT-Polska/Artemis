@@ -25,15 +25,7 @@ class JoomlaScanner(ArtemisBase):
 
     # This is a heuristic so that we can avoid parsing CVE list
     def is_version_old(self, version: str, age_threshold_days: int = 30) -> bool:
-        cache_key = "versions"
-        if not self.cache.get(cache_key):
-            data = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases").json()
-            data_as_json = json.dumps(data)
-            self.cache.set(cache_key, data_as_json.encode("utf-8"))
-        else:
-            cache_result = self.cache.get(cache_key)
-            assert cache_result
-            data = json.loads(cache_result)
+        data = json.loads(self.cached_get("https://api.github.com/repos/joomla/joomla-cms/releases", "versions"))
 
         version_parsed = semver.VersionInfo.parse(version)
         if version_parsed.major < 3:

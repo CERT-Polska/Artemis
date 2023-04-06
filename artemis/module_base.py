@@ -63,7 +63,7 @@ class ArtemisBase(Karton):
 
     def cached_get(self, url: str, cache_key: str) -> bytes:
         if not self.cache.get(cache_key):
-            data = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases").content
+            data = requests.get(url).content
             self.cache.set(cache_key, data)
             return data
         else:

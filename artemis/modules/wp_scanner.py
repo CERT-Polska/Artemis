@@ -25,7 +25,7 @@ class WordPressScanner(ArtemisBase):
         data = json.loads(self.cached_get("https://api.github.com/repos/WordPress/WordPress/git/refs/tags", "tags"))
 
         for tag in data:
-            if tag["name"] == version:
+            if tag["ref"] == "refs/tags/" + version:
                 tag_data = json.loads(self.cached_get(tag["object"]["url"], "tag-" + version))
                 version_age = datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.fromisoformat(
                     tag_data["commiter"]["date"]

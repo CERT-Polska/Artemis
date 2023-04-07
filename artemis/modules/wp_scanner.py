@@ -1,12 +1,14 @@
 import json
 import re
+from datetime import datetime
 from typing import Any, Dict, List, Union
 
-import requests
+import pytz
 from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 
 
@@ -20,16 +22,20 @@ class WordPressScanner(ArtemisBase):
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
 
+    def _is_version_old(self, version: str, age_threshold_days: int = Config.WORDPRESS_VERSION_AGE_DAYS) -> bool:
+        data = json.loads(self.cached_get("https://api.github.com/repos/WordPress/WordPress/git/refs/tags", "tags"))
+
+        for tag in data:
+            if tag["ref"] == "refs/tags/" + version:
+                tag_data = json.loads(self.cached_get(tag["object"]["url"], "tag-" + version))
+                version_age = datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.fromisoformat(
+                    tag_data["committer"]["date"]
+                )
+                return version_age.days > age_threshold_days
+        return True  # If we didn't find the version on the release list, it must be old
+
     def _is_version_insecure(self, version: str) -> bool:
-        cache_key = "version-stability"
-        if not self.cache.get(cache_key):
-            data = requests.get("https://api.wordpress.org/core/stable-check/1.0/").json()
-            data_as_json = json.dumps(data)
-            self.cache.set(cache_key, data_as_json.encode("utf-8"))
-        else:
-            cache_result = self.cache.get(cache_key)
-            assert cache_result
-            data = json.loads(cache_result)
+        data = json.loads(self.cached_get("https://api.wordpress.org/core/stable-check/1.0/", "version-stability"))
 
         if version not in data:
             raise Exception(f"Cannot check version stability: {version}")
@@ -62,6 +68,10 @@ class WordPressScanner(ArtemisBase):
             if self._is_version_insecure(wp_version):
                 found_problems.append(f"WordPress {wp_version} is considered insecure")
                 result["wp_version_insecure"] = True
+
+            if self._is_version_old(wp_version):
+                found_problems.append(f"WordPress {wp_version} is old")
+                result["wp_version_old"] = True
 
             # Enumerate installed plugins
             result["wp_plugins"] = re.findall("wp-content/plugins/([^/]+)/.+ver=([0-9.]+)", response.text)

@@ -93,17 +93,21 @@ class Config:
     # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
+    # == crtsh settings (artemis/modules/crtsh.py)
+    # How many times should we try to obtain subdomains list
+    CRTSH_NUM_RETRIES = decouple.config("CRTSH_NUM_RETRIES", default=10, cast=int)
+    # How long to sleep between tries
+    CRTSH_SLEEP_ON_RETRY_SECONDS = decouple.config("CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int)
+
     # == gau settings (artemis/modules/gau.py)
     # custom port list to scan in CSV form (replaces default list)
     GAU_ADDITIONAL_OPTIONS = decouple.config(
         "GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" ")
     )
 
-    # == crtsh settings (artemis/modules/crtsh.py)
-    # How many times should we try to obtain subdomains list
-    CRTSH_NUM_RETRIES = decouple.config("CRTSH_NUM_RETRIES", default=10, cast=int)
-    # How long to sleep between tries
-    CRTSH_SLEEP_ON_RETRY_SECONDS = decouple.config("CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int)
+    # == joomla_scanner settings (artemis/modules/joomla_scanner.py)
+    # After what number of days we consider the Joomla version to be obsolete
+    JOOMLA_VERSION_AGE_DAYS = decouple.config("JOOMLA_VERSION_AGE_DAYS", default=30, cast=int)
 
     # == nuclei settings (artemis/modules/nuclei.py)
     # whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI when the
@@ -131,3 +135,9 @@ class Config:
     # == shodan settings (artemis/modules/shodan_vulns.py)
     # Shodan API key so that Shodan vulnerabilities will be displayed in Artemis
     SHODAN_API_KEY = decouple.config("SHODAN_API_KEY", default="")
+
+    # == wp_scanner settings (artemis/modules/wp_scanner.py)
+    # After what number of days we consider the WordPress version to be obsolete
+    # This is a long threshold because WordPress maintains a separate list of insecure versions, so "old" doesn't
+    # mean "insecure" here.
+    WORDPRESS_VERSION_AGE_DAYS = decouple.config("WORDPRESS_VERSION_AGE_DAYS", default=90, cast=int)

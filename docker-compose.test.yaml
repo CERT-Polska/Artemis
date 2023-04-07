@@ -121,7 +121,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
-
   test-postgresql-with-easy-password:
     image: postgres
     environment:

@@ -23,7 +23,7 @@ pymongo==4.3.3
 PyMySQL==1.0.3
 python-decouple==3.8
 python-multipart==0.0.6
-pytz==2023.2
+pytz==2023.3
 redis==4.5.4
 requests==2.28.2
 requests-mock==1.10.0

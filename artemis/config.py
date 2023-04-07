@@ -104,6 +104,7 @@ class Config:
     GAU_ADDITIONAL_OPTIONS = decouple.config(
         "GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" ")
     )
+
     # == joomla_scanner settings (artemis/modules/joomla_scanner.py)
     # After what number of days we consider the Joomla version to be obsolete
     JOOMLA_VERSION_AGE_DAYS = decouple.config("JOOMLA_VERSION_AGE_DAYS", default=30, cast=int)

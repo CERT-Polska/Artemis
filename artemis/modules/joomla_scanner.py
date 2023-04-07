@@ -10,7 +10,6 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.config import Config
 from artemis.module_base import ArtemisBase
 
 
@@ -25,7 +24,7 @@ class JoomlaScanner(ArtemisBase):
     ]
 
     # This is a heuristic so that we can avoid parsing CVE list
-    def is_version_old(self, version: str, age_threshold_days: int = Config.CMS_VERSION_AGE_DAYS) -> bool:
+    def is_version_old(self, version: str, age_threshold_days: int = 30) -> bool:
         data = json.loads(self.cached_get("https://api.github.com/repos/joomla/joomla-cms/releases", "versions"))
 
         version_parsed = semver.VersionInfo.parse(version)

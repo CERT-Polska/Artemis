@@ -1,4 +1,9 @@
-<h1><img src="static/images/logo.png" alt="logo" style="width: 400px" /></h1>
+<h1>
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="static/images/logo_dark.png">
+        <img alt="logo" width="400px" src="static/images/logo.png">
+    </picture>
+</h1>
 
 A modular web reconnaissance tool and vulnerability scanner based on Karton
 (https://github.com/CERT-Polska/karton).

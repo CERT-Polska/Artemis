@@ -67,7 +67,12 @@ class CrtshScanner(ArtemisBase):
             return None
 
     def query_json(self, domain: str) -> Optional[Set[str]]:
-        response = requests.get(f"https://crt.sh/?q={domain}&output=json")
+        try:
+            response = requests.get(f"https://crt.sh/?q={domain}&output=json")
+        except requests.exceptions.RequestException:
+            self.log.exception("Unable to obtain information from crt.sh for domain %s", domain)
+            return None
+
         if response.ok:
             ct_domains: set[str] = set()
             for cert in response.json():

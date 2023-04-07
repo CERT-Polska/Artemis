@@ -48,6 +48,9 @@ class Config:
     # default request timeout (for all protocols)
     REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 
+    # After what number of days we consider the CMS version to be obsolete
+    CMS_VERSION_AGE_DAYS = decouple.config("CMS_VERSION_AGE_DAYS", default=45, cast=int)
+
     # == Rate limit settings
     # Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X
     # requests per second.

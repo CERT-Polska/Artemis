@@ -8,6 +8,7 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 
 
@@ -21,7 +22,7 @@ class WordPressScanner(ArtemisBase):
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
 
-    def _is_version_old(self, version: str, age_threshold_days: int = 90) -> bool:
+    def _is_version_old(self, version: str, age_threshold_days: int = Config.WORDPRESS_VERSION_AGE_DAYS) -> bool:
         data = json.loads(self.cached_get("https://api.github.com/repos/WordPress/WordPress/git/refs/tags", "tags"))
 
         for tag in data:

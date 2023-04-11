@@ -1,15 +1,31 @@
 #!/usr/bin/env python3
 import json
+import random
+import string
 import subprocess
 import urllib
 from typing import Any
 
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
+
+TEMPLATES_THAT_MATCH_ON_PHPINFO = {
+    "cnvd/2020/CNVD-2020-23735.yaml",
+    "cves/2015/CVE-2015-4050.yaml",
+    "cves/2019/CVE-2019-9041.yaml",
+    "cves/2020/CVE-2020-5776.yaml",
+    "cves/2020/CVE-2020-5847.yaml",
+    "cves/2021/CVE-2021-40870.yaml",
+    "cves/2022/CVE-2022-0885.yaml",
+    "cves/2022/CVE-2022-1020.yaml",
+    "vulnerabilities/other/ecshop-sqli.yaml",
+    "vulnerabilities/thinkcmf/thinkcmf-rce.yaml",
+}
 
 
 class Nuclei(ArtemisBase):
@@ -65,6 +81,20 @@ class Nuclei(ArtemisBase):
         if len(templates) == 0:
             self.db.save_task_result(task=current_task, status=TaskStatus.OK, status_reason=None, data={})
             return
+
+        random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+        dummy_url = target.rstrip("/") + "/" + random_token
+        try:
+            dummy_content = http_requests.get(dummy_url).content
+        except Exception:
+            dummy_content = ""
+        has_phpinfo_on_random_url = "phpinfo()" in dummy_content
+
+        # Some templates check whether a vulnerability is present by trying to call phpinfo() and checking
+        # whether it succeeded. Some websites return phpinfo() on all URLs. This is to prevent Artemis
+        # return false positives for these websites.
+        if has_phpinfo_on_random_url:
+            templates = sorted(list(set(templates) - TEMPLATES_THAT_MATCH_ON_PHPINFO))
 
         if Config.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.CUSTOM_USER_AGENT]

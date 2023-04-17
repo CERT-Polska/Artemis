@@ -46,7 +46,7 @@ class Config:
     NOT_INTERESTING_PATHS = decouple.config("NOT_INTERESTING_PATHS", default="/icon/,/icons/", cast=decouple.Csv(str))
 
     # default request timeout (for all protocols)
-    REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
+    REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
 
     # == Rate limit settings
     # Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X

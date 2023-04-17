@@ -3,7 +3,7 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Set
 
 from karton.core import Task
 
@@ -14,16 +14,13 @@ from artemis.resolvers import ip_lookup
 from artemis.task_utils import get_target
 from artemis.utils import check_output_log_on_error, throttle_request
 
-if Config.CUSTOM_PORT_SCANNER_PORTS:
-    PORTS_SET = set(Config.CUSTOM_PORT_SCANNER_PORTS)
 
-else:
-    with open(os.path.join(os.path.dirname(__file__), "data", "ports-naabu.txt")) as f:
-        PORTS_NAABU = ",".join([line for line in f if not line.startswith("#")])
+def load_ports(file_name: str) -> Set[int]:
+    with open(os.path.join(os.path.dirname(__file__), "data", file_name)) as f:
+        ports = ",".join([line for line in f if not line.startswith("#")])
 
-    PORTS_SET = set()
-
-    for port in PORTS_NAABU.split(","):
+    result: Set[int] = set()
+    for port in ports.split(","):
         port = port.strip()
         if not port:
             continue
@@ -31,9 +28,17 @@ else:
         if "-" in port:
             port_from, port_to = port.split("-")
             for port_int in range(int(port_from), int(port_to) + 1):
-                PORTS_SET.add(port_int)
+                result.add(port_int)
         else:
-            PORTS_SET.add(int(port))
+            result.add(int(port))
+    return result
+
+
+if Config.CUSTOM_PORT_SCANNER_PORTS:
+    PORTS_SET = set(Config.CUSTOM_PORT_SCANNER_PORTS)
+
+else:
+    PORTS_SET = load_ports("ports-naabu.txt")
 
     # Additional ports we want to check for
     PORTS_SET.add(23)  # telnet
@@ -46,6 +51,8 @@ else:
     PORTS_SET.add(9200)  # Elasticsearch
     PORTS_SET.add(27017)  # MongoDB
     PORTS_SET.add(27018)  # MongoDB
+
+    PORTS_SET_SHORT = load_ports("ports-naabu-short.txt")
 
 PORTS = sorted(list(PORTS_SET))
 
@@ -123,11 +130,19 @@ class PortScanner(ArtemisBase):
         else:
             lines = []
 
-        for line in lines:
-            if not line:
-                continue
+        lines = [line for line in lines if line]
 
-            ip, _ = line.split(b":")
+        for line in lines:
+            ip, port_str = line.split(b":")
+
+            if len(lines) > Config.PORT_SCANNER_MAX_NUM_PORTS:
+                self.log.warning(
+                    "We observed more than %s open ports on %s, trimming to most popular ones",
+                    Config.PORT_SCANNER_MAX_NUM_PORTS,
+                    target_ip,
+                )
+                if int(port_str) not in PORTS_SET_SHORT:
+                    continue
 
             try:
                 output = throttle_request(

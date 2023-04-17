@@ -126,6 +126,10 @@ class Config:
     # custom port list to scan in CSV form (replaces default list)
     CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
 
+    # the number of open ports we consider to be too much and a false positive - if we observe more
+    # open ports, we trim by performing an intersection of the result with the list of 100 most popular ones.
+    PORT_SCANNER_MAX_NUM_PORTS = decouple.config("PORT_SCANNER_MAX_NUM_PORTS", default=100, cast=int)
+
     # == postman settings (artemis/modules/postman.py)
     # E-mail addresses (from and to) that will be used to test whether a server is an open relay or allows
     # sending e-mails to any address.

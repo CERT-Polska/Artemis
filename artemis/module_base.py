@@ -156,6 +156,14 @@ class ArtemisBase(Karton):
                         scan_destination,
                     )
 
+                    self.log.info(
+                        "Processing task %s (headers=%s payload=%s payload_persistent=%s)",
+                        current_task.uid,
+                        repr(current_task.headers),
+                        repr(current_task.payload),
+                        repr(current_task.payload_persistent),
+                    )
+
                     super().internal_process(current_task)
             except FailedToAcquireLockException:
                 self.log.info(

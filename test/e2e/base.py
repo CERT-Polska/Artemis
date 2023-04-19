@@ -7,7 +7,7 @@ import requests
 
 from artemis.utils import build_logger
 
-BACKEND_URL = "http://backend:5000/"
+BACKEND_URL = "http://web:5000/"
 NUM_RETRIES = 100
 RETRY_TIME_SECONDS = 2
 

@@ -44,7 +44,7 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
-  frontend:
+  web:
     build:
       context: .
       dockerfile: docker/Dockerfile

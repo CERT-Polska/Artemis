@@ -30,17 +30,17 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-  $(document).ready(function() {
-    const table = $("#task_list").dataTable({
-      ajax: {{ api_url|tojson }},  // we want to prevent & being converted to &amp; here
-      pageLength: 100,
-      serverSide: true,
-      columnDefs: [{
-        "targets": [3],
-        "orderable": false
-      }]
-    });
-  })
-</script>
+    <script>
+        $(document).ready(function() {
+            const table = $("#task_list").dataTable({
+                ajax: {{ api_url|tojson }},  // we want to prevent & being converted to &amp; here
+                pageLength: 100,
+                serverSide: true,
+                columnDefs: [{
+                    "targets": [3],
+                    "orderable": false
+                }]
+            });
+        })
+    </script>
 {% endblock %}

@@ -9,7 +9,7 @@ from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
-from artemis.db import DB, TaskFilter
+from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.json_utils import JSONEncoderWithDataclasses
 from artemis.karton_utils import restart_crashed_tasks
 from artemis.producer import create_tasks
@@ -22,28 +22,13 @@ db = DB()
 @router.get("/", include_in_schema=False)
 def get_root(request: Request) -> Response:
     karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
-
-    entries = []
-    for entry in db.list_analysis():
-        if entry["_id"] in karton_state.analyses:
-            num_active_tasks = len(karton_state.analyses[entry["_id"]].pending_tasks)
-        else:
-            num_active_tasks = 0
-
-        entries.append(
-            {
-                "payload": entry["payload"],
-                "payload_persistent": entry["payload_persistent"],
-                "id": entry["_id"],
-                "num_active_tasks": num_active_tasks,
-            }
-        )
-
+    has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
     return templates.TemplateResponse(
         "index.jinja2",
         {
             "request": request,
-            "entries": entries,
+            "has_analyses": has_analyses,
+            "api_url": "/api/analyses-table",
             "num_active_tasks": sum([len(analysis.pending_tasks) for analysis in karton_state.analyses.values()]),
         },
     )
@@ -112,7 +97,7 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
         {
             "request": request,
             "title": f"Analysis of { analysis['payload']['data'] }",
-            "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
+            "api_url": "/api/task-results-table?" + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },
     )

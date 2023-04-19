@@ -44,10 +44,10 @@ class WordPressBruter(ArtemisBase):
 
         if not utils.is_ip_address(host):
             domain_items = host.split(".")
-            if domain_items in Config.WORDPRESS_BRUTER_STRIPPED_PREFIXES:
+            while domain_items and domain_items[0] in Config.WORDPRESS_BRUTER_STRIPPED_PREFIXES:
                 domain_items = domain_items[1:]
 
-            if len(domain_items) > 0:
+            if domain_items:
                 site_name = domain_items[0]
 
                 passwords.append(site_name + "123")

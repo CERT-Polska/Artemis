@@ -1,6 +1,8 @@
 import logging
 import subprocess
 import time
+import urllib.parse
+from ipaddress import ip_address
 from typing import Any, Callable, List
 
 from artemis.config import Config
@@ -45,3 +47,18 @@ def throttle_request(f: Callable[[], Any]) -> Any:
         time_elapsed = time.time() - time_start
         if time_elapsed < Config.SECONDS_PER_REQUEST_FOR_ONE_IP:
             time.sleep(Config.SECONDS_PER_REQUEST_FOR_ONE_IP - time_elapsed)
+
+
+def get_host_from_url(url: str) -> str:
+    host = urllib.parse.urlparse(url).hostname
+    assert host is not None
+    return host
+
+
+def is_ip_address(host: str) -> bool:
+    try:
+        # if this doesn't throw then we have an IP address
+        ip_address(host)
+        return True
+    except ValueError:
+        return False

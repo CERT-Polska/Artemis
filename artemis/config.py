@@ -121,6 +121,7 @@ class Config:
         default="dns/azure-takeover-detection.yaml,dns/elasticbeantalk-takeover.yaml",
         cast=decouple.Csv(str),
     )
+    NUCLEI_ADDITIONAL_TEMPLATES = decouple.config("NUCLEI_ADDITIONAL_TEMPLATES", default="", cast=decouple.Csv(str))
 
     # == port_scanner settings (artemis/modules/port_scanner.py)
     # custom port list to scan in CSV form (replaces default list)

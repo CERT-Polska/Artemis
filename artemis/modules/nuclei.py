@@ -59,7 +59,7 @@ class Nuclei(ArtemisBase):
                 template
                 for template in self._critical_templates + self._high_templates
                 if template not in Config.NUCLEI_TEMPLATES_TO_SKIP
-            ]
+            ] + Config.NUCLEI_ADDITIONAL_TEMPLATES
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]

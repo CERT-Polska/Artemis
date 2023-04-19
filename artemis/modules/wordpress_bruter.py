@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
+import copy
+import datetime
+from typing import List
+
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, utils
 from artemis.binds import TaskStatus, TaskType, WebApplication
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 
 PASSWORDS = [
@@ -33,6 +38,24 @@ class WordPressBruter(ArtemisBase):
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
 
+    def get_passwords(self, current_task: Task) -> List[str]:
+        passwords = copy.copy(PASSWORDS)
+        host = utils.get_host_from_url(current_task.get_payload("url"))
+
+        if not utils.is_ip_address(host):
+            domain_items = host.split(".")
+            if domain_items in Config.WORDPRESS_BRUTER_STRIPPED_PREFIXES:
+                domain_items = domain_items[1:]
+
+            if len(domain_items) > 0:
+                site_name = domain_items[0]
+
+                passwords.append(site_name + "123")
+                passwords.append(site_name + "1")
+                for year_relative in [0, -1, -2, -3]:
+                    passwords.append(site_name + str(datetime.datetime.now().year + year_relative))
+        return passwords
+
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
 
@@ -48,9 +71,13 @@ class WordPressBruter(ArtemisBase):
         usernames += ["admin", "administrator", "wordpress"]
         usernames = usernames[:MAX_USERNAMES_TO_CHECK]
 
+        passwords = self.get_passwords(current_task)
+
+        self.log.info("Brute-forcing %s with usernames=%s passwords=%s", url, usernames, passwords)
+
         credentials = []
         for username in usernames:
-            for password in PASSWORDS:
+            for password in passwords:
                 content = http_requests.post(
                     url + "/wp-login.php",
                     data={

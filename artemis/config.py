@@ -145,3 +145,12 @@ class Config:
     # This is a long threshold because WordPress maintains a separate list of insecure versions, so "old" doesn't
     # mean "insecure" here.
     WORDPRESS_VERSION_AGE_DAYS = decouple.config("WORDPRESS_VERSION_AGE_DAYS", default=90, cast=int)
+
+    # == wordpress_bruter settings (artemis/modules/wordpress_bruter.py)
+    # Wordpress_bruter extracts the site name to brute-force passwords. For example, if it observes
+    # projectname.example.com it will bruteforce projectname123, projectname2023, ...
+    # This list describes what domain prefixes to strip (e.g. www) so that we bruteforce projectname123, not
+    # www123, when testing www.projectname.example.com.
+    WORDPRESS_BRUTER_STRIPPED_PREFIXES = decouple.config(
+        "WORDPRESS_BRUTER_STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str)
+    )

@@ -45,6 +45,7 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
             + [
                 ".vagrant",
                 "Procfile",
+                ".pass",
                 "backup.tar.gz",
                 # Nginx merge_slashes path traversal
                 "///////../../../etc/passwd",

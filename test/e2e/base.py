@@ -31,7 +31,7 @@ class BaseE2ETestCase(TestCase):
         self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES
     ) -> None:
         for retry in range(num_retries):
-            if "pending tasks:" not in requests.get(BACKEND_URL).content.decode("utf-8"):
+            if "pending tasks: 0\n" in requests.get(BACKEND_URL).content.decode("utf-8"):
                 return
             self._logger.info("There are still pending tasks, retrying")
             time.sleep(retry_time_seconds)

@@ -114,7 +114,7 @@ def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> R
         {
             "request": request,
             "title": "Results",
-            "api_url": "/api/task-results?" + urllib.parse.urlencode(api_url_parameters),
+            "api_url": "/api/task-results-table?" + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },
     )

@@ -7,7 +7,7 @@ import requests
 
 from artemis.utils import build_logger
 
-BACKEND_URL = "http://backend:5000/"
+BACKEND_URL = "http://web:5000/"
 NUM_RETRIES = 100
 RETRY_TIME_SECONDS = 2
 
@@ -39,7 +39,7 @@ class BaseE2ETestCase(TestCase):
     def get_task_results(self) -> Dict[str, Any]:
         return requests.get(  # type: ignore
             BACKEND_URL
-            + "api/task-results?draw=1&start=0&length=100&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=asc&search[regex]=false&search[value]="
+            + "api/task-results-table?draw=1&start=0&length=100&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=asc&search[regex]=false&search[value]="
         ).json()
 
     def get_task_messages(self) -> List[str]:

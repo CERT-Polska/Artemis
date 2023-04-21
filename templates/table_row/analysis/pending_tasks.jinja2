@@ -1,0 +1,9 @@
+{% if entry.num_active_tasks > 0 %}
+    <span class="badge bg-warning">
+        In progress (pending tasks: {{ entry.num_active_tasks }})
+    </span>
+{% else %}
+    <span class="badge bg-success">
+        Done
+    </span>
+{% endif %}

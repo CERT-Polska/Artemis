@@ -3,9 +3,10 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Request
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
+from karton.core.inspect import KartonState
 
 from artemis.db import DB, ColumnOrdering, TaskFilter
-from artemis.templating import render_table_row
+from artemis.templating import render_analyses_table_row, render_task_table_row
 
 router = APIRouter()
 db = DB()
@@ -38,8 +39,46 @@ def get_analysis(root_id: str) -> Dict[str, Any]:
     raise HTTPException(status_code=404, detail="Analysis not found")
 
 
-@router.get("/task-results")
-def get_task_results(
+@router.get("/analyses-table")
+def get_analyses_table(
+    request: Request,
+    draw: int = Query(),
+    start: int = Query(),
+    length: int = Query(),
+) -> Dict[str, Any]:
+    ordering = _get_ordering(request, column_names=["payload.data", "payload_persistent.tag", None, None])
+    search_query = _get_search_query(request)
+
+    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+
+    result = db.get_paginated_analyses(start, length, ordering, search_query=search_query)
+
+    entries = []
+    for entry in result.data:
+        if entry["_id"] in karton_state.analyses:
+            num_active_tasks = len(karton_state.analyses[entry["_id"]].pending_tasks)
+        else:
+            num_active_tasks = 0
+
+        entries.append(
+            {
+                "payload": entry["payload"],
+                "payload_persistent": entry["payload_persistent"],
+                "id": entry["_id"],
+                "num_active_tasks": num_active_tasks,
+            }
+        )
+
+    return {
+        "draw": draw,
+        "recordsTotal": result.records_count_total,
+        "recordsFiltered": result.records_count_filtered,
+        "data": [render_analyses_table_row(entry) for entry in entries],
+    }
+
+
+@router.get("/task-results-table")
+def get_task_results_table(
     request: Request,
     analysis_id: Optional[str] = Query(default=None),
     task_filter: Optional[TaskFilter] = Query(default=None),
@@ -47,24 +86,11 @@ def get_task_results(
     start: int = Query(),
     length: int = Query(),
 ) -> Dict[str, Any]:
-    ordering = _get_ordering(request)
-
-    i = 0
-    while True:
-        search_value_key = f"columns[{i}][search][value]"
-        search_regex_key = f"columns[{i}][search][regex]"
-        if search_value_key not in request.query_params:
-            break
-        if request.query_params[search_value_key].strip() != "":
-            raise NotImplementedError("Per-column search is not yet implemented")
-        if request.query_params[search_regex_key] != "false":
-            raise NotImplementedError("Regex search is not yet implemented")
-        i += 1
-
-    if request.query_params["search[regex]"] != "false":
-        raise NotImplementedError("Regex search is not yet implemented")
-
-    search_query = request.query_params["search[value]"]
+    ordering = _get_ordering(
+        request,
+        column_names=["created_at", "headers.receiver", "target_string", None, "status_reason", "decision_type"],
+    )
+    search_query = _get_search_query(request)
 
     fields = [
         "created_at",
@@ -100,12 +126,11 @@ def get_task_results(
         "draw": draw,
         "recordsTotal": result.records_count_total,
         "recordsFiltered": result.records_count_filtered,
-        "data": [render_table_row(task) for task in result.data],
+        "data": [render_task_table_row(task) for task in result.data],
     }
 
 
-def _get_ordering(request: Request) -> List[ColumnOrdering]:
-    column_names = ["created_at", "headers.receiver", "target_string", None, "status_reason", "decision_type"]
+def _get_ordering(request: Request, column_names: List[Optional[str]]) -> List[ColumnOrdering]:
     ordering = []
 
     # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]
@@ -121,3 +146,22 @@ def _get_ordering(request: Request) -> List[ColumnOrdering]:
             ordering.append(ColumnOrdering(column_name=column_name, ascending=request.query_params[dir_key] == "asc"))
         i += 1
     return ordering
+
+
+def _get_search_query(request: Request) -> Optional[str]:
+    i = 0
+    while True:
+        search_value_key = f"columns[{i}][search][value]"
+        search_regex_key = f"columns[{i}][search][regex]"
+        if search_value_key not in request.query_params:
+            break
+        if request.query_params[search_value_key].strip() != "":
+            raise NotImplementedError("Per-column search is not yet implemented")
+        if request.query_params[search_regex_key] != "false":
+            raise NotImplementedError("Regex search is not yet implemented")
+        i += 1
+
+    if request.query_params["search[regex]"] != "false":
+        raise NotImplementedError("Regex search is not yet implemented")
+
+    return request.query_params["search[value]"]

@@ -122,6 +122,9 @@ class Config:
         cast=decouple.Csv(str),
     )
 
+    # A comma-separated list of Nuclei templates to be used besides the standard list.
+    NUCLEI_ADDITIONAL_TEMPLATES = decouple.config("NUCLEI_ADDITIONAL_TEMPLATES", default="", cast=decouple.Csv(str))
+
     # == port_scanner settings (artemis/modules/port_scanner.py)
     # custom port list to scan in CSV form (replaces default list)
     CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))

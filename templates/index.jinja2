@@ -5,43 +5,17 @@
         Total pending tasks: {{ num_active_tasks }}
     </p>
 
-    {% if entries %}
-        <div class="container">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">URL</th>
-                            <th scope="col">Tag</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for entry in entries %}
-                            <tr>
-                                <td>{{ entry.payload.data }}</td>
-                                <td>{{ entry.payload_persistent.tag }}</td>
-                                <td>
-                                    {% if entry.num_active_tasks > 0 %}
-                                        <span class="badge bg-warning">
-                                            In progress (pending tasks: {{ entry.num_active_tasks }})
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-success">
-                                            Done
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="/analysis/{{ entry.id }}?task_filter=interesting">Show results</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    {% if has_analyses %}
+        <table id="analysis_list" class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Target</th>
+                    <th scope="col">Tag</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+        </table>
         <p>
             <a class="btn btn-primary" href="/results?task_filter=interesting">Show results for all targets</a>
         </p>
@@ -51,4 +25,20 @@
     {% else %}
         No targets have yet been analysed. <a href="/add">Analyze targets.</a>
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            const table = $("#analysis_list").dataTable({
+                ajax: {{ api_url|tojson }},  // we want to prevent & being converted to &amp; here
+                pageLength: 10,
+                serverSide: true,
+                columnDefs: [{
+                    "targets": [2, 3],
+                    "orderable": false
+                }]
+            });
+        })
+    </script>
 {% endblock %}

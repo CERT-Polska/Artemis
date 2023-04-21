@@ -31,7 +31,7 @@ class TaskFilter(str, Enum):
 
 
 @dataclasses.dataclass
-class PaginatedTaskResults:
+class PaginatedResults:
     records_count_total: int
     records_count_filtered: int
     data: List[Dict[str, Any]]
@@ -117,6 +117,32 @@ class DB:
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
         return cast(Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id}))
 
+    def get_paginated_analyses(
+        self,
+        start: int,
+        length: int,
+        ordering: List[ColumnOrdering],
+        *,
+        search_query: Optional[str] = None,
+    ) -> PaginatedResults:
+        filter_dict: Dict[str, Any] = {}
+
+        ordering_pymongo = [
+            (ordering_rule.column_name, ASCENDING if ordering_rule.ascending else DESCENDING)
+            for ordering_rule in ordering
+        ]
+
+        records_count_total = self.analysis.estimated_document_count()
+        if search_query:
+            filter_dict.update({"$text": {"$search": self._to_mongo_query(search_query)}})
+        records_count_filtered = self.analysis.count_documents(filter_dict)
+        results_page = self.analysis.find(filter_dict).sort(ordering_pymongo)[start : start + length]
+        return PaginatedResults(
+            records_count_total=records_count_total,
+            records_count_filtered=records_count_filtered,
+            data=cast(List[Dict[str, Any]], results_page),
+        )
+
     def get_paginated_task_results(
         self,
         start: int,
@@ -127,7 +153,7 @@ class DB:
         search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
-    ) -> PaginatedTaskResults:
+    ) -> PaginatedResults:
         filter_dict: Dict[str, Any] = {}
         if analysis_id:
             filter_dict["root_uid"] = analysis_id
@@ -147,7 +173,7 @@ class DB:
         results_page = self.task_results.find(filter_dict, {field: 1 for field in fields}).sort(ordering_pymongo)[
             start : start + length
         ]
-        return PaginatedTaskResults(
+        return PaginatedResults(
             records_count_total=records_count_total,
             records_count_filtered=records_count_filtered,
             data=cast(List[Dict[str, Any]], results_page),
@@ -250,6 +276,13 @@ class DB:
                 ("status_reason", "text"),
             ],
             name="fulltext",
+        )
+        self.analysis.create_index(
+            [
+                ("payload.data", "text"),
+                ("payload_persistent.tag", "text"),
+            ],
+            name="analysis_fulltext",
         )
 
         for statistic in statistics.STATISTICS:

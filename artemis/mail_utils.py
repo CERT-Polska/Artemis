@@ -79,6 +79,9 @@ def check_domain(
         spf_query = checkdmarc.query_spf_record(domain, nameservers=nameservers, timeout=timeout)
 
         domain_result.spf.record = spf_query["record"]
+        if not domain_result.spf.record:
+            raise checkdmarc.SPFRecordNotFound(None)
+
         domain_result.spf.warnings = spf_query["warnings"]
 
         try:
@@ -107,9 +110,16 @@ def check_domain(
         if isinstance(e.args[0], dns.exception.DNSException):
             raise ScanningException(e.args[0].msg if e.args[0].msg else repr(e.args[0]))  # type: ignore
 
-        domain_result.spf.errors = ["SPF record not found"]
-        domain_result.spf.record_not_found = True
-        domain_result.spf.valid = False
+        if isinstance(e.args[0], checkdmarc.MultipleSPFRTXTRecords):
+            domain_result.spf.errors = ["Multiple SPF records found"]
+            domain_result.spf.valid = False
+        else:
+            # Sometimes an entry pretending to be a SPF record exists (e.g. something
+            # beginning with [space]v=spf1) so to avoid communication problems
+            # with the user we tell them that we didn't find a valid one.
+            domain_result.spf.errors = ["Valid SPF record not found"]
+            domain_result.spf.record_not_found = True
+            domain_result.spf.valid = False
     except checkdmarc.SPFTooManyVoidDNSLookups:
         if not ignore_void_dns_lookups:
             domain_result.spf.errors = ["SPF record causes too many void DNS lookups"]
@@ -131,6 +141,9 @@ def check_domain(
     try:
         dmarc_query = checkdmarc.query_dmarc_record(domain, nameservers=nameservers, timeout=timeout)
         domain_result.dmarc.record = dmarc_query["record"]
+        if not domain_result.dmarc.record:
+            raise checkdmarc.DMARCRecordNotFound(None)
+
         domain_result.dmarc.location = dmarc_query["location"]
         parsed_dmarc_record = checkdmarc.parse_dmarc_record(
             dmarc_query["record"],
@@ -170,7 +183,10 @@ def check_domain(
             domain_result.dmarc.warnings = ["Unrelated TXT record found"]
             domain_result.dmarc.valid = True
         else:
-            domain_result.dmarc.errors = ["DMARC record not found"]
+            # Sometimes an entry pretending to be a DMARC record exists so to avoid
+            # communication problems with the user we tell them that we
+            # didn't find a valid one.
+            domain_result.dmarc.errors = ["Valid DMARC record not found"]
             domain_result.dmarc.valid = False
     except checkdmarc.DMARCRecordInWrongLocation:
         domain_result.dmarc.errors = ["DMARC record should be stored in the `_dmarc` subdomain"]

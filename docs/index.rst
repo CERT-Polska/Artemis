@@ -37,3 +37,4 @@ To chat about Artemis, join the Discord server:
    architecture
    user-guide/configuration
    user-guide/writing-a-module
+   user-guide/troubleshooting

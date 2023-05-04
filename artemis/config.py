@@ -114,11 +114,13 @@ class Config:
     # Github API rate limits are spent)
     NUCLEI_CHECK_TEMPLATE_LIST = decouple.config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
-    # Skipping these two templates as they caused panic: runtime error: integer divide by zero in
-    # github.com/projectdiscovery/retryabledns
+    # Skipping:
+    # - dns/azure-takeover-detection.yaml and dns/elasticbeantalk-takeover.yaml as they caused panic: runtime
+    #   error: integer divide by zero in github.com/projectdiscovery/retryabledns
+    # - cves/2021/CVE-2021-43798.yaml as it caused multiple FPs
     NUCLEI_TEMPLATES_TO_SKIP = decouple.config(
         "NUCLEI_TEMPLATES_TO_SKIP",
-        default="dns/azure-takeover-detection.yaml,dns/elasticbeantalk-takeover.yaml",
+        default="dns/azure-takeover-detection.yaml,dns/elasticbeantalk-takeover.yaml,cves/2021/CVE-2021-43798.yaml",
         cast=decouple.Csv(str),
     )
 

@@ -32,5 +32,5 @@ shodan==1.28.0
 six==1.16.0
 timeout-decorator==0.5.0
 typing-extensions==4.5.0
-urllib3==1.26.15
+urllib3==2.0.2
 uvicorn==0.22.0

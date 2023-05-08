@@ -17,7 +17,7 @@ liccheck==0.9.0
 MarkupSafe==2.1.2
 minio==7.1.14
 psycopg2-binary==2.9.6
-publicsuffixlist==0.10.0.20230429
+publicsuffixlist==0.10.0.20230506
 pydantic==1.10.7
 pymongo==4.3.3
 PyMySQL==1.0.3

@@ -114,13 +114,22 @@ class Config:
     # Github API rate limits are spent)
     NUCLEI_CHECK_TEMPLATE_LIST = decouple.config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
-    # Skipping:
-    # - dns/azure-takeover-detection.yaml and dns/elasticbeantalk-takeover.yaml as they caused panic: runtime
-    #   error: integer divide by zero in github.com/projectdiscovery/retryabledns
-    # - cves/2021/CVE-2021-43798.yaml as it caused multiple FPs
     NUCLEI_TEMPLATES_TO_SKIP = decouple.config(
         "NUCLEI_TEMPLATES_TO_SKIP",
-        default="dns/azure-takeover-detection.yaml,dns/elasticbeantalk-takeover.yaml,cves/2021/CVE-2021-43798.yaml",
+        default=",".join(
+            [
+                # the two following templates caused panic: runtime
+                # error: integer divide by zero in github.com/projectdiscovery/retryabledns
+                "dns/azure-takeover-detection.yaml",
+                "dns/elasticbeantalk-takeover.yaml",
+                # this one caused multiple FPs
+                "http/cves/2021/CVE-2021-43798.yaml",
+                # admin panel information disclosure - not a high-severity one
+                "http/cves/2021/CVE-2021-24917.yaml",
+                # caused multiple FPs: travis configuration file provided by a framework without much interesting information
+                "exposures/files/travis-ci-disclosure.yaml",
+            ]
+        ),
         cast=decouple.Csv(str),
     )
 

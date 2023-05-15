@@ -104,6 +104,8 @@ class Nuclei(ArtemisBase):
         command = [
             "nuclei",
             "-disable-update-check",
+            "-etags",
+            "intrusive",
             "-ni",
             "-target",
             target,

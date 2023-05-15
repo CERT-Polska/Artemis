@@ -111,7 +111,7 @@ class Nuclei(ArtemisBase):
             ",".join(templates),
             "-timeout",
             str(Config.REQUEST_TIMEOUT_SECONDS),
-            "-json",
+            "-jsonl",
             "-resolvers",
             "/dev/null",
             "-system-resolvers",

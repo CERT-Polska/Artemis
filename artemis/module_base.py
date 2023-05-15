@@ -72,8 +72,8 @@ class ArtemisBase(Karton):
             return cache_result
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
-        new_task.root_uid = current_task.root_uid
-        new_task.payload_persistent.update(current_task.payload_persistent)
+        new_task.set_task_parent(current_task)
+        new_task.merge_persistent_payload(current_task)
         if self.db.save_scheduled_task(new_task):
             self.send_task(new_task)
 

@@ -72,7 +72,7 @@ class Nuclei(ArtemisBase):
             templates.append("http/default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
 
         self.log.info(f"path is {urllib.parse.urlparse(target).path}")
-        if urllib.parse.urlparse(target).path.strip("/") == "":
+        if self._is_homepage(target):
             self.log.info(f"adding {len(self._templates)} templates")
             templates.extend(self._templates)
 
@@ -112,8 +112,6 @@ class Nuclei(ArtemisBase):
             "-timeout",
             str(Config.REQUEST_TIMEOUT_SECONDS),
             "-jsonl",
-            "-resolvers",
-            "/dev/null",
             "-system-resolvers",
             "-spr",
             str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
@@ -141,6 +139,10 @@ class Nuclei(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+
+    def _is_homepage(self, url: str) -> bool:
+        url_parsed = urllib.parse.urlparse(url)
+        return url_parsed.path.strip("/") == "" and not url_parsed.query and not url_parsed.fragment
 
 
 if __name__ == "__main__":

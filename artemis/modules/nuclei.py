@@ -15,16 +15,16 @@ from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
 TEMPLATES_THAT_MATCH_ON_PHPINFO = {
-    "cnvd/2020/CNVD-2020-23735.yaml",
-    "cves/2015/CVE-2015-4050.yaml",
-    "cves/2019/CVE-2019-9041.yaml",
-    "cves/2020/CVE-2020-5776.yaml",
-    "cves/2020/CVE-2020-5847.yaml",
-    "cves/2021/CVE-2021-40870.yaml",
-    "cves/2022/CVE-2022-0885.yaml",
-    "cves/2022/CVE-2022-1020.yaml",
-    "vulnerabilities/other/ecshop-sqli.yaml",
-    "vulnerabilities/thinkcmf/thinkcmf-rce.yaml",
+    "http/cnvd/2020/CNVD-2020-23735.yaml",
+    "http/cves/2015/CVE-2015-4050.yaml",
+    "http/cves/2019/CVE-2019-9041.yaml",
+    "http/cves/2020/CVE-2020-5776.yaml",
+    "http/cves/2020/CVE-2020-5847.yaml",
+    "http/cves/2021/CVE-2021-40870.yaml",
+    "http/cves/2022/CVE-2022-0885.yaml",
+    "http/cves/2022/CVE-2022-1020.yaml",
+    "http/vulnerabilities/other/ecshop-sqli.yaml",
+    "http/vulnerabilities/thinkcmf/thinkcmf-rce.yaml",
 }
 
 
@@ -69,7 +69,7 @@ class Nuclei(ArtemisBase):
         # We want to run PhpMyAdmin Nuclei templates only when we identified that a given URL runs
         # PhpMyAdmin.
         if "<title>phpMyAdmin</title>" in content:
-            templates.append("default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
+            templates.append("http/default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
 
         self.log.info(f"path is {urllib.parse.urlparse(target).path}")
         if urllib.parse.urlparse(target).path.strip("/") == "":

@@ -21,7 +21,7 @@ repos:
     additional_dependencies:
     - aiohttp==3.8.3
     - dnspython==2.2.1
-    - karton-core==5.0.0
+    - karton-core==5.1.0
     - fastapi==0.88.0
     - freezegun==1.2.2
     - pymongo-stubs==0.2.0

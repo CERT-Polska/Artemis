@@ -10,6 +10,7 @@ import dns.resolver
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.domains import is_main_domain
 from artemis.mail_utils import DomainScanResult as SPFDMARCScanResult
 from artemis.mail_utils import ScanningException, check_domain
@@ -35,7 +36,7 @@ class MailDNSScanner(ArtemisBase):
     @staticmethod
     def is_smtp_server(host: str, port: int) -> bool:
         def test() -> bool:
-            smtp = SMTP(timeout=1)
+            smtp = SMTP(timeout=Config.REQUEST_TIMEOUT_SECONDS)
             try:
                 smtp.connect(host, port=port)
                 smtp.close()
@@ -43,6 +44,8 @@ class MailDNSScanner(ArtemisBase):
             except socket.timeout:
                 return False
             except ConnectionRefusedError:
+                return False
+            except OSError:
                 return False
             except SMTPServerDisconnected:
                 return False

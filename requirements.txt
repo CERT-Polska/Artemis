@@ -13,7 +13,7 @@ freezegun==1.2.2
 h11==0.14.0
 idna==3.4
 Jinja2==3.1.2
-karton-core==5.0.1
+karton-core==5.1.0
 liccheck==0.9.1
 MarkupSafe==2.1.2
 minio==7.1.14

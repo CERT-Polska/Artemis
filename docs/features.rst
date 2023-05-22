@@ -3,7 +3,7 @@ Features
 
 Artemis includes:
 
- - subdomain scan using ``crt.sh``,
+ - subdomain scan using ``crt.sh`` and ``gau`` (https://github.com/lc/gau),
  - Shodan integration,
  - brute-forcing of interesting paths (e.g. ``.env``),
  - brute-forcing of easy WordPress/MySQL/PostgreSQL/FTP passwords,

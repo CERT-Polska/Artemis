@@ -253,7 +253,7 @@ class DB:
         return result
 
     def statistic_increase(self, name: str, value: str) -> None:
-        self.statistics.find_one_and_update({"name": name, "value": value}, {"$inc": {"count": 1}})
+        self.statistics.find_one_and_update({"name": name, "value": value}, {"$inc": {"count": 1}}, upsert=True)
 
     def initialize_database(self) -> None:
         """Creates MongoDB indexes. create_index() creates an index if it doesn't exist, so

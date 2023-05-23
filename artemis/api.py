@@ -88,7 +88,7 @@ def get_task_results_table(
 ) -> Dict[str, Any]:
     ordering = _get_ordering(
         request,
-        column_names=["created_at", "headers.receiver", "target_string", None, "status_reason", "decision_type"],
+        column_names=["created_at", "tag", "headers.receiver", "target_string", None, "status_reason"],
     )
     search_query = _get_search_query(request)
 

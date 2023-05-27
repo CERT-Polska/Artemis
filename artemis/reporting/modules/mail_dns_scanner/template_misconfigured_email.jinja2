@@ -11,7 +11,8 @@
             {% endfor %}
         </ul>
         <p>
-            {{ _("Such configuration may allow an attacker to send spoofed e-mail messages from these domains.")|safe }}
+            {{ _("These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.")|safe }}
+            {{ _("Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possiblity to spoof e-mails.")|safe }}
         </p>
     </li>
 {% endif %}

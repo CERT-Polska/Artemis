@@ -26,6 +26,16 @@ services:
     volumes:
      - data-mongodb:/data/db
 
+  autoreporter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    env_file: .env
+    volumes:
+      - ./output/autoreporter/:/opt/output/autoreporter
+      - ./docker/karton.ini:/etc/karton/karton.ini
+    command: "false"
+
   karton-system:
     command: ["--setup-bucket"]
     depends_on: ["db", "redis", "minio"]

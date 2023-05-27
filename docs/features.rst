@@ -12,7 +12,8 @@ Artemis includes:
  - a check for VCS folders (e.g. ``.git``),
  - a check for enabled directory index,
  - port scanning,
- - easy extensibility via plug-and-play modules.
+ - easy extensibility via plug-and-play modules,
+ - **automatic generation of e-mails containing findings description** (to do that, please refer to :ref:`generating-e-mails`).
 
 Exploration vs exploitation in URL bruting
 ------------------------------------------

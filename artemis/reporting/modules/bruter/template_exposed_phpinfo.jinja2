@@ -1,0 +1,21 @@
+{% if "exposed_phpinfo" in data.contains_type %}
+    <li>{% trans %}The following addresses contain information about server configuration:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_phpinfo" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Making such information publicly available will allow an attacker to learn about server
+                configuration, paths, and - if environment variables contain passwords or API keys - gain
+                unauthorized access. Such information shouldn't be publicly available.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

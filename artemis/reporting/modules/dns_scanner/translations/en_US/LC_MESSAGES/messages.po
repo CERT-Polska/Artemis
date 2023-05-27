@@ -1,0 +1,35 @@
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:3
+msgid ""
+"The following DNS servers have zone transfer enabled, and therefore allow"
+" an attacker to learn about all possible subdomains:"
+msgstr ""
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:11
+msgid "server"
+msgstr ""
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:12
+msgid "domain"
+msgstr ""
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:13
+msgid "number of subdomains that can be downloaded"
+msgstr ""
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:15
+msgid "Such transfer can be performed using the following Linux command:"
+msgstr ""
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:23
+msgid ""
+"We recommend verifying whether this is an intended configuration, and if "
+"it's not, changing it so that zone transfer is not publicly available "
+"(but e.g. from an IP address white list)."
+msgstr ""
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:29
+msgid ""
+"Even if now the zone transfer contains only public information, we "
+"recommend turning it off, so that it doesn't leak information in the "
+"future, when the number of subdomains increases."
+msgstr ""

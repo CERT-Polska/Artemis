@@ -1,0 +1,14 @@
+{% if "exposed_installation_panel" in data.contains_type %}
+    <li>{% trans %}The following addresses contain content management system installation panels:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_installation_panel" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}

@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 import json
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, Generator, List, Optional, Tuple, cast
 
 from karton.core import Task
 from pydantic import BaseModel
@@ -203,6 +203,17 @@ class DB:
             upsert=True,
         )
         return bool(result.upserted_id)
+
+    def get_task_results_since(self, time_from: datetime.datetime) -> Generator[Dict[str, Any], None, None]:
+        with self.client.start_session() as session:
+            try:
+                cursor = self.task_results.find(
+                    {"created_at": {"$gte": time_from}}, no_cursor_timeout=True, session=session
+                ).batch_size(1)
+                for item in cursor:
+                    yield cast(Dict[str, Any], item)
+            finally:
+                cursor.close()
 
     def _get_task_deduplication_data(self, task: Task) -> List[List[Any]]:
         """

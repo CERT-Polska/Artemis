@@ -37,7 +37,35 @@ Select ``Add targets`` from the top navigation bar. Artemis takes input in the f
 of entries separated with newlines. Artemis works with both IPs and domains. If
 a URL is provided, the domain from this URL will be scanned.
 
+To be later able to filter various types of targets, provide a tag in the `Tag` field.
+
 Viewing results
 ---------------
 
 To view results, click the ``View results`` link in the top navigation bar.
+
+.. _generating-e-mails:
+
+Generating e-mails to be sent
+-----------------------------
+Artemis has a feature to generate e-mail reports containing a description of found vulnerabilities.
+
+These reports won't contain everything found by Artemis - custom logic (residing in
+``artemis/reporting/modules/``) will make an educated guess whether a vulnerability
+is a true positive and interesting enough to be reported.
+
+To generate these e-mails, use:
+
+``./scripts/export_emails ALREADY_EXISTING_REPORT_DIRECTORY TAG LANGUAGE``
+
+ - ``ALREADY_EXISTING_REPORT_DIRECTORY`` is a directory where JSON files produced by previous script invocations
+   reside. This allows you to skip sending messages that have already been sent.
+ - ``LANGUAGE`` is the output report language (e.g. ``pl_PL`` or ``en_US``).
+ - ``TAG`` is the tag you provided when adding targets to be scanned. Only vulnerabilities from targets with this tag will be exported.
+
+This script will produce, among others:
+
+- HTML e-mail messages,
+- a JSON file with data, a jinja2 template and .po translation file - using these three files you can build the messages yourself.
+
+Please keep in mind that the reporting module resolves domains and performs HTTP requests.

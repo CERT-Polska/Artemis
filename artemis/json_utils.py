@@ -4,7 +4,7 @@ import json
 from typing import Any
 
 
-class JSONEncoderWithDataclasses(json.JSONEncoder):
+class JSONEncoderAdditionalTypes(json.JSONEncoder):
     def default(self, o: Any) -> Any:
         if dataclasses.is_dataclass(o):
             return dataclasses.asdict(o)

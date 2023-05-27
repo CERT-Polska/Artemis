@@ -1,0 +1,10 @@
+#: artemis/reporting/modules/joomla_scanner/template_old_joomla.jinja2:2
+msgid "The following addresses contain old Joomla versions:"
+msgstr ""
+
+#: artemis/reporting/modules/joomla_scanner/template_old_joomla.jinja2:14
+msgid ""
+"If a site is no longer used, we recommend shutting it down to eliminate "
+"the risk of exploitation of known vulnerabilities in older Joomla "
+"versions. Otherwise, we recommend regular Joomla core and plugin updates."
+msgstr ""

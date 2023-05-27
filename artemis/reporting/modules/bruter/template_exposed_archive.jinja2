@@ -1,0 +1,20 @@
+{% if "exposed_archive" in data.contains_type %}
+    <li>{% trans %}The following addresses contain archives:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_archive" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Please verify that these archives don't contain data such as website
+                backup and whether they should be publicly available.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

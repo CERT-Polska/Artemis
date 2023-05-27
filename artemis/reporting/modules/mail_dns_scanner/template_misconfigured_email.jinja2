@@ -1,0 +1,17 @@
+{% if "misconfigured_email" in data.contains_type %}
+    <li>{% trans %}The following domains don't have properly configured e-mail sender verification mechanisms:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "misconfigured_email" %}
+                    <li>
+                        {{ report.target }}: {{ report.report_data.message_translated }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {{ _("Such configuration may allow an attacker to send spoofed e-mail messages from these domains.")|safe }}
+        </p>
+    </li>
+{% endif %}

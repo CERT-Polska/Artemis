@@ -1,0 +1,21 @@
+{% if "exposed_version_control_folder" in data.contains_type %}
+    <li>{% trans %}The following addresses contain version control system data:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_version_control_folder" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Making a code repository public may allow an attacker to learn the inner workings
+                of a system, and if it contains passwords or API keys - also gain unautorized access.
+                Such data shouldn't be publicly available.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

@@ -1,0 +1,112 @@
+import copy
+import datetime
+import socket
+import urllib.parse
+import uuid
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
+
+from artemis.reporting.utils import cached_gethostbyname
+from artemis.utils import get_host_from_url, is_ip_address
+
+from .normal_form import NormalForm
+from .report_type import ReportType
+from .reporters import get_all_reporters
+
+
+@dataclass
+class Report:
+    # top_level_target is the target that was provided when adding targets to be scanned. It may not be the same as
+    # the target where actual vulnerability was found - e.g. you may start with scanning example.com and the
+    # vulnerability may be found on https://subdomain.example.com/phpmyadmin/
+    top_level_target: str
+
+    # The actual location of the vulnerability (it may be e.g. a domain or a URL)
+    target: str
+    report_type: ReportType
+
+    # Additional report data - the content depends on the report type
+    report_data: Dict[str, Any]
+    timestamp: Optional[datetime.datetime] = None
+    uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
+
+    # IP address of the target - used later to deduplicate identical vulnerabilities on a domain and on an IP of the
+    # domain.
+    target_ip: Optional[str] = None
+
+    # Whether an attempt to resolve the IP of the target has been performed (the IP may be None because it has not been
+    # checked or because the domain didn't resolve).
+    target_ip_checked: bool = False
+
+    # Whether we already reported that vulnerability earlier
+    is_subsequent_reminder: bool = False
+
+    def __post_init__(self) -> None:
+        if not self.target_ip_checked:
+            # If something doesn't have :// it's a domain so let's skip obtaining IP as domain-related vulnerabilities
+            # (e.g. zone transfer or DMARC problems) don't have sensible IP versions.
+            if "://" in self.target:
+                host = get_host_from_url(self.target)
+                if is_ip_address(host):
+                    self.target_ip = host
+                else:
+                    try:
+                        self.target_ip = cached_gethostbyname(host)
+                    except socket.gaierror:
+                        self.target_ip = None
+            self.target_ip_checked = True
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Report):
+            return False
+
+        return (
+            self.top_level_target == other.top_level_target
+            and self.target == other.target
+            and self.report_type == other.report_type
+            and self.report_data == other.report_data
+        )
+
+    def target_is_ip_address(self) -> bool:
+        if "://" in self.target:
+            host = get_host_from_url(self.target)
+            return is_ip_address(host)
+        else:
+            return is_ip_address(self.target)
+
+    def alternative_with_ip_address(self) -> Optional["Report"]:
+        """If a report is about a URL where the host is a domain, not an IP, returns a version of this report
+        where the domain is replaced with an IP. Otherwise returns None."""
+        if "://" in self.target and not self.target_is_ip_address() and self.target_ip:
+            report = copy.deepcopy(self)
+            target_parsed = urllib.parse.urlparse(self.target)
+            target_parsed_dict = target_parsed._asdict()
+            assert target_parsed.port is not None
+            target_parsed_dict["netloc"] = self.target_ip + ":" + str(target_parsed.port)
+            report.target = urllib.parse.urlunparse(urllib.parse.ParseResult(**target_parsed_dict))
+            return report
+        return None
+
+    def get_normal_form(self) -> NormalForm:
+        """Returns the normal form of the report."""
+        for reporter in get_all_reporters():
+            normal_form_rules = reporter.get_normal_form_rules()
+            if self.report_type in normal_form_rules:
+                return normal_form_rules[self.report_type](self)  # type: ignore
+        raise NotImplementedError(f"Don't know how to get normal form for {self.report_type}")
+
+    def get_score(self) -> List[int]:
+        """Returns a score: different reports with the same normal form may have different scores depending
+        how good this version is - e.g. https://domain.com/wp-config.php.bak is better than http://www.domain.com/wp-config.php.bak.
+
+        Among reports with the same normal form, the report with the highest score will be sent (or one chosen from
+        many reports with the highest score).
+
+        Score is a list of ints that should be compared lexicographically (the ints should be compared in a standard way).
+        """
+
+        for reporter in get_all_reporters():
+            scoring_rules = reporter.get_scoring_rules()
+            if self.report_type in scoring_rules:
+                return scoring_rules[self.report_type](self)  # type: ignore
+        raise NotImplementedError(f"Don't know how to get score for {self.report_type}")

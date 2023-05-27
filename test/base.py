@@ -31,7 +31,17 @@ class ArtemisModuleTestCase(KartonTestCase):
 
         def mock_get_top_values_for_statistic(name: str, count: int) -> List[Tuple[int, str]]:
             if name == "bruter":
-                return [(10, "config.dist"), (5, "sql.gz"), (5, "mysql.sql"), (3, "localhost.sql"), (2, "test")]
+                return [
+                    (10, "config.dist"),
+                    (5, "sql.gz"),
+                    (5, "mysql.sql"),
+                    (3, "localhost.sql"),
+                    (2, "test"),
+                    (1, "_.htpasswd"),
+                    (1, "localhost.sql"),
+                    (1, "wp-admin/install.php"),
+                    (1, "wp-admin/setup-config.php"),
+                ]
             raise NotImplementedError()
 
         self.mock_db = MagicMock()

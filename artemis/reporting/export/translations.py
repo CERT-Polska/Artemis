@@ -36,11 +36,12 @@ def install_translations(
             translations_file_name,
             "--output",
             temporary_compiled_translations_file_name,
-        ]
+        ],
+        stderr=subprocess.DEVNULL,  # suppress a misleading message where compiled translations will be saved
     )
 
     environment.install_gettext_translations(  # type: ignore
         gettext.translation(domain="messages", localedir=".", languages=[language.value])
     )
 
-    shutil.move(temporary_compiled_translations_file_name, compiled_translations_file_name)
+    shutil.copy(temporary_compiled_translations_file_name, compiled_translations_file_name)

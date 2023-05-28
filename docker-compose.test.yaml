@@ -148,11 +148,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
-  test-service-with-bruteable-files-admin-panel:
-    image: php:7.4-apache
-    volumes:
-      - ./test/reporting/data/bruteable_files/admin_panel/:/var/www/html/
-
   test-service-with-bruteable-files-sql-dumps:
     image: php:7.4-apache
     volumes:

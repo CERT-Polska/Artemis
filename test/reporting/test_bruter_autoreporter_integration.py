@@ -24,21 +24,6 @@ message_template = environment.from_string(message_template_content)
 class BruterAutoreporterIntegrationTest(ArtemisModuleTestCase):
     karton_class = Bruter  # type: ignore
 
-    def test_admin_panel(self) -> None:
-        message = self._run_task_and_get_message("test-service-with-bruteable-files-admin-panel")
-        self.assertIn(
-            "<li>The following addresses contain content management system installation panels:",
-            message,
-        )
-        self.assertIn(
-            "http://test-service-with-bruteable-files-admin-panel:80/wp-admin/install.php",
-            message,
-        )
-        self.assertIn(
-            "http://test-service-with-bruteable-files-admin-panel:80/wp-admin/setup-config.php",
-            message,
-        )
-
     def test_sql_dumps(self) -> None:
         message = self._run_task_and_get_message("test-service-with-bruteable-files-sql-dumps")
         self.assertIn(

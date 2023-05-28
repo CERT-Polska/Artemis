@@ -17,7 +17,6 @@ from artemis.reporting.modules.bruter.classifier import (
     is_exposed_archive,
     is_exposed_file_with_listing,
     is_ini_file,
-    is_installation_panel,
     is_log_file,
     is_password_file,
     is_php_source,
@@ -34,7 +33,6 @@ class BruterReporter(Reporter):
     EXPOSED_DEAD_LETTER = ReportType("exposed_dead_letter")
     EXPOSED_FILE_WITH_LISTING = ReportType("exposed_file_with_listing")
     EXPOSED_HTTP_SERVER_INFO_STATUS = ReportType("exposed_http_server_info_status")
-    EXPOSED_INSTALLATION_PANEL = ReportType("exposed_installation_panel")
     EXPOSED_KEYS = ReportType("exposed_keys")
     EXPOSED_LOG_FILE = ReportType("exposed_log_file")
     EXPOSED_PASSWORD_FILE = ReportType("exposed_password_file")
@@ -52,7 +50,6 @@ class BruterReporter(Reporter):
             BruterReporter.EXPOSED_DEAD_LETTER,
             BruterReporter.EXPOSED_FILE_WITH_LISTING,
             BruterReporter.EXPOSED_HTTP_SERVER_INFO_STATUS,
-            BruterReporter.EXPOSED_INSTALLATION_PANEL,
             BruterReporter.EXPOSED_KEYS,
             BruterReporter.EXPOSED_LOG_FILE,
             BruterReporter.EXPOSED_PASSWORD_FILE,
@@ -88,8 +85,6 @@ class BruterReporter(Reporter):
 
             if is_password_file(found_url):
                 add_report(found_url, BruterReporter.EXPOSED_PASSWORD_FILE)
-            elif is_installation_panel(found_url):
-                add_report(found_url, BruterReporter.EXPOSED_INSTALLATION_PANEL)
             elif is_sql_dump(found_url):
                 add_report(found_url, BruterReporter.EXPOSED_SQL_DUMP)
             elif is_exposed_archive(found_url):
@@ -133,9 +128,6 @@ class BruterReporter(Reporter):
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_exposed_configuration_file.jinja2"), 10
-            ),
-            ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_installation_panel.jinja2"), 10
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_exposed_archive.jinja2"), 7

@@ -21,17 +21,6 @@ def is_password_file(found_url: FoundURL) -> bool:
     return False
 
 
-def is_installation_panel(found_url: FoundURL) -> bool:
-    if "/wp-admin/" in found_url.url and (
-        # The installation file has "WordPress Installation" title even after installing, so we need to check whether
-        # we indeed have the installation form in front of us.
-        ("<title>WordPress &rsaquo; Installation" in found_url.content_prefix and "<form" in found_url.content_prefix)
-        or "<title>WordPress &rsaquo; Setup" in found_url.content_prefix
-    ):
-        return True
-    return False
-
-
 def is_php_var_dump(found_url: FoundURL) -> bool:
     if " => " in found_url.content_prefix and (
         "array (" in found_url.content_prefix

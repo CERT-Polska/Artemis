@@ -73,14 +73,6 @@ msgstr ""
 msgid "Such endpoints shouldn't be publicly accessible."
 msgstr "Rekomendujemy, aby takie końcówki nie były publicznie dostępne."
 
-#: artemis/reporting/modules/bruter/template_exposed_installation_panel.jinja2:2
-msgid ""
-"The following addresses contain content management system installation "
-"panels:"
-msgstr ""
-"Pod następującymi adresami znajduje się panel instalacyjny umożliwiający "
-"konfigurację systemu zarządzania treścią:"
-
 #: artemis/reporting/modules/bruter/template_exposed_keys.jinja2:2
 msgid "The following addresses contain private cryptographic keys:"
 msgstr "Pod następującymi adresami znajdują się prywatne klucze kryptograficzne:"

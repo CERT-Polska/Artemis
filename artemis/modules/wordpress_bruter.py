@@ -89,7 +89,7 @@ class WordPressBruter(ArtemisBase):
                     },
                     cookies={"wordpress_test_cookie": "WP%20Cookie%20check"},
                 ).content
-                if "<title>Dashboard" in content:
+                if "<title>Dashboard" in content or '<form class="admin-email-confirm-form"' in content:
                     credentials.append((username, password))
 
         if credentials:

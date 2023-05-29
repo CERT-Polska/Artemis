@@ -98,7 +98,14 @@ class MailDNSScanner(ArtemisBase):
         # For Artemis we have a slightly relaxed requirement than mail_utils - if a domain is not used for
         # sending e-mail, we don't require SPF (but require DMARC). Mail_utils can't be modified as it's
         # used by CERT internal tools as well.
-        if result.spf_dmarc_scan_result and not has_mx_records:
+        #
+        # We won't report lack of SPF record, but we should report if it's invalid.
+        if (
+            result.spf_dmarc_scan_result
+            and result.spf_dmarc_scan_result.spf
+            and result.spf_dmarc_scan_result.spf.record_not_found
+            and not has_mx_records
+        ):
             result.spf_dmarc_scan_result.spf.valid = True
 
         random_token = os.urandom(8).hex()

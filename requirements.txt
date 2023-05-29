@@ -28,7 +28,7 @@ python-multipart==0.0.6
 pytz==2023.3
 PyYAML==6.0
 redis==4.5.5
-requests==2.30.0
+requests==2.31.0
 requests-mock==1.10.0
 semver==3.0.0
 shodan==1.29.1

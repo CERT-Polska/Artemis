@@ -8,6 +8,7 @@ from typing import List, Optional
 import dns.name
 import dns.resolver
 from karton.core import Task
+from publicsuffixlist import PublicSuffixList
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
@@ -17,6 +18,8 @@ from artemis.mail_utils import ScanningException, check_domain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.utils import throttle_request
+
+PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
 @dataclasses.dataclass
@@ -83,7 +86,6 @@ class MailDNSScanner(ArtemisBase):
             if self.is_smtp_server(domain, 25):
                 result.mail_server_found = True
 
-        # We check according to a heuristic that a domain is used to send e-mails if it has MX records
         try:
             # Ignore_void_dns_lookups is set because:
             # - the checkdmarc check is buggy and sometimes counts the void DNS lookups wrongly,
@@ -105,6 +107,18 @@ class MailDNSScanner(ArtemisBase):
             and result.spf_dmarc_scan_result.spf
             and result.spf_dmarc_scan_result.spf.record_not_found
             and not has_mx_records
+        ):
+            result.spf_dmarc_scan_result.spf.valid = True
+
+        # To decrease the number of false positives, for domains that do have MX records, we require SPF records to
+        # be present only if the domain is directly below a public suffix (so we will require SPF on example.com
+        # but not on www.example.com).
+        if (
+            has_mx_records
+            and not PUBLIC_SUFFIX_LIST.privatesuffix(domain) == domain
+            and result.spf_dmarc_scan_result
+            and result.spf_dmarc_scan_result.spf
+            and result.spf_dmarc_scan_result.spf.record_not_found
         ):
             result.spf_dmarc_scan_result.spf.valid = True
 
@@ -130,16 +144,6 @@ class MailDNSScanner(ArtemisBase):
             ):
                 result.spf_dmarc_scan_result.spf.valid = True
 
-        # Some www. domains have MX set for some reason - but as they aren't used to send e-mail,
-        # we don't require SPF (but we do require DMARC).
-        if (
-            has_mx_records
-            and domain.startswith("www.")
-            and result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.spf
-            and result.spf_dmarc_scan_result.spf.record_not_found
-        ):
-            result.spf_dmarc_scan_result.spf.valid = True
         return result
 
     def run(self, current_task: Task) -> None:

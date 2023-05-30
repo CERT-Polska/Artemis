@@ -45,7 +45,7 @@ def build_message_template() -> str:
 
 
 def _load_template(relative_path: Path, allow_nonexistent: bool = False) -> str:
-    template_path = Path(os.path.dirname(__file__)) / ".." / "templates" / relative_path
+    template_path = Path(__file__).resolve().parent / ".." / "templates" / relative_path
 
     if allow_nonexistent and not os.path.exists(template_path):
         return ""

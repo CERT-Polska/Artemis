@@ -32,6 +32,6 @@ semver==3.0.0
 shodan==1.29.1
 six==1.16.0
 timeout-decorator==0.5.0
-typing-extensions==4.5.0
+typing-extensions==4.6.2
 urllib3==1.26.16
 uvicorn==0.22.0

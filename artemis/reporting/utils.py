@@ -1,7 +1,7 @@
 import functools
 import urllib.parse
 from socket import gethostbyname, getservbyname, getservbyport
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from artemis import http_requests
 
@@ -19,7 +19,7 @@ def get_target(task_result: Dict[str, Any]) -> str:
     raise NotImplementedError(f"Unable to obtain viable target in {payload}")
 
 
-def get_top_level_target_if_present(task_result: Dict[str, Any]) -> Optional[str]:
+def get_top_level_target(task_result: Dict[str, Any]) -> str:
     """Returns the top level target - i.e. what was initially provided by the user as the target to scan.
 
     For example, the top level target may be example.com, but the actual vulnerability may be
@@ -33,14 +33,6 @@ def get_top_level_target_if_present(task_result: Dict[str, Any]) -> Optional[str
     elif "original_ip" in payload_persistent:
         assert isinstance(payload_persistent["original_ip"], str)
         return payload_persistent["original_ip"]
-    else:
-        return None
-
-
-def get_top_level_target(task_result: Dict[str, Any]) -> str:
-    target = get_top_level_target_if_present(task_result)
-    if target:
-        return target
     else:
         raise ValueError(f"No top level target found in {task_result}")
 

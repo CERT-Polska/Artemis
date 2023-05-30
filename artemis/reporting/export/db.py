@@ -11,7 +11,7 @@ from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.reporters import reports_from_task_result
 from artemis.reporting.blocklist import BlocklistItem, filter_blocklist
-from artemis.reporting.utils import get_top_level_target_if_present
+from artemis.reporting.utils import get_top_level_target
 
 
 class ExportDBConnector:
@@ -53,7 +53,11 @@ class ExportDBConnector:
             if result_tag != self._tag:
                 continue
 
-            top_level_target = get_top_level_target_if_present(task_result)
+            try:
+                top_level_target = get_top_level_target(task_result)
+            except ValueError:
+                top_level_target = None
+
             if top_level_target:
                 self._scanned_top_level_targets.add(top_level_target)
 

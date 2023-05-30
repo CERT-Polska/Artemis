@@ -1,6 +1,6 @@
 import functools
 import urllib.parse
-from socket import gethostbyname, getservbyport
+from socket import gethostbyname, getservbyname, getservbyport
 from typing import Any, Dict, Optional
 
 from artemis import http_requests
@@ -60,12 +60,7 @@ def get_port_from_url(url: str) -> int:
     port = url_parsed.port
 
     if not port:
-        if url_parsed.scheme == "http":
-            return 80
-        elif url_parsed.scheme == "https":
-            return 443
-        else:
-            raise NotImplementedError()
+        return getservbyname(url_parsed.scheme)
     return port
 
 

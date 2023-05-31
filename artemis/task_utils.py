@@ -25,6 +25,12 @@ def get_target(task: Task) -> str:
 
 
 def get_target_url(task: Task) -> str:
+    url = task.get_payload("url")
+
+    if url:
+        assert isinstance(url, str)
+        return url
+
     if task.headers["service"] != Service.HTTP:
         raise NotImplementedError
 

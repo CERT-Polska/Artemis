@@ -3,20 +3,14 @@ import urllib.parse
 from socket import gethostbyname, getservbyname, getservbyport
 from typing import Any, Dict
 
-from artemis import http_requests
+from karton.core import Task
+
+from artemis import http_requests, task_utils
 
 
 def get_target(task_result: Dict[str, Any]) -> str:
     """Returns a string representation of the target that has been scanned."""
-    headers = task_result["headers"]
-    payload = task_result["payload"]
-    if "url" in payload:
-        assert isinstance(payload["url"], str)
-        return payload["url"]
-    if "host" in payload and headers["service"] == "http":
-        assert isinstance(payload["host"], str)
-        return ("https" if payload["ssl"] else "http") + "://" + payload["host"] + ":" + str(payload["port"]) + "/"
-    raise NotImplementedError(f"Unable to obtain viable target in {payload}")
+    return task_utils.get_target_url(Task(headers=task_result["headers"], payload=task_result["payload"]))
 
 
 def get_top_level_target(task_result: Dict[str, Any]) -> str:

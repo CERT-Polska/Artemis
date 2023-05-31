@@ -94,16 +94,9 @@ def add_protocol_if_needed(data: str) -> str:
     elif ":" in data:
         host, port = data.split(":")
         port_int = int(port)
-        return f"{_getservbyport(port_int)}://{host}:{port}"
+        try:
+            service_name = getservbyport(port_int)
+        except OSError:
+            service_name = "unknown"
+        return f"{service_name}://{host}:{port}"
     return data
-
-
-def _getservbyport(port: int) -> str:
-    try:
-        return getservbyport(port)
-    except OSError:
-        if port == 3310:
-            return "clamav"
-        if port == 8009:
-            return "ajp"
-        raise OSError(f"Unable to get service associated with port {port}")

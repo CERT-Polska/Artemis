@@ -62,10 +62,14 @@ def install_translations(
         stderr=subprocess.DEVNULL,  # suppress a misleading message where compiled translations will be saved
     )
 
+    if language == Language.en_US:
+        # For English we allow untranslated strings
+        class_ = gettext.GNUTranslations
+    else:
+        class_ = TranslationRaiseException
+
     environment.install_gettext_translations(  # type: ignore
-        gettext.translation(
-            domain="messages", localedir=".", languages=[language.value], class_=TranslationRaiseException
-        )
+        gettext.translation(domain="messages", localedir=".", languages=[language.value], class_=class_)
     )
 
     shutil.copy(temporary_compiled_translations_file_name, compiled_translations_file_name)

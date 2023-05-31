@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Any
 
 from jinja2 import Environment
 
@@ -19,6 +20,15 @@ class TranslationRaiseException(gettext.GNUTranslations):
         if message == message_translated:
             raise TranslationNotFoundException(f"Unable to translate '{message}'")
         return message_translated
+
+    def ngettext(self, *args: Any) -> Any:
+        raise NotImplementedError()
+
+    def pgettext(self, *args: Any) -> Any:
+        raise NotImplementedError()
+
+    def npgettext(self, *args: Any) -> Any:
+        raise NotImplementedError()
 
 
 def install_translations(

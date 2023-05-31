@@ -31,6 +31,9 @@ def build_logger(name: str) -> logging.Logger:
 
 
 def is_directory_index(content: str) -> bool:
+    if "directory listing denied" in content.lower():
+        return False
+
     return (
         "Index of /" in content
         or "ListBucketResult" in content

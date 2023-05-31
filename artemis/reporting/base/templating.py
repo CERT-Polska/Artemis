@@ -35,6 +35,10 @@ def build_message_template() -> str:
     content_sum = (
         # the custom_definitions.jinja2 file may contain e.g. custom header or footer text and
         # be provided by a different module.
+        #
+        # We glue the templates into one so that the export script generates one template to be used,
+        # not a package consisting of multiple ones - this is the workflow preferred by the downstream
+        # consumers of exported data at CERT PL.
         _load_template(Path("custom_definitions.jinja2"), allow_nonexistent=True)
         + _load_template(Path("header.jinja2"))
         + content_sum

@@ -7,6 +7,18 @@ from pathlib import Path
 from jinja2 import Environment
 
 from artemis.reporting.base.language import Language
+from artemis.reporting.exceptions import TranslationNotFoundException
+
+
+class TranslationRaiseException(gettext.GNUTranslations):
+    """This class is used instead of GNUTranslations and raises exception when a message is not found,
+    so that we don't allow untranslated strings into the messages."""
+
+    def gettext(self, message: str) -> str:
+        message_translated = super().gettext(message)
+        if message == message_translated:
+            raise TranslationNotFoundException(f"Unable to translate '{message}'")
+        return message_translated
 
 
 def install_translations(
@@ -19,7 +31,7 @@ def install_translations(
     - allow the user to mount additional files as Docker volumes.
     """
     with open(translations_file_name, "w") as all_translations_file:
-        for translation_path in Path(__file__).parents[1].glob(f"**/{language.value}/LC_MESSAGES/messages.po"):
+        for translation_path in Path(__file__).parents[1].glob(f"**/{language.value}/**/*.po"):
             with open(translation_path, "r") as translation_file:
                 all_translations_file.write(translation_file.read() + "\n")
 
@@ -41,7 +53,9 @@ def install_translations(
     )
 
     environment.install_gettext_translations(  # type: ignore
-        gettext.translation(domain="messages", localedir=".", languages=[language.value])
+        gettext.translation(
+            domain="messages", localedir=".", languages=[language.value], class_=TranslationRaiseException
+        )
     )
 
     shutil.copy(temporary_compiled_translations_file_name, compiled_translations_file_name)

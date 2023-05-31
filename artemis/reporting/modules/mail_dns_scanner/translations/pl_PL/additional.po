@@ -1,0 +1,96 @@
+# This is a separate file so that:
+# - we have all e-mail validation errors in one place - the original strings are
+#   spread over checkdmarc library and our wrapper,
+# - pybabel doesn't mark it as obsolete because it doesn't see the original strings in our code.
+
+msgid "SPF ~all or -all directive not found"
+msgstr "Nie znaleziono dyrektywy ~all lub -all w rekordzie SPF"
+
+msgid "Valid SPF record not found"
+msgstr "Nie znaleziono poprawnego rekordu SPF"
+
+msgid "Multiple SPF records found"
+msgstr "Wykryto wiele rekordów SPF"
+
+msgid "SPF record not found in domain referenced from other SPF record"
+msgstr "Nie znaleziono rekordu SPF w domenie do której odwołuje się rekord SPF"
+
+msgid "SPF record causes too many void DNS lookups"
+msgstr "Rekord SPF powoduje zbyt wiele zapytań DNS o nieistniejące rekordy A i MX"
+
+msgid "SPF record includes an endless loop"
+msgstr "Rekord SPF zawiera nieskończoną pętlę"
+
+msgid "SPF record is not syntatically correct"
+msgstr "Rekord SPF nie ma poprawnej składni"
+
+msgid "SPF record includes too many DNS lookups"
+msgstr "Rekord SPF zawiera zbyt wiele zapytań DNS"
+
+msgid ""
+"The ptr mechanism should not be used - "
+"https://tools.ietf.org/html/rfc7208#section-5.5"
+msgstr "Zgodnie z https://tools.ietf.org/html/rfc7208#section-5.5 "
+"nie należy używać mechanizmu ptr"
+
+msgid "Valid DMARC record not found"
+msgstr "Nie znaleziono poprawnego rekordu DMARC"
+
+msgid ""
+"DMARC policy is none and rua is not set which means that the "
+"DMARC setting is not effective."
+msgstr ""
+"Polityka DMARC jest ustawiona na 'none' i nie ustawiono odbiorcy "
+"raportów w polu 'rua' co oznacza, że ustawienie DMARC nie będzie "
+"skuteczne."
+
+msgid "DMARC record should be stored in the `_dmarc` subdomain"
+msgstr "Rekord DMARC powinien się znajdować w subdomenie '_dmarc'"
+
+msgid "There are multiple DMARC records"
+msgstr "Wykryto więcej niż jeden rekord DMARC"
+
+msgid "There is a SPF record instead of DMARC one"
+msgstr "Zamiast rekordu DMARC wykryto rekord SPF"
+
+msgid "DMARC record is not syntatically correct"
+msgstr "Rekord DMARC nie ma poprawnej składni"
+
+msgid "DMARC record uses an invalid tag"
+msgstr "Rekord DMARC używa niepoprawnego tagu"
+
+msgid "DMARC report URI is invalid"
+msgstr "Adres raportów DMARC jest niepoprawny"
+
+msgid ""
+"The destination of a DMARC report URI does not "
+"indicate that it accepts reports for the domain"
+msgstr "Adres raportów DMARC nie wskazuje, że przyjmuje raporty z tej domeny",
+
+msgid "Subdomain policy (sp=) should be reject for parked domains"
+msgstr ""
+"Polityka subdomen (sp=) powinna być ustawiona na 'reject' dla domen "
+"niesłużących do wysyłki poczty"
+
+msgid "Policy (p=) should be reject for parked domains"
+msgstr ""
+"Polityka (p=) powinna być ustawiona na 'reject' dla domen niesłużących "
+"do wysyłki poczty"
+
+msgid "Unrelated TXT record found"
+msgstr "Znaleziono niepowiązane rekordy TXT"
+
+msgid "A email address in a DMARC report URI is missing MX records"
+msgstr "Domena adresu e-mail w adresie raportów DMARC nie zawiera rekordów MX"
+
+msgid ""
+"DMARC policy is none which means that besides reporting "
+"no action will be taken"
+msgstr "Polityka DMARC jest ustawiona na 'none', co oznacza, że oprócz "
+"raportowania, żadna dodatkowa akcja nie zostanie wykonana"
+
+msgid "rua tag (destination for aggregate reports) not found"
+msgstr "Nie znaleziono tagu 'rua' (odbiorca zagregowanych raportów)"
+
+msgid "Whitespace in domain name detected"
+msgstr "Wykryto białe znaki w nazwie domeny"

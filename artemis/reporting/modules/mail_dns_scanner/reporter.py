@@ -13,10 +13,7 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
-from artemis.reporting.translations import translate_using_dictionary
 from artemis.reporting.utils import get_top_level_target
-
-from .translations.errors import pl_PL as translations_errors_pl_PL
 
 
 class MailDNSScannerReporter(Reporter):
@@ -71,9 +68,6 @@ class MailDNSScannerReporter(Reporter):
                     report_type=MailDNSScannerReporter.MISCONFIGURED_EMAIL,
                     report_data={
                         "message_en": message_with_target.message,
-                        "message_translated": MailDNSScannerReporter._translate_message(
-                            message_with_target.message, language
-                        ),
                         "is_for_parent_domain": is_for_parent_domain,
                     },
                     timestamp=task_result["created_at"],
@@ -106,12 +100,3 @@ class MailDNSScannerReporter(Reporter):
                 }
             )
         }
-
-    @staticmethod
-    def _translate_message(message: str, language: Language) -> str:
-        if language == Language.en_US:
-            return message
-        elif language == Language.pl_PL:
-            return translate_using_dictionary(message, translations_errors_pl_PL.TRANSLATIONS)
-        else:
-            raise NotImplementedError()

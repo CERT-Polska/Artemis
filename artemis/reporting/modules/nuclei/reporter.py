@@ -13,7 +13,7 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
-from artemis.reporting.translations import translate_using_dictionary
+from artemis.reporting.exceptions import TranslationNotFoundException
 from artemis.reporting.utils import (
     add_protocol_if_needed,
     get_target,
@@ -122,6 +122,15 @@ class NucleiReporter(Reporter):
         if language == Language.en_US:
             return description
         elif language == Language.pl_PL:
-            return translate_using_dictionary(description, translations_nuclei_messages_pl_PL.TRANSLATIONS)
+            # See the comment in the artemis.reporting.modules.nuclei.translations.nuclei_messsages.pl_PL
+            # module for the rationale of using Python dictionaries instead of .po files.
+            try:
+                description = description.strip()
+                return translations_nuclei_messages_pl_PL.TRANSLATIONS[description]
+            except KeyError:
+                raise TranslationNotFoundException(
+                    f"Unable to find translation for message '{description}'. "
+                    f"You may add in in artemis/reporting/modules/nuclei/translations/nuclei_messages/"
+                )
         else:
             raise NotImplementedError()

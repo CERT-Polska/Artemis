@@ -37,7 +37,7 @@ msgid "Valid DMARC record not found"
 msgstr "Nie znaleziono poprawnego rekordu DMARC"
 
 msgid ""
-"DMARC policy is none and rua is not set which means that the "
+"DMARC policy is none and rua is not set, which means that the "
 "DMARC setting is not effective."
 msgstr ""
 "Polityka DMARC jest ustawiona na 'none' i nie ustawiono odbiorcy "

@@ -40,9 +40,7 @@ def install_translations(
     """Collects all .pot files into one, compiles it and installs to Jinja2 environment. Saves the translations
     (both original and compiled) so that they can be used by downstream tools.
 
-    We do this as late as possible in order to:
-    - make it transparent for the user, so that they don't have to remember about a step,
-    - allow the user to mount additional files as Docker volumes.
+    We do this as late as possible in order to allow the user to mount additional files as Docker volumes.
     """
     with open(translations_output_file_name, "w") as all_translations_file:
         for translation_path in Path(__file__).parents[1].glob(f"**/{language.value}/**/*.po"):

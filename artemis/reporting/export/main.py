@@ -49,7 +49,7 @@ def _build_message_template_and_print_path(date_str: str) -> Template:
 def _install_translations_and_print_path(language: Language, date_str: str) -> None:
     translations_file_name = os.path.join(OUTPUT_LOCATION, "translations_" + date_str + ".po")
     compiled_translations_file_name = os.path.join(OUTPUT_LOCATION, "compiled_translations_" + date_str + ".mo")
-    install_translations(translations_file_name, compiled_translations_file_name, language, environment)
+    install_translations(language, environment, translations_file_name, compiled_translations_file_name)
 
     print(f"Translations written to file: {translations_file_name}")
     print(f"Compiled translations written to file: {compiled_translations_file_name}")

@@ -61,12 +61,7 @@ def add_port_to_url(url: str) -> str:
     url_parsed = urllib.parse.urlparse(url)
     url_parsed_dict = url_parsed._asdict()
     if ":" not in url_parsed.netloc:
-        if url_parsed.scheme == "http":
-            port = 80
-        elif url_parsed.scheme == "https":
-            port = 443
-        else:
-            raise NotImplementedError()
+        port = getservbyname(url_parsed.scheme)
         url_parsed_dict["netloc"] = url_parsed_dict["netloc"] + ":" + str(port)
     return urllib.parse.urlunparse(urllib.parse.ParseResult(**url_parsed_dict))
 

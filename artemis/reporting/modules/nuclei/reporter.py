@@ -49,46 +49,45 @@ class NucleiReporter(Reporter):
             if not isinstance(vulnerability, dict):
                 continue
 
-            if vulnerability["info"]["severity"] in ["high", "critical"]:
-                if vulnerability["template"] in Config.NUCLEI_TEMPLATES_TO_SKIP:
-                    continue
+            if vulnerability["template"] in Config.NUCLEI_TEMPLATES_TO_SKIP:
+                continue
 
-                if "description" in vulnerability["info"]:
-                    description = vulnerability["info"]["description"]
-                else:
-                    description = "[no description] " + vulnerability["template"]
+            if "description" in vulnerability["info"]:
+                description = vulnerability["info"]["description"]
+            else:
+                description = "[no description] " + vulnerability["template"]
 
-                target = get_target(task_result)
+            target = get_target(task_result)
 
-                # Sometimes matched_at differs from the target: has the same host, but different port. This happens e.g.
-                # when an unsecured Redis instance has been found (in that case, the port is 6379).
-                #
-                # In such cases, we want the target to be the actual port the problem has been found on, not a random one.
-                #
-                # We want to restrict this behavior only to services on empty path (e.g. redis://some-domain:6379) because
-                # if the path is nonempty, it may contain an exploit that may get filtered by e-mail filters.
-                matched_at = add_protocol_if_needed(vulnerability["matched-at"])
-                if _is_url_without_path_query_fragment(matched_at) and get_host_from_url(target) == get_host_from_url(
-                    matched_at
-                ):
-                    target = matched_at
+            # Sometimes matched_at differs from the target: has the same host, but different port. This happens e.g.
+            # when an unsecured Redis instance has been found (in that case, the port is 6379).
+            #
+            # In such cases, we want the target to be the actual port the problem has been found on, not a random one.
+            #
+            # We want to restrict this behavior only to services on empty path (e.g. redis://some-domain:6379) because
+            # if the path is nonempty, it may contain an exploit that may get filtered by e-mail filters.
+            matched_at = add_protocol_if_needed(vulnerability["matched-at"])
+            if _is_url_without_path_query_fragment(matched_at) and get_host_from_url(target) == get_host_from_url(
+                matched_at
+            ):
+                target = matched_at
 
-                result.append(
-                    Report(
-                        top_level_target=get_top_level_target(task_result),
-                        target=target,
-                        report_type=NucleiReporter.NUCLEI_VULNERABILITY,
-                        report_data={
-                            "description_en": description,
-                            "description_translated": NucleiReporter._translate_description(description, language),
-                            "reference": vulnerability["info"]["reference"],
-                            "matched_at": matched_at,
-                            "template_name": vulnerability["template"],
-                            "curl_command": vulnerability.get("curl-command", None),
-                        },
-                        timestamp=task_result["created_at"],
-                    )
+            result.append(
+                Report(
+                    top_level_target=get_top_level_target(task_result),
+                    target=target,
+                    report_type=NucleiReporter.NUCLEI_VULNERABILITY,
+                    report_data={
+                        "description_en": description,
+                        "description_translated": NucleiReporter._translate_description(description, language),
+                        "reference": vulnerability["info"]["reference"],
+                        "matched_at": matched_at,
+                        "template_name": vulnerability["template"],
+                        "curl_command": vulnerability.get("curl-command", None),
+                    },
+                    timestamp=task_result["created_at"],
                 )
+            )
         return result
 
     @staticmethod

@@ -104,16 +104,6 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
-  karton-php-lfi:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.php_lfi"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
-
   karton-crtsh:
     build:
       context: .

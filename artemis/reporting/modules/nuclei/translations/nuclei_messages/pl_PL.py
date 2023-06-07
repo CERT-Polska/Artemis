@@ -288,4 +288,10 @@ TRANSLATIONS = {
     "Anonymous user access allows to understand the host internals": "Wykryto, że anonimowy użytkownik może uzyskać dostęp do narzędzia Glowroot. Rekomendujemy zmianę tej konfiguracji.",
     "WordPress Advanced Access Manager versions before 5.9.9 are vulnerable to local file inclusion and allows attackers to download the wp-config.php file and get access to the database, which is publicly reachable on many servers.": "Wtyczka WordPress o nazwie Advanced Access Manager w wersji poniżej 5.9.9 zawiera podatność Local File Inclusion, umożliwiającą odczyt dowolnych plików z serwera."
     + WORDPRESS_UPDATE_HINT,
+    "CRLF sequences were not properly sanitized.": "Wykryto podatność CRLF Injection. Za jej pomocą atakujący może m.in. spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści)."
+    + BUG_FIX_HINT,
+    "A cross-site scripting vulnerability was discovered via generic testing. Manual testing is needed to verify exploitation.": "Wykryto podatność Cross-Site Scripting. Za jej pomocą atakujący może m.in. spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści)."
+    + BUG_FIX_HINT,
+    "JexBoss is susceptible to remote code execution via the webshell. An attacker can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Wykryto, że narzędzie JexBoss zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
 }

@@ -1,3 +1,4 @@
+import dataclasses
 import os
 import urllib.parse
 from typing import Any, Callable, Dict, List
@@ -22,6 +23,16 @@ from artemis.reporting.utils import (
 from artemis.utils import get_host_from_url
 
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
+
+
+@dataclasses.dataclass
+class ReportByTemplateGroupingResult:
+    template_name: str
+    description_translated: str
+    reference: List[str]
+    # We will build ReportByTemplateGroupingResult inside a Jinja2 template (from a template filter),
+    # therefore the original reports wont't actually be Reports, but dicts - so we return dicts back as well.
+    reports: List[Dict[str, Any]]
 
 
 class NucleiReporter(Reporter):
@@ -133,3 +144,25 @@ class NucleiReporter(Reporter):
                 )
         else:
             raise NotImplementedError()
+
+    @staticmethod
+    def custom_template_filters() -> Dict[str, Callable[[Any], Any]]:
+        return {"group_by_nuclei_template": NucleiReporter._group_by_template}
+
+    @staticmethod
+    def _group_by_template(reports: List[Dict[str, Any]]) -> List[ReportByTemplateGroupingResult]:
+        output: Dict[str, ReportByTemplateGroupingResult] = {}
+        for item in reports:
+            if item["report_type"] != NucleiReporter.NUCLEI_VULNERABILITY:
+                continue
+
+            if item["report_data"]["template_name"] not in output:
+                output[item["report_data"]["template_name"]] = ReportByTemplateGroupingResult(
+                    template_name=item["report_data"]["template_name"],
+                    description_translated=item["report_data"]["description_translated"],
+                    reference=item["report_data"]["reference"],
+                    reports=[],
+                )
+            output[item["report_data"]["template_name"]].reports.append(item)
+
+        return list(output.values())

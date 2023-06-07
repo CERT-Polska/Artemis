@@ -11,6 +11,7 @@ from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from artemis.db import DB
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
+from artemis.reporting.base.reporters import get_all_reporters
 from artemis.reporting.base.templating import build_message_template
 from artemis.reporting.blocklist import load_blocklist
 from artemis.reporting.export.already_exported_reports import (
@@ -31,6 +32,12 @@ from artemis.reporting.export.translations import install_translations
 environment = Environment(
     loader=BaseLoader(), extensions=["jinja2.ext.i18n"], undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True
 )
+
+
+def _load_template_tags(environment: Environment) -> None:
+    for reporter in get_all_reporters():
+        for name, filter_ in reporter.custom_template_filters().items():
+            environment.filters[name] = filter_
 
 
 def _build_message_template_and_print_path(date_str: str) -> Template:
@@ -100,6 +107,7 @@ def main(
     date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
     _install_translations_and_print_path(language, date_str)
     _dump_export_data_and_print_path(export_data, date_str)
+    _load_template_tags(environment)
     message_template = _build_message_template_and_print_path(date_str)
     _build_messages_and_print_path(message_template, export_data, date_str)
 

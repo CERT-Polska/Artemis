@@ -70,3 +70,9 @@ class Reporter(ABC):
                 "target": get_url_normal_form(report.target),
             }
         )
+
+    @staticmethod
+    def custom_template_filters() -> Dict[str, Callable[[Any], Any]]:
+        """A dict: name -> callable of additional Jinja filters that will be made
+        available to the template."""
+        return {}

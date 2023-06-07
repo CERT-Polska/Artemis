@@ -1,12 +1,12 @@
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:3
-msgid "The following critical or high-severity vulnerabilities were identified:"
-msgstr "Wykryto następujące krytyczne lub istotne podatności:"
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:5
+msgid "The vulnerability was identified on:"
+msgstr "Podatność wykryto pod poniższymi adresami:"
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:11
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:15
 msgid "More information is available on:"
 msgstr "Więcej informacji można uzyskać pod adresami:"
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:18
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:22
 msgid ""
 "Please contact us if more information is needed - e.g. an address or "
 "command that proves that the vulnerability exists."

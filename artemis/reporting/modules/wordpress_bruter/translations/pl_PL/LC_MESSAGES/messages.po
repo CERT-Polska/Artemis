@@ -1,0 +1,27 @@
+#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:2
+msgid ""
+"The following addresses contain a WordPress instance where a simple "
+"login/password pair allows login to the administrative panel:"
+msgstr ""
+"Pod następującymi adresami znajdują się instalacje systemu WordPress, do "
+"których można się zalogować prostym hasłem:"
+
+#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:6
+msgid "the following credentials allow login"
+msgstr "można się do nich zalogować następującymi danymi"
+
+#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:10
+msgid "username"
+msgstr "nazwą użytkownika"
+
+#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:11
+msgid "and"
+msgstr "oraz"
+
+#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:13
+msgid "password"
+msgstr "hasłem"
+
+#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:15
+msgid "empty password"
+msgstr "pustym hasłem"

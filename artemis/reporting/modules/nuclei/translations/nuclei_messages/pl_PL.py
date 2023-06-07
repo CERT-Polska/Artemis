@@ -10,6 +10,8 @@ WORDPRESS_UPDATE_HINT = (
     " Rekomendujemy aktualizację i włączenie automatycznej aktualizacji systemu WordPress, wtyczek i szablonów."
 )
 
+WORDPRESS_CLOSED_PLUGIN_HINT = "Ponieważ ta wtyczka nie jest już wspierana, rekomendujemy jej usunięcie."
+
 PLUGIN_UPDATE_HINT = " Rekomendujemy aktualizację wtyczki do najnowszej wersji."
 
 UPDATE_HINT = " Rekomendujemy aktualizację oprogramowania do najnowszej wersji."
@@ -141,14 +143,13 @@ TRANSLATIONS = {
     "The PHP Debug Bar tool was discovered, which allows the attacker to obtain sensitive information, e.g. application configuration.": "Wykryto narzędzie PHP Debug Bar, które umożliwia pobranie wrażliwych informacji, np. konfiguracji aplikacji. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
     "The Django settings.py file containing a secret key was discovered. An attacker may use the secret key to bypass many security mechanisms and potentially obtain other sensitive configuration information such as database password) from the settings file.": "Wykryto plik z konfiguracją frameworku Django w którym znajduje się zmienna SECRET_KEY której poznanie umożliwi atakującemu ominięcie niektórych mechanizmów bezpieczeństwa Django. W tym pliku mogą też znajdować się inne wrażliwe dane, takie jak np. hasła do bazy danych."
     + DATA_HIDE_HINT,
-    "woocommerce-gutenberg-products-block is a feature plugin for WooCommerce Gutenberg Blocks. An SQL injection vulnerability impacts all WooCommerce sites running the WooCommerce Blocks feature plugin between version 2.5.0 and prior to version 2.5.16. Via a carefully crafted URL, an exploit can be executed against the `wc/store/products/collection-data?calculate_attribute_counts[][taxonomy]` endpoint that allows the execution of a read only sql query. There are patches for many versions of this package, starting with version 2.5.16. There are no known workarounds aside from upgrading.": "woocommerce-gutenberg-products-block w wersjach pomiędzy 2.5.0 i 2.5.16 zawiera podatność SQL Injection, umożliwiającą odczyt dowolnych danych z bazy danych."
+    "woocommerce-gutenberg-products-block is a feature plugin for WooCommerce Gutenberg Blocks. An SQL injection vulnerability impacts all WooCommerce sites running the WooCommerce Blocks feature plugin between version 2.5.0 and prior to version 2.5.16. Via a carefully crafted URL, an exploit can be executed against the `wc/store/products/collection-data?calculate_attribute_counts[][taxonomy]` endpoint that allows the execution of a read only sql query. There are patches for many versions of this package, starting with version 2.5.16. There are no known workarounds aside from upgrading.": "Wtyczka WordPress o nazwie woocommerce-gutenberg-products-block w wersjach pomiędzy 2.5.0 i 2.5.16 zawiera podatność SQL Injection, umożliwiającą odczyt dowolnych danych z bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "Kanboard contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że domyślne dane logowania do narzędzia Kanboard umożliwiają logowanie. Atakujący może uzyskać dostęp do kont użytkowników i pobrać wrażliwe dane, modyfikować dane lub uruchomić nieuprawnione operacje."
     + DEFAULT_CREDENTIALS_HINT,
     "BackupBuddy versions 8.5.8.0 - 8.7.4.1 are vulnerable to a local file inclusion vulnerability via the 'download' and 'local-destination-id' parameters.": "Narzędzie BackupBuddy w wersjach 8.5.8.0 - 8.7.4.1 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
-    "Synacor Zimbra Collaboration Suite 8.7.x before 8.7.11p10 has an XML external entity injection XXE) vulnerability via the mailboxd component.": "Narzędzie Synacor Zimbra Collaboration Suite w wersjach 8.7.x poniżej 8.7.11p10) zawiera podatność XML external entity injection (XXE która może umożliwić zdalne wykonanie kodu."
-    + RCE_EFFECT_DESCRIPTION
+    "Synacor Zimbra Collaboration Suite 8.7.x before 8.7.11p10 has an XML external entity injection (XXE) vulnerability via the mailboxd component.": "Narzędzie Synacor Zimbra Collaboration Suite w wersjach 8.7.x poniżej 8.7.11p10 zawiera podatność XML external entity injection (XXE) która może umożliwić odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "NexusQA NexusDB before 4.50.23 allows the reading of files via ../ directory traversal and local file inclusion.": "Narzędzie NexusQA NexusDB w wersji poniżej 4.50.23 zawiera podatność Local File Inclusion, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
@@ -162,12 +163,12 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Acrolinx Server prior to 5.2.5 suffers from a local file inclusion vulnerability.": "Narzędzie Acrolinx Server w wersjach poniżej 5.2.5 zawiera podatność Local File Inclusion, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
-    "Spring Data Commons, versions prior to 1.13 to 1.13.10, 2.0 to 2.0.5,\nand older unsupported versions, contain a property binder vulnerability\ncaused by improper neutralization of special elements.\nAn unauthenticated remote malicious user or attacker) can supply\nspecially crafted request parameters against Spring Data REST backed HTTP resources\nor using Spring Data's projection-based request payload binding hat can lead to a remote code execution attack.": "Spring Data Commons w wersjach od 1.13 do 1.13.10, od 2.0 do 2.0.5 i starszych niewspieranych wersjach, zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    "Spring Data Commons, versions prior to 1.13 to 1.13.10, 2.0 to 2.0.5,\nand older unsupported versions, contain a property binder vulnerability\ncaused by improper neutralization of special elements.\nAn unauthenticated remote malicious user (or attacker) can supply\nspecially crafted request parameters against Spring Data REST backed HTTP resources\nor using Spring Data's projection-based request payload binding hat can lead to a remote code execution attack.": "Spring Data Commons w wersjach od 1.13 do 1.13.10, od 2.0 do 2.0.5 i starszych niewspieranych wersjach, zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "ThinkCMF  is susceptible to a remote code execution vulnerability.": "Wykryto, że narzędzie ThinkCMF umożliwia zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
-    "ZZZCMS zzzphp V1.6.1 is vulnerable to remote code execution via the inc/zzz_template.php file because the parserIfLabel) function's filtering is not strict, resulting in PHP code execution as demonstrated by the if:assert substring.": "ZZZCMS zzzphp V1.6.1 umożliwia zdalne wykonanie kodu."
+    "ZZZCMS zzzphp V1.6.1 is vulnerable to remote code execution via the inc/zzz_template.php file because the parserIfLabel() function's filtering is not strict, resulting in PHP code execution as demonstrated by the if:assert substring.": "ZZZCMS zzzphp V1.6.1 umożliwia zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "Xunyou CMS is vulnerable to local file inclusion. Attackers can use vulnerabilities to obtain sensitive information.": "Wykryto, że narzędzie Xunyou CMS zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt wrażliwych informacji.",
@@ -183,21 +184,21 @@ TRANSLATIONS = {
     "WordPress Page Views Count plugin prior to 2.4.15 contains an unauthenticated SQL injection vulnerability.  It does not sanitise and escape the post_ids parameter before using it in a SQL statement via a REST endpoint. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie Page Views Count w wersjach poniżej 2.4.15 zawiera podatność SQL Injection, która umożliwia atakującemu pobranie wrażliwych informacji z bazy danych, w tym danych osobowych czy haszy haseł."
     + WORDPRESS_UPDATE_HINT,
     "WordPress Modern Events Calendar Lite before 5.16.5 does not properly restrict access to the export files, allowing unauthenticated users to exports all events data in CSV or XML format.": "Wtyczka WordPress o nazwie Modern Events Calendar Lite w wersjach poniżej 5.6.15 umożliwia atakującemu pobranie informacji o wszystkich wydarzeniach."
-    + WORDPRESS_UPDATE_HINT,
+    + WORDPRESS_CLOSED_PLUGIN_HINT,
     "WordPress Duplicator 1.3.24 & 1.3.26 are vulnerable to local file inclusion vulnerabilities that could allow attackers to download arbitrary files, such as the wp-config.php file. According to the vendor, the vulnerability was only in two\nversions v1.3.24 and v1.3.26, the vulnerability wasn't\npresent in versions 1.3.22 and before.": "Wtyczka WordPress o nazwie Duplicator w wersjach 1.3.24 i 1.3.26 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt wrażliwych informacji, w tym haseł dostępowych do bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "It discloses sensitive files created by vscode-sftp for VSCode, contains SFTP/SSH server details and credentials.": "Wykryto plik .vscode/sftp.json mogący zawierać dane do logowania do serwera SSH/SFTP/FTP."
     + DATA_HIDE_HINT,
-    "A SQL injection vulnerability in Joomla! 3.2 before 3.4.4 allows remote attackers to execute arbitrary SQL commands.": "Podatność SQL Injection w systemie Joomla! w wersjach od 3.2 do 3.4.4 zezwala atakującym na wykonywanie dowolnych poleceń SQL."
+    "A SQL injection vulnerability in Joomla! 3.2 before 3.4.4 allows remote attackers to execute arbitrary SQL commands.": "Podatność SQL Injection w systemie Joomla! w wersjach od 3.2 poniżej 3.4.4 zezwala atakującym na wykonywanie dowolnych poleceń SQL."
     + UPDATE_HINT,
     "A Laravel .env file was discovered, which stores sensitive information like database credentials and tokens. It should not be publicly accessible.": "Wykryto plik .env zawierający konfigurację systemu. Ponieważ może on zawierać np. hasła, nie powinien być dostępny publicznie.",
     "Codeigniter .env file was discovered.": "Wykryto plik .env zawierający konfigurację systemu. Ponieważ może on zawierać np. hasła, nie powinien być dostępny publicznie.",
     "WordPress Modern Events Calendar plugin before 6.1.5 is susceptible to blind SQL injection. The plugin does not sanitize and escape the time parameter before using it in a SQL statement in the mec_load_single_page AJAX action. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie Modern Events Calendar w wersjach poniżej 6.1.5 zawiera podatność Blind SQL Injection, umożliwiającą pobranie dowolnej informacji z bazy danych."
-    + WORDPRESS_UPDATE_HINT,
+    + WORDPRESS_CLOSED_PLUGIN_HINT,
     "Agentejo Cockpit before 0.11.2 allows NoSQL injection via the Controller/Auth.php resetpassword function of the Auth controller.": "Narzędzie Agentejo Cockpit w wersji poniżej 0.11.2 zawiera podatność typu NoSQL Injection umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
-    "A directory traversal vulnerability in the Highslide JS com_hsconfig) component 1.5 and 2.0.9 for Joomla! allows remote attackers to read arbitrary files via a .. (dot dot) in the controller parameter to index.php.": "Wykryto podatność Directory Traversal w komponencie Highslide JS com_hsconfig) systemu Joomla! w wersjach 1.5 i 2.0.9 umożliwiającą atakującym odczyt dowolnych plików z serwera."
+    "A directory traversal vulnerability in the Highslide JS (com_hsconfig) component 1.5 and 2.0.9 for Joomla! allows remote attackers to read arbitrary files via a .. (dot dot) in the controller parameter to index.php.": "Wykryto podatność Directory Traversal w komponencie Highslide JS (com_hsconfig) systemu Joomla! w wersjach 1.5 i 2.0.9 umożliwiającą atakującym odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "Laravel Ignition contains a cross-site scripting vulnerability when debug mode is enabled.": "Narzędzie Laravel Ignition zawiera podatność Cross-Site Scripting jeśli tryb 'debug' jest włączony. Rekomendujemy wyłączenie tego trybu.",
     "SFTP configuration file was detected.": "Wykryto plik sftp-config.json lub ftpsync.settings zawierający dane logowania."

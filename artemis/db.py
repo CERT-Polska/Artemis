@@ -269,6 +269,12 @@ class DB:
     def initialize_database(self) -> None:
         """Creates MongoDB indexes. create_index() creates an index if it doesn't exist, so
         this method will not recreate existing indexes."""
+        self.scheduled_tasks.create_index(
+            [
+                ("analysis_id", ASCENDING),
+                ("deduplication_data", ASCENDING),
+            ]
+        )
         self.task_results.create_index(
             [
                 ("target_string", ASCENDING),

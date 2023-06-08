@@ -40,45 +40,15 @@ FILENAMES_WITHOUT_EXTENSIONS = [
 EXTENSIONS = ["zip", "tar.gz", "7z", "tar", "gz", "tgz"]
 with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt")) as common_db_backups_file:
     with open(os.path.join(os.path.dirname(__file__), "data", "quickhits.txt")) as quickhits_file:
-        FILENAMES_TO_SCAN: Set[str] = set(
-            [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
-            + [
-                ".vagrant",
-                "Procfile",
-                ".pass",
-                "backup.tar.gz",
-                # Nginx merge_slashes path traversal
-                "///////../../../etc/passwd",
-                "db.sql",
-                "backup.sql",
-                "appsettings.json",
-                "_search",
-                "graph",
-                "database.sql",
-                "adminbackups",
-                "core",
-                "wp-admin/install.php",
-                "logs/errors",
-                "logs/sendmail",
-                "mail/temp/",
-                "mail/logs/sendmail",
-                "mail/logs/errors",
-                "webmail/temp/",
-                "webmail/logs/sendmail",
-                "webmail/logs/errors",
-                "errors",
-                ".env",
-                ".htaccess",
-                ".htpasswd",
-                ".ssh/id_rsa",
-                "server-status/",
-                "app_dev.php",
-                "TEST",
-                "_vti_bin",
-            ]
-            + read_paths_from_file(common_db_backups_file)
-            + read_paths_from_file(quickhits_file)
-        )
+        with open(
+            os.path.join(os.path.dirname(__file__), "data", "bruter_additional_paths.txt")
+        ) as bruter_additional_paths_file:
+            FILENAMES_TO_SCAN: Set[str] = set(
+                [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
+                + read_paths_from_file(common_db_backups_file)
+                + read_paths_from_file(quickhits_file)
+                + read_paths_from_file(bruter_additional_paths_file)
+            )
 
 with open(os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")) as ignore_paths_file:
     IGNORE_PATHS_ORIGINAL = read_paths_from_file(ignore_paths_file)

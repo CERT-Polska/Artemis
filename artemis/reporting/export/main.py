@@ -34,7 +34,7 @@ environment = Environment(
 )
 
 
-def _load_template_tags(environment: Environment) -> None:
+def _load_template_filters(environment: Environment) -> None:
     for reporter in get_all_reporters():
         for name, filter_ in reporter.custom_template_filters().items():
             environment.filters[name] = filter_
@@ -107,7 +107,7 @@ def main(
     date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
     _install_translations_and_print_path(language, date_str)
     _dump_export_data_and_print_path(export_data, date_str)
-    _load_template_tags(environment)
+    _load_template_filters(environment)
     message_template = _build_message_template_and_print_path(date_str)
     _build_messages_and_print_path(message_template, export_data, date_str)
 

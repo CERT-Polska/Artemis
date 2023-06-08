@@ -98,8 +98,7 @@ class BruterResult:
     content_404: str
     too_many_urls_detected: bool
     found_urls: List[FoundURL]
-    checked_top_paths: List[str]
-    checked_random_paths: List[str]
+    checked_paths: List[str]
 
 
 class Bruter(ArtemisBase):
@@ -120,9 +119,6 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
-        top_counts_and_paths = self.db.get_top_for_statistic("bruter", Config.BRUTER_NUM_TOP_PATHS_TO_USE)
-        self.log.info(f"bruter scanning {base_url}, most popular paths={top_counts_and_paths}")
-
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = base_url + "/" + dummy_random_token
@@ -131,25 +127,11 @@ class Bruter(ArtemisBase):
         except Exception:
             dummy_content = ""
 
-        random_paths = list(FILENAMES_TO_SCAN)
-        random.shuffle(random_paths)
-        random_paths = random_paths[: Config.BRUTER_NUM_RANDOM_PATHS_TO_USE]
-
-        top_paths = [path for _, path in top_counts_and_paths]
-
-        # Every path from the statistics should be a path we actually could scan
-        top_paths_not_in_filenames = [x for x in top_paths if x not in FILENAMES_TO_SCAN]
-        if top_paths_not_in_filenames:
-            self.log.warning("Detected unexpected paths in top statistics: %s", top_paths_not_in_filenames)
-
-        paths_to_scan = set(random_paths) | set(top_paths)
-        self.log.info(
-            f"bruter scanning {base_url}: {len(paths_to_scan)} paths to scan (chosen out of {len(FILENAMES_TO_SCAN)})"
-        )
+        self.log.info(f"bruter scanning {base_url}: {len(FILENAMES_TO_SCAN)} paths to scan")
 
         results = {}
-        for i, url in enumerate(paths_to_scan):
-            self.log.info(f"bruter url {i}/{len(paths_to_scan)}: {url}")
+        for i, url in enumerate(FILENAMES_TO_SCAN):
+            self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
             try:
                 full_url = base_url + "/" + url
                 results[full_url] = http_requests.get(full_url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
@@ -181,22 +163,16 @@ class Bruter(ArtemisBase):
                     )
                 )
 
-        if len(found_urls) > len(paths_to_scan) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+        if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
             return BruterResult(
                 content_404=dummy_content,
                 too_many_urls_detected=True,
                 found_urls=[],
-                checked_top_paths=top_paths,
-                checked_random_paths=random_paths,
+                checked_paths=list(FILENAMES_TO_SCAN),
             )
 
         for found_url in found_urls:
             url = found_url.url[len(base_url) + 1 :]
-            if url in random_paths:
-                self.db.statistic_increase("bruter", url)
-
-                if is_directory_index(found_url.content_prefix):
-                    self.db.statistic_increase("bruter-with-directory-index", url)
 
             new_task = Task(
                 {
@@ -213,8 +189,7 @@ class Bruter(ArtemisBase):
             content_404=dummy_content,
             too_many_urls_detected=False,
             found_urls=found_urls,
-            checked_top_paths=top_paths,
-            checked_random_paths=random_paths,
+            checked_paths=list(FILENAMES_TO_SCAN),
         )
 
     def run(self, task: Task) -> None:

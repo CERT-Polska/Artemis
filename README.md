@@ -77,7 +77,7 @@ update the translation files by using:
 ```
 
 and then put the translations in the respective `.po` files. The compilation will happen
-automatically.
+automatically when building the messages.
 
 If you want to support a new language, add it in: `./scripts/update_translation_files` and
 `artemis/reporting/base/language.py`.

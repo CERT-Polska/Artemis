@@ -33,9 +33,9 @@ class NucleiReporter(Reporter):
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
-        def _is_url_without_path_query_fragment(url: str) -> bool:
+        def _is_url_without_query_and_fragment(url: str) -> bool:
             url_parsed = urllib.parse.urlparse(url)
-            return url_parsed.path.strip("/") == "" and not url_parsed.query and not url_parsed.fragment
+            return not url_parsed.query and not url_parsed.fragment
 
         if task_result["headers"]["receiver"] != "nuclei":
             return []
@@ -59,15 +59,17 @@ class NucleiReporter(Reporter):
 
             target = get_target(task_result)
 
-            # Sometimes matched_at differs from the target: has the same host, but different port. This happens e.g.
-            # when an unsecured Redis instance has been found (in that case, the port is 6379).
+            # Sometimes matched_at differs from the target: has the same host, but different port, or has
+            # custom path where a bug has been found. This happens e.g. when an unsecured Redis instance
+            # has been found (in that case, the port is 6379) or when an exposed debug endpoint has been found
+            # (in that case, the path is the path to the endpoint).
             #
-            # In such cases, we want the target to be the actual port the problem has been found on, not a random one.
+            # In such cases, we want the target to be the actual URL the problem has been found on.
             #
-            # We want to restrict this behavior only to services on empty path (e.g. redis://some-domain:6379) because
-            # if the path is nonempty, it may contain an exploit that may get filtered by e-mail filters.
+            # We want to restrict this behavior only to URLs without query, because if the query (or fragment) is nonempty, it
+            # may contain an exploit that may get filtered by e-mail filters.
             matched_at = add_protocol_if_needed(vulnerability["matched-at"])
-            if _is_url_without_path_query_fragment(matched_at) and get_host_from_url(target) == get_host_from_url(
+            if _is_url_without_query_and_fragment(matched_at) and get_host_from_url(target) == get_host_from_url(
                 matched_at
             ):
                 target = matched_at

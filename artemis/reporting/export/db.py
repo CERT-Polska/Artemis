@@ -1,7 +1,7 @@
 import datetime
 import urllib
 from collections import defaultdict
-from typing import DefaultDict, Dict, List, Set
+from typing import DefaultDict, Dict, List, Optional, Set
 
 from tqdm import tqdm
 
@@ -19,7 +19,7 @@ class ExportDBConnector:
     A wrapper around DB that loads data and converts them to Reports.
     """
 
-    def __init__(self, db: DB, blocklist: List[BlocklistItem], language: Language, tag: str):
+    def __init__(self, db: DB, blocklist: List[BlocklistItem], language: Language, tag: Optional[str]):
         self._db = db
         self._blocklist = blocklist
         self._language = language
@@ -50,7 +50,7 @@ class ExportDBConnector:
             result_tag = task_result.get("payload_persistent", {}).get("tag", None)
             self._tag_stats[result_tag] += 1
 
-            if result_tag != self._tag:
+            if self._tag and result_tag != self._tag:
                 continue
 
             try:

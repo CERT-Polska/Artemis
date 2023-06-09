@@ -48,7 +48,7 @@ To view results, click the ``View results`` link in the top navigation bar.
 
 Generating e-mails to be sent
 -----------------------------
-Artemis has a feature to generate e-mail reports containing a description of found vulnerabilities.
+Artemis can generate e-mail reports containing a description of found vulnerabilities.
 
 These reports won't contain everything found by Artemis - custom logic (residing in
 ``artemis/reporting/modules/``) will make an educated guess whether a vulnerability
@@ -56,11 +56,10 @@ is a true positive and interesting enough to be reported.
 
 To generate these e-mails, use:
 
-``./scripts/export_emails ALREADY_EXISTING_REPORT_DIRECTORY TAG``
+``./scripts/export_emails ALREADY_EXISTING_REPORT_DIRECTORY``
 
- - ``ALREADY_EXISTING_REPORT_DIRECTORY`` is a directory where JSON files produced by previous script invocations
-   reside. This allows you to skip sending messages that have already been sent.
- - ``TAG`` is the tag you provided when adding targets to be scanned. Only vulnerabilities from targets with this tag will be exported.
+``ALREADY_EXISTING_REPORT_DIRECTORY`` is a directory where JSON files produced by previous script invocations
+reside. This allows you to skip sending messages that have already been sent.
 
 This script will produce **text messages ready to be sent** [1]_.
 
@@ -71,6 +70,8 @@ Additional export script options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Additionally, you may use the following optional parameters:
 
+ - ``--tag TAG`` allows you to filter by the tag you provided when adding targets to be scanned. Only
+   vulnerabilities from targets with this tag will be exported.
  - ``--language LANGUAGE`` would set the output report language (e.g. ``pl_PL`` or ``en_US``).
  - ``--blocklist BLOCKLIST_FILE`` will filter vulnerabilities from being included in the messages (this doesn't influence the scanning). The
    blocklist file is a ``yaml`` file with the following syntax:

@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
+import termcolor
 import typer
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 
@@ -75,13 +76,13 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
     for top_level_target in export_data_dict["messages"].keys():
         with open(os.path.join(output_messages_directory_name, top_level_target + ".html"), "w") as f:
             f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))
-    print(f"Messages written to: {output_messages_directory_name}")
+    print(termcolor.colored(f"Messages written to: {output_messages_directory_name}", attrs=["bold"]))
 
 
 def main(
     already_exported_reports_directory: Path,
-    tag: str,
-    language: Language,
+    tag: Optional[str] = typer.Option(None),
+    language: Language = typer.Option(Language.en_US.value),
     custom_template_arguments: str = typer.Option(
         "", help="Custom template arguments in the form of name1=value1,name2=value2,..."
     ),
@@ -89,7 +90,11 @@ def main(
 ) -> None:
     blocklist = load_blocklist(blocklist_file)
 
-    already_exported_reports = load_already_exported_reports(already_exported_reports_directory)
+    if already_exported_reports_directory:
+        already_exported_reports = load_already_exported_reports(already_exported_reports_directory)
+    else:
+        already_exported_reports = []
+
     custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
     db = DB()
     export_db_connector = ExportDBConnector(db, blocklist, language, tag)
@@ -101,7 +106,6 @@ def main(
     _install_translations_and_print_path(language, date_str)
     _dump_export_data_and_print_path(export_data, date_str)
     message_template = _build_message_template_and_print_path(date_str)
-    _build_messages_and_print_path(message_template, export_data, date_str)
 
     print_and_save_stats(export_data, date_str)
     print_long_unseen_report_types(already_exported_reports + export_db_connector.reports)
@@ -109,6 +113,8 @@ def main(
     print("Available tags (and the counts of raw task results - not to be confused with vulnerabilities):")
     for tag in sorted(export_db_connector.tag_stats.keys()):
         print(f"{tag}: {export_db_connector.tag_stats[tag]}")
+
+    _build_messages_and_print_path(message_template, export_data, date_str)
 
 
 if __name__ == "__main__":

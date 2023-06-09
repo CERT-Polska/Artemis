@@ -1,6 +1,6 @@
 from collections import Counter
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from tqdm import tqdm
 
@@ -25,7 +25,7 @@ class SingleTopLevelTargetExportData:
 
 @dataclass
 class ExportData:
-    tag: str
+    tag: Optional[str]
     scanned_top_level_targets: List[str]
     scanned_targets: List[str]
     messages: Dict[str, SingleTopLevelTargetExportData]
@@ -34,7 +34,7 @@ class ExportData:
 
 def build_export_data(
     already_exported_reports: List[Report],
-    tag: str,
+    tag: Optional[str],
     db: ExportDBConnector,
     custom_template_arguments_parsed: Dict[str, str],
 ) -> ExportData:

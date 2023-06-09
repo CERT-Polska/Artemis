@@ -74,11 +74,6 @@ services:
   test-smtp-server:
     image: bytemark/smtp
 
-  test-php-lfi:
-    image: php:7.4-apache
-    volumes:
-      - ./test/data/php_lfi/:/var/www/html/
-
   test-service-with-exposed-git:
     image: nginx:latest
     volumes:

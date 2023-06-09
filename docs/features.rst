@@ -13,7 +13,14 @@ Artemis includes:
  - a check for enabled directory index,
  - port scanning,
  - easy extensibility via plug-and-play modules,
- - **automatic generation of e-mails containing findings description** (to do that, please refer to :ref:`generating-e-mails`).
+
+Besides, the additional modules repository (https://github.com/CERT-Polska/Artemis-modules-extra/) includes:
+
+ - SQL injection check,
+ - subdomain takeover check,
+ - SSL configuration check.
+
+Artemis is able to **automatically generate of e-mails containing findings description** (to do that, please refer to :ref:`generating-e-mails`).
 
 Exploration vs exploitation in URL bruting
 ------------------------------------------

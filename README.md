@@ -5,8 +5,11 @@
     </picture>
 </h1>
 
-A modular web reconnaissance tool and vulnerability scanner based on Karton
-(https://github.com/CERT-Polska/karton).
+A modular web reconnaissance tool and vulnerability scanner based on Karton (https://github.com/CERT-Polska/karton).
+Artemis is the tool that powers CERT PL scanning activities, not only
+[checking various aspects of website security](https://artemis-scanner.readthedocs.io/en/latest/features.html)
+but also [building easy-to-read messages that are sent to institutions to improve their
+security](https://artemis-scanner.readthedocs.io/en/latest/quick-start.html#generating-e-mails).
 
 The Artemis project has been initiated by the [KN Cyber](https://kncyber.pl/) science club of [Warsaw University of Technology](https://pw.edu.pl) and is currently being maintained by [CERT Polska](https://cert.pl).
 

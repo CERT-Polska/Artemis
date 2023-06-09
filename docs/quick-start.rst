@@ -1,9 +1,9 @@
 Quick Start
 ===========
 
-The fastest way to try out Artemis is to use Docker Compose based deployment.
-Such deployment is discouraged in production.
-The proper way to deploy Artemis would be to use Kubernetes - you may follow
+Currently, only Docker Compose based deployment is supported.
+
+More production-ready way to deploy Artemis will be to use Kubernetes - you may follow
 the progress or help with that task on: https://github.com/CERT-Polska/Artemis/issues/204.
 
 Using Docker Compose
@@ -56,16 +56,31 @@ is a true positive and interesting enough to be reported.
 
 To generate these e-mails, use:
 
-``./scripts/export_emails ALREADY_EXISTING_REPORT_DIRECTORY TAG LANGUAGE``
+``./scripts/export_emails ALREADY_EXISTING_REPORT_DIRECTORY TAG``
 
  - ``ALREADY_EXISTING_REPORT_DIRECTORY`` is a directory where JSON files produced by previous script invocations
    reside. This allows you to skip sending messages that have already been sent.
- - ``LANGUAGE`` is the output report language (e.g. ``pl_PL`` or ``en_US``).
  - ``TAG`` is the tag you provided when adding targets to be scanned. Only vulnerabilities from targets with this tag will be exported.
 
-This script will produce, among others:
+This script will produce **text messages ready to be sent** [1]_.
 
-- HTML e-mail messages,
-- a JSON file with data, a jinja2 template and .po translation file - using these three files you can build the messages yourself.
+.. note ::
+   Please keep in mind that the reporting script resolves domains and performs HTTP requests.
 
-Please keep in mind that the reporting module resolves domains and performs HTTP requests.
+Additional export script options
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Additionally, you may use the following optional parameters:
+
+ - ``--language LANGUAGE`` would set the output report language (e.g. ``pl_PL`` or ``en_US``).
+ - ``--blocklist BLOCKLIST_FILE`` will filter vulnerabilities from being included in the messages (this doesn't influence the scanning). The
+   blocklist file is a ``yaml`` file with the following syntax:
+
+   .. code-block:: yaml
+
+       - domain: the domain to be filtered
+         until: null or a date (YYYY-MM-DD) until which the filter will be active
+         report_type: null (which will block all reports) or a string containing
+            the type of reports that will be blocked (e.g. "misconfigured_email")
+
+.. [1] Besides the messages, the script will also produce a JSON file with vulnerability data, a jinja2 template and
+    .po translation file - using these three files you can build the messages yourself.

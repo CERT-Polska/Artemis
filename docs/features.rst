@@ -12,7 +12,7 @@ Artemis includes:
  - a check for VCS folders (e.g. ``.git``),
  - a check for enabled directory index,
  - port scanning,
- - easy extensibility via plug-and-play modules,
+ - easy extensibility via plug-and-play modules.
 
 Besides, the additional modules repository (https://github.com/CERT-Polska/Artemis-modules-extra/) includes:
 

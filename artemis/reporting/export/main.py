@@ -76,6 +76,7 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
     for top_level_target in export_data_dict["messages"].keys():
         with open(os.path.join(output_messages_directory_name, top_level_target + ".html"), "w") as f:
             f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))
+    print()
     print(termcolor.colored(f"Messages written to: {output_messages_directory_name}", attrs=["bold"]))
 
 

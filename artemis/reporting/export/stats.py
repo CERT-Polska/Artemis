@@ -16,4 +16,5 @@ def print_and_save_stats(export_data: ExportData, date_str: str) -> None:
             f.write(f"Num reports of type {report_type}: {count}\n")
     print(f"Stats (written to file: {output_stats_file_name}):")
     with open(output_stats_file_name, "r") as f:
-        print(f.read())
+        for line in f:
+            print("\t" + line.strip())

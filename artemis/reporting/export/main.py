@@ -87,6 +87,7 @@ def main(
         "", help="Custom template arguments in the form of name1=value1,name2=value2,..."
     ),
     blocklist_file: Optional[str] = typer.Option(None),
+    verbose: bool = typer.Option(False, "--verbose"),
 ) -> None:
     blocklist = load_blocklist(blocklist_file)
 
@@ -108,11 +109,13 @@ def main(
     message_template = _build_message_template_and_print_path(date_str)
 
     print_and_save_stats(export_data, date_str)
-    print_long_unseen_report_types(already_exported_reports + export_db_connector.reports)
 
-    print("Available tags (and the counts of raw task results - not to be confused with vulnerabilities):")
-    for tag in sorted(export_db_connector.tag_stats.keys()):
-        print(f"{tag}: {export_db_connector.tag_stats[tag]}")
+    if verbose:
+        print_long_unseen_report_types(already_exported_reports + export_db_connector.reports)
+
+        print("Available tags (and the counts of raw task results - not to be confused with vulnerabilities):")
+        for tag in sorted(export_db_connector.tag_stats.keys()):
+            print(f"\t{tag}: {export_db_connector.tag_stats[tag]}")
 
     _build_messages_and_print_path(message_template, export_data, date_str)
 

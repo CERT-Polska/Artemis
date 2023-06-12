@@ -73,6 +73,7 @@ Additionally, you may use the following optional parameters:
  - ``--tag TAG`` allows you to filter by the tag you provided when adding targets to be scanned. Only
    vulnerabilities from targets with this tag will be exported.
  - ``--language LANGUAGE`` would set the output report language (e.g. ``pl_PL`` or ``en_US``).
+ - ``--verbose`` will print more information (e.g. whether some types of reports have not been observed for a long time),
  - ``--blocklist BLOCKLIST_FILE`` will filter vulnerabilities from being included in the messages (this doesn't influence the scanning). The
    blocklist file is a ``yaml`` file with the following syntax:
 

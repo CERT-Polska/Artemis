@@ -27,6 +27,8 @@ TEMPLATES_THAT_MATCH_ON_PHPINFO = {
     "http/vulnerabilities/thinkcmf/thinkcmf-rce.yaml",
 }
 
+EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
+
 
 class Nuclei(ArtemisBase):
     """
@@ -51,7 +53,7 @@ class Nuclei(ArtemisBase):
             self._exposed_panels_templates = [
                 item
                 for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
-                if item.startswith("http/exposed_panels/")
+                if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
             ]
 
             if Config.NUCLEI_CHECK_TEMPLATE_LIST:

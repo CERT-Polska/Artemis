@@ -23,11 +23,15 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
     with open(file_path, "r") as file:
         data = yaml.safe_load(file)
 
+    for item in data:
+        # Assert there are no additional keys
+        assert len(set(item.keys()) - {"domain", "until", "report_type"}) == 0
+
     blocklist_items = [
         BlocklistItem(
-            domain=item['domain'],
-            until=datetime.strptime(item["until"], "%Y-%m-%d") if "until" in item else None,
-            report_type=item['report_type'] if "report_type" in item else None
+            domain=item["domain"],
+            until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if "until" in item else None,
+            report_type=item["report_type"] if "report_type" in item else None,
         )
         for item in data
     ]

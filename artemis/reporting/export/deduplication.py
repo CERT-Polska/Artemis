@@ -61,9 +61,7 @@ def deduplicate_ip_vs_domain_versions(previous_reports: List[Report], reports_to
     return reports_to_send_filtered
 
 
-def deduplicate_reports_choosing_ones_with_best_scores(
-    previous_reports: List[Report], reports_to_send: List[Report]
-) -> List[Report]:
+def deduplicate_reports(previous_reports: List[Report], reports_to_send: List[Report]) -> List[Report]:
     previous_reports_by_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
     for report in previous_reports:
         report_normal_form = report.get_normal_form()

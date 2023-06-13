@@ -9,7 +9,7 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.export.db import ExportDBConnector
 from artemis.reporting.export.deduplication import (
     deduplicate_ip_vs_domain_versions,
-    deduplicate_reports_choosing_ones_with_best_scores,
+    deduplicate_reports,
 )
 from artemis.utils import is_ip_address
 
@@ -38,7 +38,7 @@ def build_export_data(
     db: ExportDBConnector,
     custom_template_arguments_parsed: Dict[str, str],
 ) -> ExportData:
-    reports = deduplicate_reports_choosing_ones_with_best_scores(previous_reports, db.reports)
+    reports = deduplicate_reports(previous_reports, db.reports)
     reports = deduplicate_ip_vs_domain_versions(previous_reports, reports)
 
     reports_per_top_level_target: Dict[str, List[Report]] = {}

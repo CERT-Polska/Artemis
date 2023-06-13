@@ -76,7 +76,13 @@ class Report:
 
     def alternative_with_ip_address(self) -> Optional["Report"]:
         """If a report is about a URL where the host is a domain, not an IP, returns a version of this report
-        where the domain is replaced with an IP. Otherwise returns None."""
+        where the domain is replaced with an IP. Otherwise returns None.
+
+        **Such an alternative vulnerability doesn't necessairly have to exist.** There is plenty of cases
+        where vulnerability exists only by domain, not by IP. The purpose of this method is to return a potential
+        IP version for deduplication (so that we don't return a vulnerability on IP if we see identical one
+        on a domain resolving to this IP).
+        """
         if "://" in self.target and not self.target_is_ip_address() and self.target_ip:
             report = copy.deepcopy(self)
             target_parsed = urllib.parse.urlparse(self.target)

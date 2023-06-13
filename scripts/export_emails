@@ -10,9 +10,6 @@ for DOCKER_COMPOSE_FILE in */docker-compose.yml; do
     FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"
 done
 
-export EXISTING_AUTOREPORTER_REPORTS_DIRECTORY=$1
-
-shift
 
 docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS up --build autoreporter
-docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS run -v $EXISTING_AUTOREPORTER_REPORTS_DIRECTORY:/data/ autoreporter python3 -m artemis.reporting.export.main /data/ "$@"
+docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS run autoreporter python3 -m artemis.reporting.export.main /data/ "$@"

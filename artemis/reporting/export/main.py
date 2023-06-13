@@ -32,6 +32,9 @@ environment = Environment(
 )
 
 
+HOST_ROOT_PATH = "/host-root/"
+
+
 def _build_message_template_and_print_path(date_str: str) -> Template:
     output_message_template_file_name = os.path.join(OUTPUT_LOCATION, "message_template_" + date_str + ".jinja2")
 
@@ -79,19 +82,36 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
 
 
 def main(
-    previous_reports_directory: Path,
-    tag: Optional[str] = typer.Option(None),
-    language: Language = typer.Option(Language.en_US.value),
+    previous_reports_directory: Path = typer.Argument(
+        ...,
+        help="The directory where JSON files from previous exports "
+        "reside. This is to prevent the same (or similar) bug to be reported multiple times.",
+    ),
+    tag: Optional[str] = typer.Option(
+        None,
+        help="Allows you to filter by the tag you provided when adding targets "
+        "to be scanned. Only vulnerabilities from targets with this tag will be exported.",
+    ),
+    language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),
     custom_template_arguments: str = typer.Option(
         "", help="Custom template arguments in the form of name1=value1,name2=value2,..."
     ),
-    blocklist_file: Optional[str] = typer.Option(None),
-    verbose: bool = typer.Option(False, "--verbose"),
+    blocklist_file: Optional[str] = typer.Option(
+        None,
+        help="Filter vulnerabilities from being included in the messages "
+        '(this doesn\'t influence the scanning). Please refer to the "Generating e-mails" chapter of the web documentation '
+        "for the syntax of the file.",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        help="Print more information (e.g. whether some types of reports have not been observed for a long time).",
+    ),
 ) -> None:
     blocklist = load_blocklist(blocklist_file)
 
     if previous_reports_directory:
-        previous_reports = load_previous_reports(previous_reports_directory)
+        previous_reports = load_previous_reports(Path(HOST_ROOT_PATH) / previous_reports_directory)
     else:
         previous_reports = []
 

@@ -16,6 +16,10 @@ class BlocklistItem:
     report_type: Optional[ReportType]
 
 
+class BlocklistError(Exception):
+    pass
+
+
 def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
     if not file_path:
         return []
@@ -24,14 +28,15 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         data = yaml.safe_load(file)
 
     for item in data:
-        # Assert there are no additional keys
-        assert len(set(item.keys()) - {"domain", "until", "report_type"}) == 0
+        # Assert there are no additional or missing keys
+        if set(item.keys()) != {"domain", "until", "report_type"}:
+            raise BlocklistError(f"Expected three keys in entry: domain, until and report_type, not {item.keys()}")
 
     blocklist_items = [
         BlocklistItem(
             domain=item["domain"],
-            until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if "until" in item else None,
-            report_type=item["report_type"] if "report_type" in item else None,
+            until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if item["until"] else None,
+            report_type=item["report_type"] if item["report_type"] else None,
         )
         for item in data
     ]

@@ -17,22 +17,22 @@ class BlocklistItem:
 
 
 def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
-    if file_path:
-        with open(file_path, "r") as f:
-            data = yaml.safe_load(f)
-            result = []
-            for item in data:
-                assert len(set(item.keys()) - {"domain", "until", "report_type"}) == 0
-                result.append(
-                    BlocklistItem(
-                        item["domain"],
-                        datetime.datetime.strptime(item["until"], "%Y-%m-%d") if item["until"] else None,
-                        ReportType(item["report_type"]) if item["report_type"] else None,
-                    )
-                )
-            return result
-    else:
+    if not file_path:
         return []
+
+    with open(file_path, "r") as file:
+        data = yaml.safe_load(file)
+
+    blocklist_items = [
+        BlocklistItem(
+            domain=item['domain'],
+            until=datetime.strptime(item["until"], "%Y-%m-%d") if "until" in item else None,
+            report_type=item['report_type'] if "report_type" in item else None
+        )
+        for item in data
+    ]
+
+    return blocklist_items
 
 
 def filter_blocklist(reports: List[Report], blocklist: List[BlocklistItem]) -> List[Report]:

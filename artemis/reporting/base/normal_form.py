@@ -50,11 +50,9 @@ def get_domain_normal_form(domain: str) -> str:
     """
     Normalizes a domain - if it starts with www, strips it.
     """
-    assert ":" not in domain
+    assert ":" not in domain, f"Provided string, {domain}, doesn't look like a domain"
 
-    if domain.startswith("www."):
-        domain = domain[4:]
-    return domain
+    return domain.removeprefix("www.")
 
 
 def get_url_score(url: str) -> int:

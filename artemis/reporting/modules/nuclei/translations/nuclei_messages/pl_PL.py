@@ -295,4 +295,13 @@ TRANSLATIONS = {
     + BUG_FIX_HINT,
     "JexBoss is susceptible to remote code execution via the webshell. An attacker can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Wykryto, że narzędzie JexBoss zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
+    "OpenAM contains an LDAP injection vulnerability. When a user tries to reset his password, they are asked to enter username, and then the backend validates whether the user exists or not through an LDAP query. If the user exists, the password reset token is sent to the user's email. Enumeration can allow for full password retrieval.": "Narzędzie OpenAM zawiera podatność LDAP Injection, umożliwiającą poznanie pełnego hasła użytkownika."
+    + UPDATE_HINT,
+    "ForgeRock AM server before 7.0 has a Java deserialization vulnerability in the jato.pageSession parameter on multiple pages.\nThe exploitation does not require authentication, and remote code execution can be triggered by sending a single crafted\n/ccversion/* request to the server. The vulnerability exists due to the usage of Sun ONE Application Framework (JATO)\nfound in versions of Java 8 or earlier.": "Serwer ForgeRock AM w wersji poniżej 7.0 zawiera podatnosć umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Joomla! CMS 3.0.0 through the 3.4.6 release contains an unauthenticated PHP object injection that leads to remote code execution.": "System Joomla w wersji od 3.0.0 do 3.4.6 zawiera podatność PHP Object Injection, która może doprowadzić do zdalnego wykonania kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "[no description] http/misconfiguration/installer/owncloud-installer-exposure.yaml": "Wykryto, że instalator narzędzia ownCloud jest publicznie dostępny, co umożliwia atakującemu rejestrację jako administrator. Rekomendujemy, aby takie zasoby nie były publicznie dostępne.",
 }

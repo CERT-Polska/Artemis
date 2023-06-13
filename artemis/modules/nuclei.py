@@ -50,7 +50,7 @@ class Nuclei(ArtemisBase):
             )
             self._exposed_panels_templates = [
                 item
-                for item in check_output_log_on_error(["nuclei", "-s", "-tl"], self.log).decode("ascii").split()
+                for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
                 if item.startswith("http/exposed_panels/")
             ]
 

@@ -68,8 +68,8 @@ class Config:
     #
     # This is configurable because e.g. we observed some hostings serving mirrors of content from
     # port 80 on ports 81-84.
-    COMMON_HTTP_PORTS_FOR_DEDUPLICATION = decouple.config(
-        "COMMON_HTTP_PORTS_FOR_DEDUPLICATION", default="80,443", cast=decouple.Csv(int)
+    REPORTER_DEDUPLICATION_COMMON_HTTP_PORTS = decouple.config(
+        "REPORTER_DEDUPLICATION_COMMON_HTTP_PORTS", default="80,443", cast=decouple.Csv(int)
     )
 
     # == Rate limit settings

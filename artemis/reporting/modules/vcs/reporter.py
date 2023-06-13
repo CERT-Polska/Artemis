@@ -3,11 +3,10 @@ import sqlite3
 import subprocess
 import tempfile
 import urllib.parse
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 
 from artemis import config, utils
 from artemis.reporting.base.language import Language
-from artemis.reporting.base.normal_form import NormalForm
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
@@ -221,19 +220,3 @@ class VCSReporter(Reporter):
                 8,
             ),
         ]
-
-    @staticmethod
-    def get_scoring_rules() -> Dict[ReportType, Callable[[Report], List[int]]]:
-        """See the docstring in the parent class."""
-        return {
-            VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER: Reporter.default_scoring_rule,
-            VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER_WITH_CREDENTIALS: Reporter.default_scoring_rule,
-        }
-
-    @staticmethod
-    def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
-        """See the docstring in the Reporter class."""
-        return {
-            VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER: Reporter.default_normal_form_rule,
-            VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER_WITH_CREDENTIALS: Reporter.default_normal_form_rule,
-        }

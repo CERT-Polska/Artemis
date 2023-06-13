@@ -1,8 +1,7 @@
 import os
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 
 from artemis.reporting.base.language import Language
-from artemis.reporting.base.normal_form import NormalForm
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
@@ -42,17 +41,3 @@ class WordPressBruterReporter(Reporter):
                 os.path.join(os.path.dirname(__file__), "template_exposed_wordpress_with_easy_password.jinja2"), 8
             ),
         ]
-
-    @staticmethod
-    def get_scoring_rules() -> Dict[ReportType, Callable[[Report], List[int]]]:
-        """See the docstring in the parent class."""
-        return {
-            WordPressBruterReporter.EXPOSED_WORDPRESS_WITH_EASY_PASSWORD: Reporter.default_scoring_rule,
-        }
-
-    @staticmethod
-    def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
-        """See the docstring in the Reporter class."""
-        return {
-            WordPressBruterReporter.EXPOSED_WORDPRESS_WITH_EASY_PASSWORD: Reporter.default_normal_form_rule,
-        }

@@ -33,26 +33,25 @@ class Reporter(ABC):
         """Fragments of e-mail messages to render report types provided by this Reporter."""
         raise NotImplementedError()
 
-    @staticmethod
-    @abstractmethod
-    def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
+    @classmethod
+    def get_normal_form_rules(cls) -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """
         A normal form rule is a callable that converts a report into a form such that two similar
         reports (e.g. insecure wordpress version on example.com and www.example.com) share the form.
 
         The form is used for deduplication.
         """
-        raise NotImplementedError()
+        return {report_type: Reporter.default_normal_form_rule for report_type in cls.get_report_types()}
 
-    @staticmethod
-    @abstractmethod
-    def get_scoring_rules() -> Dict[ReportType, Callable[[Report], List[int]]]:
+    @classmethod
+    def get_scoring_rules(cls) -> Dict[ReportType, Callable[[Report], List[int]]]:
         """
         A scoring rule takes a report and returns a score - for reports with same normal form, the one with highest
         score will be reported.
 
         Scores are compared lexicographically.
         """
+        return {report_type: Reporter.default_scoring_rule for report_type in cls.get_report_types()}
 
     @staticmethod
     def dict_to_tuple(d: Dict[str, str]) -> Tuple[Tuple[str, str], ...]:

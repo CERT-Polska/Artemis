@@ -6,6 +6,8 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+import validators
+
 from artemis.reporting.utils import cached_gethostbyname
 from artemis.utils import get_host_from_url, is_ip_address
 
@@ -45,7 +47,7 @@ class Report:
         if not self.target_ip_checked:
             # If something doesn't have :// it's a domain so let's skip obtaining IP as domain-related vulnerabilities
             # (e.g. zone transfer or DMARC problems) don't have sensible IP versions.
-            if "://" in self.target:
+            if self.target_is_url():
                 host = get_host_from_url(self.target)
                 if is_ip_address(host):
                     self.target_ip = host
@@ -68,11 +70,19 @@ class Report:
         )
 
     def target_is_ip_address(self) -> bool:
-        if "://" in self.target:
+        if self.target_is_url():
             host = get_host_from_url(self.target)
             return is_ip_address(host)
         else:
             return is_ip_address(self.target)
+
+    def target_is_url(self) -> bool:
+        assert validators.url(self.target) or validators.domain(self.target)
+        return validators.url(self.target)  # type: ignore
+
+    def target_is_domain(self) -> bool:
+        assert validators.url(self.target) or validators.domain(self.target)
+        return validators.domain(self.target)  # type: ignore
 
     def alternative_with_ip_address(self) -> Optional["Report"]:
         """If a report is about a URL where the host is a domain, not an IP, returns a version of this report
@@ -83,7 +93,7 @@ class Report:
         IP version for deduplication (so that we don't return a vulnerability on IP if we see identical one
         on a domain resolving to this IP).
         """
-        if "://" in self.target and not self.target_is_ip_address() and self.target_ip:
+        if self.target_is_url() and not self.target_is_ip_address() and self.target_ip:
             report = copy.deepcopy(self)
             target_parsed = urllib.parse.urlparse(self.target)
             target_parsed_dict = target_parsed._asdict()

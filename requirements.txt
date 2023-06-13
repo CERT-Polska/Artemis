@@ -40,3 +40,4 @@ typer==0.7.0
 typing-extensions==4.6.3
 urllib3==1.26.16
 uvicorn==0.22.0
+validators==0.20.0

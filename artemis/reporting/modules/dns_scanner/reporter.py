@@ -16,10 +16,6 @@ class DNSScannerReporter(Reporter):
     ZONE_TRANSFER_POSSIBLE = ReportType("zone_transfer_possible")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [DNSScannerReporter.ZONE_TRANSFER_POSSIBLE]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "dns_scanner":
             return []

@@ -14,10 +14,6 @@ class JoomlaScannerReporter(Reporter):
     OLD_JOOMLA = ReportType("old_joomla")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [JoomlaScannerReporter.OLD_JOOMLA]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "joomla_scanner":
             return []

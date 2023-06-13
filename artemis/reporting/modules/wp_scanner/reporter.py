@@ -15,10 +15,6 @@ class WPScannerReporter(Reporter):
     OLD_WORDPRESS = ReportType("old_wordpress")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [WPScannerReporter.INSECURE_WORDPRESS, WPScannerReporter.OLD_WORDPRESS]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "wp_scanner":
             return []

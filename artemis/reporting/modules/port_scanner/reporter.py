@@ -14,10 +14,6 @@ class PortScannerReporter(Reporter):
     OPEN_PORT_REMOTE_DESKTOP = ReportType("open_port_remote_desktop")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [PortScannerReporter.OPEN_PORT_REMOTE_DESKTOP]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "port_scanner":
             return []

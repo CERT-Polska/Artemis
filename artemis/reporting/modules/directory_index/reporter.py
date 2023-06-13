@@ -20,10 +20,6 @@ class DirectoryIndexReporter(Reporter):
     DIRECTORY_INDEX = ReportType("directory_index")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [DirectoryIndexReporter.DIRECTORY_INDEX]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if not isinstance(task_result["result"], dict):
             return []

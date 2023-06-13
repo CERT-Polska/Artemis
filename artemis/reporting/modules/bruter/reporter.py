@@ -41,24 +41,6 @@ class BruterReporter(Reporter):
     EXPOSED_SQL_DUMP = ReportType("exposed_sql_dump")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [
-            BruterReporter.EXPOSED_ARCHIVE,
-            BruterReporter.EXPOSED_BASH_HISTORY,
-            BruterReporter.EXPOSED_CONFIGURATION_FILE,
-            BruterReporter.EXPOSED_DEAD_LETTER,
-            BruterReporter.EXPOSED_FILE_WITH_LISTING,
-            BruterReporter.EXPOSED_HTTP_SERVER_INFO_STATUS,
-            BruterReporter.EXPOSED_KEYS,
-            BruterReporter.EXPOSED_LOG_FILE,
-            BruterReporter.EXPOSED_PASSWORD_FILE,
-            BruterReporter.EXPOSED_PHPINFO,
-            BruterReporter.EXPOSED_PHP_SOURCE,
-            BruterReporter.EXPOSED_PHP_VAR_DUMP,
-            BruterReporter.EXPOSED_SQL_DUMP,
-        ]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "bruter":
             return []

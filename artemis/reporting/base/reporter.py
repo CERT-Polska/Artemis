@@ -15,11 +15,10 @@ class Reporter(ABC):
     It also provides parts of e-mail messages to render a given report type.
     """
 
-    @staticmethod
-    @abstractmethod
-    def get_report_types() -> List[ReportType]:
+    @classmethod
+    def get_report_types(cls) -> List[ReportType]:
         """Types of reports provided by this Reporter."""
-        raise NotImplementedError()
+        return [getattr(cls, name) for name in dir(cls) if isinstance(getattr(cls, name), ReportType)]
 
     @staticmethod
     @abstractmethod

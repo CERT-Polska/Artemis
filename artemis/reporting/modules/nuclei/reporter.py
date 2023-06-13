@@ -28,10 +28,6 @@ class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [NucleiReporter.NUCLEI_VULNERABILITY]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         def _is_url_without_path_query_fragment(url: str) -> bool:
             url_parsed = urllib.parse.urlparse(url)

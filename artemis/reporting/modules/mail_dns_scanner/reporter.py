@@ -20,10 +20,6 @@ class MailDNSScannerReporter(Reporter):
     MISCONFIGURED_EMAIL = ReportType("misconfigured_email")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [MailDNSScannerReporter.MISCONFIGURED_EMAIL]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "mail_dns_scanner":
             return []

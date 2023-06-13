@@ -14,10 +14,6 @@ class MySQLBruterReporter(Reporter):
     EXPOSED_DATABASE_WITH_EASY_PASSWORD = ReportType("exposed_database_with_easy_password")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [MySQLBruterReporter.EXPOSED_DATABASE_WITH_EASY_PASSWORD]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "mysql_bruter":
             return []

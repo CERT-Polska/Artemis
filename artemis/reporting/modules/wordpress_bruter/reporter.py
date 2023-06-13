@@ -13,10 +13,6 @@ class WordPressBruterReporter(Reporter):
     EXPOSED_WORDPRESS_WITH_EASY_PASSWORD = ReportType("exposed_wordpress_with_easy_password")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [WordPressBruterReporter.EXPOSED_WORDPRESS_WITH_EASY_PASSWORD]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "wordpress_bruter":
             return []

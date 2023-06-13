@@ -21,10 +21,6 @@ class VCSReporter(Reporter):
     EXPOSED_VERSION_CONTROL_FOLDER_WITH_CREDENTIALS = ReportType("exposed_version_control_folder_with_credentials")
 
     @staticmethod
-    def get_report_types() -> List[ReportType]:
-        return [VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER, VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER_WITH_CREDENTIALS]
-
-    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "vcs":
             return []

@@ -12,4 +12,4 @@ done
 
 
 docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS up --build autoreporter
-docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS run autoreporter python3 -m artemis.reporting.export.main /data/ "$@"
+docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS run autoreporter python3 -m artemis.reporting.export.main "$@"

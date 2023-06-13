@@ -16,10 +16,10 @@ msgstr ""
 msgid "and"
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:13
+#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:12
 msgid "password"
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:15
+#: artemis/reporting/modules/wordpress_bruter/template_exposed_wordpress_with_easy_password.jinja2:14
 msgid "empty password"
 msgstr ""

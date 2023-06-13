@@ -1,0 +1,20 @@
+name: "check that we don't need to update translations"
+on:
+  push:
+    branches: [ '**' ]
+
+jobs:
+  check_no_translations_to_update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11"
+      - name: Update the translations
+        run: ./scripts/update_translations
+      - name: Check that the files didn't change
+        run: git diff --exit-code

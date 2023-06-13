@@ -37,6 +37,9 @@ pip install Babel==2.12.1 Jinja2==3.1.2
                 -l $locale \
                 -i $template_directory_name/translations/messages.pot \
                 -d $template_directory_name/translations/
+
+           # Remove the last newline so that we don't conflict with linters
+           sed -i -z '$ s/\n$//' $template_directory_name/translations/$locale/LC_MESSAGES/messages.po
         done
     done
 )

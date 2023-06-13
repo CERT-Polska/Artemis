@@ -48,16 +48,23 @@ class Nuclei(ArtemisBase):
             self._high_templates = (
                 check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log).decode("ascii").split()
             )
+            self._exposed_panels_templates = [
+                item
+                for item in check_output_log_on_error(["nuclei", "-s", "-tl"], self.log).decode("ascii").split()
+                if item.startswith("http/exposed_panels/")
+            ]
 
             if Config.NUCLEI_CHECK_TEMPLATE_LIST:
                 if len(self._critical_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei critical-severity templates list")
                 if len(self._high_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei high-severity templates list")
+                if len(self._exposed_panels_templates) == 0:
+                    raise RuntimeError("Unable to obtain Nuclei exposed panels templates list")
 
             self._templates = [
                 template
-                for template in self._critical_templates + self._high_templates
+                for template in self._critical_templates + self._high_templates + self._exposed_panels_templates
                 if template not in Config.NUCLEI_TEMPLATES_TO_SKIP
             ] + Config.NUCLEI_ADDITIONAL_TEMPLATES
 

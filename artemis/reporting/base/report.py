@@ -88,7 +88,8 @@ class Report:
         return None
 
     def get_normal_form(self) -> NormalForm:
-        """Returns the normal form of the report."""
+        """Returns the normal form of the report - if multiple reports have the same normal form,
+        only one of them should be reported. Score (returned by get_score()) determines which one."""
         for reporter in get_all_reporters():
             normal_form_rules = reporter.get_normal_form_rules()
             if self.report_type in normal_form_rules:

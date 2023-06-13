@@ -17,7 +17,6 @@ docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-robots-
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-ftp-server-with-easy-password:21
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-joomla:80
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-smtp-server:25
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-php-lfi:80
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-exposed-git:80
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-wordpress:80
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-directory-index:80

@@ -49,10 +49,17 @@ def filter_blocklist(reports: List[Report], blocklist: List[BlocklistItem]) -> L
         # - if `report_type` is set, filters only reports with given type.
         # If at least one filter matches, report is skipped.
         for item in blocklist:
-            if is_subdomain(report.top_level_target, item.domain):
-                if not report.timestamp or not item.until or report.timestamp < item.until:
-                    if not item.report_type or report.report_type == item.report_type:
-                        filtered = True
+            if not is_subdomain(report.top_level_target, item.domain):
+                continue
+
+            if report.timestamp and item.until and report.timestamp >= item.until:
+                continue
+
+            if item.report_type and report.report_type != item.report_type:
+                continue
+
+            filtered = True
+
         if not filtered:
             result.append(report)
     return result

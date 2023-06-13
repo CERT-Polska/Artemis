@@ -43,7 +43,7 @@ class DNSScannerReporter(Reporter):
                     top_level_target=top_level_target,
                     target=target,
                     report_type=DNSScannerReporter.ZONE_TRANSFER_POSSIBLE,
-                    report_data={
+                    additional_data={
                         "zone_transfer_nameserver": task_result["result"]["zone_transfer_nameserver"],
                         "zone_size": task_result["result"]["zone_size"],
                         "is_for_parent_domain": is_for_parent_domain,
@@ -76,7 +76,7 @@ class DNSScannerReporter(Reporter):
                 {
                     "type": report.report_type,
                     "target": get_domain_normal_form(report.target),
-                    "nameserver": report.report_data["zone_transfer_nameserver"],
+                    "nameserver": report.additional_data["zone_transfer_nameserver"],
                 }
             ),
         }

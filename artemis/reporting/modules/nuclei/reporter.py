@@ -73,7 +73,7 @@ class NucleiReporter(Reporter):
                     top_level_target=get_top_level_target(task_result),
                     target=target,
                     report_type=NucleiReporter.NUCLEI_VULNERABILITY,
-                    report_data={
+                    additional_data={
                         "description_en": description,
                         "description_translated": NucleiReporter._translate_description(description, language),
                         "reference": vulnerability["info"]["reference"],
@@ -107,7 +107,7 @@ class NucleiReporter(Reporter):
                 {
                     "type": report.report_type,
                     "target": get_url_normal_form(report.target),
-                    "template_name": report.report_data["template_name"],
+                    "template_name": report.additional_data["template_name"],
                 }
             )
         }

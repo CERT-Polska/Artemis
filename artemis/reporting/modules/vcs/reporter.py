@@ -71,7 +71,7 @@ class VCSReporter(Reporter):
                         top_level_target=get_top_level_target(task_result),
                         target=repo_url,
                         report_type=VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER_WITH_CREDENTIALS,
-                        report_data={
+                        additional_data={
                             "config_url": db_url,
                             "username": parsed_remote_url.username,
                             "password_prefix": parsed_remote_url.password[:3],
@@ -100,7 +100,7 @@ class VCSReporter(Reporter):
                     top_level_target=get_top_level_target(task_result),
                     target=repo_url,
                     report_type=VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER,
-                    report_data={"config_url": db_url},
+                    additional_data={"config_url": db_url},
                     timestamp=task_result["created_at"],
                 )
             ]
@@ -150,7 +150,7 @@ class VCSReporter(Reporter):
                         top_level_target=get_top_level_target(task_result),
                         target=repo_url,
                         report_type=VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER_WITH_CREDENTIALS,
-                        report_data={
+                        additional_data={
                             "config_url": repo_url,
                             "username": parsed_remote_url.username,
                             "password_prefix": parsed_remote_url.password[:3],
@@ -163,7 +163,7 @@ class VCSReporter(Reporter):
             top_level_target=get_top_level_target(task_result),
             target=repo_url,
             report_type=VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER,
-            report_data={"config_url": config_url},
+            additional_data={"config_url": config_url},
             timestamp=task_result["created_at"],
         )
 

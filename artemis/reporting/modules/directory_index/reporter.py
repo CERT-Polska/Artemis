@@ -61,7 +61,7 @@ class DirectoryIndexReporter(Reporter):
         """See the docstring in the parent class."""
         return {
             DirectoryIndexReporter.DIRECTORY_INDEX: lambda report: [
-                report.report_data["score"],
+                report.additional_data["score"],
                 -len(report.target),
                 get_url_score(report.target),
             ]
@@ -109,7 +109,7 @@ class DirectoryIndexReporter(Reporter):
             top_level_target=get_top_level_target(task_result),
             target=add_port_to_url(f"{found_url_parsed.scheme}://{found_url_parsed.netloc}{found_url_parsed.path}"),
             report_type=ReportType("directory_index"),
-            report_data={"score": score},
+            additional_data={"score": score},
             timestamp=task_result["created_at"],
         )
 

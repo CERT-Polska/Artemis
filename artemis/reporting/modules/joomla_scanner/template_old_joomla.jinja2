@@ -4,7 +4,7 @@
             {% for report in data.reports %}
                 {% if report.report_type == "old_joomla" %}
                     <li>
-                        {{ report.target }} - Joomla {{ report.report_data.version }}
+                        {{ report.target }} - Joomla {{ report.additional_data.version }}
                         {{ report_meta(report) }}
                     </li>
                 {% endif %}

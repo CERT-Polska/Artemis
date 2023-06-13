@@ -62,7 +62,7 @@ class MailDNSScannerReporter(Reporter):
                     top_level_target=top_level_target,
                     target=message_with_target.target,
                     report_type=MailDNSScannerReporter.MISCONFIGURED_EMAIL,
-                    report_data={
+                    additional_data={
                         "message_en": message_with_target.message,
                         "is_for_parent_domain": is_for_parent_domain,
                     },
@@ -92,7 +92,7 @@ class MailDNSScannerReporter(Reporter):
                 {
                     "type": report.report_type,
                     "target": get_domain_normal_form(report.target),
-                    "message": report.report_data["message_en"],
+                    "message": report.additional_data["message_en"],
                 }
             )
         }

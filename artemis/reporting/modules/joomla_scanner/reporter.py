@@ -27,7 +27,7 @@ class JoomlaScannerReporter(Reporter):
                     top_level_target=get_top_level_target(task_result),
                     target=get_target(task_result),
                     report_type=JoomlaScannerReporter.OLD_JOOMLA,
-                    report_data={"version": task_result["result"]["joomla_version"]},
+                    additional_data={"version": task_result["result"]["joomla_version"]},
                     timestamp=task_result["created_at"],
                 )
             ]
@@ -61,6 +61,6 @@ class JoomlaScannerReporter(Reporter):
             {
                 "type": report.report_type,
                 "target": get_url_normal_form(report.target),
-                "version": report.report_data["version"],
+                "version": report.additional_data["version"],
             }
         )

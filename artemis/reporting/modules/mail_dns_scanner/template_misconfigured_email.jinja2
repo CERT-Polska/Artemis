@@ -4,7 +4,7 @@
             {% for report in data.reports %}
                 {% if report.report_type == "misconfigured_email" %}
                     <li>
-                        {{ report.target }}: {{ _(report.report_data.message_en) }}
+                        {{ report.target }}: {{ _(report.additional_data.message_en) }}
                         {{ report_meta(report) }}
                     </li>
                 {% endif %}

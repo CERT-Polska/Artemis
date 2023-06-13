@@ -35,7 +35,7 @@ class PortScannerReporter(Reporter):
                             top_level_target=get_top_level_target(task_result),
                             target=f"{port_data['service'].lower()}://{ip}:{port}",
                             report_type=PortScannerReporter.OPEN_PORT_REMOTE_DESKTOP,
-                            report_data={
+                            additional_data={
                                 "port": port,
                                 "service": port_data["service"],
                             },

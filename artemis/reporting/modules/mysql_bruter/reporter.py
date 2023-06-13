@@ -34,7 +34,7 @@ class MySQLBruterReporter(Reporter):
                 top_level_target=get_top_level_target(task_result),
                 target=f"mysql://{ip_address}:{task_result['payload']['port']}",
                 report_type=MySQLBruterReporter.EXPOSED_DATABASE_WITH_EASY_PASSWORD,
-                report_data={"credentials": task_result["result"]["credentials"]},
+                additional_data={"credentials": task_result["result"]["credentials"]},
                 timestamp=task_result["created_at"],
             )
         ]

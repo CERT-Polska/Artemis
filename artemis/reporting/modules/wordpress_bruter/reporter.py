@@ -25,7 +25,7 @@ class WordPressBruterReporter(Reporter):
                 top_level_target=get_top_level_target(task_result),
                 target=get_target(task_result),
                 report_type=WordPressBruterReporter.EXPOSED_WORDPRESS_WITH_EASY_PASSWORD,
-                report_data={"credentials": task_result["result"]},
+                additional_data={"credentials": task_result["result"]},
                 timestamp=task_result["created_at"],
             )
         ]

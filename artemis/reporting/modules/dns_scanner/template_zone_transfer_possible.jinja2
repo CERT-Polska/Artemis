@@ -8,12 +8,12 @@
             {% for report in data.reports %}
                 {% if report.report_type == "zone_transfer_possible" %}
                     <li>
-                        {{ _("server") }} {{ report.report_data.zone_transfer_nameserver }} -
+                        {{ _("server") }} {{ report.additional_data.zone_transfer_nameserver }} -
                         {{ _("domain") }} {{ report.target }}
-                        ({{ _("number of subdomains that can be downloaded") }}: {{ report.report_data.zone_size }}).<br/>
+                        ({{ _("number of subdomains that can be downloaded") }}: {{ report.additional_data.zone_size }}).<br/>
                         <br/>
                         {% trans %}Such transfer can be performed using the following Linux command:{% endtrans %}<br/>
-                        <pre>dig AXFR {{ report.target }} @{{ report.report_data.zone_transfer_nameserver }}</pre>
+                        <pre>dig AXFR {{ report.target }} @{{ report.additional_data.zone_transfer_nameserver }}</pre>
                         {{ report_meta(report) }}
                     </li>
                 {% endif %}

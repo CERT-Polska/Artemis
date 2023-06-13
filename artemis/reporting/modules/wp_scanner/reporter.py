@@ -28,7 +28,7 @@ class WPScannerReporter(Reporter):
                     top_level_target=get_top_level_target(task_result),
                     target=get_target(task_result),
                     report_type=WPScannerReporter.INSECURE_WORDPRESS,
-                    report_data={"version": task_result["result"]["wp_version"]},
+                    additional_data={"version": task_result["result"]["wp_version"]},
                     timestamp=task_result["created_at"],
                 )
             ]
@@ -38,7 +38,7 @@ class WPScannerReporter(Reporter):
                     top_level_target=get_top_level_target(task_result),
                     target=get_target(task_result),
                     report_type=WPScannerReporter.OLD_WORDPRESS,
-                    report_data={"version": task_result["result"]["wp_version"]},
+                    additional_data={"version": task_result["result"]["wp_version"]},
                     timestamp=task_result["created_at"],
                 )
             ]
@@ -77,6 +77,6 @@ class WPScannerReporter(Reporter):
             {
                 "type": report.report_type,
                 "target": get_url_normal_form(report.target),
-                "version": report.report_data["version"],
+                "version": report.additional_data["version"],
             }
         )

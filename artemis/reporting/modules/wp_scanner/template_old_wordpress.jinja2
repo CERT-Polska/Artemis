@@ -4,7 +4,7 @@
             {% for report in data.reports %}
                 {% if report.report_type == "old_wordpress" %}
                     <li>
-                        {{ report.target }} - WordPress {{ report.report_data.version }}
+                        {{ report.target }} - WordPress {{ report.additional_data.version }}
                         {{ report_meta(report) }}
                     </li>
                 {% endif %}

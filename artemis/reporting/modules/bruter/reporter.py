@@ -56,7 +56,7 @@ class BruterReporter(Reporter):
                     top_level_target=get_top_level_target(task_result),
                     target=found_url.url,
                     report_type=report_type,
-                    report_data={},
+                    additional_data={},
                     timestamp=task_result["created_at"],
                 )
             )

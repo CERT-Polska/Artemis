@@ -26,7 +26,7 @@ class Report:
     report_type: ReportType
 
     # Additional report data - the content depends on the report type
-    report_data: Dict[str, Any]
+    additional_data: Dict[str, Any]
     timestamp: Optional[datetime.datetime] = None
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
@@ -64,7 +64,7 @@ class Report:
             self.top_level_target == other.top_level_target
             and self.target == other.target
             and self.report_type == other.report_type
-            and self.report_data == other.report_data
+            and self.additional_data == other.additional_data
         )
 
     def target_is_ip_address(self) -> bool:

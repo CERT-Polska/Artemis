@@ -15,6 +15,6 @@ jobs:
         with:
           python-version: "3.11"
       - name: Update the translations
-        run: ./scripts/update_translations
+        run: ./scripts/update_translation_files
       - name: Check that the files didn't change
         run: git diff --exit-code

@@ -14,9 +14,6 @@ from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.templating import build_message_template
 from artemis.reporting.blocklist import load_blocklist
-from artemis.reporting.export.already_exported_reports import (
-    load_already_exported_reports,
-)
 from artemis.reporting.export.common import OUTPUT_LOCATION
 from artemis.reporting.export.custom_template_arguments import (
     parse_custom_template_arguments,
@@ -26,6 +23,7 @@ from artemis.reporting.export.export_data import ExportData, build_export_data
 from artemis.reporting.export.long_unseen_report_types import (
     print_long_unseen_report_types,
 )
+from artemis.reporting.export.previous_reports import load_previous_reports
 from artemis.reporting.export.stats import print_and_save_stats
 from artemis.reporting.export.translations import install_translations
 
@@ -81,7 +79,7 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
 
 
 def main(
-    already_exported_reports_directory: Path,
+    previous_reports_directory: Path,
     tag: Optional[str] = typer.Option(None),
     language: Language = typer.Option(Language.en_US.value),
     custom_template_arguments: str = typer.Option(
@@ -92,17 +90,15 @@ def main(
 ) -> None:
     blocklist = load_blocklist(blocklist_file)
 
-    if already_exported_reports_directory:
-        already_exported_reports = load_already_exported_reports(already_exported_reports_directory)
+    if previous_reports_directory:
+        previous_reports = load_previous_reports(previous_reports_directory)
     else:
-        already_exported_reports = []
+        previous_reports = []
 
     custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
     db = DB()
     export_db_connector = ExportDBConnector(db, blocklist, language, tag)
-    export_data = build_export_data(
-        already_exported_reports, tag, export_db_connector, custom_template_arguments_parsed
-    )
+    export_data = build_export_data(previous_reports, tag, export_db_connector, custom_template_arguments_parsed)
 
     date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
     _install_translations_and_print_path(language, date_str)
@@ -112,7 +108,7 @@ def main(
     print_and_save_stats(export_data, date_str)
 
     if verbose:
-        print_long_unseen_report_types(already_exported_reports + export_db_connector.reports)
+        print_long_unseen_report_types(previous_reports + export_db_connector.reports)
 
         print("Available tags (and the counts of raw task results - not to be confused with vulnerabilities):")
         for tag in sorted(export_db_connector.tag_stats.keys()):

@@ -8,9 +8,7 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.severity import SEVERITY_MAP, Severity
 
 
-def deduplicate_ip_vs_domain_versions(
-    already_exported_reports: List[Report], reports_to_send: List[Report]
-) -> List[Report]:
+def deduplicate_ip_vs_domain_versions(previous_reports: List[Report], reports_to_send: List[Report]) -> List[Report]:
     """Skips reports if:
 
     - a vulnerability is on a URL with an IP and an identical report for a domain with this IP has
@@ -20,15 +18,13 @@ def deduplicate_ip_vs_domain_versions(
     - a vulnerability is on a URL with a domain and an identical report for a URL with an IP of this domain has
       already been sent.
     """
-    already_exported_reports_by_ip_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
-    already_exported_reports_by_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
-    for already_exported_report in already_exported_reports:
-        already_exported_reports_by_normal_forms[already_exported_report.get_normal_form()].append(
-            already_exported_report
-        )
-        alternative_with_ip_address = already_exported_report.alternative_with_ip_address()
+    previous_reports_by_ip_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
+    previous_reports_by_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
+    for previous_report in previous_reports:
+        previous_reports_by_normal_forms[previous_report.get_normal_form()].append(previous_report)
+        alternative_with_ip_address = previous_report.alternative_with_ip_address()
         if alternative_with_ip_address:
-            already_exported_reports_by_ip_normal_forms[alternative_with_ip_address.get_normal_form()].append(
+            previous_reports_by_ip_normal_forms[alternative_with_ip_address.get_normal_form()].append(
                 alternative_with_ip_address
             )
 
@@ -42,8 +38,8 @@ def deduplicate_ip_vs_domain_versions(
     reports_to_send_filtered: List[Report] = []
     for report in reports_to_send:
         # This is an IP report and is an ip-converted version of an existing report
-        if report.target_is_ip_address() and report.get_normal_form() in already_exported_reports_by_ip_normal_forms:
-            if _all_reports_are_old(already_exported_reports_by_ip_normal_forms[report.get_normal_form()]):
+        if report.target_is_ip_address() and report.get_normal_form() in previous_reports_by_ip_normal_forms:
+            if _all_reports_are_old(previous_reports_by_ip_normal_forms[report.get_normal_form()]):
                 reports_to_send_filtered.append(_build_subsequent_reminder(report))
             continue
         # This is not an IP report but an IP report for the same has already been sent
@@ -51,10 +47,10 @@ def deduplicate_ip_vs_domain_versions(
             alternative_with_ip_address = report.alternative_with_ip_address()
             if (
                 alternative_with_ip_address
-                and alternative_with_ip_address.get_normal_form() in already_exported_reports_by_normal_forms
+                and alternative_with_ip_address.get_normal_form() in previous_reports_by_normal_forms
             ):
                 if _all_reports_are_old(
-                    already_exported_reports_by_normal_forms[alternative_with_ip_address.get_normal_form()]
+                    previous_reports_by_normal_forms[alternative_with_ip_address.get_normal_form()]
                 ):
                     reports_to_send_filtered.append(_build_subsequent_reminder(report))
                 continue
@@ -66,19 +62,19 @@ def deduplicate_ip_vs_domain_versions(
 
 
 def deduplicate_reports_choosing_ones_with_best_scores(
-    already_exported_reports: List[Report], reports_to_send: List[Report]
+    previous_reports: List[Report], reports_to_send: List[Report]
 ) -> List[Report]:
-    already_exported_reports_by_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
-    for report in already_exported_reports:
+    previous_reports_by_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
+    for report in previous_reports:
         report_normal_form = report.get_normal_form()
-        already_exported_reports_by_normal_forms[report_normal_form].append(report)
+        previous_reports_by_normal_forms[report_normal_form].append(report)
 
     reports_scoring_dict = {}
     for report in reports_to_send:
         report_normal_form = report.get_normal_form()
 
-        if report_normal_form in already_exported_reports_by_normal_forms:
-            if _all_reports_are_old(already_exported_reports_by_normal_forms[report_normal_form]):
+        if report_normal_form in previous_reports_by_normal_forms:
+            if _all_reports_are_old(previous_reports_by_normal_forms[report_normal_form]):
                 reports_scoring_dict[report_normal_form] = _build_subsequent_reminder(
                     report,
                 )

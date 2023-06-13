@@ -56,9 +56,9 @@ is a true positive and interesting enough to be reported.
 
 To generate these e-mails, use:
 
-``./scripts/export_emails ALREADY_EXISTING_REPORT_DIRECTORY``
+``./scripts/export_emails PREVIOUS_REPORTS_DIRECTORY``
 
-``ALREADY_EXISTING_REPORT_DIRECTORY`` is a directory where JSON files produced by previous script invocations
+``PREVIOUS_REPORTS_DIRECTORY`` is a directory where JSON files produced by previous script invocations
 reside. This allows you to skip sending messages that have already been sent.
 
 This script will produce **text messages ready to be sent** [1]_.

@@ -33,13 +33,13 @@ class ExportData:
 
 
 def build_export_data(
-    already_exported_reports: List[Report],
+    previous_reports: List[Report],
     tag: Optional[str],
     db: ExportDBConnector,
     custom_template_arguments_parsed: Dict[str, str],
 ) -> ExportData:
-    reports = deduplicate_reports_choosing_ones_with_best_scores(already_exported_reports, db.reports)
-    reports = deduplicate_ip_vs_domain_versions(already_exported_reports, reports)
+    reports = deduplicate_reports_choosing_ones_with_best_scores(previous_reports, db.reports)
+    reports = deduplicate_ip_vs_domain_versions(previous_reports, reports)
 
     reports_per_top_level_target: Dict[str, List[Report]] = {}
     for report in tqdm(reports):

@@ -304,4 +304,6 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "[no description] http/misconfiguration/installer/owncloud-installer-exposure.yaml": "Wykryto, że instalator narzędzia ownCloud jest publicznie dostępny, co umożliwia atakującemu rejestrację jako administrator. Rekomendujemy, aby takie zasoby nie były publicznie dostępne.",
+    "phpMyAdmin panel was detected.": "wykryto panel phpMyAdmin.",
+    "WordPress login panel was detected.": "wykryto panel logowania WordPress.",
 }

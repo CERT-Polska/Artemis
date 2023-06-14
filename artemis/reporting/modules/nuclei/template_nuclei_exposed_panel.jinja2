@@ -1,0 +1,26 @@
+{% if "nuclei_exposed_panel" in data.contains_type %}
+    <li>{% trans %}The following addresses contain login panels, analytics services, management panels etc.:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "nuclei_exposed_panel" %}
+                    <li>
+                        {{ report.target }}: {{ report.additional_data.description_translated }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                To decrease the probability of an attack (caused by an attacker using a leaked password,
+                by one of the accounts having a weak password, or by vulnerabilities in the service), we
+                recommend to have as few such publicly accessible services as possible.
+            {% endtrans %}
+        </p>
+        <p>
+            {% trans trimmed %}
+                If remote access is needed, we recommend using a VPN with two factor authentication.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

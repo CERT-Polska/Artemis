@@ -1,6 +1,6 @@
 import functools
 import urllib.parse
-from socket import gethostbyname, getservbyname, getservbyport
+from socket import getservbyname, getservbyport
 from typing import Any, Dict
 
 from karton.core import Task
@@ -48,13 +48,6 @@ def get_port_from_url(url: str) -> int:
     if not port:
         return getservbyname(url_parsed.scheme)
     return port
-
-
-@functools.lru_cache(maxsize=8192)
-def cached_gethostbyname(host: str) -> str:
-    """Please keep in mind that the requests will not be proxied
-    and will leak information about what you are testing."""
-    return gethostbyname(host)
 
 
 def add_port_to_url(url: str) -> str:

@@ -1,5 +1,4 @@
 import os
-import socket
 from typing import Any, Dict, List
 
 from artemis.reporting.base.language import Language
@@ -7,7 +6,8 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
-from artemis.reporting.utils import cached_gethostbyname, get_top_level_target
+from artemis.reporting.utils import get_top_level_target
+from artemis.resolvers import IPResolutionException, ip_lookup
 
 
 class MySQLBruterReporter(Reporter):
@@ -25,8 +25,12 @@ class MySQLBruterReporter(Reporter):
             return []
 
         try:
-            ip_address = cached_gethostbyname(task_result["payload"]["host"])
-        except socket.gaierror:
+            ips = list(ip_lookup(task_result["payload"]["host"]))
+            if ips:
+                ip_address = ips[0]
+            else:
+                ip_address = None
+        except IPResolutionException:
             return []
 
         return [

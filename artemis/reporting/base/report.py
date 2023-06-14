@@ -1,12 +1,11 @@
 import copy
 import datetime
-import socket
 import urllib.parse
 import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from artemis.reporting.utils import cached_gethostbyname
+from artemis.resolvers import IPResolutionException, ip_lookup
 from artemis.utils import get_host_from_url, is_ip_address
 
 from .normal_form import NormalForm
@@ -54,8 +53,9 @@ class Report:
                     self.target_ip = host
                 else:
                     try:
-                        self.target_ip = cached_gethostbyname(host)
-                    except socket.gaierror:
+                        ips = list(ip_lookup(host))
+                        self.target_ip = ips[0] if ips else None
+                    except IPResolutionException:
                         self.target_ip = None
             self.target_ip_checked = True
 

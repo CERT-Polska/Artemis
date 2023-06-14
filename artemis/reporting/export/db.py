@@ -14,7 +14,7 @@ from artemis.reporting.blocklist import BlocklistItem, filter_blocklist
 from artemis.reporting.utils import get_top_level_target
 
 
-class ExportDBConnector:
+class DataLoader:
     """
     A wrapper around DB that loads data and converts them to Reports.
     """
@@ -61,7 +61,7 @@ class ExportDBConnector:
             if top_level_target:
                 self._scanned_top_level_targets.add(top_level_target)
 
-            self._scanned_targets.add(ExportDBConnector._get_domain_or_ip_only(task_result["target_string"]))
+            self._scanned_targets.add(DataLoader._get_domain_or_ip_only(task_result["target_string"]))
             reports_to_add = reports_from_task_result(task_result, self._language)
             self._reports.extend(filter_blocklist(reports_to_add, self._blocklist))
         self._data_initialized = True

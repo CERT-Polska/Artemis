@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
-from artemis.reporting.export.db import ExportDBConnector
+from artemis.reporting.export.db import DataLoader
 from artemis.reporting.export.deduplication import (
     deduplicate_ip_vs_domain_versions,
     deduplicate_reports,
@@ -35,7 +35,7 @@ class ExportData:
 def build_export_data(
     previous_reports: List[Report],
     tag: Optional[str],
-    db: ExportDBConnector,
+    db: DataLoader,
     custom_template_arguments_parsed: Dict[str, str],
 ) -> ExportData:
     reports = deduplicate_reports(previous_reports, db.reports)

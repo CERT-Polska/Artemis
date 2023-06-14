@@ -18,7 +18,7 @@ from artemis.reporting.export.common import OUTPUT_LOCATION
 from artemis.reporting.export.custom_template_arguments import (
     parse_custom_template_arguments,
 )
-from artemis.reporting.export.db import ExportDBConnector
+from artemis.reporting.export.db import DataLoader
 from artemis.reporting.export.export_data import ExportData, build_export_data
 from artemis.reporting.export.long_unseen_report_types import (
     print_long_unseen_report_types,
@@ -117,7 +117,7 @@ def main(
 
     custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
     db = DB()
-    export_db_connector = ExportDBConnector(db, blocklist, language, tag)
+    export_db_connector = DataLoader(db, blocklist, language, tag)
     export_data = build_export_data(previous_reports, tag, export_db_connector, custom_template_arguments_parsed)
 
     date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")

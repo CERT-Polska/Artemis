@@ -1,3 +1,4 @@
+import socket
 import urllib.parse
 from typing import Tuple
 
@@ -28,12 +29,7 @@ def get_url_normal_form(url: str) -> str:
     port = url_parsed.port
 
     if not port:
-        if url_parsed.scheme == "http":
-            port = 80
-        elif url_parsed.scheme == "https":
-            port = 443
-        else:
-            raise NotImplementedError()
+        port = socket.getservbyname(url_parsed.scheme)
 
     hostname = get_domain_normal_form(url_parsed.hostname)
 

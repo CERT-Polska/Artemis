@@ -40,5 +40,3 @@ typer==0.7.0
 typing-extensions==4.6.3
 urllib3==1.26.16
 uvicorn==0.22.0
-# Using Github tag until 0.21.1 gets uploaded to PyPi
-git+https://github.com/python-validators/validators.git@0.21.1

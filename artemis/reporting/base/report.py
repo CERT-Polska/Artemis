@@ -6,8 +6,6 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-import validators
-
 from artemis.reporting.utils import cached_gethostbyname
 from artemis.utils import get_host_from_url, is_ip_address
 
@@ -80,11 +78,18 @@ class Report:
             return is_ip_address(self.target)
 
     def target_is_url(self) -> bool:
-        return validators.url(self.target, simple_host=True)  # type: ignore
+        try:
+            result = urllib.parse.urlparse(self.target)
+            return all([result.scheme, result.netloc])
+        except ValueError:
+            return False
 
     def target_is_domain(self) -> bool:
-        # We don't use validators.domain() as it doesn't allow simple hostnames (without dots)
-        return validators.hostname(self.target, maybe_simple=True, may_have_port=False, skip_ipv6_addr=True, skip_ipv4_addr=True)  # type: ignore
+        if self.target_is_url():
+            return False
+
+        assert ":" not in self.target
+        return True
 
     def alternative_with_ip_address(self) -> Optional["Report"]:
         """If a report is about a URL where the host is a domain, not an IP, returns a version of this report

@@ -44,6 +44,9 @@ class Report:
     is_subsequent_reminder: bool = False
 
     def __post_init__(self) -> None:
+        # Sanity check - at this moment, only URLs and domains are supported
+        assert self.target_is_url() or self.target_is_domain()
+
         if not self.target_ip_checked:
             # If something doesn't have :// it's a domain so let's skip obtaining IP as domain-related vulnerabilities
             # (e.g. zone transfer or DMARC problems) don't have sensible IP versions.
@@ -77,12 +80,11 @@ class Report:
             return is_ip_address(self.target)
 
     def target_is_url(self) -> bool:
-        assert validators.url(self.target) or validators.domain(self.target)
-        return validators.url(self.target)  # type: ignore
+        return validators.url(self.target, simple_host=True)  # type: ignore
 
     def target_is_domain(self) -> bool:
-        assert validators.url(self.target) or validators.domain(self.target)
-        return validators.domain(self.target)  # type: ignore
+        # We don't use validators.domain() as it doesn't allow simple hostnames (without dots)
+        return validators.hostname(self.target, maybe_simple=True, may_have_port=False, skip_ipv6_addr=True, skip_ipv4_addr=True)  # type: ignore
 
     def alternative_with_ip_address(self) -> Optional["Report"]:
         """If a report is about a URL where the host is a domain, not an IP, returns a version of this report

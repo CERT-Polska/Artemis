@@ -111,7 +111,7 @@ def main(
     blocklist = load_blocklist(blocklist_file)
 
     if previous_reports_directory:
-        previous_reports = load_previous_reports(Path(HOST_ROOT_PATH) / previous_reports_directory)
+        previous_reports = load_previous_reports(Path(HOST_ROOT_PATH) / str(previous_reports_directory).lstrip(os.sep))
     else:
         previous_reports = []
 

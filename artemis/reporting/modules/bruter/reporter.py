@@ -99,42 +99,42 @@ class BruterReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_password_file.jinja2"), 10
+                os.path.join(os.path.dirname(__file__), "template_exposed_password_file.jinja2"), priority=10
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_sql_dump.jinja2"), 10
+                os.path.join(os.path.dirname(__file__), "template_exposed_sql_dump.jinja2"), priority=10
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_keys.jinja2"), 10
+                os.path.join(os.path.dirname(__file__), "template_exposed_keys.jinja2"), priority=10
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_configuration_file.jinja2"), 10
+                os.path.join(os.path.dirname(__file__), "template_exposed_configuration_file.jinja2"), priority=10
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_archive.jinja2"), 7
+                os.path.join(os.path.dirname(__file__), "template_exposed_archive.jinja2"), priority=7
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_dead_letter.jinja2"), 7
+                os.path.join(os.path.dirname(__file__), "template_exposed_dead_letter.jinja2"), priority=7
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_log_file.jinja2"), 5
+                os.path.join(os.path.dirname(__file__), "template_exposed_log_file.jinja2"), priority=5
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_http_server_info_status.jinja2"), 5
+                os.path.join(os.path.dirname(__file__), "template_exposed_http_server_info_status.jinja2"), priority=5
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_file_with_listing.jinja2"), 4
+                os.path.join(os.path.dirname(__file__), "template_exposed_file_with_listing.jinja2"), priority=4
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_php_source.jinja2"), 4
+                os.path.join(os.path.dirname(__file__), "template_exposed_php_source.jinja2"), priority=4
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_php_var_dump.jinja2"), 4
+                os.path.join(os.path.dirname(__file__), "template_exposed_php_var_dump.jinja2"), priority=4
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_bash_history.jinja2"), 4
+                os.path.join(os.path.dirname(__file__), "template_exposed_bash_history.jinja2"), priority=4
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_phpinfo.jinja2"), 3
+                os.path.join(os.path.dirname(__file__), "template_exposed_phpinfo.jinja2"), priority=3
             ),
         ]

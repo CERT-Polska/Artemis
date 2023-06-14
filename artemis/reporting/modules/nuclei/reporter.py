@@ -105,10 +105,10 @@ class NucleiReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_nuclei_vulnerability.jinja2"), 10
+                os.path.join(os.path.dirname(__file__), "template_nuclei_vulnerability.jinja2"), priority=10
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_nuclei_exposed_panel.jinja2"), 0
+                os.path.join(os.path.dirname(__file__), "template_nuclei_exposed_panel.jinja2"), priority=0
             ),
         ]
 

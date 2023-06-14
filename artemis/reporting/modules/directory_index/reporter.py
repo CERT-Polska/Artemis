@@ -52,7 +52,7 @@ class DirectoryIndexReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_directory_index.jinja2"), 4
+                os.path.join(os.path.dirname(__file__), "template_directory_index.jinja2"), priority=4
             ),
         ]
 

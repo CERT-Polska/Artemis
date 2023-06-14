@@ -48,10 +48,10 @@ class WPScannerReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_insecure_wordpress.jinja2"), 10
+                os.path.join(os.path.dirname(__file__), "template_insecure_wordpress.jinja2"), priority=10
             ),
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_old_wordpress.jinja2"), 3
+                os.path.join(os.path.dirname(__file__), "template_old_wordpress.jinja2"), priority=3
             ),
         ]
 

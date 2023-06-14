@@ -57,7 +57,7 @@ class DNSScannerReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_zone_transfer_possible.jinja2"), 5
+                os.path.join(os.path.dirname(__file__), "template_zone_transfer_possible.jinja2"), priority=5
             ),
         ]
 

@@ -43,6 +43,7 @@ class MySQLBruterReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_database_with_easy_password.jinja2"), 8
+                os.path.join(os.path.dirname(__file__), "template_exposed_database_with_easy_password.jinja2"),
+                priority=8,
             ),
         ]

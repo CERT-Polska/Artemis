@@ -207,12 +207,12 @@ class VCSReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_version_control_folder.jinja2"), 7
+                os.path.join(os.path.dirname(__file__), "template_exposed_version_control_folder.jinja2"), priority=7
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(
                     os.path.dirname(__file__), "template_exposed_version_control_folder_with_credentials.jinja2"
                 ),
-                8,
+                priority=8,
             ),
         ]

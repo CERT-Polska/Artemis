@@ -20,5 +20,5 @@ def is_subdomain(candidate: str, parent_domain: str, allow_equal: bool = True) -
     if not candidate.endswith(parent_domain):
         return False
 
-    tmp = candidate[-len(parent_domain) :]
+    tmp = candidate[: -len(parent_domain)]
     return tmp.endswith(".") and len(tmp) > 1

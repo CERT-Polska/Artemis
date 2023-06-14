@@ -20,11 +20,11 @@ msgstr ""
 
 #: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:21
 msgid ""
-"If remote access is needed, we recommend using a VPN with two factor "
-"authentication."
+"We recommend that such resources are only available in an internal "
+"network, using a VPN or from a restricted set of IP addresses."
 msgstr ""
-"Jeśli potrzebny jest dostęp zdalny, rekomendujemy wykorzystanie VPN z "
-"dwuskładnikowym uwierzytelnianiem."
+"Rekomendujemy, aby takie zasoby były dostępne tylko w sieci wewnętrznej, "
+"za pomocą VPN lub z ograniczonej puli adresów IP."
 
 #: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:9
 msgid "The vulnerability was identified on:"

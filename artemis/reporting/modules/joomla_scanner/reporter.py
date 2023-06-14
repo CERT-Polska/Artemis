@@ -42,13 +42,6 @@ class JoomlaScannerReporter(Reporter):
         ]
 
     @staticmethod
-    def get_scoring_rules() -> Dict[ReportType, Callable[[Report], List[int]]]:
-        """See the docstring in the parent class."""
-        return {
-            JoomlaScannerReporter.OLD_JOOMLA: Reporter.default_scoring_rule,
-        }
-
-    @staticmethod
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """See the docstring in the Reporter class."""
         return {

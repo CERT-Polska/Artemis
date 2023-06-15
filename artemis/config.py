@@ -156,8 +156,19 @@ class Config:
                 "exposures/files/travis-ci-disclosure.yaml",
                 "http/exposures/files/travis-ci-disclosure.yaml",
                 # at CERT.PL we don't report exposed wp-login.php, as it's too common - feel free to make
-                # a different decision
+                # a different decision. Same for other common CMS panels.
                 "http/exposed-panels/wordpress-login.yaml",
+                "http/exposed-panels/joomla-panel.yaml",
+                "http/exposed-panels/liferay-portal.yaml",
+                # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
+                # make different decision.
+                "http/exposed-panels/squirrelmail-login.yaml",
+                "http/exposed-panels/horde-webmail-login.yaml",
+                "http/exposed-panels/horde-login-panel.yaml",
+                # These are Tomcat docs, not application docs
+                "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml"
+                # Too small impact to report
+                "http/exposed-panels/webeditors-check-detect.yaml",
             ]
         ),
         cast=decouple.Csv(str),

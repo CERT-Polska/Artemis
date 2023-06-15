@@ -45,7 +45,7 @@ class Report:
         assert self.target_is_url() or self.target_is_domain()
 
         if not self.target_ip_checked:
-            # If something doesn't have :// it's a domain so let's skip obtaining IP as domain-related vulnerabilities
+            # If something is a domain let's skip obtaining IP as domain-related vulnerabilities
             # (e.g. zone transfer or DMARC problems) don't have sensible IP versions.
             if self.target_is_url():
                 host = get_host_from_url(self.target)

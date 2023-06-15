@@ -1,5 +1,5 @@
 {% if "nuclei_exposed_panel" in data.contains_type %}
-    <li>{% trans %}The following addresses contain login panels, analytics services, management panels, documentation etc.:{% endtrans %}
+    <li>{% trans %}The following addresses contain login panels, analytics services, management panels etc.:{% endtrans %}
         <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "nuclei_exposed_panel" %}

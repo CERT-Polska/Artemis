@@ -303,7 +303,12 @@ TRANSLATIONS = {
     "Joomla! CMS 3.0.0 through the 3.4.6 release contains an unauthenticated PHP object injection that leads to remote code execution.": "System Joomla w wersji od 3.0.0 do 3.4.6 zawiera podatność PHP Object Injection, która może doprowadzić do zdalnego wykonania kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Openfire is an XMPP server licensed under the Open Source Apache License. Openfire's administrative console, a web-based application, was found to be vulnerable to a path traversal attack via the setup environment. This permitted an unauthenticated user to use the unauthenticated Openfire Setup Environment in an already configured Openfire environment to access restricted pages in the Openfire Admin Console reserved for administrative users. This vulnerability affects all versions of Openfire that have been released since April 2015, starting with version 3.10.0.": "Wykryto, że narzędzie Openfire zawiera podatność Path Traversal, umożliwiającą nieuprawniony dostęp do podstron zarezerwowanych dla administratorów."
+    + UPDATE_HINT,
     "[no description] http/misconfiguration/installer/owncloud-installer-exposure.yaml": "Wykryto, że instalator narzędzia ownCloud jest publicznie dostępny, co umożliwia atakującemu rejestrację jako administrator. Rekomendujemy, aby takie zasoby nie były publicznie dostępne.",
-    "phpMyAdmin panel was detected.": "wykryto panel phpMyAdmin.",
-    "WordPress login panel was detected.": "wykryto panel logowania WordPress.",
+    "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
+    "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
+    "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
+    "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",
+    "An Adminer login panel was detected.": "wykryto panel logowania narzędzia Adminer.",
 }

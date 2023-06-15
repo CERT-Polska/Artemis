@@ -46,4 +46,5 @@ SEVERITY_MAP = {
     ReportType("no_https_redirect"): Severity.LOW,
     ReportType("exposed_php_var_dump"): Severity.LOW,
     ReportType("exposed_phpinfo"): Severity.LOW,
+    ReportType("nuclei_exposed_panel"): Severity.LOW,
 }

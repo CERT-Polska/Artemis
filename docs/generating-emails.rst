@@ -34,5 +34,7 @@ do that, use the ``--blocklist BLOCKLIST_FILE`` option. The blocklist file is a 
       report_type: null (which will block all reports) or a string containing
          the type of reports that will be blocked (e.g. "misconfigured_email")
 
+There may be multiple entries in a blocklist file, each with syntax described above.
+
 .. [1] Besides the messages, the script will also produce a JSON file with vulnerability data, a jinja2 template and
     .po translation file - using these three files you can build the messages yourself.

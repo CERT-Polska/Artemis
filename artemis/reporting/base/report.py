@@ -104,8 +104,9 @@ class Report:
             report = copy.deepcopy(self)
             target_parsed = urllib.parse.urlparse(self.target)
             target_parsed_dict = target_parsed._asdict()
-            assert target_parsed.port is not None
-            target_parsed_dict["netloc"] = self.target_ip + ":" + str(target_parsed.port)
+            target_parsed_dict["netloc"] = self.target_ip + (
+                (":" + str(target_parsed.port)) if target_parsed.port else ""
+            )
             report.target = urllib.parse.urlunparse(urllib.parse.ParseResult(**target_parsed_dict))
             return report
         return None

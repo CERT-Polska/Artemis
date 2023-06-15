@@ -155,7 +155,7 @@ class Config:
                 # caused multiple FPs: travis configuration file provided by a framework without much interesting information
                 "exposures/files/travis-ci-disclosure.yaml",
                 "http/exposures/files/travis-ci-disclosure.yaml",
-                # at CERT PL we don't report exposed wp-login.php, as it's too common - feel free to make
+                # at CERT.PL we don't report exposed wp-login.php, as it's too common - feel free to make
                 # a different decision
                 "http/exposed-panels/wordpress-login.yaml",
             ]

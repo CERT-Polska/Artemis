@@ -8,7 +8,7 @@ from karton.core import Task
 from artemis import http_requests, task_utils
 
 
-def get_target(task_result: Dict[str, Any]) -> str:
+def get_target_url(task_result: Dict[str, Any]) -> str:
     """Returns a string representation of the target that has been scanned."""
     return task_utils.get_target_url(Task(headers=task_result["headers"], payload=task_result["payload"]))
 

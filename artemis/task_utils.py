@@ -1,9 +1,11 @@
+import urllib
+
 from karton.core import Task
 
 from artemis.binds import Service, TaskType
 
 
-def get_target(task: Task) -> str:
+def get_target_host(task: Task) -> str:
     task_type = task.headers["type"]
 
     if task_type == TaskType.SERVICE:
@@ -21,7 +23,18 @@ def get_target(task: Task) -> str:
         assert isinstance(payload, str)
         return payload
 
-    raise ValueError("Unknown target found")
+    if task_type == TaskType.WEBAPP or task_type == TaskType.URL:
+        url = task.get_payload("url")
+        hostname = urllib.parse.urlparse(url).hostname
+        assert isinstance(hostname, str)
+        return hostname
+
+    if task_type == TaskType.NEW:
+        payload = task.get_payload("data")
+        assert isinstance(payload, str)
+        return payload
+
+    raise ValueError(f"Unknown target found: {task_type}")
 
 
 def get_target_url(task: Task) -> str:
@@ -34,7 +47,7 @@ def get_target_url(task: Task) -> str:
     if task.headers["service"] != Service.HTTP:
         raise NotImplementedError
 
-    target = get_target(task)
+    target = get_target_host(task)
     port = task.get_payload("port")
     protocol = "http"
     if task.get_payload("ssl"):

@@ -1,8 +1,8 @@
 import datetime
-import urllib
 from collections import defaultdict
-from typing import DefaultDict, Dict, List, Optional, Set
+from typing import Any, DefaultDict, Dict, List, Optional, Set
 
+from karton.core import Task
 from tqdm import tqdm
 
 from artemis.config import Config
@@ -12,6 +12,7 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.reporters import reports_from_task_result
 from artemis.reporting.blocklist import BlocklistItem, filter_blocklist
 from artemis.reporting.utils import get_top_level_target
+from artemis.task_utils import get_target_host
 
 
 class DataLoader:
@@ -61,7 +62,7 @@ class DataLoader:
             if top_level_target:
                 self._scanned_top_level_targets.add(top_level_target)
 
-            self._scanned_targets.add(DataLoader._get_domain_or_ip_only(task_result["target_string"]))
+            self._scanned_targets.add(DataLoader._get_target_host(task_result))
             reports_to_add = reports_from_task_result(task_result, self._language)
             self._reports.extend(filter_blocklist(reports_to_add, self._blocklist))
         self._data_initialized = True
@@ -87,16 +88,6 @@ class DataLoader:
         return self._tag_stats
 
     @staticmethod
-    def _get_domain_or_ip_only(data: str) -> str:
-        """Extracts domain/ip from URL or host:port string."""
-        if "://" in data:
-            host = urllib.parse.urlparse(data).hostname
-            if not host:
-                raise ValueError(f"No hostname in {data}")
-            return host
-        if ":" in data:
-            host = urllib.parse.urlparse("//" + data).hostname
-            if not host:
-                raise ValueError(f"No hostname in {data}")
-            return host
-        return data
+    def _get_target_host(data: Dict[str, Any]) -> str:
+        """Extracts domain/ip from task."""
+        return get_target_host(Task(headers=data["headers"], payload=data["payload"]))

@@ -11,7 +11,7 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
-from artemis.reporting.utils import cached_get, get_target, get_top_level_target
+from artemis.reporting.utils import cached_get, get_target_url, get_top_level_target
 
 logger = utils.build_logger(__name__)
 
@@ -42,7 +42,7 @@ class VCSReporter(Reporter):
 
     @staticmethod
     def _create_reports_svn(task_result: Dict[str, Any], language: Language) -> List[Report]:
-        repo_url = urllib.parse.urljoin(get_target(task_result), ".svn/")
+        repo_url = urllib.parse.urljoin(get_target_url(task_result), ".svn/")
 
         db_url = urllib.parse.urljoin(repo_url, "wc.db")
 
@@ -108,7 +108,7 @@ class VCSReporter(Reporter):
 
     @staticmethod
     def _create_reports_git(task_result: Dict[str, Any], language: Language) -> List[Report]:
-        repo_url = urllib.parse.urljoin(get_target(task_result), ".git/")
+        repo_url = urllib.parse.urljoin(get_target_url(task_result), ".git/")
         config_url = urllib.parse.urljoin(repo_url, "config")
 
         logger.info("Analysing Git folder in %s", repo_url)

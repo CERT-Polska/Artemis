@@ -7,7 +7,7 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
-from artemis.reporting.utils import get_target, get_top_level_target
+from artemis.reporting.utils import get_target_url, get_top_level_target
 
 
 class JoomlaScannerReporter(Reporter):
@@ -25,7 +25,7 @@ class JoomlaScannerReporter(Reporter):
             return [
                 Report(
                     top_level_target=get_top_level_target(task_result),
-                    target=get_target(task_result),
+                    target=get_target_url(task_result),
                     report_type=JoomlaScannerReporter.OLD_JOOMLA,
                     additional_data={"version": task_result["result"]["joomla_version"]},
                     timestamp=task_result["created_at"],

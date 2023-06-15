@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.common_sql_credentials import COMMON_SQL_CREDENTIALS
-from artemis.task_utils import get_target
+from artemis.task_utils import get_target_host
 from artemis.utils import throttle_request
 
 BRUTE_CREDENTIALS = COMMON_SQL_CREDENTIALS + [
@@ -32,7 +32,7 @@ class PostgreSQLBruter(ArtemisBase):
     ]
 
     def run(self, current_task: Task) -> None:
-        host = get_target(current_task)
+        host = get_target_host(current_task)
         port = current_task.get_payload("port")
 
         result = PostgreSQLBruterResult()

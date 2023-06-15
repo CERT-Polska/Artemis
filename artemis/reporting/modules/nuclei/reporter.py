@@ -13,7 +13,7 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.exceptions import TranslationNotFoundException
 from artemis.reporting.utils import (
     add_protocol_if_needed,
-    get_target,
+    get_target_url,
     get_top_level_target,
 )
 from artemis.utils import get_host_from_url
@@ -51,7 +51,7 @@ class NucleiReporter(Reporter):
             else:
                 description = "[no description] " + vulnerability["template"]
 
-            target = get_target(task_result)
+            target = get_target_url(task_result)
 
             if vulnerability["template"].startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
                 result.append(

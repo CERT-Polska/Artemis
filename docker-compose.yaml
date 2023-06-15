@@ -38,7 +38,7 @@ services:
       - /:/host-root/:ro
       - ./output/autoreporter/:/opt/output/autoreporter
       - ./docker/karton.ini:/etc/karton/karton.ini
-    command: "false"
+    profiles: ["autoreporter"]  # This will prevent the service from starting by default
 
   karton-system:
     command: ["--setup-bucket"]

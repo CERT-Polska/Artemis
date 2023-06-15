@@ -11,5 +11,5 @@ for DOCKER_COMPOSE_FILE in */docker-compose.yml; do
 done
 
 
-docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS up --build autoreporter
+docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS build autoreporter
 docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS run autoreporter python3 -m artemis.reporting.export.main "$@"

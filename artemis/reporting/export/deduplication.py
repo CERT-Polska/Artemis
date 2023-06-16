@@ -38,7 +38,33 @@ class ReportsByNormalForms:
         )
 
 
-def deduplicate_ip_vs_domain_versions(previous_reports: List[Report], reports_to_send: List[Report]) -> List[Report]:
+def deduplicate_reports(previous_reports: List[Report], reports_to_send: List[Report]) -> List[Report]:
+    previous_reports_by_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
+    for report in previous_reports:
+        report_normal_form = report.get_normal_form()
+        previous_reports_by_normal_forms[report_normal_form].append(report)
+
+    reports_scoring_dict = {}
+    for report in reports_to_send:
+        report_normal_form = report.get_normal_form()
+
+        if report_normal_form in previous_reports_by_normal_forms:
+            if _all_reports_are_old(previous_reports_by_normal_forms[report_normal_form]):
+                reports_scoring_dict[report_normal_form] = _build_subsequent_reminder(
+                    report,
+                )
+            continue
+
+        if report_normal_form not in reports_scoring_dict:
+            reports_scoring_dict[report_normal_form] = report
+        elif reports_scoring_dict[report_normal_form].get_score() < report.get_score():
+            reports_scoring_dict[report_normal_form] = report
+
+    reports = list(reports_scoring_dict.values())
+    return _deduplicate_ip_vs_domains(previous_reports, reports)
+
+
+def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: List[Report]) -> List[Report]:
     """Skips reports if:
 
     - a vulnerability is on a URL with an IP and an identical report for a domain with this IP has
@@ -88,31 +114,6 @@ def deduplicate_ip_vs_domain_versions(previous_reports: List[Report], reports_to
             _process_non_ip_report(report)
 
     return filtered_reports
-
-
-def deduplicate_reports(previous_reports: List[Report], reports_to_send: List[Report]) -> List[Report]:
-    previous_reports_by_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
-    for report in previous_reports:
-        report_normal_form = report.get_normal_form()
-        previous_reports_by_normal_forms[report_normal_form].append(report)
-
-    reports_scoring_dict = {}
-    for report in reports_to_send:
-        report_normal_form = report.get_normal_form()
-
-        if report_normal_form in previous_reports_by_normal_forms:
-            if _all_reports_are_old(previous_reports_by_normal_forms[report_normal_form]):
-                reports_scoring_dict[report_normal_form] = _build_subsequent_reminder(
-                    report,
-                )
-            continue
-
-        if report_normal_form not in reports_scoring_dict:
-            reports_scoring_dict[report_normal_form] = report
-        elif reports_scoring_dict[report_normal_form].get_score() < report.get_score():
-            reports_scoring_dict[report_normal_form] = report
-
-    return list(reports_scoring_dict.values())
 
 
 def _all_reports_are_old(reports: List[Report]) -> bool:

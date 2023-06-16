@@ -12,19 +12,30 @@ from artemis.reporting.severity import SEVERITY_MAP, Severity
 
 @dataclasses.dataclass
 class ReportsByNormalForms:
-    by_ip_normal_forms: DefaultDict[NormalForm, List[Report]]
     by_normal_forms: DefaultDict[NormalForm, List[Report]]
+
+    # If a report is about a URL where the host is a domain, not an IP, by_alternative_ip_normal_forms
+    # will contain the normal form of a version of this report where the domain is replaced with an IP.
+
+    # Such an alternative vulnerability doesn't necessairly have to exist. There is plenty of cases
+    # where vulnerability exists only by domain, not by IP. The purpose of this method is to return a
+    # potential IP version for deduplication.
+    by_alternative_ip_normal_forms: DefaultDict[NormalForm, List[Report]]
 
     @staticmethod
     def from_reports(reports: List[Report]) -> "ReportsByNormalForms":
-        by_ip_normal_forms: DefaultDict[NormalForm, List[Report]] = collections.defaultdict(list)
+        by_alternative_ip_normal_forms: DefaultDict[NormalForm, List[Report]] = collections.defaultdict(list)
         by_normal_forms: DefaultDict[NormalForm, List[Report]] = collections.defaultdict(list)
         for report in reports:
             by_normal_forms[report.get_normal_form()].append(report)
             alternative_with_ip_address = report.alternative_with_ip_address()
             if alternative_with_ip_address:
-                by_ip_normal_forms[alternative_with_ip_address.get_normal_form()].append(alternative_with_ip_address)
-        return ReportsByNormalForms(by_normal_forms=by_normal_forms, by_ip_normal_forms=by_ip_normal_forms)
+                by_alternative_ip_normal_forms[alternative_with_ip_address.get_normal_form()].append(
+                    alternative_with_ip_address
+                )
+        return ReportsByNormalForms(
+            by_normal_forms=by_normal_forms, by_alternative_ip_normal_forms=by_alternative_ip_normal_forms
+        )
 
 
 def deduplicate_ip_vs_domain_versions(previous_reports: List[Report], reports_to_send: List[Report]) -> List[Report]:
@@ -42,19 +53,21 @@ def deduplicate_ip_vs_domain_versions(previous_reports: List[Report], reports_to
     reports_normalized = ReportsByNormalForms.from_reports(reports_to_send)
     filtered_reports: List[Report] = []
 
-    def _decide_about_ip_report(processed_report: Report) -> None:
-        # This is an ip-converted version of an existing report
-        if processed_report.get_normal_form() in previous_reports_normalized.by_ip_normal_forms:
-            if _all_reports_are_old(previous_reports_normalized.by_ip_normal_forms[processed_report.get_normal_form()]):
+    def _process_ip_report(processed_report: Report) -> None:
+        if processed_report.get_normal_form() in previous_reports_normalized.by_alternative_ip_normal_forms:
+            # This is an ip-converted version of an existing report
+            if _all_reports_are_old(
+                previous_reports_normalized.by_alternative_ip_normal_forms[processed_report.get_normal_form()]
+            ):
                 filtered_reports.append(_build_subsequent_reminder(processed_report))
             return
 
-        # This is an IP report, but we have a non-ip version to send
-        if processed_report.get_normal_form() in reports_normalized.by_ip_normal_forms:
+        if processed_report.get_normal_form() in reports_normalized.by_alternative_ip_normal_forms:
+            # This is an IP report, but we have a non-ip version to send
             return
         filtered_reports.append(processed_report)
 
-    def _decide_about_non_ip_report(processed_report: Report) -> None:
+    def _process_non_ip_report(processed_report: Report) -> None:
         alternative_with_ip_address = processed_report.alternative_with_ip_address()
         if (
             alternative_with_ip_address
@@ -70,9 +83,9 @@ def deduplicate_ip_vs_domain_versions(previous_reports: List[Report], reports_to
 
     for report in reports_to_send:
         if report.target_is_ip_address():
-            _decide_about_ip_report(report)
+            _process_ip_report(report)
         else:
-            _decide_about_non_ip_report(report)
+            _process_non_ip_report(report)
 
     return filtered_reports
 

@@ -68,6 +68,7 @@ def _dump_export_data_and_print_path(export_data: ExportData, date_str: str) -> 
 
 def _build_messages_and_print_path(message_template: Template, export_data: ExportData, date_str: str) -> None:
     output_messages_directory_name = os.path.join(OUTPUT_LOCATION, "messages_" + date_str)
+
     # We dump and reload the message data to/from JSON before rendering in order to make sure the template
     # will receive precisely the same type of objects (e.g. str instead of datetime) as the downstream tasks
     # that will work with the JSON and the templates. This allows us to catch some bugs earlier.
@@ -84,13 +85,13 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
 def main(
     previous_reports_directory: Path = typer.Argument(
         ...,
-        help="The directory where JSON files from previous exports "
-        "reside. This is to prevent the same (or similar) bug to be reported multiple times.",
+        help="The directory where JSON files from previous exports reside. This is to prevent the same (or similar) "
+        "bug to be reported multiple times.",
     ),
     tag: Optional[str] = typer.Option(
         None,
-        help="Allows you to filter by the tag you provided when adding targets "
-        "to be scanned. Only vulnerabilities from targets with this tag will be exported.",
+        help="Allows you to filter by the tag you provided when adding targets to be scanned. Only vulnerabilities "
+        "from targets with this tag will be exported.",
     ),
     language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),
     custom_template_arguments: str = typer.Option(
@@ -98,8 +99,8 @@ def main(
     ),
     blocklist_file: Optional[str] = typer.Option(
         None,
-        help="Filter vulnerabilities from being included in the messages "
-        '(this doesn\'t influence the scanning). Please refer to the "Generating e-mails" chapter of the web documentation '
+        help="Filter vulnerabilities from being included in the messages (this doesn't influence the scanning). "
+        'Please refer to the "Generating e-mails" chapter of the web documentation '
         "for the syntax of the file.",
     ),
     verbose: bool = typer.Option(

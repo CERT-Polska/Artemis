@@ -51,8 +51,6 @@ class NucleiReporter(Reporter):
             else:
                 description = "[no description] " + vulnerability["template"]
 
-            target = get_target_url(task_result)
-
             if vulnerability["template"].startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
                 result.append(
                     Report(
@@ -70,6 +68,8 @@ class NucleiReporter(Reporter):
                     )
                 )
             else:
+                target = get_target_url(task_result)
+
                 # Sometimes matched_at differs from the target: has the same host, but different port. This happens e.g.
                 # when an unsecured Redis instance has been found (in that case, the port is 6379).
                 #

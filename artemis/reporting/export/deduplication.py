@@ -18,7 +18,7 @@ class ReportsByNormalForms:
     # will contain the normal form of a version of this report where the domain is replaced with an IP.
 
     # Such an alternative vulnerability doesn't necessairly have to exist. There is plenty of cases
-    # where vulnerability exists only by domain, not by IP. The purpose of this method is to return a
+    # where vulnerability exists only by domain, not by IP. The purpose of this dictionary is to contain
     # potential IP version for deduplication.
     by_alternative_ip_normal_forms: DefaultDict[NormalForm, List[Report]]
 

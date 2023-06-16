@@ -132,8 +132,8 @@ def main(
         print_long_unseen_report_types(previous_reports + export_db_connector.reports)
 
         print("Available tags (and the counts of raw task results - not to be confused with vulnerabilities):")
-        for tag in sorted(export_db_connector.tag_stats.keys()):
-            print(f"\t{tag}: {export_db_connector.tag_stats[tag]}")
+        for tag in sorted([key if key else "" for key in export_db_connector.tag_stats.keys()]):
+            print(f"\t{tag if tag else 'Empty tag'}: {export_db_connector.tag_stats[tag if tag else None]}")  # type: ignore
 
     _build_messages_and_print_path(message_template, export_data, date_str)
 

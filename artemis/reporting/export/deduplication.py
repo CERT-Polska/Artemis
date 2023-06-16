@@ -2,7 +2,7 @@ import collections
 import copy
 import dataclasses
 import datetime
-from typing import Any, DefaultDict, List
+from typing import DefaultDict, List
 
 from artemis.config import Config
 from artemis.reporting.base.normal_form import NormalForm
@@ -39,17 +39,14 @@ class ReportsByNormalForms:
 
 
 def deduplicate_reports(previous_reports: List[Report], reports_to_send: List[Report]) -> List[Report]:
-    previous_reports_by_normal_forms: DefaultDict[Any, Any] = collections.defaultdict(list)
-    for report in previous_reports:
-        report_normal_form = report.get_normal_form()
-        previous_reports_by_normal_forms[report_normal_form].append(report)
+    previous_reports_normalized = ReportsByNormalForms.from_reports(previous_reports)
 
     reports_scoring_dict = {}
     for report in reports_to_send:
         report_normal_form = report.get_normal_form()
 
-        if report_normal_form in previous_reports_by_normal_forms:
-            if _all_reports_are_old(previous_reports_by_normal_forms[report_normal_form]):
+        if report_normal_form in previous_reports_normalized.by_normal_forms:
+            if _all_reports_are_old(previous_reports_normalized.by_normal_forms[report_normal_form]):
                 reports_scoring_dict[report_normal_form] = _build_subsequent_reminder(
                     report,
                 )

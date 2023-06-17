@@ -18,6 +18,17 @@ To start Artemis simply execute following 2 commands in your terminal:
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 
+**You can also add additional Artemis modules from** https://github.com/CERT-Polska/Artemis-modules-extra/ -
+these modules haven't been included in core due to licensing reasons, but provide additional features such
+as e.g. SSL verification (certificate validity, proper redirect, etc.) or modules that check for subdomain takeover or
+SQL injection vulnerabilities. To do that, clone https://github.com/CERT-Polska/Artemis-modules-extra/ inside
+the Artemis directory and use:
+
+.. code-block:: console
+
+  docker compose -f docker-compose.yaml -f Artemis-modules-extra/docker-compose.yml up --build
+
+
 **If you want to start multiple instances of a module to speed up scanning, use a command such as:**
 
 .. code-block:: console

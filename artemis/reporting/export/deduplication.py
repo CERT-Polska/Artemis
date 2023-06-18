@@ -12,30 +12,29 @@ from artemis.reporting.severity import SEVERITY_MAP, Severity
 
 @dataclasses.dataclass
 class ReportsByNormalForms:
-    normal_forms_to_reports: DefaultDict[NormalForm, List[Report]]
+    by_normal_forms: DefaultDict[NormalForm, List[Report]]
 
-    # If a report is about a URL where the host is a domain, not an IP, alternative_ip_normal_forms_to_reports
+    # If a report is about a URL where the host is a domain, not an IP, by_alternative_ip_normal_forms
     # will contain the normal form of a version of this report where the domain is replaced with an IP.
 
     # Such an alternative vulnerability doesn't necessairly have to exist. There is plenty of cases
     # where vulnerability exists only by domain, not by IP. The purpose of this dictionary is to contain
     # potential IP version for deduplication.
-    alternative_ip_normal_forms_to_reports: DefaultDict[NormalForm, List[Report]]
+    by_alternative_ip_normal_forms: DefaultDict[NormalForm, List[Report]]
 
     @staticmethod
     def from_reports(reports: List[Report]) -> "ReportsByNormalForms":
-        alternative_ip_normal_forms_to_reports: DefaultDict[NormalForm, List[Report]] = collections.defaultdict(list)
-        normal_forms_to_reports: DefaultDict[NormalForm, List[Report]] = collections.defaultdict(list)
+        by_alternative_ip_normal_forms: DefaultDict[NormalForm, List[Report]] = collections.defaultdict(list)
+        by_normal_forms: DefaultDict[NormalForm, List[Report]] = collections.defaultdict(list)
         for report in reports:
-            normal_forms_to_reports[report.get_normal_form()].append(report)
+            by_normal_forms[report.get_normal_form()].append(report)
             alternative_with_ip_address = report.alternative_with_ip_address()
             if alternative_with_ip_address:
-                alternative_ip_normal_forms_to_reports[alternative_with_ip_address.get_normal_form()].append(
+                by_alternative_ip_normal_forms[alternative_with_ip_address.get_normal_form()].append(
                     alternative_with_ip_address
                 )
         return ReportsByNormalForms(
-            normal_forms_to_reports=normal_forms_to_reports,
-            alternative_ip_normal_forms_to_reports=alternative_ip_normal_forms_to_reports,
+            by_normal_forms=by_normal_forms, by_alternative_ip_normal_forms=by_alternative_ip_normal_forms
         )
 
 
@@ -46,8 +45,8 @@ def deduplicate_reports(previous_reports: List[Report], reports_to_send: List[Re
     for report in reports_to_send:
         report_normal_form = report.get_normal_form()
 
-        if report_normal_form in previous_reports_normalized.normal_forms_to_reports:
-            if _all_reports_are_old(previous_reports_normalized.normal_forms_to_reports[report_normal_form]):
+        if report_normal_form in previous_reports_normalized.by_normal_forms:
+            if _all_reports_are_old(previous_reports_normalized.by_normal_forms[report_normal_form]):
                 reports_scoring_dict[report_normal_form] = _build_subsequent_reminder(
                     report,
                 )
@@ -78,15 +77,15 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
     filtered_reports: List[Report] = []
 
     def _process_ip_report(processed_report: Report) -> None:
-        if processed_report.get_normal_form() in previous_reports_normalized.alternative_ip_normal_forms_to_reports:
+        if processed_report.get_normal_form() in previous_reports_normalized.by_alternative_ip_normal_forms:
             # This is an ip-converted version of an existing report
             if _all_reports_are_old(
-                previous_reports_normalized.alternative_ip_normal_forms_to_reports[processed_report.get_normal_form()]
+                previous_reports_normalized.by_alternative_ip_normal_forms[processed_report.get_normal_form()]
             ):
                 filtered_reports.append(_build_subsequent_reminder(processed_report))
             return
 
-        if processed_report.get_normal_form() in reports_normalized.alternative_ip_normal_forms_to_reports:
+        if processed_report.get_normal_form() in reports_normalized.by_alternative_ip_normal_forms:
             # This is an IP report, but we have a non-ip version to send
             return
         filtered_reports.append(processed_report)
@@ -95,11 +94,11 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
         alternative_with_ip_address = processed_report.alternative_with_ip_address()
         if (
             alternative_with_ip_address
-            and alternative_with_ip_address.get_normal_form() in previous_reports_normalized.normal_forms_to_reports
+            and alternative_with_ip_address.get_normal_form() in previous_reports_normalized.by_normal_forms
         ):
             # This is not an IP report but an IP report for the same has already been sent
             if _all_reports_are_old(
-                previous_reports_normalized.normal_forms_to_reports[alternative_with_ip_address.get_normal_form()]
+                previous_reports_normalized.by_normal_forms[alternative_with_ip_address.get_normal_form()]
             ):
                 filtered_reports.append(_build_subsequent_reminder(processed_report))
             return

@@ -109,9 +109,6 @@ class DB:
                         {"_id": created_task_result["uid"]}, {"$set": {"created_at": datetime.datetime.now()}}
                     )
 
-    def get_analysis_by_url(self, url: str) -> List[Dict[str, Any]]:
-        return cast(List[Dict[str, Any]], self.analysis.find({"data": {"$regex": f".*{url}.*"}}))
-
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
         return cast(Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id}))
 

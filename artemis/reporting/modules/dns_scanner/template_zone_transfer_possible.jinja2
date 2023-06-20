@@ -1,0 +1,35 @@
+{% if "zone_transfer_possible" in data.contains_type %}
+    <li>
+        {% trans trimmed %}
+            The following DNS servers have zone transfer enabled, and therefore
+            allow an attacker to learn about all possible subdomains:
+        {% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "zone_transfer_possible" %}
+                    <li>
+                        {{ _("server") }} {{ report.additional_data.zone_transfer_nameserver }} -
+                        {{ _("domain") }} {{ report.target }}
+                        ({{ _("number of subdomains that can be downloaded") }}: {{ report.additional_data.zone_size }}).<br/>
+                        <br/>
+                        {% trans %}Such transfer can be performed using the following Linux command:{% endtrans %}<br/>
+                        <pre>dig AXFR {{ report.target }} @{{ report.additional_data.zone_transfer_nameserver }}</pre>
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                We recommend verifying whether this is an intended configuration, and if it's not, changing
+                it so that zone transfer is not publicly available (but e.g. from an IP address white list).
+            {% endtrans %}
+        </p>
+        <p>
+            {% trans trimmed %}
+                Even if now the zone transfer contains only public information, we recommend turning it
+                off, so that it doesn't leak information in the future, when the number of subdomains increases.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

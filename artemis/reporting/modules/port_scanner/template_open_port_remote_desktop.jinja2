@@ -1,0 +1,23 @@
+{% if "open_port_remote_desktop" in data.contains_type %}
+    <li>{% trans %}The following servers have remote desktop ports open:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "open_port_remote_desktop" %}
+                    <li>
+                        {{ report.target }} ({{ report.additional_data.service }})
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Remote desktop services shouldn't be publicly available - an attack is possible when one
+                of the accounts has a weak password or when there are vulnerabilities in the remote desktop
+                service. Even if currently such a vulnerability doesn't exist, it may appear in the future,
+                making an attack possible. Historically, remote desktop services were frequently used for
+                ransomware attacks. For remote access, we recommend using a VPN with two factor authentication.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

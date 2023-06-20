@@ -17,7 +17,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.unit"
+    command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
@@ -73,11 +73,6 @@ services:
 
   test-smtp-server:
     image: bytemark/smtp
-
-  test-php-lfi:
-    image: php:7.4-apache
-    volumes:
-      - ./test/data/php_lfi/:/var/www/html/
 
   test-service-with-exposed-git:
     image: nginx:latest
@@ -147,3 +142,13 @@ services:
     image: mariadb:10.3
     environment:
       MYSQL_ROOT_PASSWORD: root
+
+  test-service-with-bruteable-files-sql-dumps:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-htpasswd:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/

@@ -1,0 +1,17 @@
+{% if "exposed_sql_dump" in data.contains_type %}
+    <li>{% trans %}The following files contain database dumps:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_sql_dump" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans %}Such data shouldn't be publicly accessible.{% endtrans %}
+        </p>
+    </li>
+{% endif %}

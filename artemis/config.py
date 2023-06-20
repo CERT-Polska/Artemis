@@ -15,6 +15,20 @@ class Config:
     # Custom User-Agent string used by Artemis (if not set, the tool defaults will be used: requests, Nuclei etc.)
     CUSTOM_USER_AGENT = decouple.config("CUSTOM_USER_AGENT", default="")
 
+    # When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported
+    REPORTING_MAX_VULN_AGE_DAYS = decouple.config("REPORTING_MAX_VULN_AGE_DAYS", default=14, cast=int)
+
+    # If a report has already been seen earlier - how much time needs to pass for a second e-mail to be sent
+    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW = decouple.config(
+        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=6 * 30, cast=int
+    )
+    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM = decouple.config(
+        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM", default=3 * 30, cast=int
+    )
+    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH = decouple.config(
+        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=14, cast=int
+    )
+
     # Whether we will scan a public suffix (e.g. .pl) if it appears on the target list. This may cause very large
     # number of domains to be scanned.
     ALLOW_SCANNING_PUBLIC_SUFFIXES = decouple.config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
@@ -47,6 +61,16 @@ class Config:
 
     # default request timeout (for all protocols)
     REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
+
+    # Ports that we will treat as "standard http/https ports" when deduplicating vulnerabilities - that is,
+    # if we observe identical vulnerability of two standard ports (e.g. on 80 and on 443), we will treat
+    # such case as the same vulnerability.
+    #
+    # This is configurable because e.g. we observed some hostings serving mirrors of content from
+    # port 80 on ports 81-84.
+    REPORTER_DEDUPLICATION_COMMON_HTTP_PORTS = decouple.config(
+        "REPORTER_DEDUPLICATION_COMMON_HTTP_PORTS", default="80,443", cast=decouple.Csv(int)
+    )
 
     # == Rate limit settings
     # Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X
@@ -83,12 +107,6 @@ class Config:
     # and we want to skip this as a false positive. 0.1 means 10%.
     BRUTER_FALSE_POSITIVE_THRESHOLD = 0.1
 
-    # Each bruter scan would consist of BRUTER_NUM_TOP_PATHS_TO_USE most popular paths that existed on the servers
-    # and BRUTER_NUM_RANDOM_PATHS_TO_USE random paths so that we explore random paths from the list to know what
-    # would be the most popular paths.
-    BRUTER_NUM_TOP_PATHS_TO_USE = decouple.config("BRUTER_NUM_TOP_PATHS_TO_USE", default=800, cast=int)
-    BRUTER_NUM_RANDOM_PATHS_TO_USE = decouple.config("BRUTER_NUM_RANDOM_PATHS_TO_USE", default=600, cast=int)
-
     # If set to True, bruter will follow redirects. If to False, a redirect will be interpreted that a URL
     # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
@@ -98,6 +116,12 @@ class Config:
     CRTSH_NUM_RETRIES = decouple.config("CRTSH_NUM_RETRIES", default=10, cast=int)
     # How long to sleep between tries
     CRTSH_SLEEP_ON_RETRY_SECONDS = decouple.config("CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int)
+
+    # == dns_scanner reporting settings (artemis/reporting/modules/dns_scanner.py)
+    # The number of domains below which zone transfer won't be reported
+    ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD = decouple.config(
+        "ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD", cast=int, default=2
+    )
 
     # == gau settings (artemis/modules/gau.py)
     # custom port list to scan in CSV form (replaces default list)
@@ -114,11 +138,48 @@ class Config:
     # Github API rate limits are spent)
     NUCLEI_CHECK_TEMPLATE_LIST = decouple.config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
-    # Skipping these two templates as they caused panic: runtime error: integer divide by zero in
-    # github.com/projectdiscovery/retryabledns
     NUCLEI_TEMPLATES_TO_SKIP = decouple.config(
         "NUCLEI_TEMPLATES_TO_SKIP",
-        default="dns/azure-takeover-detection.yaml,dns/elasticbeantalk-takeover.yaml",
+        default=",".join(
+            [
+                # the two following templates caused panic: runtime
+                # error: integer divide by zero in github.com/projectdiscovery/retryabledns
+                "dns/azure-takeover-detection.yaml",
+                "dns/elasticbeantalk-takeover.yaml",
+                # this one caused multiple FPs
+                "http/cves/2021/CVE-2021-43798.yaml",
+                # admin panel information disclosure - not a high-severity one
+                "http/cves/2021/CVE-2021-24917.yaml",
+                # caused multiple FPs: travis configuration file provided by a framework without much interesting information
+                "http/exposures/files/travis-ci-disclosure.yaml",
+                # at CERT.PL we don't report exposed wp-login.php, as it's too common - feel free to make
+                # a different decision. Same for other common CMS panels.
+                "http/exposed-panels/wordpress-login.yaml",
+                "http/exposed-panels/joomla-panel.yaml",
+                "http/exposed-panels/liferay-portal.yaml",
+                "http/exposed-panels/drupal-login.yaml",
+                "http/exposed-panels/contao-login-panel.yaml",
+                "http/exposed-panels/ez-publish-panel.yaml",
+                "http/exposed-panels/typo3-login.yaml",
+                "http/exposed-panels/craftcms-admin-panel.yaml",
+                "http/exposed-panels/concrete5/concrete5-panel.yaml",
+                # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
+                # make different decision.
+                "http/exposed-panels/squirrelmail-login.yaml",
+                "http/exposed-panels/horde-webmail-login.yaml",
+                "http/exposed-panels/horde-login-panel.yaml",
+                "http/exposed-panels/zimbra-web-login.yaml",
+                # These are Tomcat docs, not application docs
+                "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
+                # Generic API docs
+                "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
+                # Too small impact to report
+                "http/exposed-panels/webeditors-check-detect.yaml",
+                # VPN web portals
+                "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
+                "http/exposed-panels/pulse-secure-panel.yaml",
+            ]
+        ),
         cast=decouple.Csv(str),
     )
 
@@ -142,6 +203,10 @@ class Config:
     # == shodan settings (artemis/modules/shodan_vulns.py)
     # Shodan API key so that Shodan vulnerabilities will be displayed in Artemis
     SHODAN_API_KEY = decouple.config("SHODAN_API_KEY", default="")
+
+    # == vcs reporter settings (artemis/reporting/modules/vcs/reporter.py)
+    # Maximum size of the VCS (e.g. SVN) db file
+    VCS_MAX_DB_SIZE_BYTES = decouple.config("VCS_MAX_DB_SIZE_BYTES", default=1024 * 1024 * 5)
 
     # == wp_scanner settings (artemis/modules/wp_scanner.py)
     # After what number of days we consider the WordPress version to be obsolete

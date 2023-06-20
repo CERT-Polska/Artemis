@@ -85,8 +85,9 @@ def get(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
+    **kwargs: Any
 ) -> HTTPResponse:
-    return _request("get", url, allow_redirects, data, cookies)
+    return _request("get", url, allow_redirects, data, cookies, **kwargs)
 
 
 def post(
@@ -94,5 +95,6 @@ def post(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
+    **kwargs: Any
 ) -> HTTPResponse:
-    return _request("post", url, allow_redirects, data, cookies)
+    return _request("post", url, allow_redirects, data, cookies, **kwargs)

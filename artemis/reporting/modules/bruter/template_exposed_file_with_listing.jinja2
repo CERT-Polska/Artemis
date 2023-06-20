@@ -1,0 +1,25 @@
+{% if "exposed_file_with_listing" in data.contains_type %}
+    <li>{% trans trimmed %}
+            The following addresses may contain information about the names of files or directories
+            on the server:
+        {% endtrans %}
+
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_file_with_listing" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Such information shouldn't be publicly available as it may allow an attacker to gain
+                information about the website, and in some cases - learn the names of e.g. backup
+                files or other files that shouldn't be publicly available.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

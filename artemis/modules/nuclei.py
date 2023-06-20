@@ -15,17 +15,19 @@ from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
 TEMPLATES_THAT_MATCH_ON_PHPINFO = {
-    "cnvd/2020/CNVD-2020-23735.yaml",
-    "cves/2015/CVE-2015-4050.yaml",
-    "cves/2019/CVE-2019-9041.yaml",
-    "cves/2020/CVE-2020-5776.yaml",
-    "cves/2020/CVE-2020-5847.yaml",
-    "cves/2021/CVE-2021-40870.yaml",
-    "cves/2022/CVE-2022-0885.yaml",
-    "cves/2022/CVE-2022-1020.yaml",
-    "vulnerabilities/other/ecshop-sqli.yaml",
-    "vulnerabilities/thinkcmf/thinkcmf-rce.yaml",
+    "http/cnvd/2020/CNVD-2020-23735.yaml",
+    "http/cves/2015/CVE-2015-4050.yaml",
+    "http/cves/2019/CVE-2019-9041.yaml",
+    "http/cves/2020/CVE-2020-5776.yaml",
+    "http/cves/2020/CVE-2020-5847.yaml",
+    "http/cves/2021/CVE-2021-40870.yaml",
+    "http/cves/2022/CVE-2022-0885.yaml",
+    "http/cves/2022/CVE-2022-1020.yaml",
+    "http/vulnerabilities/other/ecshop-sqli.yaml",
+    "http/vulnerabilities/thinkcmf/thinkcmf-rce.yaml",
 }
+
+EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 
 
 class Nuclei(ArtemisBase):
@@ -48,16 +50,23 @@ class Nuclei(ArtemisBase):
             self._high_templates = (
                 check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log).decode("ascii").split()
             )
+            self._exposed_panels_templates = [
+                item
+                for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
+                if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
+            ]
 
             if Config.NUCLEI_CHECK_TEMPLATE_LIST:
                 if len(self._critical_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei critical-severity templates list")
                 if len(self._high_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei high-severity templates list")
+                if len(self._exposed_panels_templates) == 0:
+                    raise RuntimeError("Unable to obtain Nuclei exposed panels templates list")
 
             self._templates = [
                 template
-                for template in self._critical_templates + self._high_templates
+                for template in self._critical_templates + self._high_templates + self._exposed_panels_templates
                 if template not in Config.NUCLEI_TEMPLATES_TO_SKIP
             ] + Config.NUCLEI_ADDITIONAL_TEMPLATES
 
@@ -69,10 +78,10 @@ class Nuclei(ArtemisBase):
         # We want to run PhpMyAdmin Nuclei templates only when we identified that a given URL runs
         # PhpMyAdmin.
         if "<title>phpMyAdmin</title>" in content:
-            templates.append("default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
+            templates.append("http/default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
 
         self.log.info(f"path is {urllib.parse.urlparse(target).path}")
-        if urllib.parse.urlparse(target).path.strip("/") == "":
+        if self._is_homepage(target):
             self.log.info(f"adding {len(self._templates)} templates")
             templates.extend(self._templates)
 
@@ -104,6 +113,8 @@ class Nuclei(ArtemisBase):
         command = [
             "nuclei",
             "-disable-update-check",
+            "-etags",
+            "intrusive",
             "-ni",
             "-target",
             target,
@@ -111,9 +122,7 @@ class Nuclei(ArtemisBase):
             ",".join(templates),
             "-timeout",
             str(Config.REQUEST_TIMEOUT_SECONDS),
-            "-json",
-            "-resolvers",
-            "/dev/null",
+            "-jsonl",
             "-system-resolvers",
             "-spr",
             str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
@@ -141,6 +150,10 @@ class Nuclei(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+
+    def _is_homepage(self, url: str) -> bool:
+        url_parsed = urllib.parse.urlparse(url)
+        return url_parsed.path.strip("/") == "" and not url_parsed.query and not url_parsed.fragment
 
 
 if __name__ == "__main__":

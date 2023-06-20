@@ -10,7 +10,7 @@ from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
 from artemis.db import DB, ColumnOrdering, TaskFilter
-from artemis.json_utils import JSONEncoderWithDataclasses
+from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import restart_crashed_tasks
 from artemis.producer import create_tasks
 from artemis.templating import templates
@@ -132,6 +132,6 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
             "request": request,
             "task": task,
             "referer": referer,
-            "pretty_printed": json.dumps(task, indent=4, cls=JSONEncoderWithDataclasses),
+            "pretty_printed": json.dumps(task, indent=4, cls=JSONEncoderAdditionalTypes),
         },
     )

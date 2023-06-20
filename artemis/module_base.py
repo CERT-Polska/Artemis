@@ -72,7 +72,8 @@ class ArtemisBase(Karton):
             return cache_result
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
-        new_task.root_uid = current_task.root_uid
+        new_task.set_task_parent(current_task)
+        new_task.merge_persistent_payload(current_task)
         if self.db.save_scheduled_task(new_task):
             self.send_task(new_task)
 
@@ -156,14 +157,7 @@ class ArtemisBase(Karton):
                         scan_destination,
                     )
 
-                    self.log.info(
-                        "Processing task %s (headers=%s payload=%s payload_persistent=%s)",
-                        current_task.uid,
-                        repr(current_task.headers),
-                        repr(current_task.payload),
-                        repr(current_task.payload_persistent),
-                    )
-
+                    self._log_task(current_task)
                     super().internal_process(current_task)
             except FailedToAcquireLockException:
                 self.log.info(
@@ -175,6 +169,7 @@ class ArtemisBase(Karton):
                 self.reschedule_task(current_task)
                 return
         else:
+            self._log_task(current_task)
             super().internal_process(current_task)
 
     def process(self, current_task: Task) -> None:
@@ -183,6 +178,15 @@ class ArtemisBase(Karton):
         except Exception:
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
+
+    def _log_task(self, current_task: Task) -> None:
+        self.log.info(
+            "Processing task %s (headers=%s payload=%s payload_persistent=%s)",
+            current_task.uid,
+            repr(current_task.headers),
+            repr(current_task.payload),
+            repr(current_task.payload_persistent),
+        )
 
     def _get_scan_destination(self, task: Task) -> str:
         result = None

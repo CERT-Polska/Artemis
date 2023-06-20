@@ -63,7 +63,7 @@ class DnsScanner(ArtemisBase):
             if nameserver_ok:
                 topmost_transferable_zone_name = None
                 try:
-                    zone_components = str(zone_name).split(".")
+                    zone_components = str(zone_name).rstrip(".").split(".")
                     for i in range(len(zone_components) - 1):
                         new_zone_name = ".".join(zone_components[i:])
                         if zone := dns.zone.from_xfr(dns.query.xfr(nameserver_ip, new_zone_name, timeout=1)):  # type: ignore[arg-type]

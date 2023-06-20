@@ -1,0 +1,17 @@
+{% if "exposed_dead_letter" in data.contains_type %}
+    <li>{% trans %}The following files contain e-mails that the system failed to send:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_dead_letter" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans %}Such data shouldn't be publicly accessible.{% endtrans %}
+        </p>
+    </li>
+{% endif %}

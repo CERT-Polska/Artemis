@@ -1,9 +1,9 @@
 Quick Start
 ===========
 
-The fastest way to try out Artemis is to use Docker Compose based deployment.
-Such deployment is discouraged in production.
-The proper way to deploy Artemis would be to use Kubernetes - you may follow
+Currently, only Docker Compose based deployment is supported.
+
+More production-ready way to deploy Artemis will be to use Kubernetes - you may follow
 the progress or help with that task on: https://github.com/CERT-Polska/Artemis/issues/204.
 
 Using Docker Compose
@@ -17,6 +17,17 @@ To start Artemis simply execute following 2 commands in your terminal:
    docker compose up --build
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
+
+**You can also add additional Artemis modules from** https://github.com/CERT-Polska/Artemis-modules-extra/ -
+these modules haven't been included in core due to licensing reasons, but provide additional features such
+as e.g. SSL verification (certificate validity, proper redirect, etc.) or modules that check for subdomain takeover or
+SQL injection vulnerabilities. To do that, clone https://github.com/CERT-Polska/Artemis-modules-extra/ inside
+the Artemis directory and use:
+
+.. code-block:: console
+
+  docker compose -f docker-compose.yaml -f Artemis-modules-extra/docker-compose.yml up --build
+
 
 **If you want to start multiple instances of a module to speed up scanning, use a command such as:**
 
@@ -37,7 +48,17 @@ Select ``Add targets`` from the top navigation bar. Artemis takes input in the f
 of entries separated with newlines. Artemis works with both IPs and domains. If
 a URL is provided, the domain from this URL will be scanned.
 
+To be later able to filter various types of targets, provide a tag in the `Tag` field.
+
 Viewing results
 ---------------
 
 To view results, click the ``View results`` link in the top navigation bar.
+
+Advanced usage
+--------------
+Besides viewing the raw results, you may want to generate e-mail reports containing
+descriptions of found vulnerabilities, so thay you can notify the administrators to get
+the vulnerabilities fixed.
+
+To do that, please refer to :ref:`generating-e-mails`.

@@ -1,0 +1,23 @@
+#: artemis/reporting/modules/directory_index/template_directory_index.jinja2:3
+msgid ""
+"Servers configured to list files in at least one directory have been "
+"detected. The problem can be observed under the following addresses:"
+msgstr ""
+"Wykryto konfigurację serwerów pozwalającą na listing plików w "
+"przynajmniej jednym katalogu. Problem można zaobserwować np. pod "
+"adresami:"
+
+#: artemis/reporting/modules/directory_index/template_directory_index.jinja2:18
+msgid ""
+"Such configuration can in some cases cause sensitive data leak. Even if "
+"the above folders don't contain sensitive information, such observation "
+"can mean that the server displays listings of other folders as well. If "
+"this is not an intentional setup, we recommend changing the server "
+"configuration so that the listing is not displayed."
+msgstr ""
+"Taka konfiguracja może w niektórych przypadkach stworzyć ryzyko wycieku "
+"wrażliwych danych. Nawet jeśli w podanych wyżej folderach nie ma "
+"wrażliwych danych, zaobserwowana konfiguracja może oznaczać, że serwer "
+"wyświetla listingi również innych katalogów. Jeśli nie jest to działanie "
+"celowe, to rekomendujemy konfigurację serwera tak, aby listing plików nie"
+" był publicznie dostępny."

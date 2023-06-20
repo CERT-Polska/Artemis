@@ -330,4 +330,5 @@ TRANSLATIONS = {
     "Webmin admin login panel was detected.": "wykryto panel administracyjny narzędzia Webmin.",
     "Internet Multi Server Control Panel was detected.": "wykryto panel administracyjny narzędzia Internet Multi Server.",
     "Microsoft Exchange Admin Center login panel was detected.": "wykryto panel logowania narzędzia Microsoft Exchange Admin Center.",
+    "Apache Tomcat Manager login panel was detected.": "wykryto panel logowania narzędzia Apache Tomcat Manager.",
 }

@@ -331,4 +331,7 @@ TRANSLATIONS = {
     "Internet Multi Server Control Panel was detected.": "wykryto panel administracyjny narzędzia Internet Multi Server.",
     "Microsoft Exchange Admin Center login panel was detected.": "wykryto panel logowania narzędzia Microsoft Exchange Admin Center.",
     "Apache Tomcat Manager login panel was detected.": "wykryto panel logowania narzędzia Apache Tomcat Manager.",
+    "Checkpoint login panel was detected.": "wykryto panel logowania narzędzia Checkpoint.",
+    "Pulse Secure VPN login panel was detected.": "wykryto panel logowania Pulse Secure VPN.",
+    "Retool login panel was detected.": "wykryto panel logowania narzędzia Retool.",
 }

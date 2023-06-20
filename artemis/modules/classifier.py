@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import re
 import urllib.parse
 from ipaddress import ip_address
 
@@ -8,15 +7,8 @@ from publicsuffixlist import PublicSuffixList
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.domains import is_domain
 from artemis.module_base import ArtemisBase
-
-domain_pattern = re.compile(
-    r"^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|"
-    r"([a-zA-Z]{1}[0-9]{1})|([0-9]{1}[a-zA-Z]{1})|"
-    r"([a-zA-Z0-9][-_.a-zA-Z0-9]{0,61}[a-zA-Z0-9]))\."
-    r"([a-zA-Z]{2,13}|[a-zA-Z0-9-]{2,30}.[a-zA-Z]{2,3})$"
-)
-
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -74,10 +66,10 @@ class Classifier(ArtemisBase):
         except ValueError:
             pass
 
-        if domain_pattern.match(data):
+        if is_domain(data):
             return TaskType.DOMAIN
-        else:
-            raise ValueError("Failed to find domain/IP in input")
+
+        raise ValueError("Failed to find domain/IP in input")
 
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")

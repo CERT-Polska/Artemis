@@ -33,7 +33,7 @@ class GAU(ArtemisBase):
                 ]
                 + Config.GAU_ADDITIONAL_OPTIONS,
                 self.log,
-                input=domain.encode("ascii"),
+                input=domain.encode("idna"),
             )
 
             domains = set()

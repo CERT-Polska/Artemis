@@ -45,7 +45,9 @@ def ip_lookup(domain: str) -> Set[str]:
 
     :raise IPResolutionException if something fails
     """
-    response = requests.get(f"{DOH_SERVER}?name={domain}&type=A", headers={"accept": "application/dns-json"})
+    response = requests.get(
+        f"{DOH_SERVER}?name={domain.encode('idna').decode('ascii')}&type=A", headers={"accept": "application/dns-json"}
+    )
     if not response.ok:
         raise IPResolutionException(f"DOH server invalid response ({response.status_code})")
 

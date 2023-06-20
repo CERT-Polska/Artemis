@@ -172,6 +172,9 @@ class Config:
                 "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml"
                 # Too small impact to report
                 "http/exposed-panels/webeditors-check-detect.yaml",
+                # VPN web portals
+                "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
+                "http/exposed-panels/pulse-secure-panel.yaml",
             ]
         ),
         cast=decouple.Csv(str),

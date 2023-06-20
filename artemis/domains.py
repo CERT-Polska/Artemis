@@ -1,6 +1,14 @@
+import validators
 from publicsuffixlist import PublicSuffixList
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
+
+
+def is_domain(candidate: str) -> bool:
+    try:
+        return validators.domain(candidate)  # type: ignore
+    except validators.ValidationFailure:
+        return False
 
 
 def is_main_domain(domain: str) -> bool:

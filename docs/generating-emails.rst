@@ -3,7 +3,7 @@
 Generating e-mails to be sent
 =============================
 Artemis can generate e-mail reports containing a description of found vulnerabilities.
-To do that, you need to start Artemis and scan some targets, as described in :doc:`quick-start`.
+To do that, you first need to start Artemis and scan some targets, as described in :doc:`quick-start`.
 
 These reports won't contain everything found by Artemis - custom logic (residing in
 ``artemis/reporting/modules/``) will make an educated guess whether a vulnerability

@@ -84,7 +84,7 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
 
 def main(
     previous_reports_directory: Path = typer.Argument(
-        ...,
+        None,
         help="The directory where JSON files from previous exports reside. This is to prevent the same (or similar) "
         "bug to be reported multiple times.",
     ),
@@ -95,7 +95,9 @@ def main(
     ),
     language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),
     custom_template_arguments: str = typer.Option(
-        "", help="Custom template arguments in the form of name1=value1,name2=value2,..."
+        "",
+        help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "
+        "don't need them, but if you modified them on your side, they might.",
     ),
     blocklist_file: Optional[str] = typer.Option(
         None,

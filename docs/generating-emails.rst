@@ -10,17 +10,16 @@ is a true positive and interesting enough to be reported.
 
 To generate these e-mails, use:
 
-``./scripts/export_emails PREVIOUS_REPORTS_DIRECTORY``
-
-``PREVIOUS_REPORTS_DIRECTORY`` is a directory where JSON files produced by previous script invocations
-reside. This allows you to skip sending messages that have already been sent.
+``./scripts/export_emails``
 
 This script will produce **text messages ready to be sent** [1]_.
 
 .. note ::
    Please keep in mind that the reporting script resolves domains and performs HTTP requests.
 
-To view additional options, use ``./scripts/export_emails --help``.
+To view additional options, use ``./scripts/export_emails --help`` - for example, you will be able to change
+language, filter reports by tag or skip sending messages that have already been sent.
+
 
 Blocklist
 ^^^^^^^^^

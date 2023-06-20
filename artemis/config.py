@@ -162,6 +162,7 @@ class Config:
                 "http/exposed-panels/ez-publish-panel.yaml",
                 "http/exposed-panels/typo3-login.yaml",
                 "http/exposed-panels/craftcms-admin-panel.yaml",
+                "http/exposed-panels/concrete5/concrete5-panel.yaml",
                 # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
                 # make different decision.
                 "http/exposed-panels/squirrelmail-login.yaml",
@@ -169,7 +170,9 @@ class Config:
                 "http/exposed-panels/horde-login-panel.yaml",
                 "http/exposed-panels/zimbra-web-login.yaml",
                 # These are Tomcat docs, not application docs
-                "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml"
+                "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
+                # Generic API docs
+                "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
                 # Too small impact to report
                 "http/exposed-panels/webeditors-check-detect.yaml",
                 # VPN web portals

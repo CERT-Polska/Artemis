@@ -334,4 +334,7 @@ TRANSLATIONS = {
     "Checkpoint login panel was detected.": "wykryto panel logowania narzędzia Checkpoint.",
     "Pulse Secure VPN login panel was detected.": "wykryto panel logowania Pulse Secure VPN.",
     "Retool login panel was detected.": "wykryto panel logowania narzędzia Retool.",
+    "Oracle WebLogic UDDI Explorer panel was detected.": "wykryto panel narzędzia Oracle WebLogic UDDI Explorer.",
+    "An ArcGIS instance was discovered.": "wykryto narzędzie ArcGIS.",
+    "An ActiveAdmin Admin dashboard was discovered.": "wykryto panel administracyjny narzędzia ActiveAdmin.",
 }

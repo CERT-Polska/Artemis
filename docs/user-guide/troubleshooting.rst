@@ -1,12 +1,15 @@
 Troubleshooting
 ===============
 
-mongodb startup issues
+MongoDB startup issues
 ----------------------
 
-Mongodb since version 5 requires AVX support from CPU. Certain virtualized environments don't support AVX instructions. A workaround for this is to pin mongodb to version 4 in docker-compose.yaml. Below are logs which you might see when this is the case:
+MongoDB since version 5 requires AVX support from the CPU. Certain virtualized environments don't support AVX instructions. **We strongly
+recommend contacting your cloud provider to enable AVX support for the virtual machine**, but if it's not possible, a workaround for this
+is to pin MongoDB to version 4 in ``docker-compose.yaml``. Below are logs which you might see when this is the case:
 
 .. code-block::
+
     artemis-backend-1  |   File "/usr/local/lib/python3.11/site-packages/pymongo/topology.py", line 238, in _select_servers_loop
     artemis-backend-1  |     raise ServerSelectionTimeoutError(
     artemis-backend-1  | pymongo.errors.ServerSelectionTimeoutError: db:27017: [Errno -2] Name does not resolve, Timeout: 30s, Topology Description: <TopologyDescription id: 64171dc4adf6cec1ffeb07db, topology_type: Unknown, servers: [<ServerDescription ('db', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('db:27017: [Errno -2] Name does not resolve')>]>

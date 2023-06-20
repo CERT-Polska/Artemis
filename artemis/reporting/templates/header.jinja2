@@ -1,0 +1,19 @@
+{% macro report_meta(report) %}
+    {% if report.is_subsequent_reminder %}
+        <p>{% trans %}This problem has already been reported in earlier notifications.{% endtrans %}</p>
+    {% endif %}
+{% endmacro %}
+
+
+<html>
+    <style>
+        ul {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+    <body>
+        {% if custom_header_text is defined %}
+            {{ custom_header_text() }}
+        {% endif %}
+        <ol>

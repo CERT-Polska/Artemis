@@ -1,0 +1,20 @@
+{% if "exposed_configuration_file" in data.contains_type %}
+    <li>{% trans %}The following addresses contain configuration files or their backups:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_configuration_file" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Such files shouldn't be publicly available as they may contain passwords
+                or other types of information that can be used to compromise the system.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

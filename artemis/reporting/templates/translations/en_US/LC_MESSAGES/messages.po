@@ -1,0 +1,3 @@
+#: artemis/reporting/templates/header.jinja2:3
+msgid "This problem has already been reported in earlier notifications."
+msgstr ""

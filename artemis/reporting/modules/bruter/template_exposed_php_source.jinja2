@@ -1,0 +1,26 @@
+{% if "exposed_php_source" in data.contains_type %}
+    <li>
+        {% trans trimmed %}
+            The following addresses contain PHP source code that is not interpreted
+            by the server.
+        {% endtrans %}
+
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_php_source" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Making such information publicly available can allow an attacker to learn about the internals
+                of software used, and if such files contain passwords - also gain unauthorized access. Such files
+                shouldn't be publicly accessible.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

@@ -34,6 +34,7 @@ To chat about Artemis, join the Discord server:
 
    quick-start
    features
+   generating-emails
    architecture
    user-guide/configuration
    user-guide/writing-a-module

@@ -1,0 +1,26 @@
+{% if "insecure_wordpress" in data.contains_type %}
+    <li>
+        {% trans trimmed %}
+            The following addresses contain WordPress versions that are no longer
+            supported and are marked as insecure in the version list from
+        {% endtrans %}
+        <a href="https://api.wordpress.org/core/stable-check/1.0/">https://api.wordpress.org/core/stable-check/1.0/</a>:
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "insecure_wordpress" %}
+                    <li>
+                        {{ report.target }} - WordPress {{ report.additional_data.version }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                If a site is no longer used, we recommend shutting it down to eliminate the
+                risk of exploitation of known vulnerabilities in older WordPress versions.
+                Otherwise, we recommend enabling WordPress core and plugin automatic updates.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

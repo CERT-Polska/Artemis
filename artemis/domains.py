@@ -10,11 +10,15 @@ def is_main_domain(domain: str) -> bool:
     return PUBLIC_SUFFIX_LIST.privatesuffix(domain) == domain  # type: ignore
 
 
-def is_subdomain(subdomain_candidate: str, parent_domain_candidate: str) -> bool:
-    # Split both domains by dots, so that www.google.com becomes ['www', 'google', 'com']
-    subdomain_candidate_items = [item for item in subdomain_candidate.split(".") if item]
-    parent_domain_candidate_items = [item for item in parent_domain_candidate.split(".") if item]
+def is_subdomain(candidate: str, parent_domain: str, allow_equal: bool = True) -> bool:
+    candidate = candidate.strip(".")
+    parent_domain = parent_domain.strip(".")
 
-    # Make sure that subdomain_candidate_items ends with parent_domain_candidate_items
-    # (e.g. ['www', 'google', 'pl'] ends with ['google', 'pl']
-    return subdomain_candidate_items[-len(parent_domain_candidate_items) :] == parent_domain_candidate_items
+    if allow_equal and candidate == parent_domain:
+        return True
+
+    if not candidate.endswith(parent_domain):
+        return False
+
+    tmp = candidate[: -len(parent_domain)]
+    return tmp.endswith(".") and len(tmp) > 1

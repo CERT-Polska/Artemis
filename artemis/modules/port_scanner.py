@@ -11,7 +11,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
-from artemis.task_utils import get_target
+from artemis.task_utils import get_target_host
 from artemis.utils import check_output_log_on_error, throttle_request
 
 
@@ -168,7 +168,7 @@ class PortScanner(ArtemisBase):
         return result
 
     def run(self, current_task: Task) -> None:
-        target = get_target(current_task)
+        target = get_target_host(current_task)
         task_type = current_task.headers["type"]
 
         # convert domain to IPs

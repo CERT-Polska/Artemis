@@ -1,0 +1,45 @@
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:3
+msgid ""
+"The following DNS servers have zone transfer enabled, and therefore allow"
+" an attacker to learn about all possible subdomains:"
+msgstr ""
+"Następujące serwery DNS umożliwiają transfer strefy DNS, a dzięki temu - "
+"pobranie informacji o wszystkich subdomenach:"
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:11
+msgid "server"
+msgstr "serwer"
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:12
+msgid "domain"
+msgstr "domena"
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:13
+msgid "number of subdomains that can be downloaded"
+msgstr "liczba subdomen możliwych do pobrania"
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:15
+msgid "Such transfer can be performed using the following Linux command:"
+msgstr ""
+"Takiego transferu można dokonać np. przy użyciu następującego polecenia "
+"systemu Linux:"
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:23
+msgid ""
+"We recommend verifying whether this is an intended configuration, and if "
+"it's not, changing it so that zone transfer is not publicly available "
+"(but e.g. from an IP address white list)."
+msgstr ""
+"Rekomendujemy weryfikację, czy ta funkcja została udostępniona celowo, a "
+"jeśli nie jest - zmianę konfiguracji, tak, aby ta funkcja nie była "
+"publicznie dostępna (lecz np. z białej listy adresów IP)."
+
+#: artemis/reporting/modules/dns_scanner/template_zone_transfer_possible.jinja2:29
+msgid ""
+"Even if now the zone transfer contains only public information, we "
+"recommend turning it off, so that it doesn't leak information in the "
+"future, when the number of subdomains increases."
+msgstr ""
+"Nawet, jeśli obecnie transfer strefy zawiera tylko dane dostępne "
+"publicznie, rekomendujemy wyłączenie tej funkcji, aby nie udostępniała "
+"informacji w przyszłości, gdy subdomen będzie więcej."

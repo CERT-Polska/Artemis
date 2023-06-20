@@ -1,0 +1,21 @@
+{% if "old_wordpress" in data.contains_type %}
+    <li>{% trans %}The following addresses contain old WordPress versions:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "old_wordpress" %}
+                    <li>
+                        {{ report.target }} - WordPress {{ report.additional_data.version }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                If a site is no longer used, we recommend shutting it down to eliminate the
+                risk of exploitation of known vulnerabilities in older WordPress versions.
+                Otherwise, we recommend enabling WordPress core and plugin automatic updates.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

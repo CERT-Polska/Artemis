@@ -1,0 +1,28 @@
+#: artemis/reporting/modules/wp_scanner/template_insecure_wordpress.jinja2:3
+msgid ""
+"The following addresses contain WordPress versions that are no longer "
+"supported and are marked as insecure in the version list from"
+msgstr ""
+"Pod następującymi adresami znajdują się wersje systemu WordPress, które "
+"nie są już wspierane i są oznaczone jako niebezpieczne na liście wersji "
+"pod adresem"
+
+#: artemis/reporting/modules/wp_scanner/template_insecure_wordpress.jinja2:19
+#: artemis/reporting/modules/wp_scanner/template_old_wordpress.jinja2:14
+msgid ""
+"If a site is no longer used, we recommend shutting it down to eliminate "
+"the risk of exploitation of known vulnerabilities in older WordPress "
+"versions. Otherwise, we recommend enabling WordPress core and plugin "
+"automatic updates."
+msgstr ""
+"Jeśli strona nie jest już używana, rekomendujemy jej wyłączenie, aby "
+"wyeliminować ryzyko ataku przy użyciu znanych podatności w starszych "
+"wersjach systemu WordPress. Jeśli zaś jest używana, rekomendujemy "
+"korzystanie z mechanizmu automatycznej aktualizacji systemu WordPress "
+"oraz wtyczek."
+
+#: artemis/reporting/modules/wp_scanner/template_old_wordpress.jinja2:2
+msgid "The following addresses contain old WordPress versions:"
+msgstr ""
+"Pod następującymi adresami znajdują się nieaktualne wersje systemu "
+"WordPress:"

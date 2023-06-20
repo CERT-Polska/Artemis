@@ -1,0 +1,26 @@
+{% if "directory_index" in data.contains_type %}
+    <li>
+        {% trans trimmed %}
+            Servers configured to list files in at least one directory have been detected.
+            The problem can be observed under the following addresses:
+        {% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "directory_index" %}
+                    <li>
+                        {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Such configuration can in some cases cause sensitive data leak. Even if
+                the above folders don't contain sensitive information, such observation can mean that the server
+                displays listings of other folders as well. If this is not an intentional setup, we recommend
+                changing the server configuration so that the listing is not displayed.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

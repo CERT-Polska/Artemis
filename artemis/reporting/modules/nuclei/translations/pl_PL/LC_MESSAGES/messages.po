@@ -1,0 +1,44 @@
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:2
+msgid ""
+"The following addresses contain login panels, analytics services, "
+"management panels etc.:"
+msgstr ""
+"Poniższe adresy zawierają zasoby takie jak panele logowania, narzędzia "
+"analityczne, panele administracyjne itp.:"
+
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:14
+msgid ""
+"To decrease the probability of an attack (caused by an attacker using a "
+"leaked password, by one of the accounts having a weak password, or by "
+"vulnerabilities in the service), we recommend to have as few such "
+"publicly accessible services as possible."
+msgstr ""
+"Aby zmniejszyć prawdopodobieństwo ataku (spowodowanego np. słabym hasłem,"
+" wykorzystaniem hasła zamieszczonego w wycieku, lub podatnością w "
+"usłudze) rekomendujemy, aby jak najmniej takich zasobów było dostępnych "
+"publicznie."
+
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:21
+msgid ""
+"We recommend that such resources are only available in an internal "
+"network, using a VPN or from a restricted set of IP addresses."
+msgstr ""
+"Rekomendujemy, aby takie zasoby były dostępne tylko w sieci wewnętrznej, "
+"za pomocą VPN lub z ograniczonej puli adresów IP."
+
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:9
+msgid "The vulnerability was identified on:"
+msgstr "Podatność wykryto pod poniższymi adresami:"
+
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:19
+msgid "More information is available on:"
+msgstr "Więcej informacji można uzyskać pod adresami:"
+
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:26
+msgid ""
+"Please contact us if more information is needed - e.g. an address or "
+"command that proves that the vulnerability exists."
+msgstr ""
+"Prosimy o kontakt, jeśli potrzebują Państwo więcej informacji (np. "
+"konkretny adres na Państwa stronie, za pomocą którego można potwierdzić, "
+"że podatność istnieje)."

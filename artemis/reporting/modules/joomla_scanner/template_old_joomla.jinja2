@@ -1,0 +1,21 @@
+{% if "old_joomla" in data.contains_type %}
+    <li>{% trans %}The following addresses contain old Joomla versions:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "old_joomla" %}
+                    <li>
+                        {{ report.target }} - Joomla {{ report.additional_data.version }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                If a site is no longer used, we recommend shutting it down to eliminate the risk
+                of exploitation of known vulnerabilities in older Joomla versions. Otherwise, we
+                recommend regular Joomla core and plugin updates.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

@@ -313,7 +313,7 @@ TRANSLATIONS = {
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",
     "An Adminer login panel was detected.": "wykryto panel logowania narzędzia Adminer.",
-    "Webalizer panel was detected.": "wykryto panel logowania narzędzia Webalizer.",
+    "Webalizer panel was detected.": "wykryto panel narzędzia Webalizer.",
     "FortiOS admin login panel was detected.": "wykryto panel logowania do panelu administracyjnego narzędzia FortiOS.",
     "Fortinet FortiGate SSL VPN login panel was detected.": "wykryto panel logowania Fortinet FortiGate SSL VPN.",
     "Plesk Obsidian login panel was detected.": "wykryto panel logowania narzędzia Plesk Obsidian.",
@@ -330,4 +330,8 @@ TRANSLATIONS = {
     "Webmin admin login panel was detected.": "wykryto panel administracyjny narzędzia Webmin.",
     "Internet Multi Server Control Panel was detected.": "wykryto panel administracyjny narzędzia Internet Multi Server.",
     "Microsoft Exchange Admin Center login panel was detected.": "wykryto panel logowania narzędzia Microsoft Exchange Admin Center.",
+    "Apache Tomcat Manager login panel was detected.": "wykryto panel logowania narzędzia Apache Tomcat Manager.",
+    "Checkpoint login panel was detected.": "wykryto panel logowania narzędzia Checkpoint.",
+    "Pulse Secure VPN login panel was detected.": "wykryto panel logowania Pulse Secure VPN.",
+    "Retool login panel was detected.": "wykryto panel logowania narzędzia Retool.",
 }

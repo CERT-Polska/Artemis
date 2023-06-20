@@ -147,13 +147,10 @@ class Config:
                 "dns/azure-takeover-detection.yaml",
                 "dns/elasticbeantalk-takeover.yaml",
                 # this one caused multiple FPs
-                "cves/2021/CVE-2021-43798.yaml",
                 "http/cves/2021/CVE-2021-43798.yaml",
                 # admin panel information disclosure - not a high-severity one
-                "cves/2021/CVE-2021-24917.yaml",
                 "http/cves/2021/CVE-2021-24917.yaml",
                 # caused multiple FPs: travis configuration file provided by a framework without much interesting information
-                "exposures/files/travis-ci-disclosure.yaml",
                 "http/exposures/files/travis-ci-disclosure.yaml",
                 # at CERT.PL we don't report exposed wp-login.php, as it's too common - feel free to make
                 # a different decision. Same for other common CMS panels.
@@ -161,7 +158,10 @@ class Config:
                 "http/exposed-panels/joomla-panel.yaml",
                 "http/exposed-panels/liferay-portal.yaml",
                 "http/exposed-panels/drupal-login.yaml",
+                "http/exposed-panels/contao-login-panel.yaml",
                 "http/exposed-panels/ez-publish-panel.yaml",
+                "http/exposed-panels/typo3-login.yaml",
+                "http/exposed-panels/craftcms-admin-panel.yaml",
                 # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
                 # make different decision.
                 "http/exposed-panels/squirrelmail-login.yaml",

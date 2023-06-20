@@ -313,7 +313,7 @@ TRANSLATIONS = {
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",
     "An Adminer login panel was detected.": "wykryto panel logowania narzędzia Adminer.",
-    "Webalizer panel was detected.": "wykryto panel logowania narzędzia Webalizer.",
+    "Webalizer panel was detected.": "wykryto panel narzędzia Webalizer.",
     "FortiOS admin login panel was detected.": "wykryto panel logowania do panelu administracyjnego narzędzia FortiOS.",
     "Fortinet FortiGate SSL VPN login panel was detected.": "wykryto panel logowania Fortinet FortiGate SSL VPN.",
     "Plesk Obsidian login panel was detected.": "wykryto panel logowania narzędzia Plesk Obsidian.",

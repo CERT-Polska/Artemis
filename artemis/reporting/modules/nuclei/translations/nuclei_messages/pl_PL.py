@@ -318,7 +318,7 @@ TRANSLATIONS = {
     "WordPress Woody Ad Snippets prior to 2.2.5 is susceptible to cross-site scripting and remote code execution via admin/includes/class.import.snippet.php, which allows unauthenticated options import as demonstrated by storing a cross-site scripting payload for remote code execution.": "Wtyczka WordPress o nazwie Woody Ad Snippets w wersji poniżej 2.2.5 zawiera podatność Cross-Site Scripting a także umożliwia zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
-    "SSHv1 is deprecated and has known cryptographic issues.": "Wykryto protokół SSHv1, który jest przestarzały i jest podatne na znane ataki."
+    "SSHv1 is deprecated and has known cryptographic issues.": "Wykryto protokół SSHv1, który jest przestarzały i podatny na znane ataki."
     + UPDATE_HINT,
     "[no description] http/exposures/logs/roundcube-log-disclosure.yaml": "Wykryto dziennik zdarzeń systemu Roundcube. Może on zawierać takie dane jak np. informacje o nadawcach i odbiorcach e-maili czy informacje o konfiguracji systemu."
     + DATA_HIDE_HINT,

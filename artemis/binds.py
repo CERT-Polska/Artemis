@@ -52,8 +52,6 @@ class WebApplication(str, Enum):
 
     MOODLE = "moodle"
 
-    IDRAC = "idrac"
-
     @classmethod
     def _missing_(cls, value: object) -> WebApplication:
         return WebApplication.UNKNOWN

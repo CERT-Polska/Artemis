@@ -142,27 +142,30 @@ class Config:
         "NUCLEI_TEMPLATES_TO_SKIP",
         default=",".join(
             [
-                # the two following templates caused panic: runtime
+                # The two following templates caused panic: runtime
                 # error: integer divide by zero in github.com/projectdiscovery/retryabledns
                 "dns/azure-takeover-detection.yaml",
                 "dns/elasticbeantalk-takeover.yaml",
-                # this one caused multiple FPs
+                # This one caused multiple FPs
                 "http/cves/2021/CVE-2021-43798.yaml",
-                # admin panel information disclosure - not a high-severity one
+                # Admin panel information disclosure - not a high-severity one.
                 "http/cves/2021/CVE-2021-24917.yaml",
-                # caused multiple FPs: travis configuration file provided by a framework without much interesting information
+                # caused multiple FPs: travis configuration file provided by a framework without much interesting information.
                 "http/exposures/files/travis-ci-disclosure.yaml",
-                # at CERT.PL we don't report exposed wp-login.php, as it's too common - feel free to make
-                # a different decision. Same for other common CMS panels.
-                "http/exposed-panels/wordpress-login.yaml",
+                # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
+                # Feel free to make a different decision.
+                "http/exposed-panels/alfresco-detect.yaml",
+                "http/exposed-panels/concrete5/concrete5-panel.yaml",
+                "http/exposed-panels/contao-login-panel.yaml",
+                "http/exposed-panels/craftcms-admin-panel.yaml",
+                "http/exposed-panels/django-admin-panel.yaml",
+                "http/exposed-panels/drupal-login.yaml",
+                "http/exposed-panels/ez-publish-panel.yaml",
                 "http/exposed-panels/joomla-panel.yaml",
                 "http/exposed-panels/liferay-portal.yaml",
-                "http/exposed-panels/drupal-login.yaml",
-                "http/exposed-panels/contao-login-panel.yaml",
-                "http/exposed-panels/ez-publish-panel.yaml",
+                "http/exposed-panels/strapi-panel.yaml",
                 "http/exposed-panels/typo3-login.yaml",
-                "http/exposed-panels/craftcms-admin-panel.yaml",
-                "http/exposed-panels/concrete5/concrete5-panel.yaml",
+                "http/exposed-panels/wordpress-login.yaml",
                 # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
                 # make different decision.
                 "http/exposed-panels/squirrelmail-login.yaml",
@@ -173,11 +176,22 @@ class Config:
                 "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
                 # Generic API docs
                 "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
+                # VPN web portals and other ones that need to be exposed
+                "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
+                "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
+                "http/exposed-panels/pulse-secure-panel.yaml",
+                "http/exposed-panels/pulse-secure-version.yaml",
+                "http/exposed-panels/cas-login.yaml",
                 # Too small impact to report
                 "http/exposed-panels/webeditors-check-detect.yaml",
-                # VPN web portals
-                "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
-                "http/exposed-panels/pulse-secure-panel.yaml",
+                # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                "http/exposed-panels/jira-detect.yaml",
+                "http/exposed-panels/mantisbt-panel.yaml",
+                "http/exposed-panels/mautic-crm-panel.yaml",
+                "http/exposed-panels/osticket-panel.yaml:",
+                # Mostly meant to be publicly accessible
+                "http/exposed-panels/bigbluebutton-login.yaml",
+                "http/exposed-panels/ilias-panel.yaml",
             ]
         ),
         cast=decouple.Csv(str),

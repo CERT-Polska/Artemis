@@ -308,6 +308,20 @@ TRANSLATIONS = {
     "[no description] http/misconfiguration/installer/owncloud-installer-exposure.yaml": "Wykryto, że instalator narzędzia ownCloud jest publicznie dostępny, co umożliwia atakującemu rejestrację jako administrator. Rekomendujemy, aby takie zasoby nie były publicznie dostępne.",
     "Fortinet FortiOS 6.0.0 to 6.0.4, 5.6.3 to 5.6.7 and 5.4.6 to 5.4.12 and FortiProxy 2.0.0, 1.2.0 to 1.2.8, 1.1.0 to 1.1.6, 1.0.0 to 1.0.7 under SSL VPN web portal allows an unauthenticated attacker to download system files via special crafted HTTP resource requests due to improper limitation of a pathname to a restricted directory (path traversal).": "System Fortinet FortiOS w wersji od 6.0.0 do 6.0.4, od 5.6.3 do 5.6.7 oraz od 5.4.6 do 5.4.12 a także narzędzie FortiProxy 2.0.0, od 1.2.0 do 1.2.8, od 1.1.0 do 1.1.6 oraz od 1.0.0 do 1.0.7 umożliwia atakującemu pobieranie dowolnych plików systemowych."
     + UPDATE_HINT,
+    'Revive Adserver 4.2 is susceptible to remote code execution. An attacker can send a crafted payload to the XML-RPC invocation script and trigger the unserialize() call on the "what" parameter in the "openads.spc" RPC method. This can be exploited to perform various types of attacks, e.g. serialize-related PHP vulnerabilities or PHP object injection. It is possible, although unconfirmed, that the vulnerability has been used by some attackers in order to gain access to some Revive Adserver instances and deliver malware through them to third-party websites.': "Narzędzie Revive Adserver w wersji 4.2 umożliwia zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Check for remote code execution via OpenCPU was conducted.": "Wykryto, że narzędzie OpenCPU umożliwia zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "WordPress Simple Link Directory plugin before 7.7.2 contains a SQL injection vulnerability. The plugin does not validate and escape the post_id parameter before using it in a SQL statement via the qcopd_upvote_action AJAX action, available to unauthenticated and authenticated users. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie Simple Link Directory w wersji poniżej 7.7.2 zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + UPDATE_HINT,
+    "WordPress Woody Ad Snippets prior to 2.2.5 is susceptible to cross-site scripting and remote code execution via admin/includes/class.import.snippet.php, which allows unauthenticated options import as demonstrated by storing a cross-site scripting payload for remote code execution.": "Wtyczka WordPress o nazwie Woody Ad Snippets w wersji poniżej 2.2.5 zawiera podatność Cross-Site Scripting a także umożliwia zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "SSHv1 is deprecated and has known cryptographic issues.": "Wykryto protokół SSHv1, który jest przestarzały i podatny na znane ataki."
+    + UPDATE_HINT,
+    "[no description] http/exposures/logs/roundcube-log-disclosure.yaml": "Wykryto dziennik zdarzeń systemu Roundcube. Może on zawierać takie dane jak np. informacje o nadawcach i odbiorcach e-maili czy informacje o konfiguracji systemu."
+    + DATA_HIDE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -337,4 +351,29 @@ TRANSLATIONS = {
     "Oracle WebLogic UDDI Explorer panel was detected.": "wykryto panel narzędzia Oracle WebLogic UDDI Explorer.",
     "An ArcGIS instance was discovered.": "wykryto narzędzie ArcGIS.",
     "An ActiveAdmin Admin dashboard was discovered.": "wykryto panel administracyjny narzędzia ActiveAdmin.",
+    "TeamCity login panel was detected.": "wykryto panel logowania narzędzia TeamCity.",
+    "GNU Mailman panel was detected. Panel exposes all public mailing lists on server.": "wykryto panel narzędzia GNU Mailman.",
+    "Jupyter Notebook login panel was detected.": "wykryto panel logowania narzędzia Jupyter Notebook.",
+    "Nagios login panel was detected.": "wykryto panel logowania narzędzia Nagios.",
+    "Roxy File Manager panel was detected.": "wykryto panel narzędzia Roxy File Manager.",
+    "QNAP QTS login panel was detected.": "wykryto panel logowania narzędzia QNAP QTS.",
+    "GLPI panel was detected.": "wykryto panel GLPI.",
+    "Cacti login panel was detected.": "wykryto panel logowania Cacti.",
+    "Keycloak admin login panel was detected.": "wykryto panel logowania narzędzia Keycloak.",
+    "Redis Commander panel was detected.": "wykryto panel narzędzia Redis Commander.",
+    "VMware Horizon login panel was detected.": "wykryto panel logowania narzędzia VMware Horizon.",
+    "Watchguard login panel was detected.": "wykryto panel logowania Watchguard.",
+    "Fireware XTM login panel was detected.": "wykryto panel logowania Fireware XTM.",
+    "MailWatch login panel was detected.": "wykryto panel logowania MailWatch.",
+    "WampServer panel was detected.": "wykryto panel WampServer.",
+    "Gitea login panel was detected.": "wykryto panel Gitea.",
+    "Monitorix panel was detected.": "wykryto panel Monitorix.",
+    "Fortinet FortiMail login panel was detected.": "wykryto panel logowania Fortinet FortiMail.",
+    "osTicket login panel was detected.": "wykryto panel logowania osTicket.",
+    "Gitlab login panel was detected.": "wykryto panel logowania GitLab.",
+    "FastAPI Docs panel was detected.": "wykryto dokumentację FastAPI.",
+    "UniFi Network login panel was detected.": "wykryto panel logowania UniFi Network.",
+    "Sophos Firewall login panel was detected.": "wykryto panel logowania Sophos Firewall.",
+    "Matomo logjn panel was detected.": "wykryto panel logowania Matomo.",
+    "Modoboa login panel was detected.": "wykryto panel logowania narzędia Modoboa.",
 }

@@ -173,11 +173,14 @@ class Config:
                 "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
                 # Generic API docs
                 "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
-                # Too small impact to report
-                "http/exposed-panels/webeditors-check-detect.yaml",
                 # VPN web portals
                 "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
                 "http/exposed-panels/pulse-secure-panel.yaml",
+                # Too small impact to report
+                "http/exposed-panels/webeditors-check-detect.yaml",
+                "http/exposed-panels/jira-detect.yaml",
+                # Mostly meant to be publicly accessible
+                "http/exposed-panels/bigbluebutton-login.yaml",
             ]
         ),
         cast=decouple.Csv(str),

@@ -18,7 +18,7 @@ Then, use:
 This script will produce **text messages ready to be sent**.
 
 Besides the messages, the script will also produce a JSON file with vulnerability data, a
-jinja2 template and .po translation file - using these three files you can build the messages
+jinja2 template and a .po translation file - using these three files you can build the messages
 yourself.
 
 .. note ::

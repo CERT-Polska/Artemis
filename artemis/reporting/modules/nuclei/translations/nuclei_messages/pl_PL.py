@@ -357,4 +357,6 @@ TRANSLATIONS = {
     "Cacti login panel was detected.": "Wykryto panel logowania Cacti.",
     "Keycloak admin login panel was detected.": "Wykryto panel logowania narzędzia Keycloak.",
     "Redis Commander panel was detected.": "Wykryto panel narzędzia Redis Commander.",
+    "VMware Horizon login panel was detected.": "Wykryto panel logowania narzędzia VMware Horizon.",
+    "Watchguard login panel was detected.": "Wykryto panel logowania Watchguard.",
 }

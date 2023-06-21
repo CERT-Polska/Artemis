@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. scripts/check_docker_compose
+
 if [ ! -f .env ]; then
     cp env.example .env
 fi

@@ -17,8 +17,6 @@ WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
     (WebApplication.TYPESETTER, '<meta name="generator" content="Typesetter CMS'),
     (WebApplication.ROUNDCUBE, "Copyright \\(C\\) The Roundcube Dev Team"),
     (WebApplication.MOODLE, '<meta name="keywords" content="moodle,'),
-    (WebApplication.IDRAC, "<title>Dell Remote Access Controller 5</title>"),
-    (WebApplication.IDRAC, "- iDRAC[6-8] -"),
 ]
 
 

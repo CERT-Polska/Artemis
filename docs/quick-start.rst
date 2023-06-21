@@ -48,7 +48,7 @@ Select ``Add targets`` from the top navigation bar. Artemis takes input in the f
 of entries separated with newlines. Artemis works with both IPs and domains. It also supports
 IP ranges, both in the form of `127.0.0.1-127.0.0.10` or `127.0.0.0/30`.
 
-If a URL is provided, the domain from this URL will be scanned.
+If a URL is provided, the host from this URL will be scanned.
 
 To be later able to filter various types of targets, provide a tag in the `Tag` field.
 

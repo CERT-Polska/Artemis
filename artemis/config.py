@@ -189,6 +189,7 @@ class Config:
                 "http/exposed-panels/jira-detect.yaml",
                 "http/exposed-panels/mantisbt-panel.yaml",
                 "http/exposed-panels/mautic-crm-panel.yaml",
+                "http/exposed-panels/osticket-panel.yaml:",
                 # Mostly meant to be publicly accessible
                 "http/exposed-panels/bigbluebutton-login.yaml",
                 "http/exposed-panels/ilias-panel.yaml",

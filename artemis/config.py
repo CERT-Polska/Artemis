@@ -183,8 +183,9 @@ class Config:
                 "http/exposed-panels/pulse-secure-panel.yaml",
                 "http/exposed-panels/pulse-secure-version.yaml",
                 "http/exposed-panels/cas-login.yaml",
-                # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                # Too small impact to report
                 "http/exposed-panels/webeditors-check-detect.yaml",
+                # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
                 "http/exposed-panels/jira-detect.yaml",
                 "http/exposed-panels/mantisbt-panel.yaml",
                 "http/exposed-panels/mautic-crm-panel.yaml",

@@ -375,4 +375,5 @@ TRANSLATIONS = {
     "UniFi Network login panel was detected.": "wykryto panel logowania UniFi Network.",
     "Sophos Firewall login panel was detected.": "wykryto panel logowania Sophos Firewall.",
     "Matomo logjn panel was detected.": "wykryto panel logowania Matomo.",
+    "Modoboa login panel was detected.": "wykryto panel logowania narzędia Modoboa.",
 }

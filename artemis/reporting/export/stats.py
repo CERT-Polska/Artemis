@@ -1,11 +1,10 @@
 import os
 
-from artemis.reporting.export.common import OUTPUT_LOCATION
 from artemis.reporting.export.export_data import ExportData
 
 
-def print_and_save_stats(export_data: ExportData, date_str: str) -> None:
-    output_stats_file_name = os.path.join(OUTPUT_LOCATION, "stats_" + date_str + ".txt")
+def print_and_save_stats(export_data: ExportData, output_dir: str) -> None:
+    output_stats_file_name = os.path.join(output_dir, "stats.txt")
 
     with open(output_stats_file_name, "w") as f:
         f.write(f"Reports total: {sum([len(item.reports) for item in export_data.messages.values()])}\n")

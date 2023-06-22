@@ -20,6 +20,7 @@ from artemis.reporting.export.custom_template_arguments import (
 )
 from artemis.reporting.export.db import DataLoader
 from artemis.reporting.export.export_data import ExportData, build_export_data
+from artemis.reporting.export.hooks import run_export_hooks
 from artemis.reporting.export.long_unseen_report_types import (
     print_long_unseen_report_types,
 )
@@ -35,8 +36,8 @@ environment = Environment(
 HOST_ROOT_PATH = "/host-root/"
 
 
-def _build_message_template_and_print_path(date_str: str) -> Template:
-    output_message_template_file_name = os.path.join(OUTPUT_LOCATION, "message_template_" + date_str + ".jinja2")
+def _build_message_template_and_print_path(output_dir: str) -> Template:
+    output_message_template_file_name = os.path.join(output_dir, "message_template.jinja2")
 
     message_template_content = build_message_template()
     message_template = environment.from_string(message_template_content)
@@ -48,17 +49,17 @@ def _build_message_template_and_print_path(date_str: str) -> Template:
     return message_template
 
 
-def _install_translations_and_print_path(language: Language, date_str: str) -> None:
-    translations_file_name = os.path.join(OUTPUT_LOCATION, "translations_" + date_str + ".po")
-    compiled_translations_file_name = os.path.join(OUTPUT_LOCATION, "compiled_translations_" + date_str + ".mo")
+def _install_translations_and_print_path(language: Language, output_dir: str) -> None:
+    translations_file_name = os.path.join(output_dir, "translations.po")
+    compiled_translations_file_name = os.path.join(output_dir, "compiled_translations.mo")
     install_translations(language, environment, translations_file_name, compiled_translations_file_name)
 
     print(f"Translations written to file: {translations_file_name}")
     print(f"Compiled translations written to file: {compiled_translations_file_name}")
 
 
-def _dump_export_data_and_print_path(export_data: ExportData, date_str: str) -> None:
-    output_json_file_name = os.path.join(OUTPUT_LOCATION, "output_" + date_str + ".json")
+def _dump_export_data_and_print_path(export_data: ExportData, output_dir: str) -> None:
+    output_json_file_name = os.path.join(output_dir, "output.json")
 
     with open(output_json_file_name, "w") as f:
         json.dump(export_data, f, indent=4, cls=JSONEncoderAdditionalTypes)
@@ -66,8 +67,8 @@ def _dump_export_data_and_print_path(export_data: ExportData, date_str: str) -> 
     print(f"JSON written to file: {output_json_file_name}")
 
 
-def _build_messages_and_print_path(message_template: Template, export_data: ExportData, date_str: str) -> None:
-    output_messages_directory_name = os.path.join(OUTPUT_LOCATION, "messages_" + date_str)
+def _build_messages_and_print_path(message_template: Template, export_data: ExportData, output_dir: str) -> None:
+    output_messages_directory_name = os.path.join(output_dir, "messages")
 
     # We dump and reload the message data to/from JSON before rendering in order to make sure the template
     # will receive precisely the same type of objects (e.g. str instead of datetime) as the downstream tasks
@@ -124,11 +125,14 @@ def main(
     export_data = build_export_data(previous_reports, tag, export_db_connector, custom_template_arguments_parsed)
 
     date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
-    _install_translations_and_print_path(language, date_str)
-    _dump_export_data_and_print_path(export_data, date_str)
-    message_template = _build_message_template_and_print_path(date_str)
+    output_dir = os.path.join(OUTPUT_LOCATION, date_str)
+    os.mkdir(output_dir)
 
-    print_and_save_stats(export_data, date_str)
+    _install_translations_and_print_path(language, output_dir)
+    _dump_export_data_and_print_path(export_data, output_dir)
+    message_template = _build_message_template_and_print_path(output_dir)
+
+    print_and_save_stats(export_data, output_dir)
 
     if verbose:
         print_long_unseen_report_types(previous_reports + export_db_connector.reports)
@@ -140,7 +144,9 @@ def main(
         for tag in sorted([key for key in export_db_connector.tag_stats.keys() if key]):
             print(f"\t{tag}: {export_db_connector.tag_stats[tag]}")
 
-    _build_messages_and_print_path(message_template, export_data, date_str)
+    _build_messages_and_print_path(message_template, export_data, output_dir)
+
+    run_export_hooks(output_dir, export_data)
 
 
 if __name__ == "__main__":

@@ -39,7 +39,10 @@ the Artemis directory and use:
        --scale=karton-port_scanner=10
 
 .. note ::
-   If you get an error that ``docker compose`` is not a valid command, try ``docker-compose``.
+   If you get an error that ``docker compose`` is not a valid command, that means that Docker Compose
+   plugin is not installed. Please follow the instructions from https://docs.docker.com/compose/install/linux/#install-using-the-repository
+
+   The old ``docker-compose`` syntax is not recommended.
 
 Adding targets to scan
 ----------------------

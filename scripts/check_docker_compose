@@ -1,0 +1,8 @@
+docker compose version >/dev/null 2>/dev/null
+
+if [ $? -ne 0 ]; then
+    echo "docker compose not found - if you have an old version that provides the docker-compose"
+    echo "binary (with hyphen), please follow the instructions from"
+    echo "https://docs.docker.com/compose/install/linux/#install-using-the-repository"
+    exit 1
+fi

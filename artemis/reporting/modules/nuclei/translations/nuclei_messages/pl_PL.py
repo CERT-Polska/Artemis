@@ -322,6 +322,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "[no description] http/exposures/logs/roundcube-log-disclosure.yaml": "Wykryto dziennik zdarzeń systemu Roundcube. Może on zawierać takie dane jak np. informacje o nadawcach i odbiorcach e-maili czy informacje o konfiguracji systemu."
     + DATA_HIDE_HINT,
+    "[no description] http/takeovers/netlify-takeover.yaml": "Domena jest skonfigurowana, aby serwować treści z narzędzia Netlify, ale domena docelowa jest wolna. Atakujący może potencjalnie zarejestrować taką domenę w serwisie Netlify aby umieścić tam swoje treści. Jeśli domena jest nieużywana, rekomendujemy jej usunięcie.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -376,4 +377,7 @@ TRANSLATIONS = {
     "Sophos Firewall login panel was detected.": "wykryto panel logowania Sophos Firewall.",
     "Matomo logjn panel was detected.": "wykryto panel logowania Matomo.",
     "Modoboa login panel was detected.": "wykryto panel logowania narzędia Modoboa.",
+    "QmailAdmin login panel was detected.": "wykryto panel logowania QmailAdmin.",
+    "Jenkins is an open source automation server.": "wykryto panel logowania systemu Jenkins.",
+    "Plesk Onyx login panel was detected.": "wykryto panel logowania Plesk Onyx.",
 }

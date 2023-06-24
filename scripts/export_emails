@@ -8,9 +8,15 @@ cd $(dirname $0)/..
 # if any additional module repositories are cloned inside the current directory.
 FILE_OPTIONS="-f docker-compose.yaml"
 
-for DOCKER_COMPOSE_FILE in */docker-compose.yml; do
-    FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"
-done
+exists() {
+    [ -e "$1" ]
+}
+
+if exists */docker-compose.yml; then
+    for DOCKER_COMPOSE_FILE in */docker-compose.yml; do
+        FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"
+    done
+fi
 
 
 docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS build autoreporter

@@ -162,9 +162,11 @@ class Config:
                 "http/exposed-panels/drupal-login.yaml",
                 "http/exposed-panels/ez-publish-panel.yaml",
                 "http/exposed-panels/joomla-panel.yaml",
+                "http/exposed-panels/kentico-login.yaml",
                 "http/exposed-panels/liferay-portal.yaml",
                 "http/exposed-panels/strapi-panel.yaml",
                 "http/exposed-panels/typo3-login.yaml",
+                "http/exposed-panels/umbraco-login.yaml",
                 "http/exposed-panels/wordpress-login.yaml",
                 # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
                 # make different decision.

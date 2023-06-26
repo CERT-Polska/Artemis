@@ -15,14 +15,14 @@ def load_previous_reports(
 
     previous_reports: List[Report] = []
     for path in previous_reports_directory.glob("**/*.json"):
-        vulnerability_reports = json.load(open(path))
+        data = json.load(open(path))
         if (
             use_only_previous_reports_with_tags
-            and vulnerability_reports["tag"] not in use_only_previous_reports_with_tags
+            and data["tag"] not in use_only_previous_reports_with_tags
         ):
             continue
 
-        for target_data in vulnerability_reports["messages"].values():
+        for target_data in data["messages"].values():
             for report in target_data["reports"]:
                 report = Report(**report)
                 if isinstance(report.timestamp, str):

@@ -3,7 +3,7 @@ import datetime
 import json
 import os
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import termcolor
 import typer
@@ -110,11 +110,19 @@ def main(
         "--verbose",
         help="Print more information (e.g. whether some types of reports have not been observed for a long time).",
     ),
+    use_only_previous_reports_with_tags: Optional[List[str]] = typer.Option(
+        None,
+        "--use_only_previous_reports_with_tags",
+        help="If provided, only previous reports with a given tag will be considered - if a vulnerability appeared "
+        "earlier, but with different tag, it will be considered a fresh one.",
+    ),
 ) -> None:
     blocklist = load_blocklist(blocklist_file)
 
     if previous_reports_directory:
-        previous_reports = load_previous_reports(Path(HOST_ROOT_PATH) / str(previous_reports_directory).lstrip(os.sep))
+        previous_reports = load_previous_reports(
+            Path(HOST_ROOT_PATH) / str(previous_reports_directory).lstrip(os.sep), use_only_previous_reports_with_tags
+        )
     else:
         previous_reports = []
 

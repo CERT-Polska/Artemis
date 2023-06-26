@@ -14,7 +14,7 @@ def get_all_hooks() -> List[Type[ExportHook]]:
         if item.endswith(".py") and item != "__init__.py":
             module_name = item.split(".")[0]
             __import__(f"artemis.reporting.export.hook_modules.{module_name}")
-    return ExportHook.__subclasses__
+    return ExportHook.__subclasses__()
 
 
 def run_export_hooks(output_dir: str, export_data: ExportData) -> None:

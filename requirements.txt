@@ -36,7 +36,7 @@ six==1.16.0
 termcolor==2.3.0
 timeout-decorator==0.5.0
 tqdm==4.64.1
-typer==0.7.0
+typer==0.9.0
 typing-extensions==4.6.3
 urllib3==1.26.16
 uvicorn==0.22.0

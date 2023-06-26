@@ -323,7 +323,7 @@ TRANSLATIONS = {
     "[no description] http/exposures/logs/roundcube-log-disclosure.yaml": "Wykryto dziennik zdarzeń systemu Roundcube. Może on zawierać takie dane jak np. informacje o nadawcach i odbiorcach e-maili czy informacje o konfiguracji systemu."
     + DATA_HIDE_HINT,
     "[no description] http/takeovers/netlify-takeover.yaml": "Domena jest skonfigurowana, aby serwować treści z narzędzia Netlify, ale domena docelowa jest wolna. Atakujący może potencjalnie zarejestrować taką domenę w serwisie Netlify aby umieścić tam swoje treści. Jeśli domena jest nieużywana, rekomendujemy jej usunięcie.",
-    "WordPress Zoomsounds plugin 6.45 and earlier allows arbitrary files, including sensitive configuration files such as wp-config.php, to be downloaded via the `dzsap_download` action using directory traversal in the `link` parameter.": "Wtyczka WordPress o nazwie Zoomsounds w wersji 6.45 i wcześniejszych umożliwia atakującemu pobieranie dowolnych plików z serwera, w tym plików konfiguracyjnych.",
+    "WordPress Zoomsounds plugin 6.45 and earlier allows arbitrary files, including sensitive configuration files such as wp-config.php, to be downloaded via the `dzsap_download` action using directory traversal in the `link` parameter.": "Wtyczka WordPress o nazwie Zoomsounds w wersji 6.45 i wcześniejszych umożliwia atakującemu pobieranie dowolnych plików z serwera, w tym plików konfiguracyjnych." + UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

@@ -2,8 +2,8 @@
 # glue a generic message describing what a RCE leads to to some messages.
 
 RCE_EFFECT_DESCRIPTION = (
-    " Korzystając z tej podatności, atakujący może wykonać dowolne polecenie systemowe i dzięki temu zmodyfikować "
-    "treść strony, umieścić na niej szkodliwe oprogramowanie lub pobrać dane umieszczane przez użytkowników."
+    " Korzystając z tej podatności, atakujący może wykonać dowolne polecenie systemowe i dzięki temu pobrać dane z systemu, "
+    "zmodyfikować je lub w dowolny sposób zmienić zachowanie systemu."
 )
 
 WORDPRESS_UPDATE_HINT = (
@@ -325,6 +325,14 @@ TRANSLATIONS = {
     "[no description] http/takeovers/netlify-takeover.yaml": "Domena jest skonfigurowana, aby serwować treści z narzędzia Netlify, ale domena docelowa jest wolna. Atakujący może potencjalnie zarejestrować taką domenę w serwisie Netlify aby umieścić tam swoje treści. Jeśli domena jest nieużywana, rekomendujemy jej usunięcie.",
     "WordPress Zoomsounds plugin 6.45 and earlier allows arbitrary files, including sensitive configuration files such as wp-config.php, to be downloaded via the `dzsap_download` action using directory traversal in the `link` parameter.": "Wtyczka WordPress o nazwie Zoomsounds w wersji 6.45 i wcześniejszych umożliwia atakującemu pobieranie dowolnych plików z serwera, w tym plików konfiguracyjnych."
     + UPDATE_HINT,
+    "TurboCRM contains a cross-site scripting vulnerability which allows a remote attacker to inject arbitrary JavaScript into the response returned by the application.": "Narzędzie TurboCRM zawiera podatność Cross-Site Scripting, umożliwiającą wstrzykiwanie dowolnego kodu JavaScript do odpowiedzi aplikacji."
+    + UPDATE_HINT,
+    "[no description] http/misconfiguration/elasticsearch.yaml": "Wykryto, że dane w systemie Elasticsearch są publicznie dostępne. Rekomendujemy zmianę tej konfiguracji.",
+    "The HTTP PUT method is normally used to upload data that is saved on the server at a user-supplied URL. If enabled, an attacker may be able to place arbitrary, and potentially malicious, content into the application. Depending on the server's configuration, this may lead to compromise of other users (by uploading client-executable scripts), compromise of the server (by uploading server-executable code), or other attacks.": "Wykryto, że metoda HTTP PUT jest włączona, co umożliwia atakującemu umieszczanie dowolnych plików na serwerze, co może doprowadzić m.in. do zdalnego wykonania kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Microsoft Exchange Server is vulnerable to a remote code execution vulnerability. This CVE ID is unique from CVE-2021-31196, CVE-2021-31206.": "Wykryto, że Microsoft Exchange Server umożliwia zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
+    "GitLab CE/EE 14.0 prior to 14.10.5, 15.0 prior to 15.0.4, and 15.1 prior to 15.1.1 is susceptible to remote code execution. An authenticated user authorized to import projects can import a maliciously crafted project, thus possibly being able to execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "GitLab CE/EE 14.0 w wersji poniżej 14.10.5, 15.0 w wersji poniżej 15.0.4 i 15.1 w wersji poniżej 15.1.1 umożliwia zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
+    "GitLab CE/EE contains a hard-coded credentials vulnerability. A hardcoded password was set for accounts registered using an OmniAuth provider (e.g. OAuth, LDAP, SAML), allowing attackers to potentially take over accounts. This template attempts to passively identify vulnerable versions of GitLab without the need for an exploit by matching unique hashes for the application-<hash>.css file in the header for unauthenticated requests. Positive matches do not guarantee exploitability. Affected versions are 14.7 prior to 14.7.7, 14.8 prior to 14.8.5, and 14.9 prior to 14.9.2.": "GitLab CE/EE w wersji 14.7 poniżej 14.7.7, 14.8 poniżej 14.8.5 i 14.9 poniżej 14.9.2 umożliwia atakującym przejęcie niektórych rodzajów kont." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -383,8 +391,16 @@ TRANSLATIONS = {
     "Jenkins is an open source automation server.": "wykryto panel logowania systemu Jenkins.",
     "Plesk Onyx login panel was detected.": "wykryto panel logowania Plesk Onyx.",
     "Gogs login panel was detected.": "wykryto panel logowania Gogs.",
-    "WildFly welcome page was detected.": "Wykryto stronę startową WildFly.",
-    "Grafana login panel was detected.": "Wykryto panel logowania narzędzia Grafana.",
-    "Web Service panel was detected.": "Wykryto panel narzędzia Web Service.",
+    "WildFly welcome page was detected.": "wykryto stronę startową WildFly.",
+    "Grafana login panel was detected.": "wykryto panel logowania narzędzia Grafana.",
+    "Web Service panel was detected.": "wykryto panel narzędzia Web Service.",
     "DirectAdmin login panel was detected.": "wykryto panel narzędzia DirectAdmin.",
+    "Seafile panel was detected.": "wykryto panel Seafile.",
+    "Empire is a post-exploitation and adversary emulation framework that is used to aid Red Teams and Penetration Testers. The Empire server is written in Python 3 and is modular to allow operator flexibility. Empire comes built-in with a client that can be used remotely to access the server. There is also a GUI available for remotely accessing the Empire server.": "wykryto panel narzędzia Empire, używanego m. in. do kontroli przejętych systemów w trakcie ataków lub testów bezpieczeństwa.",
+    "RStudio panel was detected.": "wykryto panel RStudio.",
+    "XNAT login panel was detected.": "wykryto panel logowania XNAT.",
+    "OCS Inventory login panel was detected.": "wykryto panel logowania narzędzia OCS Inventory.",
+    "PaperCut is a print management system. Log in to manage your print quotas, see your print history and configure your system.": "wykryto panel logowania systemu PaperCut.",
+    "IBM iNotes login panel was detected.": "wykryto panel logowania systemu IBM iNotes.",
+    "An Atlassian Crowd login panel was discovered.": "wykryto panel logowania Atlassian Crowd.",
 }

@@ -17,6 +17,10 @@ Then, use:
 
 This script will produce **text messages ready to be sent**.
 
+You may translate the reports using the ``--language`` option. If your language is not
+supported or you want to edit the translations, please refer to
+:doc:`user-guide/translating-report-messages`.
+
 Besides the messages, the script will also produce a JSON file with vulnerability data, a
 jinja2 template and a .po translation file - using these three files you can build the messages
 yourself.

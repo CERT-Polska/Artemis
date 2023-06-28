@@ -34,8 +34,8 @@ class TranslationRaiseException(gettext.GNUTranslations):
 def install_translations(
     language: Language,
     environment: Environment,
-    save_translations_to: str,
-    save_compiled_translations_to: str,
+    save_translations_to: Path,
+    save_compiled_translations_to: Path,
 ) -> None:
     """Collects all .pot files into one, compiles it and installs to Jinja2 environment. Saves the translations
     (both original and compiled) so that they can be used by downstream tools.

@@ -17,7 +17,7 @@ class ReportEmailTemplateFragment:
             return ReportEmailTemplateFragment(content=f.read(), priority=priority)
 
 
-def build_message_template() -> str:
+def build_message_template(with_custom_definitions: bool = True) -> str:
     """
     Builds a message template from fragments provided by various reporters.
     """
@@ -39,7 +39,7 @@ def build_message_template() -> str:
         # We glue the templates into one so that the export script generates one template to be used,
         # not a package consisting of multiple ones - this is the workflow preferred by the downstream
         # consumers of exported data at CERT PL.
-        _load_template(Path("custom_definitions.jinja2"), allow_nonexistent=True)
+        (_load_template(Path("custom_definitions.jinja2"), allow_nonexistent=True) if with_custom_definitions else "")
         + _load_template(Path("header.jinja2"))
         + content_sum
         + _load_template(Path("footer.jinja2"))

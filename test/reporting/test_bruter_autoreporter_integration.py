@@ -1,6 +1,5 @@
 import tempfile
 from pathlib import Path
-
 from test.base import ArtemisModuleTestCase
 
 from jinja2 import BaseLoader, Environment, StrictUndefined

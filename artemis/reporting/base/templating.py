@@ -17,7 +17,7 @@ class ReportEmailTemplateFragment:
             return ReportEmailTemplateFragment(content=f.read(), priority=priority)
 
 
-def build_message_template() -> str:
+def build_message_template(with_header_and_footer: bool = True) -> str:
     """
     Builds a message template from fragments provided by various reporters.
     """
@@ -31,6 +31,9 @@ def build_message_template() -> str:
     content_sum = ""
     for _, _, content in sorted(fragments, reverse=True):
         content_sum += content
+
+    if not with_header_and_footer:
+        return content_sum
 
     content_sum = (
         # the custom_definitions.jinja2 file may contain e.g. custom header or footer text and

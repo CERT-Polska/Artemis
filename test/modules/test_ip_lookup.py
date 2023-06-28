@@ -30,6 +30,6 @@ class IPLookupTest(ArtemisModuleTestCase):
 
             expected_task = Task(
                 {"type": TaskType.NEW, "origin": IPLookup.identity},
-                payload={"data": entry.ip},
+                payload={"data": entry.ip, "last_domain": entry.domain},
             )
             self.assertTasksEqual(results, [expected_task])

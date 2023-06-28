@@ -1,4 +1,6 @@
 import tempfile
+from pathlib import Path
+
 from test.base import ArtemisModuleTestCase
 
 from jinja2 import BaseLoader, Environment, StrictUndefined
@@ -15,7 +17,7 @@ environment = Environment(
     loader=BaseLoader(), extensions=["jinja2.ext.i18n"], undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True
 )
 with tempfile.NamedTemporaryFile() as f:
-    install_translations(Language.en_US, environment, f.name, "/dev/null")
+    install_translations(Language.en_US, environment, Path(f.name), Path("/dev/null"))
 
 message_template_content = build_message_template()
 message_template = environment.from_string(message_template_content)

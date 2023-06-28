@@ -109,7 +109,7 @@ class Classifier(ArtemisBase):
                     Task(
                         {"type": TaskType.IP},
                         payload={
-                            TaskType.IP: ip,
+                            TaskType.IP.value: ip,
                         },
                         payload_persistent={
                             f"original_{TaskType.IP.value}": ip,
@@ -144,7 +144,7 @@ class Classifier(ArtemisBase):
         new_task = Task(
             {"type": task_type},
             payload={
-                task_type: sanitized,
+                task_type.value: sanitized,
             },
             payload_persistent={
                 f"original_{task_type.value}": sanitized,

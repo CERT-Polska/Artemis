@@ -36,8 +36,8 @@ environment = Environment(
 HOST_ROOT_PATH = "/host-root/"
 
 
-def _build_message_template_and_print_path(output_dir: str) -> Template:
-    output_message_template_file_name = os.path.join(output_dir, "message_template.jinja2")
+def _build_message_template_and_print_path(output_dir: Path) -> Template:
+    output_message_template_file_name = output_dir / "message_template.jinja2"
 
     message_template_content = build_message_template()
     message_template = environment.from_string(message_template_content)
@@ -49,17 +49,17 @@ def _build_message_template_and_print_path(output_dir: str) -> Template:
     return message_template
 
 
-def _install_translations_and_print_path(language: Language, output_dir: str) -> None:
-    translations_file_name = os.path.join(output_dir, "translations.po")
-    compiled_translations_file_name = os.path.join(output_dir, "compiled_translations.mo")
+def _install_translations_and_print_path(language: Language, output_dir: Path) -> None:
+    translations_file_name = output_dir / "translations.po"
+    compiled_translations_file_name = output_dir / "compiled_translations.mo"
     install_translations(language, environment, translations_file_name, compiled_translations_file_name)
 
     print(f"Translations written to file: {translations_file_name}")
     print(f"Compiled translations written to file: {compiled_translations_file_name}")
 
 
-def _dump_export_data_and_print_path(export_data: ExportData, output_dir: str) -> None:
-    output_json_file_name = os.path.join(output_dir, "output.json")
+def _dump_export_data_and_print_path(export_data: ExportData, output_dir: Path) -> None:
+    output_json_file_name = output_dir / "output.json"
 
     with open(output_json_file_name, "w") as f:
         json.dump(export_data, f, indent=4, cls=JSONEncoderAdditionalTypes)
@@ -67,8 +67,8 @@ def _dump_export_data_and_print_path(export_data: ExportData, output_dir: str) -
     print(f"JSON written to file: {output_json_file_name}")
 
 
-def _build_messages_and_print_path(message_template: Template, export_data: ExportData, output_dir: str) -> None:
-    output_messages_directory_name = os.path.join(output_dir, "messages")
+def _build_messages_and_print_path(message_template: Template, export_data: ExportData, output_dir: Path) -> None:
+    output_messages_directory_name = output_dir / "messages"
 
     # We dump and reload the message data to/from JSON before rendering in order to make sure the template
     # will receive precisely the same type of objects (e.g. str instead of datetime) as the downstream tasks
@@ -77,7 +77,7 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
 
     os.mkdir(output_messages_directory_name)
     for top_level_target in export_data_dict["messages"].keys():
-        with open(os.path.join(output_messages_directory_name, top_level_target + ".html"), "w") as f:
+        with open(output_messages_directory_name / (top_level_target + ".html"), "w") as f:
             f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))
     print()
     print(termcolor.colored(f"Messages written to: {output_messages_directory_name}", attrs=["bold"]))
@@ -125,7 +125,7 @@ def main(
     export_data = build_export_data(previous_reports, tag, export_db_connector, custom_template_arguments_parsed)
 
     date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
-    output_dir = os.path.join(OUTPUT_LOCATION, date_str)
+    output_dir = OUTPUT_LOCATION / date_str
     os.mkdir(output_dir)
 
     _install_translations_and_print_path(language, output_dir)

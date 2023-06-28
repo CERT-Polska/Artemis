@@ -12,7 +12,7 @@ def get_all_hooks() -> List[Type[ExportHook]]:
     modules_dir = os.path.join(os.path.dirname(__file__), "hook_modules")
     for item in os.listdir(modules_dir):
         if item.endswith(".py") and item != "__init__.py":
-            module_name = item.split(".")[0]
+            module_name = item.removesuffix(".py")
             __import__(f"artemis.reporting.export.hook_modules.{module_name}")
     return ExportHook.__subclasses__()
 

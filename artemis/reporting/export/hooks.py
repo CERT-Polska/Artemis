@@ -1,5 +1,6 @@
 import functools
 import os
+from pathlib import Path
 from typing import List, Type
 
 from artemis.reporting.export.export_data import ExportData
@@ -17,6 +18,6 @@ def get_all_hooks() -> List[Type[ExportHook]]:
     return ExportHook.__subclasses__()
 
 
-def run_export_hooks(output_dir: str, export_data: ExportData) -> None:
+def run_export_hooks(output_dir: Path, export_data: ExportData) -> None:
     for hook in get_all_hooks():
         hook.run(output_dir, export_data)

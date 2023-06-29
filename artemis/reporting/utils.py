@@ -32,6 +32,8 @@ def get_top_level_target(task_result: Dict[str, Any]) -> str:
 
         for item in Config.REPORTING_SEPARATE_INSTITUTIONS:
             if is_subdomain(last_domain, item):
+                assert isinstance(item, str)
+                assert "original_domain" in payload_persistent
                 assert is_subdomain(item, payload_persistent["original_domain"])
                 return item
 

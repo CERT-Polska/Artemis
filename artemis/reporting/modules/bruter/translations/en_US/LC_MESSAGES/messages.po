@@ -8,18 +8,6 @@ msgid ""
 "backup and whether they should be publicly available."
 msgstr ""
 
-#: artemis/reporting/modules/bruter/template_exposed_bash_history.jinja2:2
-msgid "The following files contain shell command history:"
-msgstr ""
-
-#: artemis/reporting/modules/bruter/template_exposed_bash_history.jinja2:14
-#: artemis/reporting/modules/bruter/template_exposed_dead_letter.jinja2:14
-#: artemis/reporting/modules/bruter/template_exposed_keys.jinja2:14
-#: artemis/reporting/modules/bruter/template_exposed_password_file.jinja2:14
-#: artemis/reporting/modules/bruter/template_exposed_sql_dump.jinja2:14
-msgid "Such data shouldn't be publicly accessible."
-msgstr ""
-
 #: artemis/reporting/modules/bruter/template_exposed_configuration_file.jinja2:2
 msgid "The following addresses contain configuration files or their backups:"
 msgstr ""
@@ -32,6 +20,13 @@ msgstr ""
 
 #: artemis/reporting/modules/bruter/template_exposed_dead_letter.jinja2:2
 msgid "The following files contain e-mails that the system failed to send:"
+msgstr ""
+
+#: artemis/reporting/modules/bruter/template_exposed_dead_letter.jinja2:14
+#: artemis/reporting/modules/bruter/template_exposed_keys.jinja2:14
+#: artemis/reporting/modules/bruter/template_exposed_password_file.jinja2:14
+#: artemis/reporting/modules/bruter/template_exposed_sql_dump.jinja2:14
+msgid "Such data shouldn't be publicly accessible."
 msgstr ""
 
 #: artemis/reporting/modules/bruter/template_exposed_file_with_listing.jinja2:2

@@ -205,6 +205,7 @@ class Config:
     NUCLEI_ADDITIONAL_TEMPLATES = decouple.config("NUCLEI_ADDITIONAL_TEMPLATES", default=",".join([
             "vulnerabilities/generic/basic-xss-prober.yaml",
             "exposures/configs/ftp-credentials-exposure.yaml",
+            "http/misconfiguration/shell-history.yaml",
             "http/misconfiguration/springboot/springboot-env.yaml",
             "http/misconfiguration/springboot/springboot-threaddump.yaml",
             "http/misconfiguration/springboot/springboot-httptrace.yaml",

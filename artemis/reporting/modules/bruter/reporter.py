@@ -10,7 +10,6 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.modules.bruter.classifier import (
     contains_crypto_keys,
     is_apache_info_status,
-    is_bash_history,
     is_configuration_file,
     is_dead_letter,
     is_exposed_archive,
@@ -27,7 +26,6 @@ from artemis.reporting.utils import get_top_level_target
 
 class BruterReporter(Reporter):
     EXPOSED_ARCHIVE = ReportType("exposed_archive")
-    EXPOSED_BASH_HISTORY = ReportType("exposed_bash_history")
     EXPOSED_CONFIGURATION_FILE = ReportType("exposed_configuration_file")
     EXPOSED_DEAD_LETTER = ReportType("exposed_dead_letter")
     EXPOSED_FILE_WITH_LISTING = ReportType("exposed_file_with_listing")
@@ -39,6 +37,10 @@ class BruterReporter(Reporter):
     EXPOSED_PHP_SOURCE = ReportType("exposed_php_source")
     EXPOSED_PHP_VAR_DUMP = ReportType("exposed_php_var_dump")
     EXPOSED_SQL_DUMP = ReportType("exposed_sql_dump")
+
+    # This one is not reported anymore, as it's found by Nuclei. We leave it here so that
+    # already existing, old reports will be supported.
+    EXPOSED_BASH_HISTORY = ReportType("exposed_bash_history")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
@@ -84,8 +86,6 @@ class BruterReporter(Reporter):
                 add_report(found_url, BruterReporter.EXPOSED_FILE_WITH_LISTING)
             elif is_dead_letter(found_url):
                 add_report(found_url, BruterReporter.EXPOSED_DEAD_LETTER)
-            elif is_bash_history(found_url):
-                add_report(found_url, BruterReporter.EXPOSED_BASH_HISTORY)
             elif contains_crypto_keys(found_url):
                 add_report(found_url, BruterReporter.EXPOSED_KEYS)
             elif is_php_var_dump(found_url):
@@ -130,9 +130,6 @@ class BruterReporter(Reporter):
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_exposed_php_var_dump.jinja2"), priority=4
-            ),
-            ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_bash_history.jinja2"), priority=4
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_exposed_phpinfo.jinja2"), priority=3

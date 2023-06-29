@@ -48,7 +48,6 @@ def is_log_file(found_url: FoundURL) -> bool:
                 or "error_log" in href
                 or "debug_log" in href
                 or "errors" in href
-                or "sendmail" in href
             ):
                 return True
 
@@ -63,7 +62,6 @@ def is_log_file(found_url: FoundURL) -> bool:
         "PHP Warning:",
         "PHP Notice:",
         "PHP Fatal error:",
-        "Message for",
         "errno:",
         "Errcode",
     ]
@@ -149,24 +147,6 @@ def is_dead_letter(found_url: FoundURL) -> bool:
     return False
 
 
-def is_bash_history(found_url: FoundURL) -> bool:
-    path = urllib.parse.urlparse(found_url.url).path
-    if "/.bash_history" not in path:
-        return False
-
-    if _is_html(found_url.content_prefix):
-        return False
-
-    if "\nls\n" in found_url.content_prefix:
-        return True
-    if "\nexit\n" in found_url.content_prefix:
-        return True
-    if "\nlogout\n" in found_url.content_prefix:
-        return True
-
-    return False
-
-
 def is_apache_info_status(found_url: FoundURL) -> bool:
     path = urllib.parse.urlparse(found_url.url).path
     if "/server-info" not in path and "/server-status" not in path:
@@ -210,9 +190,6 @@ def is_exposed_file_with_listing(found_url: FoundURL) -> bool:
         and "<PRE>" in found_url.content_prefix
         and "<html" not in found_url.content_prefix
     ):  # yet another results - let's make sure the file from path is in content
-        return True
-
-    if ".DS_Store" in path and found_url.content_prefix.startswith("\x00\x00\x00\x01Bud1"):
         return True
 
     return False

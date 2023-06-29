@@ -74,6 +74,14 @@ class ArtemisBase(Karton):
     def add_task(self, current_task: Task, new_task: Task) -> None:
         new_task.set_task_parent(current_task)
         new_task.merge_persistent_payload(current_task)
+
+        if "domain" in new_task.payload:
+            new_task.payload["last_domain"] = new_task.payload["domain"]
+        elif "domain" in current_task.payload:
+            new_task.payload["last_domain"] = current_task.payload["domain"]
+        elif "last_domain" in current_task.payload:
+            new_task.payload["last_domain"] = current_task.payload["last_domain"]
+
         if self.db.save_scheduled_task(new_task):
             self.send_task(new_task)
 

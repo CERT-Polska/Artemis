@@ -202,21 +202,27 @@ class Config:
     # A comma-separated list of Nuclei templates to be used besides the standard list.
     # vulnerabilities/generic/crlf-injection.yaml was present here but is not anymore due to
     # a significant number of false positives
-    NUCLEI_ADDITIONAL_TEMPLATES = decouple.config("NUCLEI_ADDITIONAL_TEMPLATES", default=",".join([
-            "vulnerabilities/generic/basic-xss-prober.yaml",
-            "exposures/configs/ftp-credentials-exposure.yaml",
-            "http/misconfiguration/shell-history.yaml",
-            "http/misconfiguration/springboot/springboot-env.yaml",
-            "http/misconfiguration/springboot/springboot-threaddump.yaml",
-            "http/misconfiguration/springboot/springboot-httptrace.yaml",
-            "http/misconfiguration/springboot/springboot-logfile.yaml",
-            "http/misconfiguration/springboot/springboot-dump.yaml",
-            "http/misconfiguration/springboot/springboot-trace.yaml",
-            "http/misconfiguration/springboot/springboot-auditevents.yaml",
-            "http/exposures/logs/roundcube-log-disclosure.yaml",
-            "http/exposures/files/ds-store-file.yaml",
-            "misconfiguration/elasticsearch.yaml",
-        ]), cast=decouple.Csv(str))
+    NUCLEI_ADDITIONAL_TEMPLATES = decouple.config(
+        "NUCLEI_ADDITIONAL_TEMPLATES",
+        default=",".join(
+            [
+                "vulnerabilities/generic/basic-xss-prober.yaml",
+                "exposures/configs/ftp-credentials-exposure.yaml",
+                "http/misconfiguration/shell-history.yaml",
+                "http/misconfiguration/springboot/springboot-env.yaml",
+                "http/misconfiguration/springboot/springboot-threaddump.yaml",
+                "http/misconfiguration/springboot/springboot-httptrace.yaml",
+                "http/misconfiguration/springboot/springboot-logfile.yaml",
+                "http/misconfiguration/springboot/springboot-dump.yaml",
+                "http/misconfiguration/springboot/springboot-trace.yaml",
+                "http/misconfiguration/springboot/springboot-auditevents.yaml",
+                "http/exposures/logs/roundcube-log-disclosure.yaml",
+                "http/exposures/files/ds-store-file.yaml",
+                "misconfiguration/elasticsearch.yaml",
+            ]
+        ),
+        cast=decouple.Csv(str),
+    )
 
     # == port_scanner settings (artemis/modules/port_scanner.py)
     # custom port list to scan in CSV form (replaces default list)

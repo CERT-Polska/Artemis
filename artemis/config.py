@@ -18,6 +18,10 @@ class Config:
     # When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported
     REPORTING_MAX_VULN_AGE_DAYS = decouple.config("REPORTING_MAX_VULN_AGE_DAYS", default=14, cast=int)
 
+    # Sometimes even if we scan example.com, we want to report subdomain.example.com to a separate contact, because
+    # it is a separate institution. This variable should contain a comma-separated list of domains of such institutions.
+    REPORTING_SEPARATE_INSTITUTIONS = decouple.config("REPORTING_SEPARATE_INSTITUTIONS", cast=decouple.Csv(str))
+
     # If a report has already been seen earlier - how much time needs to pass for a second e-mail to be sent
     MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW = decouple.config(
         "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=6 * 30, cast=int

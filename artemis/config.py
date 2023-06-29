@@ -216,7 +216,7 @@ class Config:
             "http/exposures/logs/roundcube-log-disclosure.yaml",
             "http/exposures/files/ds-store-file.yaml",
             "misconfiguration/elasticsearch.yaml",
-        ], cast=decouple.Csv(str))
+        ]), cast=decouple.Csv(str))
 
     # == port_scanner settings (artemis/modules/port_scanner.py)
     # custom port list to scan in CSV form (replaces default list)

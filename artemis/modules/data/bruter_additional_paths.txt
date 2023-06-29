@@ -12,15 +12,8 @@ graph
 database.sql
 adminbackups
 core
-wp-admin/install.php
-logs/errors
-logs/sendmail
 mail/temp/
-mail/logs/sendmail
-mail/logs/errors
 webmail/temp/
-webmail/logs/sendmail
-webmail/logs/errors
 errors
 .env
 .htaccess

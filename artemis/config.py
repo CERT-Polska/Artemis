@@ -200,6 +200,8 @@ class Config:
     )
 
     # A comma-separated list of Nuclei templates to be used besides the standard list.
+    # vulnerabilities/generic/crlf-injection.yaml was present here but is not anymore due to
+    # a significant number of false positives
     NUCLEI_ADDITIONAL_TEMPLATES = decouple.config("NUCLEI_ADDITIONAL_TEMPLATES", default=",".join([
             "vulnerabilities/generic/basic-xss-prober.yaml",
             "exposures/configs/ftp-credentials-exposure.yaml",
@@ -211,7 +213,8 @@ class Config:
             "http/misconfiguration/springboot/springboot-trace.yaml",
             "http/misconfiguration/springboot/springboot-auditevents.yaml",
             "http/exposures/logs/roundcube-log-disclosure.yaml",
-            "misconfiguration/elasticsearch.yaml"
+            "http/exposures/files/ds-store-file.yaml",
+            "misconfiguration/elasticsearch.yaml",
         ], cast=decouple.Csv(str))
 
     # == port_scanner settings (artemis/modules/port_scanner.py)

@@ -210,9 +210,6 @@ def is_exposed_file_with_listing(found_url: FoundURL) -> bool:
     ):  # yet another results - let's make sure the file from path is in content
         return True
 
-    if ".DS_Store" in path and found_url.content_prefix.startswith("\x00\x00\x00\x01Bud1"):
-        return True
-
     return False
 
 

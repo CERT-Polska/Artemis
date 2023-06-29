@@ -48,7 +48,6 @@ def is_log_file(found_url: FoundURL) -> bool:
                 or "error_log" in href
                 or "debug_log" in href
                 or "errors" in href
-                or "sendmail" in href
             ):
                 return True
 
@@ -63,7 +62,6 @@ def is_log_file(found_url: FoundURL) -> bool:
         "PHP Warning:",
         "PHP Notice:",
         "PHP Fatal error:",
-        "Message for",
         "errno:",
         "Errcode",
     ]

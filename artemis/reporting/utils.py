@@ -6,6 +6,8 @@ from typing import Any, Dict
 from karton.core import Task
 
 from artemis import http_requests, task_utils
+from artemis.config import Config
+from artemis.domains import is_subdomain
 
 
 def get_target_url(task_result: Dict[str, Any]) -> str:
@@ -19,7 +21,21 @@ def get_top_level_target(task_result: Dict[str, Any]) -> str:
     For example, the top level target may be example.com, but the actual vulnerability may be
     found on https://subdomain.example.com:443/.
     """
+
     payload_persistent = task_result["payload_persistent"]
+
+    # Sometimes subdomain.example.com is managed by an institution separate from example.com. In such
+    # cases, we return a separate top level target, so that all reports in subdomain.example.com will
+    # get grouped in a separate e-mail.
+    if "last_domain" in task_result["payload"]:
+        last_domain = task_result["payload"]["last_domain"]
+
+        for item in Config.REPORTING_SEPARATE_INSTITUTIONS:
+            if is_subdomain(last_domain, item):
+                assert isinstance(item, str)
+                assert "original_domain" in payload_persistent
+                assert is_subdomain(item, payload_persistent["original_domain"])
+                return item
 
     if "original_domain" in payload_persistent:
         assert isinstance(payload_persistent["original_domain"], str)

@@ -60,6 +60,9 @@ class BruterAutoreporterIntegrationTest(ArtemisModuleTestCase):
             "headers": {
                 "receiver": "bruter",
             },
+            "payload": {
+                "last_domain": host,
+            },
             "payload_persistent": {
                 "original_domain": host,
             },

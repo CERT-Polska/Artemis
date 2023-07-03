@@ -340,6 +340,11 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "GitLab CE/EE contains a hard-coded credentials vulnerability. A hardcoded password was set for accounts registered using an OmniAuth provider (e.g. OAuth, LDAP, SAML), allowing attackers to potentially take over accounts. This template attempts to passively identify vulnerable versions of GitLab without the need for an exploit by matching unique hashes for the application-<hash>.css file in the header for unauthenticated requests. Positive matches do not guarantee exploitability. Affected versions are 14.7 prior to 14.7.7, 14.8 prior to 14.8.5, and 14.9 prior to 14.9.2.": "GitLab CE/EE w wersji 14.7 poniżej 14.7.7, 14.8 poniżej 14.8.5 i 14.9 poniżej 14.9.2 umożliwia atakującym przejęcie niektórych rodzajów kont."
     + UPDATE_HINT,
+    "YesWiki before 2022-07-07 contains a SQL injection vulnerability via the id parameter in the AccueiL URL. An attacker can possibly obtain sensitive information from a database, modify data, and execute unauthorized administrative operations in the context of the affected site.": "Narzędzie YesWiki w wersji poniżej 2022-07-07 zawiera podatność SQL Injection umożliwiającą pobranie całej zawartości bazy danych." + UPDATE_HINT,
+    "Discover history for bash, ksh, sh, and zsh": "Wykryto historię poleceń powłoki bash, ksh, sh lub zsh." + DATA_HIDE_HINT,
+    "The Openstack host is configured as a proxy which allows access to the instance metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych OpenStack, w tym potencjalnie do haseł dostępowych.",
+    "The AWS host is configured as a proxy which allows access to the metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych AWS, w tym potencjalnie do haseł dostępowych.",
+    "[no description] http/exposures/files/ds-store-file.yaml": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -411,4 +416,11 @@ TRANSLATIONS = {
     "IBM iNotes login panel was detected.": "wykryto panel logowania systemu IBM iNotes.",
     "An Atlassian Crowd login panel was discovered.": "wykryto panel logowania Atlassian Crowd.",
     "LiveZilla login panel was detected.": "wykryto panel logowania LiveZilla.",
+    "HashiCorp Consul Web UI login panel was detected,": "wykryto panel logowania narzędzia Hashicorp Consul.",
+    "Drone CI login panel was detected.": "wykryto panel logowania narzędzia Drone CI.",
+    "Control Web Panel login panel was detected.": "wykryto panel logowania narzędzia Control Web Panel.",
+    "Prometheus panel was detected.": "wykryto panel narzędzia Prometheus.",
+    "Hestia Control Panel login was detected.": "wykryto panel logowania narzędzia Hestia Control Panel.",
+    "Kibana login panel was detected.": "wykryto panel logowania narzędzia Kibana.",
+    "Check for the existence of the ArcGIS Token Service on an ArcGIS server.": "wykryto narzędzie ArcGIS Token Service.",
 }

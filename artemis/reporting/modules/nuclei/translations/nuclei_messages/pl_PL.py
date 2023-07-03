@@ -72,6 +72,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "An issue has been discovered in GitLab CE/EE affecting all versions starting from 12.10 before 14.6.5, all versions starting from 14.7 before 14.7.4, all versions starting from 14.8 before 14.8.2. An unauthorised user was able to steal runner registration tokens through an information disclosure vulnerability using quick actions commands.": "W narzędziu GitLab CE/EE w wersjach od 12.10 poniżej 14.6.5, od 14.7 poniżej 14.7.4 i od 14.8 poniżej 14.8.2 znaleziono podatność umożliwiającą pobieranie danych umożliwiających rejestrację dodatkowych maszyn wykonujących zadania CI, a w konsekwencji np. pobranie kodu źródłowego czy danych uwierzytelniających udostępnianych na potrzeby zadań CI."
     + UPDATE_HINT,
+    "GitLab CE/EE is susceptible to information disclosure. An attacker can access runner registration tokens using quick actions commands, thereby making it possible to obtain sensitive information, modify data, and/or execute unauthorized operations. Affected versions are from 12.10 before 14.6.5, from 14.7 before 14.7.4, and from 14.8 before 14.8.2.": "W narzędziu GitLab CE/EE w wersjach od 12.10 poniżej 14.6.5, od 14.7 poniżej 14.7.4 i od 14.8 poniżej 14.8.2 znaleziono podatność umożliwiającą pobieranie danych umożliwiających rejestrację dodatkowych maszyn wykonujących zadania CI, a w konsekwencji np. pobranie kodu źródłowego czy danych uwierzytelniających udostępnianych na potrzeby zadań CI."
+    + UPDATE_HINT,
     "Jenkins 2.153 and earlier and LTS 2.138.3 and earlier are susceptible to a remote command injection via stapler/core/src/main/java/org/kohsuke/stapler/MetaClass.java that allows attackers to invoke some methods on Java objects by accessing crafted URLs that were not intended to be invoked this way.": "Jenkins w wersji 2.153 i wcześniejszych a także LTS 2.138.3 i wcześniejszych umożliwia zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -408,4 +410,5 @@ TRANSLATIONS = {
     "PaperCut is a print management system. Log in to manage your print quotas, see your print history and configure your system.": "wykryto panel logowania systemu PaperCut.",
     "IBM iNotes login panel was detected.": "wykryto panel logowania systemu IBM iNotes.",
     "An Atlassian Crowd login panel was discovered.": "wykryto panel logowania Atlassian Crowd.",
+    "LiveZilla login panel was detected.": "wykryto panel logowania LiveZilla.",
 }

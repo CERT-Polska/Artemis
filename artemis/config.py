@@ -174,6 +174,7 @@ class Config:
                 "http/exposed-panels/horde-webmail-login.yaml",
                 "http/exposed-panels/horde-login-panel.yaml",
                 "http/exposed-panels/zimbra-web-login.yaml",
+                "http/exposed-panels/icewarp-panel-detect.yaml",
                 # These are Tomcat docs, not application docs
                 "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
                 # Generic API docs

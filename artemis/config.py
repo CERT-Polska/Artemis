@@ -15,24 +15,6 @@ class Config:
     # Custom User-Agent string used by Artemis (if not set, the tool defaults will be used: requests, Nuclei etc.)
     CUSTOM_USER_AGENT = decouple.config("CUSTOM_USER_AGENT", default="")
 
-    # When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported
-    REPORTING_MAX_VULN_AGE_DAYS = decouple.config("REPORTING_MAX_VULN_AGE_DAYS", default=14, cast=int)
-
-    # Sometimes even if we scan example.com, we want to report subdomain.example.com to a separate contact, because
-    # it is a separate institution. This variable should contain a comma-separated list of domains of such institutions.
-    REPORTING_SEPARATE_INSTITUTIONS = decouple.config("REPORTING_SEPARATE_INSTITUTIONS", cast=decouple.Csv(str))
-
-    # If a report has already been seen earlier - how much time needs to pass for a second e-mail to be sent
-    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW = decouple.config(
-        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=6 * 30, cast=int
-    )
-    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM = decouple.config(
-        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM", default=3 * 30, cast=int
-    )
-    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH = decouple.config(
-        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=14, cast=int
-    )
-
     # Whether we will scan a public suffix (e.g. .pl) if it appears on the target list. This may cause very large
     # number of domains to be scanned.
     ALLOW_SCANNING_PUBLIC_SUFFIXES = decouple.config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
@@ -66,14 +48,33 @@ class Config:
     # default request timeout (for all protocols)
     REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
 
+    # == Reporting settings
+    # When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported
+    REPORTING_MAX_VULN_AGE_DAYS = decouple.config("REPORTING_MAX_VULN_AGE_DAYS", default=14, cast=int)
+
+    # Sometimes even if we scan example.com, we want to report subdomain.example.com to a separate contact, because
+    # it is a separate institution. This variable should contain a comma-separated list of domains of such institutions.
+    REPORTING_SEPARATE_INSTITUTIONS = decouple.config("REPORTING_SEPARATE_INSTITUTIONS", default="", cast=decouple.Csv(str))
+
     # Ports that we will treat as "standard http/https ports" when deduplicating vulnerabilities - that is,
     # if we observe identical vulnerability of two standard ports (e.g. on 80 and on 443), we will treat
     # such case as the same vulnerability.
     #
     # This is configurable because e.g. we observed some hostings serving mirrors of content from
     # port 80 on ports 81-84.
-    REPORTER_DEDUPLICATION_COMMON_HTTP_PORTS = decouple.config(
-        "REPORTER_DEDUPLICATION_COMMON_HTTP_PORTS", default="80,443", cast=decouple.Csv(int)
+    REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS = decouple.config(
+        "REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS", default="80,443", cast=decouple.Csv(int)
+    )
+
+    # If a report has already been seen earlier - how much time needs to pass for a second e-mail to be sent
+    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW = decouple.config(
+        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=6 * 30, cast=int
+    )
+    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM = decouple.config(
+        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM", default=3 * 30, cast=int
+    )
+    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH = decouple.config(
+        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=14, cast=int
     )
 
     # == Rate limit settings

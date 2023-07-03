@@ -54,7 +54,9 @@ class Config:
 
     # Sometimes even if we scan example.com, we want to report subdomain.example.com to a separate contact, because
     # it is a separate institution. This variable should contain a comma-separated list of domains of such institutions.
-    REPORTING_SEPARATE_INSTITUTIONS = decouple.config("REPORTING_SEPARATE_INSTITUTIONS", default="", cast=decouple.Csv(str))
+    REPORTING_SEPARATE_INSTITUTIONS = decouple.config(
+        "REPORTING_SEPARATE_INSTITUTIONS", default="", cast=decouple.Csv(str)
+    )
 
     # Ports that we will treat as "standard http/https ports" when deduplicating vulnerabilities - that is,
     # if we observe identical vulnerability of two standard ports (e.g. on 80 and on 443), we will treat

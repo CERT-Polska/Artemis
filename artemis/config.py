@@ -111,9 +111,17 @@ class Config:
     # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
     BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
+    # == crtsh and gau settings (artemis/modules/crtsh.py, artemis/modules/gau.py)
+    # Subdomains where enumeration won't happen as we assume they're leaf subdomains.
+    # For example, when we observe www.example.com, we would assume nothing resides under www.example.com
+    # (e.g. there is no subdomain1.www.example.com subdomain) to speed up enumeration.
+    LEAF_SUBDOMAINS_TO_SKIP_ENUMERATION = decouple.config("LEAF_SUBDOMAINS_TO_SKIP_ENUMERATION", default="www,mail,ftp", cast=decouple.Csv(str))
+
+
     # == crtsh settings (artemis/modules/crtsh.py)
     # How many times should we try to obtain subdomains list
     CRTSH_NUM_RETRIES = decouple.config("CRTSH_NUM_RETRIES", default=10, cast=int)
+
     # How long to sleep between tries
     CRTSH_SLEEP_ON_RETRY_SECONDS = decouple.config("CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int)
 

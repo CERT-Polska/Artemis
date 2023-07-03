@@ -26,8 +26,8 @@ class GAU(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
-        leaf_domain = domain.split('.')[0]
-        if leaf_domain in config.LEAF_SUBDOMAINS_TO_SKIP_ENUMERATION:
+        leaf_domain = domain.split(".")[0]
+        if leaf_domain in Config.LEAF_SUBDOMAINS_TO_SKIP_ENUMERATION:
             return
 
         with self.lock:

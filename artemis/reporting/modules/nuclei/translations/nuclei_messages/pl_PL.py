@@ -72,6 +72,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "An issue has been discovered in GitLab CE/EE affecting all versions starting from 12.10 before 14.6.5, all versions starting from 14.7 before 14.7.4, all versions starting from 14.8 before 14.8.2. An unauthorised user was able to steal runner registration tokens through an information disclosure vulnerability using quick actions commands.": "W narzędziu GitLab CE/EE w wersjach od 12.10 poniżej 14.6.5, od 14.7 poniżej 14.7.4 i od 14.8 poniżej 14.8.2 znaleziono podatność umożliwiającą pobieranie danych umożliwiających rejestrację dodatkowych maszyn wykonujących zadania CI, a w konsekwencji np. pobranie kodu źródłowego czy danych uwierzytelniających udostępnianych na potrzeby zadań CI."
     + UPDATE_HINT,
+    "GitLab CE/EE is susceptible to information disclosure. An attacker can access runner registration tokens using quick actions commands, thereby making it possible to obtain sensitive information, modify data, and/or execute unauthorized operations. Affected versions are from 12.10 before 14.6.5, from 14.7 before 14.7.4, and from 14.8 before 14.8.2.": "W narzędziu GitLab CE/EE w wersjach od 12.10 poniżej 14.6.5, od 14.7 poniżej 14.7.4 i od 14.8 poniżej 14.8.2 znaleziono podatność umożliwiającą pobieranie danych umożliwiających rejestrację dodatkowych maszyn wykonujących zadania CI, a w konsekwencji np. pobranie kodu źródłowego czy danych uwierzytelniających udostępnianych na potrzeby zadań CI."
+    + UPDATE_HINT,
     "Jenkins 2.153 and earlier and LTS 2.138.3 and earlier are susceptible to a remote command injection via stapler/core/src/main/java/org/kohsuke/stapler/MetaClass.java that allows attackers to invoke some methods on Java objects by accessing crafted URLs that were not intended to be invoked this way.": "Jenkins w wersji 2.153 i wcześniejszych a także LTS 2.138.3 i wcześniejszych umożliwia zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -338,6 +340,13 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "GitLab CE/EE contains a hard-coded credentials vulnerability. A hardcoded password was set for accounts registered using an OmniAuth provider (e.g. OAuth, LDAP, SAML), allowing attackers to potentially take over accounts. This template attempts to passively identify vulnerable versions of GitLab without the need for an exploit by matching unique hashes for the application-<hash>.css file in the header for unauthenticated requests. Positive matches do not guarantee exploitability. Affected versions are 14.7 prior to 14.7.7, 14.8 prior to 14.8.5, and 14.9 prior to 14.9.2.": "GitLab CE/EE w wersji 14.7 poniżej 14.7.7, 14.8 poniżej 14.8.5 i 14.9 poniżej 14.9.2 umożliwia atakującym przejęcie niektórych rodzajów kont."
     + UPDATE_HINT,
+    "YesWiki before 2022-07-07 contains a SQL injection vulnerability via the id parameter in the AccueiL URL. An attacker can possibly obtain sensitive information from a database, modify data, and execute unauthorized administrative operations in the context of the affected site.": "Narzędzie YesWiki w wersji poniżej 2022-07-07 zawiera podatność SQL Injection umożliwiającą pobranie całej zawartości bazy danych."
+    + UPDATE_HINT,
+    "Discover history for bash, ksh, sh, and zsh": "Wykryto historię poleceń powłoki bash, ksh, sh lub zsh."
+    + DATA_HIDE_HINT,
+    "The Openstack host is configured as a proxy which allows access to the instance metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych OpenStack, w tym potencjalnie do haseł dostępowych.",
+    "The AWS host is configured as a proxy which allows access to the metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych AWS, w tym potencjalnie do haseł dostępowych.",
+    "[no description] http/exposures/files/ds-store-file.yaml": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -408,4 +417,12 @@ TRANSLATIONS = {
     "PaperCut is a print management system. Log in to manage your print quotas, see your print history and configure your system.": "wykryto panel logowania systemu PaperCut.",
     "IBM iNotes login panel was detected.": "wykryto panel logowania systemu IBM iNotes.",
     "An Atlassian Crowd login panel was discovered.": "wykryto panel logowania Atlassian Crowd.",
+    "LiveZilla login panel was detected.": "wykryto panel logowania LiveZilla.",
+    "HashiCorp Consul Web UI login panel was detected,": "wykryto panel logowania narzędzia Hashicorp Consul.",
+    "Drone CI login panel was detected.": "wykryto panel logowania narzędzia Drone CI.",
+    "Control Web Panel login panel was detected.": "wykryto panel logowania narzędzia Control Web Panel.",
+    "Prometheus panel was detected.": "wykryto panel narzędzia Prometheus.",
+    "Hestia Control Panel login was detected.": "wykryto panel logowania narzędzia Hestia Control Panel.",
+    "Kibana login panel was detected.": "wykryto panel logowania narzędzia Kibana.",
+    "Check for the existence of the ArcGIS Token Service on an ArcGIS server.": "wykryto narzędzie ArcGIS Token Service.",
 }

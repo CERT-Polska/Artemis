@@ -28,7 +28,7 @@ class Report:
     additional_data: Dict[str, Any]
     timestamp: Optional[datetime.datetime] = None
 
-    ## All following variables are provided automatically, you don't have to provide them when creating a Report
+    # === All following variables are provided automatically, you don't have to provide them when creating a Report
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # IP address of the target - used later to deduplicate identical vulnerabilities on a domain and on an IP of the

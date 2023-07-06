@@ -162,6 +162,7 @@ class Config:
                 # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
                 # Feel free to make a different decision.
                 "http/exposed-panels/alfresco-detect.yaml",
+                "http/exposed-panels/bolt-cms-panel.yaml",
                 "http/exposed-panels/concrete5/concrete5-panel.yaml",
                 "http/exposed-panels/contao-login-panel.yaml",
                 "http/exposed-panels/craftcms-admin-panel.yaml",
@@ -192,6 +193,7 @@ class Config:
                 "http/exposed-panels/pulse-secure-panel.yaml",
                 "http/exposed-panels/pulse-secure-version.yaml",
                 "http/exposed-panels/cas-login.yaml",
+                "http/exposed-panels/casdoor-login.yaml",
                 # Too small impact to report
                 "http/exposed-panels/webeditors-check-detect.yaml",
                 # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
@@ -216,6 +218,8 @@ class Config:
             [
                 "vulnerabilities/generic/basic-xss-prober.yaml",
                 "exposures/configs/ftp-credentials-exposure.yaml",
+                "http/misconfiguration/server-status.yaml",
+                "http/misconfiguration/server-status-localhost.yaml",
                 "http/misconfiguration/shell-history.yaml",
                 "http/misconfiguration/springboot/springboot-env.yaml",
                 "http/misconfiguration/springboot/springboot-threaddump.yaml",

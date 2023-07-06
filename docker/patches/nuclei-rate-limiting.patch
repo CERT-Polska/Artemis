@@ -13,7 +13,7 @@ index 28d1d534..be26a7d8 100644
  		flagSet.IntVarP(&options.TemplateThreads, "concurrency", "c", 25, "maximum number of templates to be executed in parallel"),
  		flagSet.IntVarP(&options.HeadlessBulkSize, "headless-bulk-size", "hbs", 10, "maximum number of headless hosts to be analyzed in parallel per template"),
 diff --git a/v2/internal/runner/runner.go b/v2/internal/runner/runner.go
-index 8b396a78..eadbf3c2 100644
+index 8b396a78..c882ed7b 100644
 --- a/v2/internal/runner/runner.go
 +++ b/v2/internal/runner/runner.go
 @@ -317,6 +317,8 @@ func New(options *types.Options) (*Runner, error) {
@@ -21,7 +21,7 @@ index 8b396a78..eadbf3c2 100644
  	} else if options.RateLimit > 0 {
  		runner.rateLimiter = ratelimit.New(context.Background(), uint(options.RateLimit), time.Second)
 +	} else if options.SecondsPerRequest > 0 {
-+		runner.ratelimiter = ratelimit.New(context.Background(), 1, time.Duration(options.SecondsPerRequest) * time.Second)
++		runner.rateLimiter = ratelimit.New(context.Background(), 1, time.Duration(options.SecondsPerRequest) * time.Second)
  	} else {
  		runner.rateLimiter = ratelimit.NewUnlimited(context.Background())
  	}

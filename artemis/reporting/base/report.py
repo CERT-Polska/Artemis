@@ -27,6 +27,8 @@ class Report:
     # Additional report data - the content depends on the report type
     additional_data: Dict[str, Any]
     timestamp: Optional[datetime.datetime] = None
+
+    # === All following variables are provided automatically, you don't have to provide them when creating a Report
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # IP address of the target - used later to deduplicate identical vulnerabilities on a domain and on an IP of the
@@ -39,6 +41,9 @@ class Report:
 
     # Whether we already reported that vulnerability earlier
     is_subsequent_reminder: bool = False
+
+    # The tag that has been added by the user when adding target to scan
+    tag: Optional[str] = None
 
     # Data about the original task result that led to the creation of this Report
     original_karton_name: Optional[str] = None

@@ -33,7 +33,7 @@ language, filter reports by tag or skip sending messages that have already been 
 
 Troubleshooting
 ^^^^^^^^^^^^^^^
-The report generation modules has custom logic that makes an educated guess whether a vulnerability
+The report generation module has custom logic that makes an educated guess whether a vulnerability
 is a true positive and interesting enough to be reported. If you don't see a vulnerability in the reports
 or if you see that no messages have been generated:
 

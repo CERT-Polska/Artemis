@@ -25,7 +25,7 @@ class JoomlaScanner(ArtemisBase):
     ]
 
     # This is a heuristic so that we can avoid parsing CVE list
-    def is_version_old(self, version: str, age_threshold_days: int = Config.JOOMLA_VERSION_AGE_DAYS) -> bool:
+    def is_newer_version_available(self, version: str, age_threshold_days: int = Config.JOOMLA_VERSION_AGE_DAYS) -> bool:
         data = json.loads(self.cached_get("https://api.github.com/repos/joomla/joomla-cms/releases", "versions"))
 
         version_parsed = semver.VersionInfo.parse(version)
@@ -75,7 +75,7 @@ class JoomlaScanner(ArtemisBase):
             result["joomla_version"] = joomla_version
             # Get latest release in repo from GitHub API
             gh_api_response = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases/latest")
-            if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_old(joomla_version):
+            if gh_api_response.json()["tag_name"] != joomla_version and self.is_newer_version_available(joomla_version):
                 found_problems.append(f"Joomla version is too old: {joomla_version}")
                 result["joomla_version_is_too_old"] = True
 

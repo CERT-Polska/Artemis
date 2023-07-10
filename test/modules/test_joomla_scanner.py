@@ -13,7 +13,7 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
     karton_class = JoomlaScanner  # type: ignore
 
     @freeze_time("2023-02-21")
-    def test_is_version_old(self) -> None:
+    def test_is_newer_version_available(self) -> None:
         with requests_mock.Mocker() as requests_mocker:
             requests_mocker.get(
                 "https://api.github.com/repos/joomla/joomla-cms/releases",
@@ -37,16 +37,16 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
                 ],
             )
 
-            self.assertTrue(self.karton.is_version_old("2.8.6"))
-            self.assertTrue(self.karton.is_version_old("2.99999.99999"))
+            self.assertTrue(self.karton.is_newer_version_available("2.8.6"))
+            self.assertTrue(self.karton.is_newer_version_available("2.99999.99999"))
 
-            self.assertTrue(self.karton.is_version_old("3.10.9"))
+            self.assertTrue(self.karton.is_newer_version_available("3.10.9"))
             # The 30 days from release didn't pass so the version is not yet old
-            self.assertFalse(self.karton.is_version_old("3.10.10"))
-            self.assertFalse(self.karton.is_version_old("3.10.11"))
-            self.assertTrue(self.karton.is_version_old("4.0.0"))
-            self.assertFalse(self.karton.is_version_old("4.3.0"))
-            self.assertFalse(self.karton.is_version_old("4.99999.99999"))
+            self.assertFalse(self.karton.is_newer_version_available("3.10.10"))
+            self.assertFalse(self.karton.is_newer_version_available("3.10.11"))
+            self.assertTrue(self.karton.is_newer_version_available("4.0.0"))
+            self.assertFalse(self.karton.is_newer_version_available("4.3.0"))
+            self.assertFalse(self.karton.is_newer_version_available("4.99999.99999"))
 
     def test_simple(self) -> None:
         task = Task(

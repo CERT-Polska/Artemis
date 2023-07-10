@@ -50,7 +50,7 @@ class JoomlaScanner(ArtemisBase):
                 if version_age.days > age_threshold_days:
                     is_newer_version_available = True
 
-        # To consider a version old, it must:
+        # To consider a version old:
         # - a newer version for a given branch (Joomla 3.x or Joomla 4.x) should be available (so that we don't consider
         #   3.10.11 to be old because it's the newest version for the 3.x branch).
         # - the new version should be old enough (we don't want to send notifications if a version was released yesterday)

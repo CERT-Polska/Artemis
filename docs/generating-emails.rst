@@ -31,6 +31,24 @@ yourself.
 To view additional options, use ``./scripts/export_emails --help`` - for example, you will be able to change
 language, filter reports by tag or skip sending messages that have already been sent.
 
+Troubleshooting
+^^^^^^^^^^^^^^^
+The report generation module has custom logic that makes an educated guess whether a vulnerability
+is a true positive and interesting enough to be reported. If you don't see a vulnerability in the reports
+or if you see that no messages have been generated:
+
+.. code-block:: none
+
+  Stats (written to file: output/autoreporter/2023-07-10_12_47_48/stats.txt):
+          Reports total: 0
+
+  Messages written to: output/autoreporter/2023-07-10_12_47_48/messages
+
+
+You can browse to http://127.0.0.1:5000/results?task_filter=interesting to see everything found by Artemis.
+If you see a problem that you consider severe enough to be reported, file a bug or submit a PR that includes
+this type of vulnerabilities in the reports.
+
 
 Blocklist
 ^^^^^^^^^

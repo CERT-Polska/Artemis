@@ -20,18 +20,22 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
                 json=[
                     {
                         "tag_name": "4.3.0",
+                        "prerelease": False,
                         "published_at": "2023-02-21T16:00:00Z",
                     },
                     {
                         "tag_name": "3.10.9",
+                        "prerelease": False,
                         "published_at": "2022-02-21T16:00:00Z",
                     },
                     {
                         "tag_name": "3.10.10",
+                        "prerelease": False,
                         "published_at": "2023-02-21T16:00:00Z",
                     },
                     {
                         "tag_name": "3.10.11",
+                        "prerelease": False,
                         "published_at": "2023-02-21T16:00:00Z",
                     },
                 ],

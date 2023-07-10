@@ -228,6 +228,7 @@ class Config:
                 "http/misconfiguration/springboot/springboot-dump.yaml",
                 "http/misconfiguration/springboot/springboot-trace.yaml",
                 "http/misconfiguration/springboot/springboot-auditevents.yaml",
+                "http/misconfiguration/proxy/open-proxy-external.yaml",
                 "http/exposures/logs/roundcube-log-disclosure.yaml",
                 "http/exposures/files/ds-store-file.yaml",
                 "misconfiguration/elasticsearch.yaml",

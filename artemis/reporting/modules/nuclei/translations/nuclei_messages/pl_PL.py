@@ -282,7 +282,7 @@ TRANSLATIONS = {
     "[no description] http/misconfiguration/clockwork-dashboard-exposure.yaml": "Wykryto publicznie dostępny panel narzędzia Clockwork. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "[no description] http/vulnerabilities/generic/cache-poisoning-xss.yaml": "Wykryto podatność Cache Poisoning, umożliwiającą atakującemu zmianę treści prezentowanych innym użytkownikom serwisu, w tym umieszczenie tam szkodliwego oprogramowania."
     + BUG_FIX_HINT,
-    "The Oracle WebLogic Server component of Oracle Fusion Middleware (subcomponent: Web Services) versions 0.3.6.0.0, 12.1.3.0.0 and 12.2.1.3.0 contain an easily exploitable vulnerability that allows unauthenticated attackers with network access via HTTP to compromise Oracle WebLogic Server.": "Komponent Oracle WebLogic Server narzędzia Oracle Fusion Middleware w wersji 0.3.6.0.0, 12.1.3.0.0 i 12.2.1.3.0 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    "The Oracle WebLogic Server component of Oracle Fusion Middleware (subcomponent: Web Services) versions 0.3.6.0.0, 12.1.3.0.0 and 12.2.1.3.0 contain an easily exploitable vulnerability that allows unauthenticated attackers with network access via HTTP to compromise Oracle WebLogic Server.": "Komponent Oracle WebLogic Server narzędzia Oracle Fusion Middleware w wersji m.in. 0.3.6.0.0, 12.1.3.0.0 i 12.2.1.3.0 (ale też pojedynczych innych wersjach) zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "GLPI through 10.0.2 is susceptible to remote command execution injection in /vendor/htmlawed/htmlawed/htmLawedTest.php in the htmlawed module.": "Narzędzie GLPI w wersji do 10.0.2 włącznie umożliwia zdalne wykonanie kodu."
@@ -348,6 +348,9 @@ TRANSLATIONS = {
     "The AWS host is configured as a proxy which allows access to the metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych AWS, w tym potencjalnie do haseł dostępowych.",
     "[no description] http/exposures/files/ds-store-file.yaml": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne.",
     "[no description] http/misconfiguration/server-status-localhost.yaml": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony.",
+    "Symfony database configuration file was detected and may contain database credentials.": "wykryto plik konfiguracyjny bazy danych dla frameworku Symfony - taki plik może zawierać np. hasła dostępowe." + DATA_HIDE_HINT,
+    "Apache Rocketmq Unauthenticated Access were detected.": "wykryto, że możliwy jest dostęp bez logowania do narzędzia Apache Rocketmq.",
+    "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "wykryto, że dostęp do narzędzia Tensorflow Tensorboard jest możliwy bez logowania.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -428,4 +431,9 @@ TRANSLATIONS = {
     "Check for the existence of the ArcGIS Token Service on an ArcGIS server.": "wykryto narzędzie ArcGIS Token Service.",
     "The jUDDI (Java Universal Description, Discovery and Integration) Registry is a core component of the JBoss Enterprise SOA Platform. It is the product's default service registry and comes included as part of the product. In it are stored the addresses (end-point references) of all the services connected to the Enterprise Service Bus. It was implemented in JAXR and conforms to the UDDI specifications.": "wykryto narzędzie jUDDI (Java Universal Description, Discovery and Integration) Registry.",
     'Check for the existence of the "/arcgis/rest/services" path on an ArcGIS server.': "wykryto API narzędzia ArcGIS.",
+    "Cisco ASA VPN panel was detected.": "wykryto panel Cisco ASA VPN.",
+    "Wowza Streaming Engine Manager panel was detected.": "wykryto panel narzędzia Wowza Streaming Engine Manager.",
+    "Splunk SOAR login panel was detected.": "wykryto panel logowania Splunk SOAR.",
+    "Proxmox Virtual Environment login panel was detected.": "wykryto panel logowania Proxmox Virtual Environment.",
+    "MeshCentral login panel was detected.": "wykryto panel logowania MeshCentral.",
 }

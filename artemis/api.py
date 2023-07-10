@@ -25,11 +25,18 @@ def list_analysis() -> List[Dict[str, Any]]:
 
 
 @router.get("/num-queued-tasks")
-def num_queued_tasks() -> int:
+def num_queued_tasks(karton_names: Optional[List[str]] = Query(default=None)) -> int:
     # We check the backend redis queue length directly to avoid the long runtimes of
     # KartonState.get_all_tasks()
     backend = KartonBackend(config=KartonConfig())
-    return sum([backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")])
+
+    if karton_names:
+        sum_all = 0
+        for karton_name in karton_names:
+            sum_all += sum([backend.redis.llen(key) for key in backend.redis.keys(f"karton.queue.*:{karton_name}")])
+        return sum_all
+    else:
+        return sum([backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")])
 
 
 @router.get("/analysis/{root_id}")

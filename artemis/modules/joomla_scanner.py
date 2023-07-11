@@ -25,23 +25,20 @@ class JoomlaScanner(ArtemisBase):
     ]
 
     # This is a heuristic so that we can avoid parsing CVE list
-    def is_version_old(self, version: str, age_threshold_days: int = Config.JOOMLA_VERSION_AGE_DAYS) -> bool:
+    def is_newer_version_available(
+        self, version: str, age_threshold_days: int = Config.JOOMLA_VERSION_AGE_DAYS
+    ) -> bool:
         data = json.loads(self.cached_get("https://api.github.com/repos/joomla/joomla-cms/releases", "versions"))
 
         version_parsed = semver.VersionInfo.parse(version)
         if version_parsed.major < 3:
             return True
 
-        is_current_version_old = True  # If we don't find the version on releases list, that means, it's old
-        for release in data:
-            if release["tag_name"] == version:
-                version_age = datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.fromisoformat(
-                    release["published_at"]
-                )
-                is_current_version_old = version_age.days > age_threshold_days
-
         is_newer_version_available = False
         for release in data:
+            if release["prerelease"]:
+                continue
+
             release_version_parsed = semver.VersionInfo.parse(release["tag_name"])
             have_same_major_version = release_version_parsed.major == version_parsed.major
 
@@ -49,13 +46,17 @@ class JoomlaScanner(ArtemisBase):
             # the latter version is smaller.
             is_release_newer = release_version_parsed.compare(version_parsed) > 0
             if have_same_major_version and is_release_newer:
-                is_newer_version_available = True
+                version_age = datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.fromisoformat(
+                    release["published_at"]
+                )
+                if version_age.days > age_threshold_days:
+                    is_newer_version_available = True
 
-        # To consider a version old, it must:
-        # - be obsolete enough (we don't want to send notifications if a version was released yesterday)
+        # To consider a version old:
         # - a newer version for a given branch (Joomla 3.x or Joomla 4.x) should be available (so that we don't consider
         #   3.10.11 to be old because it's the newest version for the 3.x branch).
-        return is_current_version_old and is_newer_version_available
+        # - the new version should be old enough (we don't want to send notifications if a version was released yesterday)
+        return is_newer_version_available
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
@@ -76,7 +77,7 @@ class JoomlaScanner(ArtemisBase):
             result["joomla_version"] = joomla_version
             # Get latest release in repo from GitHub API
             gh_api_response = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases/latest")
-            if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_old(joomla_version):
+            if gh_api_response.json()["tag_name"] != joomla_version and self.is_newer_version_available(joomla_version):
                 found_problems.append(f"Joomla version is too old: {joomla_version}")
                 result["joomla_version_is_too_old"] = True
 

@@ -21,17 +21,17 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
                     {
                         "tag_name": "4.3.0",
                         "prerelease": False,
-                        "published_at": "2023-02-21T16:00:00Z",
+                        "published_at": "2023-01-20T16:00:00Z",
                     },
                     {
                         "tag_name": "3.10.9",
                         "prerelease": False,
-                        "published_at": "2022-02-21T16:00:00Z",
+                        "published_at": "2021-12-21T16:00:00Z",
                     },
                     {
                         "tag_name": "3.10.10",
                         "prerelease": False,
-                        "published_at": "2023-02-21T16:00:00Z",
+                        "published_at": "2023-01-01T16:00:00Z",
                     },
                     {
                         "tag_name": "3.10.11",
@@ -45,7 +45,7 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
             self.assertTrue(self.karton.is_newer_version_available("2.99999.99999"))
 
             self.assertTrue(self.karton.is_newer_version_available("3.10.9"))
-            # The 30 days from release didn't pass so the version is not yet old
+            # The 30 days from newer release didn't pass so the version is not yet old
             self.assertFalse(self.karton.is_newer_version_available("3.10.10"))
             self.assertFalse(self.karton.is_newer_version_available("3.10.11"))
             self.assertTrue(self.karton.is_newer_version_available("4.0.0"))

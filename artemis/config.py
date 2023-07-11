@@ -27,7 +27,7 @@ class Config:
 
     # After this number of tasks, the service will get restarted. This is to prevent
     # situations such as slow memory leaks.
-    MAX_NUM_TASKS_TO_PROCESS = 1000
+    MAX_NUM_TASKS_TO_PROCESS = 200
 
     # By default, Artemis will check whether the reverse DNS lookup for an IP matches
     # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to

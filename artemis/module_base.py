@@ -10,6 +10,7 @@ import requests
 import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.task import TaskState as KartonTaskState
+from redis import Redis
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
@@ -17,6 +18,8 @@ from artemis.db import DB
 from artemis.redis_cache import RedisCache
 from artemis.resolvers import ip_lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
+
+REDIS = Redis.from_url(Config.REDIS_CONN_STR)
 
 
 class UnknownIPException(Exception):
@@ -34,8 +37,8 @@ class ArtemisBase(Karton):
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
-        self.cache = RedisCache(Config.REDIS, self.identity)
-        self.lock = ResourceLock(redis=Config.REDIS, res_name=self.identity)
+        self.cache = RedisCache(REDIS, self.identity)
+        self.lock = ResourceLock(redis=REDIS, res_name=self.identity)
         if db:
             self.db = db
         else:
@@ -155,9 +158,7 @@ class ArtemisBase(Karton):
 
         if self.lock_target:
             try:
-                with ResourceLock(
-                    Config.REDIS, f"lock-{scan_destination}", max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES
-                ):
+                with ResourceLock(REDIS, f"lock-{scan_destination}", max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES):
                     self.log.info(
                         "Succeeded to lock task %s (orig_uid=%s destination=%s)",
                         current_task.uid,

@@ -74,17 +74,13 @@ class DirectoryIndex(ArtemisBase):
             response = http_requests.get(url)
             content = response.content
             if is_directory_index(content):
-                if (
-                    path_candidate not in Config.NOT_INTERESTING_PATHS
-                    and path_candidate + "/" not in Config.NOT_INTERESTING_PATHS
-                ):
-                    results.append(
-                        FoundURL(
-                            url=url,
-                            content_prefix=content[: Config.CONTENT_PREFIX_SIZE],
-                            has_directory_index=True,
-                        )
+                results.append(
+                    FoundURL(
+                        url=url,
+                        content_prefix=content[: Config.Miscellaneous.CONTENT_PREFIX_SIZE],
+                        has_directory_index=True,
                     )
+                )
         return results
 
     def run(self, current_task: Task) -> None:

@@ -104,7 +104,9 @@ class Bruter(ArtemisBase):
             self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
             try:
                 full_url = base_url + "/" + url
-                results[full_url] = http_requests.get(full_url, allow_redirects=Config.BRUTER_FOLLOW_REDIRECTS)
+                results[full_url] = http_requests.get(
+                    full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS
+                )
             except Exception:
                 pass
 
@@ -128,12 +130,12 @@ class Bruter(ArtemisBase):
                 found_urls.append(
                     FoundURL(
                         url=response_url,
-                        content_prefix=response.content[: Config.CONTENT_PREFIX_SIZE],
+                        content_prefix=response.content[: Config.Miscellaneous.CONTENT_PREFIX_SIZE],
                         has_directory_index=is_directory_index(response.content),
                     )
                 )
 
-        if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.BRUTER_FALSE_POSITIVE_THRESHOLD:
+        if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.Modules.Bruter.BRUTER_FALSE_POSITIVE_THRESHOLD:
             return BruterResult(
                 content_404=dummy_content,
                 too_many_urls_detected=True,

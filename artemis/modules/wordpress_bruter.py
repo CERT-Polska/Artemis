@@ -44,7 +44,7 @@ class WordPressBruter(ArtemisBase):
 
         if not utils.is_ip_address(host):
             domain_items = host.split(".")
-            while domain_items and domain_items[0] in Config.WORDPRESS_BRUTER_STRIPPED_PREFIXES:
+            while domain_items and domain_items[0] in Config.Modules.WordPressBruter.WORDPRESS_BRUTER_STRIPPED_PREFIXES:
                 domain_items = domain_items[1:]
 
             if domain_items:

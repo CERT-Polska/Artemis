@@ -26,7 +26,7 @@ class JoomlaScanner(ArtemisBase):
 
     # This is a heuristic so that we can avoid parsing CVE list
     def is_newer_version_available(
-        self, version: str, age_threshold_days: int = Config.JOOMLA_VERSION_AGE_DAYS
+        self, version: str, age_threshold_days: int = Config.Modules.JoomlaScanner.JOOMLA_VERSION_AGE_DAYS
     ) -> bool:
         data = json.loads(self.cached_get("https://api.github.com/repos/joomla/joomla-cms/releases", "versions"))
 

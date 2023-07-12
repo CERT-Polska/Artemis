@@ -33,7 +33,7 @@ def get_url_normal_form(url: str) -> str:
 
     hostname = get_domain_normal_form(url_parsed.hostname)
 
-    if url_parsed.scheme in ["http", "https"] and port in Config.REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS:
+    if url_parsed.scheme in ["http", "https"] and port in Config.Reporting.REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS:
         url_parsed_dict["scheme"] = "http_or_https"
         url_parsed_dict["netloc"] = hostname + ":0"
     else:

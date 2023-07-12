@@ -45,7 +45,7 @@ class DataLoader:
 
         for task_result in tqdm(
             self._db.get_task_results_since(
-                datetime.datetime.now() - datetime.timedelta(days=Config.REPORTING_MAX_VULN_AGE_DAYS)
+                datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS)
             )
         ):
             result_tag = task_result.get("payload_persistent", {}).get("tag", None)

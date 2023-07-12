@@ -34,8 +34,8 @@ def load_ports(file_name: str) -> Set[int]:
     return result
 
 
-if Config.CUSTOM_PORT_SCANNER_PORTS:
-    PORTS_SET = set(Config.CUSTOM_PORT_SCANNER_PORTS)
+if Config.Modules.PortScanner.CUSTOM_PORT_SCANNER_PORTS:
+    PORTS_SET = set(Config.Modules.PortScanner.CUSTOM_PORT_SCANNER_PORTS)
 
 else:
     PORTS_SET = load_ports("ports-naabu.txt")
@@ -111,7 +111,7 @@ class PortScanner(ArtemisBase):
                 ",".join(map(str, PORTS)),
                 "-silent",
                 "-rate",
-                str(Config.SCANNING_PACKETS_PER_SECOND_PER_IP),
+                str(Config.Limits.SCANNING_PACKETS_PER_SECOND_PER_IP),
             ),
             stdout=subprocess.PIPE,
         )
@@ -135,10 +135,10 @@ class PortScanner(ArtemisBase):
         for line in lines:
             ip, port_str = line.split(b":")
 
-            if len(lines) > Config.PORT_SCANNER_MAX_NUM_PORTS:
+            if len(lines) > Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS:
                 self.log.warning(
                     "We observed more than %s open ports on %s, trimming to most popular ones",
-                    Config.PORT_SCANNER_MAX_NUM_PORTS,
+                    Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS,
                     target_ip,
                 )
                 if int(port_str) not in PORTS_SET_SHORT:

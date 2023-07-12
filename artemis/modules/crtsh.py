@@ -85,8 +85,9 @@ class CrtshScanner(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
+
         with self.lock:
-            for retry_id in range(Config.CRTSH_NUM_RETRIES):
+            for retry_id in range(Config.Modules.Crtsh.CRTSH_NUM_RETRIES):
                 ct_domains = self.query_sql(domain)
 
                 if ct_domains is None:
@@ -94,8 +95,8 @@ class CrtshScanner(ArtemisBase):
 
                 if ct_domains is None:
                     self.log.info("crtsh: retrying for domain %s", domain)
-                    if retry_id < Config.CRTSH_NUM_RETRIES - 1:
-                        time.sleep(Config.CRTSH_SLEEP_ON_RETRY_SECONDS)
+                    if retry_id < Config.Modules.Crtsh.CRTSH_NUM_RETRIES - 1:
+                        time.sleep(Config.Modules.Crtsh.CRTSH_SLEEP_ON_RETRY_SECONDS)
                     else:
                         raise UnableToObtainSubdomainsException()
                 else:

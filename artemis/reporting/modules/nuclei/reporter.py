@@ -43,7 +43,7 @@ class NucleiReporter(Reporter):
             if not isinstance(vulnerability, dict):
                 continue
 
-            if vulnerability["template"] in Config.NUCLEI_TEMPLATES_TO_SKIP:
+            if vulnerability["template"] in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
                 continue
 
             if "description" in vulnerability["info"]:

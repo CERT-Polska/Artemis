@@ -56,7 +56,7 @@ class Nuclei(ArtemisBase):
                 if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
             ]
 
-            if Config.NUCLEI_CHECK_TEMPLATE_LIST:
+            if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
                 if len(self._critical_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei critical-severity templates list")
                 if len(self._high_templates) == 0:
@@ -67,8 +67,8 @@ class Nuclei(ArtemisBase):
             self._templates = [
                 template
                 for template in self._critical_templates + self._high_templates + self._exposed_panels_templates
-                if template not in Config.NUCLEI_TEMPLATES_TO_SKIP
-            ] + Config.NUCLEI_ADDITIONAL_TEMPLATES
+                if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+            ] + Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
 
     def run(self, current_task: Task) -> None:
         target = current_task.payload["url"]
@@ -105,8 +105,8 @@ class Nuclei(ArtemisBase):
         if has_phpinfo_on_random_url:
             templates = sorted(list(set(templates) - TEMPLATES_THAT_MATCH_ON_PHPINFO))
 
-        if Config.CUSTOM_USER_AGENT:
-            additional_configuration = ["-H", "User-Agent: " + Config.CUSTOM_USER_AGENT]
+        if Config.Miscellaneous.CUSTOM_USER_AGENT:
+            additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
         else:
             additional_configuration = []
 
@@ -121,11 +121,11 @@ class Nuclei(ArtemisBase):
             "-templates",
             ",".join(templates),
             "-timeout",
-            str(Config.REQUEST_TIMEOUT_SECONDS),
+            str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
             "-jsonl",
             "-system-resolvers",
             "-spr",
-            str(Config.SECONDS_PER_REQUEST_FOR_ONE_IP),
+            str(Config.Limits.SECONDS_PER_REQUEST_FOR_ONE_IP),
         ] + additional_configuration
 
         data = check_output_log_on_error(

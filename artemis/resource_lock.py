@@ -21,13 +21,13 @@ class ResourceLock:
         self.lid = str(uuid4())
         self.max_tries = max_tries
 
-    def acquire(self, expiry: Optional[int] = Config.DEFAULT_LOCK_EXPIRY_SECONDS) -> None:
+    def acquire(self, expiry: Optional[int] = Config.Locking.DEFAULT_LOCK_EXPIRY_SECONDS) -> None:
         """
         Acquires a lock.
 
         If expiry is set, the lock will be set to expire after `expiry` seconds
         (so if expiry is 0, it won't even be acquired). If it is not set, the lock
-        will expire after Config.DEFAULT_LOCK_EXPIRY_SECONDS seconds.
+        will expire after Config.Locking.DEFAULT_LOCK_EXPIRY_SECONDS seconds.
         """
         if expiry == 0:
             return
@@ -38,7 +38,7 @@ class ResourceLock:
                 return
 
             attempts += 1
-            time.sleep(uniform(Config.LOCK_SLEEP_MIN_SECONDS, Config.LOCK_SLEEP_MAX_SECONDS))
+            time.sleep(uniform(Config.Locking.LOCK_SLEEP_MIN_SECONDS, Config.Locking.LOCK_SLEEP_MAX_SECONDS))
 
         raise FailedToAcquireLockException()
 

@@ -128,9 +128,9 @@ class Classifier(ArtemisBase):
         if task_type == TaskType.DOMAIN:
             if (
                 PUBLIC_SUFFIX_LIST.publicsuffix(sanitized) == sanitized
-                or sanitized in Config.ADDITIONAL_PUBLIC_SUFFIXES
+                or sanitized in Config.PublicSuffixes.ADDITIONAL_PUBLIC_SUFFIXES
             ):
-                if not Config.ALLOW_SCANNING_PUBLIC_SUFFIXES:
+                if not Config.PublicSuffixes.ALLOW_SCANNING_PUBLIC_SUFFIXES:
                     message = (
                         f"{sanitized} is a public suffix - adding it to the list of "
                         "scanned targets may result in scanning too much. Quitting."

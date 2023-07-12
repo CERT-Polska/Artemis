@@ -31,7 +31,7 @@ class GAU(ArtemisBase):
                 [
                     "gau",
                 ]
-                + Config.GAU_ADDITIONAL_OPTIONS,
+                + Config.Modules.Gau.GAU_ADDITIONAL_OPTIONS,
                 self.log,
                 input=domain.encode("idna"),
             )

@@ -25,7 +25,7 @@ class DNSScannerReporter(Reporter):
 
         if (
             "topmost_transferable_zone_name" in task_result["result"]
-            and task_result["result"]["zone_size"] >= Config.ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD
+            and task_result["result"]["zone_size"] >= Config.Modules.DNSScanner.ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD
         ):
             top_level_target = get_top_level_target(task_result)
             target = task_result["result"]["topmost_transferable_zone_name"]

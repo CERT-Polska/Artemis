@@ -48,6 +48,7 @@ class Report:
     # Data about the original task result that led to the creation of this Report
     original_karton_name: Optional[str] = None
     original_task_result_id: Optional[str] = None
+    original_task_target_string: Optional[str] = None
 
     def __post_init__(self) -> None:
         # Sanity check - at this moment, only URLs and domains are supported

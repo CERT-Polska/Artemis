@@ -25,7 +25,7 @@ class Config:
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],
             "Sometimes even if we scan example.com, we want to report subdomain.example.com to a separate contact, because "
-            "it is a separate institution. This variable should contain a comma-separated list of domains of such subdomains.",
+            "it is a separate institution. This variable should contain a comma-separated list of such subdomains.",
         ] = get_config("REPORTING_SEPARATE_INSTITUTIONS", default="", cast=decouple.Csv(str))
 
         REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS: Annotated[
@@ -138,7 +138,7 @@ class Config:
     class Miscellaneous:
         CUSTOM_USER_AGENT: Annotated[
             str,
-            "Custom User-Agent string used by Artemis (if not set, the tool defaults will be used, different for requests, Nuclei etc.)",
+            "Custom User-Agent string used by Artemis (if not set, the library defaults will be used, different for requests, Nuclei etc.)",
         ] = get_config("CUSTOM_USER_AGENT", default="")
 
         VERIFY_REVDNS_IN_SCOPE: Annotated[

@@ -44,6 +44,7 @@ class Config:
             int,
             "If a low-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
         ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=6 * 30, cast=int)
+
         MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM: Annotated[
             int,
             "If a medium-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",

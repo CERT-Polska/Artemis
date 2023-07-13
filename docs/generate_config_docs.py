@@ -52,8 +52,7 @@ def print_docs_for_class(cls: type, output_file: IO[str], depth: int = 0) -> Non
         output_file.write(
             textwrap.dedent(
                 f"""
-                {variable_name}\n{default_str}{doc}
-            """.strip()
-                + "\n\n"
-            )
+                    {variable_name}\n{default_str}{doc}
+                """.strip()
+            ) + "\n\n"
         )

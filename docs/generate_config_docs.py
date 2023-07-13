@@ -7,8 +7,8 @@ from typing import IO, get_type_hints
 # only to get the docs, let's mock them.
 os.environ["DB_CONN_STR"] = ""
 os.environ["REDIS_CONN_STR"] = ""
-from config import DEFAULTS, Config  # type: ignore
-from sphinx.application import Sphinx  # type: ignore
+from config import DEFAULTS, Config  # type: ignore # noqa
+from sphinx.application import Sphinx  # type: ignore # noqa
 
 
 def setup(app: Sphinx) -> None:

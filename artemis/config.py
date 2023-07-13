@@ -64,7 +64,7 @@ class Config:
 
             Due to the way this behavior is implemented, we cannot guarantee that a host will never be scanned
             by more than one module.
-            """
+            """,
         ] = get_config("LOCK_SCANNED_TARGETS", default=False, cast=bool)
 
         LOCK_SLEEP_MIN_SECONDS: Annotated[

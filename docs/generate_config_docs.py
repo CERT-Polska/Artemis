@@ -2,6 +2,10 @@ import textwrap
 from pathlib import Path
 from typing import IO, get_type_hints
 
+# By default, these two variables are required by config. As we are importing the config
+# only to get the docs, let's mock them.
+os.environ["DB_CONN_STR"] = ""
+os.environ["REDIS_CONN_STR"] = ""
 from config import DEFAULTS, Config  # type: ignore
 from sphinx.application import Sphinx  # type: ignore
 

@@ -19,6 +19,8 @@ services:
       dockerfile: docker/Dockerfile
     command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
+      DB_CONN_STR: ""
+      
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
       REDIS_CONN_STR: redis://test-redis:6379/1

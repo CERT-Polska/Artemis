@@ -13,7 +13,7 @@ def get_config(name: str, **kwargs) -> Any:  # type: ignore
 
 class Config:
     class Data:
-        DB_CONN_STR: Annotated[str, "Connection string to the MongoDB database."] = get_config("DB_CONN_STR")
+        DB_CONN_STR: Annotated[str, "Connection string to the MongoDB database."] = get_config("DB_CONN_STR", default="")
 
         REDIS_CONN_STR: Annotated[str, "Connection string to Redis."] = get_config("REDIS_CONN_STR")
 

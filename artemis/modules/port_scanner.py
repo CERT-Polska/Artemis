@@ -111,7 +111,7 @@ class PortScanner(ArtemisBase):
                 ",".join(map(str, PORTS)),
                 "-silent",
                 "-rate",
-                str(Config.Limits.SCANNING_PACKETS_PER_SECOND_PER_IP),
+                str(Config.Limits.SCANNING_PACKETS_PER_SECOND),
             ),
             stdout=subprocess.PIPE,
         )

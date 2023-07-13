@@ -246,7 +246,7 @@ class ArtemisBase(Karton):
         # There is a chance that the IP returned here (chosen randomly from a set of IP adresses)
         # would be different from the one chosen for the actual connection - but we hope that over
         # time and across multiple scanner instances the overall load would be approximately similar
-        # to one request per Config.Limits.SECONDS_PER_REQUEST_FOR_ONE_IP.
+        # to one request per Config.Limits.SECONDS_PER_REQUEST.
         try:
             ip_addresses = list(ip_lookup(host))
         except Exception as e:

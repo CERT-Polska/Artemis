@@ -3,7 +3,7 @@ Configuration Options
 
 Artemis can be configured by setting the following variables in the ``.env`` file:
 
-.. include:: config_docs.inc
+.. include:: config-docs.inc
 
 
 Advanced: Karton configuration

@@ -20,6 +20,7 @@ import sys
 import sphinx_rtd_theme  # noqa
 
 sys.path.insert(0, os.path.abspath("../artemis"))
+sys.path.insert(0, os.path.abspath("."))
 
 
 # -- Project information -----------------------------------------------------
@@ -44,6 +45,7 @@ extensions = [
     "sphinx.ext.graphviz",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "generate_config_docs",
 ]
 
 graphviz_output_format = "svg"

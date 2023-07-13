@@ -125,7 +125,7 @@ class Nuclei(ArtemisBase):
             "-jsonl",
             "-system-resolvers",
             "-spr",
-            str(Config.Limits.SECONDS_PER_REQUEST_FOR_ONE_IP),
+            str(Config.Limits.SECONDS_PER_REQUEST),
         ] + additional_configuration
 
         data = check_output_log_on_error(

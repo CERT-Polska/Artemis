@@ -1,15 +1,28 @@
 import textwrap
-from typing import get_type_hints
+from pathlib import Path
+from typing import IO, get_type_hints
 
-from artemis.config import DEFAULTS, Config
+from config import DEFAULTS, Config  # type: ignore
+from sphinx.application import Sphinx  # type: ignore
 
 
-def print_docs_for_class(cls: type, depth: int = 0) -> None:
-    print(cls.__name__)
+def setup(app: Sphinx) -> None:
+    app.connect("builder-inited", on_builder_inited)
 
-    header_characters = '-^"'
-    print(header_characters[depth] * len(cls.__name__))
-    print()
+
+def on_builder_inited(app: Sphinx) -> None:
+    output = Path(__file__).parents[0] / "user-guide" / "config-docs.inc"
+
+    with open(output, "w") as f:
+        print_docs_for_class(Config, output_file=f)
+
+
+def print_docs_for_class(cls: type, output_file: IO[str], depth: int = 0) -> None:
+    if depth > 0:
+        output_file.write(cls.__name__ + "\n")
+
+        header_characters = '-^"'
+        output_file.write(header_characters[depth - 1] * len(cls.__name__) + "\n\n")
 
     hints = get_type_hints(cls, include_extras=True)
     for variable_name in dir(cls):
@@ -18,7 +31,7 @@ def print_docs_for_class(cls: type, depth: int = 0) -> None:
 
         member = getattr(cls, variable_name)
         if isinstance(member, type):
-            print_docs_for_class(member, depth + 1)
+            print_docs_for_class(member, output_file, depth + 1)
             continue
         elif member == Config.verify_each_variable_is_annotated:
             continue
@@ -31,14 +44,11 @@ def print_docs_for_class(cls: type, depth: int = 0) -> None:
         else:
             default_str = ""
 
-        print(
+        output_file.write(
             textwrap.dedent(
                 f"""
                 {variable_name}\n{default_str}{doc}
             """.strip()
+                + "\n\n"
             )
         )
-        print()
-
-
-print_docs_for_class(Config)

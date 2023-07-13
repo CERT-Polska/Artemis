@@ -19,6 +19,8 @@ services:
       dockerfile: docker/Dockerfile
     command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
+      DB_CONN_STR: ""
+
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
       REDIS_CONN_STR: redis://test-redis:6379/1
@@ -29,8 +31,8 @@ services:
       POSTMAN_MAIL_FROM: artemis@localhost.com
       POSTMAN_MAIL_TO: artemis@localhost.com
 
-      SECONDS_PER_REQUEST_FOR_ONE_IP: 0
-      SCANNING_PACKETS_PER_SECOND_PER_IP: 5
+      SECONDS_PER_REQUEST: 0
+      SCANNING_PACKETS_PER_SECOND: 5
       CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
       NUCLEI_CHECK_TEMPLATE_LIST: False
     volumes:

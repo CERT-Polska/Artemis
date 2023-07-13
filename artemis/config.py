@@ -55,13 +55,26 @@ class Config:
 
     class Locking:
         LOCK_SCANNED_TARGETS: Annotated[
-            bool, "Whether Artemis should strive to make at most one module scan a target at a given time."
+            bool,
+            """
+            Whether Artemis should strive to make at most one module scan a target at a given time. Therefore
+            when locking is enabled, setting e.g. SCANNING_PACKETS_PER_SECOND to 100 and SECONDS_PER_REQUEST to
+            2 will cause that no IP receives 100 port scanning packets per second and 1 HTTP/MySQL/... request
+            per 2 seconds.
+
+            Due to the way this behavior is implemented, we cannot guarantee that a host will never be scanned
+            by more than one module.
+            """
         ] = get_config("LOCK_SCANNED_TARGETS", default=False, cast=bool)
 
         LOCK_SLEEP_MIN_SECONDS: Annotated[
             float,
-            "When a resource is locked using artemis.resource_lock.ResourceLock, a retry will be performed in the "
-            "next LOCK_SLEEP_MIN_SECONDS..LOCK_SLEEP_MAX_SECONDS seconds.",
+            """
+            Requires LOCK_SCANNED_TARGETS to be enabled.
+
+            When a resource is locked using artemis.resource_lock.ResourceLock, a retry will be performed in the
+            next LOCK_SLEEP_MIN_SECONDS..LOCK_SLEEP_MAX_SECONDS seconds.
+            """,
         ] = get_config("LOCK_SLEEP_MIN_SECONDS", default=0.1, cast=float)
         LOCK_SLEEP_MAX_SECONDS: Annotated[
             float,
@@ -70,14 +83,22 @@ class Config:
 
         SCAN_DESTINATION_LOCK_MAX_TRIES: Annotated[
             int,
-            "Amount of times module will try to get a lock on scanned destination (with sleeps inbetween) "
-            "before rescheduling task for later.",
+            """
+            Requires LOCK_SCANNED_TARGETS to be enabled.
+
+            Amount of times module will try to get a lock on scanned destination (with sleeps inbetween)
+            before rescheduling task for later.
+            """,
         ] = get_config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
 
         DEFAULT_LOCK_EXPIRY_SECONDS: Annotated[
             int,
-            "Locks are not permanent, because a service that has acquired a lock may get restarted or killed."
-            "This is the lock default expiry time.",
+            """
+            Requires LOCK_SCANNED_TARGETS to be enabled.
+
+            Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
+            This is the lock default expiry time.
+            """,
         ] = get_config("DEFAULT_LOCK_EXPIRY_SECONDS", default=3600, cast=int)
 
     class PublicSuffixes:
@@ -102,20 +123,17 @@ class Config:
             "Default request timeout (for all protocols).",
         ] = get_config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
 
-        SECONDS_PER_REQUEST_FOR_ONE_IP: Annotated[
+        SCANNING_PACKETS_PER_SECOND: Annotated[
+            int,
+            "E.g. when set to 100, Artemis will send no more than 100 port scanning packets per seconds per port scanner instance.",
+        ] = get_config("SCANNING_PACKETS_PER_SECOND", default=100, cast=int)
+
+        SECONDS_PER_REQUEST: Annotated[
             int,
             """
-            E.g. when set to 2, Artemis will strive to make no more than one HTTP/MySQL connect/... request per two seconds for any host.
-
-            Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X
-            requests per second.
+            E.g. when set to 2, Artemis will make sure no HTTP/MySQL connect/... request takes less than 2 seconds, sleeping if needed.
             """,
-        ] = get_config("SECONDS_PER_REQUEST_FOR_ONE_IP", default=0, cast=int)
-
-        SCANNING_PACKETS_PER_SECOND_PER_IP: Annotated[
-            int,
-            "E.g. when set to 100, Artemis will strive to send no more than 100 port scanning packets per seconds to any host.",
-        ] = get_config("SCANNING_PACKETS_PER_SECOND_PER_IP", default=100, cast=int)
+        ] = get_config("SECONDS_PER_REQUEST", default=0, cast=int)
 
     class Miscellaneous:
         CUSTOM_USER_AGENT: Annotated[

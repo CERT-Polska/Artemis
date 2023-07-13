@@ -38,6 +38,8 @@ the Artemis directory and use:
        --scale=karton-bruter=10 \
        --scale=karton-port_scanner=10
 
+For the full list of available configuration options you may set in the ``.env`` file, see :doc:`user-guide/configuration`.
+
 .. note ::
    If you get an error that ``docker compose`` is not a valid command, that means that Docker Compose
    plugin is not installed. Please follow the instructions from https://docs.docker.com/compose/install/linux/#install-using-the-repository

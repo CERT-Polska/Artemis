@@ -1,4 +1,4 @@
-Configuration Options
+Configuration options
 =====================
 
 Artemis can be configured by setting the following variables in the ``.env`` file:

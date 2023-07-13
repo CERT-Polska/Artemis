@@ -305,7 +305,7 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
-  shodan-vulns:
+  karton-shodan_vulns:
     build:
       context: .
       dockerfile: docker/Dockerfile

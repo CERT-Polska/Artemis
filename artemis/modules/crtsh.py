@@ -84,10 +84,6 @@ class CrtshScanner(ArtemisBase):
             return None
 
     def run(self, current_task: Task) -> None:
-        if current_task.get_payload("tag") == "oswiata":
-            self.log.info("skipping oswiata")
-            return
-
         domain = current_task.get_payload("domain")
 
         with self.lock:

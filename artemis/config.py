@@ -160,7 +160,7 @@ class Config:
 
         MAX_NUM_TASKS_TO_PROCESS: Annotated[
             int,
-            "After this number of tasks processed, the service will get restarted. This is to prevent situations "
+            "After this number of tasks processed, each scanning module will get restarted. This is to prevent situations "
             "such as slow memory leaks.",
         ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=200, cast=int)
 

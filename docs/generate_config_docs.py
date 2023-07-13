@@ -54,5 +54,6 @@ def print_docs_for_class(cls: type, output_file: IO[str], depth: int = 0) -> Non
                 f"""
                     {variable_name}\n{default_str}{doc}
                 """.strip()
-            ) + "\n\n"
+            )
+            + "\n\n"
         )

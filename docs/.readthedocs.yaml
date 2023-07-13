@@ -1,4 +1,0 @@
-build:
-  os: ubuntu-20.04
-  tools:
-    python: "3.10"

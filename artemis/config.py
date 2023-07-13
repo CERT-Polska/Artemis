@@ -232,6 +232,8 @@ class Config:
                         "http/cves/2021/CVE-2021-24917.yaml",
                         # caused multiple FPs: travis configuration file provided by a framework without much interesting information.
                         "http/exposures/files/travis-ci-disclosure.yaml",
+                        # caused multiple FPs, and as RockMongo is not maintained anymore, let's skip it
+                        "http/vulnerabilities/other/rockmongo-xss.yaml",
                         # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
                         # Feel free to make a different decision.
                         "http/exposed-panels/alfresco-detect.yaml",

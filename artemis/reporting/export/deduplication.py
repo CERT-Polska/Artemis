@@ -116,11 +116,11 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
 def _all_reports_are_old(reports: List[Report]) -> bool:
     for report in reports:
         if SEVERITY_MAP[report.report_type] == Severity.LOW:
-            threshold_days = Config.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW
+            threshold_days = Config.Reporting.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW
         elif SEVERITY_MAP[report.report_type] == Severity.MEDIUM:
-            threshold_days = Config.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM
+            threshold_days = Config.Reporting.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM
         elif SEVERITY_MAP[report.report_type] == Severity.HIGH:
-            threshold_days = Config.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH
+            threshold_days = Config.Reporting.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH
         else:
             assert False
 

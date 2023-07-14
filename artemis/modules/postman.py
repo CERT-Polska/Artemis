@@ -51,15 +51,21 @@ class Postman(ArtemisBase):
         Tests if SMTP server allows sending as any address to any address.
         """
         try:
-            local_hostname = Config.POSTMAN_MAIL_FROM.split("@")[1]
+            local_hostname = Config.Modules.Postman.POSTMAN_MAIL_FROM.split("@")[1]
 
             def check() -> None:
-                with SMTP(host, port, local_hostname=local_hostname, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
+                with SMTP(
+                    host, port, local_hostname=local_hostname, timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS
+                ) as smtp:
                     smtp.set_debuglevel(1)
                     smtp.sendmail(
-                        Config.POSTMAN_MAIL_FROM,
-                        Config.POSTMAN_MAIL_TO,
-                        Postman._create_email(Config.POSTMAN_MAIL_FROM, Config.POSTMAN_MAIL_TO, "open-relay"),
+                        Config.Modules.Postman.POSTMAN_MAIL_FROM,
+                        Config.Modules.Postman.POSTMAN_MAIL_TO,
+                        Postman._create_email(
+                            Config.Modules.Postman.POSTMAN_MAIL_FROM,
+                            Config.Modules.Postman.POSTMAN_MAIL_TO,
+                            "open-relay",
+                        ),
                     )
 
             throttle_request(check)
@@ -80,13 +86,13 @@ class Postman(ArtemisBase):
         try:
 
             def check() -> None:
-                with SMTP(host, port, timeout=Config.REQUEST_TIMEOUT_SECONDS) as smtp:
+                with SMTP(host, port, timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS) as smtp:
                     smtp.set_debuglevel(1)
                     mail_from = f"root@{domain}"
                     smtp.sendmail(
                         mail_from,
-                        Config.POSTMAN_MAIL_TO,
-                        Postman._create_email(mail_from, Config.POSTMAN_MAIL_TO, "auth"),
+                        Config.Modules.Postman.POSTMAN_MAIL_TO,
+                        Postman._create_email(mail_from, Config.Modules.Postman.POSTMAN_MAIL_TO, "auth"),
                     )
 
             throttle_request(check)
@@ -147,7 +153,4 @@ class Postman(ArtemisBase):
 
 
 if __name__ == "__main__":
-    if not Config.POSTMAN_MAIL_FROM or not Config.POSTMAN_MAIL_TO:
-        raise Exception("Missing env variables")
-
     Postman().loop()

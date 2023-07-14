@@ -1,275 +1,390 @@
+from typing import Annotated, Any, List, get_type_hints
+
 import decouple
-from redis import Redis
+
+DEFAULTS = {}
+
+
+def get_config(name: str, **kwargs) -> Any:  # type: ignore
+    if "default" in kwargs:
+        DEFAULTS[name] = kwargs["default"]
+    return decouple.config(name, **kwargs)
 
 
 class Config:
-    # Connection string to the MongoDB database
-    DB_CONN_STR = decouple.config("DB_CONN_STR", default="")
+    class Data:
+        DB_CONN_STR: Annotated[str, "Connection string to the MongoDB database."] = get_config("DB_CONN_STR")
 
-    # Connection string to Redis store
-    REDIS_CONN_STR = decouple.config("REDIS_CONN_STR")
+        REDIS_CONN_STR: Annotated[str, "Connection string to Redis."] = get_config("REDIS_CONN_STR")
 
-    # An already constructed Redis client
-    REDIS = Redis.from_url(decouple.config("REDIS_CONN_STR"))
+    class Reporting:
+        REPORTING_MAX_VULN_AGE_DAYS: Annotated[
+            int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=15, cast=int)
 
-    # Custom User-Agent string used by Artemis (if not set, the tool defaults will be used: requests, Nuclei etc.)
-    CUSTOM_USER_AGENT = decouple.config("CUSTOM_USER_AGENT", default="")
+        REPORTING_SEPARATE_INSTITUTIONS: Annotated[
+            List[str],
+            "Sometimes even if we scan example.com, we want to report subdomain.example.com to a separate contact, because "
+            "it is a separate institution. This variable should contain a comma-separated list of such subdomains.",
+        ] = get_config("REPORTING_SEPARATE_INSTITUTIONS", default="", cast=decouple.Csv(str))
 
-    # Whether we will scan a public suffix (e.g. .pl) if it appears on the target list. This may cause very large
-    # number of domains to be scanned.
-    ALLOW_SCANNING_PUBLIC_SUFFIXES = decouple.config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
+        REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS: Annotated[
+            List[int],
+            """
+            Ports that we will treat as "standard http/https ports" when deduplicating vulnerabilities - that is,
+            if we observe identical vulnerability of two standard ports (e.g. on 80 and on 443), we will treat
+            such case as the same vulnerability.
 
-    # additional domains that will be treated as public suffixes (even though they're not on the default Public Suffix List)
-    ADDITIONAL_PUBLIC_SUFFIXES = decouple.config("ADDITIONAL_PUBLIC_SUFFIXES", default="", cast=decouple.Csv(str))
+            This is configurable because e.g. we observed some hostings serving mirrors of content from
+            port 80 on ports 81-84.
+            """,
+        ] = get_config("REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS", default="80,443", cast=decouple.Csv(int))
 
-    # What is the maximum task run time (after which it will get killed)
-    TASK_TIMEOUT_SECONDS = 4 * 3600
+        MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW: Annotated[
+            int,
+            "If a low-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=6 * 30, cast=int)
 
-    # After this number of tasks, the service will get restarted. This is to prevent
-    # situations such as slow memory leaks.
-    MAX_NUM_TASKS_TO_PROCESS = 200
+        MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM: Annotated[
+            int,
+            "If a medium-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM", default=3 * 30, cast=int)
+        MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH: Annotated[
+            int,
+            "If a high-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=14, cast=int)
 
-    # By default, Artemis will check whether the reverse DNS lookup for an IP matches
-    # the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to
-    # new.example.com, Artemis will check whether it is a subdomain of the original task
-    # domain.
-    #
-    # This is to prevent Artemis from randomly walking through the internet after encountering
-    # a misconfigured Reverse DNS record (e.g. pointing to a completely different domain).
-    #
-    # The downside of that is that when you don't provide original domain (e.g. provide
-    # an IP to be scanned), the domain from the reverse DNS lookup won't be scanned. Therefore this
-    # behavior is configurable and may be turned off.
-    VERIFY_REVDNS_IN_SCOPE = decouple.config("VERIFY_REVDNS_IN_SCOPE", default=True, cast=bool)
+    class Locking:
+        LOCK_SCANNED_TARGETS: Annotated[
+            bool,
+            """
+            Whether Artemis should strive to make at most one module scan a target at a given time. Therefore
+            when locking is enabled, setting e.g. SCANNING_PACKETS_PER_SECOND to 100 and SECONDS_PER_REQUEST to
+            2 will cause that no IP receives 100 port scanning packets per second and 1 HTTP/MySQL/... request
+            per 2 seconds.
 
-    # What paths to skip in the robots and directory_index modules
-    NOT_INTERESTING_PATHS = decouple.config("NOT_INTERESTING_PATHS", default="/icon/,/icons/", cast=decouple.Csv(str))
+            Due to the way this behavior is implemented, we cannot guarantee that a host will never be scanned
+            by more than one module.
+            """,
+        ] = get_config("LOCK_SCANNED_TARGETS", default=False, cast=bool)
 
-    # default request timeout (for all protocols)
-    REQUEST_TIMEOUT_SECONDS = decouple.config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
+        LOCK_SLEEP_MIN_SECONDS: Annotated[
+            float,
+            """
+            Requires LOCK_SCANNED_TARGETS to be enabled.
 
-    # == Reporting settings
-    # When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported
-    REPORTING_MAX_VULN_AGE_DAYS = decouple.config("REPORTING_MAX_VULN_AGE_DAYS", default=14, cast=int)
+            When a resource is locked using artemis.resource_lock.ResourceLock, a retry will be performed in the
+            next LOCK_SLEEP_MIN_SECONDS..LOCK_SLEEP_MAX_SECONDS seconds.
+            """,
+        ] = get_config("LOCK_SLEEP_MIN_SECONDS", default=0.1, cast=float)
+        LOCK_SLEEP_MAX_SECONDS: Annotated[
+            float,
+            "see LOCK_SLEEP_MIN_SECONDS.",
+        ] = get_config("LOCK_SLEEP_MAX_SECONDS", default=0.5, cast=float)
 
-    # Sometimes even if we scan example.com, we want to report subdomain.example.com to a separate contact, because
-    # it is a separate institution. This variable should contain a comma-separated list of domains of such institutions.
-    REPORTING_SEPARATE_INSTITUTIONS = decouple.config(
-        "REPORTING_SEPARATE_INSTITUTIONS", default="", cast=decouple.Csv(str)
-    )
+        SCAN_DESTINATION_LOCK_MAX_TRIES: Annotated[
+            int,
+            """
+            Requires LOCK_SCANNED_TARGETS to be enabled.
 
-    # Ports that we will treat as "standard http/https ports" when deduplicating vulnerabilities - that is,
-    # if we observe identical vulnerability of two standard ports (e.g. on 80 and on 443), we will treat
-    # such case as the same vulnerability.
-    #
-    # This is configurable because e.g. we observed some hostings serving mirrors of content from
-    # port 80 on ports 81-84.
-    REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS = decouple.config(
-        "REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS", default="80,443", cast=decouple.Csv(int)
-    )
+            Amount of times module will try to get a lock on scanned destination (with sleeps inbetween)
+            before rescheduling task for later.
+            """,
+        ] = get_config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
 
-    # If a report has already been seen earlier - how much time needs to pass for a second e-mail to be sent
-    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW = decouple.config(
-        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=6 * 30, cast=int
-    )
-    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM = decouple.config(
-        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM", default=3 * 30, cast=int
-    )
-    MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH = decouple.config(
-        "MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=14, cast=int
-    )
+        DEFAULT_LOCK_EXPIRY_SECONDS: Annotated[
+            int,
+            """
+            Requires LOCK_SCANNED_TARGETS to be enabled.
 
-    # == Rate limit settings
-    # Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X
-    # requests per second.
+            Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
+            This is the lock default expiry time.
+            """,
+        ] = get_config("DEFAULT_LOCK_EXPIRY_SECONDS", default=3600, cast=int)
 
-    # E.g. when set to 2, Artemis will strive to make no more than one HTTP/MySQL connect/... request per two seconds for any host.
-    SECONDS_PER_REQUEST_FOR_ONE_IP = decouple.config("SECONDS_PER_REQUEST_FOR_ONE_IP", default=0, cast=int)
+    class PublicSuffixes:
+        ALLOW_SCANNING_PUBLIC_SUFFIXES: Annotated[
+            bool,
+            "Whether we will scan a public suffix (e.g. .pl) if it appears on the target list. This may cause very large "
+            "number of domains to be scanned.",
+        ] = get_config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
 
-    # E.g. when set to 100, Artemis will strive to send no more than 100 port scanning packets per seconds to any host.
-    SCANNING_PACKETS_PER_SECOND_PER_IP = decouple.config("SCANNING_PACKETS_PER_SECOND_PER_IP", default=100, cast=int)
+        ADDITIONAL_PUBLIC_SUFFIXES: Annotated[
+            List[str],
+            "Additional domains that will be treated as public suffixes (even though they're not on the default Public Suffix List).",
+        ] = get_config("ADDITIONAL_PUBLIC_SUFFIXES", default="", cast=decouple.Csv(str))
 
-    # Whether Artemis should strive to make at most one module scan a target at a given time
-    LOCK_SCANNED_TARGETS = decouple.config("LOCK_SCANNED_TARGETS", default=False, cast=bool)
+    class Limits:
+        TASK_TIMEOUT_SECONDS: Annotated[
+            int, "What is the maximum task run time (after which it will get killed)."
+        ] = get_config("TASK_TIMEOUT_SECONDS", default=4 * 3600, cast=int)
 
-    # When a resource is locked using artemis.resource_lock.ResourceLock, a retry will be performed in the
-    # next LOCK_SLEEP_MIN_SECONDS..LOCK_SLEEP_MAX_SECONDS seconds.
-    LOCK_SLEEP_MIN_SECONDS = decouple.config("LOCK_SLEEP_MIN_SECONDS", default=0.1, cast=float)
-    LOCK_SLEEP_MAX_SECONDS = decouple.config("LOCK_SLEEP_MAX_SECONDS", default=0.5, cast=float)
+        REQUEST_TIMEOUT_SECONDS: Annotated[
+            int,
+            "Default request timeout (for all protocols).",
+        ] = get_config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
 
-    # Amount of times module will try to get a lock on scanned destination (with sleeps inbetween)
-    # before rescheduling task for later.
-    SCAN_DESTINATION_LOCK_MAX_TRIES = decouple.config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
+        SCANNING_PACKETS_PER_SECOND: Annotated[
+            int,
+            "E.g. when set to 100, Artemis will send no more than 100 port scanning packets per seconds per port scanner instance.",
+        ] = get_config("SCANNING_PACKETS_PER_SECOND", default=100, cast=int)
 
-    # Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
-    # This is the lock default expiry time.
-    DEFAULT_LOCK_EXPIRY_SECONDS = decouple.config("DEFAULT_LOCK_EXPIRY_SECONDS", default=3600, cast=int)
+        SECONDS_PER_REQUEST: Annotated[
+            int,
+            """
+            E.g. when set to 2, Artemis will make sure no HTTP/MySQL connect/... request takes less than 2 seconds, sleeping if needed.
+            """,
+        ] = get_config("SECONDS_PER_REQUEST", default=0, cast=int)
 
-    # In order not to overload the DB and bandwidth, this determines how long
-    # the downloaded content would be (in bytes).
-    CONTENT_PREFIX_SIZE = decouple.config("CONTENT_PREFIX_SIZE", default=10240, cast=int)
+    class Miscellaneous:
+        CUSTOM_USER_AGENT: Annotated[
+            str,
+            "Custom User-Agent string used by Artemis (if not set, the library defaults will be used, different for requests, Nuclei etc.)",
+        ] = get_config("CUSTOM_USER_AGENT", default="")
 
-    # == bruter settings (artemis/modules/bruter.py)
-    # A threshold in case bruter finds too many files on a server
-    # and we want to skip this as a false positive. 0.1 means 10%.
-    BRUTER_FALSE_POSITIVE_THRESHOLD = 0.1
+        VERIFY_REVDNS_IN_SCOPE: Annotated[
+            bool,
+            """
+            By default, Artemis will check whether the reverse DNS lookup for an IP matches
+            the original domain. For example, if we encounter the 1.1.1.1 ip which resolves to
+            new.example.com, Artemis will check whether it is a subdomain of the original task
+            domain.
 
-    # If set to True, bruter will follow redirects. If to False, a redirect will be interpreted that a URL
-    # doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.
-    BRUTER_FOLLOW_REDIRECTS = decouple.config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
+            This is to prevent Artemis from randomly walking through the internet after encountering
+            a misconfigured Reverse DNS record (e.g. pointing to a completely different domain).
 
-    # == crtsh settings (artemis/modules/crtsh.py)
-    # How many times should we try to obtain subdomains list
-    CRTSH_NUM_RETRIES = decouple.config("CRTSH_NUM_RETRIES", default=10, cast=int)
-    # How long to sleep between tries
-    CRTSH_SLEEP_ON_RETRY_SECONDS = decouple.config("CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int)
+            The downside of that is that when you don't provide original domain (e.g. provide
+            an IP to be scanned), the domain from the reverse DNS lookup won't be scanned. Therefore this
+            behavior is configurable and may be turned off.
+            """,
+        ] = get_config("VERIFY_REVDNS_IN_SCOPE", default=True, cast=bool)
 
-    # == dns_scanner reporting settings (artemis/reporting/modules/dns_scanner.py)
-    # The number of domains below which zone transfer won't be reported
-    ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD = decouple.config(
-        "ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD", cast=int, default=2
-    )
+        MAX_NUM_TASKS_TO_PROCESS: Annotated[
+            int,
+            "After this number of tasks processed, each scanning module will get restarted. This is to prevent situations "
+            "such as slow memory leaks.",
+        ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=200, cast=int)
 
-    # == gau settings (artemis/modules/gau.py)
-    # custom port list to scan in CSV form (replaces default list)
-    GAU_ADDITIONAL_OPTIONS = decouple.config(
-        "GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" ")
-    )
+        CONTENT_PREFIX_SIZE: Annotated[
+            int,
+            "In order not to overload the DB and bandwidth, this determines how long the downloaded content would be (in bytes).",
+        ] = get_config("CONTENT_PREFIX_SIZE", default=10240, cast=int)
 
-    # == joomla_scanner settings (artemis/modules/joomla_scanner.py)
-    # After what number of days we consider the Joomla version to be obsolete
-    JOOMLA_VERSION_AGE_DAYS = decouple.config("JOOMLA_VERSION_AGE_DAYS", default=30, cast=int)
+    class Modules:
+        class Bruter:
+            BRUTER_FALSE_POSITIVE_THRESHOLD: Annotated[
+                float,
+                "A threshold in case bruter finds too many files on a server "
+                "and we want to skip this as a false positive. 0.1 means 10%.",
+            ] = get_config("BRUTER_FALSE_POSITIVE_THRESHOLD", default=0.1, cast=float)
 
-    # == nuclei settings (artemis/modules/nuclei.py)
-    # whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI when the
-    # Github API rate limits are spent)
-    NUCLEI_CHECK_TEMPLATE_LIST = decouple.config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
+            BRUTER_FOLLOW_REDIRECTS: Annotated[
+                bool,
+                "If set to True, bruter will follow redirects. If to False, a redirect will be interpreted that a URL "
+                "doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.",
+            ] = get_config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
-    NUCLEI_TEMPLATES_TO_SKIP = decouple.config(
-        "NUCLEI_TEMPLATES_TO_SKIP",
-        default=",".join(
-            [
-                # The two following templates caused panic: runtime
-                # error: integer divide by zero in github.com/projectdiscovery/retryabledns
-                "dns/azure-takeover-detection.yaml",
-                "dns/elasticbeantalk-takeover.yaml",
-                # This one caused multiple FPs
-                "http/cves/2021/CVE-2021-43798.yaml",
-                # Admin panel information disclosure - not a high-severity one.
-                "http/cves/2021/CVE-2021-24917.yaml",
-                # caused multiple FPs: travis configuration file provided by a framework without much interesting information.
-                "http/exposures/files/travis-ci-disclosure.yaml",
-                # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
-                # Feel free to make a different decision.
-                "http/exposed-panels/alfresco-detect.yaml",
-                "http/exposed-panels/bolt-cms-panel.yaml",
-                "http/exposed-panels/concrete5/concrete5-panel.yaml",
-                "http/exposed-panels/contao-login-panel.yaml",
-                "http/exposed-panels/craftcms-admin-panel.yaml",
-                "http/exposed-panels/django-admin-panel.yaml",
-                "http/exposed-panels/drupal-login.yaml",
-                "http/exposed-panels/ez-publish-panel.yaml",
-                "http/exposed-panels/joomla-panel.yaml",
-                "http/exposed-panels/kentico-login.yaml",
-                "http/exposed-panels/liferay-portal.yaml",
-                "http/exposed-panels/strapi-panel.yaml",
-                "http/exposed-panels/typo3-login.yaml",
-                "http/exposed-panels/umbraco-login.yaml",
-                "http/exposed-panels/wordpress-login.yaml",
-                # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
-                # make different decision.
-                "http/exposed-panels/squirrelmail-login.yaml",
-                "http/exposed-panels/horde-webmail-login.yaml",
-                "http/exposed-panels/horde-login-panel.yaml",
-                "http/exposed-panels/zimbra-web-login.yaml",
-                "http/exposed-panels/icewarp-panel-detect.yaml",
-                # These are Tomcat docs, not application docs
-                "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
-                # Generic API docs
-                "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
-                # VPN web portals and other ones that need to be exposed
-                "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
-                "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
-                "http/exposed-panels/pulse-secure-panel.yaml",
-                "http/exposed-panels/pulse-secure-version.yaml",
-                "http/exposed-panels/cas-login.yaml",
-                "http/exposed-panels/casdoor-login.yaml",
-                # Too small impact to report
-                "http/exposed-panels/webeditors-check-detect.yaml",
-                # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
-                "http/exposed-panels/jira-detect.yaml",
-                "http/exposed-panels/mantisbt-panel.yaml",
-                "http/exposed-panels/mautic-crm-panel.yaml",
-                "http/exposed-panels/osticket-panel.yaml:",
-                # Mostly meant to be publicly accessible
-                "http/exposed-panels/bigbluebutton-login.yaml",
-                "http/exposed-panels/ilias-panel.yaml",
-            ]
-        ),
-        cast=decouple.Csv(str),
-    )
+        class Crtsh:
+            CRTSH_NUM_RETRIES: Annotated[int, "How many times should we try to obtain subdomains list."] = get_config(
+                "CRTSH_NUM_RETRIES", default=10, cast=int
+            )
+            CRTSH_SLEEP_ON_RETRY_SECONDS: Annotated[int, "How long to sleep between tries."] = get_config(
+                "CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int
+            )
 
-    # A comma-separated list of Nuclei templates to be used besides the standard list.
-    # vulnerabilities/generic/crlf-injection.yaml was present here but is not anymore due to
-    # a significant number of false positives
-    NUCLEI_ADDITIONAL_TEMPLATES = decouple.config(
-        "NUCLEI_ADDITIONAL_TEMPLATES",
-        default=",".join(
-            [
-                "vulnerabilities/generic/basic-xss-prober.yaml",
-                "exposures/configs/ftp-credentials-exposure.yaml",
-                "http/misconfiguration/server-status.yaml",
-                "http/misconfiguration/server-status-localhost.yaml",
-                "http/misconfiguration/shell-history.yaml",
-                "http/misconfiguration/springboot/springboot-env.yaml",
-                "http/misconfiguration/springboot/springboot-threaddump.yaml",
-                "http/misconfiguration/springboot/springboot-httptrace.yaml",
-                "http/misconfiguration/springboot/springboot-logfile.yaml",
-                "http/misconfiguration/springboot/springboot-dump.yaml",
-                "http/misconfiguration/springboot/springboot-trace.yaml",
-                "http/misconfiguration/springboot/springboot-auditevents.yaml",
-                "http/misconfiguration/proxy/open-proxy-external.yaml",
-                "http/exposures/logs/roundcube-log-disclosure.yaml",
-                "http/exposures/files/ds-store-file.yaml",
-                "misconfiguration/elasticsearch.yaml",
-            ]
-        ),
-        cast=decouple.Csv(str),
-    )
+        class DNSScanner:
+            ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD: Annotated[
+                int, "The number of domains below which zone transfer won't be reported."
+            ] = get_config("ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD", cast=int, default=2)
 
-    # == port_scanner settings (artemis/modules/port_scanner.py)
-    # custom port list to scan in CSV form (replaces default list)
-    CUSTOM_PORT_SCANNER_PORTS = decouple.config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
+        class Gau:
+            GAU_ADDITIONAL_OPTIONS: Annotated[
+                List[str],
+                "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
+            ] = get_config("GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
 
-    # the number of open ports we consider to be too much and a false positive - if we observe more
-    # open ports, we trim by performing an intersection of the result with the list of 100 most popular ones.
-    PORT_SCANNER_MAX_NUM_PORTS = decouple.config("PORT_SCANNER_MAX_NUM_PORTS", default=100, cast=int)
+        class JoomlaScanner:
+            JOOMLA_VERSION_AGE_DAYS: Annotated[
+                int, "After what number of days we consider the Joomla version to be obsolete."
+            ] = get_config("JOOMLA_VERSION_AGE_DAYS", default=30, cast=int)
 
-    # == postman settings (artemis/modules/postman.py)
-    # E-mail addresses (from and to) that will be used to test whether a server is an open relay or allows
-    # sending e-mails to any address.
-    POSTMAN_MAIL_FROM = decouple.config("POSTMAN_MAIL_FROM", default="from@example.com")
-    POSTMAN_MAIL_TO = decouple.config("POSTMAN_MAIL_TO", default="to@example.com")
+        class Nuclei:
+            NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
+                bool,
+                "Whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI "
+                "when the Github API rate limits are spent).",
+            ] = get_config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
-    # == shodan settings (artemis/modules/shodan_vulns.py)
-    # Shodan API key so that Shodan vulnerabilities will be displayed in Artemis
-    SHODAN_API_KEY = decouple.config("SHODAN_API_KEY", default="")
+            NUCLEI_TEMPLATES_TO_SKIP: Annotated[
+                List[str],
+                "Comma-separated list of Nuclei templates not to be executed. See artemis/config.py for the rationale "
+                "behind skipping particular templates.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_SKIP",
+                default=",".join(
+                    [
+                        # The two following templates caused panic: runtime
+                        # error: integer divide by zero in github.com/projectdiscovery/retryabledns
+                        "dns/azure-takeover-detection.yaml",
+                        "dns/elasticbeantalk-takeover.yaml",
+                        # This one caused multiple FPs
+                        "http/cves/2021/CVE-2021-43798.yaml",
+                        # Admin panel information disclosure - not a high-severity one.
+                        "http/cves/2021/CVE-2021-24917.yaml",
+                        # caused multiple FPs: travis configuration file provided by a framework without much interesting information.
+                        "http/exposures/files/travis-ci-disclosure.yaml",
+                        # caused multiple FPs, and as RockMongo is not maintained anymore, let's skip it
+                        "http/vulnerabilities/other/rockmongo-xss.yaml",
+                        # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
+                        # Feel free to make a different decision.
+                        "http/exposed-panels/alfresco-detect.yaml",
+                        "http/exposed-panels/bolt-cms-panel.yaml",
+                        "http/exposed-panels/concrete5/concrete5-panel.yaml",
+                        "http/exposed-panels/contao-login-panel.yaml",
+                        "http/exposed-panels/craftcms-admin-panel.yaml",
+                        "http/exposed-panels/django-admin-panel.yaml",
+                        "http/exposed-panels/drupal-login.yaml",
+                        "http/exposed-panels/ez-publish-panel.yaml",
+                        "http/exposed-panels/joomla-panel.yaml",
+                        "http/exposed-panels/kentico-login.yaml",
+                        "http/exposed-panels/liferay-portal.yaml",
+                        "http/exposed-panels/strapi-panel.yaml",
+                        "http/exposed-panels/typo3-login.yaml",
+                        "http/exposed-panels/umbraco-login.yaml",
+                        "http/exposed-panels/wordpress-login.yaml",
+                        # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
+                        # make different decision.
+                        "http/exposed-panels/squirrelmail-login.yaml",
+                        "http/exposed-panels/horde-webmail-login.yaml",
+                        "http/exposed-panels/horde-login-panel.yaml",
+                        "http/exposed-panels/zimbra-web-login.yaml",
+                        "http/exposed-panels/icewarp-panel-detect.yaml",
+                        # These are Tomcat docs, not application docs
+                        "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
+                        # Generic API docs
+                        "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
+                        # VPN web portals and other ones that need to be exposed
+                        "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
+                        "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
+                        "http/exposed-panels/pulse-secure-panel.yaml",
+                        "http/exposed-panels/pulse-secure-version.yaml",
+                        "http/exposed-panels/cas-login.yaml",
+                        "http/exposed-panels/casdoor-login.yaml",
+                        # Too small impact to report
+                        "http/exposed-panels/webeditors-check-detect.yaml",
+                        # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        "http/exposed-panels/jira-detect.yaml",
+                        "http/exposed-panels/mantisbt-panel.yaml",
+                        "http/exposed-panels/mautic-crm-panel.yaml",
+                        "http/exposed-panels/osticket-panel.yaml:",
+                        # Mostly meant to be publicly accessible
+                        "http/exposed-panels/bigbluebutton-login.yaml",
+                        "http/exposed-panels/ilias-panel.yaml",
+                    ]
+                ),
+                cast=decouple.Csv(str),
+            )
 
-    # == vcs reporter settings (artemis/reporting/modules/vcs/reporter.py)
-    # Maximum size of the VCS (e.g. SVN) db file
-    VCS_MAX_DB_SIZE_BYTES = decouple.config("VCS_MAX_DB_SIZE_BYTES", default=1024 * 1024 * 5)
+            NUCLEI_ADDITIONAL_TEMPLATES: Annotated[
+                List[str],
+                "A comma-separated list of Nuclei templates to be used besides the standard list. "
+                "vulnerabilities/generic/crlf-injection.yaml was present here but is not anymore due to "
+                "a significant number of false positives.",
+            ] = get_config(
+                "NUCLEI_ADDITIONAL_TEMPLATES",
+                default=",".join(
+                    [
+                        "vulnerabilities/generic/basic-xss-prober.yaml",
+                        "exposures/configs/ftp-credentials-exposure.yaml",
+                        "http/misconfiguration/server-status.yaml",
+                        "http/misconfiguration/server-status-localhost.yaml",
+                        "http/misconfiguration/shell-history.yaml",
+                        "http/misconfiguration/springboot/springboot-env.yaml",
+                        "http/misconfiguration/springboot/springboot-threaddump.yaml",
+                        "http/misconfiguration/springboot/springboot-httptrace.yaml",
+                        "http/misconfiguration/springboot/springboot-logfile.yaml",
+                        "http/misconfiguration/springboot/springboot-dump.yaml",
+                        "http/misconfiguration/springboot/springboot-trace.yaml",
+                        "http/misconfiguration/springboot/springboot-auditevents.yaml",
+                        "http/misconfiguration/proxy/open-proxy-external.yaml",
+                        "http/exposures/logs/roundcube-log-disclosure.yaml",
+                        "http/exposures/files/ds-store-file.yaml",
+                        "misconfiguration/elasticsearch.yaml",
+                    ]
+                ),
+                cast=decouple.Csv(str),
+            )
 
-    # == wp_scanner settings (artemis/modules/wp_scanner.py)
-    # After what number of days we consider the WordPress version to be obsolete
-    # This is a long threshold because WordPress maintains a separate list of insecure versions, so "old" doesn't
-    # mean "insecure" here.
-    WORDPRESS_VERSION_AGE_DAYS = decouple.config("WORDPRESS_VERSION_AGE_DAYS", default=90, cast=int)
+        class PortScanner:
+            CUSTOM_PORT_SCANNER_PORTS: Annotated[
+                List[int],
+                "Custom port list to scan in CSV form (replaces default list).",
+            ] = get_config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
 
-    # == wordpress_bruter settings (artemis/modules/wordpress_bruter.py)
-    # Wordpress_bruter extracts the site name to brute-force passwords. For example, if it observes
-    # projectname.example.com it will bruteforce projectname123, projectname2023, ...
-    # This list describes what domain prefixes to strip (e.g. www) so that we bruteforce projectname123, not
-    # www123, when testing www.projectname.example.com.
-    WORDPRESS_BRUTER_STRIPPED_PREFIXES = decouple.config(
-        "WORDPRESS_BRUTER_STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str)
-    )
+            PORT_SCANNER_MAX_NUM_PORTS: Annotated[
+                int,
+                "The number of open ports we consider to be too much and a false positive - if we observe more "
+                "open ports, we trim by performing an intersection of the result with the list of 100 most popular ones.",
+            ] = get_config("PORT_SCANNER_MAX_NUM_PORTS", default=100, cast=int)
+
+        class Postman:
+            POSTMAN_MAIL_FROM: Annotated[
+                str,
+                "Sender e-mail address that will be used to test whether a server is an open relay or allows "
+                "sending e-mails to any address.",
+            ] = get_config("POSTMAN_MAIL_FROM", default="from@example.com")
+            POSTMAN_MAIL_TO: Annotated[
+                str,
+                "Recipient e-mail address, e.g. for open relay testing.",
+            ] = get_config("POSTMAN_MAIL_TO", default="to@example.com")
+
+        class Shodan:
+            SHODAN_API_KEY: Annotated[
+                str,
+                "Shodan API key so that Shodan vulnerabilities will be displayed in Artemis.",
+            ] = get_config("SHODAN_API_KEY", default="")
+
+        class VCS:
+            VCS_MAX_DB_SIZE_BYTES: Annotated[
+                int,
+                "Maximum size of the VCS (e.g. SVN) db file.",
+            ] = get_config("VCS_MAX_DB_SIZE_BYTES", default=1024 * 1024 * 5, cast=int)
+
+        class WordPressScanner:
+            WORDPRESS_VERSION_AGE_DAYS: Annotated[
+                int,
+                "After what number of days we consider the WordPress version to be obsolete. This is a long "
+                'threshold because WordPress maintains a separate list of insecure versions, so "old" doesn\'t '
+                'mean "insecure" here.',
+            ] = get_config("WORDPRESS_VERSION_AGE_DAYS", default=90, cast=int)
+
+        class WordPressBruter:
+            WORDPRESS_BRUTER_STRIPPED_PREFIXES: Annotated[
+                List[str],
+                "Wordpress_bruter extracts the site name to brute-force passwords. For example, if it observes "
+                "projectname.example.com it will bruteforce projectname123, projectname2023, ... "
+                "This list describes what domain prefixes to strip (e.g. www) so that we bruteforce projectname123, not "
+                "www123, when testing www.projectname.example.com.",
+            ] = get_config("WORDPRESS_BRUTER_STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str))
+
+    @staticmethod
+    def verify_each_variable_is_annotated() -> None:
+        def verify_class(cls: type) -> None:
+            hints = get_type_hints(cls)
+
+            for variable_name in dir(cls):
+                if variable_name.startswith("__"):
+                    continue
+                member = getattr(cls, variable_name)
+
+                if isinstance(member, type):
+                    verify_class(member)
+                elif member == Config.verify_each_variable_is_annotated:
+                    pass
+                else:
+                    assert variable_name in hints, f"{variable_name} in {cls} has no type hint"
+
+        verify_class(Config)
+
+
+Config.verify_each_variable_is_annotated()

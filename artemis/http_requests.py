@@ -9,8 +9,8 @@ from artemis.utils import throttle_request
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
-if Config.CUSTOM_USER_AGENT:
-    HEADERS = {"User-Agent": Config.CUSTOM_USER_AGENT}
+if Config.Miscellaneous.CUSTOM_USER_AGENT:
+    HEADERS = {"User-Agent": Config.Miscellaneous.CUSTOM_USER_AGENT}
 else:
     HEADERS = {}
 
@@ -44,7 +44,7 @@ def _request(
     allow_redirects: bool,
     data: Optional[Dict[str, str]],
     cookies: Optional[Dict[str, str]],
-    max_size: int = Config.CONTENT_PREFIX_SIZE,
+    max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
 ) -> HTTPResponse:
     def _internal_request() -> HTTPResponse:
         response = getattr(requests, method_name)(
@@ -54,7 +54,7 @@ def _request(
             cookies=cookies,
             verify=False,
             stream=True,
-            timeout=Config.REQUEST_TIMEOUT_SECONDS,
+            timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
             headers=HEADERS,
         )
 

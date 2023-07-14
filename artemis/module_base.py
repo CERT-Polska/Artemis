@@ -10,6 +10,7 @@ import requests
 import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.task import TaskState as KartonTaskState
+from redis import Redis
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
@@ -17,6 +18,8 @@ from artemis.db import DB
 from artemis.redis_cache import RedisCache
 from artemis.resolvers import ip_lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
+
+REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 
 class UnknownIPException(Exception):
@@ -30,12 +33,12 @@ class ArtemisBase(Karton):
 
     task_poll_interval_seconds = 2
 
-    lock_target = Config.LOCK_SCANNED_TARGETS
+    lock_target = Config.Locking.LOCK_SCANNED_TARGETS
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
-        self.cache = RedisCache(Config.REDIS, self.identity)
-        self.lock = ResourceLock(redis=Config.REDIS, res_name=self.identity)
+        self.cache = RedisCache(REDIS, self.identity)
+        self.lock = ResourceLock(redis=REDIS, res_name=self.identity)
         if db:
             self.db = db
         else:
@@ -107,7 +110,7 @@ class ArtemisBase(Karton):
 
         task_id = 0
         with self.graceful_killer():
-            while not self.shutdown and task_id < Config.MAX_NUM_TASKS_TO_PROCESS:
+            while not self.shutdown and task_id < Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break
@@ -118,7 +121,7 @@ class ArtemisBase(Karton):
                     task_id += 1
 
                     self.internal_process(task)
-        if task_id >= Config.MAX_NUM_TASKS_TO_PROCESS:
+        if task_id >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
             self.log.info("Exiting loop after processing %d tasks", task_id)
         else:
             self.log.info("Exiting loop, shutdown=%s", self.shutdown)
@@ -156,7 +159,7 @@ class ArtemisBase(Karton):
         if self.lock_target:
             try:
                 with ResourceLock(
-                    Config.REDIS, f"lock-{scan_destination}", max_tries=Config.SCAN_DESTINATION_LOCK_MAX_TRIES
+                    REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
                 ):
                     self.log.info(
                         "Succeeded to lock task %s (orig_uid=%s destination=%s)",
@@ -182,7 +185,7 @@ class ArtemisBase(Karton):
 
     def process(self, current_task: Task) -> None:
         try:
-            timeout_decorator.timeout(Config.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
+            timeout_decorator.timeout(Config.Limits.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
         except Exception:
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
@@ -243,7 +246,7 @@ class ArtemisBase(Karton):
         # There is a chance that the IP returned here (chosen randomly from a set of IP adresses)
         # would be different from the one chosen for the actual connection - but we hope that over
         # time and across multiple scanner instances the overall load would be approximately similar
-        # to one request per Config.SECONDS_PER_REQUEST_FOR_ONE_IP.
+        # to one request per Config.Limits.SECONDS_PER_REQUEST.
         try:
             ip_addresses = list(ip_lookup(host))
         except Exception as e:

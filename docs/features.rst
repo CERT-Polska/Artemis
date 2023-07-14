@@ -4,7 +4,8 @@ Features
 Artemis includes:
 
  - subdomain scan using ``crt.sh`` and ``gau`` (https://github.com/lc/gau),
- - Shodan integration,
+ - Shodan integration (to use it, you will need to provide the ``SHODAN_API_KEY``
+   configuration variable, see :doc:`user-guide/configuration`),
  - brute-forcing of interesting paths (e.g. ``.env``),
  - brute-forcing of easy WordPress/MySQL/PostgreSQL/FTP passwords,
  - email configuration verification (misconfigured SPF/DMARC, open relays),
@@ -30,9 +31,9 @@ Artemis is build in such a way that no particular host can be overloaded with re
 This is disabled by default. To enable that behavior, configure the following variables:
 
  - set ``LOCK_SCANNED_TARGETS`` to ``True`` to enable locking,
- - ``SECONDS_PER_REQUEST_FOR_ONE_IP`` - e.g. when set to 2, Artemis will strive to make no more than
+ - ``SECONDS_PER_REQUEST`` - e.g. when set to 2, Artemis will strive to make no more than
    one HTTP/MySQL connect/... request per two seconds for any IP,
- - ``SCANNING_PACKETS_PER_SECOND_PER_IP`` - e.g. when set to 100, Artemis will strive to send no more than
+ - ``SCANNING_PACKETS_PER_SECOND`` - e.g. when set to 100, Artemis will strive to send no more than
    100 port scanning packets per seconds to any IP.
 
 The IP lock is global - Artemis strives to allow at most one module to communicate with a given IP.

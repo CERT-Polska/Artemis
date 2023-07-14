@@ -17,10 +17,7 @@ RE_USER_AGENT = re.compile(r"^\s*user-agent:\s*(.*)", re.I)
 RE_ALLOW = re.compile(r"^\s*allow:\s*(/.*)", re.I)
 RE_DISALLOW = re.compile(r"^\s*disallow:\s*(/.*)", re.I)
 
-NOT_INTERESTING_PATHS = [
-    re.compile(p, re.I)
-    for p in [r"/wp-admin/?.*", r"/wp-includes/?.*", "^/$"] + [f"^{folder}" for folder in Config.NOT_INTERESTING_PATHS]
-]
+NOT_INTERESTING_PATHS = [re.compile(p, re.I) for p in [r"/wp-admin/?.*", r"/wp-includes/?.*", "^/$"]]
 
 
 @dataclass
@@ -96,7 +93,7 @@ class RobotsScanner(ArtemisBase):
                         found_urls.append(
                             FoundURL(
                                 url=full_url,
-                                content_prefix=content[: Config.CONTENT_PREFIX_SIZE],
+                                content_prefix=content[: Config.Miscellaneous.CONTENT_PREFIX_SIZE],
                                 has_directory_index=True,
                             )
                         )

@@ -61,7 +61,7 @@ def get_task_target(task: Task) -> str:
 
 class DB:
     def __init__(self) -> None:
-        self.client = MongoClient(Config.DB_CONN_STR)
+        self.client = MongoClient(Config.Data.DB_CONN_STR)
         self.analysis = self.client.artemis.analysis
         self.scheduled_tasks = self.client.artemis.scheduled_tasks
         self.task_results = self.client.artemis.task_results

@@ -20,3 +20,17 @@ is to pin MongoDB to version 4 in ``docker-compose.yaml``. Below are logs which 
     artemis-db-1  |   see also https://github.com/docker-library/mongo/issues/485#issuecomment-891991814
     artemis-db-1  |
     artemis-db-1  | /usr/local/bin/docker-entrypoint.sh: line 416:    26 Illegal instruction     "${mongodHackedArgs[@]}" --fork
+
+Shodan module startup issues
+----------------------------
+
+If you see the following error in the logs:
+
+.. code-block::
+
+    artemis-shodan-vulns-1  |   File "/opt/artemis/modules/shodan_vulns.py", line 97, in <module>
+    artemis-shodan-vulns-1  |     raise Exception("Shodan API key is required")
+    artemis-shodan-vulns-1  | Exception: Shodan API key is required
+
+That means the Shodan module wasn't able to start because an API key was not configured.
+To fix this, provide the ``SHODAN_API_KEY`` configuration variable, see :doc:`configuration`.

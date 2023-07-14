@@ -48,8 +48,8 @@ def throttle_request(f: Callable[[], Any]) -> Any:
         return f()
     finally:
         time_elapsed = time.time() - time_start
-        if time_elapsed < Config.SECONDS_PER_REQUEST_FOR_ONE_IP:
-            time.sleep(Config.SECONDS_PER_REQUEST_FOR_ONE_IP - time_elapsed)
+        if time_elapsed < Config.Limits.SECONDS_PER_REQUEST:
+            time.sleep(Config.Limits.SECONDS_PER_REQUEST - time_elapsed)
 
 
 def get_host_from_url(url: str) -> str:

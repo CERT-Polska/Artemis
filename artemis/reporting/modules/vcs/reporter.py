@@ -49,7 +49,7 @@ class VCSReporter(Reporter):
         logger.info("Analysing SVN folder in %s", repo_url)
         try:
             with tempfile.NamedTemporaryFile() as f:
-                data = cached_get(db_url, max_size=config.Config.VCS_MAX_DB_SIZE_BYTES).content_bytes
+                data = cached_get(db_url, max_size=config.Config.Modules.VCS.VCS_MAX_DB_SIZE_BYTES).content_bytes
 
                 f.write(data)
                 f.flush()

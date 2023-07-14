@@ -64,7 +64,7 @@ class ShodanVulns(ArtemisBase):
     def scan(self, current_task: Task, ip: str) -> None:
         result = ShodanVulnsResult()
         found_vuln_descriptions = []
-        shodan_client = shodan.Shodan(Config.SHODAN_API_KEY)
+        shodan_client = shodan.Shodan(Config.Modules.Shodan.SHODAN_API_KEY)
 
         if vulns := shodan_client.host(ip).get("vulns"):
             result.vulns = vulns
@@ -93,7 +93,7 @@ class ShodanVulns(ArtemisBase):
 
 
 if __name__ == "__main__":
-    if not Config.SHODAN_API_KEY:
+    if not Config.Modules.Shodan.SHODAN_API_KEY:
         raise Exception("Shodan API key is required")
 
     ShodanVulns().loop()

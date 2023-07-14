@@ -98,4 +98,4 @@ To prevent Artemis from disrupting scanned services, Artemis introduces request 
 
     throttle_request(lambda: ftp.login(username, password))
 
-This method ensures that it will take at least ``Config.SECONDS_PER_REQUEST_FOR_ONE_IP`` seconds, sleeping if needed.
+This method ensures that it will take at least ``Config.SECONDS_PER_REQUEST`` seconds, sleeping if needed.

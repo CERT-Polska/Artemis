@@ -39,7 +39,7 @@ class MailDNSScanner(ArtemisBase):
     @staticmethod
     def is_smtp_server(host: str, port: int) -> bool:
         def test() -> bool:
-            smtp = SMTP(timeout=Config.REQUEST_TIMEOUT_SECONDS)
+            smtp = SMTP(timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS)
             try:
                 smtp.connect(host, port=port)
                 smtp.close()

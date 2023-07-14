@@ -30,7 +30,7 @@ def get_top_level_target(task_result: Dict[str, Any]) -> str:
     if "last_domain" in task_result["payload"]:
         last_domain = task_result["payload"]["last_domain"]
 
-        for item in Config.REPORTING_SEPARATE_INSTITUTIONS:
+        for item in Config.Reporting.REPORTING_SEPARATE_INSTITUTIONS:
             if is_subdomain(last_domain, item):
                 assert isinstance(item, str)
                 assert "original_domain" in payload_persistent

@@ -1,6 +1,5 @@
 import json
 import urllib
-from os import getenv
 from typing import List, Optional
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
@@ -76,7 +75,6 @@ def get_queue(request: Request) -> Response:
         "queue.jinja2",
         {
             "request": request,
-            "dashboard_url": getenv("DASHBOARD_URL", "http://localhost:5001"),
         },
     )
 

@@ -237,6 +237,7 @@ class Config:
                         "http/vulnerabilities/other/rockmongo-xss.yaml",
                         # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
                         # Feel free to make a different decision.
+                        "http/exposed-panels/adobe/aem-sling-login.yaml",
                         "http/exposed-panels/alfresco-detect.yaml",
                         "http/exposed-panels/bolt-cms-panel.yaml",
                         "http/exposed-panels/concrete5/concrete5-panel.yaml",

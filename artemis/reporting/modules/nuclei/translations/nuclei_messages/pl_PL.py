@@ -350,6 +350,12 @@ TRANSLATIONS = {
     "[no description] http/misconfiguration/server-status-localhost.yaml": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony.",
     "Symfony database configuration file was detected and may contain database credentials.": "wykryto plik konfiguracyjny bazy danych dla frameworku Symfony - taki plik może zawierać np. hasła dostępowe."
     + DATA_HIDE_HINT,
+    "Apache Tomcat JK (mod_jk) Connector 1.2.0 to 1.2.44 allows specially constructed requests to expose application functionality through the reverse proxy. It is also possible in some configurations for a specially constructed request to bypass the access controls configured in httpd. While there is some overlap between this issue and CVE-2018-1323, they are not identical.": "Narzędzie Apache Tomcat JK (mod_jk) Connector w wersjach od 1.2.0 do 1.2.44 umożliwia atakującemu nieuprawniony dostęp do części funkcjonalności aplikacji." + UPDATE_HINT,
+    "GeoServer through 2.18.5 and 2.19.x through 2.19.2 allows server-side request forgery via the option for setting a proxy host.": "Narzędzie GeoServer w wersji do 2.18.5 i w wersjach 2.19.x do 2.19.2 zawiera podatność typu Server-Side Request Forgery umożliwiającą atakującemu komunikację z systemami w sieci lokalnej." + UPDATE_HINT,
+    "The WordPress Social Login and Register (Discord, Google, Twitter, LinkedIn) plugin for WordPress is vulnerable to authentication bypass in versions up to, and including, 7.6.4. This is due to insufficient encryption on the user being supplied during a login validated through the plugin. This makes it possible for unauthenticated attackers to log in as any existing user on the site, such as an administrator, if they know the email address associated with that user. This was partially patched in version 7.6.4 and fully patched in version 7.6.5.": "Wtyczka WordPress o nazwie WordPress Social Login and Register w wersji do 7.6.4 włącznie umożliwia atakującemu ominięcie autoryzacji i nieuprawniony dostęp administracyjny do systemu." + UPDATE_HINT,
+    # There are multiple plugins with this message, therefore we won't know the plugin name here
+    "The plugin does not sanitise and escape a parameter before using it in a SQL statement via an AJAX action (available to unauthenticated users), leading to an SQL injection.": "Wykryto wtyczkę, która zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych." + UPDATE_HINT,
+    "FTP credentials were detected.": "Wykryto plik ftpsync.settings zawierający dane logowania serwera FTP.",
     "Apache Rocketmq Unauthenticated Access were detected.": "wykryto, że możliwy jest dostęp bez logowania do narzędzia Apache Rocketmq.",
     "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "wykryto, że dostęp do narzędzia Tensorflow Tensorboard jest możliwy bez logowania.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
@@ -437,4 +443,11 @@ TRANSLATIONS = {
     "Splunk SOAR login panel was detected.": "wykryto panel logowania Splunk SOAR.",
     "Proxmox Virtual Environment login panel was detected.": "wykryto panel logowania Proxmox Virtual Environment.",
     "MeshCentral login panel was detected.": "wykryto panel logowania MeshCentral.",
+    "Jira Service Desk login panel was detected.": "wykryto panel logowania Jira Service Desk.",
+    "Sphider admin login panel was detected.": "wykryto panel administracyjny narzędzia Sphider.",
+    "OpenCPU panel was detected.": "wykryto panel OpenCPU.",
+    "[no description] http/exposed-panels/home-assistant-panel.yaml": "wykryto panel narzędzia Home Assistant.",
+    "Tiny File Manager panel was detected.": "wykryto panel narzędzia Tiny File Manager.",
+    "MSPControl login panel was detected.": "wykryto panel narzędzia MSPControl.",
+    "ESXi System login panel was detected.": "wykryto panel logowania ESXI System.",
 }

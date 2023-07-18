@@ -115,6 +115,7 @@ class MailDNSScanner(ArtemisBase):
         # but not on www.example.com).
         if (
             has_mx_records
+            and PUBLIC_SUFFIX_LIST.privatesuffix(domain)
             and not PUBLIC_SUFFIX_LIST.privatesuffix(domain) == domain
             and result.spf_dmarc_scan_result
             and result.spf_dmarc_scan_result.spf
@@ -155,13 +156,12 @@ class MailDNSScanner(ArtemisBase):
         result = self.scan(current_task, domain)
 
         status_reasons: List[str] = []
-        if result.mail_server_found:
-            if (
-                result.spf_dmarc_scan_result
-                and result.spf_dmarc_scan_result.spf
-                and not result.spf_dmarc_scan_result.spf.valid
-            ):
-                status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
+        if (
+            result.spf_dmarc_scan_result
+            and result.spf_dmarc_scan_result.spf
+            and not result.spf_dmarc_scan_result.spf.valid
+        ):
+            status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
         if (
             result.spf_dmarc_scan_result
             and result.spf_dmarc_scan_result.dmarc

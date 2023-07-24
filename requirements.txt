@@ -3,7 +3,7 @@ aiohttp==3.8.4
 anytree==2.9.0
 Babel==2.12.1
 beautifulsoup4==4.12.2
-certifi==2023.5.7
+certifi==2023.7.22
 chardet==5.1.0
 checkdmarc==4.7.0
 click==8.1.5

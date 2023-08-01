@@ -21,6 +21,12 @@ class Reporter(ABC):
         return [getattr(cls, name) for name in dir(cls) if isinstance(getattr(cls, name), ReportType)]
 
     @staticmethod
+    def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
+        """This looks at the final reports list and makes sure there is nothing to be reported to the person
+        that exports the e-mails (e.g. potential false positivves)."""
+        return []
+
+    @staticmethod
     @abstractmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         """A method that extracts vulnerability information and creates Reports."""

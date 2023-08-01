@@ -21,7 +21,7 @@ class Reporter(ABC):
         return [getattr(cls, name) for name in dir(cls) if isinstance(getattr(cls, name), ReportType)]
 
     @staticmethod
-    def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
+    def get_alerts(all_reports: List[Report]) -> List[str]:
         """This looks at the final reports list and makes sure there is nothing to be reported to the person
         that exports the e-mails (e.g. potential false positivves)."""
         return []

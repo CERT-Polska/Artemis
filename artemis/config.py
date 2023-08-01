@@ -255,6 +255,7 @@ class Config:
                         "http/exposed-panels/wordpress-login.yaml",
                         # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
                         # make different decision.
+                        "http/exposed-panels/axigen-webmail.yaml",
                         "http/exposed-panels/squirrelmail-login.yaml",
                         "http/exposed-panels/horde-webmail-login.yaml",
                         "http/exposed-panels/horde-login-panel.yaml",

@@ -359,9 +359,24 @@ TRANSLATIONS = {
     # There are multiple plugins with this message, therefore we won't know the plugin name here
     "The plugin does not sanitise and escape a parameter before using it in a SQL statement via an AJAX action (available to unauthenticated users), leading to an SQL injection.": "Wykryto wtyczkę, która zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + UPDATE_HINT,
+    "ProcessMaker 3.5.4 and prior is vulnerable to local file inclusion.": "Narzędzie ProcessMaker w wersji 3.5.4 i wcześniejszych umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "The CMNC-200 IP Camera has a built-in web server that is vulnerable to directory transversal attacks, allowing access to any file on the camera file system.": "Wykryto, że kamera CMNC-200 zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "FTP credentials were detected.": "Wykryto plik ftpsync.settings zawierający dane logowania serwera FTP.",
-    "Apache Rocketmq Unauthenticated Access were detected.": "wykryto, że możliwy jest dostęp bez logowania do narzędzia Apache Rocketmq.",
-    "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "wykryto, że dostęp do narzędzia Tensorflow Tensorboard jest możliwy bez logowania.",
+    "Apache Rocketmq Unauthenticated Access were detected.": "Wykryto, że możliwy jest dostęp bez logowania do narzędzia Apache Rocketmq.",
+    "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "Wykryto, że dostęp do narzędzia Tensorflow Tensorboard jest możliwy bez logowania.",
+    "Nginx server is vulnerable to local file inclusion.": "Wykryto, że serwer NGINX jest skonfigurowany w sposób umożliwiający odczyt dowolnych plików z serwera.",
+    "Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera devices through 3.X are vulnerable to local file inclusion via the web interface, as demonstrated by reading /etc/shadow.": "Wykryto, że urządzenie Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Bullwark Momentum Series JAWS 1.0 is vulnerable to local file inclusion.": "Wykryto, że Bullwark Momentum Series JAWS 1.0 zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "IBM InfoPrint 4247-Z03 Impact Matrix Printer is subject to local file inclusion.": "Wykryto, że drukarka IBM InfoPrint 4247-Z03 Impact Matrix Printer zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Generic Linux is subject to local file Inclusion on searches for /etc/passwd on passed URLs.": "Wykryto serwer HTTP systemu Linux skonfigurowany w sposób umożliwiający atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    'Zyxel VMG1312-B10D 5.13AAXA.8 is susceptible to local file inclusion. A remote unauthenticated attacker can send a specially crafted URL request containing "dot dot" sequences (/../), conduct directory traversal attacks, and view arbitrary files.': "Wykryto urządzenie Zyxel VMG1312-B10D 5.13AAXA.8 zawierające  podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -454,4 +469,9 @@ TRANSLATIONS = {
     "Tiny File Manager panel was detected.": "wykryto panel narzędzia Tiny File Manager.",
     "MSPControl login panel was detected.": "wykryto panel narzędzia MSPControl.",
     "ESXi System login panel was detected.": "wykryto panel logowania ESXI System.",
+    "3CX Phone System Management Console panel was detected.": "wykryto panel 3CX Phone System Management Console",
+    "3CX Phone System Web Client Management Console panel was detected.": "wykryto panel 3CX Phone System Web Client Management Console",
+    "Kraken Cluster Monitoring Dashboard was detected.": "wykryto panel Kraken Cluster Monitoring Dashboard.",
+    "AVideo installer panel was detected.": "wykryto panel instalacyjny narzędzia AVideo.",
+    "WHM login panel was detected.": "wykryto panel logowania WHM.",
 }

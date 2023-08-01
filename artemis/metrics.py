@@ -6,8 +6,6 @@ from prometheus_client import REGISTRY, start_http_server, GC_COLLECTOR, PLATFOR
 from karton.core.backend import KartonBackend, KartonMetrics
 from karton.core.config import Config as KartonConfig
 
-from artemis.config import Config
-
 
 class ArtemisMetricsCollector:
     def __init__(self):
@@ -54,4 +52,4 @@ if __name__ == "__main__":
     REGISTRY.unregister(PROCESS_COLLECTOR)
 
     while True:
-        time.sleep(Config.Miscellaneous.METRICS_EXPORT_INTERVAL)
+        time.sleep(1)

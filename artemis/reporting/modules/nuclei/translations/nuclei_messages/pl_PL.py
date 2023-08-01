@@ -377,10 +377,26 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     'Zyxel VMG1312-B10D 5.13AAXA.8 is susceptible to local file inclusion. A remote unauthenticated attacker can send a specially crafted URL request containing "dot dot" sequences (/../), conduct directory traversal attacks, and view arbitrary files.': "Wykryto urządzenie Zyxel VMG1312-B10D 5.13AAXA.8 zawierające  podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
-     "Hanming Video Conferencing is vulnerable to local file inclusion.": "Wykryto, że narzędzie Hanming Video Conferencing zawiera podatność Local File Inclusion.",
-     "Barcode is a GLPI plugin for printing barcodes and QR codes. GLPI instances version 2.x prior to version 2.6.1 with the barcode plugin installed are vulnerable to a path traversal vulnerability.": "Wykryto, że wtyczka GLPI w wersji 2.x poniżej 2.6.1 o nazwie Barcode umożliwia atakującemu odczyt dowolnych plików z serwera." + UPDATE_HINT,
-     "GoCD contains a critical information disclosure vulnerability whose exploitation allows unauthenticated attackers to leak configuration information including build secrets and encryption keys.": "Narzędzie GoCD zawiera podatność umożliwiającą atakującemu pobranie danych takich jak np. klucze szyfrujące.",
-     'WordPress Church Admin 0.33.2.1 is vulnerable to local file inclusion via the "key" parameter of plugins/church-admin/display/download.php.': "Wtyczka WordPress o nazwie Church Admin w wersji 0.33.2.1 umożliwia atakującemu odczyt dowolnych plików z serwera." + UPDATE_HINT,
+    "Hanming Video Conferencing is vulnerable to local file inclusion.": "Wykryto, że narzędzie Hanming Video Conferencing zawiera podatność Local File Inclusion.",
+    "Barcode is a GLPI plugin for printing barcodes and QR codes. GLPI instances version 2.x prior to version 2.6.1 with the barcode plugin installed are vulnerable to a path traversal vulnerability.": "Wykryto, że wtyczka GLPI w wersji 2.x poniżej 2.6.1 o nazwie Barcode umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "GoCD contains a critical information disclosure vulnerability whose exploitation allows unauthenticated attackers to leak configuration information including build secrets and encryption keys.": "Narzędzie GoCD zawiera podatność umożliwiającą atakującemu pobranie danych takich jak np. klucze szyfrujące.",
+    'WordPress Church Admin 0.33.2.1 is vulnerable to local file inclusion via the "key" parameter of plugins/church-admin/display/download.php.': "Wtyczka WordPress o nazwie Church Admin w wersji 0.33.2.1 umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "WordPress Localize My Post 1.0 is susceptible to local file inclusion via the ajax/include.php file parameter.": "Wtyczka WordPress o nazwie Localize My Post w wersji 1.0 umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "NCBI ToolBox 2.0.7 through 2.2.26 legacy versions contain a path traversal vulnerability via viewcgi.cgi which may result in reading of arbitrary files (i.e., significant information disclosure) or file deletion via the nph-viewgif.cgi query string.": "Narzędzie NCBI ToolBox w wersji od 2.0.7 do 2.2.26 zawiera podatność, która umożliwia atakującemu odczyt lub usunięcie dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "SysAid Help Desk before 15.2 contains multiple local file inclusion vulnerabilities which can allow remote attackers to read arbitrary files via .. (dot dot) in the fileName parameter of getGfiUpgradeFile or cause a denial of service (CPU and memory consumption) via .. (dot dot) in the fileName parameter of calculateRdsFileChecksum.": "Narzędzie SysAid Help Desk w wersji poniżej 15.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "A local file inclusion vulnerability exists in version BIQS IT Biqs-drive v1.83 and below when sending a specific payload as the file parameter to download/index.php. This allows the attacker to read arbitrary files from the server with the permissions of the configured web-user.": "Narzędzie BIQS IT Biqs-drive w wersji v1.83 i niższych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "WordPress Candidate Application Form <= 1.3 is susceptible to arbitrary file downloads because the code in downloadpdffile.php does not do any sanity checks.": "Wtyczka WordPress o nazwie Candidate Application Form w wersji 1.3 i niższych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Loytec LGATE-902 versions prior to 6.4.2 suffers from a local file inclusion vulnerability.": "Wykryto, że Loytec LGATE-902 w wersjach poniżej 6.4.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "OYTEC LGATE-902 6.3.2 is susceptible to local file inclusion which could allow an attacker to manipulate path references and access files and directories (including critical system files) that are stored outside the root folder of the web application running on the device. This can be used to read and configuration files containing, e.g., usernames and passwords.": "Wykryto, że Loytec LGATE-902 w wersjach poniżej 6.4.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

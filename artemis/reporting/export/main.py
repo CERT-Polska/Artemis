@@ -154,7 +154,7 @@ def main(
         for data_about_target in export_data.messages.values():
             reports.extend(data_about_target.reports)
         for alert in reporter.get_alerts(reports):
-            print("ALERT:", alert)
+            print(termcolor.colored("ALERT:" + alert, color="red"))
 
 
 if __name__ == "__main__":

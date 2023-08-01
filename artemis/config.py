@@ -137,6 +137,11 @@ class Config:
         ] = get_config("SECONDS_PER_REQUEST", default=0, cast=int)
 
     class Miscellaneous:
+        METRICS_EXPORT_INTERVAL: Annotated[
+            int,
+            "How frequently Prometheus metrics will get exported.",
+        ] = get_config("METRICS_EXPORT_INTERVAL", default=60, cast=int)
+
         CUSTOM_USER_AGENT: Annotated[
             str,
             "Custom User-Agent string used by Artemis (if not set, the library defaults will be used, different for requests, Nuclei etc.)",

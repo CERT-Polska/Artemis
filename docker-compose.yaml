@@ -45,7 +45,7 @@ services:
     command: ["--setup-bucket"]
     depends_on: ["db", "redis", "minio"]
     env_file: .env
-    image: "certpl/karton-system:3d8d3c905e73fc1f56885619355d69d2c2d9f7ca"
+    image: "certpl/karton-system:v5.2.0"
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
     restart: always
 
@@ -74,7 +74,7 @@ services:
   karton-dashboard:
     depends_on: [karton-logger]
     env_file: .env
-    image: certpl/karton-dashboard:d0a2a1ffd21e9066acca77434acaff7b20e460d0
+    image: certpl/karton-dashboard:v1.5.0
     ports: [5001:5000]
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]

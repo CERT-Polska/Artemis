@@ -1,6 +1,7 @@
+import collections
 import os
 import urllib.parse
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Counter, Dict, List
 
 from artemis.config import Config
 from artemis.modules.nuclei import EXPOSED_PANEL_TEMPLATE_PATH_PREFIX
@@ -24,6 +25,20 @@ from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_
 class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
     NUCLEI_EXPOSED_PANEL = ReportType("nuclei_exposed_panel")
+
+    @staticmethod
+    def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
+        result = []
+
+        reports_by_target_counter: Counter[str] = collections.Counter()
+        for report in all_reports:
+            if report.report_type in [NucleiReporter.NUCLEI_VULNERABILITY, NucleiReporter.NUCLEI_EXPOSED_PANEL]:
+                reports_by_target_counter[report.target] += 1
+
+        for key, value in reports_by_target_counter.items():
+            if value >= false_positive_threshold:
+                result.append(f"Found {value} Nuclei reports for {key}. Please make sure they are not false positives.")
+        return result
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:

@@ -439,6 +439,38 @@ TRANSLATIONS = {
     "Portal do Software Publico Brasileiro i3geo 7.0.5 is vulnerable to local file inclusion in the component codemirror.php, which allows attackers to execute arbitrary PHP code via a crafted HTTP request.": "Portal do Software Publico Brasileiro i3geo 7.0.5 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    'Karel IP Phone IP1211 Web Management Panel is vulnerable to local file inclusion and can allow remote attackers to access arbitrary files stored on the remote device via the "cgiServer.exx" endpoint and the "page" parameter.': "Karel IP Phone IP1211 Web Management Panel zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Joomla! Roland Breedveld Album 1.14 (com_album) is susceptible to local file inclusion because it allows remote attackers to access arbitrary directories and have unspecified other impact via a .. (dot dot) in the target parameter to index.php.": "Wtyczka Joomla! o nazwie Roland Breedveld Album w wersji 1.14 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "PilusCart versions 1.4.1 and prior suffer from a file disclosure vulnerability via local file inclusion.": "PilusCart w wersji 1.4.1 i wcześniejszych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "A PHP remote file inclusion vulnerability in core/include/myMailer.class.php in the Visites (com_joomla-visites) component 1.1 RC2 for Joomla! allows remote attackers to execute arbitrary PHP code via a URL in the mosConfig_absolute_path parameter.": "Komponent Joomla! o nazwie Visites (com_joomla-visites) w wersji 1.1 RC2 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The ECOA BAS controller suffers from a directory traversal content disclosure vulnerability. Using the GET parameter cpath in File Manager (fmangersub), attackers can disclose directory content on the affected device": "Kontroler ECDA BAS zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera.",
+    "PhpMyAdmin before version 4.8.2 is susceptible to local file inclusion that allows an attacker to include (view and potentially execute) files on the server. The vulnerability comes from a portion of code where pages are redirected and loaded within phpMyAdmin, and an improper test for whitelisted pages. An attacker must be authenticated, except in the \"$cfg['AllowArbitraryServer'] = true\" case (where an attacker can specify any host he/she is already in control of, and execute arbitrary code on phpMyAdmin) and the \"$cfg['ServerDefault'] = 0\" case (which bypasses the login requirement and runs the vulnerable code without any authentication).": "PhpMyAdmin w wersji poniżej 4.8.2 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z serwera i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Carel pCOWeb HVAC BACnet Gateway 2.1.0 is vulnerable to local file inclusion because of input passed through the 'file' GET parameter through the 'logdownload.cgi' Bash script is not properly verified before being used to download log files. This can be exploited to disclose the contents of arbitrary and sensitive files via directory traversal attacks.": "Carel pCOWeb HVAC BACnet Gateway 2.1.0 l zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "EyeLock nano NXT suffers from a file retrieval vulnerability when input passed through the 'path' parameter to 'logdownload.php' script is not properly verified before being used to read files. This can be exploited to disclose contents of files from local resources.": "EyeLock nano NXT zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera.",
+    "Eaton Intelligent Power Manager v1.6 allows an attacker to include a file via directory traversal, which can lead to sensitive information disclosure, denial of service and code execution.": "Eaton Intelligent Power Manager w wersji 1.6 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Tarantella Enterprise versions prior to 3.11 are susceptible to local file inclusion.": "Tarantella Enterprise w wersjach ponizęj 3.11 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Multiple directory traversal vulnerabilities in Pandora FMS before 3.1.1 allow remote attackers to include and execute arbitrary local files via (1) the page parameter to ajax.php or (2) the id parameter to general/pandora_help.php, and allow remote attackers to include and execute, create, modify, or delete arbitrary local files via (3) the layout parameter to operation/agentes/networkmap.php.": "Pandora FMS w wersji poniżej 3.1.1 zawiera podatności, które umożliwiają atakującemu odczyt, edycję i usuwanie dowolnych plików z serwera i zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "LimeSurvey before 4.1.12+200324 is vulnerable to local file inclusion because it contains a path traversal vulnerability in application/controllers/admin/LimeSurveyFileManager.php.": "LimeSurvey w wersji poniżej 4.1.12+200324 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "The Ruoyi Management System contains a local file inclusion vulnerability that allows attackers to retrieve arbitrary files from the operating system.": "Ruoyi Management System zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera.",
+    "openSIS 5.1 is vulnerable to local file inclusion and allows attackers to obtain potentially sensitive information by executing arbitrary local scripts in the context of the web server process. This may allow the attacker to compromise the application and computer; other attacks are also possible.": "openSIS w wersji 5.1 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "A directory traversal vulnerability in Cisco Unified Communications Manager (CUCM) 5.x and 6.x before 6.1(5)SU2, 7.x before 7.1(5b)SU2, and 8.x before 8.0(3), and Cisco Unified Contact Center Express (aka Unified CCX or UCCX) and Cisco Unified IP Interactive Voice Response (Unified IP-IVR) before 6.0(1)SR1ES8, 7.0(x) before 7.0(2)ES1, 8.0(x) through 8.0(2)SU3, and 8.5(x) before 8.5(1)SU2, allows remote attackers to read arbitrary files via a crafted URL, aka Bug IDs CSCth09343 and CSCts44049.": "Cisco Unified Communications Manager (CUCM) w wersji 5.x, 6.x poniżej 6.1(5)SU2, 7.x poniżej 7.1(5b)SU2 i 8.x poniżej 8.0(3), Cisco Unified Contact Center Express i Cisco Unified IP Interactive Voice Response (Unified IP-IVR) w wersji poniżej 6.0(1)SR1ES8, 7.0(x) poniżej 7.0(2)ES1, 8.0(x) do 8.0(2)SU3 włącznie i 8.5(x) poniżej 8.5(1)SU2 zawierają podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

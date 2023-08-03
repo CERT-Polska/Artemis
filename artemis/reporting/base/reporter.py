@@ -23,7 +23,7 @@ class Reporter(ABC):
     @staticmethod
     def get_alerts(all_reports: List[Report]) -> List[str]:
         """This looks at the final reports list and returns messages to be shown to the person
-        that exports the e-mails (e.g. potential false positivves)."""
+        that exports the e-mails (e.g. potential false positives)."""
         return []
 
     @staticmethod

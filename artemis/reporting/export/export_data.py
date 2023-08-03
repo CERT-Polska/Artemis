@@ -1,3 +1,4 @@
+import datetime
 from collections import Counter
 from dataclasses import dataclass
 from typing import Dict, List, Optional
@@ -22,6 +23,7 @@ class SingleTopLevelTargetExportData:
 
 @dataclass
 class ExportData:
+    timestamp: datetime.datetime
     tag: Optional[str]
     scanned_top_level_targets: List[str]
     scanned_targets: List[str]
@@ -34,6 +36,7 @@ def build_export_data(
     tag: Optional[str],
     db: DataLoader,
     custom_template_arguments_parsed: Dict[str, str],
+    timestamp: datetime.datetime,
 ) -> ExportData:
     reports = deduplicate_reports(previous_reports, db.reports)
 
@@ -66,6 +69,7 @@ def build_export_data(
         )
 
     return ExportData(
+        timestamp=timestamp,
         tag=tag,
         scanned_top_level_targets=list(db.scanned_top_level_targets),
         scanned_targets=list(db.scanned_targets),

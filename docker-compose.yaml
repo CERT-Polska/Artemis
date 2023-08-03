@@ -59,6 +59,17 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
+  metrics:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    depends_on: [karton-logger]
+    env_file: .env
+    ports: ["9000:9000"]
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    command: "python3 -m artemis.metrics"
+
   web:
     build:
       context: .

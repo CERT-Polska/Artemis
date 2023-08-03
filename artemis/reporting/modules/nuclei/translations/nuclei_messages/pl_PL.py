@@ -439,7 +439,7 @@ TRANSLATIONS = {
     "Portal do Software Publico Brasileiro i3geo 7.0.5 is vulnerable to local file inclusion in the component codemirror.php, which allows attackers to execute arbitrary PHP code via a crafted HTTP request.": "Portal do Software Publico Brasileiro i3geo 7.0.5 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
-    'Karel IP Phone IP1211 Web Management Panel is vulnerable to local file inclusion and can allow remote attackers to access arbitrary files stored on the remote device via the "cgiServer.exx" endpoint and the "page" parameter.': "Karel IP Phone IP1211 Web Management Panel zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    "Karel IP Phone IP1211 Web Management Panel is vulnerable to local file inclusion and can allow remote attackers to access arbitrary files stored on the remote device via the 'cgiServer.exx' endpoint and the 'page' parameter.": "Karel IP Phone IP1211 Web Management Panel zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "Joomla! Roland Breedveld Album 1.14 (com_album) is susceptible to local file inclusion because it allows remote attackers to access arbitrary directories and have unspecified other impact via a .. (dot dot) in the target parameter to index.php.": "Wtyczka Joomla! o nazwie Roland Breedveld Album w wersji 1.14 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,

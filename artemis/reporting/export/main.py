@@ -125,7 +125,9 @@ def main(
     export_db_connector = DataLoader(db, blocklist, language, tag)
     # we strip microseconds so that the timestamp in export_data json and folder name are equal
     timestamp = datetime.datetime.now().replace(microsecond=0)
-    export_data = build_export_data(previous_reports, tag, export_db_connector, custom_template_arguments_parsed, timestamp)
+    export_data = build_export_data(
+        previous_reports, tag, export_db_connector, custom_template_arguments_parsed, timestamp
+    )
     date_str = timestamp.strftime("%Y-%m-%d_%H_%M_%S")
     output_dir = OUTPUT_LOCATION / date_str
     os.mkdir(output_dir)

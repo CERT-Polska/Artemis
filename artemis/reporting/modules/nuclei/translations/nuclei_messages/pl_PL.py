@@ -356,9 +356,6 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The WordPress Social Login and Register (Discord, Google, Twitter, LinkedIn) plugin for WordPress is vulnerable to authentication bypass in versions up to, and including, 7.6.4. This is due to insufficient encryption on the user being supplied during a login validated through the plugin. This makes it possible for unauthenticated attackers to log in as any existing user on the site, such as an administrator, if they know the email address associated with that user. This was partially patched in version 7.6.4 and fully patched in version 7.6.5.": "Wtyczka WordPress o nazwie WordPress Social Login and Register w wersji do 7.6.4 włącznie umożliwia atakującemu ominięcie autoryzacji i nieuprawniony dostęp administracyjny do systemu."
     + UPDATE_HINT,
-    # There are multiple plugins with this message, therefore we won't know the plugin name here
-    "The plugin does not sanitise and escape a parameter before using it in a SQL statement via an AJAX action (available to unauthenticated users), leading to an SQL injection.": "Wykryto wtyczkę, która zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
-    + UPDATE_HINT,
     "ProcessMaker 3.5.4 and prior is vulnerable to local file inclusion.": "Narzędzie ProcessMaker w wersji 3.5.4 i wcześniejszych umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "The CMNC-200 IP Camera has a built-in web server that is vulnerable to directory transversal attacks, allowing access to any file on the camera file system.": "Wykryto, że kamera CMNC-200 zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."

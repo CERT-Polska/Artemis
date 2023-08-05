@@ -469,6 +469,8 @@ TRANSLATIONS = {
     "A directory traversal vulnerability in Cisco Unified Communications Manager (CUCM) 5.x and 6.x before 6.1(5)SU2, 7.x before 7.1(5b)SU2, and 8.x before 8.0(3), and Cisco Unified Contact Center Express (aka Unified CCX or UCCX) and Cisco Unified IP Interactive Voice Response (Unified IP-IVR) before 6.0(1)SR1ES8, 7.0(x) before 7.0(2)ES1, 8.0(x) through 8.0(2)SU3, and 8.5(x) before 8.5(1)SU2, allows remote attackers to read arbitrary files via a crafted URL, aka Bug IDs CSCth09343 and CSCts44049.": "Cisco Unified Communications Manager (CUCM) w wersji 5.x, 6.x poniżej 6.1(5)SU2, 7.x poniżej 7.1(5b)SU2 i 8.x poniżej 8.0(3), Cisco Unified Contact Center Express i Cisco Unified IP Interactive Voice Response (Unified IP-IVR) w wersji poniżej 6.0(1)SR1ES8, 7.0(x) poniżej 7.0(2)ES1, 8.0(x) do 8.0(2)SU3 włącznie i 8.5(x) poniżej 8.5(1)SU2 zawierają podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "Redmine configuration file was detected.": "Wykryto plik konfiguracyjny systemu Redmine." + DATA_HIDE_HINT,
+    # There are multiple plugins with this message, therefore we match by template path
+    "http/vulnerabilities/wordpress/contus-video-gallery-sqli.yaml": "Wykryto, że wtyczka WordPress o nazwie Contus Video Gallery zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych." + WORDPRESS_UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

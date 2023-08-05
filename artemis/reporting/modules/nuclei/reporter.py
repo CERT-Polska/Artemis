@@ -105,7 +105,7 @@ class NucleiReporter(Reporter):
                         report_type=NucleiReporter.NUCLEI_VULNERABILITY,
                         additional_data={
                             "description_en": description,
-                            "description_translated": NucleiReporter._translate_description(description, language),
+                            "description_translated": NucleiReporter._translate_description(vulnerability["template"], description, language),
                             "reference": vulnerability["info"]["reference"],
                             "matched_at": matched_at,
                             "template_name": vulnerability["template"],
@@ -150,6 +150,9 @@ class NucleiReporter(Reporter):
             # module for the rationale of using Python dictionaries instead of .po files.
             description = description.strip()
 
+            # We allow both matching by description and template name. Matching by description allows
+            # easier translation and code review, matching by template name needs to be supported
+            # in case multiple templates have the same description.
             if description in translations_nuclei_messages_pl_PL.TRANSLATIONS:
                 return translations_nuclei_messages_pl_PL.TRANSLATIONS[description]
             if template_name in translations_nuclei_messages_pl_PL.TRANSLATIONS:

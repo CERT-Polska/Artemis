@@ -372,16 +372,16 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Generic Linux is subject to local file Inclusion on searches for /etc/passwd on passed URLs.": "Wykryto serwer HTTP systemu Linux skonfigurowany w sposób umożliwiający atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
-    'Zyxel VMG1312-B10D 5.13AAXA.8 is susceptible to local file inclusion. A remote unauthenticated attacker can send a specially crafted URL request containing "dot dot" sequences (/../), conduct directory traversal attacks, and view arbitrary files.': "Wykryto urządzenie Zyxel VMG1312-B10D 5.13AAXA.8 zawierające  podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    'Zyxel VMG1312-B10D 5.13AAXA.8 is susceptible to local file inclusion. A remote unauthenticated attacker can send a specially crafted URL request containing "dot dot" sequences (/../), conduct directory traversal attacks, and view arbitrary files.': "Wykryto urządzenie Zyxel VMG1312-B10D 5.13AAXA.8 zawierające podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "Hanming Video Conferencing is vulnerable to local file inclusion.": "Wykryto, że narzędzie Hanming Video Conferencing zawiera podatność Local File Inclusion.",
     "Barcode is a GLPI plugin for printing barcodes and QR codes. GLPI instances version 2.x prior to version 2.6.1 with the barcode plugin installed are vulnerable to a path traversal vulnerability.": "Wykryto, że wtyczka GLPI w wersji 2.x poniżej 2.6.1 o nazwie Barcode umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "GoCD contains a critical information disclosure vulnerability whose exploitation allows unauthenticated attackers to leak configuration information including build secrets and encryption keys.": "Narzędzie GoCD zawiera podatność umożliwiającą atakującemu pobranie danych takich jak np. klucze szyfrujące.",
     'WordPress Church Admin 0.33.2.1 is vulnerable to local file inclusion via the "key" parameter of plugins/church-admin/display/download.php.': "Wtyczka WordPress o nazwie Church Admin w wersji 0.33.2.1 umożliwia atakującemu odczyt dowolnych plików z serwera."
-    + UPDATE_HINT,
+    + WORDPRESS_UPDATE_HINT,
     "WordPress Localize My Post 1.0 is susceptible to local file inclusion via the ajax/include.php file parameter.": "Wtyczka WordPress o nazwie Localize My Post w wersji 1.0 umożliwia atakującemu odczyt dowolnych plików z serwera."
-    + UPDATE_HINT,
+    + WORDPRESS_UPDATE_HINT,
     "NCBI ToolBox 2.0.7 through 2.2.26 legacy versions contain a path traversal vulnerability via viewcgi.cgi which may result in reading of arbitrary files (i.e., significant information disclosure) or file deletion via the nph-viewgif.cgi query string.": "Narzędzie NCBI ToolBox w wersji od 2.0.7 do 2.2.26 zawiera podatność, która umożliwia atakującemu odczyt lub usunięcie dowolnych plików z serwera."
     + UPDATE_HINT,
     "SysAid Help Desk before 15.2 contains multiple local file inclusion vulnerabilities which can allow remote attackers to read arbitrary files via .. (dot dot) in the fileName parameter of getGfiUpgradeFile or cause a denial of service (CPU and memory consumption) via .. (dot dot) in the fileName parameter of calculateRdsFileChecksum.": "Narzędzie SysAid Help Desk w wersji poniżej 15.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
@@ -473,6 +473,7 @@ TRANSLATIONS = {
     "http/vulnerabilities/wordpress/contus-video-gallery-sqli.yaml": "Wykryto, że wtyczka WordPress o nazwie Contus Video Gallery zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "Nginx Virtual Host Traffic Status Module contains a cross-site scripting vulnerability. An attacker can execute arbitrary script and thus steal cookie-based authentication credentials and launch other attacks.": "Moduł Nginx Virtual Host Traffic Status zawiera podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator.",
+    "[no description] http/takeovers/shopify-takeover.yaml": "Wykryto, że domena odsyła do serwisu Shopify, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Shopify, aby umieścić tam swoje treści.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

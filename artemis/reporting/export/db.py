@@ -69,6 +69,7 @@ class DataLoader:
                 report_to_add.original_karton_name = task_result["headers"]["receiver"]
                 report_to_add.original_task_result_id = task_result["_id"]
                 report_to_add.original_task_target_string = task_result["target_string"]
+                report_to_add.last_domain = task_result["payload"].get("last_domain", None)
 
             self._reports.extend(filter_blocklist(reports_to_add, self._blocklist))
         self._data_initialized = True

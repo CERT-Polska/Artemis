@@ -354,7 +354,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "GeoServer through 2.18.5 and 2.19.x through 2.19.2 allows server-side request forgery via the option for setting a proxy host.": "Narzędzie GeoServer w wersji do 2.18.5 i w wersjach 2.19.x do 2.19.2 zawiera podatność typu Server-Side Request Forgery umożliwiającą atakującemu komunikację z systemami w sieci lokalnej."
     + UPDATE_HINT,
-    "The WordPress Social Login and Register (Discord, Google, Twitter, LinkedIn) plugin for WordPress is vulnerable to authentication bypass in versions up to, and including, 7.6.4. This is due to insufficient encryption on the user being supplied during a login validated through the plugin. This makes it possible for unauthenticated attackers to log in as any existing user on the site, such as an administrator, if they know the email address associated with that user. This was partially patched in version 7.6.4 and fully patched in version 7.6.5.": "Wtyczka WordPress o nazwie WordPress Social Login and Register w wersji do 7.6.4 włącznie umożliwia atakującemu ominięcie autoryzacji i nieuprawniony dostęp administracyjny do systemu."
+    "The WordPress Social Login and Register (Discord, Google, Twitter, LinkedIn) plugin for WordPress is vulnerable to authentication bypass in versions up to, and including, 7.6.4. This is due to insufficient encryption on the user being supplied during a login validated through the plugin. This makes it possible for unauthenticated attackers to log in as any existing user on the site, such as an administrator, if they know the email address associated with that user. This was partially patched in version 7.6.4 and fully patched in version 7.6.5.": "Wtyczka WordPress o nazwie WordPress Social Login and Register w wersji do 7.6.5 włącznie umożliwia atakującemu ominięcie autoryzacji i nieuprawniony dostęp administracyjny do systemu."
     + UPDATE_HINT,
     "ProcessMaker 3.5.4 and prior is vulnerable to local file inclusion.": "Narzędzie ProcessMaker w wersji 3.5.4 i wcześniejszych umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
@@ -470,7 +470,9 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Redmine configuration file was detected.": "Wykryto plik konfiguracyjny systemu Redmine." + DATA_HIDE_HINT,
     # There are multiple plugins with this message, therefore we match by template path
-    "http/vulnerabilities/wordpress/contus-video-gallery-sqli.yaml": "Wykryto, że wtyczka WordPress o nazwie Contus Video Gallery zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych." + WORDPRESS_UPDATE_HINT,
+    "http/vulnerabilities/wordpress/contus-video-gallery-sqli.yaml": "Wykryto, że wtyczka WordPress o nazwie Contus Video Gallery zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "Nginx Virtual Host Traffic Status Module contains a cross-site scripting vulnerability. An attacker can execute arbitrary script and thus steal cookie-based authentication credentials and launch other attacks.": "Moduł Nginx Virtual Host Traffic Status zawiera podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

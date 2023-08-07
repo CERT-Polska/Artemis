@@ -74,7 +74,9 @@ class NucleiReporter(Reporter):
                         report_type=NucleiReporter.NUCLEI_EXPOSED_PANEL,
                         additional_data={
                             "description_en": description,
-                            "description_translated": NucleiReporter._translate_description(vulnerability["template"], description, language),
+                            "description_translated": NucleiReporter._translate_description(
+                                vulnerability["template"], description, language
+                            ),
                             "matched_at": vulnerability["matched-at"],
                             "template_name": vulnerability["template"],
                             "curl_command": vulnerability.get("curl-command", None),
@@ -105,7 +107,9 @@ class NucleiReporter(Reporter):
                         report_type=NucleiReporter.NUCLEI_VULNERABILITY,
                         additional_data={
                             "description_en": description,
-                            "description_translated": NucleiReporter._translate_description(vulnerability["template"], description, language),
+                            "description_translated": NucleiReporter._translate_description(
+                                vulnerability["template"], description, language
+                            ),
                             "reference": vulnerability["info"]["reference"],
                             "matched_at": matched_at,
                             "template_name": vulnerability["template"],

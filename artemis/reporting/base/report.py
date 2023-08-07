@@ -43,7 +43,7 @@ class Report:
     is_subsequent_reminder: bool = False
 
     # What was the last domain observed when scanning (e.g. when we started with example.com, then proceeded to
-    # subdomain1.example.com, then resolved it to an IP and found a vuln on this IP, last_domain would be
+    # subdomain1.example.com, then resolved it to an IP and found a vulnerability on this IP, last_domain would be
     # subdomain1.example.com).
     last_domain: Optional[str] = None
 

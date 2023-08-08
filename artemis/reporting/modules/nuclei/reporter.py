@@ -74,7 +74,9 @@ class NucleiReporter(Reporter):
                         report_type=NucleiReporter.NUCLEI_EXPOSED_PANEL,
                         additional_data={
                             "description_en": description,
-                            "description_translated": NucleiReporter._translate_description(description, language),
+                            "description_translated": NucleiReporter._translate_description(
+                                vulnerability["template"], description, language
+                            ),
                             "matched_at": vulnerability["matched-at"],
                             "template_name": vulnerability["template"],
                             "curl_command": vulnerability.get("curl-command", None),
@@ -105,7 +107,9 @@ class NucleiReporter(Reporter):
                         report_type=NucleiReporter.NUCLEI_VULNERABILITY,
                         additional_data={
                             "description_en": description,
-                            "description_translated": NucleiReporter._translate_description(description, language),
+                            "description_translated": NucleiReporter._translate_description(
+                                vulnerability["template"], description, language
+                            ),
                             "reference": vulnerability["info"]["reference"],
                             "matched_at": matched_at,
                             "template_name": vulnerability["template"],
@@ -142,19 +146,24 @@ class NucleiReporter(Reporter):
         }
 
     @staticmethod
-    def _translate_description(description: str, language: Language) -> str:
+    def _translate_description(template_name: str, description: str, language: Language) -> str:
         if language == Language.en_US:
             return description
         elif language == Language.pl_PL:
             # See the comment in the artemis.reporting.modules.nuclei.translations.nuclei_messsages.pl_PL
             # module for the rationale of using Python dictionaries instead of .po files.
-            try:
-                description = description.strip()
+            description = description.strip()
+
+            # We allow both matching by description and template name. Matching by description allows
+            # easier translation and code review, matching by template name needs to be supported
+            # in case multiple templates have the same description.
+            if description in translations_nuclei_messages_pl_PL.TRANSLATIONS:
                 return translations_nuclei_messages_pl_PL.TRANSLATIONS[description]
-            except KeyError:
-                raise TranslationNotFoundException(
-                    f"Unable to find translation for message '{description}'. "
-                    f"You may add in in artemis/reporting/modules/nuclei/translations/nuclei_messages/"
-                )
+            if template_name in translations_nuclei_messages_pl_PL.TRANSLATIONS:
+                return translations_nuclei_messages_pl_PL.TRANSLATIONS[template_name]
+            raise TranslationNotFoundException(
+                f"Unable to find translation for message '{description}' (template_name: {template_name}). "
+                f"You may add in in artemis/reporting/modules/nuclei/translations/nuclei_messages/"
+            )
         else:
             raise NotImplementedError()

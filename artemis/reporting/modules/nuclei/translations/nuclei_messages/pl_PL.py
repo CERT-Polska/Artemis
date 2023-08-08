@@ -350,8 +350,135 @@ TRANSLATIONS = {
     "[no description] http/misconfiguration/server-status-localhost.yaml": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony.",
     "Symfony database configuration file was detected and may contain database credentials.": "wykryto plik konfiguracyjny bazy danych dla frameworku Symfony - taki plik może zawierać np. hasła dostępowe."
     + DATA_HIDE_HINT,
-    "Apache Rocketmq Unauthenticated Access were detected.": "wykryto, że możliwy jest dostęp bez logowania do narzędzia Apache Rocketmq.",
-    "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "wykryto, że dostęp do narzędzia Tensorflow Tensorboard jest możliwy bez logowania.",
+    "Apache Tomcat JK (mod_jk) Connector 1.2.0 to 1.2.44 allows specially constructed requests to expose application functionality through the reverse proxy. It is also possible in some configurations for a specially constructed request to bypass the access controls configured in httpd. While there is some overlap between this issue and CVE-2018-1323, they are not identical.": "Narzędzie Apache Tomcat JK (mod_jk) Connector w wersjach od 1.2.0 do 1.2.44 umożliwia atakującemu nieuprawniony dostęp do części funkcjonalności aplikacji."
+    + UPDATE_HINT,
+    "GeoServer through 2.18.5 and 2.19.x through 2.19.2 allows server-side request forgery via the option for setting a proxy host.": "Narzędzie GeoServer w wersji do 2.18.5 i w wersjach 2.19.x do 2.19.2 zawiera podatność typu Server-Side Request Forgery umożliwiającą atakującemu komunikację z systemami w sieci lokalnej."
+    + UPDATE_HINT,
+    "The WordPress Social Login and Register (Discord, Google, Twitter, LinkedIn) plugin for WordPress is vulnerable to authentication bypass in versions up to, and including, 7.6.4. This is due to insufficient encryption on the user being supplied during a login validated through the plugin. This makes it possible for unauthenticated attackers to log in as any existing user on the site, such as an administrator, if they know the email address associated with that user. This was partially patched in version 7.6.4 and fully patched in version 7.6.5.": "Wtyczka WordPress o nazwie Social Login and Register w wersji do 7.6.5 włącznie umożliwia atakującemu ominięcie uwierzytelnienia i nieuprawniony dostęp administracyjny do systemu."
+    + WORDPRESS_UPDATE_HINT,
+    "ProcessMaker 3.5.4 and prior is vulnerable to local file inclusion.": "Narzędzie ProcessMaker w wersji 3.5.4 i wcześniejszych umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "The CMNC-200 IP Camera has a built-in web server that is vulnerable to directory transversal attacks, allowing access to any file on the camera file system.": "Wykryto, że kamera CMNC-200 zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "FTP credentials were detected.": "Wykryto plik ftpsync.settings zawierający dane logowania serwera FTP.",
+    "Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera devices through 3.X are vulnerable to local file inclusion via the web interface, as demonstrated by reading /etc/shadow.": "Wykryto, że urządzenie Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku.",
+    "Apache Rocketmq Unauthenticated Access were detected.": "Wykryto, że dostęp do narzędzia Apache Rocketmq nie wymaga logowania.",
+    "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "Wykryto, że dostęp do narzędzia Tensorflow Tensorboard nie wymaga logowania.",
+    "Nginx server is vulnerable to local file inclusion.": "Wykryto, że serwer NGINX jest niepoprawnie skonfigurowany, co umożliwia odczyt dowolnych plików z serwera.",
+    "Bullwark Momentum Series JAWS 1.0 is vulnerable to local file inclusion.": "Wykryto, że Bullwark Momentum Series JAWS 1.0 zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "IBM InfoPrint 4247-Z03 Impact Matrix Printer is subject to local file inclusion.": "Wykryto, że drukarka IBM InfoPrint 4247-Z03 Impact Matrix Printer zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Generic Linux is subject to local file Inclusion on searches for /etc/passwd on passed URLs.": "Wykryto serwer HTTP systemu Linux skonfigurowany w sposób umożliwiający atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    'Zyxel VMG1312-B10D 5.13AAXA.8 is susceptible to local file inclusion. A remote unauthenticated attacker can send a specially crafted URL request containing "dot dot" sequences (/../), conduct directory traversal attacks, and view arbitrary files.': "Wykryto urządzenie Zyxel VMG1312-B10D 5.13AAXA.8 zawierające podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Hanming Video Conferencing is vulnerable to local file inclusion.": "Wykryto, że narzędzie Hanming Video Conferencing zawiera podatność Local File Inclusion.",
+    "Barcode is a GLPI plugin for printing barcodes and QR codes. GLPI instances version 2.x prior to version 2.6.1 with the barcode plugin installed are vulnerable to a path traversal vulnerability.": "Wykryto, że wtyczka GLPI w wersji 2.x poniżej 2.6.1 o nazwie Barcode umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "GoCD contains a critical information disclosure vulnerability whose exploitation allows unauthenticated attackers to leak configuration information including build secrets and encryption keys.": "Narzędzie GoCD zawiera podatność umożliwiającą atakującemu pobranie danych takich jak np. klucze szyfrujące.",
+    'WordPress Church Admin 0.33.2.1 is vulnerable to local file inclusion via the "key" parameter of plugins/church-admin/display/download.php.': "Wtyczka WordPress o nazwie Church Admin w wersji 0.33.2.1 umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Localize My Post 1.0 is susceptible to local file inclusion via the ajax/include.php file parameter.": "Wtyczka WordPress o nazwie Localize My Post w wersji 1.0 umożliwia atakującemu odczyt dowolnych plików z serwera i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "NCBI ToolBox 2.0.7 through 2.2.26 legacy versions contain a path traversal vulnerability via viewcgi.cgi which may result in reading of arbitrary files (i.e., significant information disclosure) or file deletion via the nph-viewgif.cgi query string.": "Narzędzie NCBI ToolBox w wersji od 2.0.7 do 2.2.26 zawiera podatność, która umożliwia atakującemu odczyt lub usunięcie dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "SysAid Help Desk before 15.2 contains multiple local file inclusion vulnerabilities which can allow remote attackers to read arbitrary files via .. (dot dot) in the fileName parameter of getGfiUpgradeFile or cause a denial of service (CPU and memory consumption) via .. (dot dot) in the fileName parameter of calculateRdsFileChecksum.": "Narzędzie SysAid Help Desk w wersji poniżej 15.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera lub atak typu DoS."
+    + UPDATE_HINT,
+    "A local file inclusion vulnerability exists in version BIQS IT Biqs-drive v1.83 and below when sending a specific payload as the file parameter to download/index.php. This allows the attacker to read arbitrary files from the server with the permissions of the configured web-user.": "Narzędzie BIQS IT Biqs-drive w wersji v1.83 i niższych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "WordPress Candidate Application Form <= 1.3 is susceptible to arbitrary file downloads because the code in downloadpdffile.php does not do any sanity checks.": "Wtyczka WordPress o nazwie Candidate Application Form w wersji 1.3 i niższych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "Loytec LGATE-902 versions prior to 6.4.2 suffers from a local file inclusion vulnerability.": "Wykryto, że Loytec LGATE-902 w wersjach poniżej 6.4.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "LOYTEC LGATE-902 6.3.2 is susceptible to local file inclusion which could allow an attacker to manipulate path references and access files and directories (including critical system files) that are stored outside the root folder of the web application running on the device. This can be used to read and configuration files containing, e.g., usernames and passwords.": "Wykryto, że Loytec LGATE-902 w wersji 6.3.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Piano LED Visualizer 1.3 and prior are vulnerable to local file inclusion.": "Piano LED Visualizer w wersji 1.3 i wcześniejszych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "In avatar_uploader v7.x-1.0-beta8 the view.php program doesn't restrict file paths, allowing unauthenticated users to retrieve arbitrary files.": "Narzędzie avatar_uploader w wersji v7.x-1.0-beta8 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "cGit < 1.2.1 via cgit_clone_objects has a directory traversal vulnerability when `enable-http-clone=1` is not turned off, as demonstrated by a cgit/cgit.cgi/git/objects/?path=../ request.": "narzędzie cGit w wersji poniżej 1.2.1 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Patreon WordPress before version 1.7.0 is vulnerable to unauthenticated local file inclusion that could be abused by anyone visiting the site. Exploitation by an attacker could leak important internal files like wp-config.php, which contains database credentials and cryptographic keys used in the generation of nonces and cookies.": "Wtyczka WordPress o nazwie Patreon w wersji poniżej 1.7.0 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "SAP xMII 15.0 for SAP NetWeaver 7.4 is susceptible to a local file inclusion vulnerability in the GetFileList function. This can allow remote attackers to read arbitrary files via a .. (dot dot) in the path parameter to /Catalog, aka SAP Security Note 2230978.": "SAP xMII 15.0 dla SAP NetWeaver zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "A Local File inclusion vulnerability in test.php in spreadsheet-reader 0.5.11 allows remote attackers to include arbitrary files via the File parameter.": "Narzędzie spreadsheet-reader w wersji 0.5.11 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "WordPress Wordfence 7.4.5 is vulnerable to local file inclusion.": "Wtyczka WordPress o nazwie Wordfence w wersji 7.4.5 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "MagicFlow is susceptible to local file inclusion vulnerabilities because it allows remote unauthenticated users to access locally stored files on the server and return their content via the '/msa/main.xp' endpoint and the 'Fun' parameter.": "Narzędzie MagicFlow zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera.",
+    "Longjing Technology BEMS API 1.21 is vulnerable to local file inclusion. Input passed through the fileName parameter through the downloads API endpoint is not properly verified before being used to download files. This can be exploited to disclose the contents of arbitrary and sensitive files through directory traversal attacks.": "Narzędzie Longjing Technology BEMS API 1.21 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Surreal ToDo 0.6.1.2 is vulnerable to local file inclusion via index.php and the content parameter.": "Narzędzie Surreal ToDo w wersji 0.6.1.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Linear eMerge E3-Series devices are vulnerable to local file inclusion.": "Urządzenia Linear eMerge E3-Series zawierają podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "ZOHO WebNMS Framework before version 5.2 SP1 is vulnerable local file inclusion which allows an attacker to read arbitrary files via a .. (dot dot) in the fileName parameter to servlets/FetchFile.": "ZOHO WebNMS Framework w wersji poniżej 5.2 SP1 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "WordPress GraceMedia Media Player plugin 1.0 is susceptible to local file inclusion via the cfg parameter.": "Wtyczka WordPress o nazwie GraceMedia Media Player w wersji 1.0 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Wechat Broadcast plugin 1.2.0 and earlier allows Directory Traversal via the Image.php url parameter.": "Wtyczka WordPress o nazwie Wechat Broadcast plugin w wersji 1.2.0 i wcześniejszych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "Jeecg P3 Biz Chat 1.0.5 allows remote attackers to read arbitrary files through specific parameters.": "Jeecg P3 Biz Chat 1.0.5 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Webbdesign SL-Studio is vulnerable to local file inclusion.": "Webbdesign SL-Studio zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Oracle Fatwire 6.3 suffers from a path traversal vulnerability in the getSurvey.jsp endpoint.": "Oracle Fatwire w wersji 6.3 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Groupoffice 3.4.21 is vulnerable to local file inclusion.": "Groupoffice 3.4.21 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "OrbiTeam BSCW Server versions 5.0.x, 5.1.x, 5.2.4 and below, 7.3.x and below, and 7.4.3 and below are vulnerable to unauthenticated local file inclusion.": "OrbiTeam BSCW Server w wersji 5.0.x, 5.1.x, 5.2.4 i wcześniejszych, 7.3.x i wcześniejszych i 7.4.3 i wcześniejszych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Asanhamayesh CMS 3.4.6 is vulnerable to local file inclusion.": "Asanhamayesh CMS w wersji 3.4.6 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Portal do Software Publico Brasileiro i3geo 7.0.5 is vulnerable to local file inclusion in the component codemirror.php, which allows attackers to execute arbitrary PHP code via a crafted HTTP request.": "Portal do Software Publico Brasileiro i3geo 7.0.5 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Karel IP Phone IP1211 Web Management Panel is vulnerable to local file inclusion and can allow remote attackers to access arbitrary files stored on the remote device via the 'cgiServer.exx' endpoint and the 'page' parameter.": "Karel IP Phone IP1211 Web Management Panel zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Joomla! Roland Breedveld Album 1.14 (com_album) is susceptible to local file inclusion because it allows remote attackers to access arbitrary directories and have unspecified other impact via a .. (dot dot) in the target parameter to index.php.": "Wtyczka Joomla! o nazwie Roland Breedveld Album w wersji 1.14 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "PilusCart versions 1.4.1 and prior suffer from a file disclosure vulnerability via local file inclusion.": "PilusCart w wersji 1.4.1 i wcześniejszych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "A PHP remote file inclusion vulnerability in core/include/myMailer.class.php in the Visites (com_joomla-visites) component 1.1 RC2 for Joomla! allows remote attackers to execute arbitrary PHP code via a URL in the mosConfig_absolute_path parameter.": "Komponent Joomla! o nazwie Visites (com_joomla-visites) w wersji 1.1 RC2 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The ECOA BAS controller suffers from a directory traversal content disclosure vulnerability. Using the GET parameter cpath in File Manager (fmangersub), attackers can disclose directory content on the affected device": "Kontroler ECOA BAS zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera.",
+    "PhpMyAdmin before version 4.8.2 is susceptible to local file inclusion that allows an attacker to include (view and potentially execute) files on the server. The vulnerability comes from a portion of code where pages are redirected and loaded within phpMyAdmin, and an improper test for whitelisted pages. An attacker must be authenticated, except in the \"$cfg['AllowArbitraryServer'] = true\" case (where an attacker can specify any host he/she is already in control of, and execute arbitrary code on phpMyAdmin) and the \"$cfg['ServerDefault'] = 0\" case (which bypasses the login requirement and runs the vulnerable code without any authentication).": "PhpMyAdmin w wersji poniżej 4.8.2 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z serwera i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Carel pCOWeb HVAC BACnet Gateway 2.1.0 is vulnerable to local file inclusion because of input passed through the 'file' GET parameter through the 'logdownload.cgi' Bash script is not properly verified before being used to download log files. This can be exploited to disclose the contents of arbitrary and sensitive files via directory traversal attacks.": "Carel pCOWeb HVAC BACnet Gateway 2.1.0 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "EyeLock nano NXT suffers from a file retrieval vulnerability when input passed through the 'path' parameter to 'logdownload.php' script is not properly verified before being used to read files. This can be exploited to disclose contents of files from local resources.": "EyeLock nano NXT zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera.",
+    "Eaton Intelligent Power Manager v1.6 allows an attacker to include a file via directory traversal, which can lead to sensitive information disclosure, denial of service and code execution.": "Eaton Intelligent Power Manager w wersji 1.6 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Tarantella Enterprise versions prior to 3.11 are susceptible to local file inclusion.": "Tarantella Enterprise w wersjach ponizęj 3.11 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Multiple directory traversal vulnerabilities in Pandora FMS before 3.1.1 allow remote attackers to include and execute arbitrary local files via (1) the page parameter to ajax.php or (2) the id parameter to general/pandora_help.php, and allow remote attackers to include and execute, create, modify, or delete arbitrary local files via (3) the layout parameter to operation/agentes/networkmap.php.": "Pandora FMS w wersji poniżej 3.1.1 zawiera podatności, które umożliwiają atakującemu odczyt, edycję i usuwanie dowolnych plików z serwera i zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "LimeSurvey before 4.1.12+200324 is vulnerable to local file inclusion because it contains a path traversal vulnerability in application/controllers/admin/LimeSurveyFileManager.php.": "LimeSurvey w wersji poniżej 4.1.12+200324 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "The Ruoyi Management System contains a local file inclusion vulnerability that allows attackers to retrieve arbitrary files from the operating system.": "Ruoyi Management System zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera.",
+    "openSIS 5.1 is vulnerable to local file inclusion and allows attackers to obtain potentially sensitive information by executing arbitrary local scripts in the context of the web server process. This may allow the attacker to compromise the application and computer; other attacks are also possible.": "openSIS w wersji 5.1 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "A directory traversal vulnerability in Cisco Unified Communications Manager (CUCM) 5.x and 6.x before 6.1(5)SU2, 7.x before 7.1(5b)SU2, and 8.x before 8.0(3), and Cisco Unified Contact Center Express (aka Unified CCX or UCCX) and Cisco Unified IP Interactive Voice Response (Unified IP-IVR) before 6.0(1)SR1ES8, 7.0(x) before 7.0(2)ES1, 8.0(x) through 8.0(2)SU3, and 8.5(x) before 8.5(1)SU2, allows remote attackers to read arbitrary files via a crafted URL, aka Bug IDs CSCth09343 and CSCts44049.": "Cisco Unified Communications Manager (CUCM) w wersji 5.x, 6.x poniżej 6.1(5)SU2, 7.x poniżej 7.1(5b)SU2 i 8.x poniżej 8.0(3), Cisco Unified Contact Center Express i Cisco Unified IP Interactive Voice Response (Unified IP-IVR) w wersji poniżej 6.0(1)SR1ES8, 7.0(x) poniżej 7.0(2)ES1, 8.0(x) do 8.0(2)SU3 włącznie i 8.5(x) poniżej 8.5(1)SU2 zawierają podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Redmine configuration file was detected.": "Wykryto plik konfiguracyjny systemu Redmine." + DATA_HIDE_HINT,
+    # There are multiple plugins with this message, therefore we match by template path
+    "http/vulnerabilities/wordpress/contus-video-gallery-sqli.yaml": "Wykryto, że wtyczka WordPress o nazwie Contus Video Gallery zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "Nginx Virtual Host Traffic Status Module contains a cross-site scripting vulnerability. An attacker can execute arbitrary script and thus steal cookie-based authentication credentials and launch other attacks.": "Moduł Nginx Virtual Host Traffic Status zawiera podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator.",
+    "[no description] http/takeovers/shopify-takeover.yaml": "Wykryto, że domena odsyła do serwisu Shopify, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Shopify, aby umieścić tam swoje treści.",
+    "WordPress BuddyPress before version 7.2.1 is susceptible to a privilege escalation vulnerability that can be leveraged to perform remote code execution.": "Wtyczka WordPress o nazwie BuddyPress w wersji poniżej 7.2.1 umożliwia atakującemu zwiększenie swoich uprawnień a w konsekwencji zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "The Booked plugin for WordPress is vulnerable to authorization bypass due to missing capability checks on several functions hooked via AJAX actions in versions up to, and including, 2.2.5. This makes it possible for authenticated attackers with subscriber-level permissions and above to execute several unauthorized actions.": "Wtyczka WordPress o nazwie Booked w wersji do 2.2.5 umożliwia zalogowanemu atakującemu wykonywanie niektórych działań wymagających wyższych uprawnień."
+    + WORDPRESS_UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -437,4 +564,16 @@ TRANSLATIONS = {
     "Splunk SOAR login panel was detected.": "wykryto panel logowania Splunk SOAR.",
     "Proxmox Virtual Environment login panel was detected.": "wykryto panel logowania Proxmox Virtual Environment.",
     "MeshCentral login panel was detected.": "wykryto panel logowania MeshCentral.",
+    "Jira Service Desk login panel was detected.": "wykryto panel logowania Jira Service Desk.",
+    "Sphider admin login panel was detected.": "wykryto panel administracyjny narzędzia Sphider.",
+    "OpenCPU panel was detected.": "wykryto panel OpenCPU.",
+    "[no description] http/exposed-panels/home-assistant-panel.yaml": "wykryto panel narzędzia Home Assistant.",
+    "Tiny File Manager panel was detected.": "wykryto panel narzędzia Tiny File Manager.",
+    "MSPControl login panel was detected.": "wykryto panel narzędzia MSPControl.",
+    "ESXi System login panel was detected.": "wykryto panel logowania ESXi System.",
+    "3CX Phone System Management Console panel was detected.": "wykryto panel 3CX Phone System Management Console.",
+    "3CX Phone System Web Client Management Console panel was detected.": "wykryto panel 3CX Phone System Web Client Management Console.",
+    "Kraken Cluster Monitoring Dashboard was detected.": "wykryto panel Kraken Cluster Monitoring Dashboard.",
+    "AVideo installer panel was detected.": "wykryto panel instalacyjny narzędzia AVideo.",
+    "WHM login panel was detected.": "wykryto panel logowania WHM.",
 }

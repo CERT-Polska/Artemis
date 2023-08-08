@@ -42,6 +42,11 @@ class Report:
     # Whether we already reported that vulnerability earlier
     is_subsequent_reminder: bool = False
 
+    # What was the last domain observed when scanning (e.g. when we started with example.com, then proceeded to
+    # subdomain1.example.com, then resolved it to an IP and found a vulnerability on this IP, last_domain would be
+    # subdomain1.example.com).
+    last_domain: Optional[str] = None
+
     # The tag that has been added by the user when adding target to scan
     tag: Optional[str] = None
 

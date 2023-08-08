@@ -249,8 +249,7 @@ class DB:
         )
 
     def task_to_dict(self, task: Task) -> Dict[str, Any]:
-        # TODO make this less ugly
-        return json.loads(task.serialize())  # type: ignore
+        return task.to_dict()
 
     def initialize_database(self) -> None:
         """Creates MongoDB indexes. create_index() creates an index if it doesn't exist, so

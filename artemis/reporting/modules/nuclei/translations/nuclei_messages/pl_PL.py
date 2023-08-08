@@ -474,6 +474,7 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     "Nginx Virtual Host Traffic Status Module contains a cross-site scripting vulnerability. An attacker can execute arbitrary script and thus steal cookie-based authentication credentials and launch other attacks.": "Moduł Nginx Virtual Host Traffic Status zawiera podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator.",
     "[no description] http/takeovers/shopify-takeover.yaml": "Wykryto, że domena odsyła do serwisu Shopify, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Shopify, aby umieścić tam swoje treści.",
+    "WordPress BuddyPress before version 7.2.1 is susceptible to a privilege escalation vulnerability that can be leveraged to perform remote code execution.": "Wtyczka WordPress o nazwie BuddyPress w wersji poniżej 7.2.1 umożliwia atakującemu zwiększenie swoich uprawnień a w konsekwencji zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + WORDPRESS_UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

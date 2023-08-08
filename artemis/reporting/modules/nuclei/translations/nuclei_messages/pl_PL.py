@@ -379,7 +379,8 @@ TRANSLATIONS = {
     "GoCD contains a critical information disclosure vulnerability whose exploitation allows unauthenticated attackers to leak configuration information including build secrets and encryption keys.": "Narzędzie GoCD zawiera podatność umożliwiającą atakującemu pobranie danych takich jak np. klucze szyfrujące.",
     'WordPress Church Admin 0.33.2.1 is vulnerable to local file inclusion via the "key" parameter of plugins/church-admin/display/download.php.': "Wtyczka WordPress o nazwie Church Admin w wersji 0.33.2.1 umożliwia atakującemu odczyt dowolnych plików z serwera."
     + WORDPRESS_UPDATE_HINT,
-    "WordPress Localize My Post 1.0 is susceptible to local file inclusion via the ajax/include.php file parameter.": "Wtyczka WordPress o nazwie Localize My Post w wersji 1.0 umożliwia atakującemu odczyt dowolnych plików z serwera."
+    "WordPress Localize My Post 1.0 is susceptible to local file inclusion via the ajax/include.php file parameter.": "Wtyczka WordPress o nazwie Localize My Post w wersji 1.0 umożliwia atakującemu odczyt dowolnych plików z serwera i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
     "NCBI ToolBox 2.0.7 through 2.2.26 legacy versions contain a path traversal vulnerability via viewcgi.cgi which may result in reading of arbitrary files (i.e., significant information disclosure) or file deletion via the nph-viewgif.cgi query string.": "Narzędzie NCBI ToolBox w wersji od 2.0.7 do 2.2.26 zawiera podatność, która umożliwia atakującemu odczyt lub usunięcie dowolnych plików z serwera."
     + UPDATE_HINT,

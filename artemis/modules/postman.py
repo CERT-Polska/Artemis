@@ -20,7 +20,7 @@ from artemis.utils import throttle_request
 
 
 class PostmanResult(BaseModel):
-    open_relay = False
+    open_relay: bool = False
     unauthorized_local_from: Optional[str] = None
 
 

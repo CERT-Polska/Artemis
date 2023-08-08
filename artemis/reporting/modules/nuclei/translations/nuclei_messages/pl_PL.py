@@ -569,7 +569,7 @@ TRANSLATIONS = {
     "[no description] http/exposed-panels/home-assistant-panel.yaml": "wykryto panel narzędzia Home Assistant.",
     "Tiny File Manager panel was detected.": "wykryto panel narzędzia Tiny File Manager.",
     "MSPControl login panel was detected.": "wykryto panel narzędzia MSPControl.",
-    "ESXi System login panel was detected.": "wykryto panel logowania ESXI System.",
+    "ESXi System login panel was detected.": "wykryto panel logowania ESXi System.",
     "3CX Phone System Management Console panel was detected.": "wykryto panel 3CX Phone System Management Console.",
     "3CX Phone System Web Client Management Console panel was detected.": "wykryto panel 3CX Phone System Web Client Management Console.",
     "Kraken Cluster Monitoring Dashboard was detected.": "wykryto panel Kraken Cluster Monitoring Dashboard.",

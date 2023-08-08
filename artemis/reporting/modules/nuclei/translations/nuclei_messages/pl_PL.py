@@ -389,16 +389,16 @@ TRANSLATIONS = {
     "A local file inclusion vulnerability exists in version BIQS IT Biqs-drive v1.83 and below when sending a specific payload as the file parameter to download/index.php. This allows the attacker to read arbitrary files from the server with the permissions of the configured web-user.": "Narzędzie BIQS IT Biqs-drive w wersji v1.83 i niższych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "WordPress Candidate Application Form <= 1.3 is susceptible to arbitrary file downloads because the code in downloadpdffile.php does not do any sanity checks.": "Wtyczka WordPress o nazwie Candidate Application Form w wersji 1.3 i niższych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
-    + UPDATE_HINT,
+    + WORDPRESS_UPDATE_HINT,
     "Loytec LGATE-902 versions prior to 6.4.2 suffers from a local file inclusion vulnerability.": "Wykryto, że Loytec LGATE-902 w wersjach poniżej 6.4.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
-    "LOYTEC LGATE-902 6.3.2 is susceptible to local file inclusion which could allow an attacker to manipulate path references and access files and directories (including critical system files) that are stored outside the root folder of the web application running on the device. This can be used to read and configuration files containing, e.g., usernames and passwords.": "Wykryto, że Loytec LGATE-902 w wersjach poniżej 6.4.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    "LOYTEC LGATE-902 6.3.2 is susceptible to local file inclusion which could allow an attacker to manipulate path references and access files and directories (including critical system files) that are stored outside the root folder of the web application running on the device. This can be used to read and configuration files containing, e.g., usernames and passwords.": "Wykryto, że Loytec LGATE-902 w wersji 6.3.2 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "Piano LED Visualizer 1.3 and prior are vulnerable to local file inclusion.": "Piano LED Visualizer w wersji 1.3 i wcześniejszych zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "In avatar_uploader v7.x-1.0-beta8 the view.php program doesn't restrict file paths, allowing unauthenticated users to retrieve arbitrary files.": "Narzędzie avatar_uploader w wersji v7.x-1.0-beta8 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
-    "cGit < 1.2.1 via cgit_clone_objects has a directory traversal vulnerability when `enable-http-clone=1` is not turned off, as demonstrated by a cgit/cgit.cgi/git/objects/?path=../ request.": "narzędzie cGIT w wersji poniżej 1.2.1 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
+    "cGit < 1.2.1 via cgit_clone_objects has a directory traversal vulnerability when `enable-http-clone=1` is not turned off, as demonstrated by a cgit/cgit.cgi/git/objects/?path=../ request.": "narzędzie cGit w wersji poniżej 1.2.1 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "Patreon WordPress before version 1.7.0 is vulnerable to unauthenticated local file inclusion that could be abused by anyone visiting the site. Exploitation by an attacker could leak important internal files like wp-config.php, which contains database credentials and cryptographic keys used in the generation of nonces and cookies.": "Wtyczka WordPress o nazwie Patreon w wersji poniżej 1.7.0 zawiera podatność, która umożliwia atakującemu odczyt dowolnych plików z serwera."
     + WORDPRESS_UPDATE_HINT,

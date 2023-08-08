@@ -362,7 +362,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "FTP credentials were detected.": "Wykryto plik ftpsync.settings zawierający dane logowania serwera FTP.",
     "Apache Rocketmq Unauthenticated Access were detected.": "Wykryto, że dostęp  do narzędzia Apache Rocketmq nie wymaga logowania.",
-    "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "Wykryto, że dostęp do narzędzia Tensorflow Tensorboard jest możliwy bez logowania.",
+    "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "Wykryto, że dostęp do narzędzia Tensorflow Tensorboard nie wymaga logowania.",
     "Nginx server is vulnerable to local file inclusion.": "Wykryto, że serwer NGINX jest skonfigurowany w sposób umożliwiający odczyt dowolnych plików z serwera.",
     "Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera devices through 3.X are vulnerable to local file inclusion via the web interface, as demonstrated by reading /etc/shadow.": "Wykryto, że urządzenie Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
     + UPDATE_HINT,

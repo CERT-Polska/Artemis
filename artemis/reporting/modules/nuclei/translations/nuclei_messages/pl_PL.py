@@ -364,8 +364,7 @@ TRANSLATIONS = {
     "Apache Rocketmq Unauthenticated Access were detected.": "Wykryto, że możliwy jest dostęp bez logowania do narzędzia Apache Rocketmq.",
     "Tensorflow Tensorboard was able to be accessed with no authentication requirements in place.": "Wykryto, że dostęp do narzędzia Tensorflow Tensorboard jest możliwy bez logowania.",
     "Nginx server is vulnerable to local file inclusion.": "Wykryto, że serwer NGINX jest skonfigurowany w sposób umożliwiający odczyt dowolnych plików z serwera.",
-    "Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera devices through 3.X are vulnerable to local file inclusion via the web interface, as demonstrated by reading /etc/shadow.": "Wykryto, że urządzenie Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
-    + UPDATE_HINT,
+    "Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera devices through 3.X are vulnerable to local file inclusion via the web interface, as demonstrated by reading /etc/shadow.": "Wykryto, że urządzenie Genie Access WIP3BVAF WISH IP 3MP IR Auto Focus Bullet Camera zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku.",
     "Bullwark Momentum Series JAWS 1.0 is vulnerable to local file inclusion.": "Wykryto, że Bullwark Momentum Series JAWS 1.0 zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "IBM InfoPrint 4247-Z03 Impact Matrix Printer is subject to local file inclusion.": "Wykryto, że drukarka IBM InfoPrint 4247-Z03 Impact Matrix Printer zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."

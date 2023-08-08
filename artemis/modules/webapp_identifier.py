@@ -38,6 +38,9 @@ class WebappIdentifier(ArtemisBase):
             if re.search(webapp_sig, response.text):
                 return webapp_id
 
+        if "/wp-includes/css/" in response:
+            return WebApplication.WORDPRESS
+
         # Detect WordPress not advertising itself in generator
         response = http_requests.get(f"{url}/license.txt", allow_redirects=True)
         if response.text.startswith("WordPress - Web publishing software"):

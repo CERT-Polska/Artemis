@@ -38,7 +38,7 @@ class WebappIdentifier(ArtemisBase):
             if re.search(webapp_sig, response.text):
                 return webapp_id
 
-        if "/wp-includes/css/" in response:
+        if "/wp-includes/css/" in response.text:
             return WebApplication.WORDPRESS
 
         # Detect WordPress not advertising itself in generator

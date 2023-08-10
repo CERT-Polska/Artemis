@@ -172,7 +172,7 @@ class ArtemisBase(Karton):
                     super().internal_process(current_task)
             except FailedToAcquireLockException:
                 self.log.info(
-                    "Rescheduling task %s (orig_uid=%s destination=%s)",
+                    "Rescheduling task %s for later (orig_uid=%s destination=%s) because other module is currently scanning the same IP. We will attempt the task later.",
                     current_task.uid,
                     current_task.orig_uid,
                     scan_destination,
@@ -192,11 +192,12 @@ class ArtemisBase(Karton):
 
     def _log_task(self, current_task: Task) -> None:
         self.log.info(
-            "Processing task %s (headers=%s payload=%s payload_persistent=%s)",
+            "Processing task %s (headers=%s payload=%s payload_persistent=%s priority=%s)",
             current_task.uid,
             repr(current_task.headers),
             repr(current_task.payload),
             repr(current_task.payload_persistent),
+            current_task.priority.value,
         )
 
     def _get_scan_destination(self, task: Task) -> str:

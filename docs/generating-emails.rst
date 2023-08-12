@@ -57,7 +57,9 @@ do that, use the ``--blocklist BLOCKLIST_FILE`` option. The blocklist file is a 
 
 .. code-block:: yaml
 
-    - domain: the domain to be filtered
+    - domain: null or the domain to be filtered (this will also filter its subdomains)
+      ip_range: null or the ip range to be filtered (to filter a single ip address, use the xxx.xxx.xxx.xxx/32 syntax)
+      target_should_contain: null or the string that must occur in the target for the report to be blocklisted
       until: null or a date (YYYY-MM-DD) until which the filter will be active
       report_type: null (which will block all reports) or a string containing
          the type of reports that will be blocked (e.g. "misconfigured_email")

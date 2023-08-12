@@ -1,19 +1,22 @@
 import dataclasses
 import datetime
-from typing import List, Optional
+import ipaddress
+from typing import List, Optional, Union
 
 import yaml
 
-from artemis.domains import is_subdomain
+from artemis.domains import is_domain, is_subdomain
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 
 
 @dataclasses.dataclass
 class BlocklistItem:
-    domain: str
-    until: Optional[datetime.datetime]
-    report_type: Optional[ReportType]
+    domain: Optional[str] = None
+    ip_range: Optional[Union[ipaddress.IPv4Network, ipaddress.IPv6Network]] = None
+    target_should_contain: Optional[str] = None
+    until: Optional[datetime.datetime] = None
+    report_type: Optional[ReportType] = None
 
 
 class BlocklistError(Exception):
@@ -29,14 +32,17 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
 
     for item in data:
         # Assert there are no additional or missing keys
-        if set(item.keys()) != {"domain", "until", "report_type"}:
-            raise BlocklistError(f"Expected three keys in entry: domain, until and report_type, not {item.keys()}")
+        unexpected_keys = set(item.keys()) - {"domain", "ip_range", "target_should_contain", "until", "report_type"}
+        if unexpected_keys:
+            raise BlocklistError(f"Unexpected keys in entry: {','.join(unexpected_keys)}")
 
     blocklist_items = [
         BlocklistItem(
-            domain=item["domain"],
-            until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if item["until"] else None,
-            report_type=item["report_type"] if item["report_type"] else None,
+            domain=item.get("domain", None),
+            ip_range=ipaddress.ip_network(item["ip_range"], strict=False) if item.get("ip_range", None) else None,
+            target_should_contain=item.get("target_should_contain", None),
+            until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if item.get("until", None) else None,
+            report_type=item["report_type"] if item.get("report_type", None) else None,
         )
         for item in data
     ]
@@ -49,12 +55,24 @@ def filter_blocklist(reports: List[Report], blocklist: List[BlocklistItem]) -> L
     for report in reports:
         filtered = False
         # each BlocklistItem is a filter that:
-        # - refers to only a domain and its subdomains,
+        # - if `domain` is set, filters only a domain and its subdomains,
+        # - if `ip_range` is set, filters only a given IP range
+        # - if `target_should_contain` is set, filters only reports containing a given string in target
         # - if `until` is set, filters only reports earlier than a given date,
         # - if `report_type` is set, filters only reports with given type.
         # If at least one filter matches, report is skipped.
         for item in blocklist:
-            if not is_subdomain(report.top_level_target, item.domain):
+            if item.domain:
+                domain = report.top_level_target if is_domain(report.top_level_target) else None
+                if report.last_domain:
+                    domain = report.last_domain
+                if domain and not is_subdomain(domain, item.domain):
+                    continue
+
+            if item.ip_range and report.target_ip and ipaddress.IPv4Address(report.target_ip) in item.ip_range:
+                continue
+
+            if item.target_should_contain and item.target_should_contain not in report.target:
                 continue
 
             if report.timestamp and item.until and report.timestamp >= item.until:

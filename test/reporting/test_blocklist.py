@@ -28,6 +28,7 @@ class BlocklistTest(unittest.TestCase):
         report1 = Report(
             target="http://example.com/",
             target_ip="1.1.1.1",
+            target_ip_checked=True,
             report_type=ReportType("exposed_configuration_file"),
             top_level_target="example.com",
             additional_data={},
@@ -35,6 +36,7 @@ class BlocklistTest(unittest.TestCase):
         report2 = Report(
             target="http://example.com/",
             target_ip="1.1.1.2",
+            target_ip_checked=True,
             report_type=ReportType("exposed_configuration_file"),
             top_level_target="example.com",
             additional_data={},
@@ -46,7 +48,7 @@ class BlocklistTest(unittest.TestCase):
         blocklist_item2 = BlocklistItem(
             ip_range=ipaddress.ip_network("1.0.0.0/8", strict=False),
         )
-        self.assertEqual(filter_blocklist([report1, report2], [blocklist_item2]), [report2])
+        self.assertEqual(filter_blocklist([report1, report2], [blocklist_item2]), [])
 
     def test_domain_matching(self) -> None:
         report1 = Report(

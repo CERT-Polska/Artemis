@@ -69,7 +69,7 @@ def filter_blocklist(reports: List[Report], blocklist: List[BlocklistItem]) -> L
                 if domain and not is_subdomain(domain, item.domain):
                     continue
 
-            if item.ip_range and report.target_ip and ipaddress.IPv4Address(report.target_ip) in item.ip_range:
+            if item.ip_range and report.target_ip and not ipaddress.IPv4Address(report.target_ip) in item.ip_range:
                 continue
 
             if item.target_should_contain and item.target_should_contain not in report.target:

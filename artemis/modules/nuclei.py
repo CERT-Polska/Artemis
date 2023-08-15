@@ -24,7 +24,7 @@ class Nuclei(ArtemisBase):
         {"type": TaskType.URL.value},
     ]
     batch_tasks = True
-    task_max_batch_size = 100
+    task_max_batch_size = 500
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -61,7 +61,6 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             target = task.payload["url"]
 
-            self.log.info(f"path is {urllib.parse.urlparse(target).path}")
             if not self._is_homepage(target):
                 self.db.save_task_result(task=task, status=TaskStatus.OK, status_reason=None, data={})
             else:

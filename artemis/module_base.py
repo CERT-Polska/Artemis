@@ -33,9 +33,9 @@ class ArtemisBase(Karton):
     """
 
     task_poll_interval_seconds = 2
+    batch_tasks = False
     # This is the maximum batch size. Due to the fact that we may be unable to lock some targets because
     # their IPs are alredy scanned, the actual batch size may be lower.
-    batch_tasks = False
     task_max_batch_size = 1
 
     lock_target = Config.Locking.LOCK_SCANNED_TARGETS
@@ -56,7 +56,7 @@ class ArtemisBase(Karton):
         else:
             assert (
                 self.task_max_batch_size == 1
-            ), "If batch_tasks is disabled, task_max_batch_size makes not sense to be other than 1."
+            ), "If batch_tasks is disabled, task_max_batch_size makes no sense to be other than 1."
 
         self._get_random_queue_element = self.backend.redis.register_script(
             """
@@ -267,6 +267,7 @@ class ArtemisBase(Karton):
 
             for _ in tasks_filtered:
                 self.backend.increment_metrics(KartonMetrics.TASK_CRASHED, self.identity)
+            self.log.exception("Failed to process %s tasks - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered]))
         finally:
             for task in tasks_filtered:
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
@@ -282,7 +283,7 @@ class ArtemisBase(Karton):
                 self.backend.set_task_status(task, task_state)
 
     def process(self, task: Task) -> None:
-        # This is only to suppress linter warnijng about process being not implemented
+        # This is only to suppress linter warning about process being not implemented
         raise NotImplementedError()
 
     def process_multiple(self, tasks: List[Task]) -> None:

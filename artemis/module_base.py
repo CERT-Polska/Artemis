@@ -285,8 +285,7 @@ class ArtemisBase(Karton):
                 self.backend.set_task_status(task, task_state)
 
     def process(self, task: Task) -> None:
-        # This is only to suppress linter warning about process being not implemented
-        raise NotImplementedError()
+        self.process([task])
 
     def process_multiple(self, tasks: List[Task]) -> None:
         if len(tasks) == 0:

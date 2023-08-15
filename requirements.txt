@@ -1,4 +1,4 @@
-aiofiles==23.1.0
+aiofiles==23.2.1
 aiohttp==3.8.5
 anytree==2.9.0
 Babel==2.12.1

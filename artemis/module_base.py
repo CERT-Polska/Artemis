@@ -285,7 +285,7 @@ class ArtemisBase(Karton):
                 self.backend.set_task_status(task, task_state)
 
     def process(self, task: Task) -> None:
-        self.process([task])
+        self.process_multiple([task])
 
     def process_multiple(self, tasks: List[Task]) -> None:
         if len(tasks) == 0:

@@ -90,8 +90,16 @@ class Nuclei(ArtemisBase):
             str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
             "-jsonl",
             "-system-resolvers",
-            "-spr",
-            str(Config.Limits.SECONDS_PER_REQUEST),
+            "-bulk-size",
+            str(len(tasks_filtered)),
+            "-concurrency",
+            "1",
+            "-headless-bulk-size",
+            str(len(tasks_filtered)),
+            "-headless-concurrency",
+            "1",
+            "-milliseconds-per-request",
+            str(int(Config.Limits.SECONDS_PER_REQUEST * 1000.0 / len(tasks_filtered))),
         ] + additional_configuration
 
         targets = []

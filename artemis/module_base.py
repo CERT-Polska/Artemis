@@ -267,7 +267,9 @@ class ArtemisBase(Karton):
 
             for _ in tasks_filtered:
                 self.backend.increment_metrics(KartonMetrics.TASK_CRASHED, self.identity)
-            self.log.exception("Failed to process %s tasks - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered]))
+            self.log.exception(
+                "Failed to process %s tasks - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered])
+            )
         finally:
             for task in tasks_filtered:
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)

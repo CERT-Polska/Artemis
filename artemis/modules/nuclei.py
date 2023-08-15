@@ -58,15 +58,20 @@ class Nuclei(ArtemisBase):
 
     def run_multiple(self, tasks: List[Task]) -> None:
         tasks_filtered = []
+        filtered_because_not_homepage = 0
         for task in tasks:
             target = task.payload["url"]
 
             if not self._is_homepage(target):
+                filtered_because_not_homepage += 1
                 self.db.save_task_result(task=task, status=TaskStatus.OK, status_reason=None, data={})
             else:
                 tasks_filtered.append(task)
 
-        self.log.info(f"running {len(self._templates)} templates on {len(tasks_filtered)} hosts")
+        self.log.info(
+            f"running {len(self._templates)} templates on {len(tasks_filtered)} hosts "
+            f"({filtered_because_not_homepage} filtered because the URLs aren't root)"
+        )
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]

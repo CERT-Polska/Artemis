@@ -100,7 +100,8 @@ class Nuclei(ArtemisBase):
             command,
             self.log,
         )
-        for line in data.decode("ascii", errors="ignore").split("\n"):
+        lines = data.decode("ascii", errors="ignore").split("\n")
+        for line in lines:
             if line.strip():
                 finding = json.loads(line)
                 assert finding["host"] in targets
@@ -108,7 +109,7 @@ class Nuclei(ArtemisBase):
         for task in tasks_filtered:
             result = []
             messages = []
-            for line in data.decode("ascii", errors="ignore").split("\n"):
+            for line in lines:
                 if line.strip():
                     finding = json.loads(line)
                     if finding["host"] != task.payload["url"]:

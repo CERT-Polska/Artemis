@@ -86,40 +86,48 @@ class CrtshScanner(ArtemisBase):
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
 
-        with self.lock:
-            for retry_id in range(Config.Modules.Crtsh.CRTSH_NUM_RETRIES):
-                ct_domains = self.query_sql(domain)
+        if self.redis.get(f"crtsh-done-{domain}"):
+            self.log.info(
+                "Crtsh has already returned %s - and as it's a recursive query, no further query will be performed."
+            )
 
-                if ct_domains is None:
-                    ct_domains = self.query_json(domain)
+        for retry_id in range(Config.Modules.Crtsh.CRTSH_NUM_RETRIES):
+            ct_domains = self.query_sql(domain)
 
-                if ct_domains is None:
-                    self.log.info("crtsh: retrying for domain %s", domain)
-                    if retry_id < Config.Modules.Crtsh.CRTSH_NUM_RETRIES - 1:
-                        time.sleep(Config.Modules.Crtsh.CRTSH_SLEEP_ON_RETRY_SECONDS)
-                    else:
-                        raise UnableToObtainSubdomainsException()
+            if ct_domains is None:
+                ct_domains = self.query_json(domain)
+
+            if ct_domains is None:
+                self.log.info("crtsh: retrying for domain %s", domain)
+                if retry_id < Config.Modules.Crtsh.CRTSH_NUM_RETRIES - 1:
+                    time.sleep(Config.Modules.Crtsh.CRTSH_SLEEP_ON_RETRY_SECONDS)
                 else:
-                    break
+                    raise UnableToObtainSubdomainsException()
+            else:
+                break
 
-            assert ct_domains is not None
-            for entry in ct_domains:
-                if not is_subdomain(entry, domain):
-                    # Sometimes crt.sh returns a certificate for both a subdomain and some other domain - let's
-                    # ignore these other domains.
-                    self.log.info("Non-subdomain returned: %s from %s", entry, domain)
-                    continue
+        assert ct_domains is not None
+        for entry in ct_domains:
+            if not is_subdomain(entry, domain):
+                # Sometimes crt.sh returns a certificate for both a subdomain and some other domain - let's
+                # ignore these other domains.
+                self.log.info("Non-subdomain returned: %s from %s", entry, domain)
+                continue
 
-                task = Task(
-                    {"type": TaskType.DOMAIN},
-                    payload={
-                        "domain": entry,
-                    },
-                )
-                self.add_task(current_task, task)
+            self.redis.setex(
+                f"crtsh-done-{domain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
+            )
 
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(ct_domains))
-            self.log.info(f"Added {len(ct_domains)} subdomains to scan")
+            task = Task(
+                {"type": TaskType.DOMAIN},
+                payload={
+                    "domain": entry,
+                },
+            )
+            self.add_task(current_task, task)
+
+        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(ct_domains))
+        self.log.info(f"Added {len(ct_domains)} subdomains to scan")
 
 
 if __name__ == "__main__":

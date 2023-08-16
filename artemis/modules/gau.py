@@ -26,36 +26,46 @@ class GAU(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
-        with self.lock:
-            output = check_output_log_on_error(
-                [
-                    "gau",
-                ]
-                + Config.Modules.Gau.GAU_ADDITIONAL_OPTIONS,
-                self.log,
-                input=domain.encode("idna"),
+
+        if self.redis.get(f"gau-done-{domain}"):
+            self.log.info(
+                "Gau has already returned %s - and as it's a recursive query, no further query will be performed."
             )
 
-            domains = set()
-            for line in output.decode("ascii", errors="ignore").splitlines():
-                url_parsed = urllib.parse.urlparse(line)
-                if not url_parsed.hostname:
-                    continue
+        output = check_output_log_on_error(
+            [
+                "gau",
+                "--subs",
+            ]
+            + Config.Modules.Gau.GAU_ADDITIONAL_OPTIONS,
+            self.log,
+            input=domain.encode("idna"),
+        )
 
-                if is_subdomain(url_parsed.hostname, domain):
-                    domains.add(url_parsed.hostname)
+        domains = set()
+        for line in output.decode("ascii", errors="ignore").splitlines():
+            url_parsed = urllib.parse.urlparse(line)
+            if not url_parsed.hostname:
+                continue
 
-            for domain in domains:
-                task = Task(
-                    {"type": TaskType.DOMAIN},
-                    payload={
-                        "domain": domain,
-                    },
+            if is_subdomain(url_parsed.hostname, domain):
+
+                self.redis.setex(
+                    f"gau-done-{domain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
                 )
-                self.add_task(current_task, task)
+                domains.add(url_parsed.hostname)
 
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(domains))
-            self.log.info(f"Added {len(domains)} subdomains to scan")
+        for domain in domains:
+            task = Task(
+                {"type": TaskType.DOMAIN},
+                payload={
+                    "domain": domain,
+                },
+            )
+            self.add_task(current_task, task)
+
+        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(domains))
+        self.log.info(f"Added {len(domains)} subdomains to scan")
 
 
 if __name__ == "__main__":

@@ -170,6 +170,13 @@ class Config:
             "In order not to overload the DB and bandwidth, this determines how long the downloaded content would be (in bytes).",
         ] = get_config("CONTENT_PREFIX_SIZE", default=10240, cast=int)
 
+        SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
+            int,
+            "If we request a domain for subdomain enumeration, we will save that it has already been enumerated, so that e.g. ",
+            "if we requested crtsh enumeration on example.com and received www.example.com, crtsh enumeration on www.example.com won't happen "
+            "in SUBDOMAIN_ENUMERATION_TTL_DAYS days. This is the TTL of such markers.",
+        ] = get_config("SUBDOMAIN_ENUMERATION_TTL_DAYS", default=10, cast=int)
+
     class Modules:
         class Bruter:
             BRUTER_FALSE_POSITIVE_THRESHOLD: Annotated[

@@ -581,6 +581,7 @@ TRANSLATIONS = {
     "AVideo installer panel was detected.": "wykryto panel instalacyjny narzędzia AVideo.",
     "WHM login panel was detected.": "wykryto panel logowania WHM.",
     "SonicWall Network Security Login panel was detected.": "wykryto panel logowania SonicWall Network Security.",
+    "SonicWall Management admin login panel was detected.": "wykryto panel administracyjny SonicWall Management.",
     "Piwigo login panel was detected.": "wykryto panel logowania Piwigo.",
     "D-Link Wireless Router panel was detected.": "wykryto panel routera bezprzewodowego D-Link.",
     "WSO2 Management Console login panel was detected.": "wykryto panel logowania WSO2 Management Console.",

@@ -35,7 +35,7 @@ class ArtemisBase(Karton):
     task_poll_interval_seconds = 2
     batch_tasks = False
     # This is the maximum batch size. Due to the fact that we may be unable to lock some targets because
-    # their IPs are alredy scanned, the actual batch size may be lower.
+    # their IPs are already scanned, the actual batch size may be lower.
     task_max_batch_size = 1
 
     lock_target = Config.Locking.LOCK_SCANNED_TARGETS
@@ -188,7 +188,6 @@ class ArtemisBase(Karton):
                 )
 
                 try:
-
                     lock.acquire()
                     locks_acquired.append(lock)
                     tasks_locked.append(task)
@@ -199,7 +198,7 @@ class ArtemisBase(Karton):
                         scan_destination,
                     )
                 except FailedToAcquireLockException:
-                    self.log.info(
+                    self.log.warning(
                         "Failed to lock task %s (orig_uid=%s destination=%s)",
                         task.uid,
                         task.orig_uid,

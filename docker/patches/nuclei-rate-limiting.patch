@@ -8,7 +8,7 @@ index 28d1d534..be26a7d8 100644
  	flagSet.CreateGroup("rate-limit", "Rate-Limit",
 -		flagSet.IntVarP(&options.RateLimit, "rate-limit", "rl", 150, "maximum number of requests to send per second"),
 -		flagSet.IntVarP(&options.RateLimitMinute, "rate-limit-minute", "rlm", 0, "maximum number of requests to send per minute"),
-+		flagSet.IntVarP(&options.SecondsPerRequest, "seconds-per-request", "spr", 1, "Allow at most one request in given number of seconds"),
++		flagSet.IntVarP(&options.MillisecondsPerRequest, "milliseconds-per-request", "mspr", 1000, "Allow at most one request in given number of milliseconds"),
  		flagSet.IntVarP(&options.BulkSize, "bulk-size", "bs", 25, "maximum number of hosts to be analyzed in parallel per template"),
  		flagSet.IntVarP(&options.TemplateThreads, "concurrency", "c", 25, "maximum number of templates to be executed in parallel"),
  		flagSet.IntVarP(&options.HeadlessBulkSize, "headless-bulk-size", "hbs", 10, "maximum number of headless hosts to be analyzed in parallel per template"),
@@ -20,8 +20,8 @@ index 8b396a78..c882ed7b 100644
  		runner.rateLimiter = ratelimit.New(context.Background(), uint(options.RateLimitMinute), time.Minute)
  	} else if options.RateLimit > 0 {
  		runner.rateLimiter = ratelimit.New(context.Background(), uint(options.RateLimit), time.Second)
-+	} else if options.SecondsPerRequest > 0 {
-+		runner.rateLimiter = ratelimit.New(context.Background(), 1, time.Duration(options.SecondsPerRequest) * time.Second)
++	} else if options.MillisecondsPerRequest > 0 {
++		runner.rateLimiter = ratelimit.New(context.Background(), 1, time.Duration(options.MillisecondsPerRequest) * time.Millisecond)
  	} else {
  		runner.rateLimiter = ratelimit.NewUnlimited(context.Background())
  	}
@@ -33,8 +33,8 @@ index 101e7c1b..1b7ea942 100644
  	RateLimit int
  	// Rate-Limit is the maximum number of requests per minute for specified target
  	RateLimitMinute int
-+	// at most one request can happen in SecondsPerRequest seconds
-+	SecondsPerRequest int
++	// at most one request can happen in MillisecondsPerRequest seconds
++	MillisecondsPerRequest int
  	// PageTimeout is the maximum time to wait for a page in seconds
  	PageTimeout int
  	// InteractionsCacheSize is the number of interaction-url->req to keep in cache at a time.

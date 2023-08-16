@@ -1,31 +1,15 @@
 #!/usr/bin/env python3
 import json
-import random
-import string
 import subprocess
 import urllib
-from typing import Any
+from typing import Any, List
 
 from karton.core import Task
 
-from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
-
-TEMPLATES_THAT_MATCH_ON_PHPINFO = {
-    "http/cnvd/2020/CNVD-2020-23735.yaml",
-    "http/cves/2015/CVE-2015-4050.yaml",
-    "http/cves/2019/CVE-2019-9041.yaml",
-    "http/cves/2020/CVE-2020-5776.yaml",
-    "http/cves/2020/CVE-2020-5847.yaml",
-    "http/cves/2021/CVE-2021-40870.yaml",
-    "http/cves/2022/CVE-2022-0885.yaml",
-    "http/cves/2022/CVE-2022-1020.yaml",
-    "http/vulnerabilities/other/ecshop-sqli.yaml",
-    "http/vulnerabilities/thinkcmf/thinkcmf-rce.yaml",
-}
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 
@@ -39,6 +23,8 @@ class Nuclei(ArtemisBase):
     filters = [
         {"type": TaskType.URL.value},
     ]
+    batch_tasks = True
+    task_max_batch_size = 500
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -70,40 +56,22 @@ class Nuclei(ArtemisBase):
                 if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
             ] + Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
 
-    def run(self, current_task: Task) -> None:
-        target = current_task.payload["url"]
-        content = current_task.payload["content"]
+    def run_multiple(self, tasks: List[Task]) -> None:
+        tasks_filtered = []
+        filtered_because_not_homepage = 0
+        for task in tasks:
+            target = task.payload["url"]
 
-        templates = []
-        # We want to run PhpMyAdmin Nuclei templates only when we identified that a given URL runs
-        # PhpMyAdmin.
-        if "<title>phpMyAdmin</title>" in content:
-            templates.append("http/default-logins/phpmyadmin/phpmyadmin-default-login.yaml")
+            if not self._is_homepage(target):
+                filtered_because_not_homepage += 1
+                self.db.save_task_result(task=task, status=TaskStatus.OK, status_reason=None, data={})
+            else:
+                tasks_filtered.append(task)
 
-        self.log.info(f"path is {urllib.parse.urlparse(target).path}")
-        if self._is_homepage(target):
-            self.log.info(f"adding {len(self._templates)} templates")
-            templates.extend(self._templates)
-
-        self.log.info(f"nuclei: running {len(templates)} templates on {target}")
-
-        if len(templates) == 0:
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, status_reason=None, data={})
-            return
-
-        random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
-        dummy_url = target.rstrip("/") + "/" + random_token
-        try:
-            dummy_content = http_requests.get(dummy_url).content
-        except Exception:
-            dummy_content = ""
-        has_phpinfo_on_random_url = "phpinfo()" in dummy_content
-
-        # Some templates check whether a vulnerability is present by trying to call phpinfo() and checking
-        # whether it succeeded. Some websites return phpinfo() on all URLs. This is to prevent Artemis
-        # return false positives for these websites.
-        if has_phpinfo_on_random_url:
-            templates = sorted(list(set(templates) - TEMPLATES_THAT_MATCH_ON_PHPINFO))
+        self.log.info(
+            f"running {len(self._templates)} templates on {len(tasks_filtered)} hosts "
+            f"({filtered_because_not_homepage} filtered because the URLs aren't root)"
+        )
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
@@ -116,40 +84,57 @@ class Nuclei(ArtemisBase):
             "-etags",
             "intrusive",
             "-ni",
-            "-target",
-            target,
             "-templates",
-            ",".join(templates),
+            ",".join(self._templates),
             "-timeout",
             str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
             "-jsonl",
             "-system-resolvers",
-            "-spr",
-            str(Config.Limits.SECONDS_PER_REQUEST),
+            "-bulk-size",
+            str(len(tasks_filtered)),
+            "-headless-bulk-size",
+            str(len(tasks_filtered)),
+            "-milliseconds-per-request",
+            str(int(Config.Limits.SECONDS_PER_REQUEST * 1000.0 / len(tasks_filtered))),
         ] + additional_configuration
+
+        targets = []
+        for task in tasks_filtered:
+            targets.append(task.payload["url"])
+            command.append("-target")
+            command.append(task.payload["url"])
 
         data = check_output_log_on_error(
             command,
             self.log,
         )
-
-        result = []
-        messages = []
-        for line in data.decode("ascii", errors="ignore").split("\n"):
+        lines = data.decode("ascii", errors="ignore").split("\n")
+        for line in lines:
             if line.strip():
                 finding = json.loads(line)
-                result.append(finding)
-                messages.append(
-                    f"[{finding['info']['severity']}] {finding['info'].get('name')} {finding['info'].get('description')}"
-                )
+                assert finding["host"] in targets
 
-        if messages:
-            status = TaskStatus.INTERESTING
-            status_reason = ", ".join(messages)
-        else:
-            status = TaskStatus.OK
-            status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        for task in tasks_filtered:
+            result = []
+            messages = []
+            for line in lines:
+                if line.strip():
+                    finding = json.loads(line)
+                    if finding["host"] != task.payload["url"]:
+                        continue
+
+                    result.append(finding)
+                    messages.append(
+                        f"[{finding['info']['severity']}] {finding['info'].get('name')} {finding['info'].get('description')}"
+                    )
+
+            if messages:
+                status = TaskStatus.INTERESTING
+                status_reason = ", ".join(messages)
+            else:
+                status = TaskStatus.OK
+                status_reason = None
+            self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=result)
 
     def _is_homepage(self, url: str) -> bool:
         url_parsed = urllib.parse.urlparse(url)

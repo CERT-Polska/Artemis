@@ -1,14 +1,15 @@
 import random
+import sys
 import time
 import traceback
 import urllib.parse
-from abc import abstractmethod
 from ipaddress import ip_address
-from typing import Optional
+from typing import List, Optional
 
 import requests
 import timeout_decorator
 from karton.core import Karton, Task
+from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
 from redis import Redis
 
@@ -32,6 +33,10 @@ class ArtemisBase(Karton):
     """
 
     task_poll_interval_seconds = 2
+    batch_tasks = False
+    # This is the maximum batch size. Due to the fact that we may be unable to lock some targets because
+    # their IPs are already scanned, the actual batch size may be lower.
+    task_max_batch_size = 1
 
     lock_target = Config.Locking.LOCK_SCANNED_TARGETS
 
@@ -43,6 +48,15 @@ class ArtemisBase(Karton):
             self.db = db
         else:
             self.db = DB()
+
+        if self.batch_tasks:
+            assert (
+                self.task_max_batch_size > 1
+            ), "If batch_tasks is enabled, task_max_batch_size must be greater than 1."
+        else:
+            assert (
+                self.task_max_batch_size == 1
+            ), "If batch_tasks is disabled, task_max_batch_size makes no sense to be other than 1."
 
         self._get_random_queue_element = self.backend.redis.register_script(
             """
@@ -116,11 +130,17 @@ class ArtemisBase(Karton):
                     break
 
                 time.sleep(self.task_poll_interval_seconds)
-                task = self._consume_random_routed_task(self.identity)
-                if task:
-                    task_id += 1
+                tasks = []
+                for _ in range(self.task_max_batch_size):
+                    task = self._consume_random_routed_task(self.identity)
+                    if task:
+                        tasks.append(task)
 
-                    self.internal_process(task)
+                if len(tasks) > 0:
+                    task_id += len(tasks)
+
+                    self.lock_and_internal_process_multiple(tasks)
+
         if task_id >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
             self.log.info("Exiting loop after processing %d tasks", task_id)
         else:
@@ -149,56 +169,152 @@ class ArtemisBase(Karton):
         task.status = KartonTaskState.SPAWNED
         self.backend.produce_routed_task(self.identity, task)
 
-    @abstractmethod
     def run(self, current_task: Task) -> None:
         raise NotImplementedError()
 
-    def internal_process(self, current_task: Task) -> None:
-        scan_destination = self._get_scan_destination(current_task)
+    def run_multiple(self, tasks: List[Task]) -> None:
+        raise NotImplementedError()
 
+    def lock_and_internal_process_multiple(self, tasks: List[Task]) -> None:
         if self.lock_target:
-            try:
-                with ResourceLock(
+            locks_acquired = []
+            tasks_to_reschedule = []
+            tasks_locked = []
+            for task in tasks:
+                scan_destination = self._get_scan_destination(task)
+
+                lock = ResourceLock(
                     REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
-                ):
+                )
+
+                try:
+                    lock.acquire()
+                    locks_acquired.append(lock)
+                    tasks_locked.append(task)
                     self.log.info(
                         "Succeeded to lock task %s (orig_uid=%s destination=%s)",
-                        current_task.uid,
-                        current_task.orig_uid,
+                        task.uid,
+                        task.orig_uid,
                         scan_destination,
                     )
+                except FailedToAcquireLockException:
+                    self.log.warning(
+                        "Failed to lock task %s (orig_uid=%s destination=%s)",
+                        task.uid,
+                        task.orig_uid,
+                        scan_destination,
+                    )
+                    tasks_to_reschedule.append(task)
 
-                    self._log_task(current_task)
-                    super().internal_process(current_task)
-            except FailedToAcquireLockException:
+            self.log.info(
+                "Out of %s tasks we successfully locked %s.",
+                len(tasks),
+                len(locks_acquired),
+            )
+
+            for task_to_reschedule in tasks_to_reschedule:
+                self.reschedule_task(task_to_reschedule)
+
+            if len(tasks_to_reschedule):
                 self.log.info(
-                    "Rescheduling task %s for later (orig_uid=%s destination=%s) because other module is currently scanning the same IP. We will attempt the task later.",
-                    current_task.uid,
-                    current_task.orig_uid,
-                    scan_destination,
+                    "Rescheduled %s tasks because other module is currently scanning the same IP. We will attempt the tasks later.",
+                    len(tasks_to_reschedule),
                 )
-                self.reschedule_task(current_task)
-                return
-        else:
-            self._log_task(current_task)
-            super().internal_process(current_task)
 
-    def process(self, current_task: Task) -> None:
+            self._log_tasks(tasks_locked)
+            self.internal_process_multiple(tasks_locked)
+
+            for lock in locks_acquired:
+                lock.release()
+        else:
+            self._log_tasks(tasks)
+            self.internal_process_multiple(tasks)
+
+    def internal_process_multiple(self, tasks: List[Task]) -> None:
+        tasks_filtered = []
+        for task in tasks:
+            if task.matches_filters(self.filters):
+                tasks_filtered.append(task)
+            else:
+                self.log.info("Task rejected because binds are no longer valid.")
+                self.backend.set_task_status(task, KartonTaskState.FINISHED)
+
+        exception_str = None
+
         try:
-            timeout_decorator.timeout(Config.Limits.TASK_TIMEOUT_SECONDS)(lambda: self.run(current_task))()
+            self.log.info(
+                "Received %s new tasks - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered])
+            )
+            for task in tasks_filtered:
+                self.backend.set_task_status(task, KartonTaskState.STARTED)
+
+            self._run_pre_hooks()
+
+            saved_exception = None
+            try:
+                self.process_multiple(tasks_filtered)
+            except Exception as exc:
+                saved_exception = exc
+                raise
+            finally:
+                self._run_post_hooks(saved_exception)
+
+            self.log.info("%s tasks done - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered]))
         except Exception:
-            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=traceback.format_exc())
+            exc_info = sys.exc_info()
+            exception_str = traceback.format_exception(*exc_info)
+
+            for _ in tasks_filtered:
+                self.backend.increment_metrics(KartonMetrics.TASK_CRASHED, self.identity)
+            self.log.exception(
+                "Failed to process %s tasks - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered])
+            )
+        finally:
+            for task in tasks_filtered:
+                self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
+
+                task_state = KartonTaskState.FINISHED
+
+                # report the task status as crashed
+                # if an exception was caught while processing
+                if exception_str is not None:
+                    task_state = KartonTaskState.CRASHED
+                    task.error = exception_str
+
+                self.backend.set_task_status(task, task_state)
+
+    def process(self, task: Task) -> None:
+        self.process_multiple([task])
+
+    def process_multiple(self, tasks: List[Task]) -> None:
+        if len(tasks) == 0:
+            return
+
+        try:
+            if self.batch_tasks:
+                timeout_decorator.timeout(Config.Limits.TASK_TIMEOUT_SECONDS)(lambda: self.run_multiple(tasks))()
+            else:
+                (task,) = tasks
+                timeout_decorator.timeout(Config.Limits.TASK_TIMEOUT_SECONDS)(lambda: self.run(task))()
+        except Exception:
+            for task in tasks:
+                self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
 
-    def _log_task(self, current_task: Task) -> None:
-        self.log.info(
-            "Processing task %s (headers=%s payload=%s payload_persistent=%s priority=%s)",
-            current_task.uid,
-            repr(current_task.headers),
-            repr(current_task.payload),
-            repr(current_task.payload_persistent),
-            current_task.priority.value,
-        )
+    def _log_tasks(self, tasks: List[Task]) -> None:
+        message = "Processing %d tasks: " % len(tasks)
+        for i, task in enumerate(tasks):
+            message += "%s (headers=%s payload=%s payload_persistent=%s priority=%s)" % (
+                task.uid,
+                repr(task.headers),
+                repr(task.payload),
+                repr(task.payload_persistent),
+                task.priority.value,
+            )
+
+            if i < len(tasks) - 1:
+                message += ", "
+        self.log.info(message)
 
     def _get_scan_destination(self, task: Task) -> str:
         result = None

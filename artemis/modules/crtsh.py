@@ -90,6 +90,8 @@ class CrtshScanner(ArtemisBase):
             self.log.info(
                 "Crtsh has already returned %s - and as it's a recursive query, no further query will be performed."
             )
+            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            return
 
         for retry_id in range(Config.Modules.Crtsh.CRTSH_NUM_RETRIES):
             ct_domains = self.query_sql(domain)

@@ -31,6 +31,8 @@ class GAU(ArtemisBase):
             self.log.info(
                 "Gau has already returned %s - and as it's a recursive query, no further query will be performed."
             )
+            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            return
 
         output = check_output_log_on_error(
             [
@@ -49,7 +51,6 @@ class GAU(ArtemisBase):
                 continue
 
             if is_subdomain(url_parsed.hostname, domain):
-
                 self.redis.setex(
                     f"gau-done-{domain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
                 )

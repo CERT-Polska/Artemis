@@ -479,6 +479,10 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     "The Booked plugin for WordPress is vulnerable to authorization bypass due to missing capability checks on several functions hooked via AJAX actions in versions up to, and including, 2.2.5. This makes it possible for authenticated attackers with subscriber-level permissions and above to execute several unauthorized actions.": "Wtyczka WordPress o nazwie Booked w wersji do 2.2.5 umożliwia zalogowanemu atakującemu wykonywanie niektórych działań wymagających wyższych uprawnień."
     + WORDPRESS_UPDATE_HINT,
+    "The threaddump endpoint provides a thread dump from the application's JVM.": "Wykryto zasób threaddump, umożliwiający pobranie informacji o wątkach aplikacji."
+    + DATA_HIDE_HINT,
+    "Sensitive environment variables may not be masked": "Możliwy jest odczyt konfiguracji środowiska, w której najprawdopodobniej znajdują się wrażliwe informacje dotyczące aplikacji."
+    + DATA_HIDE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -576,4 +580,9 @@ TRANSLATIONS = {
     "Kraken Cluster Monitoring Dashboard was detected.": "wykryto panel Kraken Cluster Monitoring Dashboard.",
     "AVideo installer panel was detected.": "wykryto panel instalacyjny narzędzia AVideo.",
     "WHM login panel was detected.": "wykryto panel logowania WHM.",
+    "SonicWall Network Security Login panel was detected.": "wykryto panel logowania SonicWall Network Security.",
+    "SonicWall Management admin login panel was detected.": "wykryto panel administracyjny SonicWall Management.",
+    "Piwigo login panel was detected.": "wykryto panel logowania Piwigo.",
+    "D-Link Wireless Router panel was detected.": "wykryto panel routera bezprzewodowego D-Link.",
+    "WSO2 Management Console login panel was detected.": "wykryto panel logowania WSO2 Management Console.",
 }

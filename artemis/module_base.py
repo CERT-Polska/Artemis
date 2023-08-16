@@ -44,6 +44,8 @@ class ArtemisBase(Karton):
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
         self.lock = ResourceLock(redis=REDIS, res_name=self.identity)
+        self.redis = REDIS
+
         if db:
             self.db = db
         else:

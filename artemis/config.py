@@ -225,7 +225,8 @@ class Config:
             NUCLEI_MAX_BATCH_SIZE: Annotated[
                 int,
                 "How many sites to scan at once. This is the maximum batch size - we will try to obtain NUCLEI_MAX_BATCH_SIZE "
-                "sites to scan from the queue, but then we will filter ones that are already scanned by other modules.",
+                "sites to scan from the queue, but if per-IP locking is enabled, then we will filter ones that are already "
+                "scanned by other modules.",
             ] = get_config("NUCLEI_MAX_BATCH_SIZE", default=100, cast=int)
 
             NUCLEI_TEMPLATES_TO_SKIP: Annotated[

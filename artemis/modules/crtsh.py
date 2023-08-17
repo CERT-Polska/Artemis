@@ -88,7 +88,8 @@ class CrtshScanner(ArtemisBase):
 
         if self.redis.get(f"crtsh-done-{domain}"):
             self.log.info(
-                "Crtsh has already returned %s - and as it's a recursive query, no further query will be performed."
+                "Crtsh has already returned %s - and as it's a recursive query, no further query will be performed.",
+                domain,
             )
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return

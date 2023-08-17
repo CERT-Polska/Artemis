@@ -24,7 +24,7 @@ class Nuclei(ArtemisBase):
         {"type": TaskType.URL.value},
     ]
     batch_tasks = True
-    task_max_batch_size = Config.Nuclei.NUCLEI_MAX_BATCH_SIZE
+    task_max_batch_size = Config.Modules.Nuclei.NUCLEI_MAX_BATCH_SIZE
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)

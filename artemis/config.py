@@ -221,11 +221,11 @@ class Config:
                 "Whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI "
                 "when the Github API rate limits are spent).",
             ] = get_config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
-            
+
             NUCLEI_MAX_BATCH_SIZE: Annotated[
                 int,
-                "How many sites to scan at once. This is the maximum batch size - we will try to obtain NUCLEI_MAX_BATCH_SIZE
-                sites to scan from the queue, but then we will filter ones that are already scanned by other modules.",
+                "How many sites to scan at once. This is the maximum batch size - we will try to obtain NUCLEI_MAX_BATCH_SIZE "
+                "sites to scan from the queue, but then we will filter ones that are already scanned by other modules.",
             ] = get_config("NUCLEI_MAX_BATCH_SIZE", default=100, cast=int)
 
             NUCLEI_TEMPLATES_TO_SKIP: Annotated[

@@ -29,7 +29,8 @@ class GAU(ArtemisBase):
 
         if self.redis.get(f"gau-done-{domain}"):
             self.log.info(
-                "Gau has already returned %s - and as it's a recursive query, no further query will be performed."
+                "Gau has already returned %s - and as it's a recursive query, no further query will be performed.",
+                domain,
             )
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return

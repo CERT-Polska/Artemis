@@ -25,11 +25,16 @@ class GAU(ArtemisBase):
     lock_target = False
 
     def run(self, current_task: Task) -> None:
+        if current_task.payload_persistent.get("tag", None) == "oswiata":
+            self.log.info("Skipping oswiata")
+            return
+
         domain = current_task.get_payload("domain")
 
         if self.redis.get(f"gau-done-{domain}"):
             self.log.info(
-                "Gau has already returned %s - and as it's a recursive query, no further query will be performed."
+                "Gau has already returned %s - and as it's a recursive query, no further query will be performed.",
+                domain,
             )
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return

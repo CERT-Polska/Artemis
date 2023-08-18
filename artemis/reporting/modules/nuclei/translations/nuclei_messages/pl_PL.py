@@ -483,6 +483,9 @@ TRANSLATIONS = {
     + DATA_HIDE_HINT,
     "Sensitive environment variables may not be masked": "Możliwy jest odczyt konfiguracji środowiska, w której najprawdopodobniej znajdują się wrażliwe informacje dotyczące aplikacji."
     + DATA_HIDE_HINT,
+    "WordPress Pricing Deals for WooCommerce plugin through 2.0.2.02 contains a SQL injection vulnerability. The plugin does not properly sanitise and escape a parameter before using it in a SQL statement via an AJAX action. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie Pricing Deals for Woocommerce w wersji do 2.0.2.02 zawiera podatność SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "The Photo Gallery by 10Web WordPress plugin before 1.6.0 does not validate and escape the bwg_tag_id_bwg_thumbnails_0 parameter before using it in a SQL statement via the bwg_frontend_data AJAX action (available to unauthenticated and authenticated users), leading to an unauthenticated SQL injection": "Wtyczka WordPress o nazwie Photo Gallery by 10Web w wersji poniżej 1.6.0 zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych." + WORDPRESS_UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -586,4 +589,7 @@ TRANSLATIONS = {
     "D-Link Wireless Router panel was detected.": "wykryto panel routera bezprzewodowego D-Link.",
     "WSO2 Management Console login panel was detected.": "wykryto panel logowania WSO2 Management Console.",
     "Jira Service Desk login panel was detected.": "wykryto panel logowania Jira Service Desk.",
+    "ZOHO ManageEngine ServiceDesk panel was detected.": "wykryto panel ZOHO ManageEngine ServiceDesk.",
+    "TeamPass panel was detected.": "wykryto panel TeamPass.",
+    "Apache Solr admin panel was detected.": "wykryto panel administracyjny Apache Solr.",
 }

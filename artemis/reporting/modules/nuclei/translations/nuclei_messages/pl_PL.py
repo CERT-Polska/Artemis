@@ -585,4 +585,5 @@ TRANSLATIONS = {
     "Piwigo login panel was detected.": "wykryto panel logowania Piwigo.",
     "D-Link Wireless Router panel was detected.": "wykryto panel routera bezprzewodowego D-Link.",
     "WSO2 Management Console login panel was detected.": "wykryto panel logowania WSO2 Management Console.",
+    "Jira Service Desk login panel was detected.": "wykryto panel logowania Jira Service Desk.",
 }

@@ -487,6 +487,7 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     "The Photo Gallery by 10Web WordPress plugin before 1.6.0 does not validate and escape the bwg_tag_id_bwg_thumbnails_0 parameter before using it in a SQL statement via the bwg_frontend_data AJAX action (available to unauthenticated and authenticated users), leading to an unauthenticated SQL injection": "Wtyczka WordPress o nazwie Photo Gallery by 10Web w wersji poniżej 1.6.0 zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + WORDPRESS_UPDATE_HINT,
+    "Wordpress installation files have been detected": "Wykryto instalator systemu WordPress. Rekomendujemy, aby takie zasoby nie były dostępne publicznie, ponieważ mogą umożliwić uzyskanie dostępu administracyjnego do systemu.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

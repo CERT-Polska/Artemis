@@ -280,13 +280,14 @@ class Config:
                         "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
                         # Generic API docs
                         "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
-                        # VPN web portals and other ones that need to be exposed
+                        # VPN web portals, SSO and other ones that need to be exposed
                         "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
                         "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
                         "http/exposed-panels/pulse-secure-panel.yaml",
                         "http/exposed-panels/pulse-secure-version.yaml",
                         "http/exposed-panels/cas-login.yaml",
                         "http/exposed-panels/casdoor-login.yaml",
+                        "http/exposed-panels/openam-panel.yaml",
                         # Too small impact to report
                         "http/exposed-panels/webeditors-check-detect.yaml",
                         # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization

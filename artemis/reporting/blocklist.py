@@ -5,9 +5,12 @@ from typing import List, Optional, Union
 
 import yaml
 
+from artemis import utils
 from artemis.domains import is_domain, is_subdomain
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
+
+logger = utils.build_logger(__name__)
 
 
 @dataclasses.dataclass
@@ -66,22 +69,33 @@ def filter_blocklist(reports: List[Report], blocklist: List[BlocklistItem]) -> L
                 domain = report.top_level_target if is_domain(report.top_level_target) else None
                 if report.last_domain:
                     domain = report.last_domain
-                if domain and not is_subdomain(domain, item.domain):
+                if not domain:
+                    continue
+                if not is_subdomain(domain, item.domain):
                     continue
 
-            if item.ip_range and report.target_ip and not ipaddress.IPv4Address(report.target_ip) in item.ip_range:
-                continue
+            if item.ip_range:
+                if not report.target_ip:
+                    continue
+                if ipaddress.IPv4Address(report.target_ip) not in item.ip_range:
+                    continue
 
             if item.target_should_contain and item.target_should_contain not in report.target:
                 continue
 
-            if report.timestamp and item.until and report.timestamp >= item.until:
-                continue
+            if item.until:
+                if not report.timestamp:
+                    continue
+                if report.timestamp >= item.until:
+                    continue
 
             if item.report_type and report.report_type != item.report_type:
                 continue
 
             filtered = True
+            logger.info(
+                "report about %s in %s filtered due to blocklist rule %s", report.report_type, report.target, item
+            )
 
         if not filtered:
             result.append(report)

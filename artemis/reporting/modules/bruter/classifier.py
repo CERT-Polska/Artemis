@@ -33,7 +33,7 @@ def is_php_var_dump(found_url: FoundURL) -> bool:
 
 def is_log_file(found_url: FoundURL) -> bool:
     path = urllib.parse.urlparse(found_url.url).path
-    if "_log" not in path and "/log" not in path and "/errors" not in path and "/debug" not in path:
+    if "log" not in path and "/errors" not in path and "/debug" not in path:
         return False
 
     if found_url.has_directory_index:

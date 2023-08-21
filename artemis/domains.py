@@ -9,7 +9,7 @@ def is_domain(candidate: str) -> bool:
         result = validators.domain(candidate)
         if isinstance(result, validators.ValidationError):
             raise result
-        return result
+        return result  # type: ignore
     except validators.ValidationError:
         return False
 

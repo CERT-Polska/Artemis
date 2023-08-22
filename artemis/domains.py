@@ -5,10 +5,13 @@ PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
 def is_domain(candidate: str) -> bool:
-    try:
-        return validators.domain(candidate)  # type: ignore
-    except validators.ValidationFailure:
+    result = validators.domain(candidate)
+    # validators returns True if correct, else raisable Error obj
+    if isinstance(result, validators.ValidationError):
         return False
+    else:
+        assert result is True
+        return True
 
 
 def is_main_domain(domain: str) -> bool:

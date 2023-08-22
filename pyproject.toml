@@ -16,6 +16,7 @@ authorized_licenses = [
     "mozilla public license 2.0 (mpl 2.0)",
     "mit",
     "python software foundation",
+    "the unlicense (unlicense)",
 ]
 
 [tool.liccheck.authorized_packages]

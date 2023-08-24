@@ -24,12 +24,14 @@ if Config.Reporting.REPORTING_SEPARATE_INSTITUTIONS_FILE:
         if line:
             REPORTING_SEPARATE_INSTITUTIONS.append(line)
 
+REPORTING_SEPARATE_INSTITUTIONS_FROZENSET = frozenset(REPORTING_SEPARATE_INSTITUTIONS)
+
 logger = utils.build_logger(__name__)
 
-if len(REPORTING_SEPARATE_INSTITUTIONS):
+if len(REPORTING_SEPARATE_INSTITUTIONS_FROZENSET):
     logger.info(
         "Loaded %s domains that will be treated as ones where separate reports will be created",
-        len(REPORTING_SEPARATE_INSTITUTIONS),
+        len(REPORTING_SEPARATE_INSTITUTIONS_FROZENSET),
     )
 
 
@@ -48,12 +50,18 @@ def get_top_level_target(task_result: Dict[str, Any]) -> str:
     if "last_domain" in task_result["payload"]:
         last_domain = task_result["payload"]["last_domain"]
 
-        for item in REPORTING_SEPARATE_INSTITUTIONS:
-            if is_subdomain(last_domain, item):
-                assert isinstance(item, str)
+        last_domain_parts = last_domain.split(".")
+        for i, _ in enumerate(last_domain_parts):
+            item = ".".join(last_domain_parts[i:])
+            if item in REPORTING_SEPARATE_INSTITUTIONS_FROZENSET:
                 assert "original_domain" in payload_persistent
-                assert is_subdomain(item, payload_persistent["original_domain"])
-                return item
+                if is_subdomain(item, payload_persistent["original_domain"]):  # not exceeded the tree to far
+                    logger.info(
+                        "Not sending the report to %s, but to %s, as it's marked as a separate institution",
+                        payload_persistent["original_domain"],
+                        item,
+                    )
+                    return item
 
     if "original_domain" in payload_persistent:
         assert isinstance(payload_persistent["original_domain"], str)

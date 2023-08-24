@@ -1,3 +1,4 @@
+import copy
 import functools
 import urllib.parse
 from socket import getservbyname, getservbyport
@@ -5,7 +6,7 @@ from typing import Any, Dict
 
 from karton.core import Task
 
-from artemis import http_requests, task_utils
+from artemis import http_requests, task_utils, utils
 from artemis.config import Config
 from artemis.domains import is_subdomain
 
@@ -13,6 +14,23 @@ from artemis.domains import is_subdomain
 def get_target_url(task_result: Dict[str, Any]) -> str:
     """Returns a string representation of the target that has been scanned."""
     return task_utils.get_target_url(Task(headers=task_result["headers"], payload=task_result["payload"]))
+
+
+REPORTING_SEPARATE_INSTITUTIONS = copy.copy(Config.Reporting.REPORTING_SEPARATE_INSTITUTIONS)
+
+if Config.Reporting.REPORTING_SEPARATE_INSTITUTIONS_FILE:
+    for line in open(Config.Reporting.REPORTING_SEPARATE_INSTITUTIONS_FILE):
+        line = line.strip()
+        if line:
+            REPORTING_SEPARATE_INSTITUTIONS.append(line)
+
+logger = utils.build_logger(__name__)
+
+if len(REPORTING_SEPARATE_INSTITUTIONS):
+    logger.info(
+        "Loaded %s domains that will be treated as ones where separate reports will be created",
+        len(REPORTING_SEPARATE_INSTITUTIONS),
+    )
 
 
 def get_top_level_target(task_result: Dict[str, Any]) -> str:
@@ -30,7 +48,7 @@ def get_top_level_target(task_result: Dict[str, Any]) -> str:
     if "last_domain" in task_result["payload"]:
         last_domain = task_result["payload"]["last_domain"]
 
-        for item in Config.Reporting.REPORTING_SEPARATE_INSTITUTIONS:
+        for item in REPORTING_SEPARATE_INSTITUTIONS:
             if is_subdomain(last_domain, item):
                 assert isinstance(item, str)
                 assert "original_domain" in payload_persistent

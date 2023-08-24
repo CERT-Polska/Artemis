@@ -28,6 +28,12 @@ class Config:
             "it is a separate institution. This variable should contain a comma-separated list of such subdomains.",
         ] = get_config("REPORTING_SEPARATE_INSTITUTIONS", default="", cast=decouple.Csv(str))
 
+        REPORTING_SEPARATE_INSTITUTIONS_FILE: Annotated[
+            str,
+            "A file, where each separate line would be treated as another domain for the "
+            "REPORTING_SEPARATE_INSTITUTIONS setting.",
+        ] = get_config("REPORTING_SEPARATE_INSTITUTIONS_FILE", default=None)
+
         REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS: Annotated[
             List[int],
             """

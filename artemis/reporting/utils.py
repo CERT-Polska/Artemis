@@ -55,7 +55,10 @@ def get_top_level_target(task_result: Dict[str, Any]) -> str:
             item = ".".join(last_domain_parts[i:])
             if item in REPORTING_SEPARATE_INSTITUTIONS_FROZENSET:
                 assert "original_domain" in payload_persistent
-                if is_subdomain(item, payload_persistent["original_domain"]):  # not exceeded the tree to far
+                if (
+                    is_subdomain(item, payload_persistent["original_domain"])
+                    and item != payload_persistent["original_domain"]
+                ):  # not exceeded the tree to far
                     logger.info(
                         "Not sending the report to %s, but to %s, as it's marked as a separate institution",
                         payload_persistent["original_domain"],

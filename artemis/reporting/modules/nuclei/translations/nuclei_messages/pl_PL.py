@@ -488,6 +488,17 @@ TRANSLATIONS = {
     "The Photo Gallery by 10Web WordPress plugin before 1.6.0 does not validate and escape the bwg_tag_id_bwg_thumbnails_0 parameter before using it in a SQL statement via the bwg_frontend_data AJAX action (available to unauthenticated and authenticated users), leading to an unauthenticated SQL injection": "Wtyczka WordPress o nazwie Photo Gallery by 10Web w wersji poniżej 1.6.0 zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "Wordpress installation files have been detected": "Wykryto instalator systemu WordPress. Rekomendujemy, aby takie zasoby nie były dostępne publicznie, ponieważ mogą umożliwić uzyskanie dostępu administracyjnego do systemu.",
+    "FAUST iServer before 9.0.019.019.7 is susceptible to local file inclusion because for each URL request it accesses the corresponding .fau file on the operating system without preventing %2e%2e%5c directory traversal.": "FAUST iServer w wersji poniżej 9.0.019.019.7 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "TVT NVMS-1000 devices allow GET /.. local file inclusion attacks.": "Wykryto urządzenie TVT NVMS-1000 zawierające podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
+    "AxxonSoft Axxon Next suffers from a local file inclusion vulnerability.": "Wykryto, że AxxonSoft Axxon Next zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
+    "Oracle WebLogic Server (Oracle Fusion Middleware (component: WLS Core Components) is susceptible to a remote code execution vulnerability. Supported versions that are affected are 10.3.6.0.0, 12.1.3.0.0, 2.2.1.3.0 and 12.2.1.4.0. This easily exploitable vulnerability could allow unauthenticated attackers with network access via IIOP to compromise Oracle WebLogic Server.": "Wykryto, że komponent WLS Core Components oprogramowania Oracle WebLogic Server w wersjach 10.3.6.0.0, 12.1.3.0.0, 2.2.1.3.0 i 12.2.1.4.0 umożliwia zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "http/misconfiguration/springboot/springboot-logfile.yaml": "Wykryto dziennik zdarzeń frameworku Spring Boot."
+    + DATA_HIDE_HINT,
+    "http/vulnerabilities/other/sitemap-sql-injection.yaml": "Wykryto podatność SQL Injection w końcówce sitemap.xml, umożliwiającą atakującemu pobranie całej zawartości bazy danych. Rekomendujemy usunięcie podatności oraz weryfikację, czy nie występuje w innych miejscach systemu.",
+    "WordPress Knews Multilingual Newsletters 1.1.0 plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie Knews Multilingual Newsletters 1.1.0 zawiera podatność Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który - gdy kliknięty przez administratora - wykona dowolną akcję z jego uprawnieniami." + WORDPRESS_UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -594,4 +605,10 @@ TRANSLATIONS = {
     "ZOHO ManageEngine ServiceDesk panel was detected.": "wykryto panel ZOHO ManageEngine ServiceDesk.",
     "TeamPass panel was detected.": "wykryto panel TeamPass.",
     "Apache Solr admin panel was detected.": "wykryto panel administracyjny Apache Solr.",
+    "VMware Workspace ONE UEM Airwatch login panel was detected.": "wyktyro panel logowania VMware Workspace ONE UEM Airwatch.",
+    "http/exposed-panels/pritunl-panel.yaml": "wykryto panel Pritunl",
+    "Oracle WebLogic login panel was detected.": "wykryto panel logowania Oracle WebLogic.",
+    "Gryphon router panel was detected.": "wykryto panel routera Gryphon.",
+    "pfSense login panel was detected.": "wykryto panel logowania pfSense.",
+
 }

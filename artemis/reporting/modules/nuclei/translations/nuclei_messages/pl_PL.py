@@ -498,7 +498,8 @@ TRANSLATIONS = {
     "http/misconfiguration/springboot/springboot-logfile.yaml": "Wykryto dziennik zdarzeń frameworku Spring Boot."
     + DATA_HIDE_HINT,
     "http/vulnerabilities/other/sitemap-sql-injection.yaml": "Wykryto podatność SQL Injection w końcówce sitemap.xml, umożliwiającą atakującemu pobranie całej zawartości bazy danych. Rekomendujemy usunięcie podatności oraz weryfikację, czy nie występuje w innych miejscach systemu.",
-    "WordPress Knews Multilingual Newsletters 1.1.0 plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie Knews Multilingual Newsletters 1.1.0 zawiera podatność Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który - gdy kliknięty przez administratora - wykona dowolną akcję z jego uprawnieniami." + WORDPRESS_UPDATE_HINT,
+    "WordPress Knews Multilingual Newsletters 1.1.0 plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie Knews Multilingual Newsletters 1.1.0 zawiera podatność Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który - gdy kliknięty przez administratora - wykona dowolną akcję z jego uprawnieniami."
+    + WORDPRESS_UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -610,5 +611,4 @@ TRANSLATIONS = {
     "Oracle WebLogic login panel was detected.": "wykryto panel logowania Oracle WebLogic.",
     "Gryphon router panel was detected.": "wykryto panel routera Gryphon.",
     "pfSense login panel was detected.": "wykryto panel logowania pfSense.",
-
 }

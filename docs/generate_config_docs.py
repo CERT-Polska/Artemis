@@ -1,7 +1,7 @@
 import os
 import textwrap
 from pathlib import Path
-from typing import IO, get_type_hints
+from typing import IO, Any, get_type_hints
 
 # By default, these two variables are required by config. As we are importing the config
 # only to get the docs, let's mock them.
@@ -12,10 +12,10 @@ from sphinx.application import Sphinx  # type: ignore # noqa
 
 
 def setup(app: Sphinx) -> None:
-    app.connect("builder-inited", on_builder_inited)
+    app.connect("config-inited", on_config_inited)
 
 
-def on_builder_inited(app: Sphinx) -> None:
+def on_config_inited(_1: Any, _2: Any) -> None:
     output = Path(__file__).parents[0] / "user-guide" / "config-docs.inc"
 
     with open(output, "w") as f:

@@ -21,7 +21,7 @@ minio==7.1.16
 prometheus-client==0.17.1
 psycopg2-binary==2.9.7
 publicsuffixlist==0.10.0.20230828
-pydantic==2.3.0
+pydantic==1.10.11
 pymongo==4.5.0
 PyMySQL==1.1.0
 python-decouple==3.8

@@ -168,6 +168,10 @@ class PortScanner(ArtemisBase):
         return result
 
     def run(self, current_task: Task) -> None:
+        if current_task.payload_persistent.get("tag", None) == "oswiata":
+            self.log.info("Skipping oswiata")
+            return
+
         target = get_target_host(current_task)
         task_type = current_task.headers["type"]
 

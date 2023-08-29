@@ -36,6 +36,7 @@ services:
       # starting the container. This solution is far from perfect - feel free to propose a better
       # one.
       - /:/host-root/:ro
+      - /opt/old-task-results/:/opt/old-task-results/:ro
       - ./output/autoreporter/:/opt/output/autoreporter
       - ./docker/karton.ini:/etc/karton/karton.ini
     profiles: ["autoreporter"]  # This will prevent the service from starting by default

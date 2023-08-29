@@ -116,9 +116,7 @@ def validate_and_sanitize_domain(domain: str) -> str:
 
     for space in string.whitespace:
         if space in domain:
-            raise DomainValidationException(
-                "Whitespace in domain name detected. Please provide a correct domain name."
-            )
+            raise DomainValidationException("Whitespace in domain name detected. Please provide a correct domain name.")
     for forbidden_character in set(string.punctuation) - {".", "-"}:
         if forbidden_character in domain:
             raise DomainValidationException(
@@ -178,24 +176,18 @@ def scan_domain(
             errors=[],
             warnings=[],
         ),
-        dmarc=DMARCScanResult(
-            record=None, tags=None, valid=True, location=None, errors=[], warnings=[]
-        ),
+        dmarc=DMARCScanResult(record=None, tags=None, valid=True, location=None, errors=[], warnings=[]),
         domain=domain,
         base_domain=checkdmarc.get_base_domain(domain),
         warnings=warnings,
     )
 
     try:
-        spf_query = checkdmarc.query_spf_record(
-            domain, nameservers=nameservers, timeout=timeout
-        )
+        spf_query = checkdmarc.query_spf_record(domain, nameservers=nameservers, timeout=timeout)
 
         domain_result.spf.record = spf_query["record"]
         if domain_result.spf.record and "%" in domain_result.spf.record:
-            domain_result.spf.warnings = [
-                "SPF records containing macros aren't supported yet."
-            ]
+            domain_result.spf.warnings = ["SPF records containing macros aren't supported yet."]
             domain_result.spf.valid = False
         elif not domain_result.spf.record:
             raise checkdmarc.SPFRecordNotFound(None)
@@ -212,9 +204,7 @@ def scan_domain(
                 )
                 domain_result.spf.dns_lookups = parsed_spf["dns_lookups"]
                 domain_result.spf.parsed = parsed_spf["parsed"]
-                domain_result.spf.warnings = list(
-                    set(domain_result.spf.warnings) | set(parsed_spf["warnings"])
-                )
+                domain_result.spf.warnings = list(set(domain_result.spf.warnings) | set(parsed_spf["warnings"]))
 
                 if not contains_spf_all_fail(parsed_spf["parsed"]):
                     domain_result.spf.errors = [
@@ -274,9 +264,7 @@ def scan_domain(
         ]
         domain_result.spf.valid = False
     except checkdmarc.SPFSyntaxError:
-        domain_result.spf.errors = [
-            "SPF record is not syntactically correct. Please closely inspect its syntax."
-        ]
+        domain_result.spf.errors = ["SPF record is not syntactically correct. Please closely inspect its syntax."]
         domain_result.spf.valid = False
     except checkdmarc.SPFTooManyDNSLookups:
         domain_result.spf.errors = [
@@ -290,9 +278,7 @@ def scan_domain(
         dmarc_warnings = []
 
         try:
-            dmarc_query = checkdmarc.query_dmarc_record(
-                domain, nameservers=nameservers, timeout=timeout
-            )
+            dmarc_query = checkdmarc.query_dmarc_record(domain, nameservers=nameservers, timeout=timeout)
         except checkdmarc.DMARCRecordNotFound as e:
             if isinstance(e.args[0], checkdmarc.UnrelatedTXTRecordFoundAtDMARC):
                 dmarc_warnings.append(
@@ -337,9 +323,7 @@ def scan_domain(
 
         domain_result.dmarc.tags = parsed_dmarc_record["tags"]
         domain_result.dmarc.warnings = list(
-            set(dmarc_query["warnings"])
-            | set(parsed_dmarc_record["warnings"])
-            | set(dmarc_warnings)
+            set(dmarc_query["warnings"]) | set(parsed_dmarc_record["warnings"]) | set(dmarc_warnings)
         )
     except checkdmarc.DMARCRecordNotFound as e:
         # https://github.com/domainaware/checkdmarc/issues/90
@@ -395,8 +379,7 @@ def scan_domain(
         domain_result.dmarc.valid = False
     except checkdmarc.UnverifiedDMARCURIDestination:
         domain_result.dmarc.errors = [
-            "The destination of a DMARC report URI does not "
-            "indicate that it accepts reports for the domain."
+            "The destination of a DMARC report URI does not " "indicate that it accepts reports for the domain."
         ]
         domain_result.dmarc.valid = False
     except checkdmarc.UnrelatedTXTRecordFoundAtDMARC:

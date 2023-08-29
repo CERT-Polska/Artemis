@@ -310,24 +310,19 @@ def _translate_domain_result(
 ) -> DomainScanResult:
     new_domain_result = copy.deepcopy(domain_result)
     new_domain_result.spf.errors = [
-        _(error, language, nonexistent_translation_handler)
-        for error in domain_result.spf.errors
+        _(error, language, nonexistent_translation_handler) for error in domain_result.spf.errors
     ]
     new_domain_result.spf.warnings = [
-        _(warning, language, nonexistent_translation_handler)
-        for warning in domain_result.spf.warnings
+        _(warning, language, nonexistent_translation_handler) for warning in domain_result.spf.warnings
     ]
     new_domain_result.dmarc.errors = [
-        _(error, language, nonexistent_translation_handler)
-        for error in domain_result.dmarc.errors
+        _(error, language, nonexistent_translation_handler) for error in domain_result.dmarc.errors
     ]
     new_domain_result.dmarc.warnings = [
-        _(warning, language, nonexistent_translation_handler)
-        for warning in domain_result.dmarc.warnings
+        _(warning, language, nonexistent_translation_handler) for warning in domain_result.dmarc.warnings
     ]
     new_domain_result.warnings = [
-        _(warning, language, nonexistent_translation_handler)
-        for warning in new_domain_result.warnings
+        _(warning, language, nonexistent_translation_handler) for warning in new_domain_result.warnings
     ]
     return new_domain_result
 
@@ -338,13 +333,9 @@ def _translate_dkim_result(
     nonexistent_translation_handler: Optional[Callable[[str], str]] = None,
 ) -> DKIMScanResult:
     new_dkim_result = copy.deepcopy(dkim_result)
-    new_dkim_result.errors = [
-        _(error, language, nonexistent_translation_handler)
-        for error in dkim_result.errors
-    ]
+    new_dkim_result.errors = [_(error, language, nonexistent_translation_handler) for error in dkim_result.errors]
     new_dkim_result.warnings = [
-        _(warning, language, nonexistent_translation_handler)
-        for warning in dkim_result.warnings
+        _(warning, language, nonexistent_translation_handler) for warning in dkim_result.warnings
     ]
     return new_dkim_result
 
@@ -355,14 +346,10 @@ def translate_scan_result(
     nonexistent_translation_handler: Optional[Callable[[str], str]] = None,
 ) -> ScanResult:
     return ScanResult(
-        domain=_translate_domain_result(
-            scan_result.domain, language, nonexistent_translation_handler
-        )
+        domain=_translate_domain_result(scan_result.domain, language, nonexistent_translation_handler)
         if scan_result.domain
         else None,
-        dkim=_translate_dkim_result(
-            scan_result.dkim, language, nonexistent_translation_handler
-        )
+        dkim=_translate_dkim_result(scan_result.dkim, language, nonexistent_translation_handler)
         if scan_result.dkim
         else None,
         timestamp=scan_result.timestamp,

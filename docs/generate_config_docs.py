@@ -1,7 +1,7 @@
 import os
 import textwrap
 from pathlib import Path
-from typing import Any, IO, get_type_hints
+from typing import IO, Any, get_type_hints
 
 # By default, these two variables are required by config. As we are importing the config
 # only to get the docs, let's mock them.

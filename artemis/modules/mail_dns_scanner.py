@@ -13,8 +13,8 @@ from publicsuffixlist import PublicSuffixList
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.domains import is_main_domain
-from artemis.mail_utils import DomainScanResult as SPFDMARCScanResult
-from artemis.mail_utils import ScanningException, check_domain
+from artemis.mail_check.scan import DomainScanResult as SPFDMARCScanResult
+from artemis.mail_check.scan import ScanningException, scan_domain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.utils import throttle_request
@@ -91,14 +91,14 @@ class MailDNSScanner(ArtemisBase):
             # - the checkdmarc check is buggy and sometimes counts the void DNS lookups wrongly,
             # - sometimes the DNS lookups are void because of timeouts which can happen if there is
             #   a lot of scanning going on.
-            result.spf_dmarc_scan_result = check_domain(
+            result.spf_dmarc_scan_result = scan_domain(
                 domain=domain, parked=not has_mx_records, ignore_void_dns_lookups=True
             )
         except ScanningException:
             self.log.exception("Unable to check domain %s", domain)
 
-        # For Artemis we have a slightly relaxed requirement than mail_utils - if a domain is not used for
-        # sending e-mail, we don't require SPF (but require DMARC). Mail_utils can't be modified as it's
+        # For Artemis we have a slightly relaxed requirement than mail_check - if a domain is not used for
+        # sending e-mail, we don't require SPF (but require DMARC). Mail_check can't be modified as it's
         # used by CERT internal tools as well.
         #
         # We won't report lack of SPF record, but we should report if it's invalid.

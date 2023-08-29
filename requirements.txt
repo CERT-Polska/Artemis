@@ -8,6 +8,7 @@ chardet==5.2.0
 checkdmarc==4.7.0
 click==8.1.7
 cryptography==39.0.2
+dkimpy==1.1.5
 dnspython==2.4.2
 fastapi==0.103.0
 freezegun==1.2.2

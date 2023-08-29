@@ -76,6 +76,7 @@ services:
       MYSQL_ROOT_PASSWORD: example
 
   test-smtp-server:
+    hostname: test-smtp-server.artemis
     image: bytemark/smtp
 
   test-service-with-exposed-git:

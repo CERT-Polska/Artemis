@@ -18,5 +18,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Remove checkdmarc installed from CERT PL fork from requirements as it's not supported by liccheck
+        run: cp requirements.txt requirements.txt.orig; cat requirements.txt.orig | grep -v ^git+.*checkdmarc > requirements.txt
       - name: Run liccheck
         run: liccheck

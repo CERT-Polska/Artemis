@@ -3,6 +3,8 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, List
 
 from artemis.domains import is_subdomain
+from artemis.mail_check.translate import Language as MailCheckLanguageClass
+from artemis.mail_check.translate import _
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import (
     NormalForm,
@@ -64,6 +66,7 @@ class MailDNSScannerReporter(Reporter):
                     report_type=MailDNSScannerReporter.MISCONFIGURED_EMAIL,
                     additional_data={
                         "message_en": message_with_target.message,
+                        "message_translated": _(message_with_target.message, MailCheckLanguageClass(language.value)),
                         "is_for_parent_domain": is_for_parent_domain,
                     },
                     timestamp=task_result["created_at"],

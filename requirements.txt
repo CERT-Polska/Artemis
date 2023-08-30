@@ -5,7 +5,11 @@ Babel==2.12.1
 beautifulsoup4==4.12.2
 certifi==2023.7.22
 chardet==5.2.0
-checkdmarc==4.7.0
+# This is a branch where all @kazet pending PRs to checkdmarc are merged:
+# - https://github.com/domainaware/checkdmarc/pull/97
+# - https://github.com/domainaware/checkdmarc/pull/98
+# - https://github.com/domainaware/checkdmarc/pull/99
+git+https://github.com/CERT-Polska/checkdmarc@hotfixes-2023-08-30
 click==8.1.7
 cryptography==39.0.2
 dkimpy==1.1.5

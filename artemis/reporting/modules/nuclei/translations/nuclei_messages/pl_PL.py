@@ -505,7 +505,7 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     "Directory Traversal vulnerability in FileMage Gateway Windows Deployments v.1.10.8 and before allows a remote attacker to obtain sensitive information via a crafted request to the /mgmt/ component.": "FileMage Gateway w wersji v.1.10.8 i wcześniejszych zawiera podatność Directory Traversal umożliwiającą atakującemu pobieranie dowolnych plików z serwera.",
     "http/misconfiguration/installer/prestashop-installer.yaml": "Wykryto instalator systemu PrestaShop. Rekomendujemy, aby takie zasoby nie były dostępne publicznie, ponieważ mogą umożliwić atakującemu uzyskanie nieuprawnionego dostępu do systemu czy zmiany w jego konfiguracji.",
-    "http/takeovers/vercel-takeover.yaml": "Wykryto domenę skonfigurowaną, aby serwować treści z serwisu Vercel - ale konto docelowe nie istnieje. Jeśli domena nie jest używana, rekomendujemy jej usunięcie, aby atakujący nie mógł zarejestrować domeny w serwisie Vercel i serwować swoich treści.",
+    "http/takeovers/vercel-takeover.yaml": "Wykryto domenę skonfigurowaną, aby serwować treści z serwisu Vercel, ale konto docelowe nie istnieje. Jeśli domena nie jest używana, rekomendujemy jej usunięcie, aby atakujący nie mógł zarejestrować domeny w serwisie Vercel i serwować swoich treści.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

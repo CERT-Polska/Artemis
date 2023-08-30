@@ -247,6 +247,62 @@ TRANSLATIONS = {
             f"All nameservers failed to answer the query {PLACEHOLDER}. IN {PLACEHOLDER}",
             f"Żaden z przypisanych serwerów nazw domen nie odpowiedział na zapytanie dotyczące domeny {PLACEHOLDER}.",
         ),
+        # Legacy messages translations - these will be used if some existing task result reside in the database
+        # from previous runs, when an older version of this module was used.
+        (
+            "Valid DMARC record not found",
+            "Nie znaleziono poprawnego rekordu DMARC. Rekomendujemy używanie wszystkich trzech mechanizmów: "
+            "SPF, DKIM i DMARC, aby zmniejszyć szansę, żę sfałszowana wiadomość zostanie zaakceptowana "
+            "przez serwer odbiorcy.",
+        ),
+        (
+            "SPF ~all or -all directive not found",
+            "Nie znaleziono dyrektywy '~all' lub '-all' w rekordzie SPF. Rekomendujemy jej dodanie, ponieważ "
+            "opisuje ona, jak powinny zostać potraktowane wiadomości, które zostaną odrzucone "
+            "przez mechanizm SPF. Na przykład, dyrektywa '-all' wskazuje serwerowi odbiorcy, "
+            "że powinien odrzucać takie wiadomości.",
+        ),
+        (
+            "DMARC policy is none and rua is not set, which means that the DMARC setting is not effective.",
+            "Polityka DMARC jest ustawiona na 'none' i nie ustawiono odbiorcy raportów w polu 'rua', co "
+            "oznacza, że ustawienie DMARC nie będzie skuteczne.",
+        ),
+        (
+            "SPF record not found in domain referenced from other SPF record",
+            "Rekord SPF odwołuje się do domeny, która nie zawiera rekordu SPF. W przypadku odwoływania się do "
+            "innych domen za pomocą dyrektyw SPF takich jak 'include' lub 'redirect', domena docelowa powinna również "
+            "zawierać rekord SPF.",
+        ),
+        (
+            "Valid SPF record not found",
+            "Nie znaleziono poprawnego rekordu SPF. Rekomendujemy używanie wszystkich trzech mechanizmów: "
+            "SPF, DKIM i DMARC, aby zmniejszyć szansę, że sfałszowana wiadomość zostanie zaakceptowana "
+            "przez serwer odbiorcy.",
+        ),
+        (
+            "SPF record is not syntatically correct",
+            "Rekord SPF nie ma poprawnej składni. Prosimy o jego dokładną weryfikację.",
+        ),
+        (
+            "DMARC record is not syntatically correct",
+            "Rekord DMARC nie ma poprawnej składni. Prosimy o jego dokładną weryfikację.",
+        ),
+        (
+            "Multiple SPF records found",
+            "Wykryto więcej niż jeden rekord SPF. Rekomendujemy pozostawienie jednego z nich - "
+            "obecność wielu rekordów może powodować problemy w działaniu niektórych implementacji mechanizmu SPF.",
+        ),
+        (
+            "SPF record includes an endless loop",
+            "Rekord SPF zawiera nieskończoną pętlę. Prosimy sprawdzić, czy dyrektywy SPF 'include' lub 'redirect' "
+            "nie odwołują się z powrotem do tej samej domeny lub do wcześniejszych domen.",
+        ),
+        (
+            "SPF record includes too many DNS lookups",
+            "Rekord SPF powoduje zbyt wiele zapytań DNS. Zapytania DNS są powodowane przez niektóre dyrektywy SPF, takie jak "
+            "'mx' czy 'include'. Spefycikacja wymaga, aby liczba zapytań DNS nie przekraczała 10, aby nie powodować nadmiernego "
+            "obciążenia serwerów DNS.",
+        ),
     ]
 }
 

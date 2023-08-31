@@ -153,7 +153,6 @@ def main(
 
     _build_messages_and_print_path(message_template, export_data, output_dir)
 
-
     for reporter in get_all_reporters():
         reports = []
         for data_about_target in export_data.messages.values():

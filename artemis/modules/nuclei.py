@@ -68,6 +68,12 @@ class Nuclei(ArtemisBase):
             else:
                 tasks_filtered.append(task)
 
+        if len(tasks_filtered) == 0:
+            self.log.info(
+                "No tasks after filtering non-homepage URLs. Nothing to do."
+            )
+            return
+
         self.log.info(
             f"running {len(self._templates)} templates on {len(tasks_filtered)} hosts "
             f"({filtered_because_not_homepage} filtered because the URLs aren't root)"

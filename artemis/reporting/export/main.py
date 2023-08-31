@@ -132,6 +132,8 @@ def main(
     output_dir = OUTPUT_LOCATION / date_str
     os.mkdir(output_dir)
 
+    run_export_hooks(output_dir, export_data)
+
     _install_translations_and_print_path(language, output_dir)
     _dump_export_data_and_print_path(export_data, output_dir)
     message_template = _build_message_template_and_print_path(output_dir)
@@ -150,7 +152,6 @@ def main(
 
     _build_messages_and_print_path(message_template, export_data, output_dir)
 
-    run_export_hooks(output_dir, export_data)
 
     for reporter in get_all_reporters():
         reports = []

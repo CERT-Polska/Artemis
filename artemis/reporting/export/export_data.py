@@ -1,5 +1,4 @@
 import datetime
-from collections import Counter
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -28,7 +27,6 @@ class ExportData:
     scanned_top_level_targets: List[str]
     scanned_targets: List[str]
     messages: Dict[str, SingleTopLevelTargetExportData]
-    num_reports_per_type: Dict[ReportType, int]
 
 
 def build_export_data(
@@ -47,14 +45,11 @@ def build_export_data(
         reports_per_top_level_target[report.top_level_target].append(report)
 
     message_data: Dict[str, SingleTopLevelTargetExportData] = {}
-    num_reports_per_type: Counter[ReportType] = Counter()
 
     for top_level_target in reports_per_top_level_target.keys():
         contains_type = set()
         for report in reports_per_top_level_target[top_level_target]:
             contains_type.add(report.report_type)
-
-        num_reports_per_type.update([report.report_type for report in reports_per_top_level_target[top_level_target]])
 
         reports_per_top_level_target[top_level_target] = sorted(
             reports_per_top_level_target[top_level_target], key=lambda report: (report.report_type, report.target)
@@ -74,5 +69,4 @@ def build_export_data(
         scanned_top_level_targets=list(db.scanned_top_level_targets),
         scanned_targets=list(db.scanned_targets),
         messages=message_data,
-        num_reports_per_type=dict(num_reports_per_type),
     )

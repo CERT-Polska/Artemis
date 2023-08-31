@@ -69,9 +69,7 @@ class Nuclei(ArtemisBase):
                 tasks_filtered.append(task)
 
         if len(tasks_filtered) == 0:
-            self.log.info(
-                "No tasks after filtering non-homepage URLs. Nothing to do."
-            )
+            self.log.info("No tasks after filtering non-homepage URLs. Nothing to do.")
             return
 
         self.log.info(

@@ -52,7 +52,7 @@ class Config:
         MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH: Annotated[
             int,
             "If a high-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
-        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=14, cast=int)
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=30, cast=int)
 
     class Locking:
         LOCK_SCANNED_TARGETS: Annotated[

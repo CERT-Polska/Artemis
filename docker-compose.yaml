@@ -325,6 +325,16 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
+  karton-ssh_bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.ssh_bruter"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+
 volumes:
   data-mongodb:
   data-redis:

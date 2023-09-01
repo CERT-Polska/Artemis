@@ -33,6 +33,7 @@ class Service(str, Enum):
     IMAP = "imap"
     MYSQL = "mysql"
     POSTGRESQL = "postgresql"
+    SSH = "ssh"
 
     @classmethod
     def _missing_(cls, value: object) -> Service:

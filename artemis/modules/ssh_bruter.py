@@ -11,7 +11,6 @@ from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
 from artemis.utils import throttle_request
 
-
 BRUTE_CREDENTIALS = [
     ("user", "password"),
     ("user", "user"),

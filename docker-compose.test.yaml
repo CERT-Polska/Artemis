@@ -121,6 +121,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-ssh-with-easy-password:
+    image: lscr.io/linuxserver/openssh-server:latest
+    environment:
+      PASSWORD_ACCESS: true
+      USER_PASSWORD: password
+      USER_NAME: user
+    ports:
+      - "2222:2222"
+
   test-postgresql-with-easy-password:
     image: postgres
     environment:

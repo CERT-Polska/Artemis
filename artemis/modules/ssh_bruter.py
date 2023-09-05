@@ -20,6 +20,7 @@ BRUTE_CREDENTIALS = [
     ("root", "admin"),
     ("admin", "admin"),
     ("test", "test"),
+    ("ppp", "ppp"),
 ]
 
 

@@ -31,7 +31,7 @@ class HTTPServiceToURL(ArtemisBase):
             },
         )
         self.add_task(current_task, new_task)
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"url": url, "content": content})
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)

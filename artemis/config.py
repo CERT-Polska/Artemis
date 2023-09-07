@@ -341,6 +341,11 @@ class Config:
                 "Custom port list to scan in CSV form (replaces default list).",
             ] = get_config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
 
+            PORT_SCANNER_TIMEOUT_MILLISECONDS: Annotated[
+                List[int],
+                "Port scanner: milliseconds to wait before timing out",
+            ] = get_config("PORT_SCANNER_TIMEOUT_MILLISECONDS", default=5_000, cast=int)
+
             PORT_SCANNER_MAX_NUM_PORTS: Annotated[
                 int,
                 "The number of open ports we consider to be too much and a false positive - if we observe more "

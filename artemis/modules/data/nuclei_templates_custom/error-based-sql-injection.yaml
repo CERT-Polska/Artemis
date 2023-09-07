@@ -1,4 +1,6 @@
-# Rejected from Nuclei: https://github.com/projectdiscovery/nuclei-templates/pull/8114
+# Not accepted for Nuclei: https://github.com/projectdiscovery/nuclei-templates/pull/8114
+# Copied and modified from (MIT-licensed)
+# https://github.com/projectdiscovery/nuclei-templates/blob/main/http/vulnerabilities/generic/error-based-sql-injection.yaml
 
 id: error-based-sql-injection
 
@@ -6,7 +8,7 @@ info:
   name: Error based SQL injection
   author: geeknik
   severity: critical
-  description: Detects potential SQL injection via error strings in 29 database engines. Inspired by https://github.com/sqlmapproject/sqlmap/blob/master/data/xml/errors.xml.
+  description: Detects potential SQL injection via error strings
   classification:
     cvss-metrics: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
     cvss-score: 9.8

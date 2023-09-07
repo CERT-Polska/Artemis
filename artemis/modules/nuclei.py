@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import subprocess
 import urllib
 from typing import Any, List
@@ -12,6 +13,7 @@ from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
+CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 
 
 class Nuclei(ArtemisBase):
@@ -55,6 +57,9 @@ class Nuclei(ArtemisBase):
                 for template in self._critical_templates + self._high_templates + self._exposed_panels_templates
                 if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
             ] + Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
+
+            for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
+                self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
     def run_multiple(self, tasks: List[Task]) -> None:
         tasks_filtered = []

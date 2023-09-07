@@ -505,6 +505,8 @@ TRANSLATIONS = {
     "Directory Traversal vulnerability in FileMage Gateway Windows Deployments v.1.10.8 and before allows a remote attacker to obtain sensitive information via a crafted request to the /mgmt/ component.": "FileMage Gateway w wersji v.1.10.8 i wcześniejszych zawiera podatność Directory Traversal umożliwiającą atakującemu pobieranie dowolnych plików z serwera.",
     "http/misconfiguration/installer/prestashop-installer.yaml": "Wykryto instalator systemu PrestaShop. Rekomendujemy, aby takie zasoby nie były dostępne publicznie, ponieważ mogą umożliwić atakującemu uzyskanie nieuprawnionego dostępu do systemu czy zmiany w jego konfiguracji.",
     "http/takeovers/vercel-takeover.yaml": "Wykryto domenę skonfigurowaną, aby serwować treści z serwisu Vercel, ale konto docelowe nie istnieje. Jeśli domena nie jest używana, rekomendujemy jej usunięcie, aby atakujący nie mógł zarejestrować domeny w serwisie Vercel i serwować swoich treści.",
+    "Microweber before 1.1.20 is susceptible to information disclosure via userfiles/modules/users/controller/controller.php. An attacker can disclose the users database via a /modules/ POST request and thus potentially access sensitive information, modify data, and/or execute unauthorized operations.": "Narzędzie Microweber w wersji poniżej 1.1.20 umożliwia atakującemu pobranie danych użytkowników, a w konsekwencji dostęp do informacji wrażliwych i potencjalnie zmianę danych i wykonanie nieuprawnionych operacji.",
+    "Amcrest IPM-721S V2.420.AC00.16.R.20160909 devices allow an unauthenticated attacker to download the administrative credentials.": "Urządzenia Amcrest IPM-721S V2.420.AC00.16.R.20160909 umożliwiają nieuwierzytelnionemu atakującemu pobranie danych dostępowych umożliwiających logowanie na konto administratora.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -617,4 +619,5 @@ TRANSLATIONS = {
     "Gryphon router panel was detected.": "wykryto panel routera Gryphon.",
     "pfSense login panel was detected.": "wykryto panel logowania pfSense.",
     "SonarQube panel was detected.": "wykryto panel SonarQube.",
+    "Wazuh - The Open Source Security Platform": "wykryto panel narzędzia Wazuh.",
 }

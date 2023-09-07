@@ -342,7 +342,7 @@ class Config:
             ] = get_config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
 
             PORT_SCANNER_TIMEOUT_MILLISECONDS: Annotated[
-                List[int],
+                int,
                 "Port scanner: milliseconds to wait before timing out",
             ] = get_config("PORT_SCANNER_TIMEOUT_MILLISECONDS", default=5_000, cast=int)
 

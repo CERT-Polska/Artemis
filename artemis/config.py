@@ -191,6 +191,11 @@ class Config:
                 "doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.",
             ] = get_config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
+            BRUTER_ADDITIONAL_PATHS: Annotated[
+                List[str],
+                "Additional paths to be checked (comma-separated)",
+            ] = get_config("BRUTER_ADDITIONAL_PATHS", default="", cast=decouple.Csv(str))
+
         class Crtsh:
             CRTSH_NUM_RETRIES: Annotated[int, "How many times should we try to obtain subdomains list."] = get_config(
                 "CRTSH_NUM_RETRIES", default=10, cast=int

@@ -17,6 +17,8 @@ class BruterTest(ArtemisModuleTestCase):
     karton_class = Bruter  # type: ignore
 
     def test_simple(self) -> None:
+        self.maxDiff = None
+
         data = [
             TestData("test-service-with-bruteable-files", TaskType.SERVICE),
         ]
@@ -35,7 +37,9 @@ class BruterTest(ArtemisModuleTestCase):
                 f"Found URLs: http://{entry.host}:80/config.dist, "
                 f"http://{entry.host}:80/localhost.sql, "
                 f"http://{entry.host}:80/sql.gz, "
-                f"http://{entry.host}:80/test "
+                f"http://{entry.host}:80/test, "
+                f"http://{entry.host}:80/test-additional-path-1, "
+                f"http://{entry.host}:80/test-additional-path-2 "
                 f"(http://{entry.host}:80/test with directory index)",
             )
 
@@ -72,6 +76,16 @@ class BruterTest(ArtemisModuleTestCase):
                             '</td><td>&nbsp;</td></tr>\n   <tr><th colspan="5"><hr></th></tr>\n</table>\n</body></html>\n'
                         ),
                         "has_directory_index": True,
+                    },
+                    {
+                        "url": "http://test-service-with-bruteable-files:80/test-additional-path-1",
+                        "content_prefix": "test\n",
+                        "has_directory_index": False,
+                    },
+                    {
+                        "url": "http://test-service-with-bruteable-files:80/test-additional-path-2",
+                        "content_prefix": "test\n",
+                        "has_directory_index": False,
                     },
                 ],
             )

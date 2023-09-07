@@ -19,7 +19,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
+    command: bash -c "python -m unittest discover test.modules -f && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
       DB_CONN_STR: ""
 
@@ -37,6 +37,8 @@ services:
       SCANNING_PACKETS_PER_SECOND: 5
       CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
       NUCLEI_CHECK_TEMPLATE_LIST: False
+
+      BRUTER_ADDITIONAL_PATHS: /test-additional-path-1,/test-additional-path-2
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.

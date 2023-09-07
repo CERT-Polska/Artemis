@@ -48,6 +48,7 @@ with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt
                 + read_paths_from_file(common_db_backups_file)
                 + read_paths_from_file(quickhits_file)
                 + read_paths_from_file(bruter_additional_paths_file)
+                + [path.lstrip("/") for path in Config.Modules.Bruter.BRUTER_ADDITIONAL_PATHS if path]
             )
 
 with open(os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")) as ignore_paths_file:

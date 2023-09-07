@@ -17,8 +17,6 @@ class BruterTest(ArtemisModuleTestCase):
     karton_class = Bruter  # type: ignore
 
     def test_simple(self) -> None:
-        self.maxDiff = None
-
         data = [
             TestData("test-service-with-bruteable-files", TaskType.SERVICE),
         ]

@@ -243,6 +243,8 @@ class Config:
                         "dns/elasticbeantalk-takeover.yaml",
                         # This one caused multiple FPs
                         "http/cves/2021/CVE-2021-43798.yaml",
+                        # A significant source of false positives
+                        "http/exposed-panels/pagespeed-global-admin.yaml",
                         # Admin panel information disclosure - not a high-severity one.
                         "http/cves/2021/CVE-2021-24917.yaml",
                         # caused multiple FPs: travis configuration file provided by a framework without much interesting information.

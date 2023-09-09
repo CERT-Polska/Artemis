@@ -35,6 +35,13 @@ class NucleiReporter(Reporter):
             if report.report_type in [NucleiReporter.NUCLEI_VULNERABILITY, NucleiReporter.NUCLEI_EXPOSED_PANEL]:
                 reports_by_target_counter[report.target] += 1
 
+            # TODO replace this with an actual paths matching as soon as we make sure what the paths are
+            if "/time-based-sql-injection.yaml" in report.additional_data["template_name"]:
+                result.append(
+                    "Potentially flaky template: {report.additional_data['template_name']} - please "
+                    "review whether it's indeed a true positive."
+                )
+
         for key, value in reports_by_target_counter.items():
             if value >= false_positive_threshold:
                 result.append(f"Found {value} Nuclei reports for {key}. Please make sure they are not false positives.")

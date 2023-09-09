@@ -39,7 +39,7 @@ class NucleiReporter(Reporter):
             # what the paths for custom templates are.
             if "/time-based-sql-injection.yaml" in report.additional_data["template_name"]:
                 result.append(
-                    "Potentially flaky template: {report.additional_data['template_name']} - please "
+                    f"Potentially flaky template: {report.additional_data['template_name']} - please "
                     "review whether it's indeed a true positive."
                 )
 

@@ -31,7 +31,7 @@ pymongo==4.5.0
 PyMySQL==1.1.0
 python-decouple==3.8
 python-multipart==0.0.6
-pytz==2023.3
+pytz==2023.3.post1
 PyYAML==6.0.1
 redis==5.0.0
 requests==2.31.0

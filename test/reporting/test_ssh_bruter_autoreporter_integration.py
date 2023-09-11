@@ -12,7 +12,6 @@ from artemis.reporting.base.reporters import reports_from_task_result
 from artemis.reporting.base.templating import build_message_template
 from artemis.reporting.export.translations import install_translations
 
-
 environment = Environment(
     loader=BaseLoader(), extensions=["jinja2.ext.i18n"], undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True
 )

@@ -1,6 +1,7 @@
 #: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:2
-msgid "The following address contains SSH server where simple login/password pair "
-"allows logging in:"
+msgid ""
+"The following address contains SSH server where simple login/password "
+"pair allows logging in:"
 msgstr ""
 
 #: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:6

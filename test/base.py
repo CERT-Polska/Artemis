@@ -1,9 +1,16 @@
 import os
 import socket
+import tempfile
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from karton.core.test import BackendMock, ConfigMock, KartonTestCase
 from redis import StrictRedis
+
+from artemis.reporting.base.language import Language
+from artemis.reporting.base.templating import build_message_template
+from artemis.reporting.export.translations import install_translations
 
 
 class KartonBackendMockWithRedis(BackendMock):
@@ -36,3 +43,19 @@ class ArtemisModuleTestCase(KartonTestCase):
 
     def tearDown(self) -> None:
         self._ip_lookup_mock.__exit__([])  # type: ignore
+
+
+class BaseReportingTest(ArtemisModuleTestCase):
+    @staticmethod
+    def generate_message_template() -> Template:
+        environment = Environment(
+            loader=BaseLoader(),
+            extensions=["jinja2.ext.i18n"],
+            undefined=StrictUndefined,
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
+        with tempfile.NamedTemporaryFile() as f:
+            install_translations(Language.en_US, environment, Path(f.name), Path("/dev/null"))
+            message_template_content = build_message_template()
+        return environment.from_string(message_template_content)

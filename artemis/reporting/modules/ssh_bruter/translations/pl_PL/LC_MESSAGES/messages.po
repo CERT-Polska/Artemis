@@ -1,10 +1,10 @@
 #: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:2
 msgid ""
-"The following address contains SSH server where simple login/password "
+"The following addresses contain SSH server where simple login/password "
 "pair allows logging in:"
 msgstr ""
-"Na następującym adresie uruchomiony jest serwer SSH przez który można się"
-" zalogować prostym hasłem:"
+"Na następującym adresie uruchomiony jest serwer SSH na który można się "
+"zalogować prostym hasłem:"
 
 #: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:6
 msgid "the following credentials allow logging in"
@@ -12,7 +12,7 @@ msgstr "Poniższe dane umożliwiają zalogowanie się"
 
 #: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:10
 msgid "username"
-msgstr "użytkownikowi"
+msgstr "nazwą użytkownika"
 
 #: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:11
 msgid "and"

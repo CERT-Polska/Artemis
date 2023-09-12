@@ -37,8 +37,8 @@ class NucleiReporter(Reporter):
 
             if "custom:time-based-sql-injection" in report.additional_data["template_name"]:
                 result.append(
-                    f"Potentially flaky template: {report.additional_data['template_name']} - please "
-                    "review whether it's indeed a true positive."
+                    f"Potentially flaky template: {report.additional_data['template_name']} in {report.target} - "
+                    "please review whether it's indeed a true positive."
                 )
 
         for key, value in reports_by_target_counter.items():

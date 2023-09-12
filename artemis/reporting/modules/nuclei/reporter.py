@@ -35,11 +35,12 @@ class NucleiReporter(Reporter):
             if report.report_type in [NucleiReporter.NUCLEI_VULNERABILITY, NucleiReporter.NUCLEI_EXPOSED_PANEL]:
                 reports_by_target_counter[report.target] += 1
 
-            if "custom:time-based-sql-injection" in report.additional_data["template_name"]:
-                result.append(
-                    f"Potentially flaky template: {report.additional_data['template_name']} in {report.target} - "
-                    "please review whether it's indeed a true positive."
-                )
+                if "custom:time-based-sql-injection" in report.additional_data["template_name"]:
+                    result.append(
+                        f"Potentially flaky template: {report.additional_data['template_name']} in {report.target} "
+                        f"(curl_command: {report.additional_data['curl_command']}) - please review whether it's indeed "
+                        "a true positive."
+                    )
 
         for key, value in reports_by_target_counter.items():
             if value >= false_positive_threshold:
@@ -60,6 +61,8 @@ class NucleiReporter(Reporter):
 
         result = []
 
+        templates_seen = set()
+
         for vulnerability in task_result["result"]:
             if not isinstance(vulnerability, dict):
                 continue
@@ -68,6 +71,12 @@ class NucleiReporter(Reporter):
                 template = vulnerability["template"]
             else:
                 template = "custom:" + vulnerability["template-id"]
+
+            # Some templates are slightly broken and are returned multiple times, let's skip subsequent ones.
+            if template in templates_seen:
+                continue
+
+            templates_seen.add(template)
 
             if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
                 continue

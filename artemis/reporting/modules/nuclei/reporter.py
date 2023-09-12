@@ -35,9 +35,7 @@ class NucleiReporter(Reporter):
             if report.report_type in [NucleiReporter.NUCLEI_VULNERABILITY, NucleiReporter.NUCLEI_EXPOSED_PANEL]:
                 reports_by_target_counter[report.target] += 1
 
-            # TODO replace this with an actual path matching as soon as we have some reports to make sure
-            # what the paths for custom templates are.
-            if "/time-based-sql-injection.yaml" in report.additional_data["template_name"]:
+            if "custom:time-based-sql-injection" in report.additional_data["template_name"]:
                 result.append(
                     f"Potentially flaky template: {report.additional_data['template_name']} - please "
                     "review whether it's indeed a true positive."
@@ -66,15 +64,20 @@ class NucleiReporter(Reporter):
             if not isinstance(vulnerability, dict):
                 continue
 
-            if vulnerability["template"] in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
+            if "template" in vulnerability:
+                template = vulnerability["template"]
+            else:
+                template = "custom:" + vulnerability["template-id"]
+
+            if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
                 continue
 
             if "description" in vulnerability["info"]:
                 description = vulnerability["info"]["description"]
             else:
-                description = "[no description] " + vulnerability["template"]
+                description = "[no description] " + template
 
-            if vulnerability["template"].startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+            if template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -83,10 +86,10 @@ class NucleiReporter(Reporter):
                         additional_data={
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
-                                vulnerability["template"], description, language
+                                template, description, language
                             ),
                             "matched_at": vulnerability["matched-at"],
-                            "template_name": vulnerability["template"],
+                            "template_name": template,
                             "curl_command": vulnerability.get("curl-command", None),
                         },
                         timestamp=task_result["created_at"],
@@ -116,11 +119,11 @@ class NucleiReporter(Reporter):
                         additional_data={
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
-                                vulnerability["template"], description, language
+                                template, description, language
                             ),
                             "reference": vulnerability["info"]["reference"],
                             "matched_at": matched_at,
-                            "template_name": vulnerability["template"],
+                            "template_name": template,
                             "curl_command": vulnerability.get("curl-command", None),
                         },
                         timestamp=task_result["created_at"],

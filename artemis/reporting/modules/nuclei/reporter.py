@@ -35,6 +35,13 @@ class NucleiReporter(Reporter):
             if report.report_type in [NucleiReporter.NUCLEI_VULNERABILITY, NucleiReporter.NUCLEI_EXPOSED_PANEL]:
                 reports_by_target_counter[report.target] += 1
 
+                if "custom:time-based-sql-injection" in report.additional_data["template_name"]:
+                    result.append(
+                        f"Potentially flaky template: {report.additional_data['template_name']} in {report.target} "
+                        f"(curl_command: {report.additional_data['curl_command']}) - please review whether it's indeed "
+                        "a true positive."
+                    )
+
         for key, value in reports_by_target_counter.items():
             if value >= false_positive_threshold:
                 result.append(f"Found {value} Nuclei reports for {key}. Please make sure they are not false positives.")
@@ -54,19 +61,32 @@ class NucleiReporter(Reporter):
 
         result = []
 
+        templates_seen = set()
+
         for vulnerability in task_result["result"]:
             if not isinstance(vulnerability, dict):
                 continue
 
-            if vulnerability["template"] in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
+            if "template" in vulnerability:
+                template = vulnerability["template"]
+            else:
+                template = "custom:" + vulnerability["template-id"]
+
+            # Some templates are slightly broken and are returned multiple times, let's skip subsequent ones.
+            if template in templates_seen:
+                continue
+
+            templates_seen.add(template)
+
+            if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
                 continue
 
             if "description" in vulnerability["info"]:
                 description = vulnerability["info"]["description"]
             else:
-                description = "[no description] " + vulnerability["template"]
+                description = "[no description] " + template
 
-            if vulnerability["template"].startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+            if template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -75,10 +95,10 @@ class NucleiReporter(Reporter):
                         additional_data={
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
-                                vulnerability["template"], description, language
+                                template, description, language
                             ),
                             "matched_at": vulnerability["matched-at"],
-                            "template_name": vulnerability["template"],
+                            "template_name": template,
                             "curl_command": vulnerability.get("curl-command", None),
                         },
                         timestamp=task_result["created_at"],
@@ -108,11 +128,11 @@ class NucleiReporter(Reporter):
                         additional_data={
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
-                                vulnerability["template"], description, language
+                                template, description, language
                             ),
                             "reference": vulnerability["info"]["reference"],
                             "matched_at": matched_at,
-                            "template_name": vulnerability["template"],
+                            "template_name": template,
                             "curl_command": vulnerability.get("curl-command", None),
                         },
                         timestamp=task_result["created_at"],

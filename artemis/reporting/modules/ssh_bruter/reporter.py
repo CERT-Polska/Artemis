@@ -8,7 +8,6 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
-from artemis.resolvers import IPResolutionException, ip_lookup
 
 
 class SSHBruterReporter(Reporter):
@@ -22,22 +21,15 @@ class SSHBruterReporter(Reporter):
         if not task_result["status"] == "INTERESTING":
             return []
 
-        if not isinstance(task_result["result"], SSHBruterResult):
-            return []
-
-        try:
-            ips = list(ip_lookup(task_result["payload"]["host"]))
-            ip_address = ips[0] if ips else None
-
-        except IPResolutionException:
-            return []
+        if isinstance(task_result["result"], dict):
+            task_result["result"] = SSHBruterResult(**task_result["result"])
 
         data = task_result["result"]
         additional_data = data.credentials
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
-                target=f"{task_result['payload']['host']} ({ip_address})",
+                target=f"ssh://{task_result['payload']['host']}/",
                 report_type=SSHBruterReporter.EXPOSED_SSH_WITH_EASY_PASSWORD,
                 additional_data={"credentials": additional_data},
                 timestamp=task_result["created_at"],

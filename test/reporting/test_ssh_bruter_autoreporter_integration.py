@@ -14,7 +14,7 @@ class SSHBruterAutoreporterIntegrationTest(BaseReportingTest):
     def test_ssh_with_easy_access(self) -> None:
         message = self._run_task_and_get_message("test-ssh-with-easy-password")
         self.assertIn(
-            "The following addresses contain SSH server where simple login/password pair allows logging in:",
+            "The following addresses contain SSH servers where simple login/password pair allows logging in:",
             message,
         )
         self.assertIn(

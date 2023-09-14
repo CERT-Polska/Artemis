@@ -59,7 +59,7 @@ PORTS = sorted(list(PORTS_SET))
 NOT_INTERESTING_PORTS = [
     # None means "any port" - (None, "http") means "http on any port"
     (None, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
-    (None, "ssh"),  # We plan to add a check: https://github.com/CERT-Polska/Artemis/issues/35
+    (None, "ssh"),  # There is a module (artemis.modules.ssh_bruter) that checks SSH
     (None, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
     (53, "dns"),  # Not worth reporting (DNS)
     # We explicitely enumerate not interesting HTTP ports so that HTTP services

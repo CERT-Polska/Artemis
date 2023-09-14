@@ -8,6 +8,7 @@ line-length = 120
 authorized_licenses = [
     "bsd",
     "apache 2.0",
+    "Apache License 2.0",
     "apache software",
     "isc",
     "isc license (iscl)",

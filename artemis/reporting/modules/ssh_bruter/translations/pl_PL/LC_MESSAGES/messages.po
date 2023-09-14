@@ -1,0 +1,27 @@
+#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:2
+msgid ""
+"The following addresses contain SSH servers where simple login/password "
+"pair allows logging in:"
+msgstr ""
+"Pod następującymi adresami uruchomione są serwery SSH do których można "
+"się zalogować prostym hasłem:"
+
+#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:6
+msgid "the following credentials allow logging in"
+msgstr "można zalogować się poniższymi danymi"
+
+#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:10
+msgid "username:"
+msgstr "nazwą użytkownika:"
+
+#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:11
+msgid "and"
+msgstr "i"
+
+#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:12
+msgid "password:"
+msgstr "hasłem:"
+
+#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:13
+msgid "empty password"
+msgstr "pustym hasłem"

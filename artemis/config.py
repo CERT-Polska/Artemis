@@ -20,7 +20,7 @@ class Config:
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
-        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=15, cast=int)
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=45, cast=int)
 
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],
@@ -52,7 +52,7 @@ class Config:
         MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH: Annotated[
             int,
             "If a high-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
-        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=14, cast=int)
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=30, cast=int)
 
     class Locking:
         LOCK_SCANNED_TARGETS: Annotated[
@@ -243,6 +243,8 @@ class Config:
                         "dns/elasticbeantalk-takeover.yaml",
                         # This one caused multiple FPs
                         "http/cves/2021/CVE-2021-43798.yaml",
+                        # A significant source of false positives
+                        "http/exposed-panels/pagespeed-global-admin.yaml",
                         # Admin panel information disclosure - not a high-severity one.
                         "http/cves/2021/CVE-2021-24917.yaml",
                         # caused multiple FPs: travis configuration file provided by a framework without much interesting information.
@@ -338,6 +340,11 @@ class Config:
                 List[int],
                 "Custom port list to scan in CSV form (replaces default list).",
             ] = get_config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
+
+            PORT_SCANNER_TIMEOUT_MILLISECONDS: Annotated[
+                int,
+                "Port scanner: milliseconds to wait before timing out",
+            ] = get_config("PORT_SCANNER_TIMEOUT_MILLISECONDS", default=5_000, cast=int)
 
             PORT_SCANNER_MAX_NUM_PORTS: Annotated[
                 int,

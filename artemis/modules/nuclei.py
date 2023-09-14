@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import subprocess
 import urllib
 from typing import Any, List
@@ -12,6 +13,7 @@ from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
+CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 
 
 class Nuclei(ArtemisBase):
@@ -56,6 +58,9 @@ class Nuclei(ArtemisBase):
                 if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
             ] + Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
 
+            for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
+                self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
+
     def run_multiple(self, tasks: List[Task]) -> None:
         tasks_filtered = []
         filtered_because_not_homepage = 0
@@ -67,6 +72,10 @@ class Nuclei(ArtemisBase):
                 self.db.save_task_result(task=task, status=TaskStatus.OK, status_reason=None, data={})
             else:
                 tasks_filtered.append(task)
+
+        if len(tasks_filtered) == 0:
+            self.log.info("No tasks after filtering non-homepage URLs. Nothing to do.")
+            return
 
         self.log.info(
             f"running {len(self._templates)} templates on {len(tasks_filtered)} hosts "

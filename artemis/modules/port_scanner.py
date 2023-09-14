@@ -110,6 +110,8 @@ class PortScanner(ArtemisBase):
                 "-port",
                 ",".join(map(str, PORTS)),
                 "-silent",
+                "-timeout",
+                str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
                 "-rate",
                 str(Config.Limits.SCANNING_PACKETS_PER_SECOND),
             ),

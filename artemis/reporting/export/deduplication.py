@@ -77,6 +77,13 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
     filtered_reports: List[Report] = []
 
     def _process_ip_report(processed_report: Report) -> None:
+        # This block needs to be first. If we have both an IP and non-ip report, let's skip the IP report, because
+        # the second if block would emit a subsequent reminder for the IP report instead of skipping them (and thus
+        # we would have two subsequent reminders).
+        if processed_report.get_normal_form() in reports_normalized.by_alternative_ip_normal_forms:
+            # This is an IP report, but we have a non-ip version to send
+            return
+
         if processed_report.get_normal_form() in previous_reports_normalized.by_alternative_ip_normal_forms:
             # This is an ip-converted version of an existing report
             if _all_reports_are_old(
@@ -85,9 +92,6 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
                 filtered_reports.append(_build_subsequent_reminder(processed_report))
             return
 
-        if processed_report.get_normal_form() in reports_normalized.by_alternative_ip_normal_forms:
-            # This is an IP report, but we have a non-ip version to send
-            return
         filtered_reports.append(processed_report)
 
     def _process_non_ip_report(processed_report: Report) -> None:

@@ -13,22 +13,13 @@ msgid "username:"
 msgstr ""
 
 #: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:11
-msgid "and "
+msgid "and"
 msgstr ""
 
-#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:13
+#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:12
 msgid "password:"
 msgstr ""
 
-#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:15
+#: artemis/reporting/modules/ssh_bruter/template_exposed_ssh_with_easy_password.jinja2:13
 msgid "empty password"
 msgstr ""
-
-#~ msgid "username"
-#~ msgstr ""
-
-#~ msgid "and"
-#~ msgstr ""
-
-#~ msgid "password"
-#~ msgstr ""

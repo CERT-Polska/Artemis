@@ -143,9 +143,9 @@ class Config:
         ] = get_config("CUSTOM_USER_AGENT", default="")
 
         DOMAINS_TO_SKIP_SUBDOMAIN_ENUMERATION: Annotated[
-                List[str],
-                "Domains where subdomain enumeration shouldn't happen (e.g. ones that have a large number of subdomains)",
-            ] = get_config("DOMAINS_TO_SKIP_SUBDOMAIN_ENUMERATION", default="", cast=decouple.Csv(str, delimiter=","))
+            List[str],
+            "Domains where subdomain enumeration shouldn't happen (e.g. ones that have a large number of subdomains)",
+        ] = get_config("DOMAINS_TO_SKIP_SUBDOMAIN_ENUMERATION", default="", cast=decouple.Csv(str, delimiter=","))
 
         VERIFY_REVDNS_IN_SCOPE: Annotated[
             bool,

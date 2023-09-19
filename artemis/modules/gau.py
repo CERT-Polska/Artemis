@@ -27,6 +27,10 @@ class GAU(ArtemisBase):
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
 
+        for skipped_domain in Config.Miscellaneous.DOMAINS_TO_SKIP_SUBDOMAIN_ENUMERATION:
+            if is_subdomain(domain, skipped_domain):
+                return
+
         if self.redis.get(f"gau-done-{domain}"):
             self.log.info(
                 "Gau has already returned %s - and as it's a recursive query, no further query will be performed.",

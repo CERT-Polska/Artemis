@@ -138,6 +138,9 @@ TRANSLATIONS = {
     + DEFAULT_CREDENTIALS_HINT,
     "An easily exploitable local file inclusion vulnerability allows unauthenticated attackers with network access via HTTP to compromise Oracle WebLogic Server. Supported versions that are affected are 12.1.3.0.0, 12.2.1.3.0, 12.2.1.4.0 and 14.1.1.0.0. Successful attacks of this vulnerability can result in unauthorized and sometimes complete access to critical data.": "Serwer OracleWebLogic w wersjach 12.1.3.0.0, 12.2.1.3.0, 12.2.1.4.0 i 14.1.1.0.0 zawiera podatność Local File Inclusion która umożliwia nieuprawniony dostęp do danych."
     + UPDATE_HINT,
+    "The Oracle Access Manager  portion of Oracle Fusion Middleware (component: OpenSSO Agent) is vulnerable to remote code execution. Supported versions that are affected are 11.1.2.3.0, 12.2.1.3.0 and 12.2.1.4.0. This is an easily exploitable vulnerability that allows unauthenticated attackers with network access via HTTP to compromise Oracle Access Manager.": "Podatność w komponencie OpenSSO Agent narzędzia Oracle Fusion Middleware w wersjach 11.1.2.3.0, 12.2.1.3.0 i 12.2.1.4.0 umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Fifteen WordPress themes are susceptible to code injection using a version of epsilon-framework, due to lack of capability and CSRF nonce checks in AJAX actions.": "Wykryto szablon WordPress umożliwiający zdalne wykonanie kodu ze względu na podatność w narzędziu epsilon-framework."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -636,4 +639,8 @@ TRANSLATIONS = {
     "Wazuh - The Open Source Security Platform": "wykryto panel narzędzia Wazuh.",
     "JBoss JMX Management Console login panel was detected.": "wykryto panel logowania JBoss JMX Management Console",
     "Fiori Launchpad login panel was detected.": "wykryto panel logowania Fiori Launchpad.",
+    "Palo Alto Networks GlobalProtect login panel was detected.": "wykryto panel logowania Palo Alto Networks GlobalProtect.",
+    "Cisco Secure Desktop installation panel was detected.": "wykryto panel instalacyjny Cisco Secure Desktop.",
+    "Openfire Admin Console login panel was detected.": "wykryto panel logowania konsoli administracyjnej Openfire.",
+    "MinIO Browser login panel was detected.": "wykryto panel logowania MinIO Browser.",
 }

@@ -164,6 +164,12 @@ class Config:
             """,
         ] = get_config("VERIFY_REVDNS_IN_SCOPE", default=True, cast=bool)
 
+        NUM_DNS_RESOLVER_RETRIES: Annotated[
+            int,
+            "Number of times a DNS query will be retried if failed. This helps reduce the number of e.g. mail-related "
+            'false positives, where a failed DNS query may result with a "no DMARC" message.',
+        ] = get_config("NUM_DNS_RESOLVER_RETRIES", default=3, cast=int)
+
         MAX_NUM_TASKS_TO_PROCESS: Annotated[
             int,
             "After this number of tasks processed, each scanning module will get restarted. This is to prevent situations "

@@ -19,8 +19,11 @@ from artemis.db import DB
 from artemis.redis_cache import RedisCache
 from artemis.resolvers import ip_lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
+from artemis.retrying_resolver import setup_retrying_resolver
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
+
+setup_retrying_resolver()
 
 
 class UnknownIPException(Exception):

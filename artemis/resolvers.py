@@ -3,10 +3,16 @@ from typing import Any, Dict, List, Set
 
 import requests
 
+from artemis.retrying_resolver import retry
+
 DOH_SERVER = "https://cloudflare-dns.com/dns-query"
 
 
 class IPResolutionException(Exception):
+    pass
+
+
+class NoAnswer(Exception):
     pass
 
 
@@ -38,13 +44,7 @@ def _ips_from_answer(domain: str, answer: List[Dict[str, Any]]) -> Set[str]:
     return found_ips
 
 
-@functools.lru_cache(maxsize=8192)
-def ip_lookup(domain: str) -> Set[str]:
-    """
-    :return List of IP addresses
-
-    :raise IPResolutionException if something fails
-    """
+def _single_resolution_attempt(domain: str) -> Set[str]:
     response = requests.get(
         f"{DOH_SERVER}?name={domain.encode('idna').decode('ascii')}&type=A", headers={"accept": "application/dns-json"}
     )
@@ -57,8 +57,21 @@ def ip_lookup(domain: str) -> Set[str]:
         if "Answer" in result:
             return _ips_from_answer(domain, result["Answer"])
         else:
-            return set()
+            raise NoAnswer()
     elif dns_rc == 3:  # NXDomain
         return set()
     else:
         raise IPResolutionException(f"Unexpected DNS status ({dns_rc})")
+
+
+@functools.lru_cache(maxsize=8192)
+def ip_lookup(domain: str) -> Set[str]:
+    """
+    :return List of IP addresses
+
+    :raise IPResolutionException if something fails
+    """
+    try:
+        return retry(_single_resolution_attempt, (domain,), {})  # type: ignore
+    except NoAnswer:
+        return set()

@@ -23,7 +23,9 @@ class WrappedResolver(dns.resolver.Resolver):
 
         self.logger.info(
             "%s DNS query: %s, %s",
-            "flaky" if num_exceptions > 0 and num_exceptions < Config.Miscellaneous.NUM_DNS_RESOLVER_RETRIES else "non-flaky",
+            "flaky"
+            if num_exceptions > 0 and num_exceptions < Config.Miscellaneous.NUM_DNS_RESOLVER_RETRIES
+            else "non-flaky",
             args,
             kwargs,
         )

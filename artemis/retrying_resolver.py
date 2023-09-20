@@ -1,6 +1,6 @@
 import dns.resolver
 
-from .logging import build_logger
+from artemis.utils import build_logger
 
 
 class WrappedResolver(dns.resolver.Resolver):
@@ -23,9 +23,7 @@ class WrappedResolver(dns.resolver.Resolver):
 
         self.logger.info(
             "%s DNS query: %s, %s",
-            "flaky"
-            if num_exceptions > 0 and num_exceptions < self.num_retries
-            else "non-flaky",
+            "flaky" if num_exceptions > 0 and num_exceptions < self.num_retries else "non-flaky",
             args,
             kwargs,
         )

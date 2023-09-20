@@ -25,10 +25,6 @@ class GAU(ArtemisBase):
     lock_target = False
 
     def run(self, current_task: Task) -> None:
-        if current_task.payload_persistent.get("tag", None) == "mi":
-            self.log.info("skipping mi")
-            return
-
         domain = current_task.get_payload("domain")
 
         for skipped_domain in Config.Miscellaneous.DOMAINS_TO_SKIP_SUBDOMAIN_ENUMERATION:

@@ -1,18 +1,18 @@
 import dns.resolver
 
+from artemis.config import Config
 from artemis.utils import build_logger
 
 
 class WrappedResolver(dns.resolver.Resolver):
     logger = build_logger(__name__)
-    num_retries = 3
 
     def resolve(self, *args, **kwargs):  # type: ignore
         result = None
         last_exception = None
         num_exceptions = 0
 
-        for _ in range(self.num_retries):
+        for _ in range(Config.Miscellaneous.NUM_DNS_RESOLVER_RETRIES):
             try:
                 result = super().resolve(*args, **kwargs)
                 break
@@ -23,7 +23,7 @@ class WrappedResolver(dns.resolver.Resolver):
 
         self.logger.info(
             "%s DNS query: %s, %s",
-            "flaky" if num_exceptions > 0 and num_exceptions < self.num_retries else "non-flaky",
+            "flaky" if num_exceptions > 0 and num_exceptions < Config.Miscellaneous.NUM_DNS_RESOLVER_RETRIES else "non-flaky",
             args,
             kwargs,
         )

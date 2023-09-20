@@ -26,14 +26,14 @@ def retry(function: Callable[..., Any], function_args: Tuple[Any, ...], function
             logger.exception("problem when resolving %s, %s", function_args, function_kwargs)
             last_exception = e
 
-    logger.info(
-        "%s DNS query: %s, %s",
-        "flaky"
-        if num_exceptions > 0 and num_exceptions < Config.Miscellaneous.NUM_DNS_RESOLVER_RETRIES
-        else "non-flaky",
-        function_args,
-        function_kwargs,
-    )
+    flaky = num_exceptions > 0 and num_exceptions < Config.Miscellaneous.NUM_DNS_RESOLVER_RETRIES
+
+    if flaky:
+        logger.info(
+            "flaky DNS query: %s, %s",
+            function_args,
+            function_kwargs,
+        )
 
     if last_exception and not result:
         raise last_exception

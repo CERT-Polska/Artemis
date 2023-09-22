@@ -335,6 +335,16 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
 
+  karton-domain_expiration_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.domain_expiration_scanner"
+    depends_on: [ karton-logger ]
+    env_file: .env
+    restart: always
+    volumes: [ "./docker/karton.ini:/etc/karton/karton.ini" ]
+
 volumes:
   data-mongodb:
   data-redis:

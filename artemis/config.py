@@ -404,6 +404,11 @@ class Config:
                 "www123, when testing www.projectname.example.com.",
             ] = get_config("WORDPRESS_BRUTER_STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str))
 
+        class DomainExpirationScanner:
+            DOMAIN_EXPIRATION_ALERT_IN_DAYS: Annotated[
+                int, "The scanner warns if the domain's expiration date falls within this time frame from now."
+            ] = get_config("DOMAIN_EXPIRATION_ALERT_IN_DAYS", default=5, cast=int)
+
     @staticmethod
     def verify_each_variable_is_annotated() -> None:
         def verify_class(cls: type) -> None:

@@ -20,7 +20,7 @@ class Config:
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
-        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=45, cast=int)
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=50, cast=int)
 
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],

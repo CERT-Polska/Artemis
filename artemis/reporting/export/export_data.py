@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
+from artemis.reporting.base.reporters import get_all_reporters
 from artemis.reporting.export.db import DataLoader
 from artemis.reporting.export.deduplication import deduplicate_reports
 from artemis.utils import is_ip_address
@@ -27,6 +28,7 @@ class ExportData:
     scanned_top_level_targets: List[str]
     scanned_targets: List[str]
     messages: Dict[str, SingleTopLevelTargetExportData]
+    alerts: List[str]
 
 
 def build_export_data(
@@ -43,6 +45,10 @@ def build_export_data(
         if report.top_level_target not in reports_per_top_level_target:
             reports_per_top_level_target[report.top_level_target] = []
         reports_per_top_level_target[report.top_level_target].append(report)
+
+    alerts = []
+    for reporter in get_all_reporters():
+        alerts.extend(reporter.get_alerts(reports))
 
     message_data: Dict[str, SingleTopLevelTargetExportData] = {}
 
@@ -69,4 +75,5 @@ def build_export_data(
         scanned_top_level_targets=list(db.scanned_top_level_targets),
         scanned_targets=list(db.scanned_targets),
         messages=message_data,
+        alerts=alerts,
     )

@@ -40,6 +40,7 @@ SEVERITY_MAP = {
     ReportType("directory_index"): Severity.MEDIUM,
     ReportType("open_port_remote_desktop"): Severity.MEDIUM,
     ReportType("exposed_bash_history"): Severity.MEDIUM,
+    ReportType("close_domain_expiry_date"): Severity.MEDIUM,
     ReportType("certificate_authority_invalid"): Severity.LOW,
     ReportType("expired_ssl_certificate"): Severity.LOW,
     ReportType("almost_expired_ssl_certificate"): Severity.LOW,

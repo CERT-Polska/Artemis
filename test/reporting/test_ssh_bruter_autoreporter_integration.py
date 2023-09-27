@@ -22,7 +22,7 @@ class SSHBruterAutoreporterIntegrationTest(BaseReportingTest):
             "the following credentials allow logging in",
             message,
         )
-        self.assertIn("test-ssh-with-easy-password", message)
+        self.assertIn(f"ssh://{socket.gethostbyname('test-ssh-with-easy-password')}", message)
 
     def _run_task_and_get_message(self, host: str) -> str:
         task = Task(

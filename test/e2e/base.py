@@ -58,7 +58,7 @@ class BaseE2ETestCase(TestCase):
         messages = []
         for task_result in task_results:
             task_result = TaskListRow(*task_result)
-            if tag == task_result.tag:
+            if task_result.tag == tag and task_result.message:
                 messages.append(task_result.message)
         return messages
 

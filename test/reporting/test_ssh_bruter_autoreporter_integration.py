@@ -1,3 +1,4 @@
+import socket
 from test.base import BaseReportingTest
 
 from karton.core import Task
@@ -12,7 +13,7 @@ class SSHBruterAutoreporterIntegrationTest(BaseReportingTest):
     karton_class = SSHBruter  # type: ignore
 
     def test_ssh_with_easy_access(self) -> None:
-        message = self._run_task_and_get_message("test-ssh-with-easy-password")
+        message = self._run_task_and_get_message(socket.gethostbyname("test-ssh-with-easy-password"))
         self.assertIn(
             "The following addresses contain SSH servers where simple login/password pair allows logging in:",
             message,

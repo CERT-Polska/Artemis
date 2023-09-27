@@ -105,7 +105,10 @@ class ArtemisBase(Karton):
             new_task.payload["last_domain"] = current_task.payload["last_domain"]
 
         if self.db.save_scheduled_task(new_task):
+            self.log.info("%s (%s) is a new task, adding", new_task, new_task.payload)
             self.send_task(new_task)
+        else:
+            self.log.info("%s (%s) is already scheduled, not adding", new_task, new_task.payload)
 
     def loop(self) -> None:
         """

@@ -82,7 +82,7 @@ class MailDNSScannerReporter(Reporter):
 
         reports_by_top_level_target_counter: CounterType[str] = Counter()
         for report in all_reports:
-            if report.report_type in [MailDNSScannerReporter.MISCONFIGURED_EMAIL]:
+            if report.report_type == MailDNSScannerReporter.MISCONFIGURED_EMAIL:
                 reports_by_top_level_target_counter[report.top_level_target] += 1
 
         for key, value in reports_by_top_level_target_counter.items():

@@ -1,5 +1,13 @@
 {% extends "components/base.jinja2" %}
 {% block main %}
+    <script>
+        function setSelectionForAllModules(value) {
+            document.querySelectorAll(".enabled-modules input[type='checkbox']").forEach(
+                item => item.checked = value
+            );
+        }
+    </script>
+
     <h1>Add targets</h1>
     <form action="/add" method="post" class="w-100">
         <div class="form-group mb-3">
@@ -20,5 +28,40 @@
             </small>
         </div>
         <input type="submit" class="btn btn-primary" value="Start scan">
+
+        <h2 class="mt-4">Advanced settings</h2>
+        <div class="form-group mb-3 enabled-modules">
+            <label class="form-label">Enabled modules</label>
+            (<a href="" onclick="setSelectionForAllModules(true); return false;">select all</a>
+            <a href="" onclick="setSelectionForAllModules(false); return false;">unselect all</a>)
+
+            <input type="hidden" name="choose_modules_to_enable" value="1">
+
+            <div class="row m-0">
+                {% for bind in binds %}
+                    <div class="form-check col-md-4">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox" value="" name="module_enabled_{{ bind.identity }}" checked>
+                            {{ bind.identity }}<br/>
+                            <span class="small text-muted">{{ bind.info|dedent|render_markdown|safe }}</span>
+                        </label>
+                    </div>
+
+                    {% if loop.index % 3 == 0 %}
+                        </div><div class="row m-0">
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <p class="text-muted">
+                If you want to use any module that works with identified services on a given port (not with domains) such as
+                <tt>bruter</tt>, remember to enable the <tt>port_scanner</tt> module as well.
+            </p>
+
+            <p class="text-muted pb-4">
+                Even if the modules above are disabled, Artemis internal logic or core modules (that are always enabled) may
+                perform domain queries or HTTP requests.
+            </p>
+        </div>
     </form>
 {% endblock %}

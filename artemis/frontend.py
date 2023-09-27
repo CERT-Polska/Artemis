@@ -17,6 +17,8 @@ from artemis.templating import templates
 router = APIRouter()
 db = DB()
 
+MODULES_THAT_CANNOT_BE_EXCLUDED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
+
 
 @router.get("/", include_in_schema=False)
 def get_root(request: Request) -> Response:
@@ -35,21 +37,45 @@ def get_root(request: Request) -> Response:
 
 @router.get("/add", include_in_schema=False)
 def get_add_form(request: Request) -> Response:
-    return templates.TemplateResponse("add.jinja2", {"request": request})
+    backend = KartonBackend(config=KartonConfig())
+
+    binds = []
+    for bind in sorted(backend.get_binds(), key=lambda bind: bind.identity.lower()):
+        if bind.identity in MODULES_THAT_CANNOT_BE_EXCLUDED:
+            # Not allowing to disable as it's a core module
+            continue
+
+        binds.append(bind)
+
+    return templates.TemplateResponse("add.jinja2", {"request": request, "binds": binds})
 
 
 @router.post("/add", include_in_schema=False)
-def post_add(
+async def post_add(
+    request: Request,
     targets: Optional[str] = Form(None),
     file: Optional[bytes] = File(None),
     tag: Optional[str] = Form(None),
+    choose_modules_to_enable: Optional[bool] = Form(None),
 ) -> Response:
+    backend = KartonBackend(config=KartonConfig())
+    disabled_modules = []
+
+    if choose_modules_to_enable:
+        async with request.form() as form:
+            for bind in sorted(backend.get_binds(), key=lambda bind: bind.identity.lower()):
+                if bind.identity in MODULES_THAT_CANNOT_BE_EXCLUDED:
+                    # Not allowing to disable as it's a core module
+                    continue
+                if f"module_enabled_{bind.identity}" not in form:
+                    disabled_modules.append(bind.identity)
+
     total_list: List[str] = []
     if targets:
         total_list += (x.strip() for x in targets.split())
     if file:
         total_list += (x.strip() for x in file.decode().split())
-    create_tasks(total_list, tag)
+    create_tasks(total_list, tag, disabled_modules)
     return RedirectResponse("/", status_code=301)
 
 

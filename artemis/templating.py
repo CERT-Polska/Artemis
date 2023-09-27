@@ -1,7 +1,9 @@
 import html
+import textwrap
 from os import path
 from typing import Any, Dict, List
 
+import markdown
 from fastapi.templating import Jinja2Templates
 
 TEMPLATES_DIR = path.join(path.dirname(__file__), "..", "templates")
@@ -12,6 +14,18 @@ TEMPLATE_TASK_TABLE_ROW_BADGES = templates.get_template("table_row/task/badges.j
 
 TEMPLATE_ANALYSIS_TABLE_ROW_PENDING_TASKS = templates.get_template("table_row/analysis/pending_tasks.jinja2")
 TEMPLATE_ANALYSIS_TABLE_ROW_RESULTS_LINK = templates.get_template("table_row/analysis/results_link.jinja2")
+
+
+def dedent(text: str) -> str:
+    return textwrap.dedent(text)
+
+
+def render_markdown(markdown_text: str) -> str:
+    return markdown.markdown(markdown_text)
+
+
+templates.env.filters["dedent"] = dedent
+templates.env.filters["render_markdown"] = render_markdown
 
 
 def render_task_table_row(task: Dict[str, Any]) -> List[str]:

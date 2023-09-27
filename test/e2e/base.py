@@ -27,7 +27,7 @@ class BaseE2ETestCase(TestCase):
     def submit_tasks(self, tasks: List[str], tag: str) -> None:
         requests.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks), "tag": tag})
 
-    def submit_tasks_with_modules_enabled(self, tasks: List[str], modules_enabled: List[str], tag: str) -> None:
+    def submit_tasks_with_modules_enabled(self, tasks: List[str], tag: str, modules_enabled: List[str]) -> None:
         requests.post(
             BACKEND_URL + "add",
             data={

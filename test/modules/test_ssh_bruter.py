@@ -1,17 +1,17 @@
+import socket
 from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.modules.ssh_bruter import SSHBruter
-from artemis.resolvers import ip_lookup
 
 
 class TestSSHBruter(ArtemisModuleTestCase):
     karton_class = SSHBruter  # type: ignore
 
     def test_simple(self) -> None:
-        (ip,) = ip_lookup("test-ssh-with-easy-password")
+        ip = socket.gethostbyname("test-ssh-with-easy-password")
 
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.SSH},

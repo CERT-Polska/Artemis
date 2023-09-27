@@ -1,6 +1,8 @@
 import os
-from collections import namedtuple
-from typing import Any, Callable, Dict, List
+from collections import Counter, namedtuple
+from typing import Any, Callable
+from typing import Counter as CounterType
+from typing import Dict, List
 
 from artemis.domains import is_subdomain
 from artemis.mail_check.translate import Language as MailCheckLanguageClass
@@ -72,6 +74,22 @@ class MailDNSScannerReporter(Reporter):
                     timestamp=task_result["created_at"],
                 )
             )
+        return result
+
+    @staticmethod
+    def get_alerts(all_reports: List[Report], reports_for_top_level_target_threshold: int = 8) -> List[str]:
+        result = []
+
+        reports_by_top_level_target_counter: CounterType[str] = Counter()
+        for report in all_reports:
+            if report.report_type in [MailDNSScannerReporter.MISCONFIGURED_EMAIL]:
+                reports_by_top_level_target_counter[report.top_level_target] += 1
+
+        for key, value in reports_by_top_level_target_counter.items():
+            if value >= reports_for_top_level_target_threshold:
+                result.append(
+                    f"Found {value} mail_dns_scanner reports for {key}. Please make sure they are not duplicates caused by domain configuration."
+                )
         return result
 
     @staticmethod

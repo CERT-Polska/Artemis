@@ -18,10 +18,10 @@ def get_all_hooks() -> List[Type[ExportHook]]:
         if item.endswith(".py") and item != "__init__.py":
             module_name = item.removesuffix(".py")
             __import__(f"artemis.reporting.export.hook_modules.{module_name}")
-    return sorted(ExportHook.__subclasses__(), key=lambda cls: cls.get_priority())
+    return sorted(ExportHook.__subclasses__(), key=lambda cls: cls.get_ordering())
 
 
 def run_export_hooks(output_dir: Path, export_data: ExportData) -> None:
     for hook in get_all_hooks():
-        logger.info("Running hook: %s (priority=%s)", hook.__name__, hook.get_priority)
+        logger.info("Running hook: %s (ordering=%s)", hook.__name__, hook.get_ordering())
         hook.run(output_dir, export_data)

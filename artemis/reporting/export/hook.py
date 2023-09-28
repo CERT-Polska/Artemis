@@ -7,7 +7,8 @@ from artemis.reporting.export.export_data import ExportData
 class ExportHook(ABC):
     @staticmethod
     @abstractmethod
-    def get_priority() -> int:
+    def get_ordering() -> int:
+        """The lower the order, the earlier it will run if multiple hooks are present."""
         raise NotImplementedError()
 
     @staticmethod

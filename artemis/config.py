@@ -347,6 +347,21 @@ class Config:
                 cast=decouple.Csv(str),
             )
 
+            NUCLEI_SUSPICIOUS_TEMPLATES: Annotated[
+                List[str],
+                "A comma-separated list of Nuclei templates to be reviewed manually if found as they "
+                "are known to return false positives.",
+            ] = get_config(
+                "NUCLEI_SUSPICIOUS_TEMPLATES",
+                default=",".join(
+                    [
+                        "custom:time-based-sql-injection",
+                        "http/misconfiguration/google/insecure-firebase-database.yaml",
+                    ]
+                ),
+                cast=decouple.Csv(str),
+            )
+
         class PortScanner:
             CUSTOM_PORT_SCANNER_PORTS: Annotated[
                 List[int],

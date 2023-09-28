@@ -20,6 +20,20 @@ db = DB()
 MODULES_THAT_CANNOT_BE_EXCLUDED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
 
 
+def get_binds_that_can_be_disabled() -> List[KartonBind]:
+    backend = KartonBackend(config=KartonConfig())
+
+    binds = []
+    for bind in backend.get_binds():
+        if bind.identity in MODULES_THAT_CANNOT_BE_EXCLUDED:
+            # Not allowing to disable as it's a core module
+            continue
+
+        binds.append(bind)
+
+    return binds
+
+
 @router.get("/", include_in_schema=False)
 def get_root(request: Request) -> Response:
     karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
@@ -37,15 +51,7 @@ def get_root(request: Request) -> Response:
 
 @router.get("/add", include_in_schema=False)
 def get_add_form(request: Request) -> Response:
-    backend = KartonBackend(config=KartonConfig())
-
-    binds = []
-    for bind in sorted(backend.get_binds(), key=lambda bind: bind.identity.lower()):
-        if bind.identity in MODULES_THAT_CANNOT_BE_EXCLUDED:
-            # Not allowing to disable as it's a core module
-            continue
-
-        binds.append(bind)
+    binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
 
     return templates.TemplateResponse("add.jinja2", {"request": request, "binds": binds})
 
@@ -63,10 +69,7 @@ async def post_add(
 
     if choose_modules_to_enable:
         async with request.form() as form:
-            for bind in sorted(backend.get_binds(), key=lambda bind: bind.identity.lower()):
-                if bind.identity in MODULES_THAT_CANNOT_BE_EXCLUDED:
-                    # Not allowing to disable as it's a core module
-                    continue
+            for bind in get_binds_that_can_be_disabled():
                 if f"module_enabled_{bind.identity}" not in form:
                     disabled_modules.append(bind.identity)
 

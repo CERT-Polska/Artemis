@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
-from karton.core.backend import KartonBackend
+from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
@@ -64,7 +64,6 @@ async def post_add(
     tag: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
 ) -> Response:
-    backend = KartonBackend(config=KartonConfig())
     disabled_modules = []
 
     if choose_modules_to_enable:

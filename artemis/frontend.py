@@ -17,7 +17,7 @@ from artemis.templating import templates
 router = APIRouter()
 db = DB()
 
-MODULES_THAT_CANNOT_BE_EXCLUDED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
+BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
 
 
 def get_binds_that_can_be_disabled() -> List[KartonBind]:
@@ -25,7 +25,7 @@ def get_binds_that_can_be_disabled() -> List[KartonBind]:
 
     binds = []
     for bind in backend.get_binds():
-        if bind.identity in MODULES_THAT_CANNOT_BE_EXCLUDED:
+        if bind.identity in BINDS_THAT_CANNOT_BE_DISABLED:
             # Not allowing to disable as it's a core module
             continue
 

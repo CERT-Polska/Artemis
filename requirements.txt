@@ -35,7 +35,7 @@ python-decouple==3.8
 python-multipart==0.0.6
 pytz==2023.3.post1
 PyYAML==6.0.1
-redis==5.0.0
+redis==5.0.1
 requests==2.31.0
 requests-mock==1.11.0
 semver==3.0.1

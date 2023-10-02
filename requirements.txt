@@ -26,7 +26,7 @@ MarkupSafe==2.1.3
 minio==7.1.17
 paramiko==3.3.1
 prometheus-client==0.17.1
-psycopg2-binary==2.9.7
+psycopg2-binary==2.9.8
 publicsuffixlist==0.10.0.20230920
 pydantic==2.3.0
 pymongo==4.5.0

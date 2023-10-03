@@ -656,4 +656,7 @@ TRANSLATIONS = {
     "Graphite Browser login panel was detected.": "wykryto panel logowania Graphite Browser.",
     "Lancom router login panel was detected.": "wykryto panel logowania routera Lancom.",
     "Bookstack login panel was detected.": "wykryto panel logowania Bookstack.",
+    "LDAP Account Manager login panel was detected.": "wykryto panel logowania LDAP Account Manager.",
+    "IBM WebSphere Application Server Community Edition admin login panel was detected.": "wykryto panel logowania IBM WebSphere Application Server Community Edition.",
+    "Odoo OpenERP database selector panel was detected.": "wykryto panel wyboru bazy danych narzędzia Odoo OpenERP.",
 }

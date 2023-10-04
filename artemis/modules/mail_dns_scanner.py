@@ -103,7 +103,7 @@ class MailDNSScanner(ArtemisBase):
         # We recommend to enable SPF and DMARC even on domains that aren't used to
         # send e-mails.
         if (
-            and PUBLIC_SUFFIX_LIST.privatesuffix(domain)
+            PUBLIC_SUFFIX_LIST.privatesuffix(domain)
             and not PUBLIC_SUFFIX_LIST.privatesuffix(domain) == domain
             and result.spf_dmarc_scan_result
             and result.spf_dmarc_scan_result.spf

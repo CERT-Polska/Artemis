@@ -1,10 +1,10 @@
 {% if "close_domain_expiration_date" in data.contains_type %}
-    <li>{% trans %}The following addresses will soon expire: {% endtrans %}
+    <li>{% trans %}The following domains will soon expire: {% endtrans %}
         <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "close_domain_expiration_date" %}
                     <li>
-                        <p> {{ report.target }} - {{ report.additional_data }} {% trans %}days{% endtrans %}</p>
+                        <p> {{ report.target }} - {% trans %} will expire on {% endtrans %}{{ report.additional_data["exp_date"] }} </p>
                     </li>
                 {% endif %}
             {% endfor %}

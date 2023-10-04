@@ -14,7 +14,7 @@ class DomainExpirationScannerAutoreporterIntegrationTest(BaseReportingTest):
 
     def test_domain_expiration(self) -> None:
         message = self._run_task_and_get_message("google.com")
-        self.assertIn("The following addresses will soon expire:", message)
+        self.assertIn("The following domains will soon expire:", message)
         self.assertIn("google.com", message)
 
     def _run_task_and_get_message(self, domain: str) -> str:
@@ -23,7 +23,7 @@ class DomainExpirationScannerAutoreporterIntegrationTest(BaseReportingTest):
             payload={TaskType.DOMAIN: domain},
         )
         with patch("artemis.config.Config.Modules.DomainExpirationScanner") as mocked_config:
-            mocked_config.DOMAIN_EXPIRATION_ALERT_IN_DAYS = 5000
+            mocked_config.DOMAIN_EXPIRATION_TIMEFRAME_DAYS = 5000
             self.run_task(task)
             (call,) = self.mock_db.save_task_result.call_args_list
             data = {

@@ -18,11 +18,11 @@ class TestDomainExpirationScanner(ArtemisModuleTestCase):
         )
 
         with patch("artemis.config.Config.Modules.DomainExpirationScanner") as mocked_config:
-            mocked_config.DOMAIN_EXPIRATION_ALERT_IN_DAYS = 5000
+            mocked_config.DOMAIN_EXPIRATION_TIMEFRAME_DAYS = 5000
             self.run_task(task)
 
             (call,) = self.mock_db.save_task_result.call_args_list
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             reason = call.kwargs["status_reason"]
             self.assertTrue(reason.startswith("Scanned domain will expire in"))
-            self.assertTrue(isinstance(call.kwargs["data"]["expiry_date"], datetime.datetime))
+            self.assertTrue(isinstance(call.kwargs["data"]["expiration_date"], datetime.datetime))

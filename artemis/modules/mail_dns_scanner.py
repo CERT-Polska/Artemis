@@ -97,22 +97,11 @@ class MailDNSScanner(ArtemisBase):
         except ScanningException:
             self.log.exception("Unable to check domain %s", domain)
 
-        # For Artemis we have a slightly relaxed requirement than mail_check - if a domain is not used for
-        # sending e-mail, we don't require SPF (but require DMARC). Mail_check can't be modified as it's
-        # used by CERT internal tools as well.
-        #
-        # We won't report lack of SPF record, but we should report if it's invalid.
-        if (
-            result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.spf
-            and result.spf_dmarc_scan_result.spf.record_not_found
-            and not has_mx_records
-        ):
-            result.spf_dmarc_scan_result.spf.valid = True
-
-        # To decrease the number of false positives, for domains that do have MX records, we require SPF records to
-        # be present only if the domain is directly below a public suffix (so we will require SPF on example.com
-        # but not on www.example.com).
+        # To decrease the number of false positives, we require SPF records to be present only if the domain is directly
+        # below a public suffix (so we will require SPF on example.com but not on www.example.com), regardless of whether
+        # the domain has MX records.
+        # We recommend to enable SPF and DMARC even on domains that aren't used to
+        # send e-mails.
         if (
             has_mx_records
             and PUBLIC_SUFFIX_LIST.privatesuffix(domain)

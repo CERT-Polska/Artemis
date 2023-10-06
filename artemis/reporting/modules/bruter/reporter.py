@@ -9,7 +9,6 @@ from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.modules.bruter.classifier import (
     contains_crypto_keys,
-    is_apache_info_status,
     is_configuration_file,
     is_dead_letter,
     is_exposed_archive,

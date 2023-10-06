@@ -18,64 +18,6 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
 
-def fix_error(error):
-    if error == "SPF record causes too many void DNS lookups":
-        error = (
-            "SPF record causes too many void DNS lookups. Some implementations may require the number of "
-            "failed DNS lookups (e.g. ones that reference a nonexistent domain) to be low. The DNS lookups "
-            "are caused by directives such as 'mx' or 'include'."
-        )
-    if error == "Valid DMARC record not found" or error == "DMARC record not found":
-        error = (
-            "Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC "
-            "to decrease the possibility of successful e-mail message spoofing."
-        )
-    if error == "Valid SPF record not found" or error == "SPF record not found":
-        error = (
-            "Valid SPF record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC "
-            "to decrease the possibility of successful e-mail message spoofing."
-        )
-    if error == "SPF ~all or -all directive not found":
-        error = (
-            "SPF '~all' or '-all' directive not found. We recommend adding it, as it describes "
-            "what should happen with messages that fail SPF verification. For example, "
-            "'-all' will tell the recipient server to drop such messages."
-        )
-    if error == "DMARC policy is none and rua is not set, which means that the DMARC setting is not effective.":
-        error = "DMARC policy is 'none' and 'rua' is not set, which means that the DMARC setting is not effective."
-    if error == "Multiple SPF records found":
-        error = (
-            "Multiple SPF records found. We recommend leaving only one, as multiple SPF records "
-            "can cause problems with some SPF implementations."
-        )
-    if error == "SPF record includes an endless loop":
-        error = (
-            "SPF record includes an endless loop. Please check whether 'include' or 'redirect' directives don't "
-            "create a loop where a domain redirects back to itself or earlier domain."
-        )
-    if error == "SPF record is not syntatically correct":
-        error = "SPF record is not syntactically correct. Please closely inspect its syntax."
-    if error == "DMARC record is not syntatically correct":
-        error = "DMARC record is not syntactically correct. Please closely inspect its syntax."
-    if error in [
-        "SPF record not found in domain referenced from other SPF record",
-        "Valid SPF record not found in domain referenced from other SPF record",
-    ]:
-        error = (
-            "The SPF record references a domain that doesn't have an SPF record. When using directives such "
-            "as 'include' or 'redirect', remember, that the destination domain should have a proper SPF record."
-        )
-    if error == "SPF record includes too many DNS lookups":
-        error = (
-            "SPF record causes too many void DNS lookups. Some implementations may require the number of "
-            "failed DNS lookups (e.g. ones that reference a nonexistent domain) to be low. The DNS lookups "
-            "are caused by directives such as 'mx' or 'include'."
-        )
-    if error == "Valid DMARC record not found":
-        error = "Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing."
-    return error
-
-
 class MailDNSScannerReporter(Reporter):
     MISCONFIGURED_EMAIL = ReportType("misconfigured_email")
 
@@ -93,7 +35,6 @@ class MailDNSScannerReporter(Reporter):
         if task_result["result"].get("spf_dmarc_scan_result", {}):
             if not task_result["result"].get("spf_dmarc_scan_result", {}).get("spf", {}).get("valid", True):
                 for error in task_result["result"]["spf_dmarc_scan_result"]["spf"]["errors"]:
-                    error = fix_error(error)
                     messages_with_targets.append(
                         MessageWithTarget(message=error, target=task_result["payload"]["domain"])
                     )
@@ -103,7 +44,6 @@ class MailDNSScannerReporter(Reporter):
                     if not target:
                         target = task_result["result"]["spf_dmarc_scan_result"]["base_domain"]
 
-                    error = fix_error(error)
                     messages_with_targets.append(MessageWithTarget(message=error, target=target))
 
         result = []

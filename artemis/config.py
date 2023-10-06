@@ -396,6 +396,13 @@ class Config:
                 "Shodan API key so that Shodan vulnerabilities will be displayed in Artemis.",
             ] = get_config("SHODAN_API_KEY", default="")
 
+        class SSHBruter:
+            ADDITIONAL_BRUTE_FORCE_SLEEP_SECONDS: Annotated[
+                int,
+                "Some SSH servers drop connections after a large number of tries in a short "
+                "time period. This is to combat this behavior.",
+            ] = get_config("ADDITIONAL_BRUTE_FORCE_SLEEP_SECONDS", default=20)
+
         class VCS:
             VCS_MAX_DB_SIZE_BYTES: Annotated[
                 int,

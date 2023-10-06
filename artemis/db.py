@@ -238,6 +238,8 @@ class DB:
             del task_as_dict["headers"]["origin"]
         if "receiver" in task_as_dict["headers"]:
             del task_as_dict["headers"]["receiver"]
+        if "last_domain" in task_as_dict["payload"]:
+            del task_as_dict["payload"]["last_domain"]
 
         return dict_to_list(
             {

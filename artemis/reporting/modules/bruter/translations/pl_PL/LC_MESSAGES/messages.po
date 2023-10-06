@@ -58,16 +58,6 @@ msgstr ""
 "niektórych przypadkach zdobycie informacji np. o nazwach kopii zapasowych"
 " czy innych plików, które nie powinny być dostępne publicznie."
 
-#: artemis/reporting/modules/bruter/template_exposed_http_server_info_status.jinja2:2
-msgid "The following addresses contain HTTP server status pages:"
-msgstr ""
-"Pod następującymi adresami znajdują się strony z informacjami o "
-"konfiguracji lub działaniu serwera HTTP:"
-
-#: artemis/reporting/modules/bruter/template_exposed_http_server_info_status.jinja2:14
-msgid "Such endpoints shouldn't be publicly accessible."
-msgstr "Rekomendujemy, aby takie końcówki nie były publicznie dostępne."
-
 #: artemis/reporting/modules/bruter/template_exposed_keys.jinja2:2
 msgid "The following addresses contain private cryptographic keys:"
 msgstr "Pod następującymi adresami znajdują się prywatne klucze kryptograficzne:"

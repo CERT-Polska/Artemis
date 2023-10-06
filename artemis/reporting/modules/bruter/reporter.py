@@ -29,7 +29,6 @@ class BruterReporter(Reporter):
     EXPOSED_CONFIGURATION_FILE = ReportType("exposed_configuration_file")
     EXPOSED_DEAD_LETTER = ReportType("exposed_dead_letter")
     EXPOSED_FILE_WITH_LISTING = ReportType("exposed_file_with_listing")
-    EXPOSED_HTTP_SERVER_INFO_STATUS = ReportType("exposed_http_server_info_status")
     EXPOSED_KEYS = ReportType("exposed_keys")
     EXPOSED_LOG_FILE = ReportType("exposed_log_file")
     EXPOSED_PASSWORD_FILE = ReportType("exposed_password_file")
@@ -72,8 +71,6 @@ class BruterReporter(Reporter):
                 add_report(found_url, BruterReporter.EXPOSED_SQL_DUMP)
             elif is_exposed_archive(found_url):
                 add_report(found_url, BruterReporter.EXPOSED_ARCHIVE)
-            elif is_apache_info_status(found_url):
-                add_report(found_url, BruterReporter.EXPOSED_HTTP_SERVER_INFO_STATUS)
             elif is_configuration_file(found_url) or is_ini_file(found_url):
                 add_report(found_url, BruterReporter.EXPOSED_CONFIGURATION_FILE)
             # The ordering is important - if something is not a config file, a generic leaked php source report
@@ -118,9 +115,6 @@ class BruterReporter(Reporter):
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_exposed_log_file.jinja2"), priority=5
-            ),
-            ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_http_server_info_status.jinja2"), priority=5
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_exposed_file_with_listing.jinja2"), priority=4

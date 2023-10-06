@@ -43,14 +43,6 @@ msgid ""
 " available."
 msgstr ""
 
-#: artemis/reporting/modules/bruter/template_exposed_http_server_info_status.jinja2:2
-msgid "The following addresses contain HTTP server status pages:"
-msgstr ""
-
-#: artemis/reporting/modules/bruter/template_exposed_http_server_info_status.jinja2:14
-msgid "Such endpoints shouldn't be publicly accessible."
-msgstr ""
-
 #: artemis/reporting/modules/bruter/template_exposed_keys.jinja2:2
 msgid "The following addresses contain private cryptographic keys:"
 msgstr ""

@@ -147,20 +147,6 @@ def is_dead_letter(found_url: FoundURL) -> bool:
     return False
 
 
-def is_apache_info_status(found_url: FoundURL) -> bool:
-    path = urllib.parse.urlparse(found_url.url).path
-    if "/server-info" not in path and "/server-status" not in path:
-        return False
-
-    if "<title>Apache Status</title>" in found_url.content_prefix:
-        return True
-
-    if "<title>Server Information</title>" in found_url.content_prefix:
-        return True
-
-    return False
-
-
 def contains_crypto_keys(found_url: FoundURL) -> bool:
     if _is_html(found_url.content_prefix):
         return False

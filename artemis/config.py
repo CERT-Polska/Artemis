@@ -276,6 +276,7 @@ class Config:
                         "http/exposed-panels/joomla-panel.yaml",
                         "http/exposed-panels/kentico-login.yaml",
                         "http/exposed-panels/liferay-portal.yaml",
+                        "http/exposed-panels/magnolia-panel.yaml",
                         "http/exposed-panels/strapi-panel.yaml",
                         "http/exposed-panels/typo3-login.yaml",
                         "http/exposed-panels/umbraco-login.yaml",
@@ -304,8 +305,10 @@ class Config:
                         "http/exposed-panels/openam-panel.yaml",
                         # Too small impact to report
                         "http/exposed-panels/webeditors-check-detect.yaml",
-                        # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        "http/exposed-panels/dynamicweb-panel.yaml",
                         "http/exposed-panels/jira-detect.yaml",
+                        "http/exposed-panels/magento-admin-panel.yaml",
                         "http/exposed-panels/mantisbt-panel.yaml",
                         "http/exposed-panels/mautic-crm-panel.yaml",
                         "http/exposed-panels/osticket-panel.yaml:",

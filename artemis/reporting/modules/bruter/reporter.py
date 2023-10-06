@@ -36,9 +36,10 @@ class BruterReporter(Reporter):
     EXPOSED_PHP_VAR_DUMP = ReportType("exposed_php_var_dump")
     EXPOSED_SQL_DUMP = ReportType("exposed_sql_dump")
 
-    # This one is not reported anymore, as it's found by Nuclei. We leave it here so that
+    # These two are not reported anymore, as they're found by Nuclei. We leave them here so that
     # already existing, old reports will be supported.
     EXPOSED_BASH_HISTORY = ReportType("exposed_bash_history")
+    EXPOSED_HTTP_SERVER_INFO_STATUS = ReportType("exposed_http_server_info_status")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:

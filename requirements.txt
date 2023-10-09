@@ -38,7 +38,7 @@ PyYAML==6.0.1
 redis==5.0.1
 requests==2.31.0
 requests-mock==1.11.0
-semver==3.0.1
+semver==3.0.2
 shodan==1.30.0
 six==1.16.0
 termcolor==2.3.0

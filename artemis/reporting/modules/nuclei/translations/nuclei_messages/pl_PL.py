@@ -659,4 +659,6 @@ TRANSLATIONS = {
     "LDAP Account Manager login panel was detected.": "wykryto panel logowania LDAP Account Manager.",
     "IBM WebSphere Application Server Community Edition admin login panel was detected.": "wykryto panel logowania IBM WebSphere Application Server Community Edition.",
     "Odoo OpenERP database selector panel was detected.": "wykryto panel wyboru bazy danych narzędzia Odoo OpenERP.",
+    "Cross-site scripting was discovered via a search for reflected parameter values inside HTML tags in the server response via GET-requests.": "Wykryto podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści).",
+
 }

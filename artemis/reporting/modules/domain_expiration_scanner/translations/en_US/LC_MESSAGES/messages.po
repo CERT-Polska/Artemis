@@ -3,5 +3,5 @@ msgid "The following domains will soon expire: "
 msgstr ""
 
 #: artemis/reporting/modules/domain_expiration_scanner/template_close_domain_expiration_scanner.jinja2:7
-msgid " will expire on "
+msgid "will expire on"
 msgstr ""

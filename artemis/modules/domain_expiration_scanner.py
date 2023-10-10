@@ -40,8 +40,12 @@ class DomainExpirationScanner(ArtemisBase):
                 status_reason = (
                     f"Scanned domain will expire in {days_to_expire} days - {expiry_date}."
                     if days_to_expire != 1
-                    else f"Scanned domain will expire in {days_to_expire} day - {expiry_date}."
+                    else f"Scanned domain will expire in {days_to_expire} day - on {expiry_date}."
                 )
+            else:
+                status = TaskStatus.OK
+                status_reason = None
+                self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
         else:
             status = TaskStatus.OK
             status_reason = None

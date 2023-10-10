@@ -27,7 +27,7 @@ http:
       - type: regex
         part: body
         regex:
-          - '<[^>]"injectable[^>]*>'
+          - '<[^>]*"injectable[^>]*>'
 
       - type: word
         part: header

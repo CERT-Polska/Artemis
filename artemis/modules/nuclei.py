@@ -121,7 +121,7 @@ class Nuclei(ArtemisBase):
         for line in lines:
             if line.strip():
                 finding = json.loads(line)
-                assert finding["host"] in targets
+                assert finding["host"] in targets, f'{finding["host"]} not found in {targets}'
 
         for task in tasks_filtered:
             result = []

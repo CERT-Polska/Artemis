@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
-from karton.core.backend import KartonBackend
+from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
@@ -16,6 +16,22 @@ from artemis.templating import templates
 
 router = APIRouter()
 db = DB()
+
+BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
+
+
+def get_binds_that_can_be_disabled() -> List[KartonBind]:
+    backend = KartonBackend(config=KartonConfig())
+
+    binds = []
+    for bind in backend.get_binds():
+        if bind.identity in BINDS_THAT_CANNOT_BE_DISABLED:
+            # Not allowing to disable as it's a core module
+            continue
+
+        binds.append(bind)
+
+    return binds
 
 
 @router.get("/", include_in_schema=False)
@@ -35,21 +51,33 @@ def get_root(request: Request) -> Response:
 
 @router.get("/add", include_in_schema=False)
 def get_add_form(request: Request) -> Response:
-    return templates.TemplateResponse("add.jinja2", {"request": request})
+    binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
+
+    return templates.TemplateResponse("add.jinja2", {"request": request, "binds": binds})
 
 
 @router.post("/add", include_in_schema=False)
-def post_add(
+async def post_add(
+    request: Request,
     targets: Optional[str] = Form(None),
     file: Optional[bytes] = File(None),
     tag: Optional[str] = Form(None),
+    choose_modules_to_enable: Optional[bool] = Form(None),
 ) -> Response:
+    disabled_modules = []
+
+    if choose_modules_to_enable:
+        async with request.form() as form:
+            for bind in get_binds_that_can_be_disabled():
+                if f"module_enabled_{bind.identity}" not in form:
+                    disabled_modules.append(bind.identity)
+
     total_list: List[str] = []
     if targets:
         total_list += (x.strip() for x in targets.split())
     if file:
         total_list += (x.strip() for x in file.decode().split())
-    create_tasks(total_list, tag)
+    create_tasks(total_list, tag, disabled_modules)
     return RedirectResponse("/", status_code=301)
 
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import socket
+import time
 from typing import List, Tuple
 
 import paramiko
@@ -7,9 +8,10 @@ from karton.core import Task
 from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
-from artemis.utils import throttle_request
+from artemis.utils import is_ip_address, throttle_request
 
 BRUTE_CREDENTIALS = [
     ("user", "password"),
@@ -40,6 +42,16 @@ class SSHBruter(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         host = get_target_host(current_task)
+
+        if not is_ip_address(host):
+            # Port scanner emits separate SERVICE tasks for all domains on a given IP address, and
+            # (because it also scans IP addresses) also SERVICE tasks for all IP addresses.
+            #
+            # It makes no sense to scan all domains as they are processed by the ip_lookup karton
+            # and we would scan the same IP multiple times. Therefore we scan only IPs.
+            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            return
+
         port = current_task.get_payload("port")
 
         result = SSHBruterResult()
@@ -47,6 +59,12 @@ class SSHBruter(ArtemisBase):
             try:
                 client = paramiko.client.SSHClient()
                 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                self.log.info(
+                    "Attempting connect: hostname=%s, port=%s, username=%s, password=%s", host, port, username, password
+                )
+                # Some SSH servers drop connections after a large number of tries in a short
+                # time period. This serves to combat this behavior.
+                time.sleep(Config.Modules.SSHBruter.ADDITIONAL_BRUTE_FORCE_SLEEP_SECONDS)
                 throttle_request(lambda: client.connect(hostname=host, port=port, username=username, password=password))
                 result.credentials.append((username, password))
                 client.close()

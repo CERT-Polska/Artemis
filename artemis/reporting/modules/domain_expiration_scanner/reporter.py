@@ -29,15 +29,15 @@ class DomainExpirationScannerReporter(Reporter):
             return []
 
         data = task_result["result"]
-        exp_date = data["expiration_date"]
-        expiration_date = exp_date.strftime("%d-%m-%Y")
+        expiration_date_from_result = data["expiration_date"]
+        expiration_date = expiration_date_from_result.strftime("%d-%m-%Y")
 
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
                 target=task_result["payload"]["domain"],
                 report_type=DomainExpirationScannerReporter.CLOSE_DOMAIN_EXPIRATION_DATE,
-                additional_data={"exp_date": expiration_date},
+                additional_data={"expiration_date": expiration_date},
                 timestamp=task_result["created_at"],
             )
         ]
@@ -68,7 +68,7 @@ class DomainExpirationScannerReporter(Reporter):
                 {
                     "type": report.report_type,
                     "target": get_domain_normal_form(report.target),
-                    "message": report.additional_data["exp_date"],
+                    "message": report.additional_data["expiration_date"],
                 }
             )
         }

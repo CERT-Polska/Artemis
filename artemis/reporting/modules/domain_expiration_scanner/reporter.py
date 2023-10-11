@@ -50,25 +50,3 @@ class DomainExpirationScannerReporter(Reporter):
                 priority=5,
             ),
         ]
-
-    @staticmethod
-    def get_scoring_rules() -> Dict[ReportType, Callable[[Report], List[int]]]:
-        """See the docstring in the parent class."""
-        return {
-            DomainExpirationScannerReporter.CLOSE_DOMAIN_EXPIRATION_DATE: lambda report: [
-                get_domain_score(report.target)
-            ]
-        }
-
-    @staticmethod
-    def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
-        """See the docstring in the Reporter class."""
-        return {
-            DomainExpirationScannerReporter.CLOSE_DOMAIN_EXPIRATION_DATE: lambda report: Reporter.dict_to_tuple(
-                {
-                    "type": report.report_type,
-                    "target": get_domain_normal_form(report.target),
-                    "message": report.additional_data["expiration_date"],
-                }
-            )
-        }

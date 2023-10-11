@@ -1,12 +1,7 @@
 import os
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 
 from artemis.reporting.base.language import Language
-from artemis.reporting.base.normal_form import (
-    NormalForm,
-    get_domain_normal_form,
-    get_domain_score,
-)
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter

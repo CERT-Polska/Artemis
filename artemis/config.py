@@ -20,7 +20,7 @@ class Config:
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
-        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=45, cast=int)
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=50, cast=int)
 
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],
@@ -43,16 +43,16 @@ class Config:
         MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW: Annotated[
             int,
             "If a low-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
-        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=6 * 30, cast=int)
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=8 * 30, cast=int)
 
         MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM: Annotated[
             int,
             "If a medium-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
-        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM", default=3 * 30, cast=int)
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM", default=4 * 30, cast=int)
         MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH: Annotated[
             int,
             "If a high-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
-        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=30, cast=int)
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=2 * 30, cast=int)
 
     class Locking:
         LOCK_SCANNED_TARGETS: Annotated[
@@ -276,6 +276,7 @@ class Config:
                         "http/exposed-panels/joomla-panel.yaml",
                         "http/exposed-panels/kentico-login.yaml",
                         "http/exposed-panels/liferay-portal.yaml",
+                        "http/exposed-panels/magnolia-panel.yaml",
                         "http/exposed-panels/strapi-panel.yaml",
                         "http/exposed-panels/typo3-login.yaml",
                         "http/exposed-panels/umbraco-login.yaml",
@@ -304,8 +305,10 @@ class Config:
                         "http/exposed-panels/openam-panel.yaml",
                         # Too small impact to report
                         "http/exposed-panels/webeditors-check-detect.yaml",
-                        # CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        "http/exposed-panels/dynamicweb-panel.yaml",
                         "http/exposed-panels/jira-detect.yaml",
+                        "http/exposed-panels/magento-admin-panel.yaml",
                         "http/exposed-panels/mantisbt-panel.yaml",
                         "http/exposed-panels/mautic-crm-panel.yaml",
                         "http/exposed-panels/osticket-panel.yaml:",
@@ -347,6 +350,21 @@ class Config:
                 cast=decouple.Csv(str),
             )
 
+            NUCLEI_SUSPICIOUS_TEMPLATES: Annotated[
+                List[str],
+                "A comma-separated list of Nuclei templates to be reviewed manually if found as they "
+                "are known to return false positives.",
+            ] = get_config(
+                "NUCLEI_SUSPICIOUS_TEMPLATES",
+                default=",".join(
+                    [
+                        "custom:time-based-sql-injection",
+                        "http/misconfiguration/google/insecure-firebase-database.yaml",
+                    ]
+                ),
+                cast=decouple.Csv(str),
+            )
+
         class PortScanner:
             CUSTOM_PORT_SCANNER_PORTS: Annotated[
                 List[int],
@@ -380,6 +398,13 @@ class Config:
                 str,
                 "Shodan API key so that Shodan vulnerabilities will be displayed in Artemis.",
             ] = get_config("SHODAN_API_KEY", default="")
+
+        class SSHBruter:
+            ADDITIONAL_BRUTE_FORCE_SLEEP_SECONDS: Annotated[
+                int,
+                "Some SSH servers drop connections after a large number of tries in a short "
+                "time period. This is to combat this behavior.",
+            ] = get_config("ADDITIONAL_BRUTE_FORCE_SLEEP_SECONDS", default=20)
 
         class VCS:
             VCS_MAX_DB_SIZE_BYTES: Annotated[

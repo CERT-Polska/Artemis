@@ -24,8 +24,19 @@ class BaseE2ETestCase(TestCase):
     def setUp(self) -> None:
         self._wait_for_backend()
 
-    def submit_tasks(self, tasks: List[str]) -> None:
-        requests.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks)})
+    def submit_tasks(self, tasks: List[str], tag: str) -> None:
+        requests.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks), "tag": tag})
+
+    def submit_tasks_with_modules_enabled(self, tasks: List[str], tag: str, modules_enabled: List[str]) -> None:
+        requests.post(
+            BACKEND_URL + "add",
+            data={
+                "targets": "\n".join(tasks),
+                "tag": tag,
+                "choose_modules_to_enable": True,
+                **{f"module_enabled_{module}": True for module in modules_enabled},
+            },
+        )
 
     def wait_for_tasks_finished(
         self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES
@@ -42,18 +53,23 @@ class BaseE2ETestCase(TestCase):
             + "api/task-results-table?draw=1&start=0&length=100&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=asc&search[regex]=false&search[value]="
         ).json()
 
-    def get_task_messages(self) -> List[str]:
+    def get_task_messages(self, tag: str) -> List[str]:
         task_results = self.get_task_results()["data"]
         messages = []
         for task_result in task_results:
             task_result = TaskListRow(*task_result)
-            messages.append(task_result.message)
+            if task_result.tag == tag and task_result.message:
+                messages.append(task_result.message)
         return messages
 
-    # This method has a camelCase name for consistency with other unittest methods
-    def assertMessagesContain(self, message: str) -> None:
-        messages = self.get_task_messages()
+    # These methods have camelCase names for consistency with other unittest methods
+    def assertMessagesContain(self, tag: str, message: str) -> None:
+        messages = self.get_task_messages(tag)
         self.assertIn(message, messages)
+
+    def assertMessagesEmpty(self, tag: str) -> None:
+        messages = self.get_task_messages(tag)
+        self.assertFalse(messages)
 
     def _wait_for_backend(self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES) -> None:
         for retry in range(num_retries):

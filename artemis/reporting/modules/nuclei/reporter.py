@@ -35,9 +35,9 @@ class NucleiReporter(Reporter):
             if report.report_type in [NucleiReporter.NUCLEI_VULNERABILITY, NucleiReporter.NUCLEI_EXPOSED_PANEL]:
                 reports_by_target_counter[report.target] += 1
 
-                if "custom:time-based-sql-injection" in report.additional_data["template_name"]:
+                if report.additional_data["template_name"] in Config.Modules.Nuclei.NUCLEI_SUSPICIOUS_TEMPLATES:
                     result.append(
-                        f"Potentially flaky template: {report.additional_data['template_name']} in {report.target} "
+                        f"Suspicious template: {report.additional_data['template_name']} in {report.target} "
                         f"(curl_command: {report.additional_data['curl_command']}) - please review whether it's indeed "
                         "a true positive."
                     )

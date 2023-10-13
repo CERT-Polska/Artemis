@@ -105,7 +105,10 @@ class ArtemisBase(Karton):
             new_task.payload["last_domain"] = current_task.payload["last_domain"]
 
         if self.db.save_scheduled_task(new_task):
+            self.log.info("Task is a new task, adding: %s", new_task)
             self.send_task(new_task)
+        else:
+            self.log.info("Task is not a new task, not adding: %s", new_task)
 
     def loop(self) -> None:
         """
@@ -139,7 +142,12 @@ class ArtemisBase(Karton):
                 for _ in range(self.task_max_batch_size):
                     task = self._consume_random_routed_task(self.identity)
                     if task:
-                        tasks.append(task)
+                        if self.identity in task.payload_persistent.get("disabled_modules", []):
+                            self.log.info("Module %s disabled for task %s", self.identity, task)
+                            self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
+                            self.backend.set_task_status(task, KartonTaskState.FINISHED)
+                        else:
+                            tasks.append(task)
 
                 if len(tasks) > 0:
                     task_id += len(tasks)

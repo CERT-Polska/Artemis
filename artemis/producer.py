@@ -10,7 +10,12 @@ producer = Producer(identity="frontend")
 db = DB()
 
 
-def create_tasks(uris: List[str], tag: Optional[str] = None, priority: Optional[TaskPriority] = None) -> None:
+def create_tasks(
+    uris: List[str],
+    tag: Optional[str] = None,
+    disabled_modules: List[str] = [],
+    priority: Optional[TaskPriority] = None,
+) -> None:
     for uri in uris:
         task = Task({"type": TaskType.NEW})
         task.add_payload("data", uri)
@@ -18,6 +23,7 @@ def create_tasks(uris: List[str], tag: Optional[str] = None, priority: Optional[
             task.priority = priority
         if tag:
             task.add_payload("tag", tag, persistent=True)
+        task.add_payload("disabled_modules", disabled_modules, persistent=True)
         db.create_analysis(task)
         db.save_scheduled_task(task)
         producer.send_task(task)

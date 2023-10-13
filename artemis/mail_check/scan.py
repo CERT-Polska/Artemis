@@ -12,6 +12,8 @@ import dns.resolver
 import publicsuffixlist
 import validators
 
+from . import lax_record_query
+
 checkdmarc.DNS_CACHE.max_age = 1
 checkdmarc.TLS_CACHE.max_age = 1
 checkdmarc.STARTTLS_CACHE.max_age = 1
@@ -24,12 +26,14 @@ class SPFScanResult:
     dns_lookups: Optional[int]
     parsed: Optional[Dict[str, Any]]
     record: Optional[str]
-    # As this error is interpreted in a special way by downstream tools,
-    # let's have a flag (not only a string message) whether it happened.
-    record_not_found: bool
+    record_candidates: Optional[List[str]]
     valid: bool
     errors: List[str]
     warnings: List[str]
+    # As these errors are interpreted in a special way by downstream tools,
+    # let's have flags (not only string messages) whether they happened.
+    record_not_found: bool
+    record_could_not_be_fully_validated: bool = False
 
 
 @dataclass
@@ -37,9 +41,13 @@ class DMARCScanResult:
     location: Optional[str]
     tags: Optional[Dict[str, Any]]
     record: Optional[str]
+    record_candidates: Optional[List[str]]
     valid: bool
     errors: List[str]
     warnings: List[str]
+    # As this error is interpreted in a special way by downstream tools,
+    # let's have a flag (not only string message) whether it happened.
+    record_not_found: bool = False
 
 
 @dataclass
@@ -117,13 +125,13 @@ def validate_and_sanitize_domain(domain: str) -> str:
     for space in string.whitespace:
         if space in domain:
             raise DomainValidationException("Whitespace in domain name detected. Please provide a correct domain name.")
-    for forbidden_character in set(string.punctuation) - {".", "-"}:
+    for forbidden_character in set(string.punctuation) - {".", "-", "_"}:
         if forbidden_character in domain:
             raise DomainValidationException(
                 f"Unexpected character in domain detected: {forbidden_character}. Please provide a correct domain name."
             )
 
-    result = validators.domain(domain)
+    result = validators.domain(domain, rfc_2782=True)
     if isinstance(result, validators.ValidationError):
         raise DomainValidationException("Please provide a correct domain name.")
 
@@ -143,7 +151,7 @@ def scan_domain(
     parked: bool = False,
     nameservers: Optional[List[str]] = None,
     include_dmarc_tag_descriptions: bool = False,
-    timeout: float = 10.0,
+    timeout: float = 5.0,
     ignore_void_dns_lookups: bool = False,
 ) -> DomainScanResult:
     domain = validate_and_sanitize_domain(domain)
@@ -169,14 +177,25 @@ def scan_domain(
     domain_result = DomainScanResult(
         spf=SPFScanResult(
             record=None,
+            record_candidates=None,
             parsed=None,
             valid=True,
             dns_lookups=None,
             record_not_found=False,
+            record_could_not_be_fully_validated=False,
             errors=[],
             warnings=[],
         ),
-        dmarc=DMARCScanResult(record=None, tags=None, valid=True, location=None, errors=[], warnings=[]),
+        dmarc=DMARCScanResult(
+            record=None,
+            record_not_found=False,
+            record_candidates=None,
+            tags=None,
+            valid=True,
+            location=None,
+            errors=[],
+            warnings=[],
+        ),
         domain=domain,
         base_domain=checkdmarc.get_base_domain(domain),
         warnings=warnings,
@@ -187,8 +206,9 @@ def scan_domain(
 
         domain_result.spf.record = spf_query["record"]
         if domain_result.spf.record and "%" in domain_result.spf.record:
-            domain_result.spf.warnings = ["SPF records containing macros aren't supported yet."]
-            domain_result.spf.valid = False
+            domain_result.spf.warnings = ["SPF records containing macros aren't supported by the system yet."]
+            domain_result.spf.valid = True
+            domain_result.spf.record_could_not_be_fully_validated = True
         elif not domain_result.spf.record:
             raise checkdmarc.SPFRecordNotFound(None)
         else:
@@ -213,13 +233,14 @@ def scan_domain(
                         "'-all' will tell the recipient server to drop such messages."
                     ]
                     domain_result.spf.valid = False
-            except checkdmarc.SPFRecordNotFound:
+            except checkdmarc.SPFRecordNotFound as e:
                 # This is a different type from standard SPFRecordNotFound - it occurs
                 # during *parsing*, so it is not caused by lack of SPF record, but
                 # a malformed one (e.g. including a domain that doesn't have a SPF record).
                 domain_result.spf.errors = [
-                    "The SPF record references a domain that doesn't have an SPF record. When using directives such "
-                    "as 'include' or 'redirect', remember, that the destination domain should have a proper SPF record.",
+                    f"The SPF record's include chain has reference to {e.domain} domain that doesn't "
+                    "have an SPF record. When using directives such as 'include' or 'redirect', remember, "
+                    "that the destination domain must have a proper SPF record.",
                 ]
                 domain_result.spf.valid = False
     except checkdmarc.SPFRecordNotFound as e:
@@ -263,8 +284,10 @@ def scan_domain(
             "create a loop where a domain redirects back to itself or earlier domain."
         ]
         domain_result.spf.valid = False
-    except checkdmarc.SPFSyntaxError:
-        domain_result.spf.errors = ["SPF record is not syntactically correct. Please closely inspect its syntax."]
+    except checkdmarc.SPFSyntaxError as e:
+        # We put here the original exception message from checkdmarc (e.g. "example.com: Expected mechanism
+        # at position 42 (marked with ➞) in: (...)") as it contains information that is helpful to debug the syntax error.
+        domain_result.spf.errors = [e.args[0]]
         domain_result.spf.valid = False
     except checkdmarc.SPFTooManyDNSLookups:
         domain_result.spf.errors = [
@@ -289,7 +312,7 @@ def scan_domain(
                     domain,
                     nameservers=nameservers,
                     timeout=timeout,
-                    raise_for_unrelated_records=False,
+                    ignore_unrelated_records=True,
                 )
             else:
                 raise e
@@ -318,7 +341,12 @@ def scan_domain(
                     "DMARC policy is 'none', which means that besides reporting no action will be taken. The policy describes what "
                     "action the recipient server should take when noticing a message that doesn't pass the verification. 'quarantine' policy "
                     "suggests the recipient server to flag the message as spam and 'reject' policy suggests the recipient "
-                    "server to reject the message. We recommend using the 'quarantine' or 'reject' policy.",
+                    "server to reject the message. We recommend using the 'quarantine' or 'reject' policy.\n\n"
+                    "When testing the DMARC mechanism, to minimize the risk of correct messages not being delivered, "
+                    "the 'none' policy may be used. Such tests are recommended especially when the domain is used to "
+                    "send a large number of e-mails using various tools and not delivering a correct message is "
+                    "unacceptable. In such cases the reports should be closely monitored, and the target setting should "
+                    "be 'quarantine' or 'reject'.",
                 )
 
         domain_result.dmarc.tags = parsed_dmarc_record["tags"]
@@ -337,6 +365,7 @@ def scan_domain(
             "Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC "
             "to decrease the possibility of successful e-mail message spoofing.",
         ]
+        domain_result.dmarc.record_not_found = True
         domain_result.dmarc.valid = False
     except checkdmarc.DMARCRecordInWrongLocation as e:
         # We put here the original exception message from checkdmarc ("The DMARC record must be located at {0},
@@ -361,10 +390,10 @@ def scan_domain(
             "process it correctly."
         ]
         domain_result.dmarc.valid = False
-    except checkdmarc.DMARCSyntaxError:
-        domain_result.dmarc.errors = [
-            "DMARC record is not syntactically correct. Please closely inspect its syntax.",
-        ]
+    except checkdmarc.DMARCSyntaxError as e:
+        # We put here the original exception message from checkdmarc (e.g. "the p tag must immediately follow
+        # the v tag") as it contains information that is helpful to debug the syntax error.
+        domain_result.dmarc.errors = [e.args[0]]
         domain_result.dmarc.valid = False
     except checkdmarc.InvalidDMARCTag:
         domain_result.dmarc.errors = [
@@ -382,17 +411,26 @@ def scan_domain(
             "The destination of a DMARC report URI does not " "indicate that it accepts reports for the domain."
         ]
         domain_result.dmarc.valid = False
-    except checkdmarc.UnrelatedTXTRecordFoundAtDMARC:
-        domain_result.dmarc.warnings = [
-            "Unrelated TXT record found in the '_dmarc' subdomain - further verification can be performed after removing them."
-        ]
-        domain_result.dmarc.valid = False
     except checkdmarc.DMARCReportEmailAddressMissingMXRecords:
         domain_result.dmarc.errors = [
             "The domain of the email address in a DMARC report URI is missing MX records. That means, that this domain "
             "may not receive DMARC reports."
         ]
         domain_result.dmarc.valid = False
+
+    if not domain_result.spf.record:
+        try:
+            domain_result.spf.record_candidates = lax_record_query.lax_query_spf_record(domain)
+        # If we are unable to retrieve the candidates, let's keep them empty, as the check result is more important.
+        except Exception:
+            pass
+
+    if not domain_result.dmarc.record:
+        try:
+            domain_result.dmarc.record_candidates = lax_record_query.lax_query_dmarc_record(domain)
+        # If we are unable to retrieve the candidates, let's keep them empty, as the check result is more important.
+        except Exception:
+            pass
 
     return domain_result
 
@@ -409,7 +447,10 @@ def scan_dkim(
             warnings=[],
         )
     try:
-        if dkim.verify(message):
+        # We don't call dkim.verify() directly because it would catch dkim.DKIMException
+        # for us, thus not allowing to translate the message.
+        d = dkim.DKIM(message)
+        if d.verify():
             return DKIMScanResult(
                 valid=True,
                 errors=[],
@@ -424,7 +465,7 @@ def scan_dkim(
     except dkim.DKIMException as e:
         return DKIMScanResult(
             valid=False,
-            errors=[e.message],
+            errors=[e.args[0]],
             warnings=[],
         )
 

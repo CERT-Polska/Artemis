@@ -9,7 +9,6 @@ from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.modules.bruter.classifier import (
     contains_crypto_keys,
-    is_apache_info_status,
     is_configuration_file,
     is_dead_letter,
     is_exposed_archive,
@@ -29,7 +28,6 @@ class BruterReporter(Reporter):
     EXPOSED_CONFIGURATION_FILE = ReportType("exposed_configuration_file")
     EXPOSED_DEAD_LETTER = ReportType("exposed_dead_letter")
     EXPOSED_FILE_WITH_LISTING = ReportType("exposed_file_with_listing")
-    EXPOSED_HTTP_SERVER_INFO_STATUS = ReportType("exposed_http_server_info_status")
     EXPOSED_KEYS = ReportType("exposed_keys")
     EXPOSED_LOG_FILE = ReportType("exposed_log_file")
     EXPOSED_PASSWORD_FILE = ReportType("exposed_password_file")
@@ -38,9 +36,10 @@ class BruterReporter(Reporter):
     EXPOSED_PHP_VAR_DUMP = ReportType("exposed_php_var_dump")
     EXPOSED_SQL_DUMP = ReportType("exposed_sql_dump")
 
-    # This one is not reported anymore, as it's found by Nuclei. We leave it here so that
+    # These two are not reported anymore, as they're found by Nuclei. We leave them here so that
     # already existing, old reports will be supported.
     EXPOSED_BASH_HISTORY = ReportType("exposed_bash_history")
+    EXPOSED_HTTP_SERVER_INFO_STATUS = ReportType("exposed_http_server_info_status")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
@@ -72,8 +71,6 @@ class BruterReporter(Reporter):
                 add_report(found_url, BruterReporter.EXPOSED_SQL_DUMP)
             elif is_exposed_archive(found_url):
                 add_report(found_url, BruterReporter.EXPOSED_ARCHIVE)
-            elif is_apache_info_status(found_url):
-                add_report(found_url, BruterReporter.EXPOSED_HTTP_SERVER_INFO_STATUS)
             elif is_configuration_file(found_url) or is_ini_file(found_url):
                 add_report(found_url, BruterReporter.EXPOSED_CONFIGURATION_FILE)
             # The ordering is important - if something is not a config file, a generic leaked php source report
@@ -118,9 +115,6 @@ class BruterReporter(Reporter):
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_exposed_log_file.jinja2"), priority=5
-            ),
-            ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_exposed_http_server_info_status.jinja2"), priority=5
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_exposed_file_with_listing.jinja2"), priority=4

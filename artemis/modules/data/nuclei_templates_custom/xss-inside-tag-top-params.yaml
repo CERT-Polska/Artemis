@@ -1,0 +1,39 @@
+id: xss-inside-tag-top-params
+
+info:
+  name: Top Parameters - Cross-Site Scripting inside HTML tags
+  author: kazet
+  severity: high
+  description: Cross-site scripting was discovered via a search for reflected parameter values inside HTML tags in the server response via GET-requests.
+  metadata:
+    max-request: 1
+    parameters: q,s,search,id,action,keyword,query,page,keywords,url,view,cat,name,key,p,month,page_id,password,terms,token,type,unsubscribe_token,api,api_key,begindate,callback,categoryid,csrf_token,email,emailto,enddate,immagine,item,jsonp,l,lang,list_type,year
+  classification:
+    cvss-metrics: CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N
+    cvss-score: 7.2
+    cwe-id: CWE-79
+  tags: xss,generic
+
+http:
+  - method: GET
+    path:
+      - '{{BaseURL}}/?q=%22injectable&s=%22injectable&search=%22injectable&id=%22injectable&action=%22injectable&keyword=%22injectable&query=%22injectable&page=%22injectable&keywords=%22injectable&url=%22injectable&view=%22injectable&cat=%22injectable&name=%22injectable&key=%22injectable&p=%22injectable&month=%22injectable&page_id=%22injectable&password=%22injectable&terms=%22injectable&token=%22injectable'
+      - '{{BaseURL}}/?type=%22injectable&unsubscribe_token=%22injectable&api=%22injectable&api_key=%22injectable&begindate=%22injectable&callback=%22injectable&categoryid=%22injectable&csrf_token=%22injectable&email=%22injectable&emailto=%22injectable&enddate=%22injectable&immagine=%22injectable&item=%22injectable&jsonp=%22injectable&l=%22injectable&lang=%22injectable&list_type=%22injectable&year=%22injectable'
+
+    host-redirects: true
+    max-redirects: 1
+    matchers-condition: and
+    matchers:
+      - type: regex
+        part: body
+        regex:
+          - '<[^>]*"injectable[^>]*>'
+
+      - type: word
+        part: header
+        words:
+          - "text/html"
+
+      - type: status
+        status:
+          - 200

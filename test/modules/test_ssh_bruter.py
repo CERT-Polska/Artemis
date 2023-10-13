@@ -1,3 +1,4 @@
+import socket
 from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
@@ -10,9 +11,11 @@ class TestSSHBruter(ArtemisModuleTestCase):
     karton_class = SSHBruter  # type: ignore
 
     def test_simple(self) -> None:
+        ip = socket.gethostbyname("test-ssh-with-easy-password")
+
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.SSH},
-            payload={"host": "test-ssh-with-easy-password", "port": 2222},
+            payload={"host": ip, "port": 2222},
         )
 
         self.run_task(task)

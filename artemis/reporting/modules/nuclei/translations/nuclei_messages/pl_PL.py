@@ -524,6 +524,11 @@ TRANSLATIONS = {
     "[no description] http/misconfiguration/installer/joomla-installer.yaml": "Wykryto instalator frameworku Joomla. Rekomendujemy, aby takie zasoby nie były dostępne publicznie, bo mogą umożliwić atakującemu uzyskanie nieuprawnionego dostępu do systemu.",
     "The Django settings.py file containing a secret key was discovered. An attacker may use the secret key to bypass many security mechanisms and potentially obtain other sensitive configuration information (such as database password) from the settings file.": "Wykryto plik settings.py zawierający konfigurację systemu Django. Atakujący może wykorzystać te dane aby ominąć mechanizmy bezpieczeństwa, lub (jeśli znajduje się tam np. hasło do bazy danych) uzyskać nieuprawniony dostęp do systemu."
     + DATA_HIDE_HINT,
+    "SiteMinder contains a cross-site scripting vulnerability in the document object model. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że narzędzie SiteMinder zawiera podatność Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który, gdy zostanie kliknięty przez administratora, wykona dowolną akcję z jego uprawnieniami."
+    + UPDATE_HINT,
+    "service.pwd was discovered, which is likely to contain sensitive information.": "Wykryto plik service.pwd, który może zawierać wrażliwe informacje."
+    + DATA_HIDE_HINT,
+    "Cross-site scripting was discovered via a search for reflected parameter values inside HTML tags in the server response via GET-requests.": "Wykryto podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie z jego uprawnieniami (np. modyfikację treści).",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -643,4 +648,19 @@ TRANSLATIONS = {
     "Cisco Secure Desktop installation panel was detected.": "wykryto panel instalacyjny Cisco Secure Desktop.",
     "Openfire Admin Console login panel was detected.": "wykryto panel logowania konsoli administracyjnej Openfire.",
     "MinIO Browser login panel was detected.": "wykryto panel logowania MinIO Browser.",
+    "noVNC login panel was detected.": "wykryto panel logowania noVNC.",
+    "[no description] http/exposed-panels/remedy-axis-login.yaml": "wykryto panel logowania Remedy Axis.",
+    "VMware Cloud Director login panel was detected.": "wykryto panel logowania VMWare Cloud Director.",
+    "MobileIron login panel was detected.": "wykryto panel logowania MobileIron.",
+    "Shell In A Box implements a web server that can export arbitrary command line tools to a web based terminal emulator": "wykryto panel Shell In A Box.",
+    "NetScaler AAA login panel was detected.": "wykryto panel logowania NetScaler AAA.",
+    "Citrix ADC Gateway login panel was detected.": "wykryto panel logowania Citrix ADC Gateway.",
+    "Jalios JCMS login panel was detected.": "wykryto panel logowana Jalios JCMS.",
+    "Graphite Browser login panel was detected.": "wykryto panel logowania Graphite Browser.",
+    "Lancom router login panel was detected.": "wykryto panel logowania routera Lancom.",
+    "Bookstack login panel was detected.": "wykryto panel logowania Bookstack.",
+    "LDAP Account Manager login panel was detected.": "wykryto panel logowania LDAP Account Manager.",
+    "IBM WebSphere Application Server Community Edition admin login panel was detected.": "wykryto panel logowania IBM WebSphere Application Server Community Edition.",
+    "Odoo OpenERP database selector panel was detected.": "wykryto panel wyboru bazy danych narzędzia Odoo OpenERP.",
+    "Dynamicweb login panel was detected.": "wykryto panel logowania Dynamicweb.",
 }

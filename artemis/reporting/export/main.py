@@ -12,7 +12,6 @@ from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from artemis.db import DB
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
-from artemis.reporting.base.reporters import get_all_reporters
 from artemis.reporting.base.templating import build_message_template
 from artemis.reporting.blocklist import load_blocklist
 from artemis.reporting.export.common import OUTPUT_LOCATION
@@ -153,12 +152,8 @@ def main(
 
     _build_messages_and_print_path(message_template, export_data, output_dir)
 
-    for reporter in get_all_reporters():
-        reports = []
-        for data_about_target in export_data.messages.values():
-            reports.extend(data_about_target.reports)
-        for alert in reporter.get_alerts(reports):
-            print(termcolor.colored("ALERT:" + alert, color="red"))
+    for alert in export_data.alerts:
+        print(termcolor.colored("ALERT:" + alert, color="red"))
 
 
 if __name__ == "__main__":

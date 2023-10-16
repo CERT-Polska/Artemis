@@ -529,6 +529,9 @@ TRANSLATIONS = {
     "service.pwd was discovered, which is likely to contain sensitive information.": "Wykryto plik service.pwd, który może zawierać wrażliwe informacje."
     + DATA_HIDE_HINT,
     "Cross-site scripting was discovered via a search for reflected parameter values inside HTML tags in the server response via GET-requests.": "Wykryto podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie z jego uprawnieniami (np. modyfikację treści).",
+    "[no description] http/takeovers/github-takeover.yaml": "Wykryto domenę kierującą do serwisu Github Pages, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Github Pages, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "[no description] http/takeovers/heroku-takeover.yaml": "Wykryto domenę kierującą do serwisu Heroku, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Heroku, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "[no description] http/vulnerabilities/jenkins/unauthenticated-jenkins.yaml": "Wykryto narzędzie Jenkins dostępne bez logowania. Rekomendujemy, aby nie było ono dostępne publicznie, ponieważ może umożliwić atakującemu uruchamianie własnych zadań lub nieuprawniony dostęp do informacji/kodu źródłowego.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -663,4 +666,13 @@ TRANSLATIONS = {
     "IBM WebSphere Application Server Community Edition admin login panel was detected.": "wykryto panel logowania IBM WebSphere Application Server Community Edition.",
     "Odoo OpenERP database selector panel was detected.": "wykryto panel wyboru bazy danych narzędzia Odoo OpenERP.",
     "Dynamicweb login panel was detected.": "wykryto panel logowania Dynamicweb.",
+    "LibreNMS login panel was detected.": "wykryto panel logowania LibreNMS.",
+    "Jenkins API panel was detected.": "wykryto panel API systemu Jenkins.",
+    "Joget panel was detected.": "wykryto panel Joget.",
+    "[no description] http/exposed-panels/phpldapadmin-panel.yaml": "wykryto panel phpLDAPadmin.",
+    "OTOBO login panel was detected.": "wykryto panel logowania OTOBO.",
+    "MinIO Console login panel was detected.": "wykryto panel logowania MinIO Console.",
+    "Froxlor Server Management login panel was detected.": "wykryto panel logowania Froxlor Server Management.",
+    "Versa Director login panel was detected.": "wykryto panel logowania Versa Director.",
+    "Versa SD-WAN login panel was detected.": "wykryto panel logowania Versa SD-WAN.",
 }

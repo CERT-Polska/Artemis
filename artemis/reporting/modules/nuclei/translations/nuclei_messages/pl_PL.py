@@ -532,6 +532,8 @@ TRANSLATIONS = {
     "[no description] http/takeovers/github-takeover.yaml": "Wykryto domenę kierującą do serwisu Github Pages, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Github Pages, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/takeovers/heroku-takeover.yaml": "Wykryto domenę kierującą do serwisu Heroku, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Heroku, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/vulnerabilities/jenkins/unauthenticated-jenkins.yaml": "Wykryto narzędzie Jenkins dostępne bez logowania. Rekomendujemy, aby nie było ono dostępne publicznie, ponieważ może umożliwić atakującemu uruchamianie własnych zadań lub nieuprawniony dostęp do informacji/kodu źródłowego.",
+    "Possible Juicy Files can be discovered at this endpoint. Search / Grep for secrets like hashed passwords ( SHA ) , internal email disclosure etc.": "Wykryto konfigurację Adobe Experience Manager, mogącą zawierać dane, które nie powinny być dostępne publicznie.",
+    "[no description] http/takeovers/webflow-takeover.yaml": "Wykryto domenę kierującą do narzędzia Webflow, ale domena docelowa jest wolna. Atakujący może zarejestrować domenę w narzędziu Webflow, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -675,4 +677,6 @@ TRANSLATIONS = {
     "Froxlor Server Management login panel was detected.": "wykryto panel logowania Froxlor Server Management.",
     "Versa Director login panel was detected.": "wykryto panel logowania Versa Director.",
     "Versa SD-WAN login panel was detected.": "wykryto panel logowania Versa SD-WAN.",
+    "Traefik Dashboard panel was detected.": "wykryto panel Traeifk Dashboard.",
+    "Qlik Sense Server panel was detected.": "wykryto panel Qlik Sense Server.",
 }

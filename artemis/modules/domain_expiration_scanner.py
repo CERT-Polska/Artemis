@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import datetime
+import time
 from typing import Any, Dict
 
 from karton.core import Task
-from whois import query  # type: ignore
+from whois import WhoisQuotaExceeded, query  # type: ignore
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
@@ -23,29 +24,34 @@ class DomainExpirationScanner(ArtemisBase):
         domain = current_task.get_payload(TaskType.DOMAIN)
         result: Dict[str, Any] = {}
         if is_main_domain(domain):
-            now = datetime.datetime.now()
-            domain_data = query(domain)
-            expiry_date = domain_data.expiration_date
-            days_to_expire = None
-            if expiry_date:
-                days_to_expire = (expiry_date - now).days
-            result["expiration_date"] = expiry_date
-            if (
-                days_to_expire
-                and days_to_expire <= Config.Modules.DomainExpirationScanner.DOMAIN_EXPIRATION_TIMEFRAME_DAYS
-            ):
-                result["close_expiry_date"] = True
-                result["days_to_expire"] = days_to_expire
-                status = TaskStatus.INTERESTING
-                status_reason = (
-                    f"Scanned domain will expire in {days_to_expire} days - {expiry_date}."
-                    if days_to_expire != 1
-                    else f"Scanned domain will expire in {days_to_expire} day - (on {expiry_date})."
-                )
-            else:
-                status = TaskStatus.OK
-                status_reason = None
-                self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+            try:
+                now = datetime.datetime.now()
+                domain_data = query(domain)
+                expiry_date = domain_data.expiration_date
+                days_to_expire = None
+                if expiry_date:
+                    days_to_expire = (expiry_date - now).days
+                result["expiration_date"] = expiry_date
+                if (
+                    days_to_expire
+                    and days_to_expire <= Config.Modules.DomainExpirationScanner.DOMAIN_EXPIRATION_TIMEFRAME_DAYS
+                ):
+                    result["close_expiry_date"] = True
+                    result["days_to_expire"] = days_to_expire
+                    status = TaskStatus.INTERESTING
+                    status_reason = (
+                        f"Scanned domain will expire in {days_to_expire} days - {expiry_date}."
+                        if days_to_expire != 1
+                        else f"Scanned domain will expire in {days_to_expire} day - (on {expiry_date})."
+                    )
+                else:
+                    status = TaskStatus.OK
+                    status_reason = None
+                    self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+
+            except WhoisQuotaExceeded:
+                time.sleep(24 * 60 * 60)
+
         else:
             status = TaskStatus.OK
             status_reason = None

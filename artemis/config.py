@@ -253,6 +253,8 @@ class Config:
                 "NUCLEI_TEMPLATES_TO_SKIP",
                 default=",".join(
                     [
+                        # fp: https://github.com/projectdiscovery/nuclei-templates/issues/8415
+                        "http/vulnerabilities/joomla/joomla-com-booking-component.yaml",
                         # The two following templates caused panic: runtime
                         # error: integer divide by zero in github.com/projectdiscovery/retryabledns
                         "dns/azure-takeover-detection.yaml",

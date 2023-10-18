@@ -210,7 +210,7 @@ class ArtemisBase(Karton):
             if should_block_scanning(domain=domain, ip=host, karton_name=self.identity, blocklist=self._blocklist):
                 return True
         else:
-            assert False, f"expected {host} to be either domain or a host"
+            assert False, f"expected {host} to be either domain or an IP address"
         return False
 
     def reschedule_task(self, task: Task) -> None:

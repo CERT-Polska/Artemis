@@ -190,7 +190,6 @@ class ArtemisBase(Karton):
         host = get_target_host(task)
 
         if is_domain(host):
-            domain = host
             try:
                 ip_addresses = list(ip_lookup(host))
             except Exception as e:
@@ -200,17 +199,18 @@ class ArtemisBase(Karton):
             if ip_addresses:
                 for ip in ip_addresses:
                     if should_block_scanning(
-                        domain=domain, ip=ip, karton_name=self.identity, blocklist=self._blocklist
+                        domain=host, ip=ip, karton_name=self.identity, blocklist=self._blocklist
                     ):
                         return True
             else:
                 if should_block_scanning(domain=domain, ip=None, karton_name=self.identity, blocklist=self._blocklist):
                     return True
-        else:
-            assert is_ip_address(host)
+        elif is_ip_address(host):
             domain = task.payload.get("last_domain", None)
             if should_block_scanning(domain=domain, ip=host, karton_name=self.identity, blocklist=self._blocklist):
                 return True
+        else:
+            assert False, f"expected {host} to be either domain or a host"
         return False
 
     def reschedule_task(self, task: Task) -> None:

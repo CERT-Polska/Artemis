@@ -51,17 +51,19 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
     with open(file_path, "r") as file:
         data = yaml.safe_load(file)
 
+    expected_keys = {
+        "mode",
+        "domain",
+        "ip_range",
+        "until",
+        "karton_name",
+        "report_target_should_contain",
+        "report_type",
+    }
+
     for item in data:
         # Assert there are no additional or missing keys
-        unexpected_keys = set(item.keys()) - {
-            "mode",
-            "domain",
-            "ip_range",
-            "until",
-            "karton_name",
-            "report_target_should_contain",
-            "report_type",
-        }
+        unexpected_keys = set(item.keys()) - expected_keys
         if unexpected_keys:
             raise BlocklistError(f"Unexpected keys in entry: {','.join(unexpected_keys)}")
 

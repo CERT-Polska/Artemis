@@ -198,12 +198,10 @@ class ArtemisBase(Karton):
 
             if ip_addresses:
                 for ip in ip_addresses:
-                    if should_block_scanning(
-                        domain=host, ip=ip, karton_name=self.identity, blocklist=self._blocklist
-                    ):
+                    if should_block_scanning(domain=host, ip=ip, karton_name=self.identity, blocklist=self._blocklist):
                         return True
             else:
-                if should_block_scanning(domain=domain, ip=None, karton_name=self.identity, blocklist=self._blocklist):
+                if should_block_scanning(domain=host, ip=None, karton_name=self.identity, blocklist=self._blocklist):
                     return True
         elif is_ip_address(host):
             domain = task.payload.get("last_domain", None)

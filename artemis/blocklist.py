@@ -30,7 +30,7 @@ class BlocklistItem:
     #   block_reporting_only, blocks only reporting,
     # - matches all the non-null items: domain, ip_range, ...
     # - if all match, report/scanning is skipped.
-    # The same is repeated for all BlocklistItems - if at least one filters a given report, the report is skipped.
+    # The same is repeated for all BlocklistItems - if at least one matches, report/scanning is skipped.
     mode: BlocklistMode
     domain: Optional[str] = None
     ip_range: Optional[Union[ipaddress.IPv4Network, ipaddress.IPv6Network]] = None
@@ -62,7 +62,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
     }
 
     for item in data:
-        # Assert there are no additional or missing keys
+        # Assert there are no additional keys
         unexpected_keys = set(item.keys()) - expected_keys
         if unexpected_keys:
             raise BlocklistError(f"Unexpected keys in entry: {','.join(unexpected_keys)}")

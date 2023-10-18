@@ -6,6 +6,33 @@ directives, e.g. ``SCANNING_PACKETS_PER_SECOND=5``):
 
 .. include:: config-docs.inc
 
+Blocklist
+---------
+You may exclude some systems from being scanned or included in the reports. To do that, set the ``BLOCKLIST_FILE`` environment
+variable to a path to a blocklist file (it needs to be placed in the ``./shared`` directory which is mounted to all scanning containers
+as ``/shared``).
+
+The blocklist file is a ``yaml`` file with the following syntax:
+
+.. code-block:: yaml
+
+    - mode: 'block_scanning_and_reporting' (to block both scanning and reporting) or
+        'block_reporting_only' (if you want the scanning to be performed but want the
+        issues to be skipped from automatic e-mail reports)
+      domain: null or the domain to be filtered (this will also filter its subdomains)
+      ip_range: null or the ip range to be filtered (to filter a single ip address,
+        use the xxx.xxx.xxx.xxx/32 syntax)
+      until: null or a date (YYYY-MM-DD) until which the filter will be active
+      karton_name: null or the name of a scanning module
+
+      report_target_should_contain: null or the string that must occur in the target for
+        the report to be blocklisted - this parameter can be used only when 'mode' is set
+        to 'block_reporting_only'.
+      report_type: null (which will block all reports) or a string containing
+         the type of reports that will be blocked (e.g. "misconfigured_email") - this
+         parameter can be used only when 'mode' is 'block_reporting_only'.
+
+There may be multiple entries in a blocklist file, each with syntax described above.
 
 Advanced: Karton configuration
 -------------------------------

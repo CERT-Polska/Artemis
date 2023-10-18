@@ -137,6 +137,11 @@ class Config:
         ] = get_config("SECONDS_PER_REQUEST", default=0, cast=int)
 
     class Miscellaneous:
+        BLOCKLIST_FILE: Annotated[
+            str,
+            "A file that determines what should not be scanned or reported",
+        ] = get_config("BLOCKLIST_FILE", default=None)
+
         CUSTOM_USER_AGENT: Annotated[
             str,
             "Custom User-Agent string used by Artemis (if not set, the library defaults will be used, different for requests, Nuclei etc.)",

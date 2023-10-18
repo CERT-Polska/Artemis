@@ -14,12 +14,16 @@ from karton.core.task import TaskState as KartonTaskState
 from redis import Redis
 
 from artemis.binds import TaskStatus, TaskType
+from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
+from artemis.domains import is_domain
 from artemis.redis_cache import RedisCache
 from artemis.resolvers import ip_lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
+from artemis.task_utils import get_target_host
+from artemis.utils import is_ip_address
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
@@ -48,6 +52,11 @@ class ArtemisBase(Karton):
         self.cache = RedisCache(REDIS, self.identity)
         self.lock = ResourceLock(redis=REDIS, res_name=self.identity)
         self.redis = REDIS
+
+        if Config.Miscellaneous.BLOCKLIST_FILE:
+            self._blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
+        else:
+            self._blocklist = []
 
         if db:
             self.db = db
@@ -141,8 +150,13 @@ class ArtemisBase(Karton):
                 tasks = []
                 for _ in range(self.task_max_batch_size):
                     task = self._consume_random_routed_task(self.identity)
+
                     if task:
-                        if self.identity in task.payload_persistent.get("disabled_modules", []):
+                        if self._is_blocklisted(task):
+                            self.log.info("Task %s is blocklisted for module %s", task, self.identity)
+                            self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
+                            self.backend.set_task_status(task, KartonTaskState.FINISHED)
+                        elif self.identity in task.payload_persistent.get("disabled_modules", []):
                             self.log.info("Module %s disabled for task %s", self.identity, task)
                             self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
                             self.backend.set_task_status(task, KartonTaskState.FINISHED)
@@ -171,6 +185,31 @@ class ArtemisBase(Karton):
             if task:
                 return task
         return None
+
+    def _is_blocklisted(self, task: Task) -> bool:
+        host = get_target_host(task)
+
+        if is_domain(host):
+            try:
+                ip_addresses = list(ip_lookup(host))
+            except Exception as e:
+                self.log.error(f"Exception while trying to obtain IP for host {host}", e)
+                ip_addresses = []
+
+            if ip_addresses:
+                for ip in ip_addresses:
+                    if should_block_scanning(domain=host, ip=ip, karton_name=self.identity, blocklist=self._blocklist):
+                        return True
+            else:
+                if should_block_scanning(domain=host, ip=None, karton_name=self.identity, blocklist=self._blocklist):
+                    return True
+        elif is_ip_address(host):
+            domain = task.payload.get("last_domain", None)
+            if should_block_scanning(domain=domain, ip=host, karton_name=self.identity, blocklist=self._blocklist):
+                return True
+        else:
+            assert False, f"expected {host} to be either domain or an IP address"
+        return False
 
     def reschedule_task(self, task: Task) -> None:
         """

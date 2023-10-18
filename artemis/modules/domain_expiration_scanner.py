@@ -40,7 +40,7 @@ class DomainExpirationScanner(ArtemisBase):
                     result["days_to_expire"] = days_to_expire
                     status = TaskStatus.INTERESTING
                     status_reason = (
-                        f"Scanned domain will expire in {days_to_expire} days - {expiry_date}."
+                        f"Scanned domain will expire in {days_to_expire} days - (on {expiry_date})."
                         if days_to_expire != 1
                         else f"Scanned domain will expire in {days_to_expire} day - (on {expiry_date})."
                     )

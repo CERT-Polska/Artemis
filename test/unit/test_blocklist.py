@@ -7,6 +7,46 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 
 
+
+class ScanningBlocklistTest(unittest.TestCase):
+    def test_ip_range_matching(self) -> None:
+        blocklist_item1 = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            ip_range=ipaddress.ip_network("1.1.1.1/32", strict=False),
+        )
+        self.assertEqual(should_block_scanning(None, "1.1.1.2", "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning(None, "1.1.1.1", "karton-name", [blocklist_item1]), True)
+
+    def test_domain_matching(self) -> None:
+        blocklist_item = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            domain="example.com",
+        )
+        self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), True)
+        self.assertEqual(should_block_scanning("www.example.com", None, "karton-name", [blocklist_item1]), True)
+
+    def test_karton_name_matching(self) -> None:
+        blocklist_item = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            karton_name="bruter",
+        )
+        self.assertEqual(should_block_scanning(None, None, "nuclei", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning(None, None, "bruter", [blocklist_item1]), True)
+
+    def test_expiry(self) -> None:
+        blocklist_item1 = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            until=datetime.datetime(2023, 1, 9),
+        )
+        self.assertEqual(should_block_scanning("domain.com", "1.1.1.1", "nuclei", [blocklist_item1]), False)
+        blocklist_item1 = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            until=datetime.datetime(2999, 1, 9),
+        )
+        self.assertEqual(should_block_scanning("domain.com", "1.1.1.1", "nuclei", [blocklist_item2]), True)
+
+
 class ReportBlocklistTest(unittest.TestCase):
     def test_target_matching(self) -> None:
         report1 = Report(

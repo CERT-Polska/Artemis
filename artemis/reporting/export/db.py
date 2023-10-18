@@ -5,12 +5,12 @@ from typing import Any, DefaultDict, Dict, List, Optional, Set
 from karton.core import Task
 from tqdm import tqdm
 
+from artemis.blocklist import BlocklistItem, blocklist_reports
 from artemis.config import Config
 from artemis.db import DB
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.reporters import reports_from_task_result
-from artemis.reporting.blocklist import BlocklistItem, filter_blocklist
 from artemis.reporting.utils import get_top_level_target
 from artemis.task_utils import get_target_host
 
@@ -71,7 +71,7 @@ class DataLoader:
                 report_to_add.original_task_target_string = task_result["target_string"]
                 report_to_add.last_domain = task_result["payload"].get("last_domain", None)
 
-            self._reports.extend(filter_blocklist(reports_to_add, self._blocklist))
+            self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))
         self._data_initialized = True
 
     @property

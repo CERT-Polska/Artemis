@@ -137,6 +137,11 @@ class Config:
         ] = get_config("SECONDS_PER_REQUEST", default=0, cast=int)
 
     class Miscellaneous:
+        BLOCKLIST_FILE: Annotated[
+            str,
+            "A file that determines what should not be scanned or reported",
+        ] = get_config("BLOCKLIST_FILE", default=None)
+
         CUSTOM_USER_AGENT: Annotated[
             str,
             "Custom User-Agent string used by Artemis (if not set, the library defaults will be used, different for requests, Nuclei etc.)",
@@ -248,6 +253,8 @@ class Config:
                 "NUCLEI_TEMPLATES_TO_SKIP",
                 default=",".join(
                     [
+                        # fp: https://github.com/projectdiscovery/nuclei-templates/issues/8415
+                        "http/vulnerabilities/joomla/joomla-com-booking-component.yaml",
                         # The two following templates caused panic: runtime
                         # error: integer divide by zero in github.com/projectdiscovery/retryabledns
                         "dns/azure-takeover-detection.yaml",
@@ -311,7 +318,8 @@ class Config:
                         "http/exposed-panels/magento-admin-panel.yaml",
                         "http/exposed-panels/mantisbt-panel.yaml",
                         "http/exposed-panels/mautic-crm-panel.yaml",
-                        "http/exposed-panels/osticket-panel.yaml:",
+                        "http/exposed-panels/opencart-panel.yaml",
+                        "http/exposed-panels/osticket-panel.yaml",
                         # Mostly meant to be publicly accessible
                         "http/exposed-panels/bigbluebutton-login.yaml",
                         "http/exposed-panels/ilias-panel.yaml",

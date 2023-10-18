@@ -9,11 +9,12 @@ import termcolor
 import typer
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 
+from artemis.blocklist import load_blocklist
+from artemis.config import Config
 from artemis.db import DB
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.templating import build_message_template
-from artemis.reporting.blocklist import load_blocklist
 from artemis.reporting.export.common import OUTPUT_LOCATION
 from artemis.reporting.export.custom_template_arguments import (
     parse_custom_template_arguments,
@@ -100,19 +101,13 @@ def main(
         help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "
         "don't need them, but if you modified them on your side, they might.",
     ),
-    blocklist_file: Optional[str] = typer.Option(
-        None,
-        help="Filter vulnerabilities from being included in the messages (this doesn't influence the scanning). "
-        'Please refer to the "Generating e-mails" chapter of the web documentation '
-        "for the syntax of the file.",
-    ),
     verbose: bool = typer.Option(
         False,
         "--verbose",
         help="Print more information (e.g. whether some types of reports have not been observed for a long time).",
     ),
 ) -> None:
-    blocklist = load_blocklist(blocklist_file)
+    blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
 
     if previous_reports_directory:
         previous_reports = load_previous_reports(Path(HOST_ROOT_PATH) / str(previous_reports_directory).lstrip(os.sep))

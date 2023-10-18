@@ -38,6 +38,7 @@ services:
       - /:/host-root/:ro
       - ./output/autoreporter/:/opt/output/autoreporter
       - ./docker/karton.ini:/etc/karton/karton.ini
+      - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
     profiles: ["autoreporter"]  # This will prevent the service from starting by default
 
   karton-system:

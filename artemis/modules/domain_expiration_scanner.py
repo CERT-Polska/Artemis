@@ -23,6 +23,8 @@ class DomainExpirationScanner(ArtemisBase):
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload(TaskType.DOMAIN)
         result: Dict[str, Any] = {}
+        status = TaskStatus.OK
+        status_reason = None
         if is_main_domain(domain):
             try:
                 now = datetime.datetime.now()
@@ -44,17 +46,10 @@ class DomainExpirationScanner(ArtemisBase):
                         if days_to_expire != 1
                         else f"Scanned domain will expire in {days_to_expire} day - (on {expiry_date})."
                     )
-                else:
-                    status = TaskStatus.OK
-                    status_reason = None
-                    self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
             except WhoisQuotaExceeded:
                 time.sleep(24 * 60 * 60)
 
-        else:
-            status = TaskStatus.OK
-            status_reason = None
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
 

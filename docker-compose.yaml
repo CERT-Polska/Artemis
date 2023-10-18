@@ -45,7 +45,7 @@ services:
     depends_on: ["db", "redis", "minio"]
     env_file: .env
     image: "certpl/karton-system:v5.2.0"
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     restart: always
 
   karton-logger:
@@ -56,7 +56,7 @@ services:
     depends_on: [karton-system]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   metrics:
     build:
@@ -66,7 +66,7 @@ services:
     env_file: .env
     ports: ["9000:9000"]
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     command: "python3 -m artemis.metrics"
 
   web:
@@ -79,7 +79,7 @@ services:
      - DASHBOARD_URL=http://127.0.0.1:5001
     ports: ["5000:5000"]
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-dashboard:
     depends_on: [karton-logger]
@@ -87,7 +87,7 @@ services:
     image: certpl/karton-dashboard:v1.5.0
     ports: [5001:5000]
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-classifier:
     build:
@@ -97,7 +97,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-port_scanner:
     build:
@@ -107,7 +107,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-robots:
     build:
@@ -117,7 +117,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-vcs:
     build:
@@ -127,7 +127,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-crtsh:
     build:
@@ -137,7 +137,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-gau:
     build:
@@ -147,7 +147,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-ip-lookup:
     build:
@@ -157,7 +157,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-reverse-dns:
     build:
@@ -167,7 +167,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-bruter:
     build:
@@ -177,7 +177,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-directory_index:
     build:
@@ -187,7 +187,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-identifier:
     build:
@@ -197,7 +197,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-joomla_scanner:
     build:
@@ -207,7 +207,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-wp_scanner:
     build:
@@ -217,7 +217,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-dns_scanner:
     build:
@@ -227,7 +227,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-ftp_bruter:
     build:
@@ -237,7 +237,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-http_service_to_url:
     build:
@@ -247,7 +247,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-mysql_bruter:
     build:
@@ -257,7 +257,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-mail_dns_scanner:
     build:
@@ -267,7 +267,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-nuclei:
     build:
@@ -279,6 +279,7 @@ services:
     restart: always
     volumes:
       - "./docker/karton.ini:/etc/karton/karton.ini"
+      - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
       - data-nuclei-templates:/root/nuclei-templates
       - data-nuclei-config:/root/.config/nuclei
 
@@ -293,7 +294,7 @@ services:
      - POSTMAN_MAIL_FROM=artemis@example.com
      - POSTMAN_MAIL_TO=artemis@example.com
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-postgresql_bruter:
     build:
@@ -303,7 +304,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-wordpress_bruter:
     build:
@@ -313,7 +314,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-shodan_vulns:
     build:
@@ -323,7 +324,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-ssh_bruter:
     build:
@@ -333,7 +334,7 @@ services:
     depends_on: [karton-logger]
     env_file: .env
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini"]
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
 volumes:
   data-mongodb:

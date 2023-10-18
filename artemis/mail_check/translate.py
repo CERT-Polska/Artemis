@@ -463,6 +463,13 @@ TRANSLATIONS = {
             "DMARC record is not syntactically correct. Please closely inspect its syntax.",
             "Rekord DMARC nie ma poprawnej składni. Prosimy o jego dokładną weryfikację.",
         ),
+        (
+            "The SPF record references a domain that doesn't have an SPF record. When using directives such "
+            "as 'include' or 'redirect', remember, that the destination domain should have a proper SPF record.",
+            "Rekord SPF odwołuje się do domeny, która nie zawiera rekordu SPF. W przypadku odwoływania się do "
+            "innych domen za pomocą dyrektyw SPF takich jak 'include' lub 'redirect', domena docelowa powinna również "
+            "zawierać rekord SPF.",
+        ),
     ]
 }
 

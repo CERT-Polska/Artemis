@@ -688,5 +688,5 @@ TRANSLATIONS = {
     "Qlik Sense Server panel was detected.": "wykryto panel Qlik Sense Server.",
     "Leostream login panel was detected.": "wykryto panel logowania Leostream.",
     "http/exposed-panels/workresources-rdp.yaml": "wykryto panel RDWeb RemoteApp and Desktop Connections.",
-    "Greenbone Security Assistant Web Panel is detected": "wykryto panel Greenbone Security Assistant Web Panel.",
+    "Greenbone Security Assistant Web Panel is detected": "wykryto panel Greenbone Security Assistant.",
 }

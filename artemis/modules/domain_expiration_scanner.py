@@ -28,18 +28,13 @@ class DomainExpirationScanner(ArtemisBase):
         if is_main_domain(domain):
             try:
                 domain_data = self._query_whois(domain=domain)
-                expiry_date = domain_data.expiration_date
-                result = self._prepare_expiration_data(expiration_date=expiry_date, result=result)
-                status = TaskStatus.INTERESTING
-                status_reason = self._prepare_expiration_status_reason(
-                    days_to_expire=result["days_to_expire"], expiration_date=result["expiration_date"]
-                )
-
             except WhoisQuotaExceeded:
                 time.sleep(24 * 60 * 60)
                 domain_data = self._query_whois(domain=domain)
-                expiry_date = domain_data.expiration_date
-                result = self._prepare_expiration_data(expiration_date=expiry_date, result=result)
+
+            expiry_date = domain_data.expiration_date
+            result = self._prepare_expiration_data(expiration_date=expiry_date, result=result)
+            if "close_expiration_date" in result:
                 status = TaskStatus.INTERESTING
                 status_reason = self._prepare_expiration_status_reason(
                     days_to_expire=result["days_to_expire"], expiration_date=result["expiration_date"]

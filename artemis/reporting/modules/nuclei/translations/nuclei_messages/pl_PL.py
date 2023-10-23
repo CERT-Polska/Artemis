@@ -534,6 +534,13 @@ TRANSLATIONS = {
     "[no description] http/vulnerabilities/jenkins/unauthenticated-jenkins.yaml": "Wykryto publicznie dostępny system Jenkins, który nie wymaga zalogowania. Rekomendujemy, aby nie był on dostępny publicznie oraz zalecamy włączenie mechanizmu uwierzytelniania, ponieważ może umożliwić atakującemu uruchamianie własnych zadań lub nieuprawniony dostęp do informacji/kodu źródłowego.",
     "Possible Juicy Files can be discovered at this endpoint. Search / Grep for secrets like hashed passwords ( SHA ) , internal email disclosure etc.": "Wykryto konfigurację Adobe Experience Manager, mogącą zawierać dane, które nie powinny być dostępne publicznie.",
     "[no description] http/takeovers/webflow-takeover.yaml": "Wykryto domenę kierującą do narzędzia Webflow, ale domena docelowa jest wolna. Atakujący może zarejestrować domenę w narzędziu Webflow, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "HiBoss allows remote unauthenticated attackers to cause the server to execute arbitrary code via the 'server_ping.php' endpoint and the 'ip' parameter.": "Wykryto, że narzędzie HiBoss umożliwia niezalogowanym atakującym zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "phpwiki 1.5.4 is vulnerable to cross-site scripting and local file inclusion, and allows remote unauthenticated attackers to include and return the content of locally stored files via the 'index.php' endpoint.": "phpwiki w wersji 1.5.4 zawiera podatności Local File Inclusion i Cross-Site Scripting, umożliwiające atakującemu odczyt różnych plików z dysku i spreparowanie linku który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści). "
+    + UPDATE_HINT,
+    "Sites hosted by Global Domains International, Inc. have cross-site scripting and directory traversal vulnerabilities.": "Wykryto stronę hostowaną w Global Domains International, Inc. zawierającą podatności Directory Traversal i Cross-Site Scripting, umożliwiające atakującemu odczyt różnych plików z dysku i spreparowanie linku który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści).",
+    "XNAT contains an admin default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że narzędzie XNAT umożliwia logowanie za pomocą domyślnej nazwy użytkownika i hasła. Atakujący może uzyskać dostęp do kont użytkowników, pobrać wrażliwe dane, zmienić dane lub wykonywać nieuprawnione operacje.",
+    "IBM Eclipse Help System 6.1.0 through 6.1.0.6, 6.1.5 through 6.1.5.3, 7.0 through 7.0.0.2, and 8.0 prior to 8.0.0.1 contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site.": "IBM Eclipse Help System w wersji od 6.1.0 do 6.1.0.6, 6.1.5 do 6.1.5.3, 7.0 do 7.0.0.2 i 8.0 poniżej 8.0.0.1 zawiera podatność Cross-Site Scripting umożliwiającą atakującemu spreparowanie linku który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści).",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -679,4 +686,7 @@ TRANSLATIONS = {
     "Versa SD-WAN login panel was detected.": "wykryto panel logowania Versa SD-WAN.",
     "Traefik Dashboard panel was detected.": "wykryto panel Traeifk Dashboard.",
     "Qlik Sense Server panel was detected.": "wykryto panel Qlik Sense Server.",
+    "Leostream login panel was detected.": "wykryto panel logowania Leostream.",
+    "http/exposed-panels/workresources-rdp.yaml": "wykryto panel RDWeb RemoteApp and Desktop Connections.",
+    "Greenbone Security Assistant Web Panel is detected": "wykryto panel Greenbone Security Assistant.",
 }

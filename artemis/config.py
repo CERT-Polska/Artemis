@@ -282,6 +282,7 @@ class Config:
                         "http/exposed-panels/kentico-login.yaml",
                         "http/exposed-panels/liferay-portal.yaml",
                         "http/exposed-panels/magnolia-panel.yaml",
+                        "http/exposed-panels/netlify-cms.yaml",
                         "http/exposed-panels/strapi-panel.yaml",
                         "http/exposed-panels/typo3-login.yaml",
                         "http/exposed-panels/umbraco-login.yaml",
@@ -321,6 +322,8 @@ class Config:
                         # Mostly meant to be publicly accessible
                         "http/exposed-panels/bigbluebutton-login.yaml",
                         "http/exposed-panels/ilias-panel.yaml",
+                        "http/exposed-panels/opensis-panel.yaml",
+                        "http/exposed-panels/projectsend-login.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

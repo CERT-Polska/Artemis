@@ -34,6 +34,7 @@ class DomainExpirationScanner(ArtemisBase):
 
             expiry_date = domain_data.expiration_date
             result = self._prepare_expiration_data(expiration_date=expiry_date, result=result)
+
             if "close_expiration_date" in result:
                 status = TaskStatus.INTERESTING
                 status_reason = self._prepare_expiration_status_reason(
@@ -54,7 +55,7 @@ class DomainExpirationScanner(ArtemisBase):
             days_to_expire = (expiration_date - now).days
         result["expiration_date"] = expiration_date
         if days_to_expire and days_to_expire <= Config.Modules.DomainExpirationScanner.DOMAIN_EXPIRATION_TIMEFRAME_DAYS:
-            result["close_expiry_date"] = True
+            result["close_expiration_date"] = True
             result["days_to_expire"] = days_to_expire
         return result
 

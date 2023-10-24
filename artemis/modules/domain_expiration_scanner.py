@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import datetime
 import time
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from karton.core import Task
 from whois import Domain, WhoisQuotaExceeded, query  # type: ignore
@@ -48,7 +48,9 @@ class DomainExpirationScanner(ArtemisBase):
         return query(domain)
 
     @staticmethod
-    def _prepare_expiration_data(expiration_date: datetime.datetime, result: Dict[str, Any]) -> Dict[str, Any]:
+    def _prepare_expiration_data(
+        expiration_date: Optional[datetime.datetime], result: Dict[str, Any]
+    ) -> Dict[str, Any]:
         days_to_expire = None
         now = datetime.datetime.now()
         if expiration_date:

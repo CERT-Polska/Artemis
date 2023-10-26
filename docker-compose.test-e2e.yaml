@@ -6,7 +6,7 @@ services:
 
   karton-bruter:
     environment:
-      SECONDS_PER_REQUEST: 0
+      REQUEST_PER_SECOND: 10
   redis:
     volumes:
       - data-test-redis:/data

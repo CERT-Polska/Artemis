@@ -541,6 +541,14 @@ TRANSLATIONS = {
     "Sites hosted by Global Domains International, Inc. have cross-site scripting and directory traversal vulnerabilities.": "Wykryto stronę hostowaną w Global Domains International, Inc. zawierającą podatności Directory Traversal i Cross-Site Scripting, umożliwiające atakującemu odczyt różnych plików z dysku i spreparowanie linku który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści).",
     "XNAT contains an admin default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że narzędzie XNAT umożliwia logowanie za pomocą domyślnej nazwy użytkownika i hasła. Atakujący może uzyskać dostęp do kont użytkowników, pobrać wrażliwe dane, zmienić dane lub wykonywać nieuprawnione operacje.",
     "IBM Eclipse Help System 6.1.0 through 6.1.0.6, 6.1.5 through 6.1.5.3, 7.0 through 7.0.0.2, and 8.0 prior to 8.0.0.1 contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site.": "IBM Eclipse Help System w wersji od 6.1.0 do 6.1.0.6, 6.1.5 do 6.1.5.3, 7.0 do 7.0.0.2 i 8.0 poniżej 8.0.0.1 zawiera podatność Cross-Site Scripting umożliwiającą atakującemu spreparowanie linku który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści).",
+    "The takeover will succeed when the target domain has a cname that points to the lemlist and in their account they only customize the domain in the tracking column so in the custom page column, as an attacker, they can enter the target domain.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia lemlist, ale strona docelowa nie istnieje i potencjalnie, w niektórych przypadkach, może być przejęta przez atakującego. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "Joomla! com_booking component suffers from Information leak vulnerability in which sensitive or confidential data is unintentionally exposed or made accessible to unauthorized individuals or systems.": "Komponent Joomla! o nazwie com_booking w wersji 2.4.9 zawiera podatność Information Leak umożliwiającą atakującym pobranie wrażliwych danych."
+    + UPDATE_HINT,
+    "http/misconfiguration/springboot/springboot-trace.yaml": "Wykryto końcówkę systemu Spring Boot umożliwiającą podgląd żądań i odpowiedzi HTTP, które mogą zawierać dane wrażliwe. Rekomendujemy, aby takie końcówki nie były dostępne publicznie.",
+    "http/misconfiguration/springboot/springboot-dump.yaml": "Wykryto końcówkę systemu Spring Boot umożliwiającą podgląd wątków uruchomionych w systemie. Rekomendujemy, aby takie końcówki nie były dostępne publicznie.",
+    "A local file inclusion vulnerability in Accent Microcomputers offerings could allow remote attackers to retrieve password files.": "Wykryto podatność Local File Inclusion w oprogramowaniu Accent Microcomputers umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "http/exposures/configs/zend-config-file.yaml": "Wykryto plik konfiguracyjny systemu Zend zawierający dane logowania do bazy danych."
+    + DATA_HIDE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -689,4 +697,9 @@ TRANSLATIONS = {
     "Leostream login panel was detected.": "wykryto panel logowania Leostream.",
     "http/exposed-panels/workresources-rdp.yaml": "wykryto panel RDWeb RemoteApp and Desktop Connections.",
     "Greenbone Security Assistant Web Panel is detected": "wykryto panel Greenbone Security Assistant.",
+    "TIBCO Jaspersoft login panel was detected.": "wykryto panel TIBCO Jaspersoft.",
+    "SQL Buddy login panel was detected.": "wykryto panel logowania SQL Buddy.",
+    "OpenStack Dashboard login panel was detected.": "wykryto panel logowania OpenStack Dashboard.",
+    "http/exposed-panels/uptime-kuma-panel.yaml": "wykryto panel Uptime Kuma.",
+    "http/exposed-panels/portainer-panel.yaml": "wykryto panel logowania narzędzia Portainer.",
 }

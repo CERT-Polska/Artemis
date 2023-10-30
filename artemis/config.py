@@ -271,6 +271,7 @@ class Config:
                         # Feel free to make a different decision.
                         "http/exposed-panels/adobe/aem-sling-login.yaml",
                         "http/exposed-panels/alfresco-detect.yaml",
+                        "http/exposed-panels/backpack/backpack-admin-panel.yaml",
                         "http/exposed-panels/bolt-cms-panel.yaml",
                         "http/exposed-panels/concrete5/concrete5-panel.yaml",
                         "http/exposed-panels/contao-login-panel.yaml",
@@ -284,6 +285,7 @@ class Config:
                         "http/exposed-panels/magnolia-panel.yaml",
                         "http/exposed-panels/netlify-cms.yaml",
                         "http/exposed-panels/strapi-panel.yaml",
+                        "http/exposed-panels/tikiwiki-cms.yaml",
                         "http/exposed-panels/typo3-login.yaml",
                         "http/exposed-panels/umbraco-login.yaml",
                         "http/exposed-panels/wordpress-login.yaml",

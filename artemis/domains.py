@@ -5,7 +5,7 @@ PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
 def is_domain(candidate: str) -> bool:
-    result = validators.domain(candidate)
+    result = validators.domain(candidate, rfc_2782=True)
     # validators returns True if correct, else raisable Error obj
     if isinstance(result, validators.ValidationError):
         return False

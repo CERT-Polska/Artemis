@@ -1,7 +1,7 @@
 aiofiles==23.2.1
 aiohttp==3.8.6
 anytree==2.11.1
-Babel==2.13.0
+Babel==2.13.1
 beautifulsoup4==4.12.2
 certifi==2023.7.22
 chardet==5.2.0

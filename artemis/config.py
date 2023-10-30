@@ -367,7 +367,7 @@ class Config:
                 "NUCLEI_SUSPICIOUS_TEMPLATES",
                 default=",".join(
                     [
-                        "custom:time-based-sql-injection",
+                        "custom:xss-inside-tag-top-params",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
                     ]
                 ),

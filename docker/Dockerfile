@@ -3,7 +3,7 @@ FROM python:3.11-alpine3.18
 COPY docker/wait-for-it.sh /wait-for-it.sh
 
 ARG ADDITIONAL_REQUIREMENTS
-RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
+RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev whois && \
     apk add --no-cache bash libpcap libpq git subversion
 RUN GOBIN=/usr/local/bin/ go install github.com/projectdiscovery/naabu/v2/cmd/naabu@v2.1.6 && \
     GOBIN=/usr/local/bin/ go install github.com/praetorian-inc/fingerprintx/cmd/fingerprintx@v1.1.9 && \

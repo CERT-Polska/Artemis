@@ -2,7 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List, Tuple
 
 from .language import Language
-from .normal_form import NormalForm, get_url_normal_form, get_url_score
+from .normal_form import (
+    NormalForm,
+    get_domain_normal_form,
+    get_domain_score,
+    get_url_normal_form,
+    get_url_score,
+)
 from .report import Report
 from .report_type import ReportType
 from .templating import ReportEmailTemplateFragment
@@ -64,13 +70,17 @@ class Reporter(ABC):
 
     @staticmethod
     def default_scoring_rule(report: Report) -> List[int]:
-        return [get_url_score(report.target)]
+        assert report.target_is_url() or report.target_is_domain()
+        return [get_url_score(report.target) if report.target_is_url() else get_domain_score(report.target)]
 
     @staticmethod
     def default_normal_form_rule(report: Report) -> NormalForm:
+        assert report.target_is_url() or report.target_is_domain()
         return Reporter.dict_to_tuple(
             {
                 "type": report.report_type,
-                "target": get_url_normal_form(report.target),
+                "target": get_url_normal_form(report.target)
+                if report.target_is_url()
+                else get_domain_normal_form(report.target),
             }
         )

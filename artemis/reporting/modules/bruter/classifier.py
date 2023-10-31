@@ -182,6 +182,9 @@ def is_exposed_file_with_listing(found_url: FoundURL) -> bool:
 
 
 def is_exposed_archive(found_url: FoundURL) -> bool:
+    if _is_html(found_url.content_prefix):
+        return False
+
     path = urllib.parse.urlparse(found_url.url).path
     if ".zip" in path and found_url.content_prefix.startswith("PK"):
         return True

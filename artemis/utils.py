@@ -45,20 +45,26 @@ def is_directory_index(content: str) -> bool:
 
 def throttle_request(f: Callable[[], Any]) -> Any:
     request_per_second = Config.Limits.REQUEST_PER_SECOND
-    if request_per_second >= 1:
+    if request_per_second == 0:
+        return f()
+    elif request_per_second >= 1:
         average_time_per_request = 1 / request_per_second
         f_start = time.time()
-        f()
-        func_time = time.time() - f_start
-        if func_time < average_time_per_request:
-            time.sleep(average_time_per_request - func_time)
+        try:
+            return f()
+        finally:
+            func_time = time.time() - f_start
+            if func_time < average_time_per_request:
+                time.sleep(average_time_per_request - func_time)
     elif request_per_second < 1:
         seconds_for_req = math.floor(1 / request_per_second)
         f_start = time.time()
-        f()
-        func_time = time.time() - f_start
-        if func_time < seconds_for_req:
-            time.sleep(func_time - f_start)
+        try:
+            return f()
+        finally:
+            func_time = time.time() - f_start
+            if func_time < seconds_for_req:
+                time.sleep(func_time - f_start)
 
 
 def get_host_from_url(url: str) -> str:

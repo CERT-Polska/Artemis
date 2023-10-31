@@ -132,9 +132,9 @@ class Config:
         REQUEST_PER_SECOND: Annotated[
             int,
             """
-            E.g. when set to 2, Artemis will make sure no HTTP/MySQL connect/... request takes less than 2 seconds, sleeping if needed.
+            E.g. when set to 2, Artemis will make sure no more HTTP/MySQL connect/... requests take place per second, sleeping if needed.
             """,
-        ] = get_config("REQUEST_PER_SECOND", default=1, cast=float)
+        ] = get_config("REQUEST_PER_SECOND", default=0, cast=float)
 
     class Miscellaneous:
         BLOCKLIST_FILE: Annotated[

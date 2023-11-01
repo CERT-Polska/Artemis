@@ -154,7 +154,7 @@ class Config:
 
         LOGGING_FORMAT_STRING: Annotated[
             str,
-            "Logging format string (according to the format in https://docs.python.org/3/library/logging.html#logrecord-attributes",
+            "Logging format string (according to the syntax in https://docs.python.org/3/library/logging.html#logrecord-attributes)",
         ] = get_config(
             "LOGGING_FORMAT_STRING",
             default="[%(asctime)s][%(levelname)s] %(filename)s %(funcName)s() line %(lineno)d: %(message)s",

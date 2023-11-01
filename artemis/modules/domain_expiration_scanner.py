@@ -27,7 +27,7 @@ class DomainExpirationScanner(ArtemisBase):
     def run(self, current_task: Task) -> None:
         self.log.info("Making sure only one DomainExpirationScanner instance runs")
         with self.lock:
-            self.log.info("Made sure")
+            self.log.info("Made sure only one DomainExpirationScanner instance runs")
 
             domain = current_task.get_payload(TaskType.DOMAIN)
             result: Dict[str, Any] = {}
@@ -41,7 +41,9 @@ class DomainExpirationScanner(ArtemisBase):
                     self.log.info("Failed whois query for %s", domain)
                     time.sleep(24 * 60 * 60)
                     domain_data = self._query_whois(domain=domain)
-                    self.log.info("Successful whois query for %s after retry, expiry=%s", domain, domain_data.expiration_date)
+                    self.log.info(
+                        "Successful whois query for %s after retry, expiry=%s", domain, domain_data.expiration_date
+                    )
 
                 expiry_date = domain_data.expiration_date
                 result = self._prepare_expiration_data(expiration_date=expiry_date, result=result)

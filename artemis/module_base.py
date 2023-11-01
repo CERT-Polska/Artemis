@@ -1,3 +1,4 @@
+import logging
 import random
 import sys
 import time
@@ -91,6 +92,9 @@ class ArtemisBase(Karton):
             return values[1]
         """
         )
+
+        for handler in self.log.handlers:
+            handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
 
     def cached_get(self, url: str, cache_key: str) -> bytes:
         if not self.cache.get(cache_key):

@@ -117,7 +117,7 @@ class Config:
     class Limits:
         TASK_TIMEOUT_SECONDS: Annotated[
             int, "What is the maximum task run time (after which it will get killed)."
-        ] = get_config("TASK_TIMEOUT_SECONDS", default=4 * 3600, cast=int)
+        ] = get_config("TASK_TIMEOUT_SECONDS", default=6 * 3600, cast=int)
 
         REQUEST_TIMEOUT_SECONDS: Annotated[
             int,

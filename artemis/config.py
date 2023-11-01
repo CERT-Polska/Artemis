@@ -443,7 +443,7 @@ class Config:
         class DomainExpirationScanner:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
-            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=5, cast=int)
+            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=14, cast=int)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

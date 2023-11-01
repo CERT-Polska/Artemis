@@ -45,6 +45,8 @@ class ArtemisBase(Karton):
     # their IPs are already scanned, the actual batch size may be lower.
     task_max_batch_size = 1
 
+    timeout_seconds = Config.Limits.TASK_TIMEOUT_SECONDS
+
     lock_target = Config.Locking.LOCK_SCANNED_TARGETS
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
@@ -344,10 +346,10 @@ class ArtemisBase(Karton):
 
         try:
             if self.batch_tasks:
-                timeout_decorator.timeout(Config.Limits.TASK_TIMEOUT_SECONDS)(lambda: self.run_multiple(tasks))()
+                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
             else:
                 (task,) = tasks
-                timeout_decorator.timeout(Config.Limits.TASK_TIMEOUT_SECONDS)(lambda: self.run(task))()
+                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
         except Exception:
             for task in tasks:
                 self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())

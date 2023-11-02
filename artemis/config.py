@@ -340,8 +340,9 @@ class Config:
                 "NUCLEI_ADDITIONAL_TEMPLATES",
                 default=",".join(
                     [
-                        "vulnerabilities/generic/basic-xss-prober.yaml",
-                        "exposures/configs/ftp-credentials-exposure.yaml",
+                        "http/vulnerabilities/generic/basic-xss-prober.yaml",
+                        "http/exposures/configs/ftp-credentials-exposure.yaml",
+                        "http/exposures/files/core-dump.yaml",
                         "http/misconfiguration/server-status.yaml",
                         "http/misconfiguration/server-status-localhost.yaml",
                         "http/misconfiguration/shell-history.yaml",
@@ -355,7 +356,7 @@ class Config:
                         "http/misconfiguration/proxy/open-proxy-external.yaml",
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
                         "http/exposures/files/ds-store-file.yaml",
-                        "misconfiguration/elasticsearch.yaml",
+                        "http/misconfiguration/elasticsearch.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

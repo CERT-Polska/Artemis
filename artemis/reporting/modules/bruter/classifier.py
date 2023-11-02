@@ -48,6 +48,9 @@ def is_log_file(found_url: FoundURL) -> bool:
                 "access.log" in href
                 or "error.log" in href
                 or "debug.log" in href
+                or "accesslog" in href
+                or "errorlog" in href
+                or "debuglog" in href
                 or "access_log" in href
                 or "error_log" in href
                 or "debug_log" in href
@@ -180,6 +183,15 @@ def is_exposed_file_with_listing(found_url: FoundURL) -> bool:
     if (
         ".listing" in path and "drwx" in found_url.content_prefix and "<html" not in found_url.content_prefix
     ):  # other type of listing
+        return True
+
+    path = urllib.parse.urlparse(found_url.url).path
+    if (
+        "dwsync.xml" in path
+        and "<dwsync>" in found_url.content_prefix
+        and "<file name=" in found_url.content_prefix
+        and "<html" not in found_url.content_prefix
+    ):
         return True
 
     if (

@@ -193,7 +193,8 @@ def is_exposed_archive(found_url: FoundURL) -> bool:
     if ".zip" in path and found_url.content_prefix.startswith("PK"):
         return True
 
-    if ".tar" in path and "ustar" in found_url.content_prefix:
+    # Let's allow gzip signature as well as we observe gzip files with tar extension
+    if ".tar" in path and ("ustar" in found_url.content_prefix or found_url.content_prefix.startswith("\x1f")):
         return True
 
     if ".gz" in path and found_url.content_prefix.startswith("\x1f"):

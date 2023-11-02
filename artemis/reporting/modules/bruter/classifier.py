@@ -114,7 +114,14 @@ def is_configuration_file(found_url: FoundURL) -> bool:
     ):  # let's assume everything that has config in the path is a config file: /config/prod.inc, /wp-config.php~ etc.
         return False
 
-    if ".php" not in path and ".inc" not in path and ".phtml" not in path:  # .php covers .php, but also e.g. .php5
+    if (
+        ".php" not in path
+        and ".inc" not in path
+        and ".txt" not in path
+        and ".old" not in path
+        and ".bak" not in path
+        and ".phtml" not in path
+    ):  # .php covers .php, but also e.g. .php5
         return False
 
     if _is_html(found_url.content_prefix):
@@ -196,7 +203,7 @@ def is_exposed_archive(found_url: FoundURL) -> bool:
     if ".tar" in path and "ustar" in found_url.content_prefix:
         return True
 
-    if ".gz" in path and found_url.content_prefix.startswith("\x1f"):
+    if (".gz" in path or ".tgz" in path) and found_url.content_prefix.startswith("\x1f"):
         return True
 
     return False

@@ -48,6 +48,9 @@ def is_log_file(found_url: FoundURL) -> bool:
                 "access.log" in href
                 or "error.log" in href
                 or "debug.log" in href
+                or "accesslog" in href
+                or "errorlog" in href
+                or "debuglog" in href
                 or "access_log" in href
                 or "error_log" in href
                 or "debug_log" in href
@@ -114,7 +117,14 @@ def is_configuration_file(found_url: FoundURL) -> bool:
     ):  # let's assume everything that has config in the path is a config file: /config/prod.inc, /wp-config.php~ etc.
         return False
 
-    if ".php" not in path and ".inc" not in path and ".phtml" not in path:  # .php covers .php, but also e.g. .php5
+    if (
+        ".php" not in path
+        and ".inc" not in path
+        and ".txt" not in path
+        and ".old" not in path
+        and ".bak" not in path
+        and ".phtml" not in path
+    ):  # .php covers .php, but also e.g. .php5
         return False
 
     if _is_html(found_url.content_prefix):
@@ -175,6 +185,15 @@ def is_exposed_file_with_listing(found_url: FoundURL) -> bool:
     ):  # other type of listing
         return True
 
+    path = urllib.parse.urlparse(found_url.url).path
+    if (
+        "dwsync.xml" in path
+        and "<dwsync>" in found_url.content_prefix
+        and "<file name=" in found_url.content_prefix
+        and "<html" not in found_url.content_prefix
+    ):
+        return True
+
     if (
         path.strip("/") in found_url.content_prefix
         and "<PRE>" in found_url.content_prefix
@@ -197,7 +216,7 @@ def is_exposed_archive(found_url: FoundURL) -> bool:
     if ".tar" in path and ("ustar" in found_url.content_prefix or found_url.content_prefix.startswith("\x1f")):
         return True
 
-    if ".gz" in path and found_url.content_prefix.startswith("\x1f"):
+    if (".gz" in path or ".tgz" in path) and found_url.content_prefix.startswith("\x1f"):
         return True
 
     return False

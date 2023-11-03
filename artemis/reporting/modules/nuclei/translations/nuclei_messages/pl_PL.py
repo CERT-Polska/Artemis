@@ -702,4 +702,10 @@ TRANSLATIONS = {
     "OpenStack Dashboard login panel was detected.": "wykryto panel logowania OpenStack Dashboard.",
     "http/exposed-panels/uptime-kuma-panel.yaml": "wykryto panel Uptime Kuma.",
     "http/exposed-panels/portainer-panel.yaml": "wykryto panel logowania narzędzia Portainer.",
+    "Plesk login panel was detected.": "wykryto panel logowania Plesk.",
+    "H2 Console Web login panel was detected.": "wykryto panel logowania H2 Console Web.",
+    "Redash login panel was detected.": "wykryto panel logowania Redash.",
+    "http/exposed-panels/bitwarden-vault-panel.yaml": "wykryto panel Bitwarden Vault.",
+    "Bitdefender GravityZone panel was detected.": "wykryto panel Bitdefender GravityZone.",
+    "Kerio Connect login panel was detected.": "wykryto panel logowania Kerio Connect.",
 }

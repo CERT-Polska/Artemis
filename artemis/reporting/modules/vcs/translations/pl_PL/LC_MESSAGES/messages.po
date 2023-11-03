@@ -15,6 +15,18 @@ msgstr ""
 "hasła czy klucze API - również uzyskanie nieuprawnionego dostępu. "
 "Rekomendujemy, aby tego typu dane nie były dostępne publicznie."
 
+#: artemis/reporting/modules/vcs/template_exposed_version_control_folder.jinja2:21
+msgid ""
+"Even if directory listing in a folder is not enabled, a repository may be"
+" cloned by an attacker. We recommend making the whole version control "
+"folders (not only the example files listed above) inaccessible for "
+"external usera."
+msgstr ""
+"Nawet, jeśli w katalogu .git czy .svn serwer nie wyświetla listy plików, "
+"pobranie repozytorium przez atakującego jest możliwe. Rekomendujemy, aby "
+"całe te foldery nie były dostępne, nie tylko przykładowe pliki "
+"repozytorium podane powyżej."
+
 #: artemis/reporting/modules/vcs/template_exposed_version_control_folder_with_credentials.jinja2:3
 msgid ""
 "The following addresses contain version control system data together with"

@@ -17,5 +17,12 @@
                 Such data shouldn't be publicly available.
             {% endtrans %}
         </p>
+        <p>
+            {% trans trimmed %}
+                Even if directory listing in a folder is not enabled, a repository may be cloned by an attacker.
+                We recommend making the whole version control folders (not only the example files listed above)
+                inaccessible for external usera.
+            {% endtrans %}
+        </p>
     </li>
 {% endif %}

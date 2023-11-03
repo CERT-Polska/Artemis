@@ -69,7 +69,7 @@ class VCSReporter(Reporter):
                 return [
                     Report(
                         top_level_target=get_top_level_target(task_result),
-                        target=repo_url,
+                        target=db_url,
                         report_type=VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER_WITH_CREDENTIALS,
                         additional_data={
                             "config_url": db_url,
@@ -98,7 +98,7 @@ class VCSReporter(Reporter):
             return [
                 Report(
                     top_level_target=get_top_level_target(task_result),
-                    target=repo_url,
+                    target=db_url,
                     report_type=VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER,
                     additional_data={"config_url": db_url},
                     timestamp=task_result["created_at"],
@@ -148,7 +148,7 @@ class VCSReporter(Reporter):
                 return [
                     Report(
                         top_level_target=get_top_level_target(task_result),
-                        target=repo_url,
+                        target=config_url,
                         report_type=VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER_WITH_CREDENTIALS,
                         additional_data={
                             "config_url": repo_url,
@@ -161,7 +161,7 @@ class VCSReporter(Reporter):
 
         report = Report(
             top_level_target=get_top_level_target(task_result),
-            target=repo_url,
+            target=config_url,
             report_type=VCSReporter.EXPOSED_VERSION_CONTROL_FOLDER,
             additional_data={"config_url": config_url},
             timestamp=task_result["created_at"],

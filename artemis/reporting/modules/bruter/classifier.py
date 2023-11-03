@@ -70,6 +70,9 @@ def is_log_file(found_url: FoundURL) -> bool:
         "PHP Notice:",
         "PHP Fatal error:",
         "errno:",
+        "StackTrace:",
+        "[:error]",
+        "[pid ",
         "Errcode",
     ]
     if any([match_string in found_url.content_prefix for match_string in match_strings]):

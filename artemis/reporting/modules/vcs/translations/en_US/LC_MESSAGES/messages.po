@@ -9,6 +9,14 @@ msgid ""
 "gain unauthorized access. Such data shouldn't be publicly available."
 msgstr ""
 
+#: artemis/reporting/modules/vcs/template_exposed_version_control_folder.jinja2:21
+msgid ""
+"Even if directory listing in a repository folder is not enabled, a "
+"repository may be copied by an attacker. We recommend making the whole "
+"version control folders (not only the example files listed above) "
+"inaccessible for external users."
+msgstr ""
+
 #: artemis/reporting/modules/vcs/template_exposed_version_control_folder_with_credentials.jinja2:3
 msgid ""
 "The following addresses contain version control system data together with"

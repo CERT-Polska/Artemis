@@ -181,7 +181,15 @@ def is_exposed_file_with_listing(found_url: FoundURL) -> bool:
 
     path = urllib.parse.urlparse(found_url.url).path
     if (
-        ".listing" in path and "drwx" in found_url.content_prefix and "<html" not in found_url.content_prefix
+        ".listing" in path
+        and (
+            "drwx" in found_url.content_prefix
+            or "-rwx" in found_url.content_prefix
+            or "-rw-" in found_url.content_prefix
+            or "-r--" in found_url.content_prefix
+            or "-r-x" in found_url.content_prefix
+        )
+        and "<html" not in found_url.content_prefix
     ):  # other type of listing
         return True
 

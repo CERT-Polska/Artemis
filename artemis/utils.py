@@ -26,6 +26,7 @@ def build_logger(name: str) -> logging.Logger:
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
+    handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
     logger.addHandler(handler)
     return logger
 

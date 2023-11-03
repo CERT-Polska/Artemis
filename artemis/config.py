@@ -152,6 +152,14 @@ class Config:
             "Domains where subdomain enumeration shouldn't happen (e.g. ones that have a large number of subdomains)",
         ] = get_config("DOMAINS_TO_SKIP_SUBDOMAIN_ENUMERATION", default="", cast=decouple.Csv(str, delimiter=","))
 
+        LOGGING_FORMAT_STRING: Annotated[
+            str,
+            "Logging format string (according to the syntax in https://docs.python.org/3/library/logging.html#logrecord-attributes)",
+        ] = get_config(
+            "LOGGING_FORMAT_STRING",
+            default="[%(asctime)s][%(levelname)s] %(filename)s %(funcName)s() line %(lineno)d: %(message)s",
+        )
+
         VERIFY_REVDNS_IN_SCOPE: Annotated[
             bool,
             """

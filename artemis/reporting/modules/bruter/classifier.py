@@ -92,14 +92,16 @@ def is_sql_dump(found_url: FoundURL) -> bool:
     if "sql dump" in found_url.content_prefix.lower():
         return True
 
-    if any([
-        # strip() to allow lines starting with whitespace
-        line.strip().startswith("create table") or
-        line.strip().startswith("alter table") or
-        line.strip().startswith("insert into")
-        for line in found_url.content_prefix.lower().split("\n")
-        ]):
-            return True
+    if any(
+        [
+            # strip() to allow lines starting with whitespace
+            line.strip().startswith("create table")
+            or line.strip().startswith("alter table")
+            or line.strip().startswith("insert into")
+            for line in found_url.content_prefix.lower().split("\n")
+        ]
+    ):
+        return True
 
     return False
 

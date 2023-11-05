@@ -172,9 +172,17 @@ def contains_crypto_keys(found_url: FoundURL) -> bool:
 
 
 def is_exposed_file_with_listing(found_url: FoundURL) -> bool:
+    def has_permission_string(s: str) -> bool:
+        for token in s.split():
+            token = token[-9:]
+            # This on purpose doesn't cover all possible permission strings, but only the most common ones
+            if token != "-" * 9 and re.match("^([-r][-w][-x]){3}$", token):
+                return True
+        return False
+
     if (
         "total " in found_url.content_prefix
-        and "drwx" in found_url.content_prefix
+        and has_permission_string(found_url.content_prefix)
         and not _is_html(found_url.content_prefix)
     ):  # ls results
         return True
@@ -182,13 +190,7 @@ def is_exposed_file_with_listing(found_url: FoundURL) -> bool:
     path = urllib.parse.urlparse(found_url.url).path
     if (
         ".listing" in path
-        and (
-            "drwx" in found_url.content_prefix
-            or "-rwx" in found_url.content_prefix
-            or "-rw-" in found_url.content_prefix
-            or "-r--" in found_url.content_prefix
-            or "-r-x" in found_url.content_prefix
-        )
+        and has_permission_string(found_url.content_prefix)
         and "<html" not in found_url.content_prefix
     ):  # other type of listing
         return True

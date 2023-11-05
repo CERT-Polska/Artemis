@@ -351,6 +351,7 @@ class Config:
                     [
                         "http/vulnerabilities/generic/basic-xss-prober.yaml",
                         "http/exposures/configs/ftp-credentials-exposure.yaml",
+                        "http/exposures/configs/prometheus-metrics.yaml",
                         "http/exposures/files/core-dump.yaml",
                         "http/misconfiguration/server-status.yaml",
                         "http/misconfiguration/server-status-localhost.yaml",

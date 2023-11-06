@@ -92,7 +92,11 @@ class MailDNSScanner(ArtemisBase):
             # - sometimes the DNS lookups are void because of timeouts which can happen if there is
             #   a lot of scanning going on.
             result.spf_dmarc_scan_result = scan_domain(
-                domain=domain, parked=not has_mx_records, ignore_void_dns_lookups=True
+                envelope_domain=domain,
+                from_domain=domain,
+                dkim_domain=None,
+                parked=not has_mx_records,
+                ignore_void_dns_lookups=True,
             )
         except ScanningException:
             self.log.exception("Unable to check domain %s", domain)

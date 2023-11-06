@@ -18,10 +18,10 @@ msgstr "nazwą użytkownika"
 msgid "and"
 msgstr "i"
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:13
+#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:12
 msgid "password"
 msgstr "hasłem"
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:15
+#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:14
 msgid "empty password"
 msgstr "pustym hasłem"

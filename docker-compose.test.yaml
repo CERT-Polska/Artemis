@@ -104,7 +104,7 @@ services:
       - ./test/data/directory_index/:/usr/share/nginx/html/
 
   test-wordpress-easy-password:
-    image: wordpress:6.1.1-apache
+    image: wordpress:6.3.2-apache
     environment:
       WORDPRESS_DB_HOST: test-wordpress-easy-password-mysql
       WORDPRESS_DB_USER: root

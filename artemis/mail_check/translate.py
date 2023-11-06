@@ -341,6 +341,32 @@ TRANSLATIONS = {
             f"{PLACEHOLDER} is not a valid option for the DMARC {PLACEHOLDER} tag",
             f"'{PLACEHOLDER}' nie jest poprawną opcją tagu '{PLACEHOLDER}'",
         ),
+        (
+            f"Domain checked by the SPF mechanism (from the RFC5321.MailFrom header: {PLACEHOLDER}) is not aligned with "
+            f"the DMARC record domain (from the RFC5322.From header: {PLACEHOLDER}). Read more about various e-mail From "
+            f"headers on https://dmarc.org/2016/07/how-many-from-addresses-are-there/",
+            f"Domena sprawdzana przez mechanizm SPF (z nagłówka RFC5321.MailFrom: {PLACEHOLDER}) nie jest zgodna z domeną "
+            f"rekordu DMARC (z nagłówka RFC5322.From: {PLACEHOLDER}). Na stronie "
+            f"https://dmarc.org/2016/07/how-many-from-addresses-are-there/ można przeczytać więcej o nagłówkach nadawcy wiadomości.",
+        ),
+        (
+            f"Domain from the DKIM signature ({PLACEHOLDER}) is not aligned with the DMARC record domain "
+            f"(from the From header: {PLACEHOLDER}).",
+            f"Domena podpisu DKIM ({PLACEHOLDER}) nie jest zgodna z domeną rekordu "
+            f"DMARC (z nagłówka From: {PLACEHOLDER}).",
+        ),
+        (
+            "Invalid or no e-mail domain in the message From header",
+            "Brak lub niepoprawna domena w nagłówku From e-maila.",
+        ),
+        (
+            "The value of the pct tag must be an integer",
+            "Wartość tagu 'pct' musi być liczbą całkowitą.",
+        ),
+        (
+            f"Failed to retrieve MX records for the domain of {PLACEHOLDER} email address {PLACEHOLDER} - The domain {PLACEHOLDER} does not exist",
+            f"Nie udało się pobrać rekordów MX domeny adresu e-mail podanego w tagu '{PLACEHOLDER}': {PLACEHOLDER} - domena {PLACEHOLDER} nie istnieje.",
+        ),
         # dkimpy messages
         (
             f"{PLACEHOLDER} value is not valid base64 {PLACEHOLDER}",
@@ -474,7 +500,7 @@ TRANSLATIONS = {
 }
 
 
-def translate(
+def _translate_using_dictionary(
     message: str,
     dictionary: List[Tuple[str, str]],
     nonexistent_translation_handler: Optional[Callable[[str], str]] = None,
@@ -494,7 +520,7 @@ def translate(
     and will have the same order of placeholders.
     """
     for m_from, m_to in dictionary:
-        pattern = "^" + re.escape(m_from).replace(PLACEHOLDER, "(.*)") + "$"
+        pattern = "^" + re.escape(m_from).replace(PLACEHOLDER, "(.|\n)*") + "$"
         regexp_match = re.match(pattern, message)
 
         # a dictionary rule matched the message
@@ -517,7 +543,7 @@ def translate(
         raise NotImplementedError(f"Unable to translate {message}")
 
 
-def _(
+def translate(
     message: str,
     language: Language,
     nonexistent_translation_handler: Optional[Callable[[str], str]] = None,
@@ -525,7 +551,7 @@ def _(
     if language == Language.en_US:
         return message
 
-    return translate(
+    return _translate_using_dictionary(
         message,
         TRANSLATIONS[language],
         nonexistent_translation_handler=nonexistent_translation_handler,
@@ -539,19 +565,19 @@ def _translate_domain_result(
 ) -> DomainScanResult:
     new_domain_result = copy.deepcopy(domain_result)
     new_domain_result.spf.errors = [
-        _(error, language, nonexistent_translation_handler) for error in domain_result.spf.errors
+        translate(error, language, nonexistent_translation_handler) for error in domain_result.spf.errors
     ]
     new_domain_result.spf.warnings = [
-        _(warning, language, nonexistent_translation_handler) for warning in domain_result.spf.warnings
+        translate(warning, language, nonexistent_translation_handler) for warning in domain_result.spf.warnings
     ]
     new_domain_result.dmarc.errors = [
-        _(error, language, nonexistent_translation_handler) for error in domain_result.dmarc.errors
+        translate(error, language, nonexistent_translation_handler) for error in domain_result.dmarc.errors
     ]
     new_domain_result.dmarc.warnings = [
-        _(warning, language, nonexistent_translation_handler) for warning in domain_result.dmarc.warnings
+        translate(warning, language, nonexistent_translation_handler) for warning in domain_result.dmarc.warnings
     ]
     new_domain_result.warnings = [
-        _(warning, language, nonexistent_translation_handler) for warning in new_domain_result.warnings
+        translate(warning, language, nonexistent_translation_handler) for warning in new_domain_result.warnings
     ]
     return new_domain_result
 
@@ -562,9 +588,11 @@ def _translate_dkim_result(
     nonexistent_translation_handler: Optional[Callable[[str], str]] = None,
 ) -> DKIMScanResult:
     new_dkim_result = copy.deepcopy(dkim_result)
-    new_dkim_result.errors = [_(error, language, nonexistent_translation_handler) for error in dkim_result.errors]
+    new_dkim_result.errors = [
+        translate(error, language, nonexistent_translation_handler) for error in dkim_result.errors
+    ]
     new_dkim_result.warnings = [
-        _(warning, language, nonexistent_translation_handler) for warning in dkim_result.warnings
+        translate(warning, language, nonexistent_translation_handler) for warning in dkim_result.warnings
     ]
     return new_dkim_result
 

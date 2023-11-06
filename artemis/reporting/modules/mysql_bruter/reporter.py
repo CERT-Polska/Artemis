@@ -27,16 +27,16 @@ class MySQLBruterReporter(Reporter):
         try:
             ips = list(ip_lookup(task_result["payload"]["host"]))
             if ips:
-                ip_address = ips[0]
+                host = ips[0]
             else:
-                ip_address = None
+                host = task_result["payload"]["host"]
         except IPResolutionException:
             return []
 
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
-                target=f"mysql://{ip_address}:{task_result['payload']['port']}",
+                target=f"mysql://{host}:{task_result['payload']['port']}",
                 report_type=MySQLBruterReporter.EXPOSED_DATABASE_WITH_EASY_PASSWORD,
                 additional_data={"credentials": task_result["result"]["credentials"]},
                 timestamp=task_result["created_at"],

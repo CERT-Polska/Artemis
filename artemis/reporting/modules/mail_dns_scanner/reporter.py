@@ -66,7 +66,9 @@ class MailDNSScannerReporter(Reporter):
                     report_type=MailDNSScannerReporter.MISCONFIGURED_EMAIL,
                     additional_data={
                         "message_en": message_with_target.message,
-                        "message_translated": translate(message_with_target.message, MailCheckLanguageClass(language.value)),
+                        "message_translated": translate(
+                            message_with_target.message, MailCheckLanguageClass(language.value)
+                        ),
                         "is_for_parent_domain": is_for_parent_domain,
                     },
                     timestamp=task_result["created_at"],

@@ -38,7 +38,7 @@ class DomainExpirationScanner(ArtemisBase):
                     domain_data = self._query_whois(domain=domain)
                     self.log.info("Successful whois query for %s expiry=%s", domain, domain_data.expiration_date)
                 except WhoisQuotaExceeded:
-                    self.log.info("Quota exceeded for whois query for %s", domain)
+                    self.log.info("Quota exceeded for whois query for %s, sleeping 24 hours", domain)
                     time.sleep(24 * 60 * 60)
                     domain_data = self._query_whois(domain=domain)
                     self.log.info(

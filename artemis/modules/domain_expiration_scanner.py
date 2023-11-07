@@ -4,7 +4,7 @@ import time
 from typing import Any, Dict, Optional
 
 from karton.core import Task
-from whois import Domain, WhoisQuotaExceeded, query  # type: ignore
+from whoisdomain import Domain, WhoisQuotaExceeded, query  # type: ignore
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
@@ -25,9 +25,9 @@ class DomainExpirationScanner(ArtemisBase):
     timeout_seconds = (24 + 1) * 3600
 
     def run(self, current_task: Task) -> None:
-        self.log.info("Making sure only one DomainExpirationScanner instance runs")
+        self.log.info("waiting for lock to make sure only one DomainExpirationScanner instance runs")
         with self.lock:
-            self.log.info("Made sure only one DomainExpirationScanner instance runs")
+            self.log.info("waiting for lock finished")
 
             domain = current_task.get_payload(TaskType.DOMAIN)
             result: Dict[str, Any] = {}

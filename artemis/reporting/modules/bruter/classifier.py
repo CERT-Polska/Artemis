@@ -71,6 +71,7 @@ def is_log_file(found_url: FoundURL) -> bool:
         "PHP Fatal error:",
         "errno:",
         "StackTrace:",
+        "Error code:",
         "[:error]",
         "[pid ",
         "Errcode",

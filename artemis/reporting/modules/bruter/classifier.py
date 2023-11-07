@@ -83,6 +83,12 @@ def is_log_file(found_url: FoundURL) -> bool:
 
 
 def is_sql_dump(found_url: FoundURL) -> bool:
+    sql_dump_markers = ["create table", "alter table", "insert into"]
+
+    def _starts_with_sql_dump_marker(line: str) -> bool:
+        line = line.strip().lower()
+        return any(line.startswith(marker) for marker in sql_dump_markers)
+
     path = urllib.parse.urlparse(found_url.url).path
     if ".sql" not in path.lower() and "/sql" not in path.lower() and "/db" not in path.lower():
         return False
@@ -93,7 +99,7 @@ def is_sql_dump(found_url: FoundURL) -> bool:
     if "sql dump" in found_url.content_prefix.lower():
         return True
 
-    if "\ncreate table" in found_url.content_prefix.lower():
+    if any([_starts_with_sql_dump_marker(line) for line in found_url.content_prefix.split("\n")]):
         return True
 
     return False

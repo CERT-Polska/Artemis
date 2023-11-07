@@ -157,7 +157,7 @@ class Config:
             "Logging format string (according to the syntax in https://docs.python.org/3/library/logging.html#logrecord-attributes)",
         ] = get_config(
             "LOGGING_FORMAT_STRING",
-            default="[%(asctime)s][%(levelname)s] %(filename)s %(funcName)s() line %(lineno)d: %(message)s",
+            default="[%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
         )
 
         VERIFY_REVDNS_IN_SCOPE: Annotated[

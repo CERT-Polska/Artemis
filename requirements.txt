@@ -48,4 +48,4 @@ typing-extensions==4.8.0
 urllib3==1.26.18
 uvicorn==0.23.2
 validators==0.22.0
-whois==0.9.27
+whoisdomain==1.20231102.1

@@ -144,7 +144,7 @@ def is_php_source(found_url: FoundURL) -> bool:
     if ".php" not in path and ".inc" not in path and not path.endswith("/"):
         return False
 
-    if "<?php" in found_url.content_prefix:
+    if "<?php" in found_url.content_prefix or re.match(r"<\?(\s|$)", found_url.content_prefix):
         return True
 
     return False

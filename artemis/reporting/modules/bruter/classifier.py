@@ -101,12 +101,7 @@ def is_sql_dump(found_url: FoundURL) -> bool:
     if "sql dump" in found_url.content_prefix.lower():
         return True
 
-    if any(
-        [
-            _starts_with_sql_dump_marker(line)
-            for line in found_url.content_prefix.split("\n")
-        ]
-    ):
+    if any([_starts_with_sql_dump_marker(line) for line in found_url.content_prefix.split("\n")]):
         return True
 
     return False

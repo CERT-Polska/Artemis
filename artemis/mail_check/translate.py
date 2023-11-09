@@ -520,7 +520,7 @@ def _translate_using_dictionary(
     and will have the same order of placeholders.
     """
     for m_from, m_to in dictionary:
-        pattern = "^" + re.escape(m_from).replace(PLACEHOLDER, "(.|\n)*") + "$"
+        pattern = "^" + re.escape(m_from).replace(PLACEHOLDER, "((?:.|\n)*)") + "$"
         regexp_match = re.match(pattern, message)
 
         # a dictionary rule matched the message

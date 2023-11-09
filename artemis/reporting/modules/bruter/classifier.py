@@ -22,6 +22,11 @@ def is_password_file(found_url: FoundURL) -> bool:
 
 
 def is_php_var_dump(found_url: FoundURL) -> bool:
+    if "/INSTALL" in found_url.url:
+        # Some installation documentation files have fragments that have been mistaken
+        # for var_dumps - let's skip them.
+        return False
+
     if " => " in found_url.content_prefix and (
         "array (" in found_url.content_prefix
         or "array(" in found_url.content_prefix

@@ -129,12 +129,12 @@ class Config:
             "E.g. when set to 100, Artemis will send no more than 100 port scanning packets per seconds per port scanner instance.",
         ] = get_config("SCANNING_PACKETS_PER_SECOND", default=100, cast=int)
 
-        REQUEST_PER_SECOND: Annotated[
-            int,
+        REQUESTS_PER_SECOND: Annotated[
+            float,
             """
-            E.g. when set to 2, Artemis will make sure no more HTTP/MySQL connect/... requests take place per second, sleeping if needed.
+            E.g. when set to 2, Artemis will make sure no more than 2 HTTP/MySQL connect/... requests take place per second, sleeping if needed.
             """,
-        ] = get_config("REQUEST_PER_SECOND", default=0, cast=float)
+        ] = get_config("REQUESTS_PER_SECOND", default=0, cast=float)
 
     class Miscellaneous:
         BLOCKLIST_FILE: Annotated[

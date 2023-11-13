@@ -25,26 +25,22 @@ class DomainExpirationScanner(ArtemisBase):
     timeout_seconds = (24 + 1) * 3600
 
     def run(self, current_task: Task) -> None:
-        self.log.info("waiting for lock to make sure only one DomainExpirationScanner instance runs")
-        with self.lock:
-            self.log.info("waiting for lock finished")
+        domain = current_task.get_payload(TaskType.DOMAIN)
+        result: Dict[str, Any] = {}
+        status = TaskStatus.OK
+        status_reason = None
+        if is_main_domain(domain):
+            domain_data = perform_whois_or_sleep(domain=domain, logger=self.log)
 
-            domain = current_task.get_payload(TaskType.DOMAIN)
-            result: Dict[str, Any] = {}
-            status = TaskStatus.OK
-            status_reason = None
-            if is_main_domain(domain):
-                domain_data = perform_whois_or_sleep(domain=domain, logger=self.log)
+            if domain_data:
+                expiry_date = domain_data.expiration_date
+                result = self._prepare_expiration_data(expiration_date=expiry_date, result=result)
 
-                if domain_data:
-                    expiry_date = domain_data.expiration_date
-                    result = self._prepare_expiration_data(expiration_date=expiry_date, result=result)
-
-                    if "close_expiration_date" in result:
-                        status = TaskStatus.INTERESTING
-                        status_reason = self._prepare_expiration_status_reason(
-                            days_to_expire=result["days_to_expire"], expiration_date=result["expiration_date"]
-                        )
+                if "close_expiration_date" in result:
+                    status = TaskStatus.INTERESTING
+                    status_reason = self._prepare_expiration_status_reason(
+                        days_to_expire=result["days_to_expire"], expiration_date=result["expiration_date"]
+                    )
 
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 

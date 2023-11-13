@@ -25,7 +25,7 @@ class Report:
     report_type: ReportType
 
     # Additional report data - the content depends on the report type
-    additional_data: Dict[str, Any]
+    additional_data: Dict[str, Any] = field(default_factory=dict)
     timestamp: Optional[datetime.datetime] = None
 
     # === All following variables are provided automatically, you don't have to provide them when creating a Report

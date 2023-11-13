@@ -709,4 +709,5 @@ TRANSLATIONS = {
     "http/exposed-panels/bitwarden-vault-panel.yaml": "wykryto panel Bitwarden Vault.",
     "Bitdefender GravityZone panel was detected.": "wykryto panel Bitdefender GravityZone.",
     "Kerio Connect login panel was detected.": "wykryto panel logowania Kerio Connect.",
+    "SphinxOnline Login Panel was detected.": "wykryto panel logowania SphinxOnline.",
 }

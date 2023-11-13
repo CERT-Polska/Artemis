@@ -100,7 +100,7 @@ class Config:
             Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
             This is the lock default expiry time.
             """,
-        ] = get_config("DEFAULT_LOCK_EXPIRY_SECONDS", default=3600, cast=int)
+        ] = get_config("DEFAULT_LOCK_EXPIRY_SECONDS", default=48 * 60 * 60, cast=int)
 
     class PublicSuffixes:
         ALLOW_SCANNING_PUBLIC_SUFFIXES: Annotated[

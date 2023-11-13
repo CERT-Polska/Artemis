@@ -57,14 +57,14 @@ def throttle_request(f: Callable[[], Any]) -> Any:
             if func_time < average_time_per_request:
                 time.sleep(average_time_per_request - func_time)
     elif request_per_second < 1:
-        seconds_for_req = math.floor(1 / request_per_second)
+        seconds_for_req = 1 / request_per_second
         f_start = time.time()
         try:
             return f()
         finally:
             func_time = time.time() - f_start
             if func_time < seconds_for_req:
-                time.sleep(func_time - f_start)
+                time.sleep(seconds_for_req - func_time)
 
 
 def get_host_from_url(url: str) -> str:

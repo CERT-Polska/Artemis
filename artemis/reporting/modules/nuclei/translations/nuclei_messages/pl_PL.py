@@ -549,6 +549,8 @@ TRANSLATIONS = {
     "A local file inclusion vulnerability in Accent Microcomputers offerings could allow remote attackers to retrieve password files.": "Wykryto podatność Local File Inclusion w oprogramowaniu Accent Microcomputers umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "http/exposures/configs/zend-config-file.yaml": "Wykryto plik konfiguracyjny systemu Zend zawierający dane logowania do bazy danych."
     + DATA_HIDE_HINT,
+    "WordPress FlagEm plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress o nazwie FlagEm zawiera podatność Cross-Site Scripting umożliwiającą atakującemu spreparowanie linku, który, gdy zostanie kliknięty przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikację treści)." + WORDPRESS_UPDATE_HINT,
+    "WordPress Adaptive Images < 0.6.69 is susceptible to cross-site scripting because the plugin does not sanitize and escape the REQUEST_URI before outputting it back in a page.": "Wykryto, że wtyczka WordPress o nazwie Adaptive Images w wersji poniżej 0.6.69 zawiera podatność Cross-Site Scripting umożliwiającą atakującemu spreparowanie linku, który, gdy zostanie kliknięty przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikację treści)." + WORDPRESS_UPDATE_HINT,
     "http/exposures/files/core-dump.yaml": "Wykryto plik core dump, mogący zawierać wrażliwe dane." + DATA_HIDE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
@@ -710,4 +712,5 @@ TRANSLATIONS = {
     "Bitdefender GravityZone panel was detected.": "wykryto panel Bitdefender GravityZone.",
     "Kerio Connect login panel was detected.": "wykryto panel logowania Kerio Connect.",
     "SphinxOnline Login Panel was detected.": "wykryto panel logowania SphinxOnline.",
+    "Sidekiq Dashboard panel was detected.": "wykryto panel Sidekiq Dashboard.",
 }

@@ -383,6 +383,11 @@ class Config:
                     [
                         "custom:xss-inside-tag-top-params",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
+                        # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
+                        # gets fixed, these templates return a FP on phpinfo(). Let's not spam
+                        # our recipients with FPs.
+                        "http/cnvd/2020/CNVD-2020-23735.yaml",
+                        "http/vulnerabilities/other/ecshop-sqli.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

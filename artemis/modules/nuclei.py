@@ -104,7 +104,9 @@ class Nuclei(ArtemisBase):
             "-headless-bulk-size",
             str(len(tasks_filtered)),
             "-milliseconds-per-request",
-            str(int(Config.Limits.SECONDS_PER_REQUEST * 1000.0 / len(tasks_filtered))),
+            str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(tasks_filtered)))
+            if Config.Limits.REQUESTS_PER_SECOND != 0
+            else str(int(0)),
         ] + additional_configuration
 
         targets = []

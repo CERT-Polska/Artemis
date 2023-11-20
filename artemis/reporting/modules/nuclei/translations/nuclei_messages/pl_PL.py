@@ -572,6 +572,7 @@ TRANSLATIONS = {
     "http/exposures/files/core-dump.yaml": "Wykryto plik core dump, mogący zawierać wrażliwe dane." + DATA_HIDE_HINT,
     "http/vulnerabilities/other/erensoft-sqli.yaml": "Wykryto podatność SQL Injection w narzędziu ErenSoft, która może umożliwić atakującemu pobranie dowolnych danych z bazy danych."
     + UPDATE_HINT,
+    "The Integrate Google Drive plugin for WordPress is vulnerable to unauthorized access due to a missing capability check on several REST API endpoints in versions up to, and including, 1.1.99. This makes it possible for unauthenticated attackers to perform a wide variety of operations, such as moving files, creating folders, copying details, and much more.": "Wtyczka WordPress o nazwie Integrate Google Drive w wersjach do 1.1.99 zawiera podatność umożliwiającą atakującemu nieuprawnione wykonywanie operacji takich jak np. pobieranie informacji, przenoszenie plików itp." + WORDPRESS_UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

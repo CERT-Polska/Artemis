@@ -14,7 +14,7 @@ To start Artemis simply execute following 2 commands in your terminal:
 .. code-block:: console
 
    cp env.example .env  # you may also configure the settings (e.g. by providing a User-Agent to override the default one)
-   docker compose up --build
+   docker-compose up
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 

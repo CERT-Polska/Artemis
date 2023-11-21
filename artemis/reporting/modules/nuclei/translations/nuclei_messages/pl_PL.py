@@ -22,6 +22,8 @@ BUG_FIX_HINT = " Rekomendujemy poprawienie tego błędu, a także sprawdzenie, c
 
 DATA_HIDE_HINT = " Rekomendujemy, aby takie dane nie były dostępne publicznie."
 
+# This needs to be lowercase and begin with a space as it's part of a sentence
+REFLECTED_XSS_VULNERABILITY_DESCRIPTION = " umożliwiającą atakującemu spreparowanie linku, który, gdy zostanie kliknięty przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikację treści)."
 
 TRANSLATIONS = {
     "WordPress Contact Form 7 before 5.3.2 allows unrestricted file upload and remote code execution because a filename may contain special characters.": "Wtyczka WordPress Contact Form 7 w wersji poniżej 5.3.2 zezwala na nieograniczone umieszczanie plików i zdalne wykonanie kodu ponieważ nazwa pliku może zawierać znaki specjalne."
@@ -549,7 +551,40 @@ TRANSLATIONS = {
     "A local file inclusion vulnerability in Accent Microcomputers offerings could allow remote attackers to retrieve password files.": "Wykryto podatność Local File Inclusion w oprogramowaniu Accent Microcomputers umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "http/exposures/configs/zend-config-file.yaml": "Wykryto plik konfiguracyjny systemu Zend zawierający dane logowania do bazy danych."
     + DATA_HIDE_HINT,
+    "WordPress FlagEm plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress o nazwie FlagEm zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Adaptive Images < 0.6.69 is susceptible to cross-site scripting because the plugin does not sanitize and escape the REQUEST_URI before outputting it back in a page.": "Wtyczka WordPress o nazwie Adaptive Images w wersji poniżej 0.6.69 zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "Tiki Wiki CMS Groupware 5.2 contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Tiki Wiki CMS Groupware w wersji 5.2 zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress Slideshow plugin contains multiple cross-site scripting vulnerabilities. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress o nazwie Slideshow zawiera podatności typu Cross-Site Scripting umożliwiające atakującemu spreparowanie linku, który, gdy zostanie kliknięty przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikację treści)."
+    + WORDPRESS_UPDATE_HINT,
+    "Qcubed contains a cross-site scripting vulnerability which allows a remote attacker to inject arbitrary JavaScript via the /assets/php/_devtools/installer/step_2.php endpoint and the installation_path parameter.": "Wykryto, że narzędzie Qcubed zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress Custom Tables 3.4.4 plugin contains a cross-site scripting vulnerability via the key parameter.": "Wtyczka WordPress o nazwie Custom Tables w wersji 3.4.4 zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress NextGEN Gallery 1.9.10 plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie NextGEN Gallery w wersji 1.9.10 zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "Netsweeper 4.0.9 contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Narzędzie Netsweeper w wersji 4.0.9 zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress PHPFreeChat 0.2.8 plugin contains a cross-site scripting vulnerability via the url parameter. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie PHPFreeChat w wersji 0.2.8 zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Plugin Finder contains a cross-site scripting vulnerability via the order parameter. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress Plugin Finder zawiera podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "http/exposures/files/core-dump.yaml": "Wykryto plik core dump, mogący zawierać wrażliwe dane." + DATA_HIDE_HINT,
+    "http/vulnerabilities/other/erensoft-sqli.yaml": "Wykryto podatność SQL Injection w narzędziu ErenSoft, która może umożliwić atakującemu pobranie dowolnych danych z bazy danych."
+    + UPDATE_HINT,
+    "The Integrate Google Drive plugin for WordPress is vulnerable to unauthorized access due to a missing capability check on several REST API endpoints in versions up to, and including, 1.1.99. This makes it possible for unauthenticated attackers to perform a wide variety of operations, such as moving files, creating folders, copying details, and much more.": "Wtyczka WordPress o nazwie Integrate Google Drive w wersjach do 1.1.99 zawiera podatność umożliwiającą atakującemu nieuprawnione wykonywanie operacji takich jak np. pobieranie informacji, przenoszenie plików itp."
+    + WORDPRESS_UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -710,4 +745,6 @@ TRANSLATIONS = {
     "Bitdefender GravityZone panel was detected.": "wykryto panel Bitdefender GravityZone.",
     "Kerio Connect login panel was detected.": "wykryto panel logowania Kerio Connect.",
     "SphinxOnline Login Panel was detected.": "wykryto panel logowania SphinxOnline.",
+    "Sidekiq Dashboard panel was detected.": "wykryto panel Sidekiq Dashboard.",
+    "Prometheus metrics page was detected.": "wykryto stronę z metrykami systemu Prometheus.",
 }

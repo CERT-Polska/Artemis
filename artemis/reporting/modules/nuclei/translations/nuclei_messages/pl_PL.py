@@ -585,6 +585,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The Integrate Google Drive plugin for WordPress is vulnerable to unauthorized access due to a missing capability check on several REST API endpoints in versions up to, and including, 1.1.99. This makes it possible for unauthenticated attackers to perform a wide variety of operations, such as moving files, creating folders, copying details, and much more.": "Wtyczka WordPress o nazwie Integrate Google Drive w wersjach do 1.1.99 zawiera podatność umożliwiającą atakującemu nieuprawnione wykonywanie operacji takich jak np. pobieranie informacji, przenoszenie plików itp."
     + WORDPRESS_UPDATE_HINT,
+    "http/misconfiguration/installer/webcalendar-install.yaml": "Wykryto dostępny publicznie instalator systemu WebCalendar, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
+    "A source code disclosure vulnerability in a web server caused by improper handling of multiple requests in quick succession, leading to the server treating requested files as static files instead of executing scripts.": "Serwer deweloperski udostępniany przez język programowania PHP w wersjach do 7.4.21 włącznie zawiera podatność umożliwiającą atakującemu nieuprawniony odczyt kodu źródłowego." + UPDATE_HINT,
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -747,4 +749,7 @@ TRANSLATIONS = {
     "SphinxOnline Login Panel was detected.": "wykryto panel logowania SphinxOnline.",
     "Sidekiq Dashboard panel was detected.": "wykryto panel Sidekiq Dashboard.",
     "Prometheus metrics page was detected.": "wykryto stronę z metrykami systemu Prometheus.",
+    "Asus router login panel was detected.": "wykryto panel logowania routera Asus.",
+    "http/exposed-panels/appsuite-panel.yaml": "wykryto panel logowania Appsuite.",
+    "F-Secure Policy Manager Server login panel was detected.": "wykryto panel logowania F-Secure Policy Manager Server.",
 }

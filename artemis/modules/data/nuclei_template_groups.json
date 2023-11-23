@@ -1,4 +1,4 @@
-{   
+{
     "http/vulnerabilities/generic/top-xss-params.yaml": "reflected-xss",
     "custom:xss-inside-tag-top-params": "reflected-xss",
     "http/vulnerabilities/generic/error-based-sql-injection.yaml": "sql-injection",
@@ -6,4 +6,4 @@
     "http/exposures/configs/codeigniter-env.yaml": "env-file",
     "http/exposures/configs/laravel-env.yaml": "env-file",
     "http/vulnerabilities/generic/generic-env.yaml": "env-file"
-}   
+}

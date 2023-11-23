@@ -22,24 +22,9 @@ from artemis.utils import get_host_from_url
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
 
 
-def parse_groups_config(groups_config: List[str]) -> Dict[str, str]:
-    result = {}
-    for item in groups_config:
-        if item.count("=") != 1:
-            raise ValueError(
-                f"Expected NUCLEI_TEMPLATE_GROUPS setting items to be in the form of name=value, not {item}"
-            )
-
-        key, value = item.split("=")
-        result[key] = value
-    return result
-
-
 class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
     NUCLEI_EXPOSED_PANEL = ReportType("nuclei_exposed_panel")
-
-    groups = parse_groups_config(Config.Modules.Nuclei.NUCLEI_TEMPLATE_GROUPS)
 
     @staticmethod
     def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
@@ -87,8 +72,8 @@ class NucleiReporter(Reporter):
             else:
                 template = "custom:" + vulnerability["template-id"]
 
-            if template in NucleiReporter.groups:
-                template = "group:" + NucleiReporter.groups[template]
+            if template in Config.Modules.Nuclei.NUCLEI_TEMPLATE_GROUPS:
+                template = "group:" + Config.Modules.Nuclei.NUCLEI_TEMPLATE_GROUPS[template]
 
             # Some templates are slightly broken and are returned multiple times, let's skip subsequent ones.
             if template in templates_seen:

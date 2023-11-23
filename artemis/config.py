@@ -1,4 +1,5 @@
-from typing import Annotated, Any, List, get_type_hints
+import json
+from typing import Annotated, Any, Dict, List, get_type_hints
 
 import decouple
 
@@ -247,28 +248,28 @@ class Config:
             ] = get_config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
             NUCLEI_TEMPLATE_GROUPS: Annotated[
-                List[str],
-                "A list (in the form of template1=group1,template2=group2,...) of template group assignments. If a "
-                "template is assigned to a group, instead of the template, the whole group will be reported as the "
-                "detected template name. Therefore, due to findings deduplication, only one instance of such "
+                Dict[str, str],
+                'A JSON dictionary of template group assignments: {"template1": "group1", "template2": "group2", ...}.'
+                "If a template is assigned to a group, instead of the template, the whole group will be reported as "
+                "the detected template name. Therefore, due to findings deduplication, only one instance of such "
                 "vulnerability will be reported. This is useful to detect situations when multiple .env detectors "
                 "detect a single file or multiple XSS templates are triggered on a single page.",
             ] = get_config(
                 "NUCLEI_TEMPLATE_GROUPS",
-                default=",".join(
-                    [
-                        "http/vulnerabilities/generic/top-xss-params.yaml=reflected-xss",
-                        "custom:xss-inside-tag-top-params=reflected-xss",
-                        "http/vulnerabilities/generic/error-based-sql-injection.yaml=sql-injection",
-                        "custom:error-based-sql-injection=sql-injection",
+                default=json.dumps(
+                    {
+                        "http/vulnerabilities/generic/top-xss-params.yaml": "reflected-xss",
+                        "custom:xss-inside-tag-top-params": "reflected-xss",
+                        "http/vulnerabilities/generic/error-based-sql-injection.yaml": "sql-injection",
+                        "custom:error-based-sql-injection": "sql-injection",
                         # Actually in most cases we don't have an idea whether an env file is a Laravel, a Codeigniter, or a
                         # different one.
-                        "http/exposures/configs/codeigniter-env.yaml=env-file",
-                        "http/exposures/configs/laravel-env.yaml=env-file",
-                        "http/vulnerabilities/generic/generic-env.yaml=env-file",
-                    ]
+                        "http/exposures/configs/codeigniter-env.yaml": "env-file",
+                        "http/exposures/configs/laravel-env.yaml": "env-file",
+                        "http/vulnerabilities/generic/generic-env.yaml": "env-file",
+                    }
                 ),
-                cast=decouple.Csv(str),
+                cast=lambda s: json.loads(s),
             )
 
             NUCLEI_MAX_BATCH_SIZE: Annotated[

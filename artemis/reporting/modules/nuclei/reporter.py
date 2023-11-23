@@ -1,4 +1,5 @@
 import collections
+import json
 import os
 import urllib.parse
 from typing import Any, Callable, Counter, Dict, List
@@ -25,6 +26,9 @@ from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_
 class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
     NUCLEI_EXPOSED_PANEL = ReportType("nuclei_exposed_panel")
+
+    with open(Config.Modules.Nuclei.NUCLEI_TEMPLATE_GROUPS_FILE) as f:
+        GROUPS = json.load(f)
 
     @staticmethod
     def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
@@ -71,6 +75,9 @@ class NucleiReporter(Reporter):
                 template = vulnerability["template"]
             else:
                 template = "custom:" + vulnerability["template-id"]
+
+            if template in NucleiReporter.GROUPS:
+                template = "group:" + NucleiReporter.GROUPS[template]
 
             # Some templates are slightly broken and are returned multiple times, let's skip subsequent ones.
             if template in templates_seen:

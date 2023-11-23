@@ -18,7 +18,7 @@ UPDATE_HINT = " Rekomendujemy aktualizację oprogramowania do najnowszej wersji.
 
 DEFAULT_CREDENTIALS_HINT = " Rekomendujemy zmianę domyślnych haseł."
 
-BUG_FIX_HINT = " Rekomendujemy poprawienie tego błędu, a także sprawdzenie, czy podobne błędy nie występują również w innych miejscach."
+BUG_FIX_HINT = " Rekomendujemy poprawienie tego błędu, a także sprawdzenie, czy podobne błędy nie występują również w innych miejscach systemu."
 
 DATA_HIDE_HINT = " Rekomendujemy, aby takie dane nie były dostępne publicznie."
 
@@ -103,9 +103,7 @@ TRANSLATIONS = {
     "MAGMI (Magento Mass Importer) is vulnerable to cross-site request forgery (CSRF) due to a lack of CSRF tokens. Remote code execution (via phpcli command) is also possible in the event that CSRF is leveraged against an existing admin session.": "Wykryto, że narzędzie MAGMI (Magento Mass Importer) zawiera podatność Cross-Site Request Forgery, co może potencjalnie prowadzić do zdalnego wykonania kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
-    "group:sql-injection": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych. Rekomendujemy jej usunięcie i weryfikację, czy podobna podatność nie występuje również w innych miejscach systemu.",
-    "Detects potential SQL injection via error strings in 29 database engines. Inspired by https://github.com/sqlmapproject/sqlmap/blob/master/data/xml/errors.xml.": "Wykryto potencjalną podatność SQL Injection na podstawie wyświetlonego komunikatu o błędzie bazy danych. Prosimy o weryfikację, czy ona występuje - jeśli tak, może to umożliwić atakującemu pobranie całej zawartości bazy danych."
-    + BUG_FIX_HINT,
+    "group:sql-injection": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych." + BUG_FIX_HINT,
     "WordPress WooCommerce plugin before 3.1.2 does not have authorisation and CSRF checks in the wpt_admin_update_notice_option AJAX action available to both unauthenticated and authenticated users as well as does not validate the callback parameter, allowing unauthenticated attackers to call arbitrary functions with either none or one user controlled argument.": "Wtyczka WooCommerce w wersji poniżej 3.1.2 zawiera podatność, która może prowadzić do zdalnego wykonania kodu przez niezalogowanego użytkownika."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -294,8 +292,6 @@ TRANSLATIONS = {
     "WordPress Advanced Access Manager versions before 5.9.9 are vulnerable to local file inclusion and allows attackers to download the wp-config.php file and get access to the database, which is publicly reachable on many servers.": "Wtyczka WordPress o nazwie Advanced Access Manager w wersji poniżej 5.9.9 zawiera podatność Local File Inclusion, umożliwiającą odczyt dowolnych plików z serwera."
     + WORDPRESS_UPDATE_HINT,
     "CRLF sequences were not properly sanitized.": "Wykryto podatność CRLF Injection. Za jej pomocą atakujący może m.in. spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści)."
-    + BUG_FIX_HINT,
-    "A cross-site scripting vulnerability was discovered via generic testing. Manual testing is needed to verify exploitation.": "Wykryto podatność Cross-Site Scripting. Za jej pomocą atakujący może m.in. spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie którą może wykonać administrator (taką jak np. modyfikację treści)."
     + BUG_FIX_HINT,
     "JexBoss is susceptible to remote code execution via the webshell. An attacker can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Wykryto, że narzędzie JexBoss zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
@@ -524,7 +520,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "service.pwd was discovered, which is likely to contain sensitive information.": "Wykryto plik service.pwd, który może zawierać wrażliwe informacje."
     + DATA_HIDE_HINT,
-    "group:reflected-xss": "Wykryto podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie z jego uprawnieniami (np. modyfikację treści).",
+    "group:reflected-xss": "Wykryto podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie z jego uprawnieniami (np. modyfikację treści)." + BUG_FIX_HINT,
     "[no description] http/takeovers/github-takeover.yaml": "Wykryto domenę kierującą do serwisu Github Pages, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Github Pages, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/takeovers/heroku-takeover.yaml": "Wykryto domenę kierującą do serwisu Heroku, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Heroku, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/vulnerabilities/jenkins/unauthenticated-jenkins.yaml": "Wykryto publicznie dostępny system Jenkins, który nie wymaga zalogowania. Rekomendujemy, aby nie był on dostępny publicznie oraz zalecamy włączenie mechanizmu uwierzytelniania, ponieważ może umożliwić atakującemu uruchamianie własnych zadań lub nieuprawniony dostęp do informacji/kodu źródłowego.",

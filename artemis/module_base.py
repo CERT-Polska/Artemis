@@ -46,7 +46,14 @@ class ArtemisBase(Karton):
     # their IPs are already scanned, the actual batch size may be lower.
     task_max_batch_size = 1
 
+    timeout_seconds = Config.Limits.TASK_TIMEOUT_SECONDS
+
     lock_target = Config.Locking.LOCK_SCANNED_TARGETS
+
+    # Sometimes there are multiple modules that make use of a resource, e.g. whois database.
+    # This is the name of the resource - if a module locks it, no other module using this
+    # resource can use it.
+    resource_name_to_lock_before_scanning: Optional[str] = None
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
@@ -234,6 +241,23 @@ class ArtemisBase(Karton):
         raise NotImplementedError()
 
     def lock_and_internal_process_multiple(self, tasks: List[Task]) -> None:
+        if self.resource_name_to_lock_before_scanning:
+            resource_lock = ResourceLock(
+                REDIS,
+                f"resource-lock-{self.resource_name_to_lock_before_scanning}",
+                max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES,
+            )
+            try:
+                resource_lock.acquire()
+                self.log.info("Succeeded to lock resource %s", self.resource_name_to_lock_before_scanning)
+            except FailedToAcquireLockException:
+                self.log.info("Failed to lock resource %s", self.resource_name_to_lock_before_scanning)
+                for task in tasks:
+                    self.reschedule_task(task)
+                return
+        else:
+            resource_lock = None
+
         if self.lock_target:
             locks_acquired = []
             tasks_to_reschedule = []
@@ -287,6 +311,9 @@ class ArtemisBase(Karton):
         else:
             self._log_tasks(tasks)
             self.internal_process_multiple(tasks)
+
+        if resource_lock:
+            resource_lock.release()
 
     def internal_process_multiple(self, tasks: List[Task]) -> None:
         tasks_filtered = []
@@ -350,10 +377,10 @@ class ArtemisBase(Karton):
 
         try:
             if self.batch_tasks:
-                timeout_decorator.timeout(Config.Limits.TASK_TIMEOUT_SECONDS)(lambda: self.run_multiple(tasks))()
+                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
             else:
                 (task,) = tasks
-                timeout_decorator.timeout(Config.Limits.TASK_TIMEOUT_SECONDS)(lambda: self.run(task))()
+                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
         except Exception:
             for task in tasks:
                 self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())

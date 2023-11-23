@@ -3,7 +3,10 @@ import subprocess
 import time
 import urllib.parse
 from ipaddress import ip_address
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Optional
+
+from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
+from whoisdomain import query as whois_query
 
 from artemis.config import Config
 
@@ -19,6 +22,24 @@ def check_output_log_on_error(command: List[str], logger: logging.Logger, **kwar
             e.stderr.decode("ascii", errors="ignore"),
         )
         raise
+
+
+def perform_whois_or_sleep(domain: str, logger: logging.Logger) -> Optional[Domain]:
+    try:
+        domain_data = whois_query(domain=domain)
+        logger.info(
+            "Successful whois query for %s expiry=%s", domain, domain_data.expiration_date if domain_data else None
+        )
+    except WhoisQuotaExceeded:
+        logger.info("Quota exceeded for whois query for %s, sleeping 24 hours", domain)
+        time.sleep(24 * 60 * 60)
+        domain_data = whois_query(domain=domain)
+        logger.info(
+            "Successful whois query for %s after retry expiry=%s",
+            domain,
+            domain_data.expiration_date if domain_data else None,
+        )
+    return domain_data
 
 
 def build_logger(name: str) -> logging.Logger:

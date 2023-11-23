@@ -100,7 +100,7 @@ class Config:
             Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
             This is the lock default expiry time.
             """,
-        ] = get_config("DEFAULT_LOCK_EXPIRY_SECONDS", default=3600, cast=int)
+        ] = get_config("DEFAULT_LOCK_EXPIRY_SECONDS", default=48 * 60 * 60, cast=int)
 
     class PublicSuffixes:
         ALLOW_SCANNING_PUBLIC_SUFFIXES: Annotated[
@@ -473,7 +473,7 @@ class Config:
         class DomainExpirationScanner:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
-            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=5, cast=int)
+            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=14, cast=int)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

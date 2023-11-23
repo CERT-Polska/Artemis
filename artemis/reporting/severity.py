@@ -15,6 +15,7 @@ SEVERITY_MAP = {
     ReportType("subdomain_takeover_possible"): Severity.HIGH,
     ReportType("sql_injection"): Severity.HIGH,
     ReportType("closed_wordpress_plugin"): Severity.HIGH,
+    ReportType("close_domain_expiration_date"): Severity.HIGH,
     ReportType("exposed_database_with_easy_password"): Severity.HIGH,
     ReportType("exposed_version_control_folder"): Severity.HIGH,
     ReportType("exposed_version_control_folder_with_credentials"): Severity.HIGH,

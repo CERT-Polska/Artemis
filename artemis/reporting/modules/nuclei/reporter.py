@@ -1,4 +1,5 @@
 import collections
+import json
 import os
 import urllib.parse
 from typing import Any, Callable, Counter, Dict, List
@@ -25,6 +26,9 @@ from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_
 class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
     NUCLEI_EXPOSED_PANEL = ReportType("nuclei_exposed_panel")
+
+    with open(Config.Modules.Nuclei.NUCLEI_TEMPLATE_GROUPS_FILE) as f:
+        groups = json.load(f)
 
     @staticmethod
     def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
@@ -72,8 +76,8 @@ class NucleiReporter(Reporter):
             else:
                 template = "custom:" + vulnerability["template-id"]
 
-            if template in Config.Modules.Nuclei.NUCLEI_TEMPLATE_GROUPS:
-                template = "group:" + Config.Modules.Nuclei.NUCLEI_TEMPLATE_GROUPS[template]
+            if template in NucleiReporter.groups:
+                template = "group:" + NucleiReporter.groups[template]
 
             # Some templates are slightly broken and are returned multiple times, let's skip subsequent ones.
             if template in templates_seen:
@@ -184,9 +188,16 @@ class NucleiReporter(Reporter):
                 return translations_nuclei_messages_pl_PL.TRANSLATIONS[description]
             if template_name in translations_nuclei_messages_pl_PL.TRANSLATIONS:
                 return translations_nuclei_messages_pl_PL.TRANSLATIONS[template_name]
-            raise TranslationNotFoundException(
+            print()
+            print()
+            print()
+            print(
                 f"Unable to find translation for message '{description}' (template_name: {template_name}). "
                 f"You may add in in artemis/reporting/modules/nuclei/translations/nuclei_messages/"
             )
+            print()
+            print()
+            print()
+            return ""
         else:
             raise NotImplementedError()

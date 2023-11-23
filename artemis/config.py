@@ -1,5 +1,4 @@
-import json
-from typing import Annotated, Any, Dict, List, get_type_hints
+import json from typing import Annotated, Any, Dict, List, get_type_hints
 
 import decouple
 
@@ -249,7 +248,7 @@ class Config:
 
             NUCLEI_TEMPLATE_GROUPS: Annotated[
                 Dict[str, str],
-                'A JSON dictionary of template group assignments: {"template1": "group1", "template2": "group2", ...}.'
+                'A JSON dictionary of template group assignments: {"template1": "group1", "template2": "group2", ...}. '
                 "If a template is assigned to a group, instead of the template, the whole group will be reported as "
                 "the detected template name. Therefore, due to findings deduplication, only one instance of such "
                 "vulnerability will be reported. This is useful to detect situations when multiple .env detectors "

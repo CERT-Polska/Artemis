@@ -103,8 +103,7 @@ TRANSLATIONS = {
     "MAGMI (Magento Mass Importer) is vulnerable to cross-site request forgery (CSRF) due to a lack of CSRF tokens. Remote code execution (via phpcli command) is also possible in the event that CSRF is leveraged against an existing admin session.": "Wykryto, że narzędzie MAGMI (Magento Mass Importer) zawiera podatność Cross-Site Request Forgery, co może potencjalnie prowadzić do zdalnego wykonania kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
-    "group:sql-injection": "Wykryto potencjalną podatność SQL Injection. Prosimy o weryfikację, czy ona występuje - jeśli tak, może to umożliwić atakującemu pobranie całej zawartości bazy danych."
-    + BUG_FIX_HINT,
+    "group:sql-injection": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych. Rekomendujemy jej usunięcie i weryfikację, czy podobna podatność nie występuje również w innych miejscach systemu.",
     "Detects potential SQL injection via error strings in 29 database engines. Inspired by https://github.com/sqlmapproject/sqlmap/blob/master/data/xml/errors.xml.": "Wykryto potencjalną podatność SQL Injection na podstawie wyświetlonego komunikatu o błędzie bazy danych. Prosimy o weryfikację, czy ona występuje - jeśli tak, może to umożliwić atakującemu pobranie całej zawartości bazy danych."
     + BUG_FIX_HINT,
     "WordPress WooCommerce plugin before 3.1.2 does not have authorisation and CSRF checks in the wpt_admin_update_notice_option AJAX action available to both unauthenticated and authenticated users as well as does not validate the callback parameter, allowing unauthenticated attackers to call arbitrary functions with either none or one user controlled argument.": "Wtyczka WooCommerce w wersji poniżej 3.1.2 zawiera podatność, która może prowadzić do zdalnego wykonania kodu przez niezalogowanego użytkownika."

@@ -103,7 +103,8 @@ TRANSLATIONS = {
     "MAGMI (Magento Mass Importer) is vulnerable to cross-site request forgery (CSRF) due to a lack of CSRF tokens. Remote code execution (via phpcli command) is also possible in the event that CSRF is leveraged against an existing admin session.": "Wykryto, że narzędzie MAGMI (Magento Mass Importer) zawiera podatność Cross-Site Request Forgery, co może potencjalnie prowadzić do zdalnego wykonania kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
-    "group:sql-injection": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych." + BUG_FIX_HINT,
+    "group:sql-injection": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych."
+    + BUG_FIX_HINT,
     "WordPress WooCommerce plugin before 3.1.2 does not have authorisation and CSRF checks in the wpt_admin_update_notice_option AJAX action available to both unauthenticated and authenticated users as well as does not validate the callback parameter, allowing unauthenticated attackers to call arbitrary functions with either none or one user controlled argument.": "Wtyczka WooCommerce w wersji poniżej 3.1.2 zawiera podatność, która może prowadzić do zdalnego wykonania kodu przez niezalogowanego użytkownika."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -520,7 +521,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "service.pwd was discovered, which is likely to contain sensitive information.": "Wykryto plik service.pwd, który może zawierać wrażliwe informacje."
     + DATA_HIDE_HINT,
-    "group:reflected-xss": "Wykryto podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie z jego uprawnieniami (np. modyfikację treści)." + BUG_FIX_HINT,
+    "group:reflected-xss": "Wykryto podatność Reflected Cross-Site Scripting. Atakujący może spreparować link, który - gdy kliknięty przez administratora - wykona dowolną operację na stronie z jego uprawnieniami (np. modyfikację treści)."
+    + BUG_FIX_HINT,
     "[no description] http/takeovers/github-takeover.yaml": "Wykryto domenę kierującą do serwisu Github Pages, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Github Pages, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/takeovers/heroku-takeover.yaml": "Wykryto domenę kierującą do serwisu Heroku, ale domena docelowa jest wolna. Atakujący może zarejestrować taką domenę w serwisie Heroku, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/vulnerabilities/jenkins/unauthenticated-jenkins.yaml": "Wykryto publicznie dostępny system Jenkins, który nie wymaga zalogowania. Rekomendujemy, aby nie był on dostępny publicznie oraz zalecamy włączenie mechanizmu uwierzytelniania, ponieważ może umożliwić atakującemu uruchamianie własnych zadań lub nieuprawniony dostęp do informacji/kodu źródłowego.",

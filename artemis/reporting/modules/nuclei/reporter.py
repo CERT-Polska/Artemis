@@ -188,16 +188,9 @@ class NucleiReporter(Reporter):
                 return translations_nuclei_messages_pl_PL.TRANSLATIONS[description]
             if template_name in translations_nuclei_messages_pl_PL.TRANSLATIONS:
                 return translations_nuclei_messages_pl_PL.TRANSLATIONS[template_name]
-            print()
-            print()
-            print()
-            print(
+            raise TranslationNotFoundException(
                 f"Unable to find translation for message '{description}' (template_name: {template_name}). "
                 f"You may add in in artemis/reporting/modules/nuclei/translations/nuclei_messages/"
             )
-            print()
-            print()
-            print()
-            return ""
         else:
             raise NotImplementedError()

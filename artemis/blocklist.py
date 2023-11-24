@@ -160,7 +160,7 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
                     continue
 
             if item.subdomains:
-                if not subdomains:
+                if not domain:
                     continue
                 if not is_subdomain(domain, item.subdomains, allow_equal=False):
                     continue

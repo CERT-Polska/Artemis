@@ -37,7 +37,7 @@ class ScanningBlocklistTest(unittest.TestCase):
         )
         self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), False)
-        self.assertEqual(should_block_scanning("www.example.com", None, "karton-name", [blocklist_item1]), TRue)
+        self.assertEqual(should_block_scanning("www.example.com", None, "karton-name", [blocklist_item1]), True)
 
     def test_karton_name_matching(self) -> None:
         blocklist_item1 = BlocklistItem(

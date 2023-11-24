@@ -39,7 +39,11 @@ class NucleiReporter(Reporter):
             if report.report_type in [NucleiReporter.NUCLEI_VULNERABILITY, NucleiReporter.NUCLEI_EXPOSED_PANEL]:
                 reports_by_target_counter[report.target] += 1
 
-                if report.additional_data["template_name"] in Config.Modules.Nuclei.NUCLEI_SUSPICIOUS_TEMPLATES:
+                if (
+                    report.additional_data["template_name"] in Config.Modules.Nuclei.NUCLEI_SUSPICIOUS_TEMPLATES
+                    or report.additional_data["original_template_name"]
+                    in Config.Modules.Nuclei.NUCLEI_SUSPICIOUS_TEMPLATES
+                ):
                     result.append(
                         f"Suspicious template: {report.additional_data['template_name']} in {report.target} "
                         f"(curl_command: {report.additional_data['curl_command']}) - please review whether it's indeed "
@@ -76,6 +80,8 @@ class NucleiReporter(Reporter):
             else:
                 template = "custom:" + vulnerability["template-id"]
 
+            original_template_name = template
+
             if template in NucleiReporter.GROUPS:
                 template = "group:" + NucleiReporter.GROUPS[template]
 
@@ -106,6 +112,7 @@ class NucleiReporter(Reporter):
                             ),
                             "matched_at": vulnerability["matched-at"],
                             "template_name": template,
+                            "original_template_name": original_template_name,
                             "curl_command": vulnerability.get("curl-command", None),
                         },
                         timestamp=task_result["created_at"],
@@ -140,6 +147,7 @@ class NucleiReporter(Reporter):
                             "reference": vulnerability["info"]["reference"],
                             "matched_at": matched_at,
                             "template_name": template,
+                            "original_template_name": original_template_name,
                             "curl_command": vulnerability.get("curl-command", None),
                         },
                         timestamp=task_result["created_at"],

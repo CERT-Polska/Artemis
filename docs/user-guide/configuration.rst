@@ -19,7 +19,10 @@ The blocklist file is a ``yaml`` file with the following syntax:
     - mode: 'block_scanning_and_reporting' (to block both scanning and reporting) or
         'block_reporting_only' (if you want the scanning to be performed but want the
         issues to be skipped from automatic e-mail reports)
-      domain: null or the domain to be filtered (this will also filter its subdomains)
+      domain_and_subdomains: null or the domain to be filtered (this will also filter its
+         subdomains)
+      subdomains: null or a domain - this setting will filter out only subdomains of this domain,
+         but not the domain itself
       ip_range: null or the ip range to be filtered (to filter a single ip address,
         use the xxx.xxx.xxx.xxx/32 syntax)
       until: null or a date (YYYY-MM-DD) until which the filter will be active

@@ -24,11 +24,20 @@ class ScanningBlocklistTest(unittest.TestCase):
     def test_domain_matching(self) -> None:
         blocklist_item1 = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
-            domain="example.com",
+            domain_and_subdomains="example.com",
         )
         self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), True)
         self.assertEqual(should_block_scanning("www.example.com", None, "karton-name", [blocklist_item1]), True)
+
+    def test_subdomain_matching(self) -> None:
+        blocklist_item1 = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            subdomains="example.com",
+        )
+        self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning("www.example.com", None, "karton-name", [blocklist_item1]), TRue)
 
     def test_karton_name_matching(self) -> None:
         blocklist_item1 = BlocklistItem(
@@ -113,7 +122,7 @@ class ReportBlocklistTest(unittest.TestCase):
         )
         blocklist_item = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
-            domain="www.example.com",
+            domain_and_subdomains="www.example.com",
         )
         self.assertEqual(blocklist_reports([report1, report2], [blocklist_item]), [report2])
 
@@ -133,7 +142,7 @@ class ReportBlocklistTest(unittest.TestCase):
         )
         blocklist_item = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
-            domain="www.example.com",
+            domain_and_subdomains="www.example.com",
         )
         self.assertEqual(blocklist_reports([report1, report2], [blocklist_item]), [report2])
 

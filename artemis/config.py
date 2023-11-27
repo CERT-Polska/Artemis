@@ -147,11 +147,6 @@ class Config:
             "Custom User-Agent string used by Artemis (if not set, the library defaults will be used, different for requests, Nuclei etc.)",
         ] = get_config("CUSTOM_USER_AGENT", default="")
 
-        DOMAINS_TO_SKIP_SUBDOMAIN_ENUMERATION: Annotated[
-            List[str],
-            "Domains where subdomain enumeration shouldn't happen (e.g. ones that have a large number of subdomains)",
-        ] = get_config("DOMAINS_TO_SKIP_SUBDOMAIN_ENUMERATION", default="", cast=decouple.Csv(str, delimiter=","))
-
         LOGGING_FORMAT_STRING: Annotated[
             str,
             "Logging format string (according to the syntax in https://docs.python.org/3/library/logging.html#logrecord-attributes)",

@@ -4,7 +4,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import pytz
 import semver
 
 from artemis.config import Config
@@ -19,11 +18,10 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         subprocess.call(["git", "clone", "https://github.com/endoflife-date/release-data", self.release_data_folder])
 
     def _parse_version(self, version: str) -> semver.VersionInfo:
-        if version.count('.') == 1:
+        if version.count(".") == 1:
             return semver.VersionInfo.parse(version + ".0")
         else:
             return semver.VersionInfo.parse(version)
-
 
     def is_newer_version_available(
         self,

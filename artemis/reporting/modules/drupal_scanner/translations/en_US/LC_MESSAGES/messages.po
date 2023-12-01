@@ -1,8 +1,8 @@
-#: artemis/reporting/modules/drupal_scanner/template_unsupported_drupal.jinja2:2
-msgid "The following addresses contain unsupported Drupal versions:"
+#: artemis/reporting/modules/drupal_scanner/template_old_drupal.jinja2:2
+msgid "The following addresses contain old Drupal versions:"
 msgstr ""
 
-#: artemis/reporting/modules/drupal_scanner/template_unsupported_drupal.jinja2:14
+#: artemis/reporting/modules/drupal_scanner/template_old_drupal.jinja2:14
 msgid ""
 "If a site is no longer used, we recommend shutting it down to eliminate "
 "the risk of exploitation of known vulnerabilities in older Drupal "

@@ -30,7 +30,7 @@ SEVERITY_MAP = {
     ReportType("exposed_log_file"): Severity.MEDIUM,
     ReportType("wordpress_outdated_plugin_theme"): Severity.MEDIUM,
     ReportType("misconfigured_email"): Severity.MEDIUM,
-    ReportType("unsupported_drupal"): Severity.MEDIUM,
+    ReportType("old_drupal"): Severity.MEDIUM,
     ReportType("old_joomla"): Severity.MEDIUM,
     # This doesn't mean that a version is insecure, as WordPress maintains a separate list
     # of insecure versions. This just means "turn on the automatic updates"

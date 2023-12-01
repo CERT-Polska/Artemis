@@ -196,6 +196,12 @@ class Config:
             "in SUBDOMAIN_ENUMERATION_TTL_DAYS days. This is the TTL of such markers.",
         ] = get_config("SUBDOMAIN_ENUMERATION_TTL_DAYS", default=10, cast=int)
 
+        VERSION_COMPARER_VERSION_AGE_DAYS: Annotated[
+            int,
+            "After what number of days we consider the version to be obsolete for kartons that check whether new "
+            " version appeared (e.g. Joomla or Drupal).",
+        ] = get_config("VERSION_COMPARER_VERSION_AGE_DAYS", default=30, cast=int)
+
     class Modules:
         class Bruter:
             BRUTER_FALSE_POSITIVE_THRESHOLD: Annotated[
@@ -228,11 +234,6 @@ class Config:
                 List[str],
                 "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
             ] = get_config("GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
-
-        class JoomlaScanner:
-            JOOMLA_VERSION_AGE_DAYS: Annotated[
-                int, "After what number of days we consider the Joomla version to be obsolete."
-            ] = get_config("JOOMLA_VERSION_AGE_DAYS", default=30, cast=int)
 
         class Nuclei:
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[

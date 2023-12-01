@@ -1,18 +1,16 @@
-import datetime
-import json
-import subprocess
-import tempfile
-from pathlib import Path
+from typing import Optional
 
 import bs4
 from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.module_base import ArtemisBase
+from artemis.modules.base.base_newer_version_comparer import (
+    BaseNewerVersionComparerModule,
+)
 
 
-class DrupalScanner(ArtemisBase):
+class DrupalScanner(BaseNewerVersionComparerModule):
     """
     Drupal scanner - checks whether the version is supported.
     """
@@ -26,38 +24,28 @@ class DrupalScanner(ArtemisBase):
     # we want to identify Drupal version based on the script which is at the bottom.
     DOWNLOADED_CONTENT_PREFIX_SIZE = 5 * 1024 * 1024
 
-    def __init__(self, *args, **kwargs):  # type: ignore
-        super().__init__(*args, **kwargs)
-
-        release_endoflife_data_folder = tempfile.mkdtemp()
-        subprocess.call(
-            ["git", "clone", "https://github.com/endoflife-date/release-data", release_endoflife_data_folder]
-        )
-        release_endoflife_data_path = Path(release_endoflife_data_folder) / "releases" / "drupal.json"
-        with open(release_endoflife_data_path, "r") as f:
-            self.release_endoflife_data = json.load(f)
-
-    def is_version_obsolete(self, version: str) -> bool:
-        if version not in self.release_endoflife_data:
-            return True  # If it's not even in the endoflife data, let's consider it obsolete
-        return datetime.datetime.strptime(self.release_endoflife_data[version], "%Y-%m-%d") < datetime.datetime.now()
-
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
         response = http_requests.get(url, max_size=DrupalScanner.DOWNLOADED_CONTENT_PREFIX_SIZE)
         soup = bs4.BeautifulSoup(response.content)
 
-        version = None
+        version: Optional[str] = None
         for script in soup.findAll("script"):
             if script.get("src", "").startswith("/core/misc/drupal.js?v="):
                 version = script["src"].split("=")[1]
 
+        if version:
+            is_version_obsolete = super().is_newer_version_available(
+                version, require_same_major_version=False, software_name="drupal"
+            )
+        else:
+            is_version_obsolete = None
         result = {
             "version": version,
-            "is_version_obsolete": self.is_version_obsolete(version) if version else None,
+            "is_version_obsolete": is_version_obsolete,
         }
 
-        if version and self.is_version_obsolete(version):
+        if version and is_version_obsolete:
             found_problems = [f"Drupal version {version} on {url} is obsolete"]
         elif not version:
             found_problems = [f"Unable to obtain Drupal version for {url}"]

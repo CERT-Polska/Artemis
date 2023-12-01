@@ -29,16 +29,16 @@ class DrupalScanner(ArtemisBase):
     def __init__(self, *args, **kwargs):  # type: ignore
         super().__init__(*args, **kwargs)
 
-        release_expiry_data_folder = tempfile.mkdtemp()
-        subprocess.call(["git", "clone", "https://github.com/endoflife-date/release-data", release_expiry_data_folder])
-        release_expiry_data_path = Path(release_expiry_data_folder) / "releases" / "drupal.json"
-        with open(release_expiry_data_path, "r") as f:
-            self.release_expiry_data = json.load(f)
+        release_endoflife_data_folder = tempfile.mkdtemp()
+        subprocess.call(["git", "clone", "https://github.com/endoflife-date/release-data", release_endoflife_data_folder])
+        release_endoflife_data_path = Path(release_endoflife_data_folder) / "releases" / "drupal.json"
+        with open(release_endoflife_data_path, "r") as f:
+            self.release_endoflife_data = json.load(f)
 
     def is_version_obsolete(self, version: str) -> bool:
-        if version not in self.release_expiry_data:
-            return True  # If it's not even in the expiry data, let's consider it obsolete
-        return datetime.datetime.strptime(self.release_expiry_data[version], "%Y-%m-%d") < datetime.datetime.now()
+        if version not in self.release_endoflife_data:
+            return True  # If it's not even in the endoflife data, let's consider it obsolete
+        return datetime.datetime.strptime(self.release_endoflife_data[version], "%Y-%m-%d") < datetime.datetime.now()
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")

@@ -12,7 +12,7 @@ from artemis.modules.base.base_newer_version_comparer import (
 
 class DrupalScanner(BaseNewerVersionComparerModule):
     """
-    Drupal scanner - checks whether the version is supported.
+    Drupal scanner - checks whether the version is obsolete.
     """
 
     identity = "drupal_scanner"
@@ -31,7 +31,7 @@ class DrupalScanner(BaseNewerVersionComparerModule):
 
         version: Optional[str] = None
         for script in soup.findAll("script"):
-            if script.get("src", "").startswith("/core/misc/drupal.js?v="):
+            if "/core/misc/drupal.js?v=" in script.get("src", ""):
                 version = script["src"].split("=")[1]
 
         if version:

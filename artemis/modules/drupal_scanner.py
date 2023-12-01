@@ -22,6 +22,10 @@ class DrupalScanner(ArtemisBase):
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.DRUPAL.value},
     ]
 
+    # Some homepages are big - let's override the default downloaded content size because
+    # we want to identify Drupal version based on the script which is at the bottom.
+    DOWNLOADED_CONTENT_PREFIX_SIZE = 5 * 1024 * 1024
+
     def __init__(self, *args, **kwargs):  # type: ignore
         super().__init__(*args, **kwargs)
 
@@ -38,11 +42,12 @@ class DrupalScanner(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
-        response = http_requests.get(url)
+        response = http_requests.get(url, max_size=DrupalScanner.DOWNLOADED_CONTENT_PREFIX_SIZE)
         soup = bs4.BeautifulSoup(response.content)
 
         version = None
         for script in soup.findAll("script"):
+            sys.stderr.write(repr((script, "AAA", script.get("src", "")))+"\n")
             if script.get("src", "").startswith("/core/misc/drupal.js?v="):
                 version = script["src"].split("=")[1]
 

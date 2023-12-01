@@ -11,7 +11,7 @@ from artemis.reporting.utils import get_target_url, get_top_level_target
 
 
 class DrupalScannerReporter(Reporter):
-    OLD_DRUPAL = ReportType("old_drupal")
+    UNSUPPORTED_DRUPAL = ReportType("unsupported_drupal")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
@@ -26,7 +26,7 @@ class DrupalScannerReporter(Reporter):
                 Report(
                     top_level_target=get_top_level_target(task_result),
                     target=get_target_url(task_result),
-                    report_type=DrupalScannerReporter.OLD_DRUPAL,
+                    report_type=DrupalScannerReporter.UNSUPPORTED_DRUPAL,
                     additional_data={"version": task_result["result"]["version"]},
                     timestamp=task_result["created_at"],
                 )
@@ -37,7 +37,7 @@ class DrupalScannerReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_old_drupal.jinja2"), priority=5
+                os.path.join(os.path.dirname(__file__), "template_unsupported_drupal.jinja2"), priority=5
             ),
         ]
 
@@ -45,7 +45,7 @@ class DrupalScannerReporter(Reporter):
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """See the docstring in the Reporter class."""
         return {
-            DrupalScannerReporter.OLD_DRUPAL: DrupalScannerReporter.normal_form_rule,
+            DrupalScannerReporter.UNSUPPORTED_DRUPAL: DrupalScannerReporter.normal_form_rule,
         }
 
     @staticmethod

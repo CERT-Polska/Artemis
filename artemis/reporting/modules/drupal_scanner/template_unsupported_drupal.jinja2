@@ -1,5 +1,5 @@
-{% if "old_drupal" in data.contains_type %}
-    <li>{% trans %}The following addresses contain old Drupal versions:{% endtrans %}
+{% if "unsupported_drupal" in data.contains_type %}
+    <li>{% trans %}The following addresses contain unsupported Drupal versions:{% endtrans %}
         <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "old_drupal" %}

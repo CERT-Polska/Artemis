@@ -30,7 +30,9 @@ class DrupalScanner(ArtemisBase):
         super().__init__(*args, **kwargs)
 
         release_endoflife_data_folder = tempfile.mkdtemp()
-        subprocess.call(["git", "clone", "https://github.com/endoflife-date/release-data", release_endoflife_data_folder])
+        subprocess.call(
+            ["git", "clone", "https://github.com/endoflife-date/release-data", release_endoflife_data_folder]
+        )
         release_endoflife_data_path = Path(release_endoflife_data_folder) / "releases" / "drupal.json"
         with open(release_endoflife_data_path, "r") as f:
             self.release_endoflife_data = json.load(f)

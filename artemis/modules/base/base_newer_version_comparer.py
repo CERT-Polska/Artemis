@@ -51,7 +51,7 @@ class BaseNewerVersionComparerModule(ArtemisBase):
                     release_date,
                     "%Y-%m-%d",
                 )
-                if version_age.days > age_threshold_days:
+                if version_age.days >= age_threshold_days:
                     is_newer_version_available = True
 
         return is_newer_version_available

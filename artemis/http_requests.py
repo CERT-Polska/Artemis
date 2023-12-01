@@ -59,7 +59,7 @@ def _request(
         )
 
         # Handling situations where the response is very long, which is not handled by requests timeout
-        result = b''
+        result = b""
         for item in response.iter_content(max_size):
             result += item
 

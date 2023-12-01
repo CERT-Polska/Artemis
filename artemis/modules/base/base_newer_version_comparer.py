@@ -16,12 +16,14 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         super().__init__(*args, **kwargs)
 
         self.release_data_folder = tempfile.mkdtemp()
-        subprocess.call(
-            ["git", "clone", "https://github.com/endoflife-date/release-data", self.release_data_folder]
-        )
+        subprocess.call(["git", "clone", "https://github.com/endoflife-date/release-data", self.release_data_folder])
 
     def is_newer_version_available(
-        self, version: str, require_same_major_version: bool, software_name: str, age_threshold_days: int = Config.Miscellaneous.VERSION_COMPARER_VERSION_AGE_DAYS
+        self,
+        version: str,
+        require_same_major_version: bool,
+        software_name: str,
+        age_threshold_days: int = Config.Miscellaneous.VERSION_COMPARER_VERSION_AGE_DAYS,
     ) -> bool:
         release_data_path = Path(self.release_data_folder) / "releases" / (software_name + ".json")
         with open(release_data_path, "r") as f:

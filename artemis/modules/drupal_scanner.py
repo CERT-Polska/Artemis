@@ -1,10 +1,10 @@
-import beautifulsoup4
 import datetime
 import json
 import subprocess
 import tempfile
 from pathlib import Path
 
+import bs4
 from karton.core import Task
 
 from artemis import http_requests
@@ -22,7 +22,7 @@ class DrupalScanner(ArtemisBase):
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.DRUPAL.value},
     ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # type: ignore
         super().__init__(*args, **kwargs)
 
         release_expiry_data_folder = tempfile.mkdtemp()
@@ -31,9 +31,7 @@ class DrupalScanner(ArtemisBase):
         with open(release_expiry_data_path, "r") as f:
             self.release_expiry_data = json.load(f)
 
-    def is_version_obsolete(
-        self, version: str
-    ) -> bool:
+    def is_version_obsolete(self, version: str) -> bool:
         if version not in self.release_expiry_data:
             return True  # If it's not even in the expiry data, let's consider it obsolete
         return datetime.datetime.strptime(self.release_expiry_data[version], "%Y-%m-%d") < datetime.datetime.now()
@@ -41,16 +39,16 @@ class DrupalScanner(ArtemisBase):
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
         response = http_requests.get(url)
-        soup = beautifulsoup4.BeautifulSoup(response.content)
+        soup = bs4.BeautifulSoup(response.content)
 
         version = None
-        for script in soup.findAll('script'):
-            if script.get('src', '').startswith('/core/misc/drupal.js?v='):
-                version = script['src'].split('=')[1]
+        for script in soup.findAll("script"):
+            if script.get("src", "").startswith("/core/misc/drupal.js?v="):
+                version = script["src"].split("=")[1]
 
         result = {
             "version": version,
-            "is_version_obsolete": self.is_version_obsolete(version),
+            "is_version_obsolete": self.is_version_obsolete(version) if version else None,
         }
 
         if version and self.is_version_obsolete(version):
@@ -70,4 +68,4 @@ class DrupalScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    DrupalScanner().loop()
+    DrupalScanner().loop()  # type: ignore

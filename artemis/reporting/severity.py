@@ -13,7 +13,6 @@ SEVERITY_MAP = {
     ReportType("insecure_wordpress"): Severity.HIGH,
     ReportType("nuclei_vulnerability"): Severity.HIGH,
     ReportType("subdomain_takeover_possible"): Severity.HIGH,
-    ReportType("script_unregistered_domain"): Severity.HIGH,
     ReportType("sql_injection"): Severity.HIGH,
     ReportType("closed_wordpress_plugin"): Severity.HIGH,
     ReportType("close_domain_expiration_date"): Severity.HIGH,
@@ -31,6 +30,7 @@ SEVERITY_MAP = {
     ReportType("exposed_log_file"): Severity.MEDIUM,
     ReportType("wordpress_outdated_plugin_theme"): Severity.MEDIUM,
     ReportType("misconfigured_email"): Severity.MEDIUM,
+    ReportType("old_drupal"): Severity.MEDIUM,
     ReportType("old_joomla"): Severity.MEDIUM,
     # This doesn't mean that a version is insecure, as WordPress maintains a separate list
     # of insecure versions. This just means "turn on the automatic updates"

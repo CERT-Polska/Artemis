@@ -40,7 +40,7 @@ class BaseNewerVersionComparerModule(ArtemisBase):
             # the latter version is smaller.
             is_release_newer = release_version_parsed.compare(version_parsed) > 0
             if (have_same_major_version or not require_same_major_version) and is_release_newer:
-                version_age = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.datetime.strptime(
+                version_age = datetime.datetime.now() - datetime.datetime.strptime(
                     release_date,
                     "%Y-%m-%d",
                 )

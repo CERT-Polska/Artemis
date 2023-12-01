@@ -60,6 +60,8 @@ def _request(
 
         # Handling situations where the response is very long, which is not handled by requests timeout
         result = b""
+        # Sometimes the returned chunks are significantly shorter than max_size, therefore we iterate until
+        # we run out of chunks or we complete a result of expected size.
         for item in response.iter_content(max_size):
             result += item
 

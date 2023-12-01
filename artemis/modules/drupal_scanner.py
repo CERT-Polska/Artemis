@@ -47,7 +47,6 @@ class DrupalScanner(ArtemisBase):
 
         version = None
         for script in soup.findAll("script"):
-            sys.stderr.write(repr((script, "AAA", script.get("src", "")))+"\n")
             if script.get("src", "").startswith("/core/misc/drupal.js?v="):
                 version = script["src"].split("=")[1]
 

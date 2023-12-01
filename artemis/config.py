@@ -198,8 +198,8 @@ class Config:
 
         VERSION_COMPARER_VERSION_AGE_DAYS: Annotated[
             int,
-            "After what number of days we consider the version to be obsolete for kartons that check whether new "
-            " version appeared (e.g. Joomla or Drupal).",
+            "After what number of days after a release of a newer version we consider the older version to be obsolete "
+            "for kartons that check whether new version appeared (e.g. Joomla or Drupal).",
         ] = get_config("VERSION_COMPARER_VERSION_AGE_DAYS", default=30, cast=int)
 
     class Modules:
@@ -359,6 +359,7 @@ class Config:
                 default=",".join(
                     [
                         "http/vulnerabilities/generic/basic-xss-prober.yaml",
+                        "http/exposures/configs/dompdf-config.yaml",
                         "http/exposures/configs/ftp-credentials-exposure.yaml",
                         "http/exposures/configs/prometheus-metrics.yaml",
                         "http/exposures/files/core-dump.yaml",

@@ -18,6 +18,13 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         self.release_data_folder = tempfile.mkdtemp()
         subprocess.call(["git", "clone", "https://github.com/endoflife-date/release-data", self.release_data_folder])
 
+    def _parse_version(self, version: str) -> semver.VersionInfo:
+        if version.count('.') == 1:
+            return semver.VersionInfo.parse(version + ".0")
+        else:
+            return semver.VersionInfo.parse(version)
+
+
     def is_newer_version_available(
         self,
         version: str,
@@ -29,11 +36,11 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         with open(release_data_path, "r") as f:
             release_data = json.load(f)
 
-        version_parsed = semver.VersionInfo.parse(version)
+        version_parsed = self._parse_version(version)
 
         is_newer_version_available = False
         for release_version, release_date in release_data.items():
-            release_version_parsed = semver.VersionInfo.parse(release_version)
+            release_version_parsed = self._parse_version(release_version)
             have_same_major_version = release_version_parsed.major == version_parsed.major
 
             # Semver compare returns 1 if the latter version is greater, 0 if they are equal, and -1 if

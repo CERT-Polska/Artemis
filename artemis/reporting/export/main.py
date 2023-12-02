@@ -78,7 +78,7 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
 
     os.mkdir(output_messages_directory_name)
     for top_level_target in export_data_dict["messages"].keys():
-        max_length = os.pathconf('/', 'PC_NAME_MAX') - (len("...") + len(".html"))
+        max_length = os.pathconf("/", "PC_NAME_MAX") - (len("...") + len(".html"))
         if len(top_level_target) >= max_length:
             top_level_target_shortened = top_level_target[:max_length] + "..."
         else:

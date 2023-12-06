@@ -745,4 +745,7 @@ TRANSLATIONS = {
     "Asus router login panel was detected.": "wykryto panel logowania routera Asus.",
     "http/exposed-panels/appsuite-panel.yaml": "wykryto panel logowania Appsuite.",
     "F-Secure Policy Manager Server login panel was detected.": "wykryto panel logowania F-Secure Policy Manager Server.",
+    "Netdata Dashboard panel was detected.": "wykryto panel Netdata Dashboard.",
+    "Netdata panel was detected.": "wykryto panel Netdata.",
+    "http/exposed-panels/odoo-panel.yaml": "wykryto panel Odoo.",
 }

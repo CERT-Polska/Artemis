@@ -7,7 +7,7 @@ certifi==2023.11.17
 chardet==5.2.0
 git+https://github.com/CERT-Polska/checkdmarc@allowing-whitespace
 click==8.1.7
-cryptography==41.0.4
+cryptography==41.0.7
 dkimpy==1.1.5
 dnspython==2.4.2
 fastapi==0.104.1

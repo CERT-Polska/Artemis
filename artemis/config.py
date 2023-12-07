@@ -359,6 +359,7 @@ class Config:
                 default=",".join(
                     [
                         "http/vulnerabilities/generic/basic-xss-prober.yaml",
+                        "http/exposures/configs/dompdf-config.yaml",
                         "http/exposures/configs/ftp-credentials-exposure.yaml",
                         "http/exposures/configs/prometheus-metrics.yaml",
                         "http/exposures/files/core-dump.yaml",

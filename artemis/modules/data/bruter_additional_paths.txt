@@ -21,3 +21,7 @@ errors
 app_dev.php
 TEST
 _vti_bin
+sites/
+sites/all/
+sites/all/modules/
+sites/all/libraries/

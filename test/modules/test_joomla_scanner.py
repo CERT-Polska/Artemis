@@ -56,7 +56,7 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
 
     @freeze_time("2023-02-21")
     def test_is_newer_version_available(self) -> None:
-        with unittest.mock.patch(yaml.load_all, return_value=self.endoflife_data):  # type: ignore
+        with unittest.mock.patch('yaml.load_all', return_value=self.endoflife_data):  # type: ignore
             self.assertTrue(self.karton.is_newer_joomla_version_available("2.8.6"))
             self.assertTrue(self.karton.is_newer_joomla_version_available("2.99999.99999"))
 

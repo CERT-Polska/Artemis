@@ -42,7 +42,7 @@ class BaseNewerVersionComparerModule(ArtemisBase):
 
             # Semver compare returns 1 if the latter version is greater, 0 if they are equal, and -1 if
             # the latter version is smaller.
-            if release["latest"].compare(version_parsed) > 0:
+            if semver.VersionInfo.parse(release["latest"]).compare(version_parsed) > 0:
                 return release["eol"] > datetime.datetime.now()  # type: ignore
 
         return True  # if it's not even mentioned, let's consider it obsolete

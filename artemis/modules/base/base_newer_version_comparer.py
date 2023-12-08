@@ -44,9 +44,9 @@ class BaseNewerVersionComparerModule(ArtemisBase):
             # the latter version is smaller.
             comparison_result = semver.VersionInfo.parse(release["latest"]).compare(version_parsed)
             if comparison_result > 0:
-                return release["eol"] <= datetime.datetime.now().date()  # type: ignore
+                return True
             elif comparison_result == 0:
-                return False
+                return release["eol"] <= datetime.datetime.now().date()  # type: ignore
             else:
                 self.log.warning(
                     "Detected a newer version (%s) than newest for this cycle in https://github.com/endoflife-date (%s)",

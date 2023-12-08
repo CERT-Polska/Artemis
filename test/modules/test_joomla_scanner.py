@@ -12,46 +12,38 @@ from artemis.modules.joomla_scanner import JoomlaScanner
 class JoomlaScannerTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = JoomlaScanner  # type: ignore
-    # Copied from MIT-licensed https://github.com/endoflife-date/endoflife.date
-    endoflife_data = {
-        "title": "Joomla!",
-        "category": "server-app",
-        "tags": "php-runtime",
-        "iconSlug": "joomla",
-        "permalink": "/joomla",
-        "releasePolicyLink": "https://docs.joomla.org/Release_and_support_cycle",
-        "changelogTemplate": "https://docs.joomla.org/Special:MyLanguage/Joomla_{{'__LATEST__'|split:'.'|slice:0,2|join:'.'}}_version_history#Joomla___LATEST__",
-        "releaseDateColumn": True,
-        "activeSupportColumn": True,
-        "auto": [{"git": "https://github.com/joomla/joomla-cms.git"}],
-        "releases": [
-            {
-                "releaseCycle": "5",
-                "releaseDate": datetime.date(2023, 10, 14),
-                "support": True,
-                "eol": datetime.date(2027, 10, 19),
-                "latest": "5.0.1",
-                "latestReleaseDate": datetime.date(2023, 11, 24),
-                "link": "https://www.joomla.org/announcements/release-news/5900-joomla-5-0-and-joomla-4-4-are-here",
-            },
-            {
-                "releaseCycle": "4",
-                "releaseDate": datetime.date(2021, 8, 17),
-                "support": datetime.date(2024, 10, 17),
-                "eol": datetime.date(2025, 10, 17),
-                "latest": "4.4.1",
-                "latestReleaseDate": datetime.date(2023, 11, 23),
-            },
-            {
-                "releaseCycle": "3",
-                "releaseDate": datetime.date(2012, 9, 27),
-                "support": datetime.date(2021, 8, 17),
-                "eol": datetime.date(2023, 8, 17),
-                "latest": "3.10.12",
-                "latestReleaseDate": datetime.date(2023, 7, 8),
-            },
-        ],
-    }
+    # Copied and adapted from MIT-licensed https://github.com/endoflife-date/endoflife.date
+    endoflife_data = [
+        {
+            "releases": [
+                {
+                    "releaseCycle": "5",
+                    "releaseDate": datetime.date(2023, 10, 14),
+                    "support": True,
+                    "eol": datetime.date(2027, 10, 19),
+                    "latest": "5.0.1",
+                    "latestReleaseDate": datetime.date(2023, 11, 24),
+                    "link": "https://www.joomla.org/announcements/release-news/5900-joomla-5-0-and-joomla-4-4-are-here",
+                },
+                {
+                    "releaseCycle": "4",
+                    "releaseDate": datetime.date(2021, 8, 17),
+                    "support": datetime.date(2024, 10, 17),
+                    "eol": datetime.date(2025, 10, 17),
+                    "latest": "4.4.1",
+                    "latestReleaseDate": datetime.date(2023, 11, 23),
+                },
+                {
+                    "releaseCycle": "3",
+                    "releaseDate": datetime.date(2012, 9, 27),
+                    "support": datetime.date(2021, 8, 17),
+                    "eol": datetime.date(2023, 8, 17),
+                    "latest": "3.10.12",
+                    "latestReleaseDate": datetime.date(2023, 7, 8),
+                },
+            ],
+        }
+    ]
 
     @freeze_time("2023-02-21")
     def test_is_newer_version_available(self) -> None:

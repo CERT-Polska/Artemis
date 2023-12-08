@@ -48,15 +48,15 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
     @freeze_time("2023-02-21")
     def test_is_newer_version_available(self) -> None:
         with unittest.mock.patch("yaml.load_all", return_value=self.endoflife_data):
-            self.assertTrue(self.karton.is_newer_joomla_version_available("2.8.6"))
-            self.assertTrue(self.karton.is_newer_joomla_version_available("2.99999.99999"))
+            self.assertTrue(self.karton.is_version_obsolete("2.8.6"))
+            self.assertTrue(self.karton.is_version_obsolete("2.99999.99999"))
 
-            self.assertTrue(self.karton.is_newer_joomla_version_available("3.10.9"))
-            self.assertTrue(self.karton.is_newer_joomla_version_available("3.10.10"))
-            self.assertFalse(self.karton.is_newer_joomla_version_available("3.10.11"))
-            self.assertTrue(self.karton.is_newer_joomla_version_available("4.0.0"))
-            self.assertFalse(self.karton.is_newer_joomla_version_available("4.3.0"))
-            self.assertFalse(self.karton.is_newer_joomla_version_available("4.99999.99999"))
+            self.assertTrue(self.karton.is_version_obsolete("3.10.9"))
+            self.assertTrue(self.karton.is_version_obsolete("3.10.10"))
+            self.assertFalse(self.karton.is_version_obsolete("3.10.11"))
+            self.assertTrue(self.karton.is_version_obsolete("4.0.0"))
+            self.assertFalse(self.karton.is_version_obsolete("4.3.0"))
+            self.assertFalse(self.karton.is_version_obsolete("4.99999.99999"))
 
     def test_simple(self) -> None:
         task = Task(

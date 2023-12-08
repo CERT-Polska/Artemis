@@ -2,7 +2,6 @@ import re
 from typing import Any, Dict, List, Union
 
 import requests
-import semver
 from karton.core import Task
 
 from artemis import http_requests
@@ -21,12 +20,7 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
     filters = [
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.JOOMLA.value},
     ]
-
-    def is_newer_joomla_version_available(self, version: str) -> bool:
-        version_parsed = semver.VersionInfo.parse(version)
-        if version_parsed.major < 3:
-            return True
-        return super().is_newer_version_available(version, require_same_major_version=True, software_name="joomla")
+    software_name = "joomla"
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
@@ -47,9 +41,7 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
             result["joomla_version"] = joomla_version
             # Get latest release in repo from GitHub API
             gh_api_response = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases/latest")
-            if gh_api_response.json()["tag_name"] != joomla_version and self.is_newer_joomla_version_available(
-                joomla_version
-            ):
+            if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_obsolete(joomla_version):
                 found_problems.append(f"Joomla version is too old: {joomla_version}")
                 result["joomla_version_is_too_old"] = True
 

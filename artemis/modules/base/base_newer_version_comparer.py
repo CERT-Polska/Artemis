@@ -1,21 +1,28 @@
 import datetime
-import json
 import subprocess
 import tempfile
 from pathlib import Path
 
 import semver
+import yaml
 
-from artemis.config import Config
 from artemis.module_base import ArtemisBase
 
 
 class BaseNewerVersionComparerModule(ArtemisBase):
+    software_name: str
+
     def __init__(self, *args, **kwargs):  # type: ignore
         super().__init__(*args, **kwargs)
 
-        self.release_data_folder = tempfile.mkdtemp()
-        subprocess.call(["git", "clone", "https://github.com/endoflife-date/release-data", self.release_data_folder])
+        self.endoflife_data_folder = tempfile.mkdtemp()
+        subprocess.call(
+            ["git", "clone", "https://github.com/endoflife-date/endoflife.date", self.endoflife_data_folder]
+        )
+
+        endoflife_data_path = Path(self.endoflife_data_folder) / "products" / (self.software_name + ".md")
+        with open(endoflife_data_path, "r") as f:
+            self.endoflife_data = next(yaml.load_all(f, yaml.SafeLoader))
 
     def _parse_version(self, version: str) -> semver.VersionInfo:
         if version.count(".") == 1:
@@ -23,33 +30,19 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         else:
             return semver.VersionInfo.parse(version)
 
-    def is_newer_version_available(
+    def is_version_obsolete(
         self,
         version: str,
-        require_same_major_version: bool,
-        software_name: str,
-        age_threshold_days: int = Config.Miscellaneous.VERSION_COMPARER_VERSION_AGE_DAYS,
     ) -> bool:
-        release_data_path = Path(self.release_data_folder) / "releases" / (software_name + ".json")
-        with open(release_data_path, "r") as f:
-            release_data = json.load(f)
-
         version_parsed = self._parse_version(version)
 
-        is_newer_version_available = False
-        for release_version, release_date in release_data.items():
-            release_version_parsed = self._parse_version(release_version)
-            have_same_major_version = release_version_parsed.major == version_parsed.major
+        for release in self.endoflife_data["releases"]:
+            if not version.startswith(release["releaseCycle"]):
+                continue
 
             # Semver compare returns 1 if the latter version is greater, 0 if they are equal, and -1 if
             # the latter version is smaller.
-            is_release_newer = release_version_parsed.compare(version_parsed) > 0
-            if (have_same_major_version or not require_same_major_version) and is_release_newer:
-                version_age = datetime.datetime.now() - datetime.datetime.strptime(
-                    release_date,
-                    "%Y-%m-%d",
-                )
-                if version_age.days >= age_threshold_days:
-                    is_newer_version_available = True
+            if release["latest"].compare(version_parsed) > 0:
+                return release["eol"] > datetime.datetime.now()  # type: ignore
 
-        return is_newer_version_available
+        return True  # if it's not even mentioned, let's consider it obsolete

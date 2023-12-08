@@ -19,6 +19,7 @@ class DrupalScanner(BaseNewerVersionComparerModule):
     filters = [
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.DRUPAL.value},
     ]
+    software_name = "drupal"
 
     # Some homepages are big - let's override the default downloaded content size because
     # we want to identify Drupal version based on the script which is at the bottom.
@@ -35,8 +36,8 @@ class DrupalScanner(BaseNewerVersionComparerModule):
                 version = script["src"].split("=")[1]
 
         if version:
-            is_version_obsolete = super().is_newer_version_available(
-                version, require_same_major_version=False, software_name="drupal"
+            is_version_obsolete = super().is_version_obsolete(
+                version,
             )
         else:
             is_version_obsolete = None

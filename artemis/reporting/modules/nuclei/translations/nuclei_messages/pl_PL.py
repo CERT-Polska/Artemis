@@ -580,6 +580,7 @@ TRANSLATIONS = {
     "http/misconfiguration/installer/webcalendar-install.yaml": "Wykryto dostępny publicznie instalator systemu WebCalendar, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "A source code disclosure vulnerability in a web server caused by improper handling of multiple requests in quick succession, leading to the server treating requested files as static files instead of executing scripts.": "Serwer deweloperski udostępniany przez język programowania PHP w wersjach do 7.4.21 włącznie zawiera podatność umożliwiającą atakującemu nieuprawniony odczyt kodu źródłowego."
     + UPDATE_HINT,
+    "GoIP-1 GSM is vulnerable to local file inclusion because input passed thru the 'content' or 'sidebar' GET parameter in 'frame.html' or 'frame.A100.html' is not properly sanitized before being used to read files. This can be exploited by an unauthenticated attacker to read arbitrary files on the affected system.": "Wykryto, że GoIP-1 GSM zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -748,4 +749,8 @@ TRANSLATIONS = {
     "Netdata Dashboard panel was detected.": "wykryto panel Netdata Dashboard.",
     "Netdata panel was detected.": "wykryto panel Netdata.",
     "http/exposed-panels/odoo-panel.yaml": "wykryto panel Odoo.",
+    "The Neo4j Browser has been detected.": "wykryto narzędzie Neo4j Browser.",
+    "http/exposed-panels/homer-panel.yaml": "wykryto panel systemu Homer",
+    "Rundeck login panel was detected.": "wykryto panel logowania Rundeck.",
+    "NagVis login panel was detected.": "wykryto panel logowania NagVis.",
 }

@@ -5,6 +5,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from artemis.domains import is_domain
 from artemis.resolvers import IPResolutionException, ip_lookup
 from artemis.utils import get_host_from_url, is_ip_address
 
@@ -152,3 +153,23 @@ class Report:
             if self.report_type in scoring_rules:
                 return scoring_rules[self.report_type](self)  # type: ignore
         raise NotImplementedError(f"Don't know how to get score for {self.report_type}")
+
+    def get_domain(self) -> Optional[str]:
+        if is_domain(self.target):
+            return self.target
+
+        assert self.target_is_url()
+        hostname = urllib.parse.urlparse(self.target).hostname
+        assert hostname
+
+        if is_domain(hostname):
+            return hostname
+
+        assert is_ip_address(hostname)
+        if self.last_domain:
+            return self.last_domain
+
+        if is_domain(self.top_level_target):
+            return self.top_level_target
+
+        return None

@@ -341,6 +341,7 @@ class Config:
                         # Mostly meant to be publicly accessible
                         "http/exposed-panels/bigbluebutton-login.yaml",
                         "http/exposed-panels/ilias-panel.yaml",
+                        "http/exposed-panels/office-webapps-panel.yaml",
                         "http/exposed-panels/opensis-panel.yaml",
                         "http/exposed-panels/projectsend-login.yaml",
                     ]

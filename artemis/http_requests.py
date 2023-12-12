@@ -68,7 +68,6 @@ def _request(
             if len(result) >= max_size:
                 break
 
-        # Return the first item (at most `max_size` length)
         return HTTPResponse(
             status_code=response.status_code,
             content_bytes=result[:max_size],

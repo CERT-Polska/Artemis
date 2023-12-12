@@ -22,7 +22,7 @@ class DrupalScanner(BaseNewerVersionComparerModule):
     software_name = "drupal"
 
     # Some homepages are big - let's override the default downloaded content size because
-    # we want to identify Drupal version based on the script which is at the bottom.
+    # we want to identify Drupal version based on a script which is at the bottom.
     DOWNLOADED_CONTENT_PREFIX_SIZE = 5 * 1024 * 1024
 
     def run(self, current_task: Task) -> None:

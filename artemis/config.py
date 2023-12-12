@@ -187,7 +187,7 @@ class Config:
         CONTENT_PREFIX_SIZE: Annotated[
             int,
             "In order not to overload the DB and bandwidth, this determines how long the downloaded content would be (in bytes).",
-        ] = get_config("CONTENT_PREFIX_SIZE", default=10240, cast=int)
+        ] = get_config("CONTENT_PREFIX_SIZE", default=1024 * 100, cast=int)
 
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,

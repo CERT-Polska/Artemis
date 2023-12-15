@@ -45,6 +45,7 @@ class DrupalScanner(BaseNewerVersionComparerModule):
             )
         else:
             is_version_obsolete = None
+
         result = {
             "version": version,
             "is_version_obsolete": is_version_obsolete,

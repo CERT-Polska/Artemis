@@ -37,8 +37,7 @@ class ScriptsUnregisteredDomains(ArtemisBase):
     def _is_domain_registered(self, domain: str) -> bool:
         try:
             ips = ip_lookup(domain)
-            if ips:
-                return True
+            return bool(ips)
         except Exception as e:
             # Maybe doesn't exist, let's fallback for the next check
             self.log.info(f"Exception when trying to get IPs for {domain}: {e}")

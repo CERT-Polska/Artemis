@@ -3,14 +3,15 @@ import urllib.parse
 
 import bs4
 import validators
+from karton.core import Task
+from publicsuffixlist import PublicSuffixList
+
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ip_lookup
 from artemis.task_utils import get_target_url
 from artemis.utils import perform_whois_or_sleep
-from karton.core import Task
-from publicsuffixlist import PublicSuffixList
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -55,17 +56,14 @@ class ScriptsUnregisteredDomains(ArtemisBase):
         url = get_target_url(current_task)
 
         content = http_requests.get(url).content
-        import sys
-        sys.stderr.write(repr(content)+"\n")
+
         soup = bs4.BeautifulSoup(content, "html.parser")
         scripts = soup.find_all("script", src=True)
-        sys.stderr.write(repr(scripts)+"\n")
         scripts_from_unregistered_domains = []
         messages = []
 
         for script in scripts:
             src = script.get("src")
-            sys.stderr.write(repr(src)+"\n")
             netloc = urllib.parse.urlparse(src).netloc.strip()
 
             if netloc and self._is_domain(netloc):

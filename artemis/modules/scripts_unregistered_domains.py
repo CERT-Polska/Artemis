@@ -33,7 +33,6 @@ class ScriptsUnregisteredDomains(ArtemisBase):
             return validators.domain(domain) is True
         except validators.ValidationFailure:
             return False
-        return True
 
     def _is_domain_registered(self, domain: str) -> bool:
         try:

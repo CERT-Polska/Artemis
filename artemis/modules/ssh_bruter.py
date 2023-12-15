@@ -47,7 +47,7 @@ class SSHBruter(ArtemisBase):
             # Port scanner emits separate SERVICE tasks for all domains on a given IP address, and
             # (because it also scans IP addresses) also SERVICE tasks for all IP addresses.
             #
-            # It makes no sense to scan all domains as they are processed by the lookup karton
+            # It makes no sense to scan all domains as they are processed by the ip_lookup karton
             # and we would scan the same IP multiple times. Therefore we scan only IPs.
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return

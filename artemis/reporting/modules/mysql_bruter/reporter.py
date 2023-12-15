@@ -7,7 +7,7 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
-from artemis.resolvers import IPResolutionException, ip_lookup
+from artemis.resolvers import ResolutionException, lookup
 
 
 class MySQLBruterReporter(Reporter):
@@ -25,12 +25,12 @@ class MySQLBruterReporter(Reporter):
             return []
 
         try:
-            ips = list(ip_lookup(task_result["payload"]["host"]))
+            ips = list(lookup(task_result["payload"]["host"]))
             if ips:
                 host = ips[0]
             else:
                 host = task_result["payload"]["host"]
-        except IPResolutionException:
+        except ResolutionException:
             return []
 
         return [

@@ -10,7 +10,7 @@ from karton.core import Task
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
-from artemis.resolvers import ip_lookup
+from artemis.resolvers import lookup
 from artemis.task_utils import get_target_host
 from artemis.utils import check_output_log_on_error, throttle_request
 
@@ -175,7 +175,7 @@ class PortScanner(ArtemisBase):
 
         # convert domain to IPs
         if task_type == TaskType.DOMAIN:
-            hosts = ip_lookup(target)
+            hosts = lookup(target)
         elif task_type == TaskType.IP:
             hosts = {target}
         else:

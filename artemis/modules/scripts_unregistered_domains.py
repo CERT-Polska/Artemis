@@ -9,7 +9,7 @@ from publicsuffixlist import PublicSuffixList
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
-from artemis.resolvers import ip_lookup
+from artemis.resolvers import lookup
 from artemis.task_utils import get_target_url
 from artemis.utils import perform_whois_or_sleep
 
@@ -36,8 +36,13 @@ class ScriptsUnregisteredDomains(ArtemisBase):
 
     def _is_domain_registered(self, domain: str) -> bool:
         try:
-            ips = ip_lookup(domain)
-            return bool(ips)
+            ips = lookup(domain)
+            if len(ips) > 0:
+                return True
+            
+            nameservers = lookup(domain, "NS")
+            if len(nameservers) > 0:
+                return True
         except Exception as e:
             # Maybe doesn't exist, let's fallback for the next check
             self.log.info(f"Exception when trying to get IPs for {domain}: {e}")

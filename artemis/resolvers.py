@@ -8,7 +8,7 @@ from artemis.retrying_resolver import retry
 DOH_SERVER = "https://cloudflare-dns.com/dns-query"
 
 
-class IPResolutionException(Exception):
+class ResolutionException(Exception):
     pass
 
 
@@ -16,18 +16,19 @@ class NoAnswer(Exception):
     pass
 
 
-def _ips_from_answer(domain: str, answer: List[Dict[str, Any]]) -> Set[str]:
-    found_ips = set()
+def _results_from_answer(domain: str, answer: List[Dict[str, Any]], result_type: int) -> Set[str]:
+    found_results = set()
     for entry in answer:
         if entry["name"] != domain:
             continue
 
-        # A records
-        if entry["type"] == 1:
+        if entry["type"] == result_type:
             # If we receive an A record, it has the following format:
-            # {"name":"kazet.cc","type":1,"TTL":3600,"data":"213.32.88.99"}
-            # Therefore the IP we want is in "data".
-            found_ips.add(entry["data"])
+            # {"name":"cert.pl","type":1,"TTL":3600,"data":"[ ip ]"}
+            # If we receive a NS record, it has the following format:
+            # {"name":"cert.pl","type':2,"TTL":1800,"data":"[ domain ]"}
+            # Therefore the result we want is in "data".
+            found_results.add(entry["data"].strip('.'))
 
         # CNAME
         if entry["type"] == 5:
@@ -39,39 +40,46 @@ def _ips_from_answer(domain: str, answer: List[Dict[str, Any]]) -> Set[str]:
             # look for this domain in other records.
             for subentry in answer:
                 if subentry["name"] == entry["data"].rstrip(".") and subentry["type"] == 1:
-                    found_ips.add(subentry["data"])
+                    found_results.add(subentry["data"])
 
-    return found_ips
+    return found_results
 
 
-def _single_resolution_attempt(domain: str) -> Set[str]:
+def _single_resolution_attempt(domain: str, query_type: str="A") -> Set[str]:
     response = requests.get(
-        f"{DOH_SERVER}?name={domain.encode('idna').decode('ascii')}&type=A", headers={"accept": "application/dns-json"}
+        f"{DOH_SERVER}?name={domain.encode('idna').decode('ascii')}&type={query_type}", headers={"accept": "application/dns-json"}
     )
     if not response.ok:
-        raise IPResolutionException(f"DOH server invalid response ({response.status_code})")
+        raise ResolutionException(f"DOH server invalid response ({response.status_code})")
 
     result = response.json()
     dns_rc = result["Status"]  # https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-6
     if dns_rc == 0:
         if "Answer" in result:
-            return _ips_from_answer(domain, result["Answer"])
+            if query_type == "A":
+                result_type = 1
+            elif query_type == "NS":
+                result_type = 2
+            else:
+                raise NotImplementedError(f"Don't know how to obtain results for query {query_type}")
+
+            return _results_from_answer(domain, result["Answer"], result_type)
         else:
             raise NoAnswer()
     elif dns_rc == 3:  # NXDomain
         return set()
     else:
-        raise IPResolutionException(f"Unexpected DNS status ({dns_rc})")
+        raise ResolutionException(f"Unexpected DNS status ({dns_rc})")
 
 
 @functools.lru_cache(maxsize=8192)
-def ip_lookup(domain: str) -> Set[str]:
+def lookup(domain: str, query_type: str="A") -> Set[str]:
     """
-    :return List of IP addresses
+    :return List of IP addresses (or domains, for NS lookup)
 
-    :raise IPResolutionException if something fails
+    :raise ResolutionException if something fails
     """
     try:
-        return retry(_single_resolution_attempt, (domain,), {})  # type: ignore
+        return retry(_single_resolution_attempt, (domain, query_type), {})  # type: ignore
     except NoAnswer:
         return set()

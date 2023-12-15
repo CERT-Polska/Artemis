@@ -16,7 +16,7 @@ from artemis.domains import is_main_domain
 from artemis.mail_check.scan import DomainScanResult as SPFDMARCScanResult
 from artemis.mail_check.scan import ScanningException, scan_domain
 from artemis.module_base import ArtemisBase
-from artemis.resolvers import ip_lookup
+from artemis.resolvers import lookup
 from artemis.utils import throttle_request
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
@@ -69,7 +69,7 @@ class MailDNSScanner(ArtemisBase):
                 has_mx_records = True
                 for port in (25, 465, 587):
                     if self.is_smtp_server(exchange, port):
-                        for host in [exchange] + list(ip_lookup(exchange)):
+                        for host in [exchange] + list(lookup(exchange)):
                             new_task = Task(
                                 {
                                     "type": TaskType.SERVICE,

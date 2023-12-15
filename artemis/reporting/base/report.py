@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from artemis.domains import is_domain
-from artemis.resolvers import IPResolutionException, ip_lookup
+from artemis.resolvers import ResolutionException, lookup
 from artemis.utils import get_host_from_url, is_ip_address
 
 from .normal_form import NormalForm
@@ -69,9 +69,9 @@ class Report:
                     self.target_ip = host
                 else:
                     try:
-                        ips = list(ip_lookup(host))
+                        ips = list(lookup(host))
                         self.target_ip = ips[0] if ips else None
-                    except IPResolutionException:
+                    except ResolutionException:
                         self.target_ip = None
             self.target_ip_checked = True
 

@@ -10,6 +10,10 @@ from artemis.modules.base.base_newer_version_comparer import (
 )
 
 
+class DrupalScannerException(Exception):
+    pass
+
+
 class DrupalScanner(BaseNewerVersionComparerModule):
     """
     Drupal scanner - checks whether the version is obsolete.
@@ -46,10 +50,11 @@ class DrupalScanner(BaseNewerVersionComparerModule):
             "is_version_obsolete": is_version_obsolete,
         }
 
+        if not version:
+            raise DrupalScannerException(f"Unable to obtain Drupal version for {url}")
+
         if version and is_version_obsolete:
             found_problems = [f"Drupal version {version} on {url} is obsolete"]
-        elif not version:
-            found_problems = [f"Unable to obtain Drupal version for {url}"]
         else:
             found_problems = []
 

@@ -29,7 +29,8 @@ class ScriptsUnregisteredDomains(ArtemisBase):
     @staticmethod
     def _is_domain(domain: str) -> bool:
         try:
-            validators.domain(domain)
+            # this validator returns either a VaildationError or a boolean
+            return validators.domain(domain) is True
         except validators.ValidationFailure:
             return False
         return True

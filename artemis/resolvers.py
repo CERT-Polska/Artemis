@@ -28,7 +28,7 @@ def _results_from_answer(domain: str, answer: List[Dict[str, Any]], result_type:
             # If we receive a NS record, it has the following format:
             # {"name":"cert.pl","type':2,"TTL":1800,"data":"[ domain ]"}
             # Therefore the result we want is in "data".
-            found_results.add(entry["data"].strip('.'))
+            found_results.add(entry["data"].strip("."))
 
         # CNAME
         if entry["type"] == 5:
@@ -45,9 +45,10 @@ def _results_from_answer(domain: str, answer: List[Dict[str, Any]], result_type:
     return found_results
 
 
-def _single_resolution_attempt(domain: str, query_type: str="A") -> Set[str]:
+def _single_resolution_attempt(domain: str, query_type: str = "A") -> Set[str]:
     response = requests.get(
-        f"{DOH_SERVER}?name={domain.encode('idna').decode('ascii')}&type={query_type}", headers={"accept": "application/dns-json"}
+        f"{DOH_SERVER}?name={domain.encode('idna').decode('ascii')}&type={query_type}",
+        headers={"accept": "application/dns-json"},
     )
     if not response.ok:
         raise ResolutionException(f"DOH server invalid response ({response.status_code})")
@@ -73,7 +74,7 @@ def _single_resolution_attempt(domain: str, query_type: str="A") -> Set[str]:
 
 
 @functools.lru_cache(maxsize=8192)
-def lookup(domain: str, query_type: str="A") -> Set[str]:
+def lookup(domain: str, query_type: str = "A") -> Set[str]:
     """
     :return List of IP addresses (or domains, for NS lookup)
 

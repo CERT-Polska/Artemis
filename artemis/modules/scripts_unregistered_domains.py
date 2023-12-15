@@ -39,7 +39,7 @@ class ScriptsUnregisteredDomains(ArtemisBase):
             ips = lookup(domain)
             if len(ips) > 0:
                 return True
-            
+
             nameservers = lookup(domain, "NS")
             if len(nameservers) > 0:
                 return True

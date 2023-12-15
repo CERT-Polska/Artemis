@@ -37,6 +37,8 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         version_parsed = self._parse_version(version)
 
         for release in self.endoflife_data["releases"]:
+            # We cannot just do "if not version.startswith(release["releaseCycle"])", because version 50 is not in the
+            # "5" release cycle.
             if not (version == release["releaseCycle"] or version.startswith(release["releaseCycle"] + ".")):
                 continue
 

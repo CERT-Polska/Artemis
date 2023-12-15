@@ -15,7 +15,7 @@ from publicsuffixlist import PublicSuffixList
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
-class ScriptsUnregisteredDomains(ArtemisBase):  # type: ignore
+class ScriptsUnregisteredDomains(ArtemisBase):
     """
     Checks, whether scripts are loaded from unregistered domains
     """
@@ -43,6 +43,7 @@ class ScriptsUnregisteredDomains(ArtemisBase):  # type: ignore
             self.log.info(f"Exception when trying to get IPs for {domain}: {e}")
             pass
 
+        try:
             return perform_whois_or_sleep(domain, self.log) is not None
         except Exception as e:
             # When there is whois error, we treat the domain as unregistered - let's see whether
@@ -54,13 +55,17 @@ class ScriptsUnregisteredDomains(ArtemisBase):  # type: ignore
         url = get_target_url(current_task)
 
         content = http_requests.get(url).content
+        import sys
+        sys.stderr.write(repr(content)+"\n")
         soup = bs4.BeautifulSoup(content, "html.parser")
         scripts = soup.find_all("script", src=True)
+        sys.stderr.write(repr(scripts)+"\n")
         scripts_from_unregistered_domains = []
         messages = []
 
         for script in scripts:
             src = script.get("src")
+            sys.stderr.write(repr(src)+"\n")
             netloc = urllib.parse.urlparse(src).netloc.strip()
 
             if netloc and self._is_domain(netloc):

@@ -26,6 +26,10 @@ class ScriptsUnregisteredDomains(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
+    # As the logic sometimes requires waiting 24 hours for the whois quota to be renewed, let's
+    # set the timeout for 24 hours + 1 hour.
+    timeout_seconds = (24 + 1) * 3600
+
     @staticmethod
     def _is_domain(domain: str) -> bool:
         try:

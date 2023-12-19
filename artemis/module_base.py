@@ -247,12 +247,14 @@ class ArtemisBase(Karton):
                 self.log.info("Task %s is blocklisted for module %s", task, self.identity)
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
                 self.backend.set_task_status(task, KartonTaskState.FINISHED)
-                lock_for_task.release()
+                if lock_for_task:
+                    lock_for_task.release()
             elif self.identity in task.payload_persistent.get("disabled_modules", []):
                 self.log.info("Module %s disabled for task %s", self.identity, task)
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
                 self.backend.set_task_status(task, KartonTaskState.FINISHED)
-                lock_for_task.release()
+                if lock_for_task:
+                    lock_for_task.release()
             else:
                 tasks_not_blocklisted.append(task)
                 locks_for_tasks_not_blocklisted.append(lock_for_task)

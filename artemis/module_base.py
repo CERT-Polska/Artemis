@@ -96,6 +96,7 @@ class ArtemisBase(Karton):
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         new_task.priority = current_task.priority
+        new_task.payload['created_at'] = datetime.datetime.utcnow().isoformat()
 
         new_task.set_task_parent(current_task)
         new_task.merge_persistent_payload(current_task)
@@ -182,13 +183,16 @@ class ArtemisBase(Karton):
         try:
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
+            self.log.warning(
+                "Failed to acquire lock to take tasks from queue"
+            )
             return [], []
 
         tasks = []
         locks: List[Optional[ResourceLock]] = []
         for queue in self.backend.get_queue_names(self.identity):
-            for i, item in enumerate(REDIS.lrange(queue, 0, -1)):
-                task = self.backend.get_task(item.decode("ascii"))
+            for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
+                task = self.backend.get_task(item)
 
                 if not task:
                     continue
@@ -215,7 +219,7 @@ class ArtemisBase(Karton):
                             )
                             tasks.append(task)
                             locks.append(lock)
-                            REDIS.lrem(queue, 1, item)
+                            self.backend.redis.lrem(queue, 1, item)
                             if len(tasks) >= num_tasks:
                                 break
                         except FailedToAcquireLockException:

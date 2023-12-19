@@ -59,7 +59,7 @@ class ArtemisBase(Karton):
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
         self.lock = ResourceLock(redis=REDIS, res_name=self.identity)
-        self.taking_task_from_queue_lock = ResourceLock(redis=REDIS, res_name="taking-task-from-queue")
+        self.taking_tasks_from_queue_lock = ResourceLock(redis=REDIS, res_name="taking-tasks-from-queue")
         self.redis = REDIS
 
         if Config.Miscellaneous.BLOCKLIST_FILE:
@@ -179,7 +179,7 @@ class ArtemisBase(Karton):
 
     def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[ResourceLock]]:
         try:
-            self.taking_task_from_queue_lock.acquire()
+            self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
             return [], []
 
@@ -229,7 +229,7 @@ class ArtemisBase(Karton):
             if len(tasks) >= num_tasks:
                 break
 
-        self.taking_task_from_queue_lock.release()
+        self.taking_tasks_from_queue_lock.release()
 
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted = []

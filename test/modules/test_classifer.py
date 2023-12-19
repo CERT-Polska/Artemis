@@ -75,7 +75,8 @@ class ClassifierTest(ArtemisModuleTestCase):
                 for item in entry.expected
             ]
 
-            del results[0].payload["created_at"]
+            for i in range(len(results)):
+                del results[i].payload["created_at"]
             self.assertTasksEqual(results, expected_tasks)
 
     def test_invalid_url(self) -> None:

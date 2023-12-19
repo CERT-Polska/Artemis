@@ -1,3 +1,4 @@
+import datetime
 import logging
 import random
 import sys
@@ -96,7 +97,7 @@ class ArtemisBase(Karton):
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         new_task.priority = current_task.priority
-        new_task.payload['created_at'] = datetime.datetime.utcnow().isoformat()
+        new_task.payload["created_at"] = datetime.datetime.utcnow().isoformat()
 
         new_task.set_task_parent(current_task)
         new_task.merge_persistent_payload(current_task)
@@ -183,9 +184,7 @@ class ArtemisBase(Karton):
         try:
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
-            self.log.warning(
-                "Failed to acquire lock to take tasks from queue"
-            )
+            self.log.warning("Failed to acquire lock to take tasks from queue")
             return [], []
 
         tasks = []

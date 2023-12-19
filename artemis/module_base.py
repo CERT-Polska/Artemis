@@ -262,7 +262,7 @@ class ArtemisBase(Karton):
         if is_domain(host):
             try:
                 ip_addresses = list(lookup(host))
-            except Exception as e:
+            except Exception:
                 self.log.error(f"Exception while trying to obtain IP for host {host}")
                 ip_addresses = []
 

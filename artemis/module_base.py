@@ -235,8 +235,8 @@ class ArtemisBase(Karton):
         self.taking_tasks_from_queue_lock.release()
 
         tasks_not_blocklisted = []
-        locks_for_tasks_not_blocklisted = []
-        for task, lock in zip(tasks, locks):
+        locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []
+        for task, lock_for_task in zip(tasks, locks):
             if self._is_blocklisted(task):
                 self.log.info("Task %s is blocklisted for module %s", task, self.identity)
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
@@ -247,7 +247,7 @@ class ArtemisBase(Karton):
                 self.backend.set_task_status(task, KartonTaskState.FINISHED)
             else:
                 tasks_not_blocklisted.append(task)
-                locks_for_tasks_not_blocklisted.append(lock)
+                locks_for_tasks_not_blocklisted.append(lock_for_task)
         return tasks_not_blocklisted, locks_for_tasks_not_blocklisted
 
     def _is_blocklisted(self, task: Task) -> bool:

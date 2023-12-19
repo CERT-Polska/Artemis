@@ -187,7 +187,7 @@ class ArtemisBase(Karton):
         tasks = []
         locks: List[Optional[ResourceLock]] = []
         for queue in self.backend.get_queue_names(self.identity):
-            for item in REDIS.lrange(queue, 0, -1):
+            for i, item in enumerate(REDIS.lrange(queue, 0, -1)):
                 task = self.backend.get_task(item.decode("ascii"))
 
                 if not task:
@@ -206,10 +206,12 @@ class ArtemisBase(Karton):
                         try:
                             lock.acquire()
                             self.log.info(
-                                "Succeeded to lock task %s (orig_uid=%s destination=%s)",
+                                "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s)",
                                 task.uid,
                                 task.orig_uid,
                                 scan_destination,
+                                i,
+                                queue,
                             )
                             tasks.append(task)
                             locks.append(lock)

@@ -232,6 +232,7 @@ class ArtemisBase(Karton):
                 else:
                     tasks.append(task)
                     locks.append(None)
+                    self.backend.redis.lrem(queue, 1, item)
                     if len(tasks) >= num_tasks:
                         break
             if len(tasks) >= num_tasks:

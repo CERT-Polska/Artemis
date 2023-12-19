@@ -212,6 +212,7 @@ class ArtemisBase(Karton):
                             )
                             tasks.append(task)
                             locks.append(lock)
+                            REDIS.lrem(queue, item)
                             if len(tasks) >= num_tasks:
                                 break
                         except FailedToAcquireLockException:

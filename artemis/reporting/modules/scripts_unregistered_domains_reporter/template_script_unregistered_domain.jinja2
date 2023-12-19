@@ -1,0 +1,24 @@
+{% if "script_unregistered_domain" in data.contains_type %}
+    <li>{% trans %}The following sites load scripts from domains that don't exist:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "script_unregistered_domain" %}
+                    <li>
+                        {{ report.target }} {% trans %}loads scripts from{% endtrans %}
+                        {{ report.additional_data.domain }}{% trans %}, and the{% endtrans %}
+                        {{ report.additional_data.privatesuffix or report.additional_data.domain }} {% trans %}domain is not registered{% endtrans %}.
+
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                If a site loads scripts from a domain that is not registered, an attacker can potentially register
+                it and serve malicious scripts, making it possible to arbitrarily change site contents, serve malware,
+                intercept user data or perform any actions a logged-in administrator is allowed to perform.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

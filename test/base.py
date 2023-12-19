@@ -27,13 +27,13 @@ class KartonBackendMockWithRedis(BackendMock):
 class ArtemisModuleTestCase(KartonTestCase):
     def setUp(self) -> None:
         # Unfortunately, in the context of a test that is about to run and a respective module has already been
-        # imported, to mock ip_lookup we need to mock it in modules it has been imported to,
+        # imported, to mock lookup we need to mock it in modules it has been imported to,
         # so we need to enumerate the locations it's used in in the list below.
-        for item in ["artemis.module_base.ip_lookup", "artemis.modules.port_scanner.ip_lookup"]:
+        for item in ["artemis.module_base.lookup", "artemis.modules.port_scanner.lookup"]:
             # We cannot use Artemis default DoH resolvers as they wouldn't be able to resolve
             # internal test services' addresses.
-            self._ip_lookup_mock = patch(item, MagicMock(side_effect=lambda host: {socket.gethostbyname(host)}))
-            self._ip_lookup_mock.__enter__()
+            self._lookup_mock = patch(item, MagicMock(side_effect=lambda host: {socket.gethostbyname(host)}))
+            self._lookup_mock.__enter__()
 
         self.mock_db = MagicMock()
         self.mock_db.contains_scheduled_task.return_value = False
@@ -42,7 +42,7 @@ class ArtemisModuleTestCase(KartonTestCase):
         )
 
     def tearDown(self) -> None:
-        self._ip_lookup_mock.__exit__([])  # type: ignore
+        self._lookup_mock.__exit__([])  # type: ignore
 
 
 class BaseReportingTest(ArtemisModuleTestCase):

@@ -20,7 +20,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.redis_cache import RedisCache
-from artemis.resolvers import ip_lookup
+from artemis.resolvers import lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import get_target_host
@@ -204,7 +204,7 @@ class ArtemisBase(Karton):
 
         if is_domain(host):
             try:
-                ip_addresses = list(ip_lookup(host))
+                ip_addresses = list(lookup(host))
             except Exception as e:
                 self.log.error(f"Exception while trying to obtain IP for host {host}", e)
                 ip_addresses = []
@@ -450,7 +450,7 @@ class ArtemisBase(Karton):
         # time and across multiple scanner instances the overall load would be approximately similar
         # to one request per Config.Limits.SECONDS_PER_REQUEST.
         try:
-            ip_addresses = list(ip_lookup(host))
+            ip_addresses = list(lookup(host))
         except Exception as e:
             raise UnknownIPException(f"Exception while trying to obtain IP for host {host}", e)
 

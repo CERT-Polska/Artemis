@@ -170,21 +170,22 @@ class ArtemisBase(Karton):
         self.internal_process_multiple(tasks)
 
         for lock in locks:
-            lock.release()
+            if lock:
+                lock.release()
 
         if resource_lock:
             resource_lock.release()
 
         return len(tasks)
 
-    def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[ResourceLock]]:
+    def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]]]:
         try:
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
             return [], []
 
         tasks = []
-        locks: List[ResourceLock] = []
+        locks: List[Optional[ResourceLock]] = []
         for queue in self.backend.get_queue_names(self.identity):
             for item in REDIS.lrange(queue, 0, -1):
                 task = self.backend.get_task(item.decode("ascii"))
@@ -225,6 +226,7 @@ class ArtemisBase(Karton):
                             continue
                 else:
                     tasks.append(task)
+                    locks.append(None)
                     if len(tasks) >= num_tasks:
                         break
             if len(tasks) >= num_tasks:

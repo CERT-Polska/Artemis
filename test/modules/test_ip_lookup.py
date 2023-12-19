@@ -32,4 +32,5 @@ class IPLookupTest(ArtemisModuleTestCase):
                 {"type": TaskType.NEW, "origin": IPLookup.identity},
                 payload={"data": entry.ip, "last_domain": entry.domain},
             )
+            del results[0].payload["created_at"]
             self.assertTasksEqual(results, [expected_task])

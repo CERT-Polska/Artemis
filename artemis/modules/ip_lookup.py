@@ -3,7 +3,7 @@ from karton.core import Task
 
 from artemis.binds import TaskType
 from artemis.module_base import ArtemisBase
-from artemis.resolvers import ip_lookup
+from artemis.resolvers import lookup
 
 
 class IPLookup(ArtemisBase):
@@ -17,7 +17,7 @@ class IPLookup(ArtemisBase):
     ]
 
     def _process(self, current_task: Task, domain: str) -> None:
-        found_ips = ip_lookup(domain)
+        found_ips = lookup(domain)
         for found_ip in found_ips:
             new_task = Task({"type": TaskType.NEW}, payload={"data": found_ip})
             self.add_task(current_task, new_task)

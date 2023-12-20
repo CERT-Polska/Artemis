@@ -1,3 +1,4 @@
+import datetime
 import logging
 import random
 import sys
@@ -5,7 +6,7 @@ import time
 import traceback
 import urllib.parse
 from ipaddress import ip_address
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import requests
 import timeout_decorator
@@ -20,7 +21,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.redis_cache import RedisCache
-from artemis.resolvers import ip_lookup
+from artemis.resolvers import lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import get_target_host
@@ -59,6 +60,7 @@ class ArtemisBase(Karton):
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
         self.lock = ResourceLock(redis=REDIS, res_name=self.identity)
+        self.taking_tasks_from_queue_lock = ResourceLock(redis=REDIS, res_name="taking-tasks-from-queue")
         self.redis = REDIS
 
         if Config.Miscellaneous.BLOCKLIST_FILE:
@@ -80,26 +82,6 @@ class ArtemisBase(Karton):
                 self.task_max_batch_size == 1
             ), "If batch_tasks is disabled, task_max_batch_size makes no sense to be other than 1."
 
-        self._get_random_queue_element = self.backend.redis.register_script(
-            """
-            local random_seed = ARGV[1]
-            local queue_name = ARGV[2]
-
-            local length = redis.call('LLEN', queue_name)
-
-            if length == 0 or length == nil then
-                return nil
-            end
-
-            math.randomseed(random_seed)
-            local member_id = math.random(length) - 1
-
-            local values = redis.call('LRANGE', queue_name, member_id, member_id)
-            redis.call('LREM', queue_name, 1, values[1])
-            return values[1]
-        """
-        )
-
         for handler in self.log.handlers:
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
 
@@ -115,6 +97,7 @@ class ArtemisBase(Karton):
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         new_task.priority = current_task.priority
+        new_task.payload["created_at"] = datetime.datetime.utcnow().isoformat()
 
         new_task.set_task_parent(current_task)
         new_task.merge_persistent_payload(current_task)
@@ -160,53 +143,131 @@ class ArtemisBase(Karton):
                     break
 
                 time.sleep(self.task_poll_interval_seconds)
-                tasks = []
-                for _ in range(self.task_max_batch_size):
-                    task = self._consume_random_routed_task(self.identity)
 
-                    if task:
-                        if self._is_blocklisted(task):
-                            self.log.info("Task %s is blocklisted for module %s", task, self.identity)
-                            self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
-                            self.backend.set_task_status(task, KartonTaskState.FINISHED)
-                        elif self.identity in task.payload_persistent.get("disabled_modules", []):
-                            self.log.info("Module %s disabled for task %s", self.identity, task)
-                            self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
-                            self.backend.set_task_status(task, KartonTaskState.FINISHED)
-                        else:
-                            tasks.append(task)
-
-                if len(tasks) > 0:
-                    task_id += len(tasks)
-
-                    self.lock_and_internal_process_multiple(tasks)
+                task_id += self._single_iteration()
 
         if task_id >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
             self.log.info("Exiting loop after processing %d tasks", task_id)
         else:
             self.log.info("Exiting loop, shutdown=%s", self.shutdown)
 
-    def _consume_random_routed_task(self, identity: str) -> Optional[Task]:
-        uid = None
-        for queue in self.backend.get_queue_names(identity):
-            uid = self._get_random_queue_element(args=[random.randint(0, 2**31 - 1), queue])
-            if uid:
+    def _single_iteration(self) -> int:
+        if self.resource_name_to_lock_before_scanning:
+            resource_lock = ResourceLock(
+                REDIS,
+                f"resource-lock-{self.resource_name_to_lock_before_scanning}",
+                max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES,
+            )
+            try:
+                resource_lock.acquire()
+                self.log.info("Succeeded to lock resource %s", self.resource_name_to_lock_before_scanning)
+            except FailedToAcquireLockException:
+                self.log.info("Failed to lock resource %s", self.resource_name_to_lock_before_scanning)
+                return 0
+        else:
+            resource_lock = None
+
+        tasks, locks = self._take_and_lock_tasks(self.task_max_batch_size)
+        self._log_tasks(tasks)
+        self.internal_process_multiple(tasks)
+
+        for lock in locks:
+            if lock:
+                lock.release()
+
+        if resource_lock:
+            resource_lock.release()
+
+        return len(tasks)
+
+    def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]]]:
+        try:
+            self.taking_tasks_from_queue_lock.acquire()
+        except FailedToAcquireLockException:
+            self.log.warning("Failed to acquire lock to take tasks from queue")
+            return [], []
+
+        tasks = []
+        locks: List[Optional[ResourceLock]] = []
+        for queue in self.backend.get_queue_names(self.identity):
+            for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
+                task = self.backend.get_task(item)
+
+                if not task:
+                    continue
+
+                scan_destination = self._get_scan_destination(task)
+
+                if self.lock_target:
+                    lock = ResourceLock(
+                        REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
+                    )
+
+                    if lock.is_acquired():
+                        continue
+                    else:
+                        try:
+                            lock.acquire()
+                            self.log.info(
+                                "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s)",
+                                task.uid,
+                                task.orig_uid,
+                                scan_destination,
+                                i,
+                                queue,
+                            )
+                            tasks.append(task)
+                            locks.append(lock)
+                            self.backend.redis.lrem(queue, 1, item)
+                            if len(tasks) >= num_tasks:
+                                break
+                        except FailedToAcquireLockException:
+                            self.log.warning(
+                                "Failed to lock task %s (orig_uid=%s destination=%s)",
+                                task.uid,
+                                task.orig_uid,
+                                scan_destination,
+                            )
+                            continue
+                else:
+                    tasks.append(task)
+                    locks.append(None)
+                    self.backend.redis.lrem(queue, 1, item)
+                    if len(tasks) >= num_tasks:
+                        break
+            if len(tasks) >= num_tasks:
                 break
 
-        if uid:
-            task = self.backend.get_task(uid)
-            if task:
-                return task
-        return None
+        self.taking_tasks_from_queue_lock.release()
+
+        tasks_not_blocklisted = []
+        locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []
+        for task, lock_for_task in zip(tasks, locks):
+            if self._is_blocklisted(task):
+                self.log.info("Task %s is blocklisted for module %s", task, self.identity)
+                self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
+                self.backend.set_task_status(task, KartonTaskState.FINISHED)
+                if lock_for_task:
+                    lock_for_task.release()
+            elif self.identity in task.payload_persistent.get("disabled_modules", []):
+                self.log.info("Module %s disabled for task %s", self.identity, task)
+                self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
+                self.backend.set_task_status(task, KartonTaskState.FINISHED)
+                if lock_for_task:
+                    lock_for_task.release()
+            else:
+                tasks_not_blocklisted.append(task)
+                locks_for_tasks_not_blocklisted.append(lock_for_task)
+        return tasks_not_blocklisted, locks_for_tasks_not_blocklisted
 
     def _is_blocklisted(self, task: Task) -> bool:
         host = get_target_host(task)
 
         if is_domain(host):
             try:
-                ip_addresses = list(ip_lookup(host))
-            except Exception as e:
-                self.log.error(f"Exception while trying to obtain IP for host {host}", e)
+                ip_addresses = list(lookup(host))
+            except Exception:
+                self.log.error(f"Exception while trying to obtain IP for host {host}")
                 ip_addresses = []
 
             if ip_addresses:
@@ -224,96 +285,11 @@ class ArtemisBase(Karton):
             assert False, f"expected {host} to be either domain or an IP address"
         return False
 
-    def reschedule_task(self, task: Task) -> None:
-        """
-        Puts task back into the queue.
-        Used when performing task requires taking a lock, which is already taken by a long running task.
-        In that case, we "reschedule" task for later execution to not block the karton instance.
-        This saves task into the DB.
-        """
-        task.status = KartonTaskState.SPAWNED
-        self.backend.produce_routed_task(self.identity, task)
-
     def run(self, current_task: Task) -> None:
         raise NotImplementedError()
 
     def run_multiple(self, tasks: List[Task]) -> None:
         raise NotImplementedError()
-
-    def lock_and_internal_process_multiple(self, tasks: List[Task]) -> None:
-        if self.resource_name_to_lock_before_scanning:
-            resource_lock = ResourceLock(
-                REDIS,
-                f"resource-lock-{self.resource_name_to_lock_before_scanning}",
-                max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES,
-            )
-            try:
-                resource_lock.acquire()
-                self.log.info("Succeeded to lock resource %s", self.resource_name_to_lock_before_scanning)
-            except FailedToAcquireLockException:
-                self.log.info("Failed to lock resource %s", self.resource_name_to_lock_before_scanning)
-                for task in tasks:
-                    self.reschedule_task(task)
-                return
-        else:
-            resource_lock = None
-
-        if self.lock_target:
-            locks_acquired = []
-            tasks_to_reschedule = []
-            tasks_locked = []
-            for task in tasks:
-                scan_destination = self._get_scan_destination(task)
-
-                lock = ResourceLock(
-                    REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
-                )
-
-                try:
-                    lock.acquire()
-                    locks_acquired.append(lock)
-                    tasks_locked.append(task)
-                    self.log.info(
-                        "Succeeded to lock task %s (orig_uid=%s destination=%s)",
-                        task.uid,
-                        task.orig_uid,
-                        scan_destination,
-                    )
-                except FailedToAcquireLockException:
-                    self.log.warning(
-                        "Failed to lock task %s (orig_uid=%s destination=%s)",
-                        task.uid,
-                        task.orig_uid,
-                        scan_destination,
-                    )
-                    tasks_to_reschedule.append(task)
-
-            self.log.info(
-                "Out of %s tasks we successfully locked %s.",
-                len(tasks),
-                len(locks_acquired),
-            )
-
-            for task_to_reschedule in tasks_to_reschedule:
-                self.reschedule_task(task_to_reschedule)
-
-            if len(tasks_to_reschedule):
-                self.log.info(
-                    "Rescheduled %s tasks because other module is currently scanning the same IP. We will attempt the tasks later.",
-                    len(tasks_to_reschedule),
-                )
-
-            self._log_tasks(tasks_locked)
-            self.internal_process_multiple(tasks_locked)
-
-            for lock in locks_acquired:
-                lock.release()
-        else:
-            self._log_tasks(tasks)
-            self.internal_process_multiple(tasks)
-
-        if resource_lock:
-            resource_lock.release()
 
     def internal_process_multiple(self, tasks: List[Task]) -> None:
         tasks_filtered = []
@@ -450,7 +426,7 @@ class ArtemisBase(Karton):
         # time and across multiple scanner instances the overall load would be approximately similar
         # to one request per Config.Limits.SECONDS_PER_REQUEST.
         try:
-            ip_addresses = list(ip_lookup(host))
+            ip_addresses = list(lookup(host))
         except Exception as e:
             raise UnknownIPException(f"Exception while trying to obtain IP for host {host}", e)
 

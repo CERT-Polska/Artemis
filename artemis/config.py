@@ -254,7 +254,7 @@ class Config:
                 "How many sites to scan at once. This is the maximum batch size - we will try to obtain NUCLEI_MAX_BATCH_SIZE "
                 "sites to scan from the queue, but if per-IP locking is enabled, then we will filter ones that are already "
                 "scanned by other modules.",
-            ] = get_config("NUCLEI_MAX_BATCH_SIZE", default=100, cast=int)
+            ] = get_config("NUCLEI_MAX_BATCH_SIZE", default=50, cast=int)
 
             NUCLEI_TEMPLATES_TO_SKIP: Annotated[
                 List[str],
@@ -362,6 +362,7 @@ class Config:
                         "http/misconfiguration/db-command-history.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/elasticsearch.yaml",
+                        "http/misconfiguration/mixed-active-content.yaml",
                         "http/misconfiguration/proxy/open-proxy-external.yaml",
                         "http/misconfiguration/server-status-localhost.yaml",
                         "http/misconfiguration/server-status.yaml",

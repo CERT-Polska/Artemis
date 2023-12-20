@@ -87,7 +87,7 @@ To perform a request use ``http_requests.get`` or ``http_requests.post`` functio
 DNS requests
 ------------
 
-DNS requests should be performed using ``ip_lookup`` from `resolvers.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/resolvers.py>`_.
+DNS requests should be performed using ``lookup`` from `resolvers.py <https://github.com/CERT-Polska/Artemis/blob/main/artemis/resolvers.py>`_.
 
 Outgoing requests limiting
 --------------------------

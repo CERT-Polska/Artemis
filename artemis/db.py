@@ -240,6 +240,8 @@ class DB:
             del task_as_dict["headers"]["receiver"]
         if "last_domain" in task_as_dict["payload"]:
             del task_as_dict["payload"]["last_domain"]
+        if "created_at" in task_as_dict["payload"]:
+            del task_as_dict["payload"]["created_at"]
 
         return dict_to_list(
             {

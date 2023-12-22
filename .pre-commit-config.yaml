@@ -34,7 +34,7 @@ repos:
     - types-beautifulsoup4==4.12.0.6
     - types-Markdown==3.4.2.10
     - types-paramiko==2.7.2
-    - types-psycopg2==2.9.21.11
+    - types-psycopg2==2.9.21.20
     - types-PyMySQL==1.1.0.1
     - types-pytz==2023.3.0.1
     - types-PyYAML==6.0.12.11

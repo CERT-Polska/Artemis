@@ -1,15 +1,14 @@
 from test.base import ArtemisModuleTestCase
-from typing import NamedTuple
 
 from karton.core import Task
 
-from artemis.binds import Service, TaskStatus, TaskType
+from artemis.binds import TaskStatus, TaskType
 from artemis.modules.admin_panel_login_bruter import AdminPanelLoginBruter
 
 
 class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
-    karton_class = AdminPanelLoginBruterTest  # type: ignore
+    karton_class = AdminPanelLoginBruter  # type: ignore
 
     def test_simple(self) -> None:
         sites = {
@@ -29,10 +28,7 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             self.assertEqual(
                 call.kwargs["status_reason"],
-                f"Found working credentials for {url}: username={username}, password={password}"
+                f"Found working credentials for {url}: username={username}, password={password}",
             )
 
-            self.assertEqual(
-                call.kwargs["data"],
-                credentials
-            )
+            self.assertEqual(call.kwargs["data"], credentials)

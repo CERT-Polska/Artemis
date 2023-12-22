@@ -443,13 +443,6 @@ services:
 #      - POSTGRES_PASSWORD=django_password
 #      - POSTGRES_DB=django_db
 #
-#  test-single-page-app-easy-password:
-#    image: nginx:latest
-#    volumes:
-#      - ./test/data/single_page/:/usr/share/nginx/html/
-#    ports:
-#      - 8080:80
-#
 #  test-symfony-easy-password:
 #    build:
 #      context: ./test/data/symfony/docker

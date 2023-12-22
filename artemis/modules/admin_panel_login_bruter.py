@@ -5,9 +5,9 @@ from typing import List, Optional, Tuple
 from karton.core import Task
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
@@ -122,9 +122,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         service = Service(executable_path="/usr/bin/chromedriver")
 
         chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
         return webdriver.Chrome(service=service, options=chrome_options)
 
     @staticmethod

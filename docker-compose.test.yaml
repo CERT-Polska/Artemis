@@ -181,3 +181,10 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
+
+  test-single-page-app-easy-password:
+    image: nginx:latest
+    volumes:
+      - ./test/data/single_page_app_easy_password/:/usr/share/nginx/html/
+    ports:
+      - 8080:80

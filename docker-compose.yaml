@@ -380,23 +380,6 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  test-drupal-easy-password:
-    image: drupal:latest
-    ports:
-      - 80:80
-    volumes:
-      - ./test/data/drupal_easy_password/settings.php:/opt/drupal/web/sites/default/settings.php:ro
-    restart: always
-
-  test-drupal-easy-password-postgres:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_EXTENSIONS: pg_trgm
-    volumes:
-      - ./test/data/drupal_easy_password/db_extensions:/docker-entrypoint-initdb.d:ro
-    restart: always
-
 #  test-joomla-easy-password:
 #    image: joomla:php8.2-apache
 #    volumes:

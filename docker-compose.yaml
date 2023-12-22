@@ -380,51 +380,26 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-#  test-joomla-easy-password:
-#    image: joomla:php8.2-apache
-#    volumes:
-#      - joomla-data:/var/www/html
-#    environment:
-#      JOOMLA_DB_HOST: joomla-mysql:3306
-#      JOOMLA_DB_USER: joomla
-#      JOOMLA_DB_PASSWORD: password
-#
-#  test-joomla-easy-password-mysql:
-#    image: mysql:5.7
-#    volumes:
-#      - joomla-mysql-data:/var/lib/mysql
-#    environment:
-#      MYSQL_ROOT_PASSWORD: password
-#      MYSQL_USER: joomla
-#      MYSQL_PASSWORD: password
-#      MYSQL_DATABASE: joomla
-#
-#  test-django-easy-password:
-#    image: python:3.11.4-slim-buster
-#    environment:
-#      - DJANGO_SUPERUSER_PASSWORD=password
-#      - DJANGO_SUPERUSER_USERNAME=djangouser
-#      - DJANGO_SUPERUSER_EMAIL=test111111111@exampple.com
-#    command: >
-#      sh -c "pip install Django &&
-#      python3 usr/src/app/manage.py makemigrations &&
-#      python3 usr/src/app/manage.py migrate &&
-#      python3 usr/src/app/manage.py runserver 0.0.0.0:8000 &&
-#      python3 usr/src/app/manage.py loaddata db.json"
-#    volumes:
-#      - ./test/data/django/:/usr/src/app/
-#      - ./requirements.txt:/urs/src/app/requirements.txt
-#    env_file:
-#      - ./test/data/django/.env.django-sample
-#
-#  test-django-easy-password-postgres:
-#    image: postgres
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data/
-#    environment:
-#      - POSTGRES_USER=django_user
-#      - POSTGRES_PASSWORD=django_password
-#      - POSTGRES_DB=django_db
+ test-django-easy-password:
+   image: python:3.11.4-slim-buster
+   command: >
+     sh -c "pip install Django==5.0 &&
+     python3 usr/src/app/manage.py migrate &&
+     python3 usr/src/app/manage.py runserver 0.0.0.0:8000 &&
+     python3 usr/src/app/manage.py loaddata db.json"
+   ports:
+     - 8000:8000
+   volumes:
+     - ./test/data/django_easy_password/:/usr/src/app/
+
+ test-django-easy-password-postgres:
+   image: postgres
+   volumes:
+     - postgres_data:/var/lib/postgresql/data/
+   environment:
+     - POSTGRES_USER=django_user
+     - POSTGRES_PASSWORD=django_password
+     - POSTGRES_DB=django_db
 #
 #  test-symfony-easy-password:
 #    build:

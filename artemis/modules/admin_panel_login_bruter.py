@@ -6,7 +6,6 @@ from karton.core import Task
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -107,8 +106,9 @@ class AdminPanelLoginBruter(ArtemisBase):
                 if result:
                     self.log.info(f"Detected following 'login failed' messages: {result}")
                     continue
+                else:
+                    working_credentials.append((username, password))
 
-                working_credentials.append((username, password))
                 driver.close()
                 driver.quit()
 
@@ -120,13 +120,11 @@ class AdminPanelLoginBruter(ArtemisBase):
 
     @staticmethod
     def _get_webdriver() -> WebDriver:
-        service = Service(executable_path="/usr/bin/chromedriver")
-
         chrome_options = Options()
-        chrome_options.add_argument("--headless")  # type: ignore
-        chrome_options.add_argument("--no-sandbox")  # type: ignore
-        chrome_options.add_argument("--disable-dev-shm-usage")  # type: ignore
-        return webdriver.Chrome(service=service, options=chrome_options)
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        return webdriver.Chrome("/usr/bin/chromedriver", options=chrome_options)
 
     @staticmethod
     def _find_form_inputs(url: str, driver: WebDriver) -> Optional[tuple[WebElement, WebElement]]:
@@ -137,7 +135,7 @@ class AdminPanelLoginBruter(ArtemisBase):
             return None
         else:
             for field in inputs:
-                if field.get_attribute("type") == "text":
+                if field.get_attribute("type") == "text":  # type: ignore
                     tag_values = driver.execute_script(  # type: ignore
                         "var items = []; for (index = 0; index < arguments[0].attributes.length; ++index)"
                         "items.push(arguments[0].attributes[index].value); return items;",
@@ -147,7 +145,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                         if search(r"[Uu]ser", value) or search(r"[Ll]ogin", value) or search(r"[Nn]ame", value):
                             user_input = field
                             break
-                elif field.get_attribute("type") == "password":
+                elif field.get_attribute("type") == "password":  # type: ignore
                     password_input = field
         if not password_input or not user_input:
             logging.error(f"Login form has not been found on {url}")

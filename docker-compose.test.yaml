@@ -157,6 +157,21 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-drupal-easy-password:
+    image: drupal:latest
+    ports:
+      - 80:80
+    restart: always
+
+  test-drupal-easy-password-postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_EXTENSIONS: pg_trgm
+    volumes:
+      - ./test/data/drupal/db_extensions:/docker-entrypoint-initdb.d
+    restart: always
+
   test-service-with-bruteable-files-sql-dumps:
     image: php:7.4-apache
     volumes:

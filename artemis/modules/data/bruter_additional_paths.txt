@@ -21,3 +21,6 @@ errors
 app_dev.php
 TEST
 _vti_bin
+# Login panels
+user/login
+administrator

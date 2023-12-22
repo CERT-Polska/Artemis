@@ -6,7 +6,7 @@ ARG ADDITIONAL_REQUIREMENTS
 RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     # Whois here is important - if we wouldn't install it, we would default to busybox whois,
     # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
-    apk add --no-cache bash libpcap libpq git subversion whois
+    apk add --no-cache bash libpcap libpq git subversion whois chromium-chromedriver
 RUN GOBIN=/usr/local/bin/ go install github.com/projectdiscovery/naabu/v2/cmd/naabu@v2.1.6 && \
     GOBIN=/usr/local/bin/ go install github.com/praetorian-inc/fingerprintx/cmd/fingerprintx@v1.1.9 && \
     GOBIN=/usr/local/bin/ go install github.com/lc/gau/v2/cmd/gau@v2.1.2

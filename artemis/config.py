@@ -197,6 +197,12 @@ class Config:
         ] = get_config("SUBDOMAIN_ENUMERATION_TTL_DAYS", default=10, cast=int)
 
     class Modules:
+        class AdminPanelLoginBruter:
+            WAIT_TIME_SECONDS: Annotated[
+                int,
+                "How long we wait for events such as page load",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_WAIT_TIME_SECONDS", default=10, cast=int)
+
         class Bruter:
             BRUTER_FALSE_POSITIVE_THRESHOLD: Annotated[
                 float,
@@ -228,6 +234,11 @@ class Config:
                 List[str],
                 "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
             ] = get_config("GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
+
+        class DomainExpirationScanner:
+            DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
+                int, "The scanner warns if the domain's expiration date falls within this time frame from now."
+            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=14, cast=int)
 
         class JoomlaScanner:
             JOOMLA_VERSION_AGE_DAYS: Annotated[
@@ -448,14 +459,6 @@ class Config:
                 "Maximum size of the VCS (e.g. SVN) db file.",
             ] = get_config("VCS_MAX_DB_SIZE_BYTES", default=1024 * 1024 * 5, cast=int)
 
-        class WordPressScanner:
-            WORDPRESS_VERSION_AGE_DAYS: Annotated[
-                int,
-                "After what number of days we consider the WordPress version to be obsolete. This is a long "
-                'threshold because WordPress maintains a separate list of insecure versions, so "old" doesn\'t '
-                'mean "insecure" here.',
-            ] = get_config("WORDPRESS_VERSION_AGE_DAYS", default=90, cast=int)
-
         class WordPressBruter:
             WORDPRESS_BRUTER_STRIPPED_PREFIXES: Annotated[
                 List[str],
@@ -465,10 +468,13 @@ class Config:
                 "www123, when testing www.projectname.example.com.",
             ] = get_config("WORDPRESS_BRUTER_STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str))
 
-        class DomainExpirationScanner:
-            DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
-                int, "The scanner warns if the domain's expiration date falls within this time frame from now."
-            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=14, cast=int)
+        class WordPressScanner:
+            WORDPRESS_VERSION_AGE_DAYS: Annotated[
+                int,
+                "After what number of days we consider the WordPress version to be obsolete. This is a long "
+                'threshold because WordPress maintains a separate list of insecure versions, so "old" doesn\'t '
+                'mean "insecure" here.',
+            ] = get_config("WORDPRESS_VERSION_AGE_DAYS", default=90, cast=int)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

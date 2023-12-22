@@ -90,6 +90,29 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-admin_panel_login_bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.admin_panel_login_bruter"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-admin_panels_login_bruter-selenium_chrome:
+    image: selenium/node-chrome
+    shm_size: 2gb
+    depends_on:
+      - karton-admin_panels_login_bruter-selenium_hub
+    environment:
+      - SE_EVENT_BUS_HOST=karton-admin_panels_login_bruter-selenium_hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  karton-admin_panels_login_bruter-selenium_hub:
+    image: selenium/hub
+
   karton-classifier:
     build:
       context: .
@@ -347,41 +370,34 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  chrome:
-    image: selenium/node-chrome
-    shm_size: 2gb
-    depends_on:
-      - selenium-hub
-    environment:
-      - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-
-  selenium-hub:
-    image: selenium/hub
+  test-drupal-easy-password:
+    image: drupal:latest
     ports:
-      - "4442:4442"
-      - "4443:4443"
-      - "4444:4444"
+      - 80:80
+    volumes:
+      - ./test/data/drupal_easy_password/settings.php:/opt/drupal/web/sites/default/settings.php:ro
+    restart: always
 
-## TESTS
+  test-drupal-easy-password-postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_EXTENSIONS: pg_trgm
+    volumes:
+      - ./test/data/drupal_easy_password/db_extensions:/docker-entrypoint-initdb.d:ro
+    restart: always
 
-#  joomla: # not needed
+#  test-joomla-easy-password:
 #    image: joomla:php8.2-apache
-#    ports:
-#      - 80:80
 #    volumes:
-##      - ./test/data/joomla_login/configuration.php:/var/www/html/configuration.php
 #      - joomla-data:/var/www/html
 #    environment:
 #      JOOMLA_DB_HOST: joomla-mysql:3306
-##      JOOMLA_DB_USER: joomla
+#      JOOMLA_DB_USER: joomla
 #      JOOMLA_DB_PASSWORD: password
 #
-#  joomla-mysql: # not needed
+#  test-joomla-easy-password-mysql:
 #    image: mysql:5.7
-#    ports:
-#      - 3306:3306
 #    volumes:
 #      - joomla-mysql-data:/var/lib/mysql
 #    environment:
@@ -390,35 +406,12 @@ services:
 #      MYSQL_PASSWORD: password
 #      MYSQL_DATABASE: joomla
 #
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin
-#    container_name: phpmyadmin
-#    environment:
-#      - PMA_ARBITRARY=1
-#    restart: always
-#    ports:
-#      - 8081:80
-#
-#  django-db:
-#    image: postgres
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data/
-#    environment:
-#      - POSTGRES_USER=django_user
-#      - POSTGRES_PASSWORD=django_password
-#      - POSTGRES_DB=django_db
-#
-#  django-web:
+#  test-django-easy-password:
 #    image: python:3.11.4-slim-buster
 #    environment:
 #      - DJANGO_SUPERUSER_PASSWORD=password
 #      - DJANGO_SUPERUSER_USERNAME=djangouser
 #      - DJANGO_SUPERUSER_EMAIL=test111111111@exampple.com
-#
-#    depends_on:
-#      - django-db
-#    stdin_open: true
-#    tty: true
 #    command: >
 #      sh -c "pip install Django &&
 #      python3 usr/src/app/manage.py makemigrations &&
@@ -428,72 +421,26 @@ services:
 #    volumes:
 #      - ./test/data/django/:/usr/src/app/
 #      - ./requirements.txt:/urs/src/app/requirements.txt
-#    ports:
-#      - 8000:8000
 #    env_file:
 #      - ./test/data/django/.env.django-sample
 #
-#  drupal:
-#    image: drupal:latest
-#    depends_on:
-#      - drupal-postgres
-#    ports:
-#      - 88:88
-#    volumes:
-#      - drupal_modules:/var/www/html/modules
-#      - drupal_profiles:/var/www/html/profiles
-#      - drupal_themes:/var/www/html/themes
-#      - drupal_sites:/var/www/html/sites
-#    restart: always
-#
-#  drupal-postgres:
+#  test-django-easy-password-postgres:
 #    image: postgres
-#    environment:
-#      POSTGRES_PASSWORD: password
-#      POSTGRES_EXTENSIONS: pg_trgm
-##    command: >
-##      sh -c "psql -U postgres &&
-##             pg_restore -U postgres -C -d postgres db-postgres.tar"
-#    ports:
-#      - 5432:5432
 #    volumes:
-#      - ./test/data/drupal/db_extensions:/docker-entrypoint-initdb.d
-#      - drupal_db_data:/var/lib/postgresql/data
-#      - ./test/data/database/db-postgres.tar:/db-postgres.tar
-#    restart: always
+#      - postgres_data:/var/lib/postgresql/data/
+#    environment:
+#      - POSTGRES_USER=django_user
+#      - POSTGRES_PASSWORD=django_password
+#      - POSTGRES_DB=django_db
 #
-#  singlepage-website:
+#  test-single-page-app-easy-password:
 #    image: nginx:latest
 #    volumes:
 #      - ./test/data/single_page/:/usr/share/nginx/html/
 #    ports:
 #      - 8080:80
 #
-#  symfony-mysql:
-#    image: mysql
-#    command: --default-authentication-plugin=mysql_native_password
-#    environment:
-#      MYSQL_ROOT_PASSWORD: secret
-#      MYSQL_DATABASE: symfony_docker
-#      MYSQL_USER: symfony
-#      MYSQL_PASSWORD: symfony
-#    ports:
-#      - 4306:3306
-#    volumes:
-#      - ./mysql:/var/lib/mysql
-#
-#  symfony-nginx:
-#    image: nginx:stable-alpine
-#    ports:
-#      - 8082:80
-#    volumes:
-#      - ./test/data/symfony:/var/www/symfony_docker
-#      - ./test/data/symfony/nginx/default.conf:/etc/nginx/conf.d/default.conf
-#    depends_on:
-#      - symfony-php
-#      - symfony-mysql
-#
-#  symfony-php:
+#  test-symfony-easy-password:
 #    build:
 #      context: ./test/data/symfony/docker
 #    ports:
@@ -503,17 +450,20 @@ services:
 #      - ./test/data/symfony/config/php.ini:/usr/local/etc/php/php.ini
 #    depends_on:
 #      - symfony-mysql
+#
+#  test-symfony-easy-password-mysql:
+#    image: mysql
+#    command: --default-authentication-plugin=mysql_native_password
+#    environment:
+#      MYSQL_ROOT_PASSWORD: secret
+#      MYSQL_DATABASE: symfony_docker
+#      MYSQL_USER: symfony
+#      MYSQL_PASSWORD: symfony
+#    volumes:
+#      - ./mysql:/var/lib/mysql
 
 volumes:
   data-mongodb:
   data-redis:
   data-nuclei-templates:
   data-nuclei-config:
-#  joomla-mysql-data:
-#  joomla-data:
-#  postgres_data:
-#  drupal_modules:
-#  drupal_profiles:
-#  drupal_themes:
-#  drupal_sites:
-#  drupal_db_data:

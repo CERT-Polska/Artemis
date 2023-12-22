@@ -66,15 +66,6 @@ def get_port_from_url(url: str) -> int:
     return port
 
 
-def add_port_to_url(url: str) -> str:
-    url_parsed = urllib.parse.urlparse(url)
-    url_parsed_dict = url_parsed._asdict()
-    if ":" not in url_parsed.netloc:
-        port = getservbyname(url_parsed.scheme)
-        url_parsed_dict["netloc"] = url_parsed_dict["netloc"] + ":" + str(port)
-    return urllib.parse.urlunparse(urllib.parse.ParseResult(**url_parsed_dict))
-
-
 @functools.lru_cache(maxsize=8192)
 def cached_get(url: str, **kwargs: Any) -> http_requests.HTTPResponse:
     """Cached HTTP GET.

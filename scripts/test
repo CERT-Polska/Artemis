@@ -41,6 +41,10 @@ docker compose -f docker-compose.test.yaml cp test/data/wordpress_easy_password/
 docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mysql bash -c 'mysql --password=example -e "CREATE DATABASE IF NOT EXISTS example";'
 docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mysql bash -c 'mysql --password=example example < /db.sql'
 
+# Set up Drupal instance with easy password
+docker compose -f docker-compose.test.yaml cp test/data/drupal_easy_password/db.sql test-drupal-easy-password-postgres:/
+docker compose -f docker-compose.test.yaml exec test-drupal-easy-password-postgres bash -c 'psql --username=postgres postgres < /db.sql'
+
 # Now we are ready to start the tests
 docker compose -f docker-compose.test.yaml run test
 

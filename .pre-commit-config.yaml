@@ -29,7 +29,7 @@ repos:
     - prometheus-client==0.17.1
     - pymongo-stubs==0.2.0
     - requests_mock==1.11.0
-    - selenium==4.16.0
+    - types-selenium==3.141.9
     - typer==0.9.0
     - types-beautifulsoup4==4.12.0.6
     - types-Markdown==3.4.2.10

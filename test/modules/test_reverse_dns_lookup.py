@@ -34,4 +34,5 @@ class ReverseDNSLookupTest(ArtemisModuleTestCase):
                 payload={"data": entry.domain},
                 payload_persistent={"original_domain": "mimuw.edu.pl"},
             )
+            del results[0].payload["created_at"]
             self.assertTasksEqual(results, [expected_task])

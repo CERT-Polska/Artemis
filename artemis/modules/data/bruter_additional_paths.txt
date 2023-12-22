@@ -21,6 +21,12 @@ errors
 app_dev.php
 TEST
 _vti_bin
+# Drupal directories
+sites/
+sites/all/
+sites/all/modules/
+sites/all/libraries/
 # Login panels
 user/login
 administrator
+admin

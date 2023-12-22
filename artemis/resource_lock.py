@@ -42,6 +42,9 @@ class ResourceLock:
 
         raise FailedToAcquireLockException()
 
+    def is_acquired(self) -> bool:
+        return self.redis.get(self.res_name) is not None
+
     def release(self) -> None:
         self.redis.delete(self.res_name)
 

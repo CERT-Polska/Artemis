@@ -1,7 +1,7 @@
 import unittest
 from typing import NamedTuple, Set
 
-from artemis.resolvers import ip_lookup
+from artemis.resolvers import lookup
 
 
 class TestData(NamedTuple):
@@ -14,4 +14,4 @@ class TestResolvers(unittest.TestCase):
         data = [TestData("lebihan.pl", {"146.59.80.63"})]
 
         for item in data:
-            self.assertEqual(ip_lookup(item.src), item.expected)
+            self.assertEqual(lookup(item.src), item.expected)

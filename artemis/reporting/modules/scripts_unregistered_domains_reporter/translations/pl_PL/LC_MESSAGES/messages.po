@@ -1,0 +1,30 @@
+#: artemis/reporting/modules/scripts_unregistered_domains_reporter/template_script_unregistered_domain.jinja2:2
+msgid "The following sites load scripts from domains that don't exist:"
+msgstr "Następujące strony wczytują skrypty z domen, które nie istnieją:"
+
+#: artemis/reporting/modules/scripts_unregistered_domains_reporter/template_script_unregistered_domain.jinja2:7
+msgid "loads scripts from"
+msgstr "wczytuje skrypty z"
+
+#: artemis/reporting/modules/scripts_unregistered_domains_reporter/template_script_unregistered_domain.jinja2:8
+msgid ", and the"
+msgstr ", a domena"
+
+#: artemis/reporting/modules/scripts_unregistered_domains_reporter/template_script_unregistered_domain.jinja2:9
+msgid "domain is not registered"
+msgstr "nie jest zarejestrowana"
+
+#: artemis/reporting/modules/scripts_unregistered_domains_reporter/template_script_unregistered_domain.jinja2:17
+msgid ""
+"If a site loads scripts from a domain that is not registered, an attacker"
+" can potentially register it and serve malicious scripts, making it "
+"possible to arbitrarily change site contents, serve malware, intercept "
+"user data or perform any actions a logged-in administrator is allowed to "
+"perform."
+msgstr ""
+"Jeśli strona wczytuje skrypty z domeny, która nie jest zarejestrowana, "
+"atakujący może potencjalnie zarejestrować taką domenę i umieścić na niej "
+"szkodliwe skrypty, co umożliwi dowolną zmianę treści i wyglądu strony, "
+"umieszczenie na niej szkodliwego oprogramowania, poznanie danych "
+"przesyłanych przez użytkowników lub wykonanie dowolnej akcji, którą może "
+"wykonać administrator."

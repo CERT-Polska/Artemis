@@ -12,7 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
@@ -88,12 +88,15 @@ class AdminPanelLoginBruter(ArtemisBase):
                 )
                 pass
 
-            try:
-                user_input, password_input = AdminPanelLoginBruter._find_form_inputs(url, driver)
-            except TypeError:
+            inputs = AdminPanelLoginBruter._find_form_inputs(url, driver)
+
+            if inputs:
+                user_input, password_input = inputs
+            else:
                 driver.close()
                 driver.quit()
                 break
+
             driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
             AdminPanelLoginBruter._send_credentials(
                 user_input=user_input,
@@ -122,9 +125,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         service = Service(executable_path="/usr/bin/chromedriver")
 
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--headless")  # type: ignore
+        chrome_options.add_argument("--no-sandbox")  # type: ignore
+        chrome_options.add_argument("--disable-dev-shm-usage")  # type: ignore
         return webdriver.Chrome(service=service, options=chrome_options)
 
     @staticmethod
@@ -137,7 +140,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         else:
             for field in inputs:
                 if field.get_attribute("type") == "text":
-                    tag_values = driver.execute_script(
+                    tag_values = driver.execute_script(  # type: ignore
                         "var items = []; for (index = 0; index < arguments[0].attributes.length; ++index)"
                         "items.push(arguments[0].attributes[index].value); return items;",
                         field,

@@ -13,6 +13,7 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
     def test_simple(self) -> None:
         sites = {
             "http://test-drupal-easy-password/user/login": ("admin", "admin"),
+            "http://test-django-easy-password/admin": ("admin", "admin1"),
             "http://test-single-page-app-easy-password": ("admin", "admin1"),
         }
 

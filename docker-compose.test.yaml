@@ -184,9 +184,19 @@ services:
       - ./test/data/drupal_easy_password/db_extensions:/docker-entrypoint-initdb.d:ro
     restart: always
 
+  test-django-easy-password:
+    image: python:3.11.4-slim-buster
+    command: >
+      sh -c "pip install Django==5.0 &&
+      python3 usr/src/app/manage.py migrate &&
+      python3 usr/src/app/manage.py runserver 0.0.0.0:8000 &&
+      python3 usr/src/app/manage.py loaddata /usr/src/app/db.json"
+    ports:
+      - 8000:8000
+    volumes:
+     - ./test/data/django_easy_password/:/usr/src/app/
+
   test-single-page-app-easy-password:
     image: nginx:latest
     volumes:
       - ./test/data/single_page_app_easy_password/:/usr/share/nginx/html/
-    ports:
-      - 8080:80

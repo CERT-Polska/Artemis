@@ -6,6 +6,7 @@ from karton.core import Task
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -40,6 +41,8 @@ class AdminPanelLoginBruter(ArtemisBase):
         "Unrecognized username or password. Forgot your password?",
         "Username and password do not match or you do not have an account yet.",
         "Invalid credentials",
+        # rate limit
+        "failed login attempts for this account",
         # pl_PL
         "Podano błędne dane logowania",
         "Nieprawidłowa nazwa użytkownika lub hasło",
@@ -84,6 +87,8 @@ class AdminPanelLoginBruter(ArtemisBase):
                         f"to login even if the url doesn't match, url={driver.current_url}"
                     )
 
+                driver.execute_script("window.alert = function() {};")
+
                 inputs = AdminPanelLoginBruter._find_form_inputs(url, driver)
 
                 if inputs:
@@ -120,11 +125,13 @@ class AdminPanelLoginBruter(ArtemisBase):
 
     @staticmethod
     def _get_webdriver() -> WebDriver:
+        service = Service(executable_path="/usr/bin/chromedriver")
+
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        return webdriver.Chrome("/usr/bin/chromedriver", options=chrome_options)
+        return webdriver.Chrome(service=service, options=chrome_options)
 
     @staticmethod
     def _find_form_inputs(url: str, driver: WebDriver) -> Optional[tuple[WebElement, WebElement]]:
@@ -135,7 +142,7 @@ class AdminPanelLoginBruter(ArtemisBase):
             return None
         else:
             for field in inputs:
-                if field.get_attribute("type") == "text":  # type: ignore
+                if field.get_attribute("type").lower() == "text":  # type: ignore
                     tag_values = driver.execute_script(  # type: ignore
                         "var items = []; for (index = 0; index < arguments[0].attributes.length; ++index)"
                         "items.push(arguments[0].attributes[index].value); return items;",
@@ -145,7 +152,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                         if search(r"[Uu]ser", value) or search(r"[Ll]ogin", value) or search(r"[Nn]ame", value):
                             user_input = field
                             break
-                elif field.get_attribute("type") == "password":  # type: ignore
+                elif field.get_attribute("type").lower() == "password":  # type: ignore
                     password_input = field
         if not password_input or not user_input:
             logging.error(f"Login form has not been found on {url}")
@@ -164,7 +171,7 @@ class AdminPanelLoginBruter(ArtemisBase):
     def _get_logging_in_result(driver: WebDriver, login_failure_msgs: list[str]) -> Optional[list[str]]:
         try:
             web_content = driver.find_element(By.XPATH, "html/body").text
-            driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
+            print(web_content)
             result = [msg for msg in login_failure_msgs if (msg in web_content)]
             return result
         except NoSuchElementException:

@@ -380,27 +380,6 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
- test-django-easy-password:
-   image: python:3.11.4-slim-buster
-   command: >
-     sh -c "pip install Django==5.0 &&
-     python3 usr/src/app/manage.py migrate &&
-     python3 usr/src/app/manage.py runserver 0.0.0.0:8000 &&
-     python3 usr/src/app/manage.py loaddata db.json"
-   ports:
-     - 8000:8000
-   volumes:
-     - ./test/data/django_easy_password/:/usr/src/app/
-
- test-django-easy-password-postgres:
-   image: postgres
-   volumes:
-     - postgres_data:/var/lib/postgresql/data/
-   environment:
-     - POSTGRES_USER=django_user
-     - POSTGRES_PASSWORD=django_password
-     - POSTGRES_DB=django_db
-#
 #  test-symfony-easy-password:
 #    build:
 #      context: ./test/data/symfony/docker

@@ -6,17 +6,19 @@ from artemis import utils
 from artemis.config import Config
 
 PASSWORDS = [
+    # Let's keep the passwords ordered by frequency, as some admin panels
+    # block logins after a given number of tries.
     "admin",
-    "administrator",
     "admin1",
-    "password",
     "haslo",
+    "qwerty",
+    "zaq123wsx",
+    "administrator",
+    "password",
     "1234",
     "12345",
     "123456",
     "123456789",
-    "qwerty",
-    "zaq123wsx",
 ]
 
 

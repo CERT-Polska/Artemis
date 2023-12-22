@@ -27,7 +27,7 @@ SECRET_KEY = binascii.hexlify(os.urandom(32)).decode("ascii")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS: List[str] = []
+ALLOWED_HOSTS: List[str] = ["test-django-easy-password"]
 
 
 # Application definition
@@ -78,12 +78,7 @@ WSGI_APPLICATION = "djangoapp.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        # "ENGINE": "django.db.backends.postgresql",
         "NAME": BASE_DIR / "db.sqlite3",
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 

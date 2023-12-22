@@ -17,6 +17,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
+from artemis.passwords import get_passwords_for_url
 from artemis.utils import remove_standard_ports_from_url
 
 
@@ -32,11 +33,7 @@ class AdminPanelLoginBruter(ArtemisBase):
     identity = "admin_panel_login_bruter"
     filters = [{"type": TaskType.URL.value}]
 
-    BRUTE_CREDENTIALS = [
-        ("admin", "admin"),
-        ("admin", "admin1"),
-        ("user", "password"),
-    ]
+    USERNAMES = ["admin"]
 
     LOGIN_FAILED_MSGS = [
         "Please enter the correct username and password for a staff account. "
@@ -73,47 +70,48 @@ class AdminPanelLoginBruter(ArtemisBase):
 
     def _brute(self, url: str) -> List[Tuple[str, str]]:
         working_credentials = []
-        for username, password in self.BRUTE_CREDENTIALS:
-            driver = AdminPanelLoginBruter._get_webdriver()
-            driver.get(url)
+        for username in self.USERNAMES:
+            for password in get_passwords_for_url(url):
+                driver = AdminPanelLoginBruter._get_webdriver()
+                driver.get(url)
 
-            try:
-                WebDriverWait(driver, Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS).until(
-                    expected_conditions.url_matches(remove_standard_ports_from_url(url))
+                try:
+                    WebDriverWait(driver, Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS).until(
+                        expected_conditions.url_matches(remove_standard_ports_from_url(url))
+                    )
+                except TimeoutException:
+                    self.log.info(
+                        "Timeout occured when waiting for the URL to match, let's try "
+                        f"to login even if the url doesn't match, url={driver.current_url}"
+                    )
+
+                inputs = AdminPanelLoginBruter._find_form_inputs(url, driver)
+
+                if inputs:
+                    user_input, password_input = inputs
+                else:
+                    driver.close()
+                    driver.quit()
+                    break
+
+                driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
+                AdminPanelLoginBruter._send_credentials(
+                    user_input=user_input,
+                    password_input=password_input,
+                    username=username,
+                    password=password,
                 )
-            except TimeoutException:
-                self.log.info(
-                    "Timeout occured when waiting for the URL to match, let's try "
-                    f"to login even if the url doesn't match, url={driver.current_url}"
-                )
-                pass
+                driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
+                result = AdminPanelLoginBruter._get_logging_in_result(driver, self.LOGIN_FAILED_MSGS)
+                driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
+                if result:
+                    self.log.info(f"Detected following 'login failed' messages: {result}")
+                    continue
 
-            inputs = AdminPanelLoginBruter._find_form_inputs(url, driver)
-
-            if inputs:
-                user_input, password_input = inputs
-            else:
+                working_credentials.append((username, password))
                 driver.close()
                 driver.quit()
-                break
 
-            driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
-            AdminPanelLoginBruter._send_credentials(
-                user_input=user_input,
-                password_input=password_input,
-                username=username,
-                password=password,
-            )
-            driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
-            result = AdminPanelLoginBruter._get_logging_in_result(driver, self.LOGIN_FAILED_MSGS)
-            driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
-            if result:
-                self.log.info(f"Detected following 'login failed' messages: {result}")
-                continue
-            else:
-                working_credentials.append((username, password))
-            driver.close()
-            driver.quit()
         if len(working_credentials) > 1:
             raise AdminPanelBruterException(
                 f"Found more than one working credential pair: {working_credentials} - please check the heuristics"

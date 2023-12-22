@@ -87,7 +87,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                         f"to login even if the url doesn't match, url={driver.current_url}"
                     )
 
-                driver.execute_script("window.alert = function() {};")
+                driver.execute_script("window.alert = function() {};")  # type: ignore
 
                 inputs = AdminPanelLoginBruter._find_form_inputs(url, driver)
 
@@ -131,7 +131,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        return webdriver.Chrome(service=service, options=chrome_options)
+        return webdriver.Chrome(service=service, options=chrome_options)  # type: ignore
 
     @staticmethod
     def _find_form_inputs(url: str, driver: WebDriver) -> Optional[tuple[WebElement, WebElement]]:

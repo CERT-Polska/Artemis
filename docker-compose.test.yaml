@@ -194,22 +194,3 @@ services:
     image: nginx:latest
     volumes:
       - ./test/data/single_page_app_easy_password/:/usr/share/nginx/html/
-
-  test-symfony-easy-password:
-    build:
-      context: ./test/data/symfony/docker
-    ports:
-      - 9000:9000
-    volumes:
-      - ./test/data/symfony/app:/var/www/symfony_docker
-
-  test-symfony-easy-password-mysql:
-    image: mysql
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: symfony_docker
-      MYSQL_USER: symfony
-      MYSQL_PASSWORD: symfony
-    volumes:
-      - ./mysql:/var/lib/mysql

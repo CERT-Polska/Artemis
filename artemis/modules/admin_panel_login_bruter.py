@@ -1,4 +1,5 @@
 import logging
+import urllib.parse
 from re import search
 from typing import Optional, Tuple
 
@@ -50,8 +51,11 @@ class AdminPanelLoginBruter(ArtemisBase):
 
     def run(self, task: Task) -> None:
         url = task.get_payload(TaskType.URL)
+        url_parsed = urllib.parse.urlparse(url)
 
-        if not any([item in url.lower() for item in ["login", "admin", "cms", "backend", "panel"]]):
+        is_root_url = url_parsed.path in ["", "/"]
+
+        if not is_root_url and not any([item in url.lower() for item in ["login", "admin", "cms", "backend", "panel"]]):
             self.db.save_task_result(
                 task=task,
                 status=TaskStatus.OK,

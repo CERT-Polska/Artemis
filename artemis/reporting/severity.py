@@ -21,6 +21,7 @@ SEVERITY_MAP = {
     ReportType("exposed_version_control_folder"): Severity.HIGH,
     ReportType("exposed_version_control_folder_with_credentials"): Severity.HIGH,
     ReportType("exposed_wordpress_with_easy_password"): Severity.HIGH,
+    ReportType("exposed_admin_panel_with_easy_password"): Severity.HIGH,
     ReportType("exposed_keys"): Severity.HIGH,
     ReportType("exposed_password_file"): Severity.HIGH,
     ReportType("exposed_dead_letter"): Severity.HIGH,

@@ -53,7 +53,21 @@ class AdminPanelLoginBruter(ArtemisBase):
         url = url.strip("/")
 
         if not any([item in url.lower() for item in ["login", "admin", "cms", "backend", "panel"]]):
-            self.db.save_task_result(task=task, status=TaskStatus.OK, status_reason=None, data=None)
+            self.db.save_task_result(
+                task=task,
+                status=TaskStatus.OK,
+                status_reason=f"URL {url} doesn't look like an admin panel URL",
+                data=None,
+            )
+
+        if "admin" in url and not url.endswith("/admin") and "admin" in task.get_payload("found_urls"):
+            self.db.save_task_result(
+                task=task,
+                status=TaskStatus.OK,
+                status_reason=f"Requested to brute {url}, but /admin is also on the list of found URLs - skipping "
+                "brute-forcing of this url so that we don't duplicate work",
+                data=None,
+            )
 
         credentials = self._brute(url)
 

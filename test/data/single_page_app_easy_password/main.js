@@ -1,30 +1,27 @@
-function getContent(fragmentId, callback){
+function getContent(fragmentId, callback) {
+    var pages = {
+        home: "Test home",
+        about: "Test about",
+        login: "Test login",
+        contact: "Test contact",
+    };
 
-  var pages = {
-    home: "Test home",
-    about: "Test about",
-    login: "Test login",
-    contact: "Test contact",
-  };
-
-  callback(pages[fragmentId]);
+    callback(pages[fragmentId]);
 }
 
 
+function loadContent() {
+    var contentDiv = document.getElementById("app"),
+        fragmentId = location.hash.substr(1);
 
-function loadContent(){
-
-  var contentDiv = document.getElementById("app"),
-      fragmentId = location.hash.substr(1);
-
-  getContent(fragmentId, function (content) {
-    contentDiv.innerHTML = content;
-  });
-
+    getContent(fragmentId, function(content) {
+        contentDiv.innerHTML = content;
+    });
 }
 
-if(!location.hash) {
-  location.hash = "#home";
+
+if (!location.hash) {
+    location.hash = "#home";
 }
 
 loadContent();
@@ -42,6 +39,6 @@ loginButton.addEventListener("click", (e) => {
     if (username === "admin" && password === "admin1") {
         alert("Logged in successfully");
     } else {
-        loginErrorMsg.style.visibility="visible"
+        loginErrorMsg.style.visibility = "visible"
     }
 })

@@ -58,6 +58,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                 status_reason=f"URL {url} doesn't look like an admin panel URL",
                 data=None,
             )
+            return
 
         if "admin" in url and not url.endswith("/admin") and "admin" in task.get_payload("found_urls"):
             self.db.save_task_result(
@@ -67,6 +68,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                 "brute-forcing of this url so that we don't duplicate work",
                 data=None,
             )
+            return
 
         credentials = self._brute(url)
 

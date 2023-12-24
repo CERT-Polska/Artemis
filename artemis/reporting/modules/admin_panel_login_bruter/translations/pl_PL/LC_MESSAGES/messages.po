@@ -8,7 +8,7 @@ msgstr ""
 
 #: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:6
 msgid "the following credentials allow login"
-msgstr "można zalogować się następującymi danymi"
+msgstr "następujące dane umożliwiają logowanie"
 
 #: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:7
 msgid "username"

@@ -100,19 +100,6 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-admin_panels_login_bruter-selenium_chrome:
-    image: selenium/node-chrome
-    shm_size: 2gb
-    depends_on:
-      - karton-admin_panels_login_bruter-selenium_hub
-    environment:
-      - SE_EVENT_BUS_HOST=karton-admin_panels_login_bruter-selenium_hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-
-  karton-admin_panels_login_bruter-selenium_hub:
-    image: selenium/hub
-
   karton-classifier:
     build:
       context: .

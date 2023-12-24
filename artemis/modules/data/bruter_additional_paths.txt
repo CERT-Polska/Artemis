@@ -30,3 +30,8 @@ sites/all/libraries/
 user/login
 administrator
 admin
+CMS
+cms
+login
+backend
+panel

@@ -127,8 +127,6 @@ services:
       PASSWORD_ACCESS: true
       USER_PASSWORD: password
       USER_NAME: user
-    ports:
-      - "2222:2222"
 
   test-postgresql-with-easy-password:
     image: postgres
@@ -169,8 +167,6 @@ services:
 
   test-drupal-easy-password:
     image: drupal:latest
-    ports:
-      - 80:80
     volumes:
       - ./test/data/drupal_easy_password/settings.php:/opt/drupal/web/sites/default/settings.php:ro
     restart: always
@@ -191,8 +187,6 @@ services:
       python3 usr/src/app/manage.py migrate &&
       python3 usr/src/app/manage.py runserver 0.0.0.0:8000 &&
       python3 usr/src/app/manage.py loaddata /usr/src/app/db.json"
-    ports:
-      - 8000:8000
     volumes:
      - ./test/data/django_easy_password/:/usr/src/app/
 

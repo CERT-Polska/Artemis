@@ -182,8 +182,6 @@ services:
 
   test-django-easy-password:
     build: test/data/django_easy_password/
-    ports:
-      - 8000:8000
 
   test-single-page-app-easy-password:
     image: nginx:latest

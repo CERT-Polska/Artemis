@@ -27,7 +27,7 @@ SECRET_KEY = binascii.hexlify(os.urandom(32)).decode("ascii")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS: List[str] = ["test-django-easy-password"]
+ALLOWED_HOSTS: List[str] = ["*"]
 
 
 # Application definition

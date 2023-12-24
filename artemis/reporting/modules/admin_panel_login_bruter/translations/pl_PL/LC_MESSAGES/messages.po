@@ -3,8 +3,8 @@ msgid ""
 "The following addresses contain admin panels where a simple "
 "login/password pair allows login:"
 msgstr ""
-"Pod następującymi adresami znajdują się panele administracyjne, "
-"do których można zalogować się prostym hasłem:"
+"Pod następującymi adresami znajdują się panele administracyjne, do "
+"których można zalogować się prostym hasłem:"
 
 #: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:6
 msgid "the following credentials allow login"

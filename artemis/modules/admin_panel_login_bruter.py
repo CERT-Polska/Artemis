@@ -58,8 +58,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         credentials = self._brute(url)
 
         if credentials:
-            assert len(credentials) == 1
-            username, password = credentials[0]
+            username, password = credentials
 
             self.db.save_task_result(
                 task=task,
@@ -70,7 +69,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         else:
             self.db.save_task_result(task=task, status=TaskStatus.OK, status_reason=None, data=None)
 
-    def _brute(self, url: str) -> List[Tuple[str, str]]:
+    def _brute(self, url: str) -> Optional[Tuple[str, str]]:
         working_credentials = []
         for username in self.USERNAMES:
             for password in get_passwords_for_url(url):
@@ -121,7 +120,10 @@ class AdminPanelLoginBruter(ArtemisBase):
             raise AdminPanelBruterException(
                 f"Found more than one working credential pair: {working_credentials} - please check the heuristics"
             )
-        return working_credentials
+        elif len(working_credentials) == 0:
+            return None
+        else:
+            return working_credentials[0]
 
     @staticmethod
     def _get_webdriver() -> WebDriver:

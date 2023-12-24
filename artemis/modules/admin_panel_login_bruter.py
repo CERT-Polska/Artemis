@@ -50,7 +50,6 @@ class AdminPanelLoginBruter(ArtemisBase):
 
     def run(self, task: Task) -> None:
         url = task.get_payload(TaskType.URL)
-        url = url.strip("/")
 
         if not any([item in url.lower() for item in ["login", "admin", "cms", "backend", "panel"]]):
             self.db.save_task_result(

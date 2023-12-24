@@ -1,0 +1,25 @@
+#: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:2
+msgid ""
+"The following addresses contain admin panels where a simple "
+"login/password pair allows login:"
+msgstr ""
+
+#: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:6
+msgid "the following credentials allow login"
+msgstr ""
+
+#: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:7
+msgid "username"
+msgstr ""
+
+#: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:8
+msgid "and"
+msgstr ""
+
+#: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:9
+msgid "password"
+msgstr ""
+
+#: artemis/reporting/modules/admin_panel_login_bruter/template_exposed_admin_panel_with_easy_password.jinja2:11
+msgid "empty password"
+msgstr ""

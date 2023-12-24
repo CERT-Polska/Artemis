@@ -367,28 +367,6 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-#  test-symfony-easy-password:
-#    build:
-#      context: ./test/data/symfony/docker
-#    ports:
-#      - 9000:9000
-#    volumes:
-#      - ./test/data/symfony/app:/var/www/symfony_docker
-#      - ./test/data/symfony/config/php.ini:/usr/local/etc/php/php.ini
-#    depends_on:
-#      - symfony-mysql
-#
-#  test-symfony-easy-password-mysql:
-#    image: mysql
-#    command: --default-authentication-plugin=mysql_native_password
-#    environment:
-#      MYSQL_ROOT_PASSWORD: secret
-#      MYSQL_DATABASE: symfony_docker
-#      MYSQL_USER: symfony
-#      MYSQL_PASSWORD: symfony
-#    volumes:
-#      - ./mysql:/var/lib/mysql
-
 volumes:
   data-mongodb:
   data-redis:

@@ -1,6 +1,6 @@
 import logging
 from re import search
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 from karton.core import Task
 from selenium import webdriver

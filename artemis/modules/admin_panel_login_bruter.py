@@ -48,6 +48,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         # pl_PL
         "Podano błędne dane logowania",
         "Nieprawidłowa nazwa użytkownika lub hasło",
+        "Nazwa użytkownika lub hasło nie jest",
         "Złe hasło",
         "Błędna nazwa użytkownika",
     ]
@@ -179,7 +180,8 @@ class AdminPanelLoginBruter(ArtemisBase):
                         field,
                     )
                     for value in tag_values:
-                        if search(r"[Uu]ser", value) or search(r"[Ll]ogin", value) or search(r"[Nn]ame", value):
+                        value = value.lower()
+                        if any(matcher in value for matcher in ["usr", "user", "log", "name"]):
                             user_input = field
                             break
                 elif field.get_attribute("type").lower() == "password":  # type: ignore

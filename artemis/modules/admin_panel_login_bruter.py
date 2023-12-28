@@ -1,4 +1,5 @@
 import logging
+import time
 import urllib.parse
 from re import search
 from typing import Optional, Tuple
@@ -107,7 +108,10 @@ class AdminPanelLoginBruter(ArtemisBase):
                         f"to login even if the url doesn't match, url={driver.current_url}"
                     )
 
+                # Ignore alerts
                 driver.execute_script("window.alert = function() {};")  # type: ignore
+                driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
+                self._sleep_after_performing_requests(driver)
 
                 inputs = AdminPanelLoginBruter._find_form_inputs(url, driver)
 
@@ -118,7 +122,6 @@ class AdminPanelLoginBruter(ArtemisBase):
                     driver.quit()
                     break
 
-                driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
                 AdminPanelLoginBruter._send_credentials(
                     user_input=user_input,
                     password_input=password_input,
@@ -127,7 +130,8 @@ class AdminPanelLoginBruter(ArtemisBase):
                 )
                 driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
                 result = AdminPanelLoginBruter._get_logging_in_result(driver, self.LOGIN_FAILED_MSGS)
-                driver.implicitly_wait(Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS)
+                self._sleep_after_performing_requests(driver)
+
                 if result:
                     self.log.info(f"Detected following 'login failed' messages: {result}")
                     continue
@@ -154,6 +158,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
+
+        if Config.Miscellaneous.CUSTOM_USER_AGENT:
+            chrome_options.add_argument("--user-agent=" + Config.Miscellaneous.CUSTOM_USER_AGENT)
         return webdriver.Chrome(service=service, options=chrome_options)  # type: ignore
 
     @staticmethod
@@ -199,6 +206,25 @@ class AdminPanelLoginBruter(ArtemisBase):
             return result
         except NoSuchElementException:
             return None
+
+    def _sleep_after_performing_requests(self, driver: WebDriver) -> None:
+        # It is easier to limit requests that way than to hook into Selenium to limit every one.
+        # This is not dangerous to servers as loading a page together with all resources in a burst
+        # is how websites are normally used - and we have a lock so we know we are the only module
+        # scanning this IP.
+        num_requests = driver.execute_script('return 1 + window.performance.getEntriesByType("resource").length;')  # type: ignore
+        if Config.Limits.REQUESTS_PER_SECOND > 0:
+            sleep_time_seconds = max(
+                0,
+                num_requests * 1.0 / Config.Limits.REQUESTS_PER_SECOND
+                - Config.Modules.AdminPanelLoginBruter.WAIT_TIME_SECONDS,
+            )
+        else:
+            sleep_time_seconds = 0
+
+        if sleep_time_seconds > 0:
+            time.sleep(sleep_time_seconds)
+            self.log.info(f"{num_requests} requests performed, sleeping {sleep_time_seconds} seconds")
 
 
 if __name__ == "__main__":

@@ -63,7 +63,7 @@ class AdminPanelLoginBruter(ArtemisBase):
 
         if (
             not is_root_url
-            and not url_parsed.endswith("/")
+            and not url_parsed.path.endswith("/")
             and not any([item in url.lower() for item in ["login", "admin", "cms", "backend", "panel", "index.php"]])
         ):
             self.db.save_task_result(

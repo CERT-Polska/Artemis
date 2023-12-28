@@ -52,6 +52,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         "Nieprawidłowa nazwa użytkownika lub hasło",
         "Nazwa użytkownika lub hasło nie jest",
         "Złe hasło",
+        "niepoprawne hasło",
         "Błędna nazwa użytkownika",
     ]
 
@@ -213,7 +214,7 @@ class AdminPanelLoginBruter(ArtemisBase):
     def _get_logging_in_result(driver: WebDriver, login_failure_msgs: list[str]) -> Optional[list[str]]:
         try:
             web_content = driver.find_element(By.XPATH, "html/body").text
-            result = [msg for msg in login_failure_msgs if (msg in web_content)]
+            result = [msg for msg in login_failure_msgs if (msg.lower() in web_content.lower())]
             return result
         except NoSuchElementException:
             return None

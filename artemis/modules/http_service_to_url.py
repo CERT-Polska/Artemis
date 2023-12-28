@@ -28,6 +28,7 @@ class HTTPServiceToURL(ArtemisBase):
             payload={
                 "url": url,
                 "content": content,
+                "found_urls": ["/"],
             },
         )
         self.add_task(current_task, new_task)

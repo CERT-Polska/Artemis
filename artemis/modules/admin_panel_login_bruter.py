@@ -43,12 +43,16 @@ class AdminPanelLoginBruter(ArtemisBase):
         "Username and password do not match or you do not have an account yet.",
         "Invalid credentials",
         "The login is invalid",
+        "Login failed",
+        "not seem to be correct",
         "Access denied",
+        "Cannot log in",
         "login details do not seem to be correct",
         # rate limit
         "failed login attempts for this account",
         # pl_PL
         "Podano błędne dane logowania",
+        "Wprowadź poprawne dane",
         "Nieprawidłowa nazwa użytkownika lub hasło",
         "Nazwa użytkownika lub hasło nie jest",
         "Złe hasło",

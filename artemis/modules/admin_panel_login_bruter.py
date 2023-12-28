@@ -1,7 +1,6 @@
 import logging
 import time
 import urllib.parse
-from re import search
 from typing import Optional, Tuple
 
 from karton.core import Task

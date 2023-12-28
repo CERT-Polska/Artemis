@@ -47,6 +47,8 @@ class AdminPanelLoginBruter(ArtemisBase):
         # pl_PL
         "Podano błędne dane logowania",
         "Nieprawidłowa nazwa użytkownika lub hasło",
+        "Złe hasło",
+        "Błędna nazwa użytkownika",
     ]
 
     def run(self, task: Task) -> None:

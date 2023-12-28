@@ -42,6 +42,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         "Unrecognized username or password. Forgot your password?",
         "Username and password do not match or you do not have an account yet.",
         "Invalid credentials",
+        "The login is invalid",
         "Access denied",
         "login details do not seem to be correct",
         # rate limit
@@ -60,7 +61,11 @@ class AdminPanelLoginBruter(ArtemisBase):
 
         is_root_url = url_parsed.path in ["", "/"]
 
-        if not is_root_url and not any([item in url.lower() for item in ["login", "admin", "cms", "backend", "panel"]]):
+        if (
+            not is_root_url
+            and not url_parsed.endswith("/")
+            and not any([item in url.lower() for item in ["login", "admin", "cms", "backend", "panel", "index.php"]])
+        ):
             self.db.save_task_result(
                 task=task,
                 status=TaskStatus.OK,
@@ -159,9 +164,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument('--ignore-certificate-errors')
-        chrome_options.add_argument('--disable-infobars')
-        chrome_options.add_argument('--ignore-certificate-errors-spki-list')
+        chrome_options.add_argument("--ignore-certificate-errors")
+        chrome_options.add_argument("--disable-infobars")
+        chrome_options.add_argument("--ignore-certificate-errors-spki-list")
         chrome_options.add_argument("--disable-dev-shm-usage")
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:

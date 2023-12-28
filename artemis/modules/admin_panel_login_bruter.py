@@ -168,6 +168,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         chrome_options.add_argument("--disable-infobars")
         chrome_options.add_argument("--ignore-certificate-errors-spki-list")
         chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("window-size=1920x1080")
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             chrome_options.add_argument("--user-agent=" + Config.Miscellaneous.CUSTOM_USER_AGENT)

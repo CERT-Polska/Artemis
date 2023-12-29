@@ -25,3 +25,5 @@ sites/
 sites/all/
 sites/all/modules/
 sites/all/libraries/
+# Sometimes the file is not interpreted by the server - let's check the path
+wp-config.php

@@ -56,7 +56,7 @@ IP ranges, both in the form of `127.0.0.1-127.0.0.10` or `127.0.0.0/30`.
 
 If a URL is provided, the host from this URL will be scanned.
 
-To be later able to filter various types of targets, provide a tag in the `Tag` field. You may 
+To be later able to filter various types of targets, provide a tag in the `Tag` field. You may
 also choose what modules will be executed, to increase scanning speed if you need onlt to check for
 a subset of vulnerabilities.
 

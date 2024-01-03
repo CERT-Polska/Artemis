@@ -35,7 +35,7 @@ class WebappIdentifier(ArtemisBase):
         response = http_requests.get(url, allow_redirects=True)
 
         for webapp_id, webapp_sig in WEBAPP_SIGNATURES:
-            if re.search(webapp_sig, response.text):
+            if re.search(webapp_sig, response.text, re.IGNORECASE):
                 return webapp_id
 
         if "/wp-includes/css/" in response.text:

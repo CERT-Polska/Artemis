@@ -187,7 +187,7 @@ class Config:
         CONTENT_PREFIX_SIZE: Annotated[
             int,
             "In order not to overload the DB and bandwidth, this determines how long the downloaded content would be (in bytes).",
-        ] = get_config("CONTENT_PREFIX_SIZE", default=10240, cast=int)
+        ] = get_config("CONTENT_PREFIX_SIZE", default=1024 * 100, cast=int)
 
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,
@@ -239,11 +239,6 @@ class Config:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
             ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=14, cast=int)
-
-        class JoomlaScanner:
-            JOOMLA_VERSION_AGE_DAYS: Annotated[
-                int, "After what number of days we consider the Joomla version to be obsolete."
-            ] = get_config("JOOMLA_VERSION_AGE_DAYS", default=30, cast=int)
 
         class Nuclei:
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[

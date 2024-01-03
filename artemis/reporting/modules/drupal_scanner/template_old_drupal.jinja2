@@ -1,0 +1,21 @@
+{% if "old_drupal" in data.contains_type %}
+    <li>{% trans %}The following addresses contain old Drupal versions:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "old_drupal" %}
+                    <li>
+                        {{ report.target }} - Drupal {{ report.additional_data.version }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                If a site is no longer used, we recommend shutting it down to eliminate the risk
+                of exploitation of known vulnerabilities in older Drupal versions. Otherwise, we
+                recommend regular Drupal core and plugin updates.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

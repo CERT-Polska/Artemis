@@ -59,20 +59,19 @@ def _request(
         )
 
         # Handling situations where the response is very long, which is not handled by requests timeout
+        result = b""
+        # Sometimes the returned chunks are significantly shorter than max_size, therefore we iterate until
+        # we run out of chunks or we complete a result of expected size.
         for item in response.iter_content(max_size):
-            # Return the first item (at most `max_size` length)
-            return HTTPResponse(
-                status_code=response.status_code,
-                content_bytes=item,
-                encoding=response.encoding,
-                is_redirect=bool(response.history),
-                url=response.url,
-            )
-        # If there was no content, we will fall back to the second statement, which returns an empty string
+            result += item
+
+            if len(result) >= max_size:
+                break
+
         return HTTPResponse(
             status_code=response.status_code,
-            content_bytes=b"",
-            encoding="utf-8",
+            content_bytes=result[:max_size],
+            encoding=response.encoding if response.encoding else "utf-8",
             is_redirect=bool(response.history),
             url=response.url,
         )

@@ -18,7 +18,7 @@ To start Artemis simply execute following 2 commands in your terminal:
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 
-**You can also add additional Artemis modules from** https://github.com/CERT-Polska/Artemis-modules-extra/ -
+**We recommend you to add additional Artemis modules from** https://github.com/CERT-Polska/Artemis-modules-extra/ -
 these modules haven't been included in core due to licensing reasons, but provide additional features such
 as e.g. SSL verification (certificate validity, proper redirect, etc.), subdomain takeover check or
 SQL injection check.
@@ -50,23 +50,27 @@ For the full list of available configuration options you may set in the ``.env``
 
 Adding targets to scan
 ----------------------
-
-Select ``Add targets`` from the top navigation bar. Artemis takes input in the form
-of entries separated with newlines. Artemis works with both IPs and domains. It also supports
+To add targets to be scanned, select ``Add targets`` from the top navigation bar. Artemis takes input
+in the form of entries separated with newlines. Artemis works with both IPs and domains. It also supports
 IP ranges, both in the form of `127.0.0.1-127.0.0.10` or `127.0.0.0/30`.
 
 If a URL is provided, the host from this URL will be scanned.
 
-To be later able to filter various types of targets, provide a tag in the `Tag` field.
+To be later able to filter various types of targets, provide a tag in the `Tag` field. You may
+also choose what modules will be executed, to increase scanning speed if you need only to check for
+a subset of vulnerabilities.
+
+.. image:: _static/img/adding-targets.png
 
 Viewing results
 ---------------
+To view results, click the ``View results`` link in the top navigation bar:
 
-To view results, click the ``View results`` link in the top navigation bar.
+.. image:: _static/img/viewing-results.png
 
-Advanced usage
---------------
-Besides viewing the raw results, you may want to generate e-mail reports containing
+Exporting e-mails
+-----------------
+Besides viewing the raw results, you may want to generate HTML reports containing
 descriptions of found vulnerabilities, so thay you can notify the administrators to get
 the vulnerabilities fixed.
 

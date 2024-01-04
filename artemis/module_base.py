@@ -61,7 +61,7 @@ class ArtemisBase(Karton):
         self.cache = RedisCache(REDIS, self.identity)
         self.lock = ResourceLock(redis=REDIS, res_name=self.identity)
         self.taking_tasks_from_queue_lock = ResourceLock(
-            redis=REDIS, res_name="taking-tasks-from-queue-" + self.identity
+            redis=REDIS, res_name=f"taking-tasks-from-queue-{self.identity}"
         )
         self.redis = REDIS
 

@@ -24,7 +24,7 @@ msgstr ""
 #: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:15
 msgid ""
 "Even if a domain is not used to send e-mails, SPF and DMARC records are "
-"needed to reduce the possiblity to spoof e-mails."
+"needed to reduce the possibility to spoof e-mails."
 msgstr ""
 "Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i "
 "DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. "

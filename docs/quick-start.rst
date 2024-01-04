@@ -33,7 +33,7 @@ the Artemis directory** and use:
 
 .. code-block:: console
 
-   docker compose up --build \
+  docker compose -f docker-compose.yaml -f Artemis-modules-extra/docker-compose.yml up --build \
        --scale=karton-nuclei=10 \
        --scale=karton-bruter=10 \
        --scale=karton-port_scanner=10

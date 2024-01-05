@@ -7,9 +7,10 @@ from typing import Any, List
 
 from karton.core import Task
 
-from artemis.binds import TaskStatus, TaskType
+from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
+from artemis.task_utils import get_target_url
 from artemis.utils import check_output_log_on_error
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
@@ -23,8 +24,9 @@ class Nuclei(ArtemisBase):
 
     identity = "nuclei"
     filters = [
-        {"type": TaskType.URL.value},
+        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
+
     batch_tasks = True
     task_max_batch_size = Config.Modules.Nuclei.NUCLEI_MAX_BATCH_SIZE
 
@@ -62,25 +64,7 @@ class Nuclei(ArtemisBase):
                 self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
     def run_multiple(self, tasks: List[Task]) -> None:
-        tasks_filtered = []
-        filtered_because_not_homepage = 0
-        for task in tasks:
-            target = task.payload["url"]
-
-            if not self._is_homepage(target):
-                filtered_because_not_homepage += 1
-                self.db.save_task_result(task=task, status=TaskStatus.OK, status_reason=None, data={})
-            else:
-                tasks_filtered.append(task)
-
-        if len(tasks_filtered) == 0:
-            self.log.info("No tasks after filtering non-homepage URLs. Nothing to do.")
-            return
-
-        self.log.info(
-            f"running {len(self._templates)} templates on {len(tasks_filtered)} hosts "
-            f"({filtered_because_not_homepage} filtered because the URLs aren't root)"
-        )
+        self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
@@ -100,20 +84,20 @@ class Nuclei(ArtemisBase):
             "-jsonl",
             "-system-resolvers",
             "-bulk-size",
-            str(len(tasks_filtered)),
+            str(len(tasks)),
             "-headless-bulk-size",
-            str(len(tasks_filtered)),
+            str(len(tasks)),
             "-milliseconds-per-request",
-            str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(tasks_filtered)))
+            str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(tasks)))
             if Config.Limits.REQUESTS_PER_SECOND != 0
             else str(int(0)),
         ] + additional_configuration
 
         targets = []
-        for task in tasks_filtered:
-            targets.append(task.payload["url"])
+        for task in tasks:
+            targets.append(get_target_url(task))
             command.append("-target")
-            command.append(task.payload["url"])
+            command.append(get_target_url(task))
 
         data = check_output_log_on_error(
             command,
@@ -125,13 +109,13 @@ class Nuclei(ArtemisBase):
                 finding = json.loads(line)
                 assert finding["host"] in targets, f'{finding["host"]} not found in {targets}'
 
-        for task in tasks_filtered:
+        for task in tasks:
             result = []
             messages = []
             for line in lines:
                 if line.strip():
                     finding = json.loads(line)
-                    if finding["host"] != task.payload["url"]:
+                    if finding["host"] != get_target_url(task):
                         continue
 
                     result.append(finding)

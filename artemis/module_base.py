@@ -195,17 +195,17 @@ class ArtemisBase(Karton):
             for queue in self.backend.get_queue_names(self.identity):
                 for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
                     task = self.backend.get_task(item)
-    
+
                     if not task:
                         continue
-    
+
                     scan_destination = self._get_scan_destination(task)
-    
+
                     if self.lock_target:
                         lock = ResourceLock(
                             REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
                         )
-    
+
                         if lock.is_acquired():
                             continue
                         else:
@@ -240,7 +240,7 @@ class ArtemisBase(Karton):
                             break
                 if len(tasks) >= num_tasks:
                     break
-        finally: 
+        finally:
             self.taking_tasks_from_queue_lock.release()
 
         tasks_not_blocklisted = []

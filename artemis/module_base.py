@@ -51,7 +51,7 @@ class CalculatingNumberOfModulesScanningAGivenIPContextManager:
         for ip in self._ips:
             REDIS.lpush(self._get_key(ip), self._scan_start_time)
         for ip in self._ips:
-            self._log.info("Num modules scanning IP %s: %s", ip, len(set(REDIS.lrange(self._get_key(ip), 0, -1))))
+            self._log.info("Num modules scanning IP %s: %s", ip, len(REDIS.lrange(self._get_key(ip), 0, -1)))
 
     def __exit__(self, *args: Any) -> None:
         self._remove_old_values()

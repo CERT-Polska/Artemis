@@ -53,6 +53,10 @@ class CalculatingNumberOfModulesScanningAGivenIPContextManager:
         for ip in self._ips:
             self._log.info("Num modules scanning IP %s: %s", ip, len(set(REDIS.lrange(self._get_key(ip), 0, -1))))
 
+    def __exit__(self, *args: Any) -> None:
+        for ip in self._ips:
+            REDIS.lrem(f"scan-start-times-for-ip-{ip}", 1, self._scan_start_time)
+
     def _remove_old_values(self) -> None:
         for ip in self._ips:
             lua_script = """
@@ -66,10 +70,6 @@ class CalculatingNumberOfModulesScanningAGivenIPContextManager:
             """
 
             REDIS.eval(lua_script, 1, self._get_key(ip), self._scan_start_time - self._timeout_seconds)  # type: ignore
-
-    def __exit__(self, *args: Any) -> None:
-        for ip in self._ips:
-            REDIS.lrem(f"scan-start-times-for-ip-{ip}", 1, self._scan_start_time)
 
     def _get_ips(self, host: str) -> List[str]:
         try:

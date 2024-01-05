@@ -63,7 +63,7 @@ class CalculatingNumberOfModulesScanningAGivenIPContextManager:
             lua_script = """
                 local items = redis.call('LRANGE', KEYS[1], 0, -1)
 
-                for item in items do
+                for i, item in ipairs(items) do
                     if tonumber(item) < ARGV[1] then
                         redis.call('LREM', KEYS[1], 1, item)
                     end

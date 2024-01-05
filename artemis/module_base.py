@@ -183,6 +183,7 @@ class ArtemisBase(Karton):
         return len(tasks)
 
     def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]]]:
+        self.log.info("Acquiring lock to take tasks from queue")
         try:
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
@@ -211,22 +212,24 @@ class ArtemisBase(Karton):
                         else:
                             try:
                                 lock.acquire()
+                                tasks.append(task)
+                                locks.append(lock)
                                 self.log.info(
-                                    "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s)",
+                                    "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s), %d/%d locked",
                                     task.uid,
                                     task.orig_uid,
                                     scan_destination,
                                     i,
                                     queue,
+                                    len(tasks),
+                                    num_tasks,
                                 )
-                                tasks.append(task)
-                                locks.append(lock)
                                 self.backend.redis.lrem(queue, 1, item)
                                 if len(tasks) >= num_tasks:
                                     break
                             except FailedToAcquireLockException:
                                 self.log.warning(
-                                    "Failed to lock task %s (orig_uid=%s destination=%s)",
+                                    "Failed to lock task %s (orig_uid=%s destination=%s), %d/%d locked",
                                     task.uid,
                                     task.orig_uid,
                                     scan_destination,
@@ -242,6 +245,9 @@ class ArtemisBase(Karton):
                     break
         finally:
             self.taking_tasks_from_queue_lock.release()
+            for lock in locks:
+                if lock:
+                    lock.release()
 
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []

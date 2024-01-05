@@ -421,7 +421,7 @@ class Config:
 
             PORT_SCANNER_SCANNING_PACKETS_PER_SECOND: Annotated[
                 int,
-                "E.g. when set to 100, Artemis will send no more than 20 port scanning packets per seconds per port "
+                "E.g. when set to 20, Artemis will send no more than 20 port scanning packets per seconds per port "
                 "scanner instance. As these are easier to handle than e.g. HTTP requests, they are calculated separately "
                 "from MODULE_INSTANCE_REQUESTS_PER_SECOND.",
             ] = get_config("PORT_SCANNER_SCANNING_PACKETS_PER_SECOND", default=20, cast=int)

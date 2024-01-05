@@ -54,6 +54,7 @@ class CalculatingNumberOfModulesScanningAGivenIPContextManager:
             self._log.info("Num modules scanning IP %s: %s", ip, len(set(REDIS.lrange(self._get_key(ip), 0, -1))))
 
     def __exit__(self, *args: Any) -> None:
+        self._remove_old_values()
         for ip in self._ips:
             REDIS.lrem(f"scan-start-times-for-ip-{ip}", 1, self._scan_start_time)
 

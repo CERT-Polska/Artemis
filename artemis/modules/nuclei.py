@@ -2,7 +2,6 @@
 import json
 import os
 import subprocess
-import urllib
 from typing import Any, List
 
 from karton.core import Task

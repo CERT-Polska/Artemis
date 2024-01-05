@@ -42,7 +42,7 @@ class CalculatingNumberOfModulesScanningAGivenIPContextManager:
             for ip in self._get_ips(task_destination):
                 self._ips.add(ip)
 
-        self._scan_start_time = time.time()
+        self._scan_start_time = int(time.time())
         self._timeout_seconds = timeout_seconds
         self._log = log
 

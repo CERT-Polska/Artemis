@@ -243,11 +243,13 @@ class ArtemisBase(Karton):
                             break
                 if len(tasks) >= num_tasks:
                     break
+        except Exception:
+            for already_acquired_lock in locks:
+                if already_acquired_lock:
+                    already_acquired_lock.release()
+            raise
         finally:
             self.taking_tasks_from_queue_lock.release()
-            for lock in locks:
-                if lock:
-                    lock.release()
 
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []

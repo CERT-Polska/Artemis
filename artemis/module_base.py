@@ -189,58 +189,59 @@ class ArtemisBase(Karton):
             self.log.warning("Failed to acquire lock to take tasks from queue")
             return [], []
 
-        tasks = []
-        locks: List[Optional[ResourceLock]] = []
-        for queue in self.backend.get_queue_names(self.identity):
-            for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
-                task = self.backend.get_task(item)
-
-                if not task:
-                    continue
-
-                scan_destination = self._get_scan_destination(task)
-
-                if self.lock_target:
-                    lock = ResourceLock(
-                        REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
-                    )
-
-                    if lock.is_acquired():
+        try:
+            tasks = []
+            locks: List[Optional[ResourceLock]] = []
+            for queue in self.backend.get_queue_names(self.identity):
+                for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
+                    task = self.backend.get_task(item)
+    
+                    if not task:
                         continue
-                    else:
-                        try:
-                            lock.acquire()
-                            self.log.info(
-                                "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s)",
-                                task.uid,
-                                task.orig_uid,
-                                scan_destination,
-                                i,
-                                queue,
-                            )
-                            tasks.append(task)
-                            locks.append(lock)
-                            self.backend.redis.lrem(queue, 1, item)
-                            if len(tasks) >= num_tasks:
-                                break
-                        except FailedToAcquireLockException:
-                            self.log.warning(
-                                "Failed to lock task %s (orig_uid=%s destination=%s)",
-                                task.uid,
-                                task.orig_uid,
-                                scan_destination,
-                            )
+    
+                    scan_destination = self._get_scan_destination(task)
+    
+                    if self.lock_target:
+                        lock = ResourceLock(
+                            REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
+                        )
+    
+                        if lock.is_acquired():
                             continue
-                else:
-                    tasks.append(task)
-                    locks.append(None)
-                    self.backend.redis.lrem(queue, 1, item)
-                    if len(tasks) >= num_tasks:
-                        break
-            if len(tasks) >= num_tasks:
-                break
-
-        self.taking_tasks_from_queue_lock.release()
+                        else:
+                            try:
+                                lock.acquire()
+                                self.log.info(
+                                    "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s)",
+                                    task.uid,
+                                    task.orig_uid,
+                                    scan_destination,
+                                    i,
+                                    queue,
+                                )
+                                tasks.append(task)
+                                locks.append(lock)
+                                self.backend.redis.lrem(queue, 1, item)
+                                if len(tasks) >= num_tasks:
+                                    break
+                            except FailedToAcquireLockException:
+                                self.log.warning(
+                                    "Failed to lock task %s (orig_uid=%s destination=%s)",
+                                    task.uid,
+                                    task.orig_uid,
+                                    scan_destination,
+                                )
+                                continue
+                    else:
+                        tasks.append(task)
+                        locks.append(None)
+                        self.backend.redis.lrem(queue, 1, item)
+                        if len(tasks) >= num_tasks:
+                            break
+                if len(tasks) >= num_tasks:
+                    break
+        finally: 
+            self.taking_tasks_from_queue_lock.release()
 
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []

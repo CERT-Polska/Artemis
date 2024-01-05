@@ -131,10 +131,6 @@ class Nuclei(ArtemisBase):
                 status_reason = None
             self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=result)
 
-    def _is_homepage(self, url: str) -> bool:
-        url_parsed = urllib.parse.urlparse(url)
-        return url_parsed.path.strip("/") == "" and not url_parsed.query and not url_parsed.fragment
-
 
 if __name__ == "__main__":
     Nuclei().loop()

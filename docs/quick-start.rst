@@ -3,13 +3,11 @@ Quick Start
 
 Currently, only Docker Compose based deployment is supported.
 
-More production-ready way to deploy Artemis will be to use Kubernetes - you may follow
-the progress or help with that task on: https://github.com/CERT-Polska/Artemis/issues/204.
-
 Using Docker Compose
 --------------------
 
-To start Artemis simply execute following 2 commands in your terminal:
+To start Artemis, clone the ``https://github.com/CERT-Polska/Artemis/`` repository and execute the
+following 2 commands in your terminal in the ``Artemis`` directory:
 
 .. code-block:: console
 
@@ -23,8 +21,8 @@ these modules haven't been included in core due to licensing reasons, but provid
 as e.g. SSL verification (certificate validity, proper redirect, etc.), subdomain takeover check or
 SQL injection check.
 
-To do that, clone https://github.com/CERT-Polska/Artemis-modules-extra/ inside
-the Artemis directory and use:
+To do that, clone https://github.com/CERT-Polska/Artemis-modules-extra/ **inside
+the Artemis directory** and use:
 
 .. code-block:: console
 
@@ -35,7 +33,7 @@ the Artemis directory and use:
 
 .. code-block:: console
 
-   docker compose up --build \
+  docker compose -f docker-compose.yaml -f Artemis-modules-extra/docker-compose.yml up --build \
        --scale=karton-nuclei=10 \
        --scale=karton-bruter=10 \
        --scale=karton-port_scanner=10

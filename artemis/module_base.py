@@ -64,7 +64,7 @@ class CalculatingNumberOfModulesScanningAGivenIPContextManager:
                 local items = redis.call('LRANGE', KEYS[1], 0, -1)
 
                 for i, item in ipairs(items) do
-                    if tonumber(item) < ARGV[1] then
+                    if tonumber(item) < tonumber(ARGV[1]) then
                         redis.call('LREM', KEYS[1], 1, item)
                     end
                 end

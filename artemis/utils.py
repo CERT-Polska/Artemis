@@ -65,7 +65,7 @@ def is_directory_index(content: str) -> bool:
 
 
 def throttle_request(f: Callable[[], Any]) -> Any:
-    request_per_second = Config.Limits.REQUESTS_PER_SECOND
+    request_per_second = Config.Limits.MODULE_INSTANCE_REQUESTS_PER_SECOND
     if request_per_second == 0:
         return f()
     elif request_per_second > 0:

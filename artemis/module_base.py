@@ -1,12 +1,11 @@
 import datetime
 import logging
-import random
 import sys
 import time
 import traceback
 import urllib.parse
 from ipaddress import ip_address
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import requests
 import timeout_decorator
@@ -34,6 +33,61 @@ setup_retrying_resolver()
 
 class UnknownIPException(Exception):
     pass
+
+
+class CalculatingNumberOfModulesScanningAGivenIPContextManager:
+    def __init__(self, log: logging.Logger, task_destinations: List[str], timeout_seconds: int):
+        self._ips = set()
+        for task_destination in task_destinations:
+            for ip in self._get_ips(task_destination):
+                self._ips.add(ip)
+
+        self._scan_start_time = time.time()
+        self._timeout_seconds = timeout_seconds
+        self._log = log
+
+    def __enter__(self) -> None:
+        self._remove_old_values()
+        for ip in self._ips:
+            REDIS.lpush(self._get_key(ip), self._scan_start_time)
+        for ip in self._ips:
+            self._log.info("Num modules scanning IP %s: %s", ip, len(set(REDIS.lrange(self._get_key(ip), 0, -1))))
+
+    def _remove_old_values(self) -> None:
+        for ip in self._ips:
+            lua_script = """
+                local items = redis.call('LRANGE', KEYS[1], 0, -1)
+
+                for i, item in ipairs(items) do
+                    if tonumber(item) < ARGV[1] then
+                        redis.call('LREM', ARGV[1], 0, item)
+                    end
+                end
+            """
+
+            REDIS.eval(lua_script, 1, self._get_key(ip), self._scan_start_time - self._timeout_seconds)  # type: ignore
+
+    def __exit__(self, *args: Any) -> None:
+        for ip in self._ips:
+            REDIS.lrem(f"scan-start-times-for-ip-{ip}", 1, self._scan_start_time)
+
+    def _get_ips(self, host: str) -> List[str]:
+        try:
+            # if this doesn't throw then we have an IP address
+            ip_address(host)
+            return [host]
+        except ValueError:
+            pass
+
+        try:
+            ip_addresses = list(lookup(host))
+        except Exception:
+            return []
+
+        return ip_addresses
+
+    def _get_key(self, ip: str) -> str:
+        return f"scan-start-times-for-ip-{ip}"
 
 
 class ArtemisBase(Karton):
@@ -184,63 +238,70 @@ class ArtemisBase(Karton):
 
     def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]]]:
         try:
+            self.log.info("Taking tasks from queue - acquiring lock")
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
             self.log.warning("Failed to acquire lock to take tasks from queue")
             return [], []
 
-        tasks = []
-        locks: List[Optional[ResourceLock]] = []
-        for queue in self.backend.get_queue_names(self.identity):
-            for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
-                task = self.backend.get_task(item)
+        try:
+            tasks = []
+            locks: List[Optional[ResourceLock]] = []
+            self.log.info("Taking tasks from queue")
+            for queue in self.backend.get_queue_names(self.identity):
+                for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
+                    task = self.backend.get_task(item)
 
-                if not task:
-                    continue
-
-                scan_destination = self._get_scan_destination(task)
-
-                if self.lock_target:
-                    lock = ResourceLock(
-                        REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
-                    )
-
-                    if lock.is_acquired():
+                    if not task:
                         continue
-                    else:
-                        try:
-                            lock.acquire()
-                            self.log.info(
-                                "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s)",
-                                task.uid,
-                                task.orig_uid,
-                                scan_destination,
-                                i,
-                                queue,
-                            )
-                            tasks.append(task)
-                            locks.append(lock)
-                            self.backend.redis.lrem(queue, 1, item)
-                            if len(tasks) >= num_tasks:
-                                break
-                        except FailedToAcquireLockException:
-                            self.log.warning(
-                                "Failed to lock task %s (orig_uid=%s destination=%s)",
-                                task.uid,
-                                task.orig_uid,
-                                scan_destination,
-                            )
-                            continue
-                else:
-                    tasks.append(task)
-                    locks.append(None)
-                    self.backend.redis.lrem(queue, 1, item)
-                    if len(tasks) >= num_tasks:
-                        break
-            if len(tasks) >= num_tasks:
-                break
 
-        self.taking_tasks_from_queue_lock.release()
+                    scan_destination = self._get_scan_destination(task)
+
+                    if self.lock_target:
+                        lock = ResourceLock(
+                            REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
+                        )
+
+                        if lock.is_acquired():
+                            continue
+                        else:
+                            try:
+                                lock.acquire()
+                                tasks.append(task)
+                                locks.append(lock)
+                                self.backend.redis.lrem(queue, 1, item)
+                                self.log.info(
+                                    "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s, have %d/%d)",
+                                    task.uid,
+                                    task.orig_uid,
+                                    scan_destination,
+                                    i,
+                                    queue,
+                                    len(tasks),
+                                    num_tasks,
+                                )
+                                if len(tasks) >= num_tasks:
+                                    break
+                            except FailedToAcquireLockException:
+                                self.log.warning(
+                                    "Failed to lock task %s (orig_uid=%s destination=%s), have %d/%d",
+                                    task.uid,
+                                    task.orig_uid,
+                                    scan_destination,
+                                    len(tasks),
+                                    num_tasks,
+                                )
+                                continue
+                    else:
+                        tasks.append(task)
+                        locks.append(None)
+                        self.backend.redis.lrem(queue, 1, item)
+                        if len(tasks) >= num_tasks:
+                            break
+                if len(tasks) >= num_tasks:
+                    break
+        finally:
+            self.taking_tasks_from_queue_lock.release()
 
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []
@@ -315,7 +376,10 @@ class ArtemisBase(Karton):
 
             saved_exception = None
             try:
-                self.process_multiple(tasks_filtered)
+                with CalculatingNumberOfModulesScanningAGivenIPContextManager(
+                    self.log, [self._get_scan_destination(task) for task in tasks_filtered], self.timeout_seconds
+                ):
+                    self.process_multiple(tasks_filtered)
             except Exception as exc:
                 saved_exception = exc
                 raise
@@ -386,53 +450,13 @@ class ArtemisBase(Karton):
         elif task.headers["type"] == TaskType.IP:
             result = task.payload["ip"]
         elif task.headers["type"] == TaskType.DOMAIN:
-            # This is an approximation. Sometimes, when we scan domain, we actually scan the IP the domain
-            # resolves to (e.g. in port_scan karton), sometimes the domain itself (e.g. the DNS kartons) or
-            # even the MX servers. Therefore this will not map 1:1 to the actual host being scanned.
-            try:
-                result = self._get_ip_for_locking(task.payload["domain"])
-            except UnknownIPException:
-                result = task.payload["domain"]
+            result = task.payload["domain"]
         elif task.headers["type"] == TaskType.WEBAPP:
-            host = urllib.parse.urlparse(task.payload["url"]).hostname
-            try:
-                result = self._get_ip_for_locking(host)
-            except UnknownIPException:
-                result = host
+            result = urllib.parse.urlparse(task.payload["url"]).hostname
         elif task.headers["type"] == TaskType.URL:
-            host = urllib.parse.urlparse(task.payload["url"]).hostname
-            try:
-                result = self._get_ip_for_locking(host)
-            except UnknownIPException:
-                result = host
+            result = urllib.parse.urlparse(task.payload["url"]).hostname
         elif task.headers["type"] == TaskType.SERVICE:
-            try:
-                result = self._get_ip_for_locking(task.payload["host"])
-            except UnknownIPException:
-                result = task.payload["host"]
+            result = task.payload["host"]
 
         assert isinstance(result, str)
         return result
-
-    def _get_ip_for_locking(self, host: str) -> str:
-        try:
-            # if this doesn't throw then we have an IP address
-            ip_address(host)
-            return host
-        except ValueError:
-            pass
-
-        # Here, we use the the DoH resolvers so that we don't leak information if using proxies.
-        # There is a chance that the IP returned here (chosen randomly from a set of IP adresses)
-        # would be different from the one chosen for the actual connection - but we hope that over
-        # time and across multiple scanner instances the overall load would be approximately similar
-        # to one request per Config.Limits.SECONDS_PER_REQUEST.
-        try:
-            ip_addresses = list(lookup(host))
-        except Exception as e:
-            raise UnknownIPException(f"Exception while trying to obtain IP for host {host}", e)
-
-        if not ip_addresses:
-            raise UnknownIPException(f"Unknown IP for host {host}")
-
-        return random.choice(ip_addresses)

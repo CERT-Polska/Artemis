@@ -58,10 +58,16 @@ class Config:
         LOCK_SCANNED_TARGETS: Annotated[
             bool,
             """
-            Whether Artemis should strive to make at most one module scan a target at a given time. Therefore
-            when locking is enabled, setting e.g. SCANNING_PACKETS_PER_SECOND to 100 and SECONDS_PER_REQUEST to
-            2 will cause that no IP receives 100 port scanning packets per second and 1 HTTP/MySQL/... request
-            per 2 seconds.
+            Whether Artemis should strive to make at most one module scan a target at a given time.
+
+            A target is the IP/domain being scanned, so if we need to scan three domains pointing to the same IP:
+            example.com, www.example.com and mail.example.com, they will be locked separately - it will be possible
+            that there will be one module that scans example.com, one that scans www.example.com and one that
+            scans mail.example.com.
+
+            Therefore when locking is enabled, setting e.g. PORT_SCANNER_SCANNING_PACKETS_PER_SECOND to 100 and
+            MODULE_INSTANCE_REQUESTS_PER_SECOND to 2 will cause that no target receives 100 port scanning packets per
+            second and 2 HTTP/MySQL/... request per second.
 
             Due to the way this behavior is implemented, we cannot guarantee that a host will never be scanned
             by more than one module.
@@ -124,17 +130,13 @@ class Config:
             "Default request timeout (for all protocols).",
         ] = get_config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
 
-        SCANNING_PACKETS_PER_SECOND: Annotated[
-            int,
-            "E.g. when set to 100, Artemis will send no more than 100 port scanning packets per seconds per port scanner instance.",
-        ] = get_config("SCANNING_PACKETS_PER_SECOND", default=100, cast=int)
-
-        REQUESTS_PER_SECOND: Annotated[
+        MODULE_INSTANCE_REQUESTS_PER_SECOND: Annotated[
             float,
             """
-            E.g. when set to 2, Artemis will make sure no more than 2 HTTP/MySQL connect/... requests take place per second, sleeping if needed.
+            E.g. when set to 2, Artemis will make sure no more than 2 HTTP/MySQL connect/... requests take place per "
+            second in each module instance, sleeping if needed.
             """,
-        ] = get_config("REQUESTS_PER_SECOND", default=0, cast=float)
+        ] = get_config("MODULE_INSTANCE_REQUESTS_PER_SECOND", default=0, cast=float)
 
     class Miscellaneous:
         BLOCKLIST_FILE: Annotated[
@@ -416,6 +418,11 @@ class Config:
                 "The number of open ports we consider to be too much and a false positive - if we observe more "
                 "open ports, we trim by performing an intersection of the result with the list of 100 most popular ones.",
             ] = get_config("PORT_SCANNER_MAX_NUM_PORTS", default=100, cast=int)
+
+            PORT_SCANNER_SCANNING_PACKETS_PER_SECOND: Annotated[
+                int,
+                "E.g. when set to 100, Artemis will send no more than 20 port scanning packets per seconds per port scanner instance.",
+            ] = get_config("PORT_SCANNER_SCANNING_PACKETS_PER_SECOND", default=20, cast=int)
 
         class Postman:
             POSTMAN_MAIL_FROM: Annotated[

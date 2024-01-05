@@ -113,7 +113,7 @@ class PortScanner(ArtemisBase):
                 "-timeout",
                 str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
                 "-rate",
-                str(Config.Limits.SCANNING_PACKETS_PER_SECOND),
+                str(Config.Modules.PortScanner.PORT_SCANNER_SCANNING_PACKETS_PER_SECOND),
             ),
             stdout=subprocess.PIPE,
         )

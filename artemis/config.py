@@ -67,7 +67,7 @@ class Config:
 
             Therefore when locking is enabled, setting e.g. PORT_SCANNER_SCANNING_PACKETS_PER_SECOND to 100 and
             MODULE_INSTANCE_REQUESTS_PER_SECOND to 2 will cause that no target receives 100 port scanning packets per
-            second and 2 HTTP/MySQL/... request per second.
+            second and 2 HTTP/MySQL/... requests per second.
 
             Due to the way this behavior is implemented, we cannot guarantee that a host will never be scanned
             by more than one module.
@@ -421,7 +421,9 @@ class Config:
 
             PORT_SCANNER_SCANNING_PACKETS_PER_SECOND: Annotated[
                 int,
-                "E.g. when set to 100, Artemis will send no more than 20 port scanning packets per seconds per port scanner instance.",
+                "E.g. when set to 100, Artemis will send no more than 20 port scanning packets per seconds per port "
+                "scanner instance. As these are easier to handle than e.g. HTTP requests, they are calculated separately "
+                "from MODULE_INSTANCE_REQUESTS_PER_SECOND.",
             ] = get_config("PORT_SCANNER_SCANNING_PACKETS_PER_SECOND", default=20, cast=int)
 
         class Postman:

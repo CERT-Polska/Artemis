@@ -582,6 +582,9 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "GoIP-1 GSM is vulnerable to local file inclusion because input passed thru the 'content' or 'sidebar' GET parameter in 'frame.html' or 'frame.A100.html' is not properly sanitized before being used to read files. This can be exploited by an unauthenticated attacker to read arbitrary files on the affected system.": "Wykryto, że GoIP-1 GSM zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "Execution After Redirect happens when after emitting a Location header that redirects the user, some other code is executed. This may lead to data leak or application compromise.": "Wykryto podatność Execution After Redirect, czyli sytuację, gdy serwer, pomimo przekierowania użytkownika na inny adres, kontynuuje wykonanie skryptu. Może to doprowadzić do wycieku wrażliwych danych lub uzyskania przez atakującego nieuprawnionego dostępu do aplikacji.",
+    "[no description] http/misconfiguration/django-debug-detect.yaml": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
+    "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
+    "OwnCloud is susceptible to the Installation page exposure due to misconfiguration.": "wykryto, że panel instalacyjny narzędzia OwnCloud jest publicznie dostępny, co może umożliwić atakującemu nieuprawniony dostęp do systemu.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
@@ -754,4 +757,8 @@ TRANSLATIONS = {
     "http/exposed-panels/homer-panel.yaml": "wykryto panel systemu Homer",
     "Rundeck login panel was detected.": "wykryto panel logowania Rundeck.",
     "NagVis login panel was detected.": "wykryto panel logowania NagVis.",
+    "RD web access panel was discovered.": "wykryto panel Remote Desktop Web Access.",
+    "http/exposed-panels/plausible-panel.yaml": "wykryto panel systemu Plausible.",
+    "Micro Focus Vibe login panel was detected.": "wykryto panel logowania Micro Focus Vibe.",
+    "An Ansible Semaphore login panel was detected.": "wykryto panel logowania Ansible Semaphore.",
 }

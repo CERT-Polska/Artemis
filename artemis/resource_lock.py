@@ -1,3 +1,4 @@
+import sys
 import time
 from random import uniform
 from typing import Any, Optional
@@ -18,7 +19,7 @@ class ResourceLock:
     def __init__(self, redis: Redis, res_name: str, max_tries: Optional[int] = None):  # type: ignore[type-arg]
         self.redis = redis
         self.res_name = res_name
-        self.lid = str(uuid4())
+        self.lid = str(uuid4()) + "-" + " ".join(sys.argv)
         self.max_tries = max_tries
 
     def acquire(self, expiry: Optional[int] = Config.Locking.DEFAULT_LOCK_EXPIRY_SECONDS) -> None:

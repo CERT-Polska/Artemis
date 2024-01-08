@@ -187,7 +187,7 @@ class Config:
         CONTENT_PREFIX_SIZE: Annotated[
             int,
             "In order not to overload the DB and bandwidth, this determines how long the downloaded content would be (in bytes).",
-        ] = get_config("CONTENT_PREFIX_SIZE", default=10240, cast=int)
+        ] = get_config("CONTENT_PREFIX_SIZE", default=1024 * 100, cast=int)
 
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,
@@ -229,11 +229,6 @@ class Config:
                 "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
             ] = get_config("GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
 
-        class JoomlaScanner:
-            JOOMLA_VERSION_AGE_DAYS: Annotated[
-                int, "After what number of days we consider the Joomla version to be obsolete."
-            ] = get_config("JOOMLA_VERSION_AGE_DAYS", default=30, cast=int)
-
         class Nuclei:
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,
@@ -259,7 +254,7 @@ class Config:
                 "How many sites to scan at once. This is the maximum batch size - we will try to obtain NUCLEI_MAX_BATCH_SIZE "
                 "sites to scan from the queue, but if per-IP locking is enabled, then we will filter ones that are already "
                 "scanned by other modules.",
-            ] = get_config("NUCLEI_MAX_BATCH_SIZE", default=50, cast=int)
+            ] = get_config("NUCLEI_MAX_BATCH_SIZE", default=10, cast=int)
 
             NUCLEI_TEMPLATES_TO_SKIP: Annotated[
                 List[str],

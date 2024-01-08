@@ -41,24 +41,6 @@ services:
       - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
     profiles: ["autoreporter"]  # This will prevent the service from starting by default
 
-  karton-system:
-    command: ["--setup-bucket"]
-    depends_on: ["db", "redis", "minio"]
-    env_file: .env
-    image: "certpl/karton-system:v5.2.0"
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-    restart: always
-
-  karton-logger:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.stdout_logger"
-    depends_on: [karton-system]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
   metrics:
     build:
       context: .
@@ -82,11 +64,13 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-dashboard:
+  karton-bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.bruter"
     depends_on: [karton-logger]
     env_file: .env
-    image: certpl/karton-dashboard:v1.5.0
-    ports: [5001:5000]
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
@@ -95,36 +79,6 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.classifier"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-port_scanner:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.port_scanner"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-robots:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.robots"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-vcs:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.vcs"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
@@ -140,43 +94,11 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-gau:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.gau"
+  karton-dashboard:
     depends_on: [karton-logger]
     env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-ip-lookup:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.ip_lookup"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-reverse-dns:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.reverse_dns_lookup"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-bruter:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.bruter"
-    depends_on: [karton-logger]
-    env_file: .env
+    image: certpl/karton-dashboard:v1.5.0
+    ports: [5001:5000]
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
@@ -185,36 +107,6 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.directory_index"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-identifier:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.webapp_identifier"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-joomla_scanner:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.joomla_scanner"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-wp_scanner:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.wp_scanner"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
@@ -230,11 +122,41 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-domain_expiration_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.domain_expiration_scanner"
+    depends_on: [ karton-logger ]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-drupal_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.drupal_scanner"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-ftp_bruter:
     build:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.ftp_bruter"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-gau:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.gau"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
@@ -250,12 +172,42 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-mysql_bruter:
+  karton-identifier:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.mysql_bruter"
+    command: "python3 -m artemis.modules.webapp_identifier"
     depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-ip_lookup:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.ip_lookup"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-joomla_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.joomla_scanner"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-logger:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.stdout_logger"
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -265,6 +217,16 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.mail_dns_scanner"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-mysql_bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.mysql_bruter"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
@@ -284,16 +246,13 @@ services:
       - data-nuclei-templates:/root/nuclei-templates
       - data-nuclei-config:/root/.config/nuclei
 
-  karton-postman:
+  karton-port_scanner:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.postman"
+    command: "python3 -m artemis.modules.port_scanner"
     depends_on: [karton-logger]
     env_file: .env
-    environment:
-     - POSTMAN_MAIL_FROM=artemis@example.com
-     - POSTMAN_MAIL_TO=artemis@example.com
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
@@ -307,11 +266,34 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-wordpress_bruter:
+  karton-postman:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.wordpress_bruter"
+    command: "python3 -m artemis.modules.postman"
+    depends_on: [karton-logger]
+    env_file: .env
+    environment:
+     - POSTMAN_MAIL_FROM=artemis@example.com
+     - POSTMAN_MAIL_TO=artemis@example.com
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-reverse_dns:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.reverse_dns_lookup"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-robots:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.robots"
     depends_on: [karton-logger]
     env_file: .env
     restart: always
@@ -347,12 +329,40 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-domain_expiration_scanner:
+  karton-system:
+    command: ["--setup-bucket"]
+    depends_on: ["db", "redis", "minio"]
+    env_file: .env
+    image: "certpl/karton-system:v5.2.0"
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    restart: always
+
+  karton-vcs:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.domain_expiration_scanner"
-    depends_on: [ karton-logger ]
+    command: "python3 -m artemis.modules.vcs"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-wordpress_bruter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.wordpress_bruter"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-wp_scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.wp_scanner"
+    depends_on: [karton-logger]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]

@@ -1,6 +1,7 @@
+import datetime
+import unittest.mock
 from test.base import ArtemisModuleTestCase
 
-import requests_mock
 from freezegun import freeze_time
 from karton.core import Task
 
@@ -11,46 +12,50 @@ from artemis.modules.joomla_scanner import JoomlaScanner
 class JoomlaScannerTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = JoomlaScanner  # type: ignore
+    # Copied and adapted from MIT-licensed https://github.com/endoflife-date/endoflife.date
+    endoflife_data = [
+        {
+            "releases": [
+                {
+                    "releaseCycle": "5",
+                    "releaseDate": datetime.date(2023, 10, 14),
+                    "support": True,
+                    "eol": datetime.date(2027, 10, 19),
+                    "latest": "5.0.1",
+                    "latestReleaseDate": datetime.date(2023, 11, 24),
+                    "link": "https://www.joomla.org/announcements/release-news/5900-joomla-5-0-and-joomla-4-4-are-here",
+                },
+                {
+                    "releaseCycle": "4",
+                    "releaseDate": datetime.date(2021, 8, 17),
+                    "support": datetime.date(2024, 10, 17),
+                    "eol": datetime.date(2025, 10, 17),
+                    "latest": "4.4.1",
+                    "latestReleaseDate": datetime.date(2023, 11, 23),
+                },
+                {
+                    "releaseCycle": "3",
+                    "releaseDate": datetime.date(2012, 9, 27),
+                    "support": datetime.date(2021, 8, 17),
+                    "eol": datetime.date(2023, 8, 17),
+                    "latest": "3.10.12",
+                    "latestReleaseDate": datetime.date(2023, 7, 8),
+                },
+            ],
+        }
+    ]
 
     @freeze_time("2023-02-21")
     def test_is_newer_version_available(self) -> None:
-        with requests_mock.Mocker() as requests_mocker:
-            requests_mocker.get(
-                "https://api.github.com/repos/joomla/joomla-cms/releases",
-                json=[
-                    {
-                        "tag_name": "4.3.0",
-                        "prerelease": False,
-                        "published_at": "2023-01-20T16:00:00Z",
-                    },
-                    {
-                        "tag_name": "3.10.9",
-                        "prerelease": False,
-                        "published_at": "2021-12-21T16:00:00Z",
-                    },
-                    {
-                        "tag_name": "3.10.10",
-                        "prerelease": False,
-                        "published_at": "2023-01-01T16:00:00Z",
-                    },
-                    {
-                        "tag_name": "3.10.11",
-                        "prerelease": False,
-                        "published_at": "2023-02-21T16:00:00Z",
-                    },
-                ],
-            )
+        with unittest.mock.patch("yaml.load_all", return_value=self.endoflife_data):
+            self.assertTrue(self.karton.is_version_obsolete("2.8.6"))
+            self.assertTrue(self.karton.is_version_obsolete("2.99999.99999"))
 
-            self.assertTrue(self.karton.is_newer_version_available("2.8.6"))
-            self.assertTrue(self.karton.is_newer_version_available("2.99999.99999"))
-
-            self.assertTrue(self.karton.is_newer_version_available("3.10.9"))
-            # The 30 days from newer release didn't pass so the version is not yet old
-            self.assertFalse(self.karton.is_newer_version_available("3.10.10"))
-            self.assertFalse(self.karton.is_newer_version_available("3.10.11"))
-            self.assertTrue(self.karton.is_newer_version_available("4.0.0"))
-            self.assertFalse(self.karton.is_newer_version_available("4.3.0"))
-            self.assertFalse(self.karton.is_newer_version_available("4.99999.99999"))
+            self.assertTrue(self.karton.is_version_obsolete("3.10.11"))
+            self.assertFalse(self.karton.is_version_obsolete("3.10.12"))
+            self.assertTrue(self.karton.is_version_obsolete("4.0.0"))
+            self.assertFalse(self.karton.is_version_obsolete("4.4.1"))
+            self.assertFalse(self.karton.is_version_obsolete("4.99999.99999"))
 
     def test_simple(self) -> None:
         task = Task(

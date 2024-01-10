@@ -1,7 +1,5 @@
 name: "check that we don't need to update translations"
 on:
-  push:
-    branches: [ '**' ]
   pull_request:
     branches: [ '**' ]
 

@@ -16,6 +16,11 @@ following 2 commands in your terminal in the ``Artemis`` directory:
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 
+.. note ::
+
+   Artemis exposes ports that can be used to add tasks and view the results. Remember that these ports (5000 - main web interface,
+   5001 - task queues, and 9000 - Prometheus metrics) shouldn't be available publicly, but e.g. on an internal network.
+
 **We recommend you to add additional Artemis modules from** https://github.com/CERT-Polska/Artemis-modules-extra/ -
 these modules haven't been included in core due to licensing reasons, but provide additional features such
 as e.g. SSL verification (certificate validity, proper redirect, etc.), subdomain takeover check or

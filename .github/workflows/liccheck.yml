@@ -1,6 +1,6 @@
 name: "license-check"
 on:
-  push:
+  pull_request:
     branches: [ '**' ]
 
 jobs:

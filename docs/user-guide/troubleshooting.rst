@@ -1,6 +1,19 @@
 Troubleshooting
 ===============
 
+Windows build issues
+--------------------
+If you are using Windows and you are seeing the following message:
+
+.. code-block::
+
+    ------
+    RUN cd /nuclei && git apply nuclei-rate-limiting.patch  && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install:
+    #85 2.234 error: corrupt patch at line 7
+
+this may mean that during clone you configured Git to change newlines from Linux (``\n``) to Windows (``\r\n``). Changing
+this setting will fix the problem.
+
 MongoDB startup issues
 ----------------------
 

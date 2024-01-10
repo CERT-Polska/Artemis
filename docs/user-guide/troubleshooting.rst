@@ -3,7 +3,7 @@ Troubleshooting
 
 Windows build issues
 --------------------
-If you are using Windows and you are seeing the following message during container build:
+If you are using Windows and you see the following message during container build:
 
 .. code-block::
 

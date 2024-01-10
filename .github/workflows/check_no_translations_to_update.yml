@@ -1,6 +1,6 @@
 name: "check that we don't need to update translations"
 on:
-  push:
+  pull_request:
     branches: [ '**' ]
 
 jobs:

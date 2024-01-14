@@ -21,8 +21,7 @@ class HumbleReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
-        result = []
-        result.append(
+        return [
             Report(
                 top_level_target=get_top_level_target(task_result),
                 target=get_target_url(task_result),
@@ -33,8 +32,7 @@ class HumbleReporter(Reporter):
                 },
                 timestamp=task_result["created_at"],
             )
-        )
-        return result
+        ]
 
     @staticmethod
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:

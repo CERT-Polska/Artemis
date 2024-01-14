@@ -1,5 +1,5 @@
 {% if "missing_security_headers" in data.contains_type %}
-    <li>{% trans %}We identified that the following security headers are set correctly:{% endtrans %}
+    <li>{% trans %}We identified that the following security headers are not set correctly:{% endtrans %}
         <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "missing_security_headers" %}

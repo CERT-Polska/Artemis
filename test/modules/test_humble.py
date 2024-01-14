@@ -24,10 +24,10 @@ class TestProcessJsonData(unittest.TestCase):
 
         # Verify
         expected_result = [
-            "Missing http security headers:",
-            "Cache-Control",
-            "Clear-Site-Data",
-            "Cross-Origin-Embedder-Policy",
+            humble.Message(
+                category="Missing http security headers",
+                problems=["Cache-Control", "Clear-Site-Data", "Cross-Origin-Embedder-Policy"],
+            )
         ]
         self.assertEqual(result, expected_result)
 

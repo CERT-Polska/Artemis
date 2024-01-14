@@ -4,4 +4,4 @@
 msgid ""
 "Missing http security headers"
 msgstr ""
-"Brakujące nagłówki HTTP zwiększajace bezpieczeństwo"
+"Brakujące nagłówki HTTP zwiększające bezpieczeństwo"

@@ -4,41 +4,40 @@ from typing import Any, Callable, Dict, List
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import (
     NormalForm,
-    get_domain_normal_form,
-    get_domain_score,
+    get_url_normal_form,
+    get_url_score,
 )
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
-from artemis.reporting.utils import get_top_level_target
+from artemis.reporting.utils import get_target_url, get_top_level_target
 
 
 class HumbleReporter(Reporter):
-    MISSING_SECURITY_HEADER = ReportType("missing_security_header")
+    MISSING_SECURITY_HEADERS = ReportType("missing_security_headers")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "humble":
             return []
 
-        if not isinstance(task_result["result"], list):
+        if not isinstance(task_result["result"], dict):
             return []
 
         result = []
-        for item in task_result["result"]:
-            if item["confidence"] == "CONFIRMED":
-                result.append(
-                    Report(
-                        top_level_target=get_top_level_target(task_result),
-                        target=item["domain"],
-                        report_type=HumbleReporter.MISSING_SECURITY_HEADER,
-                        additional_data={
-                            "message_en": item["info"],
-                        },
-                        timestamp=task_result["created_at"],
-                    )
-                )
+        result.append(
+            Report(
+                top_level_target=get_top_level_target(task_result),
+                target=get_target_url(task_result),
+                report_type=HumbleReporter.MISSING_SECURITY_HEADERS,
+                additional_data={
+                    "message_data": task_result["result"]["message_data"],
+                    "messages": task_result["result"]["messages"],
+                },
+                timestamp=task_result["created_at"],
+            )
+        )
         return result
 
     @staticmethod
@@ -50,19 +49,14 @@ class HumbleReporter(Reporter):
         ]
 
     @staticmethod
-    def get_scoring_rules() -> Dict[ReportType, Callable[[Report], List[int]]]:
-        """See the docstring in the parent class."""
-        return {HumbleReporter.MISSING_SECURITY_HEADER: lambda report: [get_domain_score(report.target)]}
-
-    @staticmethod
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """See the docstring in the Reporter class."""
         return {
-            HumbleReporter.MISSING_SECURITY_HEADER: lambda report: Reporter.dict_to_tuple(
+            HumbleReporter.MISSING_SECURITY_HEADERS: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
-                    "target": get_domain_normal_form(report.target),
-                    "message": report.additional_data["message_en"],
+                    "target": get_url_normal_form(report.target),
+                    "messages": tuple(report.additional_data["messages"]),  # type: ignore
                 }
             )
         }

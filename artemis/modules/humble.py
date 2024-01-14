@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import dataclasses
 import json
 import subprocess
 from typing import Any, Dict, List
@@ -10,8 +11,18 @@ from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
 
-def process_json_data(result: Dict[str, Any]) -> List[str]:
-    messages = []
+@dataclasses.dataclass
+class Message:
+    category: str
+    problems: List[str]
+
+    @property
+    def message(self) -> str:
+        return f"{self.category}: {', '.join(self.problems)}"
+
+
+def process_json_data(result: Dict[str, Any]) -> List[Message]:
+    messages: Dict[str, Message] = {}
 
     # Iterate through key-value pairs in the result
     for key, value in result.items():
@@ -46,8 +57,6 @@ def process_json_data(result: Dict[str, Any]) -> List[str]:
                     )
                 )
             ):
-                messages.append(f"{category}:")
-
                 # If the value is a dictionary, iterate through subkey-value pairs
                 if isinstance(value, dict):
                     for subkey, subvalue in value.items():
@@ -56,7 +65,10 @@ def process_json_data(result: Dict[str, Any]) -> List[str]:
                             "Nothing to report, all seems OK!",
                             "No HTTP security headers are enabled.",
                         ]:
-                            messages.append(f"  {subkey}: {subvalue}")
+                            problem = f"{subkey} {subvalue}"
+                            if category not in messages:
+                                messages[category] = Message(category=category, problems=[])
+                            messages[category].problems.append(problem)
 
                 # If the value is a list, iterate through list items
                 elif isinstance(value, list):
@@ -66,9 +78,11 @@ def process_json_data(result: Dict[str, Any]) -> List[str]:
                             "Nothing to report, all seems OK!",
                             "No HTTP security headers are enabled.",
                         ]:
-                            messages.append(f"  {item}")
+                            if category not in messages:
+                                messages[category] = Message(category=category, problems=[])
+                            messages[category].problems.append(item)
 
-    return messages
+    return list(messages.values())
 
 
 class Humble(ArtemisBase):
@@ -120,12 +134,21 @@ class Humble(ArtemisBase):
 
         if messages:
             status = TaskStatus.INTERESTING
-            status_reason = messages[0] + ", ".join(messages[1:])
+            status_reason = ", ".join([message.message for message in messages])
         else:
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.db.save_task_result(
+            task=current_task,
+            status=status,
+            status_reason=status_reason,
+            data={
+                "original_result": result,
+                "message_data": [dataclasses.asdict(message) for message in messages],
+                "messages": [message.message for message in messages],
+            },
+        )
 
 
 if __name__ == "__main__":

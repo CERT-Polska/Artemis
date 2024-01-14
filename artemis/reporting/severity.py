@@ -52,4 +52,5 @@ SEVERITY_MAP = {
     ReportType("exposed_php_var_dump"): Severity.LOW,
     ReportType("exposed_phpinfo"): Severity.LOW,
     ReportType("nuclei_exposed_panel"): Severity.LOW,
+    ReportType("missing_security_headers"): Severity.LOW,
 }

@@ -1,12 +1,14 @@
-{% if "missing_security_header" in data.contains_type %}
-    <li>{% trans %}We identified that not all possible security headers are set correctly:{% endtrans %}
+{% if "missing_security_headers" in data.contains_type %}
+    <li>{% trans %}We identified that the following security headers are set correctly:{% endtrans %}
         <ul>
             {% for report in data.reports %}
-                {% if report.report_type == "missing_security_header" %}
-                    <li>
-                        {{ report.target }}: {{ _(report.additional_data.message_en) }}
-                        {{ report_meta(report) }}
-                    </li>
+                {% if report.report_type == "missing_security_headers" %}
+                    {% for message in report.additional_data.message_data %}
+                        <li>
+                            {{ report.target }}: {{ _(message.category) }}: {{ ', '.join(message.problems) }}
+                        </li>
+                    {% endfor %}
+                    {{ report_meta(report) }}
                 {% endif %}
             {% endfor %}
         </ul>

@@ -65,8 +65,16 @@ class Reporter(ABC):
         return {report_type: Reporter.default_scoring_rule for report_type in cls.get_report_types()}
 
     @staticmethod
-    def dict_to_tuple(d: Dict[str, str]) -> Tuple[Tuple[str, str], ...]:
-        return tuple(d.items())
+    def dict_to_tuple(d: Dict[str, Any]) -> Tuple[Any, ...]:
+        result = []
+        for key, value in d.items():
+            if isinstance(value, dict):
+                result.append((key, Reporter.dict_to_tuple(value)))
+            elif isinstance(value, list):
+                result.append((key, tuple(value)))
+            else:
+                result.append((key, value))
+        return tuple(result)
 
     @staticmethod
     def default_scoring_rule(report: Report) -> List[int]:

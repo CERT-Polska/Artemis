@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any, Callable, Dict, List
 
+from artemis.config import Config
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_url_normal_form
 from artemis.reporting.base.report import Report
@@ -27,8 +28,7 @@ class HumbleReporter(Reporter):
                 target=get_target_url(task_result),
                 report_type=HumbleReporter.MISSING_SECURITY_HEADERS,
                 additional_data={
-                    "message_data": task_result["result"]["message_data"],
-                    "messages": task_result["result"]["messages"],
+                    "message_data": HumbleReporter._filter_message_data(task_result["result"]["message_data"]),
                 },
                 timestamp=task_result["created_at"],
             )
@@ -50,7 +50,19 @@ class HumbleReporter(Reporter):
                 {
                     "type": report.report_type,
                     "target": get_url_normal_form(report.target),
-                    "messages": tuple(report.additional_data["messages"]),  # type: ignore
+                    "message_data": [Reporter.dict_to_tuple(item) for item in report.additional_data["message_data"]],
                 }
             )
         }
+
+    @staticmethod
+    def _filter_message_data(message_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        result: List[Dict[str, Any]] = []
+        for item in message_data:
+            if item["category"] == "Missing http security headers":
+                problems = sorted(set(item["problems"]) & set(Config.Modules.Humble.HUMBLE_HEADERS_TO_REPORT))
+                if problems:
+                    result.append({"category": item["category"], "problems": problems})
+            else:
+                result.append(item)
+        return result

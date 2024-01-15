@@ -46,8 +46,10 @@ def deduplicate_reports(previous_reports: List[Report], reports_to_send: List[Re
         report_normal_form = report.get_normal_form()
 
         if report_normal_form in previous_reports_normalized.by_normal_forms:
-            if _all_reports_are_old(previous_reports_normalized.by_normal_forms[report_normal_form]):
+            previous_reports_for_same_problem = previous_reports_normalized.by_normal_forms[report_normal_form]
+            if _all_reports_are_old(previous_reports_for_same_problem):
                 reports_scoring_dict[report_normal_form] = _build_subsequent_reminder(
+                    previous_reports_for_same_problem,
                     report,
                 )
             continue
@@ -86,10 +88,11 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
 
         if processed_report.get_normal_form() in previous_reports_normalized.by_alternative_ip_normal_forms:
             # This is an ip-converted version of an existing report
-            if _all_reports_are_old(
-                previous_reports_normalized.by_alternative_ip_normal_forms[processed_report.get_normal_form()]
-            ):
-                filtered_reports.append(_build_subsequent_reminder(processed_report))
+            previous_reports_for_same_problem = previous_reports_normalized.by_alternative_ip_normal_forms[
+                processed_report.get_normal_form()
+            ]
+            if _all_reports_are_old(previous_reports_for_same_problem):
+                filtered_reports.append(_build_subsequent_reminder(previous_reports_for_same_problem, processed_report))
             return
 
         filtered_reports.append(processed_report)
@@ -101,10 +104,11 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
             and alternative_with_ip_address.get_normal_form() in previous_reports_normalized.by_normal_forms
         ):
             # This is not an IP report but an IP report for the same has already been sent
-            if _all_reports_are_old(
-                previous_reports_normalized.by_normal_forms[alternative_with_ip_address.get_normal_form()]
-            ):
-                filtered_reports.append(_build_subsequent_reminder(processed_report))
+            previous_reports_for_same_problem = previous_reports_normalized.by_normal_forms[
+                alternative_with_ip_address.get_normal_form()
+            ]
+            if _all_reports_are_old(previous_reports_for_same_problem):
+                filtered_reports.append(_build_subsequent_reminder(previous_reports_for_same_problem, processed_report))
             return
         filtered_reports.append(processed_report)
 
@@ -133,7 +137,13 @@ def _all_reports_are_old(reports: List[Report]) -> bool:
     return True
 
 
-def _build_subsequent_reminder(report: Report) -> Report:
+def _build_subsequent_reminder(previous_reports_for_same_problem: List[Report], report: Report) -> Report:
     new_report = copy.deepcopy(report)
-    new_report.is_subsequent_reminder = True
+    # We consider the report to be a subsequent reminder only if we already sent a report with the
+    # same top level target. This is to avoid situations when we send a second reminder about the same
+    # vulnerability but for a different entity (because multiple entities use the same IP, for instance)
+    # and the alerted entity is confused what previous report we are talking about.
+    for item in previous_reports_for_same_problem:
+        if item.top_level_target == report.top_level_target:
+            new_report.is_subsequent_reminder = True
     return new_report

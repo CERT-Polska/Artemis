@@ -1,9 +1,10 @@
 import datetime
 import unittest.mock
-from test.base import ArtemisModuleTestCase
+from test.base import ArtemisModuleTestCase, KartonBackendMockWithRedis
 
 from freezegun import freeze_time
 from karton.core import Task
+from karton.core.test import ConfigMock
 
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.modules.joomla_scanner import JoomlaScanner
@@ -47,7 +48,12 @@ class JoomlaScannerTest(ArtemisModuleTestCase):
 
     @freeze_time("2023-02-21")
     def test_is_newer_version_available(self) -> None:
-        with unittest.mock.patch("yaml.load_all", return_value=self.endoflife_data):
+        with unittest.mock.patch("yaml.load_all", return_value=self.endoflife_data.__iter__()):
+            # Recreate the karton with mocked endoflife data
+            self.karton = self.karton_class(  # type: ignore
+                config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=self.mock_db  # type: ignore
+            )
+
             self.assertTrue(self.karton.is_version_obsolete("2.8.6"))
             self.assertTrue(self.karton.is_version_obsolete("2.99999.99999"))
 

@@ -21,9 +21,19 @@ errors
 app_dev.php
 TEST
 _vti_bin
+# Drupal directories
 sites/
 sites/all/
 sites/all/modules/
 sites/all/libraries/
 # Sometimes the file is not interpreted by the server - let's check the path
 wp-config.php
+# Login panels
+user/login
+administrator
+admin
+CMS
+cms
+login
+backend
+panel

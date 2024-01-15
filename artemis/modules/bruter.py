@@ -144,8 +144,6 @@ class Bruter(ArtemisBase):
             )
 
         for found_url in found_urls:
-            url = found_url.url[len(base_url) + 1 :]
-
             new_task = Task(
                 {
                     "type": TaskType.URL,
@@ -153,6 +151,7 @@ class Bruter(ArtemisBase):
                 payload={
                     "url": found_url.url,
                     "content": results[found_url.url].content,
+                    "found_urls": [found_url_.url[len(base_url) + 1 :] for found_url_ in found_urls],
                 },
             )
             self.add_task(task, new_task)

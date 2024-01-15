@@ -3,6 +3,7 @@ import subprocess
 import time
 import urllib.parse
 from ipaddress import ip_address
+from socket import getservbyname
 from typing import Any, Callable, List, Optional
 
 from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
@@ -83,6 +84,25 @@ def get_host_from_url(url: str) -> str:
     host = urllib.parse.urlparse(url).hostname
     assert host is not None
     return host
+
+
+def add_port_to_url(url: str) -> str:
+    url_parsed = urllib.parse.urlparse(url)
+    url_parsed_dict = url_parsed._asdict()
+    if ":" not in url_parsed.netloc:
+        port = getservbyname(url_parsed.scheme)
+        url_parsed_dict["netloc"] = url_parsed_dict["netloc"] + ":" + str(port)
+    return urllib.parse.urlunparse(urllib.parse.ParseResult(**url_parsed_dict))
+
+
+def remove_standard_ports_from_url(url: str) -> str:
+    url_parsed = urllib.parse.urlparse(url)
+    url_parsed_dict = url_parsed._asdict()
+    if url_parsed.scheme == "http" and url_parsed.port == 80:
+        url_parsed_dict["netloc"] = url_parsed_dict["netloc"].split(":")[0]
+    if url_parsed.scheme == "https" and url_parsed.port == 443:
+        url_parsed_dict["netloc"] = url_parsed_dict["netloc"].split(":")[0]
+    return urllib.parse.urlunparse(urllib.parse.ParseResult(**url_parsed_dict))
 
 
 def is_ip_address(host: str) -> bool:

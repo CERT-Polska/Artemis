@@ -79,6 +79,7 @@ class RobotsScanner(ArtemisBase):
 
         # Iterate over all paths from all groups
         found_urls = []
+        all_found_paths = []
         for g in groups:
             for path in g.allow + g.disallow:
                 if not any([re.match(p, path) for p in NOT_INTERESTING_PATHS]):
@@ -86,6 +87,7 @@ class RobotsScanner(ArtemisBase):
                         continue
 
                     path = path.rstrip("$")
+                    all_found_paths.append(path)
 
                     full_url = f"{url}{path}"
                     content = http_requests.get(full_url).content
@@ -98,16 +100,18 @@ class RobotsScanner(ArtemisBase):
                             )
                         )
 
-                    new_task = Task(
-                        {
-                            "type": TaskType.URL,
-                        },
-                        payload={
-                            "url": full_url,
-                            "content": content,
-                        },
-                    )
-                    self.add_task(current_task, new_task)
+        for path in all_found_paths:
+            new_task = Task(
+                {
+                    "type": TaskType.URL,
+                },
+                payload={
+                    "url": f"{url}{path}",
+                    "found_urls": "all_found_paths",
+                    "content": content,
+                },
+            )
+            self.add_task(current_task, new_task)
         return found_urls
 
     def download_robots(self, current_task: Task, url: str) -> RobotsResult:

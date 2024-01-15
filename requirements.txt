@@ -10,7 +10,7 @@ click==8.1.7
 cryptography==41.0.7
 dkimpy==1.1.5
 dnspython==2.4.2
-fastapi==0.108.0
+fastapi==0.109.0
 freezegun==1.4.0
 h11==0.14.0
 idna==3.6

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import dataclasses
 import json
+import os
 import subprocess
 from typing import Any, Dict, List
 
@@ -121,7 +122,7 @@ class Humble(ArtemisBase):
         data_str = open(filename, "r").read()
 
         # cleanup file
-        subprocess.run(["rm", filename])
+        os.unlink(filename)
 
         # Check if the input string is empty
         if data_str.strip():

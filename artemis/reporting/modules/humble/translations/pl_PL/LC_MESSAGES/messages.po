@@ -1,0 +1,15 @@
+#: artemis/reporting/modules/humble/template_missing_security_headers.jinja2:2
+msgid "We identified that the following security headers are not set correctly:"
+msgstr ""
+"Wykryto, że następujące nagłówki HTTP zwiększające bezpieczeństwo nie są "
+"ustawione poprawnie:"
+
+#: artemis/reporting/modules/humble/template_missing_security_headers.jinja2:16
+msgid ""
+"Please verify the configuration, and, if a security header is missing, "
+"add it. Security headers can have a deep impact on protecting your "
+"application against attacks."
+msgstr ""
+"Rekomendujemy weryfikację konfiguracji i zmianę lub ustawienie nagłówka, "
+"jeśli nie jest skonfigurowany poprawnie. Poprawna konfiguracja powyższych"
+" nagłówków zwiększy bezpieczeństwo aplikacji."

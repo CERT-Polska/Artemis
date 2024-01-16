@@ -1,0 +1,7 @@
+# This is a separate file so that pybabel doesn't mark it as obsolete because it doesn't
+# see the original strings in our code (they come from the humble library).
+
+msgid ""
+"Missing http security headers"
+msgstr ""
+"Brakujące nagłówki HTTP zwiększające bezpieczeństwo"

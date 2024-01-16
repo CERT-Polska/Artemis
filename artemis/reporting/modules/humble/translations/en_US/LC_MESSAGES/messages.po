@@ -1,0 +1,10 @@
+#: artemis/reporting/modules/humble/template_missing_security_headers.jinja2:2
+msgid "We identified that the following security headers are not set correctly:"
+msgstr ""
+
+#: artemis/reporting/modules/humble/template_missing_security_headers.jinja2:16
+msgid ""
+"Please verify the configuration, and, if a security header is missing, "
+"add it. Security headers can have a deep impact on protecting your "
+"application against attacks."
+msgstr ""

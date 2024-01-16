@@ -229,6 +229,17 @@ class Config:
                 "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
             ] = get_config("GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
 
+        class Humble:
+            HUMBLE_HEADERS_TO_REPORT: Annotated[
+                List[str],
+                "The list of headers that are considered more important and will be mentioned in the generated text "
+                "reports (all of the missing headers will be visible in the UI).",
+            ] = get_config(
+                "HUMBLE_HEADERS_TO_REPORT",
+                default=",".join(["Content-Security-Policy", "Strict-Transport-Security", "X-Content-Type-Options"]),
+                cast=decouple.Csv(str, delimiter=","),
+            )
+
         class Nuclei:
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,

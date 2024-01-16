@@ -1,0 +1,22 @@
+{% if "missing_security_headers" in data.contains_type %}
+    <li>{% trans %}We identified that the following security headers are not set correctly:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "missing_security_headers" %}
+                    {% for message in report.additional_data.message_data %}
+                        <li>
+                            {{ report.target }}: {{ _(message.category) }}: {{ ', '.join(message.problems) }}
+                        </li>
+                    {% endfor %}
+                    {{ report_meta(report) }}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Please verify the configuration, and, if a security header is missing, add it. Security
+                headers can have a deep impact on protecting your application against attacks.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

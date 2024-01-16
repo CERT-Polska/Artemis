@@ -43,19 +43,7 @@ def process_json_data(result: Dict[str, Any]) -> List[Message]:
             category = key_parts[1].capitalize()
 
             # Check if the key is not in the excluded categories and there are relevant values
-            if category.lower() != "info" and (
-                isinstance(value, dict)
-                or (
-                    isinstance(value, list)
-                    and any(
-                        subvalue
-                        for subvalue in value
-                        if subvalue
-                        and subvalue
-                        not in ["Nothing to report, all seems OK!", "No HTTP security headers are enabled."]
-                    )
-                )
-            ):
+            if category.lower() != "info":
                 # If the value is a dictionary, iterate through subkey-value pairs
                 if isinstance(value, dict):
                     for subkey, subvalue in value.items():

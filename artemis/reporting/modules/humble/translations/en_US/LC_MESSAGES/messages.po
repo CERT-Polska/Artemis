@@ -5,6 +5,6 @@ msgstr ""
 #: artemis/reporting/modules/humble/template_missing_security_headers.jinja2:16
 msgid ""
 "Please verify the configuration, and, if a security header is missing, "
-"change it. Security headers can have a deep impact on protecting your "
+"add it. Security headers can have a deep impact on protecting your "
 "application against attacks."
 msgstr ""

@@ -30,31 +30,29 @@ def process_json_data(result: Dict[str, Any]) -> List[Message]:
         # Split the key to extract the relevant part
         key_parts = key.replace("[", "").replace("]", "").split(". ")
 
+        if key in [
+            "[2. Fingerprint HTTP Response Headers]",
+            "[3. Deprecated HTTP Response Headers/Protocols and Insecure Values]",
+            "[4. Empty HTTP Response Headers Values]",
+            "[5. Browser Compatibility for Enabled HTTP Security Headers]",
+        ]:
+            continue
+
         # Check if the key has the expected structure
         if len(key_parts) >= 2:
             category = key_parts[1].capitalize()
 
             # Check if the key is not in the excluded categories and there are relevant values
-            if (
-                category.lower() != "info"
-                and key
-                not in [
-                    "[2. Fingerprint HTTP Response Headers]",
-                    "[3. Deprecated HTTP Response Headers/Protocols and Insecure Values]",
-                    "[4. Empty HTTP Response Headers Values]",
-                    "[5. Browser Compatibility for Enabled HTTP Security Headers]",
-                ]
-                and (
-                    isinstance(value, dict)
-                    or (
-                        isinstance(value, list)
-                        and any(
-                            subvalue
-                            for subvalue in value
-                            if subvalue
-                            and subvalue
-                            not in ["Nothing to report, all seems OK!", "No HTTP security headers are enabled."]
-                        )
+            if category.lower() != "info" and (
+                isinstance(value, dict)
+                or (
+                    isinstance(value, list)
+                    and any(
+                        subvalue
+                        for subvalue in value
+                        if subvalue
+                        and subvalue
+                        not in ["Nothing to report, all seems OK!", "No HTTP security headers are enabled."]
                     )
                 )
             ):

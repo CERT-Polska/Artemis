@@ -11,11 +11,14 @@ is a true positive and interesting enough to be reported.
 
 To generate such reports, you first need to start Artemis and scan some targets, as described in :doc:`quick-start`.
 
-Then, use:
+Then, run the following script in the repository root:
 
 ``./scripts/export_emails``
 
 This script will produce **text messages ready to be sent**.
+
+.. note ::
+   Run this script on the host, not inside any of the Docker containers.
 
 You may translate the reports using the ``--language`` option. If your language is not
 supported or you want to edit the translations, please refer to

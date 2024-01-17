@@ -1,7 +1,7 @@
 Translating the report messages
 ===============================
 This section describes how to translate the Artemis report messages described in
-:ref:`generating-e-mails`.
+:ref:`generating-reports`.
 
 The translations reside in:
 

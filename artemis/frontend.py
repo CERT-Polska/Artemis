@@ -22,10 +22,18 @@ db = DB()
 BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
 
 
-def whitelist_proxy_headers(headers: Headers) -> Dict[str, str]:
+def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
     result = {}
     for header in headers:
         if header.lower in ["referer", "referrer"]:
+            result[header] = headers[header]
+    return result
+
+
+def whitelist_proxy_response_headers(headers: Headers) -> Dict[str, str]:
+    result = {}
+    for header in headers:
+        if header.lower in ["content-type"]:
             result[header] = headers[header]
     return result
 
@@ -122,17 +130,17 @@ async def karton_dashboard(request: Request, path: str) -> Response:
     response = requests.request(
         url="http://karton-dashboard:5000/karton-dashboard/" + path,
         method=request.method,
-        headers=whitelist_proxy_headers(request.headers),
+        headers=whitelist_proxy_request_headers(request.headers),
     )
-    return Response(content=response.text, status_code=response.status_code, headers=response.headers)
+    return Response(content=response.content, status_code=response.status_code, headers=whitelist_proxy_response_headers(response.headers))
 
 
-@router.api_route("/metrics", methods=["GET", "POST"])
+@router.api_route("/metrics", methods=["GET"])
 async def prometheus(request: Request) -> Response:
-    response = requests.request(
-        url="http://metrics:9000/", method=request.method, headers=whitelist_proxy_headers(request.headers)
+    response = requests.get(
+        url="http://metrics:9000/"
     )
-    return Response(content=response.text, status_code=response.status_code, headers=response.headers)
+    return Response(content=response.content, status_code=response.status_code, headers=whitelist_proxy_response_headers(response.headers))
 
 
 @router.get("/analysis/{root_id}", include_in_schema=False)

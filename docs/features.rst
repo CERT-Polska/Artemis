@@ -13,7 +13,7 @@ Artemis includes:
  - a check for VCS folders (e.g. ``.git``),
  - a check for enabled directory index,
  - port scanning,
- - metrics export for Prometheus (including data such as number of processed or crashed tasks): http://127.0.0.1:9000/
+ - metrics export for Prometheus (including data such as number of processed or crashed tasks): http://127.0.0.1:5000/metrics
  - easy extensibility via plug-and-play modules.
 
 Artemis is able to **automatically generate e-mails containing findings description** (to do that,

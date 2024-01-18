@@ -1,9 +1,4 @@
 {% extends "components/base.jinja2" %}
 {% block main_raw %}
-    <iframe id="dashboard-frame" class="w-100 h-100" style="border: none; margin-top: -75px"></iframe>
-    <script>
-        window.onload = function() {
-            document.getElementById("dashboard-frame").src = window.location.protocol + "//" + window.location.hostname + ":5001/";
-        }
-    </script>
+    <iframe id="dashboard-frame" class="w-100 h-100" style="border: none; margin-top: -75px" src="/karton-dashboard/"></iframe>
 {% endblock %}

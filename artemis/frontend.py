@@ -1,12 +1,14 @@
 import json
 import urllib
-from typing import List, Optional
+from typing import Dict, List, Optional
 
+import requests
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
+from starlette.datastructures import Headers
 
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
@@ -18,6 +20,30 @@ router = APIRouter()
 db = DB()
 
 BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
+
+
+def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
+    result = {}
+    for header in headers:
+        if header.lower() in ["referer", "referrer"]:
+            result[header] = headers[header]
+    return result
+
+
+def whitelist_proxy_response_headers(headers: requests.structures.CaseInsensitiveDict[str]) -> Dict[str, str]:
+    result = {}
+    for header in headers:
+        if header.lower() in [
+            "content-type",
+            "content-length",
+            "last-modified",
+            "cache-control",
+            "etag",
+            "content-encoding",
+            "location",
+        ]:
+            result[header] = headers[header]
+    return result
 
 
 def get_binds_that_can_be_disabled() -> List[KartonBind]:
@@ -104,6 +130,30 @@ def get_queue(request: Request) -> Response:
         {
             "request": request,
         },
+    )
+
+
+@router.api_route("/karton-dashboard/{path:path}", methods=["GET", "POST"])
+async def karton_dashboard(request: Request, path: str) -> Response:
+    response = requests.request(
+        url="http://karton-dashboard:5000/karton-dashboard/" + path,
+        method=request.method,
+        allow_redirects=False,
+        headers={"connection": "close", **whitelist_proxy_request_headers(request.headers)},
+    )
+    return Response(
+        content=response.content,
+        status_code=response.status_code,
+        headers=whitelist_proxy_response_headers(response.headers),
+    )
+
+
+@router.api_route("/metrics", methods=["GET"])
+async def prometheus(request: Request) -> Response:
+    response = requests.get(url="http://metrics:9000/")
+    return Response(
+        content=response.content,
+        status_code=response.status_code,
     )
 
 

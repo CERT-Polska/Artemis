@@ -5,8 +5,7 @@ Generating reports to be sent
 Artemis can generate HTML reports containing a description of found vulnerabilities. An
 example report can be found in the :ref:`generating-reports-example-report` section.
 
-Such reports (in Polish, as Artemis supports report translations) are sent by CERT PL via e-mail
-to the scanned entities in our constituency.
+Such reports are sent by CERT PL via e-mail to the scanned entities in our constituency.
 
 These reports won't contain everything found by Artemis - custom logic (residing in
 ``artemis/reporting/modules/``) will make an educated guess whether a vulnerability

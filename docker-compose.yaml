@@ -47,7 +47,6 @@ services:
       dockerfile: docker/Dockerfile
     depends_on: [karton-logger]
     env_file: .env
-    ports: ["9000:9000"]
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     command: "python3 -m artemis.metrics"
@@ -97,8 +96,7 @@ services:
   karton-dashboard:
     depends_on: [karton-logger]
     env_file: .env
-    image: certpl/karton-dashboard:v1.5.0
-    ports: [5001:5000]
+    image: certpl/karton-dashboard:8b2a11ca81b39b74c9cd36c38e2d339597db2fda
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 

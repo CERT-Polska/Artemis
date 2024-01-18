@@ -2,6 +2,7 @@ import json
 import urllib
 from typing import List, Optional
 
+import requests
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend, KartonBind
@@ -105,6 +106,18 @@ def get_queue(request: Request) -> Response:
             "request": request,
         },
     )
+
+
+@router.get("/karton-dashboard/{path:path}")
+async def karton_dashboard(path: str) -> Response:
+    response = requests.get("http://karton-dashboard:5000/karton-dashboard/" + path)
+    return Response(content=response.text, status_code=response.status_code, headers=response.headers)
+
+
+@router.get("/metrics")
+async def prometheus() -> Response:
+    response = requests.get("http://metrics:9000/")
+    return Response(content=response.text, status_code=response.status_code, headers=response.headers)
 
 
 @router.get("/analysis/{root_id}", include_in_schema=False)

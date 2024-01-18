@@ -18,7 +18,7 @@ After that you should be able to access the Artemis dashboard at ``localhost:500
 
 .. note ::
 
-   Artemis exposes port 5000 that can be used to add tasks and view the results. Remember that this port
+   Artemis exposes port 5000 that can be used to add tasks and view results. Remember that this port
    shouldn't be available publicly, but e.g. on an internal network.
 
    To add authorization (or SSL termination), you may for example use a reverse proxy, e.g. nginx.

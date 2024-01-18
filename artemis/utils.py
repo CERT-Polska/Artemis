@@ -11,17 +11,36 @@ from whoisdomain import query as whois_query
 from artemis.config import Config
 
 
+class CalledProcessErrorWithMessage(subprocess.CalledProcessError):
+    def __init__(self, message: str, returncode: int, cmd: List[str], output: bytes, stderr: bytes):
+        super().__init__(returncode, cmd, output, stderr)
+        self.message = message
+
+    def __str__(self) -> str:
+        return self.message
+
+    def __repr__(self) -> str:
+        return self.message
+
+
 def check_output_log_on_error(command: List[str], logger: logging.Logger, **kwargs: Any) -> bytes:
     try:
         return subprocess.check_output(command, stderr=subprocess.PIPE, **kwargs)  # type: ignore
     except subprocess.CalledProcessError as e:
-        logger.error(
-            "Error when running %s: output=%s error=%s",
-            command,
+        command_str_shortened = repr(command)
+        if len(command_str_shortened) > 100:
+            command_str_shortened = command_str_shortened[:100] + "..."
+
+        message = "Error when running %s: output=%s error=%s original message=%s" % (
+            command_str_shortened,
             e.stdout.decode("ascii", errors="ignore"),
             e.stderr.decode("ascii", errors="ignore"),
+            repr(e),
         )
-        raise
+        logger.error(message)
+        raise CalledProcessErrorWithMessage(
+            message=message, returncode=e.returncode, cmd=e.cmd, output=e.output, stderr=e.stderr
+        )
 
 
 def perform_whois_or_sleep(domain: str, logger: logging.Logger) -> Optional[Domain]:

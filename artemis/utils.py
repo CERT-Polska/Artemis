@@ -31,7 +31,7 @@ def check_output_log_on_error(command: List[str], logger: logging.Logger, **kwar
         if len(command_str_shortened) > 100:
             command_str_shortened = command_str_shortened[:100] + "..."
 
-        message = "Error when running %s: output=%s error=%s original message=%s" % (
+        message = 'Error when running "%s": output="%s" error="%s" original message="%s"' % (
             command_str_shortened,
             e.stdout.decode("ascii", errors="ignore"),
             e.stderr.decode("ascii", errors="ignore"),

@@ -33,7 +33,15 @@ def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
 def whitelist_proxy_response_headers(headers: requests.structures.CaseInsensitiveDict[str]) -> Dict[str, str]:
     result = {}
     for header in headers:
-        if header.lower() in ["content-type", "content-length", "last-modified", "cache-control", "etag", "content-encoding", "location"]:
+        if header.lower() in [
+            "content-type",
+            "content-length",
+            "last-modified",
+            "cache-control",
+            "etag",
+            "content-encoding",
+            "location",
+        ]:
             result[header] = headers[header]
     return result
 

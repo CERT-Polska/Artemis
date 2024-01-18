@@ -8,6 +8,7 @@ from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
+from starlette.datastructures import Headers
 
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
@@ -21,7 +22,7 @@ db = DB()
 BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
 
 
-def whitelist_proxy_headers(headers: Dict[str, str]) -> Dict[str, str]:
+def whitelist_proxy_headers(headers: Headers) -> Dict[str, str]:
     result = {}
     for header in headers:
         if header.lower in ["referer", "referrer"]:
@@ -131,9 +132,7 @@ async def prometheus(request: Request) -> Response:
     response = requests.request(
         url="http://metrics:9000/", method=request.method, headers=whitelist_proxy_headers(request.headers)
     )
-    return Response(
-        method=request.method, content=response.text, status_code=response.status_code, headers=response.headers
-    )
+    return Response(content=response.text, status_code=response.status_code, headers=response.headers)
 
 
 @router.get("/analysis/{root_id}", include_in_schema=False)

@@ -33,7 +33,7 @@ def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
 def whitelist_proxy_response_headers(headers: requests.structures.CaseInsensitiveDict[str]) -> Dict[str, str]:
     result = {}
     for header in headers:
-        if header in ["content-type"]:
+        if header.lower() in ["content-type", "content-length", "last-modified", "cache-control", "etag", "content-encoding", "location"]:
             result[header] = headers[header]
     return result
 
@@ -130,7 +130,8 @@ async def karton_dashboard(request: Request, path: str) -> Response:
     response = requests.request(
         url="http://karton-dashboard:5000/karton-dashboard/" + path,
         method=request.method,
-        headers=whitelist_proxy_request_headers(request.headers),
+        allow_redirects=False,
+        headers={"connection": "close", **whitelist_proxy_request_headers(request.headers)},
     )
     return Response(
         content=response.content,
@@ -145,7 +146,6 @@ async def prometheus(request: Request) -> Response:
     return Response(
         content=response.content,
         status_code=response.status_code,
-        headers=whitelist_proxy_response_headers(response.headers),
     )
 
 

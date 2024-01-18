@@ -16,8 +16,8 @@ Artemis includes:
  - metrics export for Prometheus (including data such as number of processed or crashed tasks): http://127.0.0.1:5000/metrics
  - easy extensibility via plug-and-play modules.
 
-Artemis is able to **automatically generate e-mails containing findings description** (to do that,
-please refer to :ref:`generating-e-mails`).
+Artemis is able to **automatically generate reports containing findings description** (to do that,
+please refer to :ref:`generating-reports`).
 
 Besides, the additional modules repository (https://github.com/CERT-Polska/Artemis-modules-extra/) includes:
 

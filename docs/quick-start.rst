@@ -73,10 +73,10 @@ To view results, click the ``View results`` link in the top navigation bar:
 
 .. image:: _static/img/viewing-results.png
 
-Exporting e-mails
+Exporting reports
 -----------------
 Besides viewing the raw results, you may want to generate HTML reports containing
 descriptions of found vulnerabilities, so thay you can notify the administrators to get
 the vulnerabilities fixed.
 
-To do that, please refer to :ref:`generating-e-mails`.
+To do that, please refer to :ref:`generating-reports`.

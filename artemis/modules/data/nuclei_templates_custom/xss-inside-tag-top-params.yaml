@@ -24,6 +24,14 @@ http:
     max-redirects: 1
     matchers-condition: and
     matchers:
+      # MediaWiki and LimeSurvey are a source of false positives
+      - type: word
+        part: body
+        words:
+          - '<meta name="generator" content="MediaWiki'
+          - '<meta name="generator" content="LimeSurvey'
+        negative: true
+
       - type: regex
         part: body
         regex:

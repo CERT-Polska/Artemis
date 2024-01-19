@@ -101,4 +101,3 @@ Thanks to these people that contributed to Artemis development:
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-

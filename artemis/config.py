@@ -189,6 +189,11 @@ class Config:
             "In order not to overload the DB and bandwidth, this determines how long the downloaded content would be (in bytes).",
         ] = get_config("CONTENT_PREFIX_SIZE", default=1024 * 100, cast=int)
 
+        MODULES_DISABLED_BY_DEFAULT: Annotated[
+            List[str],
+            "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
+        ] = get_config("MODULES_DISABLED_BY_DEFAULT", default="humble", cast=decouple.Csv(str, delimiter=","))
+
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,
             "If we request a domain for subdomain enumeration, we will save that it has already been enumerated, so that e.g. "

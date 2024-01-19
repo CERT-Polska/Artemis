@@ -10,6 +10,7 @@ from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 from starlette.datastructures import Headers
 
+from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import restart_crashed_tasks
@@ -79,7 +80,14 @@ def get_root(request: Request) -> Response:
 def get_add_form(request: Request) -> Response:
     binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
 
-    return templates.TemplateResponse("add.jinja2", {"request": request, "binds": binds})
+    return templates.TemplateResponse(
+        "add.jinja2",
+        {
+            "request": request,
+            "binds": binds,
+            "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
+        },
+    )
 
 
 @router.post("/add", include_in_schema=False)

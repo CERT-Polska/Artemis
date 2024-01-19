@@ -373,7 +373,6 @@ class Config:
                         "http/misconfiguration/db-command-history.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/elasticsearch.yaml",
-                        "http/misconfiguration/mixed-active-content.yaml",
                         "http/misconfiguration/proxy/open-proxy-external.yaml",
                         "http/misconfiguration/server-status-localhost.yaml",
                         "http/misconfiguration/server-status.yaml",

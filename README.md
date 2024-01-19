@@ -92,7 +92,7 @@ Huge thanks to the following people that contributed to Artemis development!
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/szymsid"><img src="https://avatars.githubusercontent.com/u/26324394?v=4?s=100" width="100px;" alt="szymsid"/><br /><sub><b>szymsid</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=szymsid" title="Code">💻</a> <a href="https://github.com/CERT-Polska/Artemis/pulls?q=is%3Apr+reviewed-by%3Aszymsid" title="Reviewed Pull Requests">👀</a></td>
     </tr>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/bulkowy"><img src="https://avatars.githubusercontent.com/u/25008387?v=4?s=100" width="100px;" alt="Dominik Tybura"/><br /><sub><b>bulek</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=bulkowy" title="Code">💻</a> <a href="https://github.com/CERT-Polska/Artemis/pulls?q=is%3Apr+reviewed-by%3Abulkowy" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/bulkowy"><img src="https://avatars.githubusercontent.com/u/25008387?v=4?s=100" width="100px;" alt="bulek"/><br /><sub><b>bulek</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=bulkowy" title="Code">💻</a> <a href="https://github.com/CERT-Polska/Artemis/pulls?q=is%3Apr+reviewed-by%3Abulkowy" title="Reviewed Pull Requests">👀</a></td>
     </tr>
   </tbody>
 </table>

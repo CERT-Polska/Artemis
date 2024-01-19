@@ -1,7 +1,4 @@
 <h1>
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
     <picture>
         <source media="(prefers-color-scheme: dark)" srcset="static/images/logo_dark.png">
         <img alt="logo" width="400px" src="static/images/logo.png">

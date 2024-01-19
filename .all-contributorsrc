@@ -96,6 +96,15 @@
         "code",
         "review"
       ]
+    },
+    {
+      "login": "mimi89999",
+      "name": "Michel Le Bihan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8530546?v=4",
+      "profile": "https://github.com/mimi89999",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

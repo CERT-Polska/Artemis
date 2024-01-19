@@ -1,0 +1,103 @@
+{
+  "projectName": "Artemis",
+  "projectOwner": "CERT-Polska",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "none",
+  "contributors": [
+    {
+      "login": "kazet",
+      "name": "kazet",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1233067?v=4",
+      "profile": "https://github.com/kazet",
+      "contributions": [
+        "code",
+        "doc",
+        "ideas",
+        "infra",
+        "review",
+        "talk"
+      ]
+    },
+    {
+      "login": "BonusPlay",
+      "name": "Adam Kliś",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8405359?v=4",
+      "profile": "https://github.com/BonusPlay",
+      "contributions": [
+        "question",
+        "code",
+        "ideas",
+        "review",
+        "talk"
+      ]
+    },
+    {
+      "login": "anna1492",
+      "name": "anna1492",
+      "avatar_url": "https://avatars.githubusercontent.com/u/142449177?v=4",
+      "profile": "https://github.com/anna1492",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "ELOOLE",
+      "name": "Michał M.",
+      "avatar_url": "https://avatars.githubusercontent.com/u/75997374?v=4",
+      "profile": "https://github.com/ELOOLE",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "cyberamt",
+      "name": "cyberamt",
+      "avatar_url": "https://avatars.githubusercontent.com/u/154326307?v=4",
+      "profile": "https://github.com/cyberamt",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "martclau",
+      "name": "martclau",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7753513?v=4",
+      "profile": "https://github.com/martclau",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "szymsid",
+      "name": "szymsid",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26324394?v=4",
+      "profile": "https://github.com/szymsid",
+      "contributions": [
+        "code",
+        "review"
+      ]
+    },
+    {
+      "login": "bulkowy",
+      "name": "Dominik Tybura",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25008387?v=4",
+      "profile": "https://github.com/bulkowy",
+      "contributions": [
+        "code",
+        "review"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "linkToUsage": false
+}

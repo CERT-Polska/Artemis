@@ -35,13 +35,20 @@
             (<a href="" onclick="setSelectionForAllModules(true); return false;">select all</a>
             <a href="" onclick="setSelectionForAllModules(false); return false;">unselect all</a>)
 
+            {% if modules_disabled_by_default %}
+                <div class="alert alert-info">
+                    The following modules are disabled by default: {{ ", ".join(modules_disabled_by_default) }}. Select the checkbox to start them.
+                    To change this, update the <tt>MODULES_DISABLED_BY_DEFAULT</tt> setting.
+                </div>
+            {% endif %}
+
             <input type="hidden" name="choose_modules_to_enable" value="1">
 
             <div class="row m-0">
                 {% for bind in binds %}
                     <div class="form-check col-md-4">
                         <label class="form-check-label">
-                            <input class="form-check-input" type="checkbox" value="" name="module_enabled_{{ bind.identity }}" checked>
+                            <input class="form-check-input" type="checkbox" value="" name="module_enabled_{{ bind.identity }}" {% if bind.identity not in modules_disabled_by_default %}checked{% endif %}>
                             {{ bind.identity }}<br/>
                             <span class="small text-muted">{{ bind.info|dedent|render_markdown|safe }}</span>
                         </label>

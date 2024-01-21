@@ -35,7 +35,9 @@ class Nuclei(ArtemisBase):
         with self.lock:
             subprocess.call(["nuclei", "-update-templates"])
             self._known_exploited_vulnerability_templates = (
-                check_output_log_on_error(["find", "/known-exploited-vulnerabilities/nuclei/"], self.log).decode("ascii").split()
+                check_output_log_on_error(["find", "/known-exploited-vulnerabilities/nuclei/"], self.log)
+                .decode("ascii")
+                .split()
             )
             self._critical_templates = (
                 check_output_log_on_error(["nuclei", "-s", "critical", "-tl"], self.log).decode("ascii").split()
@@ -51,7 +53,9 @@ class Nuclei(ArtemisBase):
 
             if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
                 if len(self._known_exploited_vulnerability_templates) == 0:
-                    raise RuntimeError("Unable to obtain Nuclei known exploited vulnerability templates list from https://github.com/Ostorlab/KEV/")
+                    raise RuntimeError(
+                        "Unable to obtain Nuclei known exploited vulnerability templates list from https://github.com/Ostorlab/KEV/"
+                    )
                 if len(self._critical_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei critical-severity templates list")
                 if len(self._high_templates) == 0:
@@ -61,7 +65,10 @@ class Nuclei(ArtemisBase):
 
             self._templates = [
                 template
-                for template in self._critical_templates + self._high_templates + self._exposed_panels_templates + self._known_exploited_vulnerability_templates
+                for template in self._critical_templates
+                + self._high_templates
+                + self._exposed_panels_templates
+                + self._known_exploited_vulnerability_templates
                 if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
             ] + Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
 

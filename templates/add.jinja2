@@ -37,8 +37,11 @@
 
             {% if modules_disabled_by_default %}
                 <div class="alert alert-info">
-                    The following modules are disabled by default: {{ ", ".join(modules_disabled_by_default) }}. Select the checkbox to start them.
-                    To change this, update the <tt>MODULES_DISABLED_BY_DEFAULT</tt> setting.
+                   The following modules are disabled by default: {{ ", ".join(modules_disabled_by_default) }} - select the checkbox to start them.
+                   To change this, update the <tt>MODULES_DISABLED_BY_DEFAULT</tt> setting.
+                   <br/><br/>
+                   If you want to use any module that works with identified services on a given port (not with domains) such as
+                   <tt>bruter</tt>, remember to enable the <tt>port_scanner</tt> module as well.
                 </div>
             {% endif %}
 
@@ -59,11 +62,6 @@
                     {% endif %}
                 {% endfor %}
             </div>
-
-            <p class="text-muted">
-                If you want to use any module that works with identified services on a given port (not with domains) such as
-                <tt>bruter</tt>, remember to enable the <tt>port_scanner</tt> module as well.
-            </p>
 
             <p class="text-muted">
                 If a new module appears during task processing, it will be <b>enabled</b>.

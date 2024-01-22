@@ -79,6 +79,9 @@ services:
     hostname: test-smtp-server.artemis
     image: bytemark/smtp
 
+  test-nginx1:
+    image: nginx:latest
+
   test-service-with-exposed-git:
     image: nginx:latest
     volumes:

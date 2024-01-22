@@ -1,0 +1,12 @@
+{% if "url_has_even_number_of_characters" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs have even number of characters:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "url_has_even_number_of_characters" %}
+                    {{ report.target }}: {{ report.additional_data.num_characters }} {% trans %}characters{% endtrans %}.
+                    {{ report_meta(report) }}
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}

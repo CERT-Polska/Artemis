@@ -38,6 +38,7 @@ class ExampleAutoreporterIntegrationTest(BaseReportingTest):
                 "receiver": "example",
             },
             "payload": {
+                "host": host,
                 "last_domain": host,
             },
             "payload_persistent": {

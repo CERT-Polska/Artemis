@@ -12,13 +12,13 @@ class ExampleAutoreporterIntegrationTest(BaseReportingTest):
     karton_class = Example  # type: ignore
 
     def test_example(self) -> None:
-        message = self._run_task_and_get_message("test-nginx1")
+        message = self._run_task_and_get_message("test-nginx")
         self.assertIn(
             "<li>We identified that the following URLs have even number of characters:",
             message,
         )
         self.assertIn(
-            "http://test-nginx1:80/",
+            "http://test-nginx:80: 20 characters",
             message,
         )
 

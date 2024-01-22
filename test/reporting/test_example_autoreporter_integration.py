@@ -33,7 +33,8 @@ class ExampleAutoreporterIntegrationTest(BaseReportingTest):
         data = {
             "created_at": None,
             "headers": {
-                "service": "HTTP",
+                "type": "service",
+                "service": "http",
                 "receiver": "example",
             },
             "payload": {

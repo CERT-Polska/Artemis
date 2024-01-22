@@ -24,7 +24,7 @@ class Example(ArtemisBase):
         url = get_target_url(current_task)
         self.log.info(f"example module running {url}")
 
-        url_length =        len(url)
+        url_length = len(url)
 
         if url_length % 2 == 0:
             # On the default task result view only the interesting task results will be displayed
@@ -40,7 +40,7 @@ class Example(ArtemisBase):
             status_reason=status_reason,
             # In the data dictionary, you may provide any additional results - the user will be able to view them
             # in the interface on the single task result page.
-            data={"url_length": url_length}
+            data={"url_length": url_length},
         )
 
 

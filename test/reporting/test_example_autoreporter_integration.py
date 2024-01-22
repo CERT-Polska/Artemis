@@ -14,7 +14,7 @@ class ExampleAutoreporterIntegrationTest(BaseReportingTest):
     def test_sql_dumps(self) -> None:
         message = self._run_task_and_get_message("test-nginx1")
         self.assertIn(
-            "<li>We identified that the following URLs have even number of characters:")
+            "<li>We identified that the following URLs have even number of characters:",
             message,
         )
         self.assertIn(

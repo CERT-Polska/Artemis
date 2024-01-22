@@ -1,15 +1,14 @@
 Writing custom modules
 ======================
-
-Since Artemis uses the Karton framework (https://github.com/CERT-Polska/karton) underneath, modules are karton services.
-Artemis already contains an example module (https://github.com/CERT-Polska/Artemis/blob/main/artemis/modules/example.py) that
+Artemis contains an example module (https://github.com/CERT-Polska/Artemis/blob/main/artemis/modules/example.py) that
 checks whether the URL length is even. It also contains a component that adds findings from the example module to
-the :ref:`generating-reports<HTML reports>`: https://github.com/CERT-Polska/Artemis/blob/main/artemis/reporting/modules/example/.
+the :ref:`HTML reports<generating-reports>`: https://github.com/CERT-Polska/Artemis/blob/main/artemis/reporting/modules/example/.
 Feel free to copy this module to implement a real one. Remember to start the module in
 https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml.
 
-Artemis adds a few helpers to make writing a module easier.
+Since Artemis uses the Karton framework (https://github.com/CERT-Polska/karton) underneath, modules are Karton services.
 
+Artemis provides a few helpers to make writing a module easier.
 
 Adding tasks
 ------------

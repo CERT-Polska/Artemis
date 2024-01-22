@@ -68,6 +68,7 @@ class DataLoader:
                 report_to_add.tag = result_tag
                 report_to_add.original_karton_name = task_result["headers"]["receiver"]
                 report_to_add.original_task_result_id = task_result["_id"]
+                report_to_add.original_task_result_root_uid = task_result["root_uid"]
                 report_to_add.original_task_target_string = task_result["target_string"]
                 report_to_add.last_domain = task_result["payload"].get("last_domain", None)
 

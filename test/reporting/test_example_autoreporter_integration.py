@@ -38,6 +38,7 @@ class ExampleAutoreporterIntegrationTest(BaseReportingTest):
                 "receiver": "example",
             },
             "payload": {
+                "port": 80,
                 "host": host,
                 "last_domain": host,
             },

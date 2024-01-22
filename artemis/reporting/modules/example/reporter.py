@@ -1,9 +1,7 @@
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 
-from artemis.config import Config
 from artemis.reporting.base.language import Language
-from artemis.reporting.base.normal_form import NormalForm, get_url_normal_form
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter

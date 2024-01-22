@@ -10,7 +10,7 @@ class Example(ArtemisBase):
     An example Artemis module that shows how to implement one.
 
     Look into artemis/reporting/modules/example/ to know how to add findings
-    from this module into the HTML reports.
+    from this module to the HTML reports.
     """
 
     # Module name that will be displayed

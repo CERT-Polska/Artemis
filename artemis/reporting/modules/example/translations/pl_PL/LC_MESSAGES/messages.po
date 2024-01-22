@@ -2,6 +2,6 @@
 msgid "We identified that the following URLs have even number of characters:"
 msgstr "Wykryto, że poniższe adresy mają parzystą liczbę znaków:"
 
-#: artemis/reporting/modules/example/template_url_has_even_number_of_characters.jinja2:6
+#: artemis/reporting/modules/example/template_url_has_even_number_of_characters.jinja2:7
 msgid "characters"
 msgstr "znaków"

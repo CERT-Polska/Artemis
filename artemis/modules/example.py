@@ -7,7 +7,10 @@ from artemis.task_utils import get_target_url
 
 class Example(ArtemisBase):
     """
-    Example module to show how to implement one.
+    An example Artemis module that shows how to implement one.
+
+    Look into artemis/reporting/modules/example/ to know how to add findings
+    from this module into the HTML reports.
     """
 
     # Module name that will be displayed

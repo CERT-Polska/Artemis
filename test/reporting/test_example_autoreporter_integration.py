@@ -11,7 +11,7 @@ from artemis.reporting.base.reporters import reports_from_task_result
 class ExampleAutoreporterIntegrationTest(BaseReportingTest):
     karton_class = Example  # type: ignore
 
-    def test_sql_dumps(self) -> None:
+    def test_example(self) -> None:
         message = self._run_task_and_get_message("test-nginx1")
         self.assertIn(
             "<li>We identified that the following URLs have even number of characters:",

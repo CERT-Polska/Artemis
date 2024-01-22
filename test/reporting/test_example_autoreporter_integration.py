@@ -41,6 +41,7 @@ class ExampleAutoreporterIntegrationTest(BaseReportingTest):
             "payload_persistent": {
                 "original_domain": host,
             },
+            "status": "INTERESTING",
             "result": call.kwargs["data"],
         }
 

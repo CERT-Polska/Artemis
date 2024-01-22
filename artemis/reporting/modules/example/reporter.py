@@ -20,6 +20,9 @@ class ExampleReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
+        if not task_result["status"] == "INTERESTING":
+            return []
+
         # Here you may add additional heuristics to distinguish false from true positives.
 
         return [

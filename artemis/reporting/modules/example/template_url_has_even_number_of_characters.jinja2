@@ -3,8 +3,10 @@
         <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "url_has_even_number_of_characters" %}
-                    {{ report.target }}: {{ report.additional_data.num_characters }} {% trans %}characters{% endtrans %}.
-                    {{ report_meta(report) }}
+                    <li>
+                        {{ report.target }}: {{ report.additional_data.url_length }} {% trans %}characters{% endtrans %}.
+                        {{ report_meta(report) }}
+                    </li>
                 {% endif %}
             {% endfor %}
         </ul>

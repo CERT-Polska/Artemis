@@ -31,6 +31,10 @@ class Nuclei(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
+
+        # We clone this repo in __init__ (on karton start) so that it will get periodically
+        # re-cloned when the container gets retarted every 𝑛 tasks. The same logic lies behind
+        # updating the Nuclei templates in __init__.
         subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", "/known-exploited-vulnerabilities/"])
         with self.lock:
             subprocess.call(["nuclei", "-update-templates"])

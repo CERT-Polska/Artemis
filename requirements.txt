@@ -2,7 +2,7 @@ aiofiles==23.2.1
 aiohttp==3.9.1
 anytree==2.12.1
 Babel==2.14.0
-beautifulsoup4==4.12.2
+beautifulsoup4==4.12.3
 certifi==2023.11.17
 chardet==5.2.0
 git+https://github.com/CERT-Polska/checkdmarc@allowing-whitespace

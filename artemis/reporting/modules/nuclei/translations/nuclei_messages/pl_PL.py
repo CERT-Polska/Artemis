@@ -248,6 +248,8 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     "[no description] vulnerabilities/generic/cache-poisoning-xss.yaml": "Wykryto podatność Cache Poisoning, umożliwiającą atakującemu zmianę treści prezentowanych innym użytkownikom serwisu, w tym umieszczenie tam szkodliwego oprogramowania."
     + BUG_FIX_HINT,
+    "Cache Poisoning leads to Stored XSS.": "Wykryto podatność Cache Poisoning, umożliwiającą atakującemu zmianę treści prezentowanych innym użytkownikom serwisu, w tym umieszczenie tam szkodliwego oprogramowania."
+    + BUG_FIX_HINT,
     "Apache Tomcat Manager default login credentials were discovered. This template checks for multiple variations.": "Wykryto, że domyślne dane logowania do narzędzia Apache Tomcat Manager umożliwiają logowanie."
     + DEFAULT_CREDENTIALS_HINT,
     "Joomla! Component GMapFP 3.5 is vulnerable to arbitrary file upload vulnerabilities. An attacker can access the upload function of the application\nwithout authentication and can upload files because of unrestricted file upload which can be bypassed by changing Content-Type & name file too double ext.": "Komponent Joomla! o nazwie GMapFP w wersji 3.5 umożliwia atakującemu umieszczanie w systemie plików dowolnego typu, a w konsekwencji wykonanie dowolnego kodu."
@@ -350,6 +352,7 @@ TRANSLATIONS = {
     "The host is configured as a proxy which allows access to the metadata provided by a cloud provider such as AWS or OVH. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych dostawcy takiego AWS czy OVH, w tym potencjalnie do haseł dostępowych. Rekomendujemy, aby serwer proxy nie miał dostępu do takich zasobów.",
     "[no description] http/exposures/files/ds-store-file.yaml": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne. Rekomendujemy, aby takie pliki nie były dostępne publicznie.",
     "[no description] http/misconfiguration/server-status-localhost.yaml": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
+    "Server Status is exposed.": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "Symfony database configuration file was detected and may contain database credentials.": "wykryto plik konfiguracyjny bazy danych dla frameworku Symfony - taki plik może zawierać np. hasła dostępowe."
     + DATA_HIDE_HINT,
     "Apache Tomcat JK (mod_jk) Connector 1.2.0 to 1.2.44 allows specially constructed requests to expose application functionality through the reverse proxy. It is also possible in some configurations for a specially constructed request to bypass the access controls configured in httpd. While there is some overlap between this issue and CVE-2018-1323, they are not identical.": "Narzędzie Apache Tomcat JK (mod_jk) Connector w wersjach od 1.2.0 do 1.2.44 umożliwia atakującemu nieuprawniony dostęp do części funkcjonalności aplikacji."
@@ -589,6 +592,7 @@ TRANSLATIONS = {
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
     "OwnCloud is susceptible to the Installation page exposure due to misconfiguration.": "wykryto, że panel instalacyjny narzędzia OwnCloud jest publicznie dostępny, co może umożliwić atakującemu nieuprawniony dostęp do systemu.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
+    "netlify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Netlify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Netlify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",

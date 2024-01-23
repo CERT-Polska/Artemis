@@ -21,7 +21,6 @@ class NucleiTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.maxDiff = None
         self.assertEqual(
             call.kwargs["status_reason"],
             "[high] http://test-phpmyadmin-easy-password:80: phpMyAdmin - Default Login phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.",

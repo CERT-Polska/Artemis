@@ -21,6 +21,7 @@ class NucleiTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.maxDiff = None
         self.assertEqual(
             call.kwargs["status_reason"],
             "[high] phpMyAdmin - Default Login phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.",
@@ -39,5 +40,5 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "[high] XSS",
+            "[high] Top 38 Parameters - Cross-Site Scripting Cross-site scripting was discovered via a search for reflected parameter values in the server response via GET-requests.",
         )

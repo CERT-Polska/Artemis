@@ -7,7 +7,7 @@ from typing import Any, Callable, Counter, Dict, List
 from artemis.config import Config
 from artemis.modules.nuclei import EXPOSED_PANEL_TEMPLATE_PATH_PREFIX
 from artemis.reporting.base.language import Language
-from artemis.reporting.base.normal_form import NormalForm, get_url_normal_form
+from artemis.reporting.base.normal_form import NormalForm, get_domain_normal_form
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
@@ -169,11 +169,13 @@ class NucleiReporter(Reporter):
     @staticmethod
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """See the docstring in the Reporter class."""
+        hostname = urllib.parse.urlparse(report.target).hostname
+
         return {
             report_type: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
-                    "target": get_url_normal_form(report.target),
+                    "target": get_domain_normal_form(hostname) if is_domain(hostname) else hostname,
                     "template_name": report.additional_data["template_name"],
                 }
             )

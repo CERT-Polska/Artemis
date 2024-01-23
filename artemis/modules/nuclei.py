@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 import json
 import os
+import random
 import subprocess
-from typing import Any, List
+import urllib
+from typing import Any, Dict, List
 
+from bs4 import BeautifulSoup
 from karton.core import Task
 
+from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -79,9 +83,28 @@ class Nuclei(ArtemisBase):
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
-    def run_multiple(self, tasks: List[Task]) -> None:
-        self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
+    def _get_links(self, url: str) -> List[str]:
+        url_parsed = urllib.parse.urlparse(url)
+        response = http_requests.get(url)
+        soup = BeautifulSoup(response.text)
+        links = []
+        for tag in soup.find_all():
+            new_url = None
+            for attribute in ["src", "href"]:
+                if attribute not in tag.attrs:
+                    continue
 
+                new_url = urllib.parse.urljoin(url, tag[attribute])
+                new_url_parsed = urllib.parse.urlparse(new_url)
+
+                if url_parsed.netloc == new_url_parsed.netloc:
+                    links.append(new_url)
+        random.shuffle(links)
+
+        links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
+        return links
+
+    def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
         else:
@@ -100,44 +123,61 @@ class Nuclei(ArtemisBase):
             "-jsonl",
             "-system-resolvers",
             "-bulk-size",
-            str(len(tasks)),
+            str(len(targets)),
             "-headless-bulk-size",
-            str(len(tasks)),
+            str(len(targets)),
             "-milliseconds-per-request",
-            str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(tasks)))
+            str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets)))
             if Config.Limits.REQUESTS_PER_SECOND != 0
             else str(int(0)),
         ] + additional_configuration
 
-        targets = []
-        for task in tasks:
-            targets.append(get_target_url(task))
+        for target in targets:
             command.append("-target")
-            command.append(get_target_url(task))
+            command.append(target)
 
         data = check_output_log_on_error(
             command,
             self.log,
         )
         lines = data.decode("ascii", errors="ignore").split("\n")
+
+        findings = []
         for line in lines:
             if line.strip():
                 finding = json.loads(line)
                 assert finding["host"] in targets, f'{finding["host"]} not found in {targets}'
+                findings.append(finding)
+        return findings
+
+    def run_multiple(self, tasks: List[Task]) -> None:
+        self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
+
+        targets = []
+        for task in tasks:
+            targets.append(get_target_url(task))
+
+        links_per_task = {}
+        links = []
+        for task in tasks:
+            links_per_task[task.uid] = self._get_links(get_target_url(task))
+            links.extend(links_per_task[task.uid])
+
+        findings = self._scan(self._templates, targets) + self._scan(
+            Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS, links
+        )
 
         for task in tasks:
             result = []
             messages = []
-            for line in lines:
-                if line.strip():
-                    finding = json.loads(line)
-                    if finding["host"] != get_target_url(task):
-                        continue
+            for finding in findings:
+                if finding["host"] not in [get_target_url(task)] + links_per_task[task.uid]:
+                    continue
 
-                    result.append(finding)
-                    messages.append(
-                        f"[{finding['info']['severity']}] {finding['info'].get('name')} {finding['info'].get('description')}"
-                    )
+                result.append(finding)
+                messages.append(
+                    f"[{finding['info']['severity']}] {finding['host']}: {finding['info'].get('name')} {finding['info'].get('description')}"
+                )
 
             if messages:
                 status = TaskStatus.INTERESTING

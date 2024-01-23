@@ -417,15 +417,15 @@ class Config:
 
             NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS: Annotated[
                 List[str],
-                "Normally, the Nuclei templates are ran only on the root url. These templates will run "
-                "on all URLs linked from the root URL as well to detect vulnerabilities on non-root pages.",
+                "Normally, Nuclei templates are ran only on the root url. These templates will also run "
+                "on all URLs linked from the root URL to detect vulnerabilities on non-root pages.",
             ] = get_config(
                 "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS",
                 default=",".join(
                     [
                         "http/vulnerabilities/generic/top-xss-params.yaml",
                         "http/vulnerabilities/generic/basic-xss-prober.yaml",
-                        "/opt/artemis/modules/data/nuclei_templates_custom/error-based-sql-injection.yaml",
+                        "/opt/artemis/modules/data/nuclei_templates_custom/xss-inside-tag-top-params.yaml",
                         "http/vulnerabilities/generic/error-based-sql-injection.yaml",
                         "/opt/artemis/modules/data/nuclei_templates_custom/error-based-sql-injection.yaml",
                     ]

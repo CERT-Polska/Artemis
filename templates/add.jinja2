@@ -3,7 +3,11 @@
     <script>
         function setSelectionForAllModules(value) {
             document.querySelectorAll(".enabled-modules input[type='checkbox']").forEach(
-                item => item.checked = value
+                function(item) {
+                    if (item.getAttribute("name") != "module_enabled_example") {
+                        item.checked = value;
+                    }
+                }
             );
         }
     </script>
@@ -32,13 +36,16 @@
         <h2 class="mt-4">Advanced settings</h2>
         <div class="form-group mb-3 enabled-modules">
             <label class="form-label">Enabled modules</label>
-            (<a href="" onclick="setSelectionForAllModules(true); return false;">select all</a>
+            (<a href="" onclick="setSelectionForAllModules(true); return false;">select all except example</a> |
             <a href="" onclick="setSelectionForAllModules(false); return false;">unselect all</a>)
 
             {% if modules_disabled_by_default %}
                 <div class="alert alert-info">
-                    The following modules are disabled by default: {{ ", ".join(modules_disabled_by_default) }}. Select the checkbox to start them.
+                    The following modules are disabled by default: {{ ", ".join(modules_disabled_by_default) }} - select the checkbox to start them.
                     To change this, update the <tt>MODULES_DISABLED_BY_DEFAULT</tt> setting.
+                    <br/><br/>
+                    If you want to use any module that works with identified services on a given port (not with domains) such as
+                    <tt>bruter</tt>, remember to enable the <tt>port_scanner</tt> module as well.
                 </div>
             {% endif %}
 
@@ -59,11 +66,6 @@
                     {% endif %}
                 {% endfor %}
             </div>
-
-            <p class="text-muted">
-                If you want to use any module that works with identified services on a given port (not with domains) such as
-                <tt>bruter</tt>, remember to enable the <tt>port_scanner</tt> module as well.
-            </p>
 
             <p class="text-muted">
                 If a new module appears during task processing, it will be <b>enabled</b>.

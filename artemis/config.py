@@ -192,7 +192,7 @@ class Config:
         MODULES_DISABLED_BY_DEFAULT: Annotated[
             List[str],
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
-        ] = get_config("MODULES_DISABLED_BY_DEFAULT", default="humble", cast=decouple.Csv(str, delimiter=","))
+        ] = get_config("MODULES_DISABLED_BY_DEFAULT", default="example,humble", cast=decouple.Csv(str, delimiter=","))
 
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,

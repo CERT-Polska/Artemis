@@ -161,6 +161,7 @@ class Nuclei(ArtemisBase):
         links = []
         for task in tasks:
             links_per_task[task.uid] = self._get_links(get_target_url(task))
+            self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
             links.extend(links_per_task[task.uid])
 
         findings = self._scan(self._templates, targets) + self._scan(

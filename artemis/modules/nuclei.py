@@ -117,7 +117,7 @@ class Nuclei(ArtemisBase):
             "intrusive",
             "-ni",
             "-templates",
-            ",".join(self._templates),
+            ",".join(templates),
             "-timeout",
             str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
             "-jsonl",

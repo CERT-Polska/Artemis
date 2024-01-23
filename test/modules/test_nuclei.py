@@ -24,7 +24,7 @@ class NucleiTest(ArtemisModuleTestCase):
         self.maxDiff = None
         self.assertEqual(
             call.kwargs["status_reason"],
-            "[high] phpMyAdmin - Default Login phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.",
+            "[high] http://test-phpmyadmin-easy-password:80: phpMyAdmin - Default Login phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.",
         )
 
     def test_links(self) -> None:
@@ -40,5 +40,5 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "[high] Top 38 Parameters - Cross-Site Scripting Cross-site scripting was discovered via a search for reflected parameter values in the server response via GET-requests.",
+            "[high] http://test-php-xss-but-not-on-homepage:80/xss.php: Top 38 Parameters - Cross-Site Scripting Cross-site scripting was discovered via a search for reflected parameter values in the server response via GET-requests.",
         )

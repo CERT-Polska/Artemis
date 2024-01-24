@@ -16,6 +16,9 @@ from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 
 FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md"]
+PLUGINS_WITH_REVERSED_CHANGELOGS = ["customizer-export-import", "disable-xml-rpc-api"]
+PLUGINS_TO_SKIP_CHANGELOG = ["wp-members"]
+PLUGINS_TO_SKIP_STABLE_TAG = ["scheduled-post-trigger"]
 
 
 def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
@@ -23,48 +26,59 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     changelog_version = None
 
     # These plugins' changelogs are reversed
-    if slug in ["customizer-export-import", "disable-xml-rpc-api"]:
+    if slug in PLUGINS_WITH_REVERSED_CHANGELOGS:
         has_reversed_changelog = True
     else:
         has_reversed_changelog = False
 
-    seen_changelog_line = False
-    for line in readme_content.lower().split("\n"):
-        line = line.strip("= #[]\r\t")
-        if not line:
-            continue
+    if slug not in PLUGINS_TO_SKIP_CHANGELOG:
+        seen_changelog_line = False
+        for line in readme_content.lower().split("\n"):
+            line = line.strip("= #[]\r\t")
+            if not line:
+                continue
 
-        # Happens between changelog header and version, let's skip
-        if line.startswith("for the plugin's full changelog"):
-            continue
+            # Happens between changelog header and version, let's skip
+            if line.startswith("for the plugin's full changelog"):
+                continue
 
-        if previous_line == "changelog" or (has_reversed_changelog and seen_changelog_line):
-            seen_changelog_line = True
-            # Some changelog entries have the format <slug>: <version>
-            if line.startswith(slug):
-                line = line[len(slug) :].strip(" :")
-            # Some changelog entries have the format version <version>
-            if "version" in line:
-                line = line[line.find("version") + len("version") :].strip(" :")
-            version = (
-                line.replace("(", " ")
-                .replace("*", " ")
-                .replace("[", " ")
-                .replace("]", " ")
-                .replace("'", " ")
-                .replace(":", " ")
-                .replace(",", " ")
-                .strip()
-                # Some versions are prefixed with 'v' (e.g. v1.0.0)
-                .lstrip("v")
-                .split(" ")[0]
-            )
-            if "." in version:
-                changelog_version = version
-                if not has_reversed_changelog:
-                    break
+            if previous_line == "changelog" or (has_reversed_changelog and seen_changelog_line):
+                seen_changelog_line = True
+                # Some changelog entries have the format <slug>: <version>
+                if line.startswith(slug):
+                    line = line[len(slug) :].strip(" :")
+                # Some changelog entries have the format version <version>
+                if "version" in line:
+                    line = line[line.find("version") + len("version") :].strip(" :")
+                # Some changelog entries have the format V <version>
+                if "v " in line:
+                    line = line[line.find("v ") + len("v ") :].strip(" :")
+                version = (
+                    line.replace("(", " ")
+                    .replace("*", " ")
+                    .replace("[", " ")
+                    .replace("]", " ")
+                    .replace("'", " ")
+                    .replace(":", " ")
+                    .replace(",", " ")
+                    .replace("-", " ")
+                    .replace("<h4>", " ")
+                    .replace("</h4>", " ")
+                    .strip()
+                    # Some versions are prefixed with 'v' (e.g. v1.0.0)
+                    .lstrip("v")
+                    .split(" ")[0]
+                )
+                if "." in version:
+                    changelog_version = version
+                    if not has_reversed_changelog:
+                        break
 
-        previous_line = line
+            previous_line = line
+
+    # Some plugins have broken "stable tag"
+    if slug in PLUGINS_TO_SKIP_STABLE_TAG:
+        return changelog_version
 
     tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* ").startswith("stable tag:")]
     if len(tag_lines) > 1:

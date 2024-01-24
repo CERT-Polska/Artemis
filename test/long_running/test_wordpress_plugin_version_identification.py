@@ -61,7 +61,7 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
 
                     readme_contents = self._decode(f.read(f"{plugin['slug']}/{readme_file_name}"))
             except zipfile.BadZipFile:
-                LOGGER.error(f"Bad zip file for slug {plugin['slug']}: {response.content[:100]}")
+                LOGGER.error(f"Bad zip file for slug {plugin['slug']}: {repr(response.content[:100])}")
                 continue
 
             version_from_readme = get_version_from_readme(plugin["slug"], readme_contents)

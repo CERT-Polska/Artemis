@@ -17,13 +17,14 @@ from artemis.module_base import ArtemisBase
 
 FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md", "Readme.txt"]
 PLUGINS_WITH_REVERSED_CHANGELOGS = [
-    "customizer-export-import",
-    "disable-xml-rpc-api",
-    "zarinpal-woocommerce-payment-gateway",
-    "metricool",
     "button-contact-vr",
-    "visual-footer-credit-remover",
+    "customizer-export-import",
+    "delete-all-comments-of-website",
+    "disable-xml-rpc-api",
+    "metricool",
     "sumome",
+    "visual-footer-credit-remover",
+    "zarinpal-woocommerce-payment-gateway",
 ]
 PLUGINS_TO_SKIP_CHANGELOG = ["wp-members"]
 PLUGINS_TO_SKIP_STABLE_TAG = ["scheduled-post-trigger", "pdf-viewer-for-elementor"]

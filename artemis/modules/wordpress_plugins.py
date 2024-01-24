@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import json
+import os
 import re
 import urllib
 import urllib.parse
@@ -13,28 +15,25 @@ from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 
-
-def _get_host_from_url(url: str) -> str:
-    host = urllib.parse.urlparse(url).hostname
-    assert host is not None
-    return host
+FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md"]
 
 
-def _get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
+def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     previous_line = ""
     changelog_version = None
     for line in readme_content.lower().split("\n"):
-        line = line.strip("= #[]")
+        line = line.strip("= #[]\r\t")
         if not line:
             continue
 
         if previous_line == "changelog":
             if line.startswith(slug):
                 line = line[len(slug) :].strip(" :")
-            if line.startswith("version"):
-                line = line[len("version") :].strip(" :")
+            if "version" in line:
+                line = line[line.find("version") + len("version") :].strip(" :")
             version = (
                 line.replace("(", " ")
+                .replace("*", " ")
                 .replace("[", " ")
                 .replace("]", " ")
                 .replace("'", " ")
@@ -63,6 +62,12 @@ def _get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
         ):
             return tag
     return changelog_version
+
+
+def _get_host_from_url(url: str) -> str:
+    host = urllib.parse.urlparse(url).hostname
+    assert host is not None
+    return host
 
 
 def _get_plugins_from_homepage(url: str) -> List[Dict[str, Any]]:
@@ -119,6 +124,8 @@ class WordpressPlugins(ArtemisBase):
             }
             for plugin in json_response["plugins"]
         ]
+        with open(os.path.join(os.path.dirname(__file__), "data", "wordpress_plugin_readme_file_names.txt")) as f:
+            self._readme_file_names = json.load(f)
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
@@ -176,20 +183,22 @@ class WordpressPlugins(ArtemisBase):
             )
             return
 
-        plugins = {}
+        plugins: Dict[str, Dict[str, Any]] = {}
         outdated_plugins = []
         for plugin in self._top_plugins + _get_plugins_from_homepage(url):
-            response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/readme.txt")
-            if "stable tag:" not in response.content.lower():
-                response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/README.txt")
-            if "stable tag:" not in response.content.lower():
-                response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/readme.md")
-            if "stable tag:" not in response.content.lower():
-                response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/README.TXT")
+            if plugin["slug"] in self._readme_file_names:
+                response = http_requests.get(
+                    url + "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugins["slug"]]
+                )
+            else:
+                for file_name in FILE_NAME_CANDIDATES:
+                    response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/" + file_name)
+                    if "stable tag:" in response.content.lower():
+                        break
             if "stable tag:" not in response.content.lower():
                 continue
 
-            version = _get_version_from_readme(plugin["slug"], response.content)
+            version = get_version_from_readme(plugin["slug"], response.content)
             if version:
                 plugins[plugin["slug"]] = {
                     "version": version,

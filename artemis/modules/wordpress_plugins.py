@@ -24,7 +24,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     lines = readme_content.lower().split("\n")
 
     # This plugin's changelog is reversed
-    if slug == 'disable-xml-rpc-api':
+    if slug == "disable-xml-rpc-api":
         lines = ["changelog"] + list(reversed(lines))
 
     for line in lines:

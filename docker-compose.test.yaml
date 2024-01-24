@@ -57,6 +57,11 @@ services:
       - ./test/data/robots/default.conf:/etc/nginx/conf.d/default.conf
       - ./test/data/robots/:/usr/share/nginx/html/
 
+  test-php-xss-but-not-on-homepage:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_xss_but_not_on_homepage/:/var/www/html/
+
   test-ftp-server-with-easy-password:
     image: stilliard/pure-ftpd:latest
     environment:

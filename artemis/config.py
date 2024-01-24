@@ -415,6 +415,31 @@ class Config:
                 cast=decouple.Csv(str),
             )
 
+            NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS: Annotated[
+                List[str],
+                "Normally, Nuclei templates are ran only on the root url. These templates will also run "
+                "on all URLs linked from the root URL to detect vulnerabilities on non-root pages.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS",
+                default=",".join(
+                    [
+                        "http/vulnerabilities/generic/top-xss-params.yaml",
+                        "http/vulnerabilities/generic/basic-xss-prober.yaml",
+                        "/opt/artemis/modules/data/nuclei_templates_custom/xss-inside-tag-top-params.yaml",
+                        "http/vulnerabilities/generic/error-based-sql-injection.yaml",
+                        "/opt/artemis/modules/data/nuclei_templates_custom/error-based-sql-injection.yaml",
+                    ]
+                ),
+                cast=decouple.Csv(str),
+            )
+
+            NUCLEI_MAX_NUM_LINKS_TO_PROCESS: Annotated[
+                int,
+                "Maximum number of links to be checked with the templates provided in "
+                "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS (if more are seen, random "
+                "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
+            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=100, cast=int)
+
         class PortScanner:
             CUSTOM_PORT_SCANNER_PORTS: Annotated[
                 List[int],

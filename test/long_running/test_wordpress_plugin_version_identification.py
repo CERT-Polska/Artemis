@@ -46,7 +46,7 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
         good = set()
         bad = set()
         for i, plugin in enumerate(plugins):
-            response = requests.get(f"https://downloads.wordpress.org/plugin/{plugin['slug']}.{plugin['version']}.zip")
+            response = requests.get(f"https://downloads.wordpress.org/plugin/{plugin['slug']}.zip")
             try:
                 with zipfile.ZipFile(io.BytesIO(response.content), "r") as f:
                     readme_file_name = README_FILE_NAMES.get(plugin["slug"], None)

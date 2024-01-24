@@ -21,9 +21,19 @@ FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "
 def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     previous_line = ""
     changelog_version = None
-    for line in readme_content.lower().split("\n"):
+    lines = readme_content.lower().split("\n")
+
+    # This plugin's changelog is reversed
+    if slug == 'disable-xml-rpc-api':
+        lines = ["changelog"] + list(reversed(lines))
+
+    for line in lines:
         line = line.strip("= #[]\r\t")
         if not line:
+            continue
+
+        # Happens between changelog header and version, let's skip
+        if line.startswith("for the plugin's full changelog"):
             continue
 
         if previous_line == "changelog":

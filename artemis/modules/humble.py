@@ -86,7 +86,7 @@ class Humble(ArtemisBase):
     def run(self, current_task: Task) -> None:
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             with open("/humble/additional/user_agents.txt", "w") as f:
-                f.write(f"1. {Config.Miscellaneous.CUSTOM_USER_AGENT}\n")
+                f.write(f"1.- {Config.Miscellaneous.CUSTOM_USER_AGENT}\n")
         else:
             subprocess.call(["git", "checkout", "additional/user_agents.txt"], cwd="/humble")
 

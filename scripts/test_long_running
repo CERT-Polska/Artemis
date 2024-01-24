@@ -2,4 +2,5 @@
 
 cd `dirname $0`/..
 
+docker compose -f docker-compose.test.yaml build test
 docker compose -f docker-compose.test.yaml run test python -m unittest discover test.long_running

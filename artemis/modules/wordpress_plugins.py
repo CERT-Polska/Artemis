@@ -21,13 +21,15 @@ FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "
 def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     previous_line = ""
     changelog_version = None
-    lines = readme_content.lower().split("\n")
 
-    # This plugin's changelog is reversed
-    if slug == "disable-xml-rpc-api":
-        lines = ["changelog"] + list(reversed(lines))
+    # These plugins' changelogs are reversed
+    if slug in ["customizer-export-import", "disable-xml-rpc-api"]:
+        has_reversed_changelog = True
+    else:
+        has_reversed_changelog = False
 
-    for line in lines:
+    seen_changelog_line = False
+    for line in readme_content.lower().split("\n"):
         line = line.strip("= #[]\r\t")
         if not line:
             continue
@@ -36,7 +38,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
         if line.startswith("for the plugin's full changelog"):
             continue
 
-        if previous_line == "changelog":
+        if previous_line == "changelog" or (has_reversed_changelog and seen_changelog_line):
+            seen_changelog_line = True
             # Some changelog entries have the format <slug>: <version>
             if line.startswith(slug):
                 line = line[len(slug) :].strip(" :")
@@ -58,7 +61,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
             )
             if "." in version:
                 changelog_version = version
-                break
+                if not has_reversed_changelog:
+                    break
 
         previous_line = line
 

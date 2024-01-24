@@ -20,7 +20,7 @@ LOGGER = build_logger(__name__)
 
 
 class WordpressPluginIdentificationTestCase(unittest.TestCase):
-    num_plugins = 20
+    num_plugins = 2000
 
     def test_plugin_identification_from_readme(self) -> None:
         plugins: List[Dict[str, Any]] = []
@@ -69,12 +69,13 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
             else:
                 bad.add(f"{plugin['slug']}: {version_from_readme} != {plugin['version']}")
 
-            if i % 100 == 0 or i == len(plugins) - 1:
+            if i % 100 == 0:
                 LOGGER.info("Versions identified correctly=%d, incorrectly=%d (%s)", len(good), len(bad), bad)
 
             with open("/opt/artemis/modules/data/wordpress_plugin_readme_file_names.txt", "w") as f:
                 json.dump(README_FILE_NAMES, f)
 
+        LOGGER.info("Versions identified correctly=%d, incorrectly=%d (%s)", len(good), len(bad), bad)
         self.assertTrue(len(bad) < 0.005 * self.num_plugins)
 
     def _decode(self, data: bytes) -> str:

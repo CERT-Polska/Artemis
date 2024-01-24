@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
@@ -83,6 +84,12 @@ class Humble(ArtemisBase):
     ]
 
     def run(self, current_task: Task) -> None:
+        if Config.Miscellaneous.CUSTOM_USER_AGENT:
+            with open("/humble/additional/user_agents.txt", "w") as f:
+                f.write(f"1. {Config.Miscellaneous.CUSTOM_USER_AGENT}\n")
+        else:
+            subprocess.call(["git", "checkout", "additional/user_agents.txt"], cwd="/humble")
+
         base_url = get_target_url(current_task)
 
         data = subprocess.check_output(

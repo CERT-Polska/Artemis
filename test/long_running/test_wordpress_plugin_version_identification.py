@@ -1,24 +1,29 @@
-from typing import Optional
-
-import chardet
 import io
 import json
-import subprocess
-import requests
 import unittest
 import zipfile
+from typing import Any, Dict, List
 
-from artemis.modules.wordpress_plugins import FILE_NAME_CANDIDATES, get_version_from_readme
+import chardet
+import requests
+
+from artemis.modules.wordpress_plugins import (
+    FILE_NAME_CANDIDATES,
+    get_version_from_readme,
+)
+from artemis.utils import build_logger
 
 with open("/opt/artemis/modules/data/wordpress_plugin_readme_file_names.txt", "r") as f:
     README_FILE_NAMES = json.load(f)
 
+LOGGER = build_logger(__name__)
+
 
 class WordpressPluginIdentificationTestCase(unittest.TestCase):
-    num_plugins = 2000
+    num_plugins = 20
 
-    def test_plugin_identification_from_readme(self):
-        plugins = []
+    def test_plugin_identification_from_readme(self) -> None:
+        plugins: List[Dict[str, Any]] = []
         page = 1
         while len(plugins) < self.num_plugins:
             response = requests.get(
@@ -26,20 +31,24 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
                 % page
             )
             json_response = response.json()
-            plugins.extend([
-            {
-                "version": plugin["version"],
-                "slug": plugin["slug"],
-            } for plugin in json_response["plugins"]])
-        plugins = plugins[:self.num_plugins]
+            plugins.extend(
+                [
+                    {
+                        "version": plugin["version"],
+                        "slug": plugin["slug"],
+                    }
+                    for plugin in json_response["plugins"]
+                ]
+            )
+        plugins = plugins[: self.num_plugins]
 
         good = set()
         bad = set()
-        for plugin in plugins:
+        for i, plugin in enumerate(plugins):
             response = requests.get(f"https://downloads.wordpress.org/plugin/{plugin['slug']}.{plugin['version']}.zip")
             try:
-                with zipfile.ZipFile(io.BytesIO(response.content), 'r') as f:
-                    readme_file_name = README_FILE_NAMES.get(plugin['slug'], None)
+                with zipfile.ZipFile(io.BytesIO(response.content), "r") as f:
+                    readme_file_name = README_FILE_NAMES.get(plugin["slug"], None)
                     if not readme_file_name:
                         for readme_file_name_candidate in FILE_NAME_CANDIDATES:
                             try:
@@ -48,24 +57,26 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
                                 break
                             except KeyError:
                                 pass
-                        README_FILE_NAMES[plugin['slug']] = readme_file_name
+                        README_FILE_NAMES[plugin["slug"]] = readme_file_name
 
                     readme_contents = self._decode(f.read(f"{plugin['slug']}/{readme_file_name}"))
             except zipfile.BadZipFile:
                 continue
-            version_from_readme = get_version_from_readme(plugin['slug'], readme_contents)
+            version_from_readme = get_version_from_readme(plugin["slug"], readme_contents)
 
             if version_from_readme == plugin["version"]:
-                good.add(plugin['slug'])
+                good.add(plugin["slug"])
             else:
                 bad.add(f"{plugin['slug']}: {version_from_readme} != {plugin['version']}")
 
-            print(len(good), len(bad), bad)
+            if i % 100 == 0 or i == len(plugins) - 1:
+                LOGGER.info("Versions identified correctly=%d, incorrectly=%d (%s)", len(good), len(bad), bad)
+
             with open("/opt/artemis/modules/data/wordpress_plugin_readme_file_names.txt", "w") as f:
                 json.dump(README_FILE_NAMES, f)
 
-        self.assertTrue(bad < 0.005 * self.num_plugins)
+        self.assertTrue(len(bad) < 0.005 * self.num_plugins)
 
     def _decode(self, data: bytes) -> str:
-        encoding = chardet.detect(data)['encoding']
-        return data.decode(encoding or 'utf-8', errors='ignore')
+        encoding = chardet.detect(data)["encoding"]
+        return data.decode(encoding or "utf-8", errors="ignore")

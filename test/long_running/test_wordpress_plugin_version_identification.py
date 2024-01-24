@@ -18,16 +18,20 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
     num_plugins = 2000
 
     def test_plugin_identification_from_readme(self):
-        response = requests.get(
-            "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[page]=1&request[per_page]=%d"
-            % self.num_plugins
-        )
-        json_response = response.json()
-        plugins = [
+        plugins = []
+        page = 1
+        while len(plugins) < self.num_plugins:
+            response = requests.get(
+                "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[page]=%d&request[per_page]=100"
+                % page
+            )
+            json_response = response.json()
+            plugins.extend([
             {
                 "version": plugin["version"],
                 "slug": plugin["slug"],
-            } for plugin in json_response["plugins"]]
+            } for plugin in json_response["plugins"]])
+        plugins = plugins[:self.num_plugins]
 
         good = set()
         bad = set()

@@ -15,10 +15,18 @@ from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 
-FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md"]
-PLUGINS_WITH_REVERSED_CHANGELOGS = ["customizer-export-import", "disable-xml-rpc-api"]
+FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md", "Readme.txt"]
+PLUGINS_WITH_REVERSED_CHANGELOGS = [
+    "customizer-export-import",
+    "disable-xml-rpc-api",
+    "zarinpal-woocommerce-payment-gateway",
+    "metricool",
+    "button-contact-vr",
+    "visual-footer-credit-remover",
+    "sumome",
+]
 PLUGINS_TO_SKIP_CHANGELOG = ["wp-members"]
-PLUGINS_TO_SKIP_STABLE_TAG = ["scheduled-post-trigger"]
+PLUGINS_TO_SKIP_STABLE_TAG = ["scheduled-post-trigger", "pdf-viewer-for-elementor"]
 
 
 def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
@@ -39,7 +47,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 continue
 
             # Happens between changelog header and version, let's skip
-            if line.startswith("for the plugin's full changelog"):
+            if line.startswith("for the plugin's full changelog") or line.startswith("this changelog is for"):
                 continue
 
             if previous_line == "changelog" or (has_reversed_changelog and seen_changelog_line):

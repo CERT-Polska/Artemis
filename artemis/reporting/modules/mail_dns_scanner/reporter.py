@@ -2,9 +2,10 @@ import os
 from collections import namedtuple
 from typing import Any, Callable, Dict, List
 
+from libmailgoose.language import Language as MailgooseLanguageClass
+from libmailgoose.translate import translate
+
 from artemis.domains import is_subdomain
-from artemis.mail_check.translate import Language as MailCheckLanguageClass
-from artemis.mail_check.translate import translate
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import (
     NormalForm,
@@ -67,7 +68,7 @@ class MailDNSScannerReporter(Reporter):
                     additional_data={
                         "message_en": message_with_target.message,
                         "message_translated": translate(
-                            message_with_target.message, MailCheckLanguageClass(language.value)
+                            message_with_target.message, MailgooseLanguageClass(language.value)
                         ),
                         "is_for_parent_domain": is_for_parent_domain,
                     },

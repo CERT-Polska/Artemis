@@ -8,10 +8,9 @@ from typing import List, Optional
 import dns.name
 import dns.resolver
 from karton.core import Task
-from publicsuffixlist import PublicSuffixList
-
 from libmailgoose.scan import DomainScanResult as SPFDMARCScanResult
 from libmailgoose.scan import ScanningException, scan_domain
+from publicsuffixlist import PublicSuffixList
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config

@@ -63,7 +63,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
         if tag != "trunk" and (
             # Sometimes the changelog version is greater, sometimes the "stable tag" version is greater -
             # let's pick the greater one as the version.
-            changelog_version is None or tuple(tag.split(".")) > tuple(changelog_version.split("."))
+            changelog_version is None
+            or tuple(tag.split(".")) > tuple(changelog_version.split("."))
         ):
             return tag
     return changelog_version

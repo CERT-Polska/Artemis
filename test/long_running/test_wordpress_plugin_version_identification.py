@@ -40,6 +40,7 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
                     for plugin in json_response["plugins"]
                 ]
             )
+            page += 1
         plugins = plugins[: self.num_plugins]
 
         good = set()

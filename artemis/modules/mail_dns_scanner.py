@@ -10,11 +10,12 @@ import dns.resolver
 from karton.core import Task
 from publicsuffixlist import PublicSuffixList
 
+from libmailgoose.scan import DomainScanResult as SPFDMARCScanResult
+from libmailgoose.scan import ScanningException, scan_domain
+
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.domains import is_main_domain
-from artemis.mail_check.scan import DomainScanResult as SPFDMARCScanResult
-from artemis.mail_check.scan import ScanningException, scan_domain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
 from artemis.utils import throttle_request

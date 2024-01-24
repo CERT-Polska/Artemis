@@ -27,8 +27,10 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
             continue
 
         if previous_line == "changelog":
+            # Some changelog entries have the format <slug>: <version>
             if line.startswith(slug):
                 line = line[len(slug) :].strip(" :")
+            # Some changelog entries have the format version <version>
             if "version" in line:
                 line = line[line.find("version") + len("version") :].strip(" :")
             version = (
@@ -40,6 +42,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 .replace(":", " ")
                 .replace(",", " ")
                 .strip()
+                # Some versions are prefixed with 'v' (e.g. v1.0.0)
                 .lstrip("v")
                 .split(" ")[0]
             )
@@ -58,6 +61,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
         tag = tag_line.strip().split(":")[1].strip()
 
         if tag != "trunk" and (
+            # Sometimes the changelog version is greater, sometimes the "stable tag" version is greater -
+            # let's pick the greater one as the version.
             changelog_version is None or tuple(tag.split(".")) > tuple(changelog_version.split("."))
         ):
             return tag

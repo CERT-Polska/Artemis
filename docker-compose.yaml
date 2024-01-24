@@ -373,6 +373,16 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-wordpress_plugins:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: "python3 -m artemis.modules.wordpress_plugins"
+    depends_on: [karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-wp_scanner:
     build:
       context: .

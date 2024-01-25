@@ -142,19 +142,6 @@ def _get_host_from_url(url: str) -> str:
     return host
 
 
-def _get_plugins_from_homepage(url: str) -> List[Dict[str, Any]]:
-    links = get_links_and_resources_on_same_domain(url)
-
-    plugin_data = []
-    for link in links:
-        pattern = r"\/wp-content\/plugins\/([a-z-0-9]*)\/"
-        match = re.search(pattern, link)
-        if match:
-            plugin_data.append({"slug": match.group(1)})
-
-    return plugin_data
-
-
 class WordpressPluginsScanningException(Exception):
     pass
 
@@ -185,6 +172,29 @@ class WordpressPlugins(ArtemisBase):
         ]
         with open(os.path.join(os.path.dirname(__file__), "data", "wordpress_plugin_readme_file_names.txt")) as f:
             self._readme_file_names = json.load(f)
+
+    def _get_plugins_from_homepage(self, url: str) -> List[Dict[str, Any]]:
+        links = get_links_and_resources_on_same_domain(url)
+
+        plugin_data = []
+        for link in links:
+            pattern = r"\/wp-content\/plugins\/([a-z-0-9]*)\/"
+            match = re.search(pattern, link)
+            if match:
+                slug = match.group(1)
+                data = json.loads(
+                    self.cached_get(f"https://api.wordpress.org/plugins/info/1.0/{slug}.json", "version-" + slug),
+                    timeout=3600,
+                )
+
+                plugin_data.append(
+                    {
+                        "slug": slug,
+                        "version": data["version"],
+                    }
+                )
+
+        return plugin_data
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
@@ -244,7 +254,7 @@ class WordpressPlugins(ArtemisBase):
 
         plugins: Dict[str, Dict[str, Any]] = {}
         outdated_plugins = []
-        for plugin in self._top_plugins + _get_plugins_from_homepage(url):
+        for plugin in self._top_plugins + self._get_plugins_from_homepage(url):
             if plugin["slug"] in self._readme_file_names:
                 response = http_requests.get(
                     url + "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]

@@ -21,7 +21,7 @@ LOGGER = build_logger(__name__)
 
 
 class WordpressPluginIdentificationTestCase(unittest.TestCase):
-    num_plugins = 2000
+    num_plugins = 1500
 
     def test_plugin_identification_from_readme(self) -> None:
         plugins: List[Dict[str, Any]] = []

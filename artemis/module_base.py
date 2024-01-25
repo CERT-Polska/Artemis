@@ -87,10 +87,10 @@ class ArtemisBase(Karton):
         for handler in self.log.handlers:
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
 
-    def cached_get(self, url: str, cache_key: str) -> bytes:
+    def cached_get(self, url: str, cache_key: str, timeout: int = 24 * 60 * 60) -> bytes:
         if not self.cache.get(cache_key):
             data = requests.get(url).content
-            self.cache.set(cache_key, data)
+            self.cache.set(cache_key, data, timeout=timeout)
             return data
         else:
             cache_result = self.cache.get(cache_key)

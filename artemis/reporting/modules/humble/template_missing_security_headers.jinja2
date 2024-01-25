@@ -5,7 +5,7 @@
                 {% if report.report_type == "missing_security_headers" %}
                     {% for message in report.additional_data.message_data %}
                         <li>
-                            {{ report.target }}: {{ _(message.category) }}: {{ ', '.join(message.problems) }}
+                            {{ report.target }}: {{ _(message.category) }}: {{ ", ".join(message.problems) }}
                         </li>
                     {% endfor %}
                     {{ report_meta(report) }}

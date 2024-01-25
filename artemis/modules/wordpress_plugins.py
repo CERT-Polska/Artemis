@@ -50,7 +50,11 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 continue
 
             # Happens between changelog header and version, let's skip
-            if line.startswith("for the plugin's full changelog") or line.startswith("this changelog is for") or line.startswith("-----"):
+            if (
+                line.startswith("for the plugin's full changelog")
+                or line.startswith("this changelog is for")
+                or line.startswith("-----")
+            ):
                 continue
 
             if previous_line == "changelog" or (has_reversed_changelog and seen_changelog_line):
@@ -64,7 +68,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 # Some changelog entries have the format V <version>
                 if "v " in line:
                     line = line[line.find("v ") + len("v ") :].strip(" :")
-                version = (re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|<h4>|</h4>)", line)
+                version = (
+                    re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|<h4>|</h4>)", " ", line)
                     .strip()
                     # Some versions are prefixed with 'v' (e.g. v1.0.0)
                     .lstrip("v")

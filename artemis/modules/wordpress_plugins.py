@@ -183,8 +183,11 @@ class WordpressPlugins(ArtemisBase):
             if match:
                 slug = match.group(1)
                 data = json.loads(
-                    self.cached_get(f"https://api.wordpress.org/plugins/info/1.0/{slug}.json", "version-" + slug),
-                    timeout=3600,
+                    self.cached_get(
+                        f"https://api.wordpress.org/plugins/info/1.0/{slug}.json",
+                        "version-" + slug,
+                        timeout=3600,
+                    )
                 )
 
                 plugin_data.append(

@@ -69,9 +69,9 @@ def _is_version_larger(v1: str, v2: str) -> bool:
     v2_split = v2.split('.')
 
     while len(v1_split) > len(v2_split):
-        v1_split.append('0')
-    while len(v1_split) < len(v2_split):
         v2_split.append('0')
+    while len(v1_split) < len(v2_split):
+        v1_split.append('0')
 
     for item1, item2 in zip(v1_split, v2_split):
         try:

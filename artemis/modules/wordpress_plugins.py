@@ -2,9 +2,10 @@
 import json
 import os
 import re
+import string
 import urllib
 import urllib.parse
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import requests
 from karton.core import Task
@@ -32,7 +33,7 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "zarinpal-woocommerce-payment-gateway",
 ]
 PLUGINS_TO_SKIP_CHANGELOG = ["wp-members"]
-PLUGINS_TO_SKIP_STABLE_TAG = ["flowpaper-lite-pdf-flipbook", "scheduled-post-trigger", "pdf-viewer-for-elementor"]
+PLUGINS_TO_SKIP_STABLE_TAG = ["flowpaper-lite-pdf-flipbook", "scheduled-post-trigger", "pdf-viewer-for-elementor", "userway-accessibility-widget"]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
     "button-contact-vr",
@@ -54,12 +55,35 @@ PLUGINS_BAD_VERSION_IN_README = [
     "themesflat-addons-for-elementor",
     "website-monetization-by-magenet",
     "woo-tools",
+    "wpfront-user-role-editor",
     "wp-less",
     "wp-mail-bank",
     "wp-maximum-execution-time-exceeded",
     "wp-updates-notifier",
     "zapier",
 ]
+
+
+def _is_version_larger(v1: str, v2: str) -> bool:
+    v1_split = v1.split('.')
+    v2_split = v2.split('.')
+
+    while len(v1_split) > len(v2_split):
+        v1_split.append('0')
+    while len(v1_split) < len(v2_split):
+        v2_split.append('0')
+
+    for item1, item2 in zip(v1_split, v2_split):
+        try:
+            if int(item1) > int(item2):
+                return True
+            if int(item1) < int(item2):
+                return False
+        except ValueError:
+            if item1 > item2:
+                return True
+            if item1 < item2:
+                return False
 
 
 def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
@@ -71,6 +95,10 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
         has_reversed_changelog = True
     else:
         has_reversed_changelog = False
+
+    if slug == "userway-accessibility-widget":
+        # No changelog in this plugin's readme
+        readme_content = readme_content.replace("= 1.1 =", "Changelog")
 
     if slug not in PLUGINS_TO_SKIP_CHANGELOG:
         seen_changelog_line = False
@@ -105,8 +133,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                     .lstrip("v")
                     .split(" ")[0]
                 )
-                if "." in version and (
-                    not changelog_version or tuple(version.split(".")) > tuple(changelog_version.split("."))
+                if "." in version and version[0] in string.digits and (
+                    not changelog_version or _is_version_larger(version, changelog_version)
                 ):
                     changelog_version = version
                     if not has_reversed_changelog:
@@ -130,7 +158,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
             # Sometimes the changelog version is greater, sometimes the "stable tag" version is greater -
             # let's pick the greater one as the version.
             changelog_version is None
-            or tuple(tag.split(".")) > tuple(changelog_version.split("."))
+            or _is_version_larger(tag, changelog_version)
         ):
             return tag
     return changelog_version
@@ -281,7 +309,7 @@ class WordpressPlugins(ArtemisBase):
                     "version": version,
                 }
 
-                if version != plugin["version"]:
+                if _is_version_larger(plugin['version'], version):
                     outdated_plugins.append(
                         {
                             "slug": plugin["slug"],

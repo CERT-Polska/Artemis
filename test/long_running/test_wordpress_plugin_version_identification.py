@@ -84,7 +84,7 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
             with open("/opt/artemis/modules/data/wordpress_plugin_readme_file_names.txt", "w") as f:
                 json.dump(README_FILE_NAMES, f)
 
-        LOGGER.info("Versions identified correctly=%d, incorrectly=%d (%s)", len(good), len(bad), bad)
+        LOGGER.info("Versions identified correctly=%d, incorrectly=%d (%s)", len(good), len(bad), bad_explained)
         self.assertEqual(set(bad), set(PLUGINS_BAD_VERSION_IN_README))
 
     def _decode(self, data: bytes) -> str:

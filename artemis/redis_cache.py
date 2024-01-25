@@ -15,7 +15,7 @@ class RedisCache:
     def get(self, key: str) -> Optional[bytes]:
         return self.redis.get(f"{self.cache_name}:{key}")
 
-    def set(self, key: str, value: bytes, timeout: Optional[int]=None) -> None:
+    def set(self, key: str, value: bytes, timeout: Optional[int] = None) -> None:
         if not timeout:
             timeout = self.duration
         self.redis.set(f"{self.cache_name}:{key}", value, ex=timeout)

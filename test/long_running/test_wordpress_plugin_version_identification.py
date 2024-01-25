@@ -9,6 +9,7 @@ import requests
 
 from artemis.modules.wordpress_plugins import (
     FILE_NAME_CANDIDATES,
+    PLUGINS_BAD_VERSION_IN_README,
     get_version_from_readme,
 )
 from artemis.utils import build_logger
@@ -20,7 +21,7 @@ LOGGER = build_logger(__name__)
 
 
 class WordpressPluginIdentificationTestCase(unittest.TestCase):
-    num_plugins = 1500
+    num_plugins = 2000
 
     def test_plugin_identification_from_readme(self) -> None:
         plugins: List[Dict[str, Any]] = []
@@ -45,6 +46,7 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
 
         good = set()
         bad = set()
+        bad_explained = set()
         for i, plugin in enumerate(plugins):
             response = requests.get(f"https://downloads.wordpress.org/plugin/{plugin['slug']}.{plugin['version']}.zip")
             if response.status_code != 200:
@@ -73,16 +75,17 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
             if version_from_readme == plugin["version"]:
                 good.add(plugin["slug"])
             else:
-                bad.add(f"{plugin['slug']}: {version_from_readme} != {plugin['version']}")
+                bad.add(plugin["slug"])
+                bad_explained.add(f"{plugin['slug']}: {version_from_readme} != {plugin['version']}")
 
             if i % 100 == 0:
-                LOGGER.info("Versions identified correctly=%d, incorrectly=%d (%s)", len(good), len(bad), bad)
+                LOGGER.info("Versions identified correctly=%d, incorrectly=%d (%s)", len(good), len(bad), bad_explained)
 
             with open("/opt/artemis/modules/data/wordpress_plugin_readme_file_names.txt", "w") as f:
                 json.dump(README_FILE_NAMES, f)
 
         LOGGER.info("Versions identified correctly=%d, incorrectly=%d (%s)", len(good), len(bad), bad)
-        self.assertTrue(len(bad) < 0.005 * self.num_plugins)
+        self.assertEqual(set(bad), set(PLUGINS_BAD_VERSION_IN_README))
 
     def _decode(self, data: bytes) -> str:
         encoding = chardet.detect(data)["encoding"]

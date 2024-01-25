@@ -7,29 +7,59 @@ import urllib.parse
 from typing import Any, Dict, List, Optional
 
 import requests
-from bs4 import BeautifulSoup
 from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
+from artemis.utils import get_links_and_resources_on_same_domain
 
 FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md", "Readme.txt"]
 PLUGINS_WITH_REVERSED_CHANGELOGS = [
+    "appointment-hour-booking",
     "bulk-page-creator",
     "button-contact-vr",
     "country-phone-field-contact-form-7",
     "customizer-export-import",
     "delete-all-comments-of-website",
     "disable-xml-rpc-api",
+    "flowpaper-lite-pdf-flipbook",
     "metricool",
     "sumome",
+    "userway-accessibility-widget",
     "visual-footer-credit-remover",
     "zarinpal-woocommerce-payment-gateway",
 ]
 PLUGINS_TO_SKIP_CHANGELOG = ["wp-members"]
-PLUGINS_TO_SKIP_STABLE_TAG = ["scheduled-post-trigger", "pdf-viewer-for-elementor"]
+PLUGINS_TO_SKIP_STABLE_TAG = ["flowpaper-lite-pdf-flipbook", "scheduled-post-trigger", "pdf-viewer-for-elementor"]
+PLUGINS_BAD_VERSION_IN_README = [
+    "blocks-animation",
+    "button-contact-vr",
+    "change-admin-email-setting-without-outbound-email",
+    "cyrlitera",
+    "coming-soon",
+    "delete-all-comments-of-website",
+    "disable-remove-google-fonts",
+    "famethemes-demo-importer",
+    "hide-admin-notices",
+    "link-manager",
+    "live-sales-notifications-for-woocommerce",
+    "page-or-post-clone",
+    "printfriendly",
+    "rafflepress",
+    "shapepress-dsgvo",
+    "sticky-header-oceanwp",
+    "subscribe-to-comments",
+    "themesflat-addons-for-elementor",
+    "website-monetization-by-magenet",
+    "woo-tools",
+    "wp-less",
+    "wp-mail-bank",
+    "wp-maximum-execution-time-exceeded",
+    "wp-updates-notifier",
+    "zapier",
+]
 
 
 def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
@@ -75,7 +105,9 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                     .lstrip("v")
                     .split(" ")[0]
                 )
-                if "." in version:
+                if "." in version and (
+                    not changelog_version or tuple(version.split(".")) > tuple(changelog_version.split("."))
+                ):
                     changelog_version = version
                     if not has_reversed_changelog:
                         break
@@ -111,21 +143,7 @@ def _get_host_from_url(url: str) -> str:
 
 
 def _get_plugins_from_homepage(url: str) -> List[Dict[str, Any]]:
-    url_parsed = urllib.parse.urlparse(url)
-    response = http_requests.get(url)
-    soup = BeautifulSoup(response.text)
-    links = []
-    for tag in soup.find_all():
-        new_url = None
-        for attribute in ["src", "href"]:
-            if attribute not in tag.attrs:
-                continue
-
-            new_url = urllib.parse.urljoin(url, tag[attribute])
-            new_url_parsed = urllib.parse.urlparse(new_url)
-
-            if url_parsed.netloc == new_url_parsed.netloc:
-                links.append(new_url)
+    links = get_links_and_resources_on_same_domain(url)
 
     plugin_data = []
     for link in links:
@@ -163,6 +181,7 @@ class WordpressPlugins(ArtemisBase):
                 "slug": plugin["slug"],
             }
             for plugin in json_response["plugins"]
+            if plugin["slug"] not in PLUGINS_BAD_VERSION_IN_README
         ]
         with open(os.path.join(os.path.dirname(__file__), "data", "wordpress_plugin_readme_file_names.txt")) as f:
             self._readme_file_names = json.load(f)

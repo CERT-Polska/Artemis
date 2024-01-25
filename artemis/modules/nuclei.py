@@ -3,18 +3,18 @@ import json
 import os
 import random
 import subprocess
-import urllib
 from typing import Any, Dict, List
 
-from bs4 import BeautifulSoup
 from karton.core import Task
 
-from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
-from artemis.utils import check_output_log_on_error
+from artemis.utils import (
+    check_output_log_on_error,
+    get_links_and_resources_on_same_domain,
+)
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
@@ -84,21 +84,7 @@ class Nuclei(ArtemisBase):
                 self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
     def _get_links(self, url: str) -> List[str]:
-        url_parsed = urllib.parse.urlparse(url)
-        response = http_requests.get(url)
-        soup = BeautifulSoup(response.text)
-        links = []
-        for tag in soup.find_all():
-            new_url = None
-            for attribute in ["src", "href"]:
-                if attribute not in tag.attrs:
-                    continue
-
-                new_url = urllib.parse.urljoin(url, tag[attribute])
-                new_url_parsed = urllib.parse.urlparse(new_url)
-
-                if url_parsed.netloc == new_url_parsed.netloc:
-                    links.append(new_url)
+        links = get_links_and_resources_on_same_domain(url)
         random.shuffle(links)
 
         links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]

@@ -259,9 +259,9 @@ class WordpressPlugins(ArtemisBase):
         outdated_plugins = []
         seen_plugins = set()
         for plugin in self._top_plugins + self._get_plugins_from_homepage(url):
-            if plugin['slug'] in seen_plugins:
+            if plugin["slug"] in seen_plugins:
                 continue
-            seen_plugins.add(plugin['slug'])
+            seen_plugins.add(plugin["slug"])
 
             if plugin["slug"] in self._readme_file_names:
                 response = http_requests.get(

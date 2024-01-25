@@ -11,9 +11,9 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
+from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
-from artemis.utils import get_links_and_resources_on_same_domain
 
 FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md", "Readme.txt"]
 PLUGINS_WITH_REVERSED_CHANGELOGS = [
@@ -190,11 +190,11 @@ class WordpressPlugins(ArtemisBase):
         url = current_task.get_payload("url")
 
         response = http_requests.get(url)
+        not_scanning_redirect_message = None
         if response.is_redirect:
             redirect_url = response.url
             self.log.warning("detected a redirect to %s", redirect_url)
 
-            not_scanning_redirect_message = None
             # The redirect handling is done here, not as a general "module feature", because the handling logic differs
             # between modules. For example, we may have a site that redirects to other URL, but we still want to check
             # for /server-status/ or .git, as the redirect may not be complete.
@@ -247,7 +247,7 @@ class WordpressPlugins(ArtemisBase):
         for plugin in self._top_plugins + _get_plugins_from_homepage(url):
             if plugin["slug"] in self._readme_file_names:
                 response = http_requests.get(
-                    url + "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugins["slug"]]
+                    url + "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]
                 )
             else:
                 for file_name in FILE_NAME_CANDIDATES:

@@ -17,7 +17,9 @@ from artemis.module_base import ArtemisBase
 
 FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md", "Readme.txt"]
 PLUGINS_WITH_REVERSED_CHANGELOGS = [
+    "bulk-page-creator",
     "button-contact-vr",
+    "country-phone-field-contact-form-7",
     "customizer-export-import",
     "delete-all-comments-of-website",
     "disable-xml-rpc-api",
@@ -48,7 +50,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 continue
 
             # Happens between changelog header and version, let's skip
-            if line.startswith("for the plugin's full changelog") or line.startswith("this changelog is for"):
+            if line.startswith("for the plugin's full changelog") or line.startswith("this changelog is for") or line.startswith("-----"):
                 continue
 
             if previous_line == "changelog" or (has_reversed_changelog and seen_changelog_line):
@@ -62,17 +64,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 # Some changelog entries have the format V <version>
                 if "v " in line:
                     line = line[line.find("v ") + len("v ") :].strip(" :")
-                version = (
-                    line.replace("(", " ")
-                    .replace("*", " ")
-                    .replace("[", " ")
-                    .replace("]", " ")
-                    .replace("'", " ")
-                    .replace(":", " ")
-                    .replace(",", " ")
-                    .replace("-", " ")
-                    .replace("<h4>", " ")
-                    .replace("</h4>", " ")
+                version = (re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|<h4>|</h4>)", line)
                     .strip()
                     # Some versions are prefixed with 'v' (e.g. v1.0.0)
                     .lstrip("v")
@@ -89,11 +81,11 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     if slug in PLUGINS_TO_SKIP_STABLE_TAG:
         return changelog_version
 
-    tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* ").startswith("stable tag:")]
+    tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* ").startswith("stable tag")]
     if len(tag_lines) > 1:
         return changelog_version
 
-    if len(tag_lines):
+    if tag_lines:
         (tag_line,) = tag_lines
         tag = tag_line.strip().split(":")[1].strip()
 

@@ -375,6 +375,7 @@ class Config:
                         "http/exposures/files/core-dump.yaml",
                         "http/exposures/files/ds-store-file.yaml",
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
+                        "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mysql-history.yaml",
                         "http/misconfiguration/elasticsearch.yaml",
@@ -404,6 +405,7 @@ class Config:
                 default=",".join(
                     [
                         "custom:xss-inside-tag-top-params",
+                        "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
                         # gets fixed, these templates return a FP on phpinfo(). Let's not spam

@@ -1,0 +1,57 @@
+#: artemis/reporting/modules/wordpress_plugins/template_closed_wordpress_plugin.jinja2:2
+msgid ""
+"The following addresses contain sites with WordPress plugins that have "
+"been closed and aren't developed anymore:"
+msgstr ""
+"Pod następującymi adresami znajdują się strony z wtyczkami WordPress, "
+"które zostały zamknięte i nie są rozwijane:"
+
+#: artemis/reporting/modules/wordpress_plugins/template_closed_wordpress_plugin.jinja2:7
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:11
+msgid "plugin"
+msgstr "wtyczka"
+
+#: artemis/reporting/modules/wordpress_plugins/template_closed_wordpress_plugin.jinja2:15
+msgid ""
+"Plugin closure may be caused by security issues or end of development. We"
+" do not recommend using such plugins. If a site is not used anymore, we "
+"recommend shutting it down to avoid the risk of exploitation of known "
+"vulnerabilities."
+msgstr ""
+"Zamknięcie wtyczki może być spowodowane problemami z bezpieczeństwem lub "
+"rezygnacją autorów z dalszego rozwoju. Rekomendujemy, aby takie wtyczki "
+"nie były wykorzystywane. Jeśli strona nie jest już używana, rekomendujemy"
+" jej wyłączenie, aby wyeliminować ryzyko ataku przy użyciu znanych "
+"podatności w zamkniętych wtyczkach."
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:2
+msgid ""
+"The following addresses contain sites with WordPress plugins that are not"
+" up-to-date:"
+msgstr ""
+"Pod następującymi adresami znajdują się strony z nieaktualnymi wtyczkami "
+"lub szablonami WordPress:"
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:9
+msgid "redirects to"
+msgstr "przekierowuje do"
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:11
+msgid "template"
+msgstr "szablon"
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:12
+msgid "in version"
+msgstr "w wersji"
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:20
+msgid ""
+"If a site is not used anymore, we recommend shutting it down to avoid the"
+" risk of exploitation of known vulnerabilities. If it is used, we "
+"recommend enabling WordPress core, plugin and theme updates."
+msgstr ""
+"Jeśli strona nie jest już używana, rekomendujemy jej wyłączenie, aby "
+"wyeliminować ryzyko ataku przy użyciu znanych podatności w starszych "
+"wersjach wtyczek lub szablonów. Jeśli zaś jest używana, rekomendujemy "
+"korzystanie z mechanizmu automatycznej aktualizacji systemu WordPress "
+"oraz wtyczek."

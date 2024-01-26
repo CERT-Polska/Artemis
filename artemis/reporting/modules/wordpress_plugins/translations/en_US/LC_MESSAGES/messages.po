@@ -1,0 +1,43 @@
+#: artemis/reporting/modules/wordpress_plugins/template_closed_wordpress_plugin.jinja2:2
+msgid ""
+"The following addresses contain sites with WordPress plugins that have "
+"been closed and aren't developed anymore:"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_closed_wordpress_plugin.jinja2:7
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:11
+msgid "plugin"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_closed_wordpress_plugin.jinja2:15
+msgid ""
+"Plugin closure may be caused by security issues or end of development. We"
+" do not recommend using such plugins. If a site is not used anymore, we "
+"recommend shutting it down to avoid the risk of exploitation of known "
+"vulnerabilities."
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:2
+msgid ""
+"The following addresses contain sites with WordPress plugins that are not"
+" up-to-date:"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:9
+msgid "redirects to"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:11
+msgid "template"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:12
+msgid "in version"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:20
+msgid ""
+"If a site is not used anymore, we recommend shutting it down to avoid the"
+" risk of exploitation of known vulnerabilities. If it is used, we "
+"recommend enabling WordPress core, plugin and theme updates."
+msgstr ""

@@ -1,0 +1,22 @@
+{% if "closed_wordpress_plugin" in data.contains_type %}
+    <li>{% trans %}The following addresses contain sites with WordPress plugins that have been closed and aren't developed anymore:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "closed_wordpress_plugin" %}
+                    <li>
+                        {{ report.target }} - {% trans %}plugin{% endtrans %} {{ report.additional_data.slug }}
+
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Plugin closure may be caused by security issues or end of development. We do not recommend using such
+                plugins. If a site is not used anymore, we recommend shutting it down to avoid the risk of exploitation of
+                known vulnerabilities.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

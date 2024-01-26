@@ -1,0 +1,27 @@
+{% if "wordpress_outdated_plugin_theme" in data.contains_type %}
+    <li>{% trans %}The following addresses contain sites with WordPress plugins that are not up-to-date:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "wordpress_outdated_plugin_theme" %}
+                    <li>
+                        {{ report.target }}
+                        {% if "redirect_url" in report.additional_data and report.additional_data.redirect_url %}
+                            ({% trans %}redirects to{% endtrans %} {{ report.additional_data.redirect_url }})
+                        {% endif %} -
+                        {% if report.additional_data.type == "plugin" %} {% trans %}plugin{% endtrans %} {% else %} {% trans %}template{% endtrans %} {% endif %}
+                        {{ report.additional_data.slug }} {% trans %}in version{% endtrans %} {{ report.additional_data.version }}
+
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                If a site is not used anymore, we recommend shutting it down to avoid the risk of exploitation of
+                known vulnerabilities. If it is used, we recommend enabling WordPress core, plugin and
+                theme updates.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

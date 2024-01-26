@@ -2,6 +2,7 @@ import dataclasses
 import json
 from typing import Any, Dict, Optional
 
+import chardet
 import requests
 
 from artemis.config import Config
@@ -35,7 +36,11 @@ class HTTPResponse:
 
     @property
     def content(self) -> str:
-        return self.content_bytes.decode(self.encoding or "utf-8", errors="ignore")
+        if self.encoding:
+            return self.content_bytes.decode(self.encoding, errors="ignore")
+        else:
+            encoding = chardet.detect(self.content_bytes)["encoding"] or "utf-8"
+            return self.content_bytes.decode(encoding, errors="ignore")
 
 
 def _request(

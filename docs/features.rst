@@ -9,7 +9,7 @@ Artemis includes:
  - brute-forcing of interesting paths (e.g. ``.env``),
  - brute-forcing of easy WordPress/MySQL/PostgreSQL/FTP passwords,
  - email configuration verification (misconfigured SPF/DMARC, open relays),
- - Wordpress/Joomla version check,
+ - Wordpress/Joomla/Drupal/WordPress plugin version check,
  - a check for VCS folders (e.g. ``.git``),
  - a check for enabled directory index,
  - port scanning,

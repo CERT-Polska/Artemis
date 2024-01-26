@@ -72,8 +72,8 @@ def strip_trailing_zeros(version: Optional[str]) -> Optional[str]:
         return None
 
     version_split = version.split(".")
-    while len(version_split) > 0 and version_split[-1] == "0":
-        version_split = version_split[:-1]
+    while len(version_split) > 0 and set(version_split[-1]) == set("0"):
+        version_split.pop()
     return ".".join(version_split)
 
 

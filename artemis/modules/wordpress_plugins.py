@@ -359,7 +359,7 @@ class WordpressPlugins(ArtemisBase):
             messages.append(f"Outdated plugin found: {plugin['slug']} {plugin['version']}")
             outdated.append(
                 {
-                    "type": plugin,
+                    "type": "plugin",
                     "slug": plugin["slug"],
                     "version": plugin["version"],
                 }

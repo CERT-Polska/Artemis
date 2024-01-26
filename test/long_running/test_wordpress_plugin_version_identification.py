@@ -11,6 +11,7 @@ from artemis.modules.wordpress_plugins import (
     FILE_NAME_CANDIDATES,
     PLUGINS_BAD_VERSION_IN_README,
     get_version_from_readme,
+    strip_trailing_zeros,
 )
 from artemis.utils import build_logger
 
@@ -72,7 +73,7 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
 
             version_from_readme = get_version_from_readme(plugin["slug"], readme_contents)
 
-            if version_from_readme == plugin["version"]:
+            if strip_trailing_zeros(version_from_readme) == strip_trailing_zeros(plugin["version"]):
                 good.add(plugin["slug"])
             else:
                 bad.add(plugin["slug"])

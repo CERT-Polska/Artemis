@@ -5,7 +5,7 @@ import re
 import string
 import urllib
 import urllib.parse
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import requests
 from karton.core import Task
@@ -32,8 +32,13 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "visual-footer-credit-remover",
     "zarinpal-woocommerce-payment-gateway",
 ]
-PLUGINS_TO_SKIP_CHANGELOG = ["wp-members"]
-PLUGINS_TO_SKIP_STABLE_TAG = ["flowpaper-lite-pdf-flipbook", "scheduled-post-trigger", "pdf-viewer-for-elementor", "userway-accessibility-widget"]
+PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup"]
+PLUGINS_TO_SKIP_STABLE_TAG = [
+    "flowpaper-lite-pdf-flipbook",
+    "scheduled-post-trigger",
+    "pdf-viewer-for-elementor",
+    "userway-accessibility-widget",
+]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
     "button-contact-vr",
@@ -64,14 +69,30 @@ PLUGINS_BAD_VERSION_IN_README = [
 ]
 
 
+def strip_trailing_zeros(version: Optional[str]) -> Optional[str]:
+    if not version:
+        return None
+
+    version_split = version.split(".")
+    while len(version_split) > 0 and version_split[-1] == "0":
+        version_split = version_split[:-1]
+    return ".".join(version_split)
+
+
 def _is_version_larger(v1: str, v2: str) -> bool:
-    v1_split = v1.split('.')
-    v2_split = v2.split('.')
+    v1_stripped = strip_trailing_zeros(v1)
+    v2_stripped = strip_trailing_zeros(v2)
+
+    if not v1_stripped or not v2_stripped:
+        return False
+
+    v1_split = v1_stripped.split(".")
+    v2_split = v2_stripped.split(".")
 
     while len(v1_split) > len(v2_split):
-        v2_split.append('0')
+        v2_split.append("0")
     while len(v1_split) < len(v2_split):
-        v1_split.append('0')
+        v1_split.append("0")
 
     for item1, item2 in zip(v1_split, v2_split):
         try:
@@ -84,6 +105,7 @@ def _is_version_larger(v1: str, v2: str) -> bool:
                 return True
             if item1 < item2:
                 return False
+    return False
 
 
 def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
@@ -133,8 +155,10 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                     .lstrip("v")
                     .split(" ")[0]
                 )
-                if "." in version and version[0] in string.digits and (
-                    not changelog_version or _is_version_larger(version, changelog_version)
+                if (
+                    "." in version
+                    and version[0] in string.digits
+                    and (not changelog_version or _is_version_larger(version, changelog_version))
                 ):
                     changelog_version = version
                     if not has_reversed_changelog:
@@ -309,7 +333,7 @@ class WordpressPlugins(ArtemisBase):
                     "version": version,
                 }
 
-                if _is_version_larger(plugin['version'], version):
+                if _is_version_larger(plugin["version"], version):
                     outdated_plugins.append(
                         {
                             "slug": plugin["slug"],

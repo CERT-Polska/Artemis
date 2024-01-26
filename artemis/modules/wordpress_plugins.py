@@ -320,18 +320,21 @@ class WordpressPlugins(ArtemisBase):
 
             seen_plugins.add(plugin["slug"])
 
+            # Sometimes the README content is cached, let's bust the cache
+            cachebuster = '?' + binascii.hexlify(os.urandom(10)).decode('ascii')
+
             try:
                 if plugin["slug"] in self._readme_file_names:
                     response = http_requests.get(
                         urllib.parse.urljoin(
-                            url, "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]
+                            url, "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]] + cachebuster
                         ),
                         max_size=README_MAX_SIZE,
                     )
                 else:
                     for file_name in FILE_NAME_CANDIDATES:
                         response = http_requests.get(
-                            urllib.parse.urljoin(url, "/wp-content/plugins/" + plugin["slug"] + "/" + file_name),
+                            urllib.parse.urljoin(url, "/wp-content/plugins/" + plugin["slug"] + "/" + file_name + cachebuster),
                             max_size=README_MAX_SIZE,
                         )
                         if "stable tag" in response.content.lower():

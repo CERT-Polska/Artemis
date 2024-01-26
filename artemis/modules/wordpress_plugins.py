@@ -323,11 +323,17 @@ class WordpressPlugins(ArtemisBase):
             try:
                 if plugin["slug"] in self._readme_file_names:
                     response = http_requests.get(
-                        urllib.parse.urljoin(url, "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]), max_size=README_MAX_SIZE
+                        urllib.parse.urljoin(
+                            url, "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]
+                        ),
+                        max_size=README_MAX_SIZE,
                     )
                 else:
                     for file_name in FILE_NAME_CANDIDATES:
-                        response = http_requests.get(urllib.parse.urljoin(url, "/wp-content/plugins/" + plugin["slug"] + "/" + file_name), max_size=README_MAX_SIZE)
+                        response = http_requests.get(
+                            urllib.parse.urljoin(url, "/wp-content/plugins/" + plugin["slug"] + "/" + file_name),
+                            max_size=README_MAX_SIZE,
+                        )
                         if "stable tag" in response.content.lower():
                             break
                 if "stable tag" not in response.content.lower():

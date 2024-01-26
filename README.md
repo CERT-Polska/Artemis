@@ -94,6 +94,7 @@ Huge thanks to the following people that contributed to Artemis development!
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/bulkowy"><img src="https://avatars.githubusercontent.com/u/25008387?v=4?s=100" width="100px;" alt="bulek"/><br /><sub><b>bulek</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=bulkowy" title="Code">💻</a> <a href="https://github.com/CERT-Polska/Artemis/pulls?q=is%3Apr+reviewed-by%3Abulkowy" title="Reviewed Pull Requests">👀</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mimi89999"><img src="https://avatars.githubusercontent.com/u/8530546?v=4?s=100" width="100px;" alt="Michel Le Bihan"/><br /><sub><b>Michel Le Bihan</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=mimi89999" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://eliszewski.pl/"><img src="https://avatars.githubusercontent.com/u/565758?v=4?s=100" width="100px;" alt="Grzegorz Eliszewski"/><br /><sub><b>Grzegorz Eliszewski</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=es1o" title="Code">💻</a> <a href="#ideas-es1o" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>

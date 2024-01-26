@@ -48,7 +48,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
-    "hide-admin-notices",
     "link-manager",
     "live-sales-notifications-for-woocommerce",
     "page-or-post-clone",
@@ -64,7 +63,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "wp-less",
     "wp-mail-bank",
     "wp-maximum-execution-time-exceeded",
-    "wp-updates-notifier",
     "zapier",
 ]
 

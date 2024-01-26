@@ -375,6 +375,7 @@ class Config:
                         "http/exposures/files/core-dump.yaml",
                         "http/exposures/files/ds-store-file.yaml",
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
+                        "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mysql-history.yaml",
                         "http/misconfiguration/elasticsearch.yaml",

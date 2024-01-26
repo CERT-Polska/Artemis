@@ -405,6 +405,7 @@ class Config:
                 default=",".join(
                     [
                         "custom:xss-inside-tag-top-params",
+                        "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
                         # gets fixed, these templates return a FP on phpinfo(). Let's not spam

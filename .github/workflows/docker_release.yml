@@ -8,6 +8,9 @@ jobs:
   main:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      matrix:
+        arch: ["linux/arm64", "linux/amd64"]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -40,7 +43,7 @@ jobs:
         with:
           context: .
           file: ./docker/Dockerfile
-          platforms: linux/amd64
+          platforms: ${{ matrix.arch }}
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache

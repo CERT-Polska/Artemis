@@ -110,14 +110,14 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     previous_line = ""
     changelog_version = None
 
-    # These plugins' changelogs are reversed
+    # Some plugins' changelogs are reversed
     if slug in PLUGINS_WITH_REVERSED_CHANGELOGS:
         has_reversed_changelog = True
     else:
         has_reversed_changelog = False
 
     if slug == "userway-accessibility-widget":
-        # No changelog in this plugin's readme
+        # No changelog header in this plugin's readme
         readme_content = readme_content.replace("= 1.1 =", "Changelog")
 
     if slug not in PLUGINS_TO_SKIP_CHANGELOG:
@@ -214,7 +214,7 @@ class WordpressPlugins(ArtemisBase):
         json_response = response.json()
         self._top_plugins = [
             {
-                "version": plugin["version"],
+                "repository_version": plugin["version"],
                 "slug": plugin["slug"],
             }
             for plugin in json_response["plugins"]
@@ -243,7 +243,7 @@ class WordpressPlugins(ArtemisBase):
                 plugin_data.append(
                     {
                         "slug": slug,
-                        "version": data["version"],
+                        "repository_version": data["version"],
                     }
                 )
 
@@ -320,9 +320,9 @@ class WordpressPlugins(ArtemisBase):
             else:
                 for file_name in FILE_NAME_CANDIDATES:
                     response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/" + file_name)
-                    if "stable tag:" in response.content.lower():
+                    if "stable tag" in response.content.lower():
                         break
-            if "stable tag:" not in response.content.lower():
+            if "stable tag" not in response.content.lower():
                 continue
 
             version = get_version_from_readme(plugin["slug"], response.content)
@@ -331,7 +331,7 @@ class WordpressPlugins(ArtemisBase):
                     "version": version,
                 }
 
-                if _is_version_larger(plugin["version"], version):
+                if _is_version_larger(plugin["repository_version"], version):
                     outdated_plugins.append(
                         {
                             "slug": plugin["slug"],

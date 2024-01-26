@@ -16,6 +16,9 @@ from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 
+# Some readmes are long, longer than the default 100kb
+README_MAX_SIZE = 1024 * 1024
+
 FILE_NAME_CANDIDATES = ["readme.txt", "README.txt", "README.TXT", "readme.md", "README.md", "Readme.txt"]
 PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "appointment-hour-booking",
@@ -146,6 +149,9 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 # Some changelog entries have the format V <version>
                 if "v " in line:
                     line = line[line.find("v ") + len("v ") :].strip(" :")
+                if line.startswith("v"):
+                    line = line[1:]
+
                 version = (
                     re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|<h4>|</h4>)", " ", line)
                     .strip()
@@ -311,16 +317,17 @@ class WordpressPlugins(ArtemisBase):
         for plugin in self._top_plugins + self._get_plugins_from_homepage(url):
             if plugin["slug"] in seen_plugins:
                 continue
+
             seen_plugins.add(plugin["slug"])
 
             try:
                 if plugin["slug"] in self._readme_file_names:
                     response = http_requests.get(
-                        url + "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]
+                        urllib.parse.urljoin(url, "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]), max_size=README_MAX_SIZE
                     )
                 else:
                     for file_name in FILE_NAME_CANDIDATES:
-                        response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/" + file_name)
+                        response = http_requests.get(urllib.parse.urljoin(url, "/wp-content/plugins/" + plugin["slug"] + "/" + file_name), max_size=README_MAX_SIZE)
                         if "stable tag" in response.content.lower():
                             break
                 if "stable tag" not in response.content.lower():

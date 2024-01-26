@@ -243,7 +243,7 @@ class WordpressPlugins(ArtemisBase):
                 plugin_data.append(
                     {
                         "slug": slug,
-                        "repository_version": data["version"],
+                        "repository_version": data.get("version", None),
                     }
                 )
 
@@ -313,16 +313,20 @@ class WordpressPlugins(ArtemisBase):
                 continue
             seen_plugins.add(plugin["slug"])
 
-            if plugin["slug"] in self._readme_file_names:
-                response = http_requests.get(
-                    url + "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]
-                )
-            else:
-                for file_name in FILE_NAME_CANDIDATES:
-                    response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/" + file_name)
-                    if "stable tag" in response.content.lower():
-                        break
-            if "stable tag" not in response.content.lower():
+            try:
+                if plugin["slug"] in self._readme_file_names:
+                    response = http_requests.get(
+                        url + "/wp-content/plugins/" + plugin["slug"] + "/" + self._readme_file_names[plugin["slug"]]
+                    )
+                else:
+                    for file_name in FILE_NAME_CANDIDATES:
+                        response = http_requests.get(url + "/wp-content/plugins/" + plugin["slug"] + "/" + file_name)
+                        if "stable tag" in response.content.lower():
+                            break
+                if "stable tag" not in response.content.lower():
+                    continue
+            except requests.exceptions.RequestException:
+                self.log.exception("Unable to obtain plugin version for %s", plugin["slug"])
                 continue
 
             version = get_version_from_readme(plugin["slug"], response.content)

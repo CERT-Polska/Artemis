@@ -44,6 +44,6 @@ tqdm==4.66.1
 typer==0.9.0
 typing-extensions==4.9.0
 urllib3==1.26.18
-uvicorn==0.26.0
+uvicorn==0.27.0.post1
 validators==0.22.0
 whoisdomain==1.20231115.1

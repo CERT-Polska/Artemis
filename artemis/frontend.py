@@ -97,6 +97,7 @@ async def post_add(
     file: Optional[bytes] = File(None),
     tag: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
+    redirect: bool = Form(True),
 ) -> Response:
     disabled_modules = []
 
@@ -112,10 +113,16 @@ async def post_add(
     if file:
         total_list += (x.strip() for x in file.decode().split())
     create_tasks(total_list, tag, disabled_modules)
-    return RedirectResponse("/", status_code=301)
+    if redirect:
+        return RedirectResponse("/", status_code=301)
+    else:
+        return Response(
+            content='OK',
+            status_code=200,
+        )
 
 
-@router.get("/restart-crashed-tasks")
+@router.get("/restart-crashed-tasks", include_in_schema=False)
 def get_restart_crashed_tasks(request: Request) -> Response:
     return templates.TemplateResponse(
         "/restart_crashed_tasks.jinja2",
@@ -125,7 +132,7 @@ def get_restart_crashed_tasks(request: Request) -> Response:
     )
 
 
-@router.post("/restart-crashed-tasks")
+@router.post("/restart-crashed-tasks", include_in_schema=False)
 def post_restart_crashed_tasks(request: Request) -> Response:
     restart_crashed_tasks()
     return RedirectResponse("/", status_code=301)
@@ -141,7 +148,7 @@ def get_queue(request: Request) -> Response:
     )
 
 
-@router.api_route("/karton-dashboard/{path:path}", methods=["GET", "POST"])
+@router.api_route("/karton-dashboard/{path:path}", methods=["GET", "POST"], include_in_schema=False)
 async def karton_dashboard(request: Request, path: str) -> Response:
     response = requests.request(
         url="http://karton-dashboard:5000/karton-dashboard/" + path,
@@ -156,7 +163,7 @@ async def karton_dashboard(request: Request, path: str) -> Response:
     )
 
 
-@router.api_route("/metrics", methods=["GET"])
+@router.api_route("/metrics", methods=["GET"], include_in_schema=False)
 async def prometheus(request: Request) -> Response:
     response = requests.get(url="http://metrics:9000/")
     return Response(

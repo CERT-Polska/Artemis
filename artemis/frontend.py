@@ -117,7 +117,7 @@ async def post_add(
         return RedirectResponse("/", status_code=301)
     else:
         return Response(
-            content='OK',
+            content="OK",
             status_code=200,
         )
 

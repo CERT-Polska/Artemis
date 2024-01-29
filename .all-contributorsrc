@@ -105,6 +105,17 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "es1o",
+      "name": "Grzegorz Eliszewski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/565758?v=4",
+      "profile": "https://eliszewski.pl/",
+      "contributions": [
+        "code",
+        "ideas",
+        "platform"
+      ]
     }
   ],
   "contributorsPerLine": 7,

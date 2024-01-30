@@ -1,5 +1,5 @@
 aiofiles==23.2.1
-aiohttp==3.9.1
+aiohttp==3.9.2
 anytree==2.12.1
 Babel==2.14.0
 beautifulsoup4==4.12.3

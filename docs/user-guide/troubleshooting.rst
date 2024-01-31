@@ -1,6 +1,11 @@
 Troubleshooting
 ===============
 
+Startup issues related to port 5000
+-----------------------------------
+On some configurations (e.g. MacOS) port 5000 is already used, which will cause Artemis startup issues.
+To change that, replace ``ports: ["5000:5000"]`` with e.g. ``ports: ["7500:5000"]`` in ``docker-compose.yaml``.
+
 Windows build issues
 --------------------
 If you are using Windows and you see the following message during container build:

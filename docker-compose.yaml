@@ -1,22 +1,33 @@
 version: "3"
 
 services:
-  minio:
-    command: "server /data"
-    environment:
-     - MINIO_ACCESS_KEY=example-access-key
-     - MINIO_SECRET_KEY=example-secret-key
-    image: minio/minio
-    restart: always
-
   redis:
     image: redis
     restart: always
     volumes:
       - data-redis:/data
 
+  s3mock:
+    image: adobe/s3mock:latest
+    environment:
+      - initialBuckets=bucket
+    entrypoint: ["sh", "-c", "java -jar s3mock.jar 2>&1 > /dev/null"]
+
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    healthcheck:
+      test: "wget 127.0.0.1:9090 -O/dev/null || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   db:
-    command: ["--wiredTigerCacheSizeGB", "2"]
+    # Even in the most quiet configuration, MongoDB produces a significant amount of logs.
+    # Therefore mongoDB logs are disabled by default (although they can be enabled).
+    command: ["bash", "-c", "mongod --wiredTigerCacheSizeGB 2 --auth --bind_ip_all 2>&1 >/dev/null"]
     environment:
      - MONGO_INITDB_ROOT_USERNAME=root
      - MONGO_INITDB_ROOT_PASSWORD=root
@@ -45,7 +56,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -55,7 +66,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     ports: ["5000:5000"]
     restart: always
@@ -66,7 +77,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.bruter"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -76,7 +87,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.classifier"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -86,13 +97,13 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.crtsh"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-dashboard:
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     image: certpl/karton-dashboard:8b2a11ca81b39b74c9cd36c38e2d339597db2fda
     restart: always
@@ -103,7 +114,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.directory_index"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -113,7 +124,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.dns_scanner"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -123,7 +134,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.domain_expiration_scanner"
-    depends_on: [ karton-logger ]
+    depends_on: [ redis ]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -133,7 +144,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.drupal_scanner"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -143,7 +154,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.example"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -153,7 +164,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.ftp_bruter"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -163,7 +174,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.gau"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -173,7 +184,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.http_service_to_url"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -183,7 +194,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.humble"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: [ "./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/" ]
@@ -193,7 +204,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.webapp_identifier"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -203,7 +214,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.ip_lookup"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -213,16 +224,6 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.joomla_scanner"
-    depends_on: [karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-logger:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.stdout_logger"
     depends_on: [karton-system]
     env_file: .env
     restart: always
@@ -233,7 +234,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.mail_dns_scanner"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -243,7 +244,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.mysql_bruter"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -253,7 +254,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.nuclei"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes:
@@ -267,7 +268,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.port_scanner"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -277,7 +278,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.postgresql_bruter"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -287,7 +288,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.postman"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     environment:
      - POSTMAN_MAIL_FROM=artemis@example.com
@@ -300,7 +301,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.reverse_dns_lookup"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -310,7 +311,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.robots"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -320,7 +321,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     command: "python3 -m artemis.modules.scripts_unregistered_domains"
@@ -330,7 +331,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.shodan_vulns"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -340,14 +341,20 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.ssh_bruter"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-system:
     command: ["--setup-bucket"]
-    depends_on: ["db", "redis", "minio"]
+    depends_on:
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+      s3mock:
+        condition: service_healthy
     env_file: .env
     image: "certpl/karton-system:v5.2.0"
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -358,7 +365,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.vcs"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -368,7 +375,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.wordpress_bruter"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -378,7 +385,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.wordpress_plugins"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -388,7 +395,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.wp_scanner"
-    depends_on: [karton-logger]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]

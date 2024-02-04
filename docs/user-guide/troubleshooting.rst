@@ -46,9 +46,8 @@ If you see the following error in the logs:
 
 .. code-block::
 
-    artemis-shodan-vulns-1  |   File "/opt/artemis/modules/shodan_vulns.py", line 97, in <module>
-    artemis-shodan-vulns-1  |     raise Exception("Shodan API key is required")
-    artemis-shodan-vulns-1  | Exception: Shodan API key is required
+    karton-shodan_vulns-1                  | [ERROR] - [2024-02-04 15:35:04,622] shodan_vulns.py - in <module>() (line 102): Shodan API key is required to start the Shodan vulnerability module.
+    karton-shodan_vulns-1                  | [ERROR] - [2024-02-04 15:35:04,622] shodan_vulns.py - in <module>() (line 103): Don't worry - all other modules can be used without this API key.
 
 That means the Shodan module wasn't able to start because an API key was not configured.
 To fix this, provide the ``SHODAN_API_KEY`` configuration variable, see :doc:`configuration`.

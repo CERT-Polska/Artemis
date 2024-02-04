@@ -5,6 +5,7 @@ import sys
 import time
 import traceback
 import urllib.parse
+import warnings
 from ipaddress import ip_address
 from typing import List, Optional, Tuple
 
@@ -30,6 +31,12 @@ from artemis.utils import is_ip_address
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 setup_retrying_resolver()
+
+# We filter this message as each karton sends the logs to stdout
+warnings.filterwarnings(
+    "ignore",
+    message=".*There is no active log consumer to receive logged messages..*",
+)
 
 
 class UnknownIPException(Exception):
@@ -162,9 +169,9 @@ class ArtemisBase(Karton):
             )
             try:
                 resource_lock.acquire()
-                self.log.info("Succeeded to lock resource %s", self.resource_name_to_lock_before_scanning)
+                self.log.debug("Succeeded to lock resource %s", self.resource_name_to_lock_before_scanning)
             except FailedToAcquireLockException:
-                self.log.info("Failed to lock resource %s", self.resource_name_to_lock_before_scanning)
+                self.log.debug("Failed to lock resource %s", self.resource_name_to_lock_before_scanning)
                 return 0
         else:
             resource_lock = None
@@ -183,11 +190,11 @@ class ArtemisBase(Karton):
         return len(tasks)
 
     def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]]]:
-        self.log.info("Acquiring lock to take tasks from queue")
+        self.log.debug("Acquiring lock to take tasks from queue")
         try:
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
-            self.log.warning("Failed to acquire lock to take tasks from queue")
+            self.log.info("Failed to acquire lock to take tasks from queue")
             return [], []
 
         try:
@@ -303,6 +310,9 @@ class ArtemisBase(Karton):
         raise NotImplementedError()
 
     def internal_process_multiple(self, tasks: List[Task]) -> None:
+        if not tasks:
+            return
+
         tasks_filtered = []
         for task in tasks:
             if task.matches_filters(self.filters):
@@ -374,6 +384,9 @@ class ArtemisBase(Karton):
             raise
 
     def _log_tasks(self, tasks: List[Task]) -> None:
+        if not tasks:
+            return
+
         message = "Processing %d tasks: " % len(tasks)
         for i, task in enumerate(tasks):
             message += "%s (headers=%s payload=%s payload_persistent=%s priority=%s)" % (

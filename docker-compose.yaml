@@ -134,7 +134,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.modules.domain_expiration_scanner"
-    depends_on: [ redis ]
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]

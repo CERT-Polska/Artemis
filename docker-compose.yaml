@@ -27,7 +27,7 @@ services:
   db:
     # Even in the most quiet configuration, MongoDB produces a significant amount of logs.
     # Therefore mongoDB logs are disabled by default (although they can be enabled).
-    command: ["bash", "-c", "mongod --wiredTigerCacheSizeGB 2 --auth --bind_ip_all 2>&1 >/dev/null"]
+    command: ["bash", "-c", "/usr/local/bin/docker-entrypoint.sh mongod --wiredTigerCacheSizeGB 2 --auth --bind_ip_all 2>&1 >/dev/null"]
     environment:
      - MONGO_INITDB_ROOT_USERNAME=root
      - MONGO_INITDB_ROOT_PASSWORD=root

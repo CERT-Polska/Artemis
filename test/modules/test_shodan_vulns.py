@@ -26,4 +26,4 @@ class ShodanVulnsTest(ArtemisModuleTestCase):
             call.kwargs["status_reason"],
             "Found vulnerabilities from Shodan API: CVE-1-1, CVE-2020-1938: tomcat_ghostcat",
         )
-        self.assertEqual(call.kwargs["data"].critical_vulns, {"CVE-2020-1938": "tomcat_ghostcat", "CVE-1-1": "CVE-1-1"})
+        self.assertEqual(call.kwargs["data"].vulns, ["CVE-2020-1938", "CVE-1-1"])

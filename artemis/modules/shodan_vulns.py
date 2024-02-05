@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
+import os
 from time import sleep
-from typing import Dict, List
+from typing import List
 
 import shodan  # type: ignore
 from karton.core import Task
@@ -9,6 +10,7 @@ from pydantic import BaseModel
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
+from artemis.utils import build_logger
 
 VULN_NAMES = {
     "CVE-2020-10188": "cisco_os_telnetd",
@@ -49,7 +51,6 @@ VULN_NAMES = {
 
 
 class ShodanVulnsResult(BaseModel):
-    critical_vulns: Dict[str, str] = {}
     vulns: List[str] = []
 
 
@@ -70,10 +71,8 @@ class ShodanVulns(ArtemisBase):
             result.vulns = vulns
             for vuln in vulns:
                 if vuln in VULN_NAMES:
-                    result.critical_vulns[vuln] = VULN_NAMES[vuln]
                     found_vuln_descriptions.append(f"{vuln}: {VULN_NAMES[vuln]}")
                 else:
-                    result.critical_vulns[vuln] = vuln
                     found_vuln_descriptions.append(f"{vuln}")
 
         if len(found_vuln_descriptions) > 0:
@@ -94,6 +93,15 @@ class ShodanVulns(ArtemisBase):
 
 if __name__ == "__main__":
     if not Config.Modules.Shodan.SHODAN_API_KEY:
-        raise Exception("Shodan API key is required")
+        no_api_key_message_printed_filename = "/.no-api-key-message-shown"
+
+        if not os.path.exists(no_api_key_message_printed_filename):
+            # We want to display the message only once
+            LOGGER = build_logger(__name__)
+            LOGGER.error("Shodan API key is required to start the Shodan vulnerability module.")
+            LOGGER.error("Don't worry - all other modules can be used without this API key.")
+
+            with open(no_api_key_message_printed_filename, "w"):
+                pass
 
     ShodanVulns().loop()

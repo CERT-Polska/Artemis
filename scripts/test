@@ -48,6 +48,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+docker volume rm artemis_data-test-redis
+docker volume rm artemis_data-test-mongodb
+
 # Let's first start everything except the test container and perform relevant setup
 docker compose \
     -f docker-compose.test.yaml \
@@ -75,8 +78,5 @@ docker compose \
     -f docker-compose.test-e2e.yaml \
     down \
     --remove-orphans
-
-docker volume rm artemis_data-test-redis
-docker volume rm artemis_data-test-mongodb
 
 exit $EXIT_CODE

@@ -13,6 +13,7 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
+from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
@@ -232,6 +233,7 @@ class WordpressPlugins(ArtemisBase):
             for plugin in json_response["plugins"]
             if plugin["slug"] not in PLUGINS_BAD_VERSION_IN_README
         ]
+        self._top_plugin_slugs = [plugin["slug"] for plugin in self._top_plugins]
         with open(os.path.join(os.path.dirname(__file__), "data", "wordpress_plugin_readme_file_names.txt")) as f:
             self._readme_file_names = json.load(f)
 
@@ -326,7 +328,7 @@ class WordpressPlugins(ArtemisBase):
 
             seen_plugins.add(plugin["slug"])
 
-            # Sometimes the README content is cached, let's bust the cache
+            # Sometimes the README content is cached on the server side, let's bust the cache
             cachebuster = "?" + binascii.hexlify(os.urandom(10)).decode("ascii")
 
             try:
@@ -365,12 +367,16 @@ class WordpressPlugins(ArtemisBase):
                 }
 
                 if _is_version_larger(plugin["repository_version"], version):
-                    outdated_plugins.append(
-                        {
-                            "slug": plugin["slug"],
-                            "version": version,
-                        }
-                    )
+                    if (
+                        not Config.Modules.WordPressPlugins.SKIP_VERSION_CHECK_ON_LESS_POPULAR_PLUGINS
+                        or plugin["slug"] in self._top_plugin_slugs
+                    ):
+                        outdated_plugins.append(
+                            {
+                                "slug": plugin["slug"],
+                                "version": version,
+                            }
+                        )
 
         messages = []
         closed_plugins = []

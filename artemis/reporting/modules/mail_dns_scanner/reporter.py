@@ -40,12 +40,24 @@ class MailDNSScannerReporter(Reporter):
                         MessageWithTarget(message=error, target=task_result["payload"]["domain"])
                     )
             if not task_result["result"].get("spf_dmarc_scan_result", {}).get("dmarc", {}).get("valid", True):
-                for error in task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["errors"]:
-                    target = task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["location"]
-                    if not target:
-                        target = task_result["result"]["spf_dmarc_scan_result"]["base_domain"]
+                report_dmarc_problems = True
+                # If the record has not been found, let's report the problem only if we scanned the base domain.
+                # The problem is that if a domain has a large number of subdomains, DNS timeout (and thus reporting
+                # lack of DMARC record) is highly problable on at least one of them.
+                if task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["record_not_found"]:
+                    if task_result["target_string"] not in [
+                        task_result["result"]["spf_dmarc_scan_result"]["base_domain"],
+                        task_result["payload_persistent"].get("original_domain", None),
+                    ]:
+                        report_dmarc_problems = False
 
-                    messages_with_targets.append(MessageWithTarget(message=error, target=target))
+                if report_dmarc_problems:
+                    for error in task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["errors"]:
+                        target = task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["location"]
+                        if not target:
+                            target = task_result["result"]["spf_dmarc_scan_result"]["base_domain"]
+
+                        messages_with_targets.append(MessageWithTarget(message=error, target=target))
 
         result = []
         for message_with_target in messages_with_targets:
@@ -68,7 +80,8 @@ class MailDNSScannerReporter(Reporter):
                     additional_data={
                         "message_en": message_with_target.message,
                         "message_translated": translate(
-                            message_with_target.message, MailgooseLanguageClass(language.value)
+                            message_with_target.message,
+                            MailgooseLanguageClass(language.value),
                         ),
                         "is_for_parent_domain": is_for_parent_domain,
                     },

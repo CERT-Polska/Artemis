@@ -344,6 +344,7 @@ class Config:
                         # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
                         "http/exposed-panels/dynamicweb-panel.yaml",
                         "http/exposed-panels/jira-detect.yaml",
+                        "http/exposed-panels/kanboard-login.yaml",
                         "http/exposed-panels/magento-admin-panel.yaml",
                         "http/exposed-panels/mantisbt-panel.yaml",
                         "http/exposed-panels/mautic-crm-panel.yaml",

@@ -596,6 +596,9 @@ TRANSLATIONS = {
     "shopify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Shopify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Shopify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "auth.json file is exposed.": "Wykryto plik auth.json, zawierający login i hasło lub inne dane autoryzacyjne. Rekomendujemy, aby takie dane nie były dostępne publicznie.",
     "Django Debug Method is enabled.": "Wykryto framework Django skonfigurowany aby udostępniać informacje diagnostyczne, takie jak konfiguracja systemu czy ścieżki.",
+    "Remote Code Execution in PAN-OS 7.1.18 and earlier, PAN-OS 8.0.11-h1 and earlier, and PAN-OS 8.1.2 and earlier with GlobalProtect Portal or GlobalProtect Gateway Interface enabled may allow an unauthenticated remote attacker to execute arbitrary code.": "PAN-OS w wersji 7.1.18 i wcześniejszych, 8.0.11-h1 i wcześniejszych oraz 8.1.2 i wcześniejszych z włączonymi modułami GlobalProtect Portal lub GlobalProtect Gateway Interface mogą umożliwiać atakującym zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",

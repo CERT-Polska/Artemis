@@ -105,7 +105,7 @@ services:
   karton-dashboard:
     depends_on: [karton-system]
     env_file: .env
-    image: certpl/karton-dashboard:8b2a11ca81b39b74c9cd36c38e2d339597db2fda
+    image: certpl/karton-dashboard:f719024c3387bab39c21f890af369afb5943d3cf
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
@@ -356,7 +356,7 @@ services:
       s3mock:
         condition: service_healthy
     env_file: .env
-    image: "certpl/karton-system:v5.2.0"
+    image: "certpl/karton-system:v5.3.3"
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     restart: always
 

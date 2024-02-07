@@ -322,7 +322,7 @@ class WordpressPlugins(ArtemisBase):
         plugins: Dict[str, Dict[str, Any]] = {}
         outdated_plugins = []
         seen_plugins = set()
-        for plugin in self._top_plugins + self._get_plugins_from_homepage(url):
+        for plugin in self._get_plugins_from_homepage(url) + self._top_plugins:
             if plugin["slug"] in seen_plugins:
                 continue
 

@@ -6,7 +6,7 @@ id: error-based-sql-injection
 
 info:
   name: Error based SQL injection
-  author: geeknik
+  author: kazet
   severity: critical
   description: Detects potential SQL injection via error strings
   classification:
@@ -40,13 +40,63 @@ http:
         X-Druid-Comment: xdruidcomment'
         X-Forwarded-For: xforwardedfor'
         X-Origin: xorigin'
+        accept-charset: acceptcharset'
+        appversion: appversion'
+        authorization: authorization'
+        cache-control: cachecontrol'
+        cf-connecting-ip: cfconnectingip'
+        cf-ipcountry: cfipcountry'
+        cf-visitor: cfvisitor'
+        client-ip: clientip'
+        authorization: authorization'
+        dnt: dnt'
+        forwarded-for: forwardedfor'
+        forwarded: forwarded'
+        front-end-https: frontendhttps'
+        if-modified-since: ifmodifiedsince'
+        if-none-match: ifnonematch'
+        profile: profile'
+        proxy: proxy'
+        scheme: scheme'
+        socketlog: socketlog'
+        via: via'
+        x-file-name: xfilename'
+        x-firephp-version: xfirephpversion'
+        x-forwarded-host: xforwardedhost'
+        x-forwarded-port: xforwardedport'
+        x-forwarded-prefix: xforwardedprefix'
+        x-forwarded-proto: xforwardedproto'
+        x-forwarded-server: xforwardedserver'
+        x-forwarded-ssl: xforwardedssl'
+        x-forwarded: xforwarded'
+        x-method-override: xmethodoverride'
+        x-moz: xmoz'
+        x-original-host: xoriginalhost'
+        x-original-url: xoriginalurl'
+        x-pjax: xpjax'
+        x-real-host: xrealhost'
+        x-real-ip: xrealip'
+        x-requested-with: xrequestedwith'
+        x-rewrite-url: xrewriteurl'
+        x-wap-profile: xwapprofile'
+        x-wp-nonce: xwpnonce'
 
       - |
         GET /' HTTP/1.1
         Host: {{ Hostname }}
       - |
-        GET /?q='&s='&search='&id='&action='&keyword='&query='&page='&keywords='&url='&view='&cat='&name='&key='&p='&api='&api_key='&begindate='&callback='&categoryid='&csrf_token='&email='&emailto='&enddate='&immagine='&item='&title='&l='&lang='&list_type='&month='&page_id='&password='&terms='&token='&type='&unsubscribe_token='&year=' HTTP/1.1
+        GET /?user_login='&id='&drop='&g-recaptcha-response='&site='&plugins='&notes='&val='&reason='&username='&title='&destination='&page_id='&menu-item='&widget-id='&checked='&options='&number='&note='&status='&start='&city='&text-color='&tab='&task='&fields='&stylesheet='&provider='&media='&body='&item='&logout='&replytocom='&go='&down='&sql='&pwd='&hash='&country='&w='&module='&subject='&cmd='&lastname='&customized='&o='&do='&act='&xml='&cat='&ajax='&active='&dump='&tag='&mobile='&pid='&api_key='&template='&user_name='&locale='&search='&ip='&role='&delete_widget='&g='&modify='&timezone_string='&end_date='&sidebar='&start_date='&pass1='&nickname='&parent='&db_port='&newname='&metakeyinput='&noheader='&settings-updated='&checkemail='&d='&from='&csrf_token='&password='&create='&width='&gmt_offset='&action2='&table='&items='&new='&dismiss='&domain='&position='&text='&timeout='&reverse='&link='&url='&size='&alias='&filter='&pass='&src='&activate='&overwrite=' HTTP/1.1
         Host: {{ Hostname }}
+      - |
+        GET /?features='&view='&fname='&enabled='&to='&group='&last_name='&menu-locations='&move='&multi_number='&post_title='&list='&show_sticky='&login='&amount='&year='&shortcode='&delete='&order='&desc='&submit='&location='&comment='&st='&op='&q='&num='&host='&page='&f='&_ajax_nonce='&cookie='&option='&postid='&event='&post_ID='&show='&='&color='&timestamp='&function='&params='&charset='&out_trade_no='&post_type='&keyword='&where='&select='&attachment_id='&order_id='&send='&parent_id='&comments='&opt='&redirect_to='&metakeyselect='&folder='&nonce='&wp_screen_options='&theme='&groups='&command='&config='&edit-menu-item='&object='&firstname='&remove='&form='&tax='&download='&weblog_title='&message='&dl='&insert='&plugin='&input='&data='&del='&date='&preview_id='&tid='&class='&keywords='&image='&post='&allusers='&product_id='&oitar='&section='&ref='&foo='&uname='&tables='&count='&link_url='&output='&direction='&description='&string='&json='&fid='&upload='&p='&end='&l=' HTTP/1.1
+        Host: {{ Hostname }}
+      - |
+        GET /?confirm='&set='&value='&rename='&t='&blog='&lang='&excerpt='&rememberme='&tablename='&updated='&attachments='&gid='&enable='&action='&offset='&post_id='&widget_id='&next='&activated='&author='&r='&return='&disabled='&u='&='&clone='&content='&flag='&check='&ID='&secret='&e='&name='&m='&month='&field='&newcontent='&comment_ID='&columns='&test='&language='&step='&phone='&file_name='&service='&mail='&post_status='&hidden='&tax_input='&copy='&md5='&passwd='&meta='&hostname='&userid='&a='&admin_email='&what='&h='&day='&mode='&referer='&debug='&context='&site_id='&limit='&html='&taxonomy='&screen='&paged='&port='&target='&address='&users='&y='&part='&all='&sid='&email='&file='&pass2='&info='&update='&prefix='&trashed='&user_id='&version='&comment_status='&success='&slug='&import='&callback='&deleted='&c='&save='&height='&linkcheck='&mod='&link_id='&preview_nonce='&noconfirmation='&history='&oauth_token='&code=' HTTP/1.1
+        Host: {{ Hostname }}
+      - |
+        GET /?export='&state='&timezone='&user_email='&n='&type='&db_name='&themes='&v='&signature='&label='&group_id='&revision='&untrashed='&admin='&path='&files='&invalid='&blog_public='&client_id='&dir='&redirect='&level='&db='&sticky='&orderby='&uid='&s='&cancel='&key='&post_mime_type='&new_role='&range='&database='&query='&sort='&error='&rows='&admin_password='&category='&stage='&edit='&token='&directory='&x='&source='&preview='&attachment='&id_base='&auth='&script='&category_id='&signup_for='&img='&widget='&log='&plugin_status='&dbname='&reset='&term='&i='&cid='&captcha='&add='&index='&settings='&_wp_http_referer='&field_id='&format='&tag_ID='&profile='&user='&filename='&ns='&time='&first_name='&selection='&ids='&_method='&method='&server='&trigger='&menu='&oauth_verifier='&request='&msg='&up='&tags='&_wpnonce='&loggedout='&user_login='&id='&drop='&g-recaptcha-response='&site='&plugins='&notes='&val='&reason='&username='&title='&destination='&page_id=' HTTP/1.1
+        Host: {{ Hostname }}
+
     matchers-condition: and
     matchers:
       - type: word

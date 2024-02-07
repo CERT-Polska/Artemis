@@ -92,6 +92,7 @@ class Humble(ArtemisBase):
             with open("/humble/additional/user_agents.txt", "w") as f:
                 f.write(f"1.- {Config.Miscellaneous.CUSTOM_USER_AGENT}\n")
         else:
+            # Reset back to the original content
             subprocess.call(["cp", "/humble/additional/user_agents.txt.bak", "/humble/additional/user_agents.txt"])
 
         base_url = get_target_url(current_task)

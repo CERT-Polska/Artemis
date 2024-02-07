@@ -36,6 +36,7 @@ http:
         words:
           - '<meta name="generator" content="MediaWiki'
           - '<meta name="generator" content="LimeSurvey'
+          - '<title>phpMyAdmin</title>'
         negative: true
 
       - type: regex

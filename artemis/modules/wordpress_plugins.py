@@ -333,14 +333,16 @@ class WordpressPlugins(ArtemisBase):
 
             try:
                 print("trying to find readme content for ", plugin["slug"])
-                print(urllib.parse.urljoin(
-                            url,
-                            "/wp-content/plugins/"
-                            + plugin["slug"]
-                            + "/"
-                            + self._readme_file_names[plugin["slug"]]
-                            + cachebuster,
-                        ))
+                print(
+                    urllib.parse.urljoin(
+                        url,
+                        "/wp-content/plugins/"
+                        + plugin["slug"]
+                        + "/"
+                        + self._readme_file_names[plugin["slug"]]
+                        + cachebuster,
+                    )
+                )
                 if plugin["slug"] in self._readme_file_names:
                     response = http_requests.get(
                         urllib.parse.urljoin(
@@ -361,9 +363,11 @@ class WordpressPlugins(ArtemisBase):
                             ),
                             max_size=README_MAX_SIZE,
                         )
-                        print(urllib.parse.urljoin(
+                        print(
+                            urllib.parse.urljoin(
                                 url, "/wp-content/plugins/" + plugin["slug"] + "/" + file_name + cachebuster
-                            ))
+                            )
+                        )
                         if "stable tag" in response.content.lower():
                             break
                 if "stable tag" not in response.content.lower():

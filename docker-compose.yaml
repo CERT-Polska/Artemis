@@ -16,7 +16,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 250M
     healthcheck:
       test: "wget 127.0.0.1:9090 -O/dev/null || exit 1"
       interval: 5s

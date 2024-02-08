@@ -356,6 +356,8 @@ class Config:
                         "http/exposed-panels/office-webapps-panel.yaml",
                         "http/exposed-panels/opensis-panel.yaml",
                         "http/exposed-panels/projectsend-login.yaml",
+                        # Source of FPs
+                        "custom:CVE-2019-1579",
                     ]
                 ),
                 cast=decouple.Csv(str),

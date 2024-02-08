@@ -20,6 +20,7 @@ def get_links_and_resources_on_same_domain(url: str) -> List[str]:
             new_url = urllib.parse.urljoin(url, tag[attribute])
             new_url_parsed = urllib.parse.urlparse(new_url)
 
-            if url_parsed.netloc == new_url_parsed.netloc:
+            # Let's be lax and allow resources from different ports (or e.g. http vs https)
+            if url_parsed.hostname == new_url_parsed.hostname:
                 links.append(new_url)
     return links

@@ -492,6 +492,16 @@ class Config:
                 "Maximum size of the VCS (e.g. SVN) db file.",
             ] = get_config("VCS_MAX_DB_SIZE_BYTES", default=1024 * 1024 * 5, cast=int)
 
+        class WordPressPlugins:
+            WORDPRESS_SKIP_VERSION_CHECK_ON_LESS_POPULAR_PLUGINS: Annotated[
+                bool,
+                "Some plugins have wrong versions in the README. For the most popular 1500 plugins, Artemis team monitors "
+                "such cases and excludes the plugins that have wrong versions in the README from scanning. For the less popular "
+                "plugins (e.g. if one can be identified by /wp-content/plugins/xyz/ URL in the website source), such "
+                "cases can be a source of false positives.\n\n"
+                "If this option is set to True, version check for such plugins will not be performed.",
+            ] = get_config("WORDPRESS_SKIP_VERSION_CHECK_ON_LESS_POPULAR_PLUGINS", default=False, cast=bool)
+
         class WordPressScanner:
             WORDPRESS_VERSION_AGE_DAYS: Annotated[
                 int,

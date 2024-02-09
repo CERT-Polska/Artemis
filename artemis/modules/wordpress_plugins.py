@@ -130,7 +130,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
         readme_content = readme_content.replace("= 1.1 =", "Changelog")
     
     if slug == "image-sizes":
-        # Changelog entries prefixed with dates"
+        # Changelog entries prefixed with dates
         readme_content = re.sub(r'^= \d{4}-\d{2}-\d{2}', '', readme_content, flags=re.MULTILINE)
 
     if slug not in PLUGINS_TO_SKIP_CHANGELOG:

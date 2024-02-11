@@ -7,10 +7,10 @@ backup.tar.gz
 db.sql
 backup.sql
 appsettings.json
-_search
 graph
 database.sql
 adminbackups
+source-code
 mail/temp/
 webmail/temp/
 errors

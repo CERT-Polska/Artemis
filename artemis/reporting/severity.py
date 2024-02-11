@@ -16,7 +16,6 @@ SEVERITY_MAP = {
     ReportType("sql_injection"): Severity.HIGH,
     ReportType("script_unregistered_domain"): Severity.HIGH,
     ReportType("closed_wordpress_plugin"): Severity.HIGH,
-    ReportType("close_domain_expiration_date"): Severity.HIGH,
     ReportType("exposed_database_with_easy_password"): Severity.HIGH,
     ReportType("exposed_version_control_folder"): Severity.HIGH,
     ReportType("exposed_version_control_folder_with_credentials"): Severity.HIGH,
@@ -36,6 +35,7 @@ SEVERITY_MAP = {
     # This doesn't mean that a version is insecure, as WordPress maintains a separate list
     # of insecure versions. This just means "turn on the automatic updates"
     ReportType("old_wordpress"): Severity.LOW,
+    ReportType("close_domain_expiration_date"): Severity.MEDIUM,
     ReportType("exposed_http_server_info_status"): Severity.MEDIUM,
     ReportType("exposed_php_source"): Severity.MEDIUM,
     ReportType("zone_transfer_possible"): Severity.MEDIUM,

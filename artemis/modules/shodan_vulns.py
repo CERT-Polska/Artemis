@@ -92,7 +92,9 @@ class ShodanVulns(ArtemisBase):
 
 
 if __name__ == "__main__":
-    if not Config.Modules.Shodan.SHODAN_API_KEY:
+    if Config.Modules.Shodan.SHODAN_API_KEY:
+        ShodanVulns().loop()
+    else:
         no_api_key_message_printed_filename = "/.no-api-key-message-shown"
 
         if not os.path.exists(no_api_key_message_printed_filename):
@@ -103,6 +105,3 @@ if __name__ == "__main__":
 
             with open(no_api_key_message_printed_filename, "w"):
                 pass
-        return
-
-    ShodanVulns().loop()

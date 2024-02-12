@@ -103,5 +103,6 @@ if __name__ == "__main__":
 
             with open(no_api_key_message_printed_filename, "w"):
                 pass
+        return
 
     ShodanVulns().loop()

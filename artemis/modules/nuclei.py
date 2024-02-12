@@ -137,6 +137,9 @@ class Nuclei(ArtemisBase):
     def run_multiple(self, tasks: List[Task]) -> None:
         self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
 
+        if len(tasks) == 0:
+            return
+
         targets = []
         for task in tasks:
             targets.append(get_target_url(task))

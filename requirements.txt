@@ -40,7 +40,7 @@ shodan==1.31.0
 six==1.16.0
 termcolor==2.4.0
 timeout-decorator==0.5.0
-tqdm==4.66.1
+tqdm==4.66.2
 typer==0.9.0
 typing-extensions==4.9.0
 urllib3==1.26.18

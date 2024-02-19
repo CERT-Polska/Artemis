@@ -599,6 +599,8 @@ TRANSLATIONS = {
     "Remote Code Execution in PAN-OS 7.1.18 and earlier, PAN-OS 8.0.11-h1 and earlier, and PAN-OS 8.1.2 and earlier with GlobalProtect Portal or GlobalProtect Gateway Interface enabled may allow an unauthenticated remote attacker to execute arbitrary code.": "PAN-OS w wersji 7.1.18 i wcześniejszych, 8.0.11-h1 i wcześniejszych oraz 8.1.2 i wcześniejszych z włączonymi modułami GlobalProtect Portal lub GlobalProtect Gateway Interface mogą umożliwiać atakującym zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Internal information is exposed in elasticsearch to external users.": "Wykryto konfigurację lub dane systemu Elasticsearch dostępne bez logowania." + DATA_HIDE_HINT,
+    "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",
@@ -774,4 +776,7 @@ TRANSLATIONS = {
     "http/exposed-panels/plausible-panel.yaml": "wykryto panel systemu Plausible.",
     "Micro Focus Vibe login panel was detected.": "wykryto panel logowania Micro Focus Vibe.",
     "An Ansible Semaphore login panel was detected.": "wykryto panel logowania Ansible Semaphore.",
+    "Centreon login panel was detected.": "wykryto panel logowania Centreon.",
+    "[no description] http/exposed-panels/filebrowser-login-panel.yaml": "wykryto panel logowania narzędzia File Browser.",
+    "TrueNAS scale is a free and open-source NAS solution": "Wykryto panel logowania TrueNAS.",
 }

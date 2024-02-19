@@ -55,10 +55,8 @@ PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
-    "easy-appointments",
     "famethemes-demo-importer",
     "link-manager",
-    "live-sales-notifications-for-woocommerce",
     "page-or-post-clone",
     "printfriendly",
     "rafflepress",
@@ -72,6 +70,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "wp-mail-bank",
     "wp-maximum-execution-time-exceeded",
     "wp-phpmyadmin-extension",
+    "yet-another-stars-rating",
     "zapier",
 ]
 
@@ -190,7 +189,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
 
     if tag_lines:
         (tag_line,) = tag_lines
-        tag = tag_line.strip().split(":")[1].strip()
+        tag = tag_line.strip().split(":")[1].strip().lstrip("v")
 
         if tag != "trunk" and (
             # Sometimes the changelog version is greater, sometimes the "stable tag" version is greater -

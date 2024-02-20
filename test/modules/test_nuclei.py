@@ -23,7 +23,7 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "[high] http://test-phpmyadmin-easy-password:80: phpMyAdmin - Default Login phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.",
+            "[info] http://test-phpmyadmin-easy-password:80: phpMyAdmin Panel - Detect phpMyAdmin panel was detected., [high] http://test-phpmyadmin-easy-password:80: phpMyAdmin - Default Login phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.",
         )
 
     def test_links(self) -> None:

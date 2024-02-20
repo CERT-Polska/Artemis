@@ -31,12 +31,13 @@ http:
     max-redirects: 1
     matchers-condition: and
     matchers:
-      # MediaWiki and LimeSurvey are a source of false positives
+      # Some popular systems are a source of false positives
       - type: word
         part: body
         words:
           - '<meta name="generator" content="MediaWiki'
           - '<meta name="generator" content="LimeSurvey'
+          - '<meta name="generator" content="DokuWiki'
           - '<title>phpMyAdmin</title>'
         negative: true
 

@@ -45,7 +45,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "userway-accessibility-widget",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "addon-elements-for-elementor-page-builder",
     "athemes-starter-sites",
     "blocks-animation",
     "button-contact-vr",
@@ -57,6 +56,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
     "link-manager",
+    'live-sales-notifications-for-woocommerce',
     "page-or-post-clone",
     "printfriendly",
     "rafflepress",

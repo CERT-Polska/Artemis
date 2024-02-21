@@ -175,7 +175,7 @@ class Nuclei(ArtemisBase):
 
             if messages:
                 status = TaskStatus.INTERESTING
-                status_reason = ", ".join(messages)
+                status_reason = ", ".join(sorted(messages))
             else:
                 status = TaskStatus.OK
                 status_reason = None

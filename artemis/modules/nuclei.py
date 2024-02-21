@@ -116,6 +116,12 @@ class Nuclei(ArtemisBase):
             else str(int(0)),
         ] + additional_configuration
 
+        # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
+        # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
+        for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
+            command.append("-it")
+            command.append(template)
+
         for target in targets:
             command.append("-target")
             command.append(target)
@@ -169,7 +175,7 @@ class Nuclei(ArtemisBase):
 
             if messages:
                 status = TaskStatus.INTERESTING
-                status_reason = ", ".join(messages)
+                status_reason = ", ".join(sorted(messages))
             else:
                 status = TaskStatus.OK
                 status_reason = None

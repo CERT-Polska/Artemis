@@ -116,8 +116,8 @@ class Nuclei(ArtemisBase):
             else str(int(0)),
         ] + additional_configuration
 
-        # it will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if they're
-        # marked with as tag such as fuzz which prevents them from being executed by default.
+        # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
+        # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
         for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
             command.append("-it")
             command.append(template)

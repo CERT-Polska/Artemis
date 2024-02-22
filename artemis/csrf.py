@@ -26,7 +26,7 @@ def generate_csrf_secret() -> str:
     os.write(fd, secret)
     os.close(fd)
 
-    return secret.decode('ascii')
+    return secret.decode("ascii")
 
 
 class CsrfSettings(BaseModel):
@@ -55,6 +55,7 @@ def validate_csrf(func: Any) -> Any:
     async def wrapper(request: Request, csrf_protect: CsrfProtect, *args: Any, **kwargs: Any) -> Any:
         await csrf_protect.validate_csrf(request)
         return await func(request, *args, **kwargs)
+
     return wrapper
 
 

@@ -14,6 +14,8 @@
 
     <h1>Add targets</h1>
     <form action="/add" method="post" class="w-100">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
         <div class="form-group mb-3">
             <label class="form-label">Targets (separated with newlines)</label>
             <textarea class="form-control" name="targets"></textarea>

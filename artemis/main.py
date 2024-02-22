@@ -3,12 +3,16 @@ from os import path
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi_csrf_protect.exceptions import CsrfProtectError
 
 from artemis.api import router as router_api
+from artemis import csrf
 from artemis.db import DB
 from artemis.frontend import router as router_front
 
 app = FastAPI()
+app.exception_handler(CsrfProtectError)(csrf.csrf_protect_exception_handler)
+
 db = DB()
 
 # We run it here so that it will get executed even when importing from main,

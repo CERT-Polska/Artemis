@@ -70,7 +70,10 @@ services:
     env_file: .env
     ports: ["5000:5000"]
     restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      - data-web:/data
+      - ./docker/karton.ini:/etc/karton/karton.ini:ro
+      - ${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/
 
   karton-bruter:
     build:
@@ -405,3 +408,4 @@ volumes:
   data-redis:
   data-nuclei-templates:
   data-nuclei-config:
+  data-web:

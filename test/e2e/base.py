@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from unittest import TestCase
 
 import requests
+from bs4 import BeautifulSoup
 
 from artemis.utils import build_logger
 
@@ -25,7 +26,12 @@ class BaseE2ETestCase(TestCase):
         self._wait_for_backend()
 
     def submit_tasks(self, tasks: List[str], tag: str) -> None:
-        requests.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks), "tag": tag})
+        with requests.Session() as s:
+            data = s.get(BACKEND_URL + "add").content
+            soup = BeautifulSoup(data, 'html.parser')
+            csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
+
+            s.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks), "tag": tag, "csrf_token": csrf_token})
 
     def submit_tasks_with_modules_enabled(self, tasks: List[str], tag: str, modules_enabled: List[str]) -> None:
         requests.post(

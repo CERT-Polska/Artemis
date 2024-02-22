@@ -28,8 +28,8 @@ class BaseE2ETestCase(TestCase):
     def submit_tasks(self, tasks: List[str], tag: str) -> None:
         with requests.Session() as s:
             data = s.get(BACKEND_URL + "add").content
-            soup = BeautifulSoup(data, 'html.parser')
-            csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
+            soup = BeautifulSoup(data, "html.parser")
+            csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
 
             s.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks), "tag": tag, "csrf_token": csrf_token})
 

@@ -2,6 +2,10 @@
     <span class="badge bg-warning">
         In progress (pending tasks: {{ entry.num_active_tasks }})
     </span>
+{% elif entry.stopped %}
+    <span class="badge bg-danger">
+        Stopped
+    </span>
 {% else %}
     <span class="badge bg-success">
         Done

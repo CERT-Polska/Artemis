@@ -5,8 +5,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 
-from artemis.api import router as router_api
 from artemis import csrf
+from artemis.api import router as router_api
 from artemis.db import DB
 from artemis.frontend import router as router_front
 

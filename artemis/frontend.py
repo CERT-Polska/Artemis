@@ -111,7 +111,7 @@ async def post_add(
     tag: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
     redirect: bool = Form(True),
-    csrf_protect: CsrfProtect = Depends()
+    csrf_protect: CsrfProtect = Depends(),
 ) -> Response:
     disabled_modules = []
 
@@ -151,7 +151,11 @@ def get_remove_pending_tasks(request: Request, analysis_id: str, csrf_protect: C
 
 @router.post("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
 @csrf.validate_csrf
-async def post_remove_pending_tasks(request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()) -> Response:
+async def post_remove_pending_tasks(
+    request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()
+) -> Response:
+    db.mark_analysis_as_stopped(analysis_id)
+
     backend = KartonBackend(config=KartonConfig())
 
     for task in backend.get_all_tasks():

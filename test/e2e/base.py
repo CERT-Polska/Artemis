@@ -37,7 +37,7 @@ class BaseE2ETestCase(TestCase):
                     "csrf_token": csrf_token,
                     "targets": "\n".join(tasks),
                     "tag": tag,
-                }
+                },
             )
             response.raise_for_status()
 

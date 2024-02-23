@@ -36,6 +36,7 @@ class ArtemisModuleTestCase(KartonTestCase):
             self._lookup_mock.__enter__()
 
         self.mock_db = MagicMock()
+        self.mock_db.get_analysis_by_id.return_value = {}
         self.mock_db.contains_scheduled_task.return_value = False
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=self.mock_db

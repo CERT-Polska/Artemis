@@ -3,13 +3,24 @@ import urllib
 from typing import Dict, List, Optional
 
 import requests
-from fastapi import APIRouter, File, Form, Header, HTTPException, Request, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Request,
+    Response,
+)
 from fastapi.responses import RedirectResponse
+from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 from starlette.datastructures import Headers
 
+from artemis import csrf
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
@@ -77,20 +88,22 @@ def get_root(request: Request) -> Response:
 
 
 @router.get("/add", include_in_schema=False)
-def get_add_form(request: Request) -> Response:
+def get_add_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
 
-    return templates.TemplateResponse(
+    return csrf.csrf_form_template_response(
         "add.jinja2",
         {
             "request": request,
             "binds": binds,
             "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
         },
+        csrf_protect,
     )
 
 
 @router.post("/add", include_in_schema=False)
+@csrf.validate_csrf
 async def post_add(
     request: Request,
     targets: Optional[str] = Form(None),
@@ -98,6 +111,7 @@ async def post_add(
     tag: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
     redirect: bool = Form(True),
+    csrf_protect: CsrfProtect = Depends(),
 ) -> Response:
     disabled_modules = []
 
@@ -122,18 +136,49 @@ async def post_add(
         )
 
 
+@router.get("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
+def get_remove_pending_tasks(request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()) -> Response:
+    return csrf.csrf_form_template_response(
+        "/remove_pending_tasks.jinja2",
+        {
+            "analysis_id": analysis_id,
+            "analysed_object": db.get_analysis_by_id(analysis_id)["payload"]["data"],  # type: ignore
+            "request": request,
+        },
+        csrf_protect,
+    )
+
+
+@router.post("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
+@csrf.validate_csrf
+async def post_remove_pending_tasks(
+    request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()
+) -> Response:
+    db.mark_analysis_as_stopped(analysis_id)
+
+    backend = KartonBackend(config=KartonConfig())
+
+    for task in backend.get_all_tasks():
+        if task.root_uid == analysis_id:
+            backend.delete_task(task)
+
+    return RedirectResponse("/", status_code=301)
+
+
 @router.get("/restart-crashed-tasks", include_in_schema=False)
-def get_restart_crashed_tasks(request: Request) -> Response:
-    return templates.TemplateResponse(
+def get_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+    return csrf.csrf_form_template_response(
         "/restart_crashed_tasks.jinja2",
         {
             "request": request,
         },
+        csrf_protect,
     )
 
 
 @router.post("/restart-crashed-tasks", include_in_schema=False)
-def post_restart_crashed_tasks(request: Request) -> Response:
+@csrf.validate_csrf
+async def post_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     restart_crashed_tasks()
     return RedirectResponse("/", status_code=301)
 

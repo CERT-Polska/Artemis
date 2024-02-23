@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from unittest import TestCase
 
 import requests
+from bs4 import BeautifulSoup
 
 from artemis.utils import build_logger
 
@@ -25,18 +26,38 @@ class BaseE2ETestCase(TestCase):
         self._wait_for_backend()
 
     def submit_tasks(self, tasks: List[str], tag: str) -> None:
-        requests.post(BACKEND_URL + "add", data={"targets": "\n".join(tasks), "tag": tag})
+        with requests.Session() as s:
+            response = s.get(BACKEND_URL + "add")
+            data = response.content
+            soup = BeautifulSoup(data, "html.parser")
+            csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
+            response = s.post(
+                BACKEND_URL + "add",
+                data={
+                    "csrf_token": csrf_token,
+                    "targets": "\n".join(tasks),
+                    "tag": tag,
+                },
+            )
+            response.raise_for_status()
 
     def submit_tasks_with_modules_enabled(self, tasks: List[str], tag: str, modules_enabled: List[str]) -> None:
-        requests.post(
-            BACKEND_URL + "add",
-            data={
-                "targets": "\n".join(tasks),
-                "tag": tag,
-                "choose_modules_to_enable": True,
-                **{f"module_enabled_{module}": True for module in modules_enabled},
-            },
-        )
+        with requests.Session() as s:
+            data = s.get(BACKEND_URL + "add").content
+            soup = BeautifulSoup(data, "html.parser")
+            csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
+
+            response = s.post(
+                BACKEND_URL + "add",
+                data={
+                    "csrf_token": csrf_token,
+                    "targets": "\n".join(tasks),
+                    "tag": tag,
+                    "choose_modules_to_enable": True,
+                    **{f"module_enabled_{module}": True for module in modules_enabled},
+                },
+            )
+            response.raise_for_status()
 
     def wait_for_tasks_finished(
         self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES

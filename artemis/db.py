@@ -69,6 +69,12 @@ class DB:
     def list_analysis(self) -> List[Dict[str, Any]]:
         return cast(List[Dict[str, Any]], list(self.analysis.find()))
 
+    def mark_analysis_as_stopped(self, analysis_id: str) -> None:
+        self.analysis.update_one(
+            filter={"_id": analysis_id},
+            update={"$set": {"stopped": True}},
+        )
+
     def create_analysis(self, analysis: Task) -> None:
         created_analysis = self.task_to_dict(analysis)
 

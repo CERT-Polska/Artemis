@@ -105,6 +105,12 @@ class ArtemisBase(Karton):
             return cache_result
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
+        analysis = self.db.get_analysis_by_id(current_task.root_uid)
+        assert analysis is not None
+        if analysis.get("stopped", False):
+            # Don't add tasks to stopped analyses
+            return
+
         new_task.priority = current_task.priority
         new_task.payload["created_at"] = datetime.datetime.utcnow().isoformat()
 

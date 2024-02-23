@@ -13,7 +13,7 @@ TEMPLATE_TASK_TABLE_ROW_TASK_LINK = templates.get_template("table_row/task/task_
 TEMPLATE_TASK_TABLE_ROW_BADGES = templates.get_template("table_row/task/badges.jinja2")
 
 TEMPLATE_ANALYSIS_TABLE_ROW_PENDING_TASKS = templates.get_template("table_row/analysis/pending_tasks.jinja2")
-TEMPLATE_ANALYSIS_TABLE_ROW_RESULTS_LINK = templates.get_template("table_row/analysis/results_link.jinja2")
+TEMPLATE_ANALYSIS_TABLE_ROW_ACTIONS = templates.get_template("table_row/analysis/actions.jinja2")
 
 
 def dedent(text: str) -> str:
@@ -44,5 +44,5 @@ def render_analyses_table_row(entry: Dict[str, Any]) -> List[str]:
         html.escape(entry["payload"]["data"]),
         html.escape(entry["payload_persistent"].get("tag", "")),
         TEMPLATE_ANALYSIS_TABLE_ROW_PENDING_TASKS.render({"entry": entry}),
-        TEMPLATE_ANALYSIS_TABLE_ROW_RESULTS_LINK.render({"entry": entry}),
+        TEMPLATE_ANALYSIS_TABLE_ROW_ACTIONS.render({"entry": entry}),
     ]

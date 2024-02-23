@@ -73,6 +73,7 @@ def get_analyses_table(
                 "payload_persistent": entry["payload_persistent"],
                 "id": entry["_id"],
                 "num_active_tasks": num_active_tasks,
+                "stopped": entry.get("stopped", None),
             }
         )
 

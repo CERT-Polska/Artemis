@@ -10,6 +10,7 @@ cryptography==41.0.7
 dkimpy==1.1.5
 dnspython==2.6.1
 fastapi==0.109.2
+fastapi-csrf-protect==0.3.3
 freezegun==1.4.0
 h11==0.14.0
 idna==3.6

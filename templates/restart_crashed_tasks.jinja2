@@ -4,6 +4,8 @@
     <h1>Restart all crashed tasks</h1>
 
     <form method="POST" action="/restart-crashed-tasks">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
         <input type="submit" value="restart" />
     </form>
 {% endblock %}

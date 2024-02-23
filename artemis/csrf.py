@@ -32,7 +32,6 @@ def generate_csrf_secret() -> str:
 class CsrfSettings(BaseModel):
     secret_key: str = generate_csrf_secret()
     cookie_samesite: str = "strict"
-    cookie_secure: bool = True
     token_location: str = "body"
     token_key: str = "csrf_token"
 

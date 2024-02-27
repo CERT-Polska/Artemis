@@ -1,4 +1,5 @@
 {
+    "http/vulnerabilities/generic/xss-fuzz.yaml": "reflected-xss",
     "http/vulnerabilities/generic/top-xss-params.yaml": "reflected-xss",
     "http/vulnerabilities/generic/basic-xss-prober.yaml": "reflected-xss",
     "custom:xss-inside-tag-top-params": "reflected-xss",

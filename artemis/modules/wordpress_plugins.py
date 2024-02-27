@@ -57,6 +57,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "famethemes-demo-importer",
     "link-manager",
     "live-sales-notifications-for-woocommerce",
+    "official-facebook-pixel",
     "page-or-post-clone",
     "printfriendly",
     "rafflepress",
@@ -69,7 +70,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "wp-less",
     "wp-mail-bank",
     "wp-maximum-execution-time-exceeded",
-    "wp-phpmyadmin-extension",
     "yet-another-stars-rating",
     "zapier",
 ]

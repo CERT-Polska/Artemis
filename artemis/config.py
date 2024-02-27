@@ -354,6 +354,7 @@ class Config:
                         "http/exposed-panels/bigbluebutton-login.yaml",
                         "http/exposed-panels/ilias-panel.yaml",
                         "http/exposed-panels/office-webapps-panel.yaml",
+                        "http/exposed-panels/onlyoffice-login-panel.yaml",
                         "http/exposed-panels/opensis-panel.yaml",
                         "http/exposed-panels/projectsend-login.yaml",
                         # Source of FPs

@@ -19,6 +19,7 @@ class DomainExpirationScanner(ArtemisBase):
     identity = "domain_expiration_scanner"
     filters = [{"type": TaskType.DOMAIN.value}]
     resource_name_to_lock_before_scanning = "whois"
+    lock_target = False
 
     # As the logic sometimes requires waiting 24 hours for the quota to be renewed, let's
     # set the timeout for 24 hours + 1 hour.

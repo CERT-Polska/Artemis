@@ -1,6 +1,11 @@
 Troubleshooting
 ===============
 
+Issues when scanning localhost
+------------------------------
+As Artemis modules are Docker containers, you won't be able to scan ``localhost``. Entering ``localhost`` as the target to scan
+will cause the containers to scan themselves.
+
 Startup issues related to port 5000
 -----------------------------------
 On some configurations (e.g. MacOS using AirPlay Receiver) port 5000 is already used, which will cause Artemis startup issues.

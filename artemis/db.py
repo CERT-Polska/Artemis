@@ -200,7 +200,7 @@ class DB:
             to_save["result"] = data
 
         statement = postgres_upsert(TaskResult).values([to_save])
-        del to_save['id']
+        del to_save["id"]
         statement = statement.on_conflict_do_update(index_elements=[TaskResult.id], set_=to_save)
 
         session = Session()

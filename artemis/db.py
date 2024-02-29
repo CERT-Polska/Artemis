@@ -210,7 +210,12 @@ class DB:
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
         try:
             session = Session()
-            return session.query(Analysis).get(analysis_id).__dict__  # type: ignore
+            item = session.query(Analysis).get(analysis_id)
+
+            if item:
+                return item.__dict__  # type: ignore
+            else:
+                return None
         except NoResultFound:
             return None
 
@@ -289,7 +294,12 @@ class DB:
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
         try:
             session = Session()
-            return session.query(TaskResult).get(task_id).__dict__  # type: ignore
+            item = session.query(TaskResult).get(task_id)
+
+            if item:
+                return item.__dict__  # type: ignore
+            else:
+                return None
         except NoResultFound:
             return None
 

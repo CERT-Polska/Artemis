@@ -108,5 +108,5 @@ def migrate_if_needed() -> None:
             cursor.close()
 
     session = Session()
-    session.add(MigrationLog("initial"))
+    session.add(MigrationLog(id="initial"))
     session.commit()

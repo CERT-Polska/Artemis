@@ -91,7 +91,7 @@ class Analysis(Base):  # type: ignore
 class TaskResult(Base):  # type: ignore
     __tablename__ = "task_result"
     id = Column(String, primary_key=True)
-    analysis_id = Column(String, primary_key=True)
+    analysis_id = Column(String, index=True)
     created_at = Column(DateTime, server_default=text("NOW()"))
     status = Column(String, index=True)
     tag = Column(String, index=True)

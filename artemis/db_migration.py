@@ -28,9 +28,9 @@ def migrate_if_needed() -> None:
 
     session = Session()
     try:
-        session.query(MigrationLog).get("initial")
-        logger.info("Data already migrated")
-        return
+        if session.query(MigrationLog).get("initial"):
+            logger.info("Data already migrated")
+            return
     except NoResultFound:
         pass
 

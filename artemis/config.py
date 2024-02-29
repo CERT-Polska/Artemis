@@ -13,9 +13,16 @@ def get_config(name: str, **kwargs) -> Any:  # type: ignore
 
 class Config:
     class Data:
-        DB_CONN_STR: Annotated[str, "Connection string to the MongoDB database."] = get_config("DB_CONN_STR")
-
+        POSTGRES_CONN_STR: Annotated[str, "Connection string to the PostgreSQL database."] = get_config(
+            "POSTGRES_CONN_STR"
+        )
         REDIS_CONN_STR: Annotated[str, "Connection string to Redis."] = get_config("REDIS_CONN_STR")
+
+        LEGACY_MONGODB_CONN_STR: Annotated[
+            str,
+            "Connection string to the MongoDB database. MongoDB is not used anymore - it is present here to seamlessly "
+            "migrate data from older Artemis versions to PostgreSQL.",
+        ] = get_config("DB_CONN_STR")
 
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[

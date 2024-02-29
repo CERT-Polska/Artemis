@@ -1,18 +1,18 @@
-{% if task.priority != "normal" %}
-    <span class="badge bg-dark">{{ task.priority }}</span>
+{% if task_result.task.priority != "normal" %}
+    <span class="badge bg-dark">{{ task_result.priority }}</span>
 {% endif %}
 
-{% if task.status == "CACHED" %}
-    <span class="badge bg-info">{{ task.status }}</span>
-{% elif task.status == "ERROR" %}
-    <span class="badge bg-danger">{{ task.status }}</span>
-{% elif task.status == "INTERESTING" %}
-    <span class="badge bg-warning">{{ task.status }}</span>
-{% elif task.status == "OK" %}
-    <span class="badge bg-success">{{ task.status }}</span>
+{% if task_result.status == "CACHED" %}
+    <span class="badge bg-info">{{ task_result.status }}</span>
+{% elif task_result.status == "ERROR" %}
+    <span class="badge bg-danger">{{ task_result.status }}</span>
+{% elif task_result.status == "INTERESTING" %}
+    <span class="badge bg-warning">{{ task_result.status }}</span>
+{% elif task_result.status == "OK" %}
+    <span class="badge bg-success">{{ task_result.status }}</span>
 {% endif %}
 
-{% for header, value in task.headers.items() %}
+{% for header, value in task_result.task.headers.items() %}
     {% if header == "receiver" %}
         {# don't render #}
     {% elif header == "type" %}

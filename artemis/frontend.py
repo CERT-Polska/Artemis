@@ -223,7 +223,7 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
 
-    api_url_parameters = {"analysis_id": analysis["root_uid"]}
+    api_url_parameters = {"analysis_id": root_id}
 
     if task_filter:
         api_url_parameters["task_filter"] = task_filter.value
@@ -232,7 +232,7 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
         "task_list.jinja2",
         {
             "request": request,
-            "title": f"Analysis of { analysis['payload']['data'] }",
+            "title": f"Analysis of { analysis['target'] }",
             "api_url": "/api/task-results-table?" + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },

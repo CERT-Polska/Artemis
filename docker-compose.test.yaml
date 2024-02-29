@@ -26,6 +26,7 @@ services:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
       REDIS_CONN_STR: redis://test-redis:6379/1
+      POSTGRES_CONN_STR: postgresql://postgres:postgres@postgres-test/artemis
 
       # Use only one provider to speed up the tests
       GAU_ADDITIONAL_OPTIONS: "--providers otx"
@@ -45,6 +46,17 @@ services:
 
   test-redis:
     image: redis:7.0.5
+
+  postgres:
+    image: postgres
+    restart: always
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: artemis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - data-postgres:/var/lib/postgresql/data
 
   test-service-with-bruteable-files:
     image: php:7.4-apache

@@ -51,3 +51,8 @@ If you see the following error in the logs:
 
 That means the Shodan module wasn't able to start because an API key was not configured.
 To fix this, provide the ``SHODAN_API_KEY`` configuration variable, see :doc:`configuration`.
+
+Issues when scanning localhost
+------------------------------
+As Artemis modules are Docker containers, you won't be able to scan your host's ``localhost``.
+Entering ``localhost`` as the target to scan will cause the modules to scan themselves.

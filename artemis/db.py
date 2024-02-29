@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 import datetime
 import functools
@@ -199,7 +200,7 @@ class DB:
         else:
             to_save["result"] = data
 
-        statement = postgres_upsert(TaskResult).values([to_save])
+        statement = postgres_upsert(TaskResult).values([copy.copy(to_save)])
         del to_save["id"]
         statement = statement.on_conflict_do_update(index_elements=[TaskResult.id], set_=to_save)
 

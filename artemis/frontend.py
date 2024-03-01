@@ -142,7 +142,7 @@ def get_remove_pending_tasks(request: Request, analysis_id: str, csrf_protect: C
         "/remove_pending_tasks.jinja2",
         {
             "analysis_id": analysis_id,
-            "analysed_object": db.get_analysis_by_id(analysis_id)["payload"]["data"],  # type: ignore
+            "analysed_object": db.get_analysis_by_id(analysis_id)["target"],  # type: ignore
             "request": request,
         },
         csrf_protect,

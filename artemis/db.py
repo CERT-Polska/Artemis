@@ -182,6 +182,7 @@ class DB:
         to_save = dict(
             task=self.task_to_dict(task),
             id=task.uid,
+            analysis_id=task.root_uid,
             status=status,
             tag=task.payload_persistent.get("tag", None),
             receiver=task.headers.get("receiver", None),

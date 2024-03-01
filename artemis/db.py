@@ -58,11 +58,6 @@ class TSVector(TypeDecorator):  # type: ignore
     impl = TSVECTOR
 
 
-class MigrationLog(Base):  # type: ignore
-    __tablename__ = "migration_log"
-    id = Column(String, primary_key=True)
-
-
 class ScheduledTask(Base):  # type: ignore
     __tablename__ = "scheduled_task"
     created_at = Column(DateTime, server_default=text("NOW()"))

@@ -17,7 +17,7 @@ db = DB()
 
 # We run it here so that it will get executed even when importing from main,
 # which will happen when running the app via `uvicorn artemis.main:app`
-db_migration.migrate_if_needed()
+db_migration.migrate_and_start_thread()
 
 app.include_router(router_front, prefix="")
 app.include_router(router_api, prefix="/api")

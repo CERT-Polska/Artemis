@@ -1,6 +1,7 @@
 import copy
 import dataclasses
 import datetime
+import hashlib
 import functools
 import json
 from enum import Enum
@@ -308,7 +309,9 @@ class DB:
         created_task = {
             "task_id": task.uid,
             "analysis_id": task.root_uid,
-            "deduplication_data": self._get_task_deduplication_data(task),
+            # PostgreSQL limits the length of string if it's an indexed column
+            "deduplication_data": hashlib.sha256(self._get_task_deduplication_data(task)).hexdigest(),
+            "deduplication_data_original": self._get_task_deduplication_data(task),
         }
 
         statement = postgres_upsert(ScheduledTask).values([created_task])

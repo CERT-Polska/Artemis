@@ -333,9 +333,8 @@ class DB:
         """
         Represents a task so that two identical tasks with different IDs will have the same representation.
 
-        Instead of dictionaries, lists are used (so that e.g. {"domain": "google.com"} becomes
-        [["domain", "google.com"]] to prevent ordering problems (as MongoDB compares dictionaries in
-        an ordered way).
+        Instead of dictionaries, strings are used (so that e.g. {"domain": "google.com"} becomes
+        domain=google.com to facillitate indexing.
         """
 
         # We convert the task to dict so that we don't have problems e.g. with enums.

@@ -64,6 +64,7 @@ class ScheduledTask(Base):  # type: ignore
     created_at = Column(DateTime, server_default=text("NOW()"))
     analysis_id = Column(String, primary_key=True)
     deduplication_data = Column(String, primary_key=True)
+    deduplication_data_original = Column(String)
     task_id = Column(String)
 
 

@@ -1,5 +1,5 @@
 {% if task_result.task.priority != "normal" %}
-    <span class="badge bg-dark">{{ task_result.priority }}</span>
+    <span class="badge bg-dark">{{ task_result.task.priority }}</span>
 {% endif %}
 
 {% if task_result.status == "CACHED" %}

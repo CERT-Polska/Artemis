@@ -43,34 +43,39 @@ class DataLoader:
         self._scanned_targets = set()
         self._tag_stats: DefaultDict[str, int] = defaultdict(lambda: 0)
 
-        for task_result in tqdm(
+        for result in tqdm(
             self._db.get_task_results_since(
                 datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS)
             )
         ):
-            result_tag = task_result.get("payload_persistent", {}).get("tag", None)
+            result_tag = result["task"].get("payload_persistent", {}).get("tag", None)
             self._tag_stats[result_tag] += 1
 
             if self._tag and result_tag != self._tag:
                 continue
 
             try:
-                top_level_target = get_top_level_target(task_result)
+                top_level_target = get_top_level_target(result["task"])
             except ValueError:
                 top_level_target = None
 
             if top_level_target:
                 self._scanned_top_level_targets.add(top_level_target)
 
-            self._scanned_targets.add(DataLoader._get_target_host(task_result))
-            reports_to_add = reports_from_task_result(task_result, self._language)
+            self._scanned_targets.add(DataLoader._get_target_host(result["task"]))
+
+            # The underlying data format changed, let's not require the reporters to change
+            data_for_reporters = result["task"]
+            data_for_reporters.update(result)
+
+            reports_to_add = reports_from_task_result(data_for_reporters, self._language)
             for report_to_add in reports_to_add:
                 report_to_add.tag = result_tag
-                report_to_add.original_karton_name = task_result["headers"]["receiver"]
-                report_to_add.original_task_result_id = task_result["_id"]
-                report_to_add.original_task_result_root_uid = task_result["root_uid"]
-                report_to_add.original_task_target_string = task_result["target_string"]
-                report_to_add.last_domain = task_result["payload"].get("last_domain", None)
+                report_to_add.original_karton_name = result["task"]["headers"]["receiver"]
+                report_to_add.original_task_result_id = result["id"]
+                report_to_add.original_task_result_root_uid = result["analysis_id"]
+                report_to_add.original_task_target_string = result["target_string"]
+                report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))
         self._data_initialized = True

@@ -25,6 +25,7 @@ services:
       start_period: 10s
 
   postgres:
+    command: -c 'max_connections=2000'
     image: postgres
     restart: always
     shm_size: 256mb

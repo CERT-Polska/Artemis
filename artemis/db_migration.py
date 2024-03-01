@@ -27,10 +27,10 @@ def _list_of_tuples_to_str(lst: List[Tuple[str, Any]]) -> str:
 def _single_migration_iteration() -> None:
     client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
     with client.start_session() as mongo_session:
-        if client.artemis.analysis.count_documents({"migrated": False}):
+        if client.artemis.analysis.count_documents({"migrated": {"$exists": False}}):
             logger.info("Migrating analyses...")
             try:
-                cursor = client.artemis.analysis.find({"migrated": False}, session=mongo_session)
+                cursor = client.artemis.analysis.find({"migrated": {"$exists": False}}, session=mongo_session)
                 for item in tqdm(cursor):
                     statement = postgres_upsert(Analysis).values(
                         [
@@ -52,10 +52,10 @@ def _single_migration_iteration() -> None:
             finally:
                 cursor.close()
 
-        if client.artemis.task_results.count_documents({"migrated": False}):
+        if client.artemis.task_results.count_documents({"migrated": {"$exists": False}}):
             logger.info("Migrating task results...")
             try:
-                cursor = client.artemis.task_results.find({"migrated": False}, session=mongo_session)
+                cursor = client.artemis.task_results.find({"migrated": {"$exists": False}}, session=mongo_session)
                 for item in tqdm(cursor):
                     statement = postgres_upsert(TaskResult).values(
                         [
@@ -82,10 +82,10 @@ def _single_migration_iteration() -> None:
             finally:
                 cursor.close()
 
-        if client.artemis.scheduled_tasks.count_documents({"migrated": False}):
+        if client.artemis.scheduled_tasks.count_documents({"migrated": {"$exists": False}}):
             logger.info("Migrating scheduled tasks...")
             try:
-                cursor = client.artemis.scheduled_tasks.find({"migrated": False}, session=mongo_session)
+                cursor = client.artemis.scheduled_tasks.find({"migrated": {"$exists": False}}, session=mongo_session)
                 for item in tqdm(cursor):
                     statement = postgres_upsert(ScheduledTask).values(
                         [

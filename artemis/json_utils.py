@@ -2,7 +2,8 @@ import dataclasses
 import datetime
 import json
 from typing import Any
-from sqlalchemy.orm import InstanceState
+
+from sqlalchemy.orm import InstanceState  # type: ignore
 
 
 class JSONEncoderAdditionalTypes(json.JSONEncoder):

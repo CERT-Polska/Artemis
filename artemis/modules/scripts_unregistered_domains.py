@@ -72,7 +72,12 @@ class ScriptsUnregisteredDomains(ArtemisBase):
 
         for script in scripts:
             src = script.get("src")
-            netloc = urllib.parse.urlparse(src).netloc.strip()
+            url_parsed = urllib.parse.urlparse(src)
+
+            if url_parsed.scheme in ['data', 'chrome-extension']:
+                continue
+
+            netloc = url_parsed.netloc.strip()
 
             if netloc and self._is_domain(netloc):
                 privatesuffix = PUBLIC_SUFFIX_LIST.privatesuffix(netloc)

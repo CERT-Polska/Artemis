@@ -149,15 +149,15 @@ class DB:
         self.logger = build_logger(__name__)
 
     def list_analysis(self) -> List[Dict[str, Any]]:
-        session = Session()
-        return [item.__dict__ for item in session.query(Analysis).all()]
+        with Session() as session:
+            return [item.__dict__ for item in session.query(Analysis).all()]
 
     def mark_analysis_as_stopped(self, analysis_id: str) -> None:
-        session = Session()
-        analysis = session.query(Analysis).get(analysis_id)
-        analysis.stopped = True
-        session.add(analysis)
-        session.commit()
+        with Session() as session:
+            analysis = session.query(Analysis).get(analysis_id)
+            analysis.stopped = True
+            session.add(analysis)
+            session.commit()
 
     def create_analysis(self, analysis: Task) -> None:
         analysis_dict = self.task_to_dict(analysis)
@@ -172,9 +172,9 @@ class DB:
             stopped=False,
             task=analysis_dict,
         )
-        session = Session()
-        session.add(analysis)
-        session.commit()
+        with Session() as session:
+            session.add(analysis)
+            session.commit()
 
     def save_task_result(
         self, task: Task, *, status: TaskStatus, status_reason: Optional[str] = None, data: Optional[Any] = None
@@ -202,19 +202,19 @@ class DB:
         del to_save["id"]
         statement = statement.on_conflict_do_update(index_elements=[TaskResult.id], set_=to_save)
 
-        session = Session()
-        session.execute(statement)
-        session.commit()
+        with Session() as session:
+            session.execute(statement)
+            session.commit()
 
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
         try:
-            session = Session()
-            item = session.query(Analysis).get(analysis_id)
+            with Session() as session:
+                item = session.query(Analysis).get(analysis_id)
 
-            if item:
-                return item.__dict__  # type: ignore
-            else:
-                return None
+                if item:
+                    return item.__dict__  # type: ignore
+                else:
+                    return None
         except NoResultFound:
             return None
 
@@ -233,21 +233,21 @@ class DB:
             for ordering_rule in ordering
         ]
 
-        session = Session()
-        records_count_total = session.query(Analysis).count()
+        with Session() as session:
+            records_count_total = session.query(Analysis).count()
 
-        if search_query:
-            query = select(Analysis.c.fulltext.match(self._to_postgresql_query(search_query)))
-        else:
-            query = session.query(Analysis)
+            if search_query:
+                query = select(Analysis.c.fulltext.match(self._to_postgresql_query(search_query)))
+            else:
+                query = session.query(Analysis)
 
-        records_count_filtered: int = query.count()  # type: ignore
-        results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql)[start : start + length]]  # type: ignore
-        return PaginatedResults(
-            records_count_total=records_count_total,
-            records_count_filtered=records_count_filtered,
-            data=results_page,
-        )
+            records_count_filtered: int = query.count()  # type: ignore
+            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql)[start : start + length]]  # type: ignore
+            return PaginatedResults(
+                records_count_total=records_count_total,
+                records_count_filtered=records_count_filtered,
+                data=results_page,
+            )
 
     def get_paginated_task_results(
         self,
@@ -267,38 +267,38 @@ class DB:
             for ordering_rule in ordering
         ]
 
-        session = Session()
-        records_count_total = session.query(TaskResult).count()
+        with Session() as session:
+            records_count_total = session.query(TaskResult).count()
 
-        if search_query:
-            query = select(TaskResult.c.fulltext.match(self._to_postgresql_query(search_query)))
-        else:
-            query = session.query(TaskResult)
+            if search_query:
+                query = select(TaskResult.c.fulltext.match(self._to_postgresql_query(search_query)))
+            else:
+                query = session.query(TaskResult)
 
-        if analysis_id:
-            query = query.filter(TaskResult.analysis_id == analysis_id)  # type: ignore
+            if analysis_id:
+                query = query.filter(TaskResult.analysis_id == analysis_id)  # type: ignore
 
-        if task_filter:
-            for key, value in task_filter.as_dict().items():
-                query = query.filter(getattr(TaskResult, key) == value)  # type: ignore
+            if task_filter:
+                for key, value in task_filter.as_dict().items():
+                    query = query.filter(getattr(TaskResult, key) == value)  # type: ignore
 
-        records_count_filtered = query.count()
-        results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql)[start : start + length]]  # type: ignore
-        return PaginatedResults(
-            records_count_total=records_count_total,
-            records_count_filtered=records_count_filtered,  # type: ignore
-            data=results_page,
-        )
+            records_count_filtered = query.count()
+            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql)[start : start + length]]  # type: ignore
+            return PaginatedResults(
+                records_count_total=records_count_total,
+                records_count_filtered=records_count_filtered,  # type: ignore
+                data=results_page,
+            )
 
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
         try:
-            session = Session()
-            item = session.query(TaskResult).get(task_id)
+            with Session() as session:
+                item = session.query(TaskResult).get(task_id)
 
-            if item:
-                return item.__dict__  # type: ignore
-            else:
-                return None
+                if item:
+                    return item.__dict__  # type: ignore
+                else:
+                    return None
         except NoResultFound:
             return None
 
@@ -319,15 +319,15 @@ class DB:
         statement = postgres_upsert(ScheduledTask).values([created_task])
 
         statement = statement.on_conflict_do_nothing()
-        session = Session()
-        result = session.execute(statement)
-        session.commit()
-        return bool(result.rowcount)
+        with Session() as session:
+            result = session.execute(statement)
+            session.commit()
+            return bool(result.rowcount)
 
     def get_task_results_since(self, time_from: datetime.datetime) -> Generator[Dict[str, Any], None, None]:
-        session = Session()
-        for item in session.query(TaskResult).filter(TaskResult.created_at >= time_from):
-            yield item.__dict__
+        with Session() as session:
+            for item in session.query(TaskResult).filter(TaskResult.created_at >= time_from):
+                yield item.__dict__
 
     def _get_task_deduplication_data(self, task: Task) -> str:
         """

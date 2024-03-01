@@ -2,6 +2,7 @@ import dataclasses
 import datetime
 import json
 from typing import Any
+from sqlalchemy.orm import InstanceState
 
 
 class JSONEncoderAdditionalTypes(json.JSONEncoder):
@@ -10,4 +11,6 @@ class JSONEncoderAdditionalTypes(json.JSONEncoder):
             return dataclasses.asdict(o)
         if isinstance(o, datetime.datetime):
             return o.isoformat()
+        if isinstance(o, InstanceState):
+            return None
         return super().default(o)

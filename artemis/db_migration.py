@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import threading
 import time
 from typing import Any, List, Tuple
@@ -93,7 +94,9 @@ def _single_migration_iteration() -> None:
                                 "created_at": item["created_at"],
                                 "task_id": item["uid"],
                                 "analysis_id": item["analysis_id"],
-                                "deduplication_data": hashlib.sha256(_list_of_tuples_to_str(item["deduplication_data"])).hexdigest(),
+                                "deduplication_data": hashlib.sha256(
+                                    _list_of_tuples_to_str(item["deduplication_data"]).encode("utf-8")
+                                ).hexdigest(),
                                 "deduplication_data_original": _list_of_tuples_to_str(item["deduplication_data"]),
                             }
                         ]

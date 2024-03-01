@@ -63,7 +63,7 @@ def _single_migration_iteration() -> None:
                             {
                                 "id": item["_id"],
                                 "analysis_id": item["root_uid"],
-                                "created_at": item["created_at"],
+                                "created_at": item.get("created_at", datetime.datetime.now()),
                                 "status": item["status"],
                                 "tag": item["payload_persistent"].get("tag", ""),
                                 "receiver": item["headers"]["receiver"],

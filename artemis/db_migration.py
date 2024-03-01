@@ -97,7 +97,7 @@ def _single_migration_iteration() -> None:
                                 "deduplication_data": hashlib.sha256(
                                     _list_of_tuples_to_str(item["deduplication_data"]).encode("utf-8")
                                 ).hexdigest(),
-                                "deduplication_data_original": _list_of_tuples_to_str(item["deduplication_data"]),
+                                "deduplication_data_original": _list_of_tuples_to_str(item["deduplication_data"]).replace('\x00', ''),
                             }
                         ]
                     )

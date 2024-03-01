@@ -74,7 +74,7 @@ class ScriptsUnregisteredDomains(ArtemisBase):
             src = script.get("src")
             url_parsed = urllib.parse.urlparse(src)
 
-            if url_parsed.scheme in ['data', 'chrome-extension']:
+            if url_parsed.scheme in ["data", "chrome-extension"]:
                 continue
 
             netloc = url_parsed.netloc.strip()

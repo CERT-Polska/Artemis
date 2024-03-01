@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
+import string
 import urllib.parse
 
 import bs4
-import string
 import validators
 from karton.core import Task
 from publicsuffixlist import PublicSuffixList
@@ -34,7 +34,7 @@ class ScriptsUnregisteredDomains(ArtemisBase):
     @staticmethod
     def _is_domain(domain: str) -> bool:
         # These are also domains
-        if all(c in string.ascii_letters + '-' + string.digits for c in domain):
+        if all(c in string.ascii_letters + "-" + string.digits for c in domain):
             return True
 
         try:

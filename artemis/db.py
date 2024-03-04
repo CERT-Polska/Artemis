@@ -20,7 +20,7 @@ from sqlalchemy import (  # type: ignore
     create_engine,
 )
 from sqlalchemy.dialects.postgresql import TSVECTOR
-from sqlalchemy.dialects.postgresql import insert as postgres_upsert
+from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import select, text
@@ -202,7 +202,7 @@ class DB:
         else:
             to_save["result"] = data
 
-        statement = postgres_upsert(TaskResult).values([copy.copy(to_save)])
+        statement = postgres_insert(TaskResult).values([copy.copy(to_save)])
         del to_save["id"]
         statement = statement.on_conflict_do_update(index_elements=[TaskResult.id], set_=to_save)
 
@@ -320,7 +320,7 @@ class DB:
             "deduplication_data_original": self._get_task_deduplication_data(task),
         }
 
-        statement = postgres_upsert(ScheduledTask).values([created_task])
+        statement = postgres_insert(ScheduledTask).values([created_task])
 
         statement = statement.on_conflict_do_nothing()
         with Session() as session:

@@ -240,13 +240,13 @@ class DB:
         with Session() as session:
             records_count_total = session.query(Analysis).count()
 
+            query = session.query(Analysis)
+
             if search_query:
-                query = select(Analysis.c.fulltext.match(self._to_postgresql_query(search_query)))
-            else:
-                query = session.query(Analysis)
+                query = query.filter(Analysis.fulltext.match(self._to_postgresql_query(search_query)))
 
             records_count_filtered: int = query.count()  # type: ignore
-            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql)[start : start + length]]  # type: ignore
+            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]  # type: ignore
             return PaginatedResults(
                 records_count_total=records_count_total,
                 records_count_filtered=records_count_filtered,
@@ -274,10 +274,10 @@ class DB:
         with Session() as session:
             records_count_total = session.query(TaskResult).count()
 
+            query = session.query(TaskResult)
+
             if search_query:
-                query = select(TaskResult.c.fulltext.match(self._to_postgresql_query(search_query)))
-            else:
-                query = session.query(TaskResult)
+                query = query.filter(TaskResult.fulltext.match(self._to_postgresql_query(search_query)))
 
             if analysis_id:
                 query = query.filter(TaskResult.analysis_id == analysis_id)  # type: ignore
@@ -287,7 +287,7 @@ class DB:
                     query = query.filter(getattr(TaskResult, key) == value)  # type: ignore
 
             records_count_filtered = query.count()
-            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql)[start : start + length]]  # type: ignore
+            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]  # type: ignore
             return PaginatedResults(
                 records_count_total=records_count_total,
                 records_count_filtered=records_count_filtered,  # type: ignore

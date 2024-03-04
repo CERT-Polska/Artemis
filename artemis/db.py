@@ -23,7 +23,7 @@ from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import select, text
+from sqlalchemy.sql.expression import text
 from sqlalchemy.types import TypeDecorator
 
 from artemis.binds import TaskStatus, TaskType
@@ -243,10 +243,10 @@ class DB:
             query = session.query(Analysis)
 
             if search_query:
-                query = query.filter(Analysis.fulltext.match(self._to_postgresql_query(search_query)))
+                query = query.filter(Analysis.fulltext.match(self._to_postgresql_query(search_query)))  # type: ignore
 
-            records_count_filtered: int = query.count()  # type: ignore
-            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]  # type: ignore
+            records_count_filtered: int = query.count()
+            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]
             return PaginatedResults(
                 records_count_total=records_count_total,
                 records_count_filtered=records_count_filtered,
@@ -277,20 +277,20 @@ class DB:
             query = session.query(TaskResult)
 
             if search_query:
-                query = query.filter(TaskResult.fulltext.match(self._to_postgresql_query(search_query)))
+                query = query.filter(TaskResult.fulltext.match(self._to_postgresql_query(search_query)))  # type: ignore
 
             if analysis_id:
-                query = query.filter(TaskResult.analysis_id == analysis_id)  # type: ignore
+                query = query.filter(TaskResult.analysis_id == analysis_id)
 
             if task_filter:
                 for key, value in task_filter.as_dict().items():
-                    query = query.filter(getattr(TaskResult, key) == value)  # type: ignore
+                    query = query.filter(getattr(TaskResult, key) == value)
 
             records_count_filtered = query.count()
-            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]  # type: ignore
+            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]
             return PaginatedResults(
                 records_count_total=records_count_total,
-                records_count_filtered=records_count_filtered,  # type: ignore
+                records_count_filtered=records_count_filtered,
                 data=results_page,
             )
 

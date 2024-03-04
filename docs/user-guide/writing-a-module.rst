@@ -25,7 +25,7 @@ cache API for each module. The cache is available under ``self.cache``. Rather t
 
 Database
 --------
-Artemis uses MongoDB to save task results - this feature is available via ``self.save_task_result``.
+Artemis uses PostgreSQL to save task results - this feature is available via ``self.save_task_result``.
 
 Resource Locking
 ----------------

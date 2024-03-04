@@ -53,7 +53,7 @@ def get_analyses_table(
     start: int = Query(),
     length: int = Query(),
 ) -> Dict[str, Any]:
-    ordering = _get_ordering(request, column_names=["payload.data", "payload_persistent.tag", None, None])
+    ordering = _get_ordering(request, column_names=["target", "tag", None, None])
     search_query = _get_search_query(request)
 
     karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
@@ -62,16 +62,17 @@ def get_analyses_table(
 
     entries = []
     for entry in result.data:
-        if entry["_id"] in karton_state.analyses:
-            num_active_tasks = len(karton_state.analyses[entry["_id"]].pending_tasks)
+        if entry["id"] in karton_state.analyses:
+            num_active_tasks = len(karton_state.analyses[entry["id"]].pending_tasks)
         else:
             num_active_tasks = 0
 
         entries.append(
             {
-                "payload": entry["payload"],
-                "payload_persistent": entry["payload_persistent"],
-                "id": entry["_id"],
+                "id": entry["id"],
+                "tag": entry["tag"],
+                "payload": entry["task"]["payload"],
+                "payload_persistent": entry["task"]["payload_persistent"],
                 "num_active_tasks": num_active_tasks,
                 "stopped": entry.get("stopped", None),
             }
@@ -96,7 +97,7 @@ def get_task_results_table(
 ) -> Dict[str, Any]:
     ordering = _get_ordering(
         request,
-        column_names=["created_at", "tag", "headers.receiver", "target_string", None, "status_reason"],
+        column_names=["created_at", "tag", "receiver", "target_string", None, "status_reason"],
     )
     search_query = _get_search_query(request)
 

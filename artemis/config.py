@@ -13,14 +13,21 @@ def get_config(name: str, **kwargs) -> Any:  # type: ignore
 
 class Config:
     class Data:
-        DB_CONN_STR: Annotated[str, "Connection string to the MongoDB database."] = get_config("DB_CONN_STR")
-
+        POSTGRES_CONN_STR: Annotated[str, "Connection string to the PostgreSQL database."] = get_config(
+            "POSTGRES_CONN_STR"
+        )
         REDIS_CONN_STR: Annotated[str, "Connection string to Redis."] = get_config("REDIS_CONN_STR")
+
+        LEGACY_MONGODB_CONN_STR: Annotated[
+            str,
+            "Connection string to the MongoDB database. MongoDB is not used anymore - it is present here to seamlessly "
+            "migrate data from older Artemis versions to PostgreSQL.",
+        ] = get_config("DB_CONN_STR")
 
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
-        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=50, cast=int)
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=60, cast=int)
 
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],

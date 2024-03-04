@@ -106,8 +106,7 @@ class ArtemisBase(Karton):
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
-        assert analysis is not None
-        if analysis.get("stopped", False):
+        if analysis and analysis.get("stopped", False):
             # Don't add tasks to stopped analyses
             return
 

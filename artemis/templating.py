@@ -28,21 +28,21 @@ templates.env.filters["dedent"] = dedent
 templates.env.filters["render_markdown"] = render_markdown
 
 
-def render_task_table_row(task: Dict[str, Any]) -> List[str]:
+def render_task_table_row(task_result: Dict[str, Any]) -> List[str]:
     return [
-        html.escape(task["created_at"].strftime("%Y-%m-%d %H:%M:%S")) if "created_at" in task else None,
-        html.escape(task["payload_persistent"].get("tag", "")),
-        html.escape(task["headers"]["receiver"]),
-        TEMPLATE_TASK_TABLE_ROW_TASK_LINK.render({"task": task}),
-        TEMPLATE_TASK_TABLE_ROW_BADGES.render({"task": task}),
-        html.escape(task.get("status_reason") or ""),
+        html.escape(task_result["created_at"].strftime("%Y-%m-%d %H:%M:%S")) if "created_at" in task_result else None,
+        html.escape(task_result["tag"] or ""),
+        html.escape(task_result["receiver"]),
+        TEMPLATE_TASK_TABLE_ROW_TASK_LINK.render({"task_result": task_result}),
+        TEMPLATE_TASK_TABLE_ROW_BADGES.render({"task_result": task_result}),
+        html.escape(task_result.get("status_reason") or ""),
     ]
 
 
 def render_analyses_table_row(entry: Dict[str, Any]) -> List[str]:
     return [
         html.escape(entry["payload"]["data"]),
-        html.escape(entry["payload_persistent"].get("tag", "")),
+        html.escape(entry["tag"] or ""),
         TEMPLATE_ANALYSIS_TABLE_ROW_PENDING_TASKS.render({"entry": entry}),
         TEMPLATE_ANALYSIS_TABLE_ROW_ACTIONS.render({"entry": entry}),
     ]

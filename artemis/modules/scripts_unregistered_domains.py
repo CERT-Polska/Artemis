@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import string
 import urllib.parse
 
 import bs4
@@ -32,6 +33,10 @@ class ScriptsUnregisteredDomains(ArtemisBase):
 
     @staticmethod
     def _is_domain(domain: str) -> bool:
+        # These are also domains
+        if all(c in string.ascii_letters + "-" + string.digits for c in domain):
+            return True
+
         try:
             # this validator returns either a VaildationError or a boolean
             return validators.domain(domain) is True
@@ -72,7 +77,12 @@ class ScriptsUnregisteredDomains(ArtemisBase):
 
         for script in scripts:
             src = script.get("src")
-            netloc = urllib.parse.urlparse(src).netloc.strip()
+            url_parsed = urllib.parse.urlparse(src)
+
+            if url_parsed.scheme in ["data", "chrome-extension"]:
+                continue
+
+            netloc = url_parsed.netloc.strip()
 
             if netloc and self._is_domain(netloc):
                 privatesuffix = PUBLIC_SUFFIX_LIST.privatesuffix(netloc)

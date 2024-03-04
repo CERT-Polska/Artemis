@@ -209,7 +209,8 @@ class ArtemisBase(Karton):
                 for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
                     task = self.backend.get_task(item)
 
-                    if not task:
+                    if task is None:
+                        self.backend.redis.lrem(queue, 1, item)
                         continue
 
                     scan_destination = self._get_scan_destination(task)

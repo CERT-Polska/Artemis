@@ -1,3 +1,4 @@
+import datetime
 import os
 from typing import Any, Dict, List
 
@@ -25,7 +26,7 @@ class DomainExpirationScannerReporter(Reporter):
 
         data = task_result["result"]
         expiration_date_from_result = data["expiration_date"]
-        expiration_date = expiration_date_from_result.strftime("%d-%m-%Y")
+        expiration_date = datetime.datetime.fromisoformat(expiration_date_from_result).strftime("%d-%m-%Y")
 
         return [
             Report(

@@ -347,10 +347,12 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Discover history for bash, ksh, sh, and zsh": "Wykryto historię poleceń powłoki bash, ksh, sh lub zsh."
     + DATA_HIDE_HINT,
+    "The host is configured as a proxy which allows access to other hosts on the internal network.": "Wykryto, że serwer jest skonfigurowany jako serwer proxy umożliwiający dostęp do hostów w sieci wewnętrznej.",
     "The Openstack host is configured as a proxy which allows access to the instance metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych OpenStack, w tym potencjalnie do haseł dostępowych. Rekomendujemy, aby serwer proxy nie miał dostępu do takich zasobów.",
     "The AWS host is configured as a proxy which allows access to the metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych AWS, w tym potencjalnie do haseł dostępowych. Rekomendujemy, aby serwer proxy nie miał dostępu do takich zasobów.",
     "The host is configured as a proxy which allows access to the metadata provided by a cloud provider such as AWS or OVH. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych dostawcy takiego AWS czy OVH, w tym potencjalnie do haseł dostępowych. Rekomendujemy, aby serwer proxy nie miał dostępu do takich zasobów.",
     "[no description] http/exposures/files/ds-store-file.yaml": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne. Rekomendujemy, aby takie pliki nie były dostępne publicznie.",
+    "A .DS_Store file was found. This file may contain names of files that exist on the server, including backups or other files that aren't meant to be publicly available.": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne. Rekomendujemy, aby takie pliki nie były dostępne publicznie.",
     "[no description] http/misconfiguration/server-status-localhost.yaml": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "Server Status is exposed.": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "Symfony database configuration file was detected and may contain database credentials.": "wykryto plik konfiguracyjny bazy danych dla frameworku Symfony - taki plik może zawierać np. hasła dostępowe."
@@ -603,6 +605,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Internal information is exposed in elasticsearch to external users.": "Wykryto konfigurację lub dane systemu Elasticsearch dostępne bez logowania."
     + DATA_HIDE_HINT,
+    "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",
     "Exposed Wordpress Setup Configuration.": "Wykryto publicznie dostępny panel instalacyjny systemu WordPress.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
@@ -782,5 +785,8 @@ TRANSLATIONS = {
     "An Ansible Semaphore login panel was detected.": "wykryto panel logowania Ansible Semaphore.",
     "Centreon login panel was detected.": "wykryto panel logowania Centreon.",
     "[no description] http/exposed-panels/filebrowser-login-panel.yaml": "wykryto panel logowania narzędzia File Browser.",
-    "TrueNAS scale is a free and open-source NAS solution": "Wykryto panel logowania TrueNAS.",
+    "TrueNAS scale is a free and open-source NAS solution": "wykryto panel logowania TrueNAS.",
+    "Microsoft Exchange Web Services was detected.": "wykryto panel Microsoft Exchange Web Services.",
+    "OpenX login panel was detected. Note that OpenX is now a Revive Adserver.": "wykryto panel logowania OpenX / Revive Adserver.",
+    "Passbolt login panel was detected.": "wykryto panel logowania Passbolt.",
 }

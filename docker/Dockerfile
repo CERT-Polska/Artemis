@@ -16,10 +16,9 @@ COPY docker/patches/nuclei-rate-limiting.patch /nuclei/
 RUN cd /nuclei && git apply nuclei-rate-limiting.patch  && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install
 
 RUN git clone https://github.com/rfc-st/humble.git --branch master /humble
-RUN pip install -r /humble/requirements.txt
 
 COPY requirements.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt $ADDITIONAL_REQUIREMENTS
+RUN pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt $ADDITIONAL_REQUIREMENTS
 
 RUN apk del .build-deps
 

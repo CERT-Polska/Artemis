@@ -328,9 +328,11 @@ class DB:
             session.commit()
             return bool(result.rowcount)
 
-    def get_task_results_since(self, time_from: datetime.datetime, batch_size: int=1000) -> Generator[Dict[str, Any], None, None]:
+    def get_task_results_since(
+        self, time_from: datetime.datetime, batch_size: int = 1000
+    ) -> Generator[Dict[str, Any], None, None]:
         with engine.connect() as conn:
-            query = select(TaskResult).filter(TaskResult.created_at >= time_from)
+            query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
             with conn.execution_options(stream_results=True, max_row_buffer=batch_size).execute(query) as result:
                 for item in result:
                     yield item._mapping

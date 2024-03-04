@@ -23,7 +23,7 @@ from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import text
+from sqlalchemy.sql.expression import select, text
 from sqlalchemy.types import TypeDecorator
 
 from artemis.binds import TaskStatus, TaskType
@@ -328,10 +328,14 @@ class DB:
             session.commit()
             return bool(result.rowcount)
 
-    def get_task_results_since(self, time_from: datetime.datetime) -> Generator[Dict[str, Any], None, None]:
-        with Session() as session:
-            for item in session.query(TaskResult).filter(TaskResult.created_at >= time_from):
-                yield item.__dict__
+    def get_task_results_since(
+        self, time_from: datetime.datetime, batch_size: int = 1000
+    ) -> Generator[Dict[str, Any], None, None]:
+        with engine.connect() as conn:
+            query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
+            with conn.execution_options(stream_results=True, max_row_buffer=batch_size).execute(query) as result:
+                for item in result:
+                    yield item._mapping
 
     def _get_task_deduplication_data(self, task: Task) -> str:
         """

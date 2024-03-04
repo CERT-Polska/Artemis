@@ -347,10 +347,12 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Discover history for bash, ksh, sh, and zsh": "Wykryto historię poleceń powłoki bash, ksh, sh lub zsh."
     + DATA_HIDE_HINT,
+    "The host is configured as a proxy which allows access to other hosts on the internal network.": "Wykryto, że serwer jest skonfigurowany jako serwer proxy umożliwiający dostęp do hostów w sieci wewnętrznej.",
     "The Openstack host is configured as a proxy which allows access to the instance metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych OpenStack, w tym potencjalnie do haseł dostępowych. Rekomendujemy, aby serwer proxy nie miał dostępu do takich zasobów.",
     "The AWS host is configured as a proxy which allows access to the metadata service. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych AWS, w tym potencjalnie do haseł dostępowych. Rekomendujemy, aby serwer proxy nie miał dostępu do takich zasobów.",
     "The host is configured as a proxy which allows access to the metadata provided by a cloud provider such as AWS or OVH. This could allow significant access to the host/infrastructure.": "Wykryto, że serwer HTTP jest skonfigurowany jako serwer proxy umożliwiający dostęp do wewnętrznych metadanych dostawcy takiego AWS czy OVH, w tym potencjalnie do haseł dostępowych. Rekomendujemy, aby serwer proxy nie miał dostępu do takich zasobów.",
-    "[no description] http/exposures/files/ds-store-file.yaml": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne. Rekomendujemy, aby takie pliki nie były dostępne publicznie.",
+    "[no description] http/exposures/files/ds-store-file.yaml": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne. Rekomendujemy, aby takie dane nie były dostępne publicznie.",
+    "A .DS_Store file was found. This file may contain names of files that exist on the server, including backups or other files that aren't meant to be publicly available.": "Wykryto plik .DS_Store, zawierający informację o nazwach plików w katalogu, w tym potencjalnie np. kopii zapasowych lub innych plików, które nie powinny być publicznie dostępne. Rekomendujemy, aby takie pliki nie były dostępne publicznie.",
     "[no description] http/misconfiguration/server-status-localhost.yaml": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "Server Status is exposed.": "Wykryto, że końcówka /server-status serwera Apache jest publicznie dostępna, udostępniając takie informacje jak np. konfigurację serwera, adresy IP użytkowników czy odwiedzane przez nich strony. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "Symfony database configuration file was detected and may contain database credentials.": "wykryto plik konfiguracyjny bazy danych dla frameworku Symfony - taki plik może zawierać np. hasła dostępowe."
@@ -588,6 +590,7 @@ TRANSLATIONS = {
     "GoIP-1 GSM is vulnerable to local file inclusion because input passed thru the 'content' or 'sidebar' GET parameter in 'frame.html' or 'frame.A100.html' is not properly sanitized before being used to read files. This can be exploited by an unauthenticated attacker to read arbitrary files on the affected system.": "Wykryto, że GoIP-1 GSM zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "Execution After Redirect happens when after emitting a Location header that redirects the user, some other code is executed. This may lead to data leak or application compromise.": "Wykryto podatność Execution After Redirect, czyli sytuację, gdy serwer, pomimo przekierowania użytkownika na inny adres, kontynuuje wykonanie skryptu. Może to doprowadzić do wycieku wrażliwych danych lub uzyskania przez atakującego nieuprawnionego dostępu do aplikacji.",
     "[no description] http/misconfiguration/django-debug-detect.yaml": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
+    "Django debug configuration is enabled, which allows an attacker to obtain system configuration information such as paths or settings.": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
     "OwnCloud is susceptible to the Installation page exposure due to misconfiguration.": "wykryto, że panel instalacyjny narzędzia OwnCloud jest publicznie dostępny, co może umożliwić atakującemu nieuprawniony dostęp do systemu.",
@@ -603,6 +606,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Internal information is exposed in elasticsearch to external users.": "Wykryto konfigurację lub dane systemu Elasticsearch dostępne bez logowania."
     + DATA_HIDE_HINT,
+    "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",
     "Exposed Wordpress Setup Configuration.": "Wykryto publicznie dostępny panel instalacyjny systemu WordPress.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
@@ -782,5 +786,8 @@ TRANSLATIONS = {
     "An Ansible Semaphore login panel was detected.": "wykryto panel logowania Ansible Semaphore.",
     "Centreon login panel was detected.": "wykryto panel logowania Centreon.",
     "[no description] http/exposed-panels/filebrowser-login-panel.yaml": "wykryto panel logowania narzędzia File Browser.",
-    "TrueNAS scale is a free and open-source NAS solution": "Wykryto panel logowania TrueNAS.",
+    "TrueNAS scale is a free and open-source NAS solution": "wykryto panel logowania TrueNAS.",
+    "Microsoft Exchange Web Services was detected.": "wykryto panel Microsoft Exchange Web Services.",
+    "OpenX login panel was detected. Note that OpenX is now a Revive Adserver.": "wykryto panel logowania OpenX / Revive Adserver.",
+    "Passbolt login panel was detected.": "wykryto panel logowania Passbolt.",
 }

@@ -126,6 +126,15 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "DelfinSR",
+      "name": "Delfin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91948384?v=4",
+      "profile": "https://github.com/DelfinSR",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

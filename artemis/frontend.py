@@ -71,10 +71,9 @@ def get_binds_that_can_be_disabled() -> List[KartonBind]:
 
     return binds
 
+
 def error_content_not_found(request: Request, exc: HTTPException) -> Response:
-    return templates.TemplateResponse(
-        "not-found.jinja2",  
-        {"request": request}, status_code=404)
+    return templates.TemplateResponse("not_found.jinja2", {"request": request}, status_code=404)
 
 
 @router.get("/", include_in_schema=False)

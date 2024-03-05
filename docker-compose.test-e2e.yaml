@@ -7,14 +7,3 @@ services:
   karton-bruter:
     environment:
       REQUESTS_PER_SECOND: 0
-  redis:
-    volumes:
-      - data-test-redis:/data
-
-  db:
-    volumes:
-     - data-test-mongodb:/data/db
-
-volumes:
-  data-test-mongodb:
-  data-test-redis:

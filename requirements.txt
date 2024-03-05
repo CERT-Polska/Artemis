@@ -6,7 +6,7 @@ beautifulsoup4==4.12.3
 certifi==2024.2.2
 chardet==5.2.0
 click==8.1.7
-cryptography==41.0.7
+cryptography==42.0.5
 dkimpy==1.1.5
 dnspython==2.6.1
 fastapi==0.110.0
@@ -25,7 +25,7 @@ packaging==23.2
 paramiko==3.4.0
 prometheus-client==0.20.0
 psycopg2-binary==2.9.9
-publicsuffixlist==0.10.0.20240214
+publicsuffixlist==0.10.0.20240303
 pydantic==2.3.0
 pymongo==4.6.2
 PyMySQL==1.1.0
@@ -33,9 +33,10 @@ python-decouple==3.8
 python-multipart==0.0.9
 pytz==2024.1
 PyYAML==6.0.1
-redis==5.0.1
+redis==5.0.2
 requests==2.31.0
 requests-mock==1.11.0
+SQLAlchemy==2.0.28
 semver==3.0.2
 shodan==1.31.0
 six==1.16.0
@@ -43,7 +44,7 @@ termcolor==2.4.0
 timeout-decorator==0.5.0
 tqdm==4.66.2
 typer==0.9.0
-typing-extensions==4.9.0
+typing-extensions==4.10.0
 urllib3==1.26.18
 uvicorn==0.27.1
 validators==0.22.0

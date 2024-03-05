@@ -24,6 +24,19 @@ services:
       retries: 10
       start_period: 10s
 
+  postgres:
+    command: -c 'max_connections=2000'
+    image: postgres
+    restart: always
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: artemis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - data-postgres:/var/lib/postgresql/data
+
+  # This is a legacy entry to facillitate migration - MongoDB is not used by Artemis anymore.
   db:
     # Even in the most quiet configuration, MongoDB produces a significant amount of logs.
     # Therefore mongoDB logs are disabled by default (although they can be enabled).
@@ -404,8 +417,11 @@ services:
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
 volumes:
-  data-mongodb:
-  data-redis:
   data-nuclei-templates:
   data-nuclei-config:
+  data-postgres:
+  data-redis:
   data-web:
+
+  # This is a legacy entry to facillitate migration - MongoDB is not used by Artemis anymore.
+  data-mongodb:

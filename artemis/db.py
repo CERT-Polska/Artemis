@@ -1,14 +1,34 @@
+import copy
 import dataclasses
 import datetime
+import functools
+import hashlib
+import json
 from enum import Enum
-from typing import Any, Dict, Generator, List, Optional, cast
+from typing import Any, Dict, Generator, List, Optional
 
 from karton.core import Task
 from pydantic import BaseModel
-from pymongo import ASCENDING, DESCENDING, MongoClient
+from sqlalchemy import (  # type: ignore
+    JSON,
+    Boolean,
+    Column,
+    Computed,
+    DateTime,
+    Index,
+    String,
+    create_engine,
+)
+from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import insert as postgres_insert
+from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import select, text
+from sqlalchemy.types import TypeDecorator
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.utils import build_logger
 
 
@@ -26,6 +46,76 @@ class TaskFilter(str, Enum):
             return {"status": "INTERESTING"}
         else:
             assert False
+
+
+Base = declarative_base()
+engine = create_engine(
+    Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
+)
+Session = sessionmaker(bind=engine)
+
+
+class TSVector(TypeDecorator):  # type: ignore
+    impl = TSVECTOR
+
+
+class ScheduledTask(Base):  # type: ignore
+    __tablename__ = "scheduled_task"
+    created_at = Column(DateTime, server_default=text("NOW()"))
+    analysis_id = Column(String, primary_key=True)
+    # The purpose of this column is to be able to quickly find identical scheduled tasks. Therefore
+    # we convert them to a string form (deduplication_data_original, created by the
+    # _get_task_deduplication_data method) and store the hash of the string in the indexed
+    # deduplication_data column (because PostgreSQL limits the max length of indexed column).
+    deduplication_data = Column(String, primary_key=True)
+    deduplication_data_original = Column(String)
+    task_id = Column(String)
+
+
+class Analysis(Base):  # type: ignore
+    __tablename__ = "analysis"
+    id = Column(String, primary_key=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+    target = Column(String, index=True)
+    tag = Column(String, index=True)
+    stopped = Column(Boolean, index=True)
+    task = Column(JSON)
+
+    fulltext = Column(
+        TSVector(),
+        Computed("to_tsvector('english', COALESCE(tag, '') || ' ' || COALESCE(target, ''))", persisted=True),
+    )
+
+    __table_args__ = (Index("analysis_fulltext", fulltext, postgresql_using="gin"),)
+
+
+class TaskResult(Base):  # type: ignore
+    __tablename__ = "task_result"
+    id = Column(String, primary_key=True)
+    analysis_id = Column(String, index=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+    status = Column(String, index=True)
+    tag = Column(String, index=True)
+    receiver = Column(String, index=True)
+    target_string = Column(String, index=True)
+    status_reason = Column(String)
+    headers_string = Column(String)
+    task = Column(JSON)
+    result = Column(JSON)
+
+    fulltext = Column(
+        TSVector(),
+        Computed(
+            "to_tsvector('english', COALESCE(status, '') || ' ' || COALESCE(tag, '') || ' ' || COALESCE(target_string, '') || "
+            "' ' || COALESCE(headers_string, '') || ' ' || COALESCE(status_reason, ''))",
+            persisted=True,
+        ),
+    )
+
+    __table_args__ = (Index("task_result_fulltext", fulltext, postgresql_using="gin"),)
+
+
+Base.metadata.create_all(bind=engine)
 
 
 @dataclasses.dataclass
@@ -60,62 +150,77 @@ def get_task_target(task: Task) -> str:
 
 class DB:
     def __init__(self) -> None:
-        self.client = MongoClient(Config.Data.DB_CONN_STR)
-        self.analysis = self.client.artemis.analysis
-        self.scheduled_tasks = self.client.artemis.scheduled_tasks
-        self.task_results = self.client.artemis.task_results
         self.logger = build_logger(__name__)
 
     def list_analysis(self) -> List[Dict[str, Any]]:
-        return cast(List[Dict[str, Any]], list(self.analysis.find()))
+        with Session() as session:
+            return [item.__dict__ for item in session.query(Analysis).all()]
 
     def mark_analysis_as_stopped(self, analysis_id: str) -> None:
-        self.analysis.update_one(
-            filter={"_id": analysis_id},
-            update={"$set": {"stopped": True}},
-        )
+        with Session() as session:
+            analysis = session.query(Analysis).get(analysis_id)
+            analysis.stopped = True
+            session.add(analysis)
+            session.commit()
 
     def create_analysis(self, analysis: Task) -> None:
-        created_analysis = self.task_to_dict(analysis)
+        analysis_dict = self.task_to_dict(analysis)
+        del analysis_dict["status"]
+        if "status_reason" in analysis_dict:
+            del analysis_dict["status_reason"]
 
-        created_analysis["_id"] = created_analysis["uid"]
-        del created_analysis["status"]
-        if "status_reason" in created_analysis:
-            del created_analysis["status_reason"]
-        self.analysis.insert_one(created_analysis)
+        analysis = Analysis(
+            id=analysis.uid,
+            target=analysis_dict["payload"]["data"],
+            tag=analysis_dict["payload_persistent"].get("tag", None),
+            stopped=False,
+            task=analysis_dict,
+        )
+        with Session() as session:
+            session.add(analysis)
+            session.commit()
 
     def save_task_result(
         self, task: Task, *, status: TaskStatus, status_reason: Optional[str] = None, data: Optional[Any] = None
     ) -> None:
-        created_task_result = self.task_to_dict(task)
-
-        created_task_result["_id"] = created_task_result["uid"]
-        created_task_result["status"] = status
-        created_task_result["target_string"] = get_task_target(task)
-        created_task_result["status_reason"] = status_reason
-
-        # Used to allow searching in the names and values of all existing headers
-        created_task_result["headers_string"] = " ".join([key + " " + value for key, value in task.headers.items()])
-
+        to_save = dict(
+            task=self.task_to_dict(task),
+            id=task.uid,
+            analysis_id=task.root_uid,
+            status=status,
+            tag=task.payload_persistent.get("tag", None),
+            receiver=task.headers.get("receiver", None),
+            target_string=get_task_target(task),
+            status_reason=status_reason,
+            # Used to allow searching in the names and values of all existing headers
+            headers_string=" ".join([key + " " + value for key, value in task.headers.items()]),
+        )
         if isinstance(data, BaseModel):
-            created_task_result["result"] = data.dict()
+            to_save["result"] = data.dict()
         elif isinstance(data, Exception):
-            created_task_result["result"] = str(data)
+            to_save["result"] = str(data)
         else:
-            created_task_result["result"] = data
+            to_save["result"] = data
 
-        with self.client.start_session() as session:
-            with session.start_transaction():
-                result = self.task_results.update_one(
-                    upsert=True, filter={"_id": created_task_result["uid"]}, update={"$set": created_task_result}
-                )
-                if result.upserted_id:  # If the record has been created, set creation date
-                    result = self.task_results.update_one(
-                        {"_id": created_task_result["uid"]}, {"$set": {"created_at": datetime.datetime.now()}}
-                    )
+        statement = postgres_insert(TaskResult).values([copy.copy(to_save)])
+        del to_save["id"]
+        statement = statement.on_conflict_do_update(index_elements=[TaskResult.id], set_=to_save)
+
+        with Session() as session:
+            session.execute(statement)
+            session.commit()
 
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
-        return cast(Optional[Dict[str, Any]], self.analysis.find_one({"_id": analysis_id}))
+        try:
+            with Session() as session:
+                item = session.query(Analysis).get(analysis_id)
+
+                if item:
+                    return item.__dict__  # type: ignore
+                else:
+                    return None
+        except NoResultFound:
+            return None
 
     def get_paginated_analyses(
         self,
@@ -125,23 +230,28 @@ class DB:
         *,
         search_query: Optional[str] = None,
     ) -> PaginatedResults:
-        filter_dict: Dict[str, Any] = {}
-
-        ordering_pymongo = [
-            (ordering_rule.column_name, ASCENDING if ordering_rule.ascending else DESCENDING)
+        ordering_postgresql = [
+            getattr(Analysis, ordering_rule.column_name)
+            if ordering_rule.ascending
+            else getattr(Analysis, ordering_rule.column_name).desc()
             for ordering_rule in ordering
         ]
 
-        records_count_total = self.analysis.estimated_document_count()
-        if search_query:
-            filter_dict.update({"$text": {"$search": self._to_mongo_query(search_query)}})
-        records_count_filtered = self.analysis.count_documents(filter_dict)
-        results_page = self.analysis.find(filter_dict).sort(ordering_pymongo)[start : start + length]
-        return PaginatedResults(
-            records_count_total=records_count_total,
-            records_count_filtered=records_count_filtered,
-            data=cast(List[Dict[str, Any]], results_page),
-        )
+        with Session() as session:
+            records_count_total = session.query(Analysis).count()
+
+            query = session.query(Analysis)
+
+            if search_query:
+                query = query.filter(Analysis.fulltext.match(self._to_postgresql_query(search_query)))  # type: ignore
+
+            records_count_filtered: int = query.count()
+            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]
+            return PaginatedResults(
+                records_count_total=records_count_total,
+                records_count_filtered=records_count_filtered,
+                data=results_page,
+            )
 
     def get_paginated_task_results(
         self,
@@ -154,33 +264,47 @@ class DB:
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
     ) -> PaginatedResults:
-        filter_dict: Dict[str, Any] = {}
-        if analysis_id:
-            filter_dict["root_uid"] = analysis_id
-
-        if task_filter:
-            filter_dict.update(task_filter.as_dict())
-
-        ordering_pymongo = [
-            (ordering_rule.column_name, ASCENDING if ordering_rule.ascending else DESCENDING)
+        ordering_postgresql = [
+            getattr(TaskResult, ordering_rule.column_name)
+            if ordering_rule.ascending
+            else getattr(TaskResult, ordering_rule.column_name).desc()
             for ordering_rule in ordering
         ]
 
-        records_count_total = self.task_results.estimated_document_count()
-        if search_query:
-            filter_dict.update({"$text": {"$search": self._to_mongo_query(search_query)}})
-        records_count_filtered = self.task_results.count_documents(filter_dict)
-        results_page = self.task_results.find(filter_dict, {field: 1 for field in fields}).sort(ordering_pymongo)[
-            start : start + length
-        ]
-        return PaginatedResults(
-            records_count_total=records_count_total,
-            records_count_filtered=records_count_filtered,
-            data=cast(List[Dict[str, Any]], results_page),
-        )
+        with Session() as session:
+            records_count_total = session.query(TaskResult).count()
+
+            query = session.query(TaskResult)
+
+            if search_query:
+                query = query.filter(TaskResult.fulltext.match(self._to_postgresql_query(search_query)))  # type: ignore
+
+            if analysis_id:
+                query = query.filter(TaskResult.analysis_id == analysis_id)
+
+            if task_filter:
+                for key, value in task_filter.as_dict().items():
+                    query = query.filter(getattr(TaskResult, key) == value)
+
+            records_count_filtered = query.count()
+            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]
+            return PaginatedResults(
+                records_count_total=records_count_total,
+                records_count_filtered=records_count_filtered,
+                data=results_page,
+            )
 
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
-        return cast(Optional[Dict[str, Any]], self.task_results.find_one({"_id": task_id}))
+        try:
+            with Session() as session:
+                item = session.query(TaskResult).get(task_id)
+
+                if item:
+                    return item.__dict__  # type: ignore
+                else:
+                    return None
+        except NoResultFound:
+            return None
 
     def save_scheduled_task(self, task: Task) -> bool:
         """
@@ -189,51 +313,37 @@ class DB:
         The purpose of this method is deduplication - making sure identical tasks aren't run twice.
         """
         created_task = {
-            "uid": task.uid,
-            "created_at": datetime.datetime.now(),
+            "task_id": task.uid,
             "analysis_id": task.root_uid,
-            "deduplication_data": self._get_task_deduplication_data(task),
+            # PostgreSQL limits the length of string if it's an indexed column
+            "deduplication_data": hashlib.sha256(self._get_task_deduplication_data(task).encode("utf-8")).hexdigest(),
+            "deduplication_data_original": self._get_task_deduplication_data(task),
         }
-        result = self.scheduled_tasks.update_one(
-            {
-                "analysis_id": created_task["analysis_id"],
-                "deduplication_data": created_task["deduplication_data"],
-            },
-            {"$set": created_task},
-            upsert=True,
-        )
-        return bool(result.upserted_id)
 
-    def get_task_results_since(self, time_from: datetime.datetime) -> Generator[Dict[str, Any], None, None]:
-        with self.client.start_session() as session:
-            try:
-                cursor = self.task_results.find(
-                    {"created_at": {"$gte": time_from}}, no_cursor_timeout=True, session=session
-                ).batch_size(1)
-                for item in cursor:
-                    yield cast(Dict[str, Any], item)
-            finally:
-                cursor.close()
+        statement = postgres_insert(ScheduledTask).values([created_task])
 
-    def _get_task_deduplication_data(self, task: Task) -> List[List[Any]]:
+        statement = statement.on_conflict_do_nothing()
+        with Session() as session:
+            result = session.execute(statement)
+            session.commit()
+            return bool(result.rowcount)
+
+    def get_task_results_since(
+        self, time_from: datetime.datetime, batch_size: int = 1000
+    ) -> Generator[Dict[str, Any], None, None]:
+        with engine.connect() as conn:
+            query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
+            with conn.execution_options(stream_results=True, max_row_buffer=batch_size).execute(query) as result:
+                for item in result:
+                    yield item._mapping
+
+    def _get_task_deduplication_data(self, task: Task) -> str:
         """
         Represents a task so that two identical tasks with different IDs will have the same representation.
 
-        Instead of dictionaries, lists are used (so that e.g. {"domain": "google.com"} becomes
-        [["domain", "google.com"]] to prevent ordering problems (as MongoDB compares dictionaries in
-        an ordered way).
+        Instead of dictionaries, strings are used (so that e.g. {"domain": "google.com"} becomes
+        domain=google.com to facillitate indexing.
         """
-
-        def dict_to_list(d: Dict[str, Any]) -> List[List[Any]]:
-            result = []
-            # We sort the items so that the same dict will always have the same representation
-            # regardless of how are the items ordered internally.
-            for key, value in sorted(d.items()):
-                if isinstance(value, dict):
-                    result.append([key, dict_to_list(value)])
-                else:
-                    result.append([key, value])
-            return result
 
         # We convert the task to dict so that we don't have problems e.g. with enums.
         task_as_dict = self.task_to_dict(task)
@@ -249,7 +359,7 @@ class DB:
         if "created_at" in task_as_dict["payload"]:
             del task_as_dict["payload"]["created_at"]
 
-        return dict_to_list(
+        return self.dict_to_str(
             {
                 "headers": task_as_dict["headers"],
                 "payload": task_as_dict["payload"],
@@ -257,50 +367,26 @@ class DB:
             }
         )
 
+    @staticmethod
+    def dict_to_str(d: Dict[str, Any]) -> str:
+        result = ""
+        # We sort the items so that the same dict will always have the same representation
+        # regardless of how are the items ordered internally.
+        for key, value in sorted(d.items()):
+            if isinstance(value, dict):
+                result += f"{key}=({DB.dict_to_str(value)})"
+            else:
+                result += f"{key}={value}"
+        return result
+
     def task_to_dict(self, task: Task) -> Dict[str, Any]:
         return task.to_dict()
 
-    def initialize_database(self) -> None:
-        """Creates MongoDB indexes. create_index() creates an index if it doesn't exist, so
-        this method will not recreate existing indexes."""
-        self.scheduled_tasks.create_index(
-            [
-                ("analysis_id", ASCENDING),
-                ("deduplication_data", ASCENDING),
-            ]
-        )
-        self.task_results.create_index(
-            [
-                ("target_string", ASCENDING),
-                ("status_reason", ASCENDING),
-            ]
-        )
-        self.task_results.create_index([("status_reason", ASCENDING)])
-        self.task_results.create_index([("status", ASCENDING)])
-        self.task_results.create_index(
-            [
-                ("status", "text"),
-                ("priority", "text"),
-                ("payload_persistent.tag", "text"),
-                ("target_string", "text"),
-                ("headers_string", "text"),
-                ("status_reason", "text"),
-            ],
-            name="fulltext",
-        )
-        self.analysis.create_index(
-            [
-                ("payload.data", "text"),
-                ("payload_persistent.tag", "text"),
-            ],
-            name="analysis_fulltext",
-        )
-
-    def _to_mongo_query(self, query: str) -> str:
+    def _to_postgresql_query(self, query: str) -> str:
         """Converts a space-separated query (e.g. directory_index wp-content) to a MongoDB query
         that requires all words to be present (in that case it would be "directory_index" AND "wp-content").
         """
 
         query = query.replace("\\", " ")  # just in case
         query = query.replace('"', " ")  # just in case
-        return " AND ".join([f'"{item}"' for item in query.split(" ") if item])
+        return " & ".join([f'"{item}"' for item in query.split(" ") if item])

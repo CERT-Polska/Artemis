@@ -15,37 +15,37 @@
   <h4>Metadata</h4>
   <dl class="row">
     <dt class="col-3">UID</dt>
-    <dd class="col-9">{{task._id}}</dd>
+    <dd class="col-9">{{task.id}}</dd>
     <dt class="col-3">Priority</dt>
     <dd class="col-9">
-        <span class="badge bg-dark">{{task.priority}}</span>
+        <span class="badge bg-dark">{{task.task.priority}}</span>
     </dd>
 
     {% if task.parent_uid %}
         <dt class="col-3">Parent UID</dt>
         <dd class="col-9">
-            <a href="/task/{{task.parent_uid}}">{{task.parent_uid}}</a>
+            <a href="/task/{{task.parent_uid}}">{{task.task.parent_uid}}</a>
         </dd>
     {% endif %}
 
     <dt class="col-3">Analysis</dt>
     <dd class="col-9">
-      <a href="/analysis/{{task.root_uid}}">{{task.root_uid}}</a>
+      <a href="/analysis/{{task.analysis_id}}">{{task.analysis_id}}</a>
     </dd>
 
     <dt class="col-3">Origin</dt>
     <dd class="col-9">
-      <a href="/live/queue/{{task['headers']['origin']}}">{{task['headers']['origin']}}</a>
+      <a href="/karton-dashboard/queue/{{task.task['headers']['origin']}}">{{task.task['headers']['origin']}}</a>
     </dd>
 
     <dt class="col-3">Receiver</dt>
     <dd class="col-9">
-      <a href="/live/queue/{{task['headers']['receiver']}}">{{task['headers']['receiver']}}</a>
+      <a href="/karton-dashboard/queue/{{task.task['headers']['receiver']}}">{{task.task['headers']['receiver']}}</a>
     </dd>
 
     <dt class="col-3">Headers</dt>
     <dd class="col-9">
-      {% for hdrname, hdrval in task['headers'].items() %}
+      {% for hdrname, hdrval in task.task['headers'].items() %}
       {% if hdrname == 'type' %}
       <span class="badge bg-primary">{{hdrname}}:{{hdrval}}</span>
       {% elif hdrname == 'kind' %}

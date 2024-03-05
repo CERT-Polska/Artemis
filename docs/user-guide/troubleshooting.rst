@@ -19,6 +19,14 @@ If you are using Windows and you see the following message during container buil
 this may mean that during clone you configured Git to change newlines from Linux (``\n``) to Windows (``\r\n``). Changing
 this setting will fix the problem.
 
+To solve this, run:
+
+.. code-block::
+    git config --global core.autocrlf input
+
+This command sets Git to convert line endings to LF on checkout but doesn't convert them when committing files.
+After setting the configuration, you should re-clone your repository to ensure that the line endings are correct in the files.
+
 Shodan module startup issues
 ----------------------------
 

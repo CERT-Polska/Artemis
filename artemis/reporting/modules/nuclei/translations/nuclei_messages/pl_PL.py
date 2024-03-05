@@ -790,4 +790,5 @@ TRANSLATIONS = {
     "Microsoft Exchange Web Services was detected.": "wykryto panel Microsoft Exchange Web Services.",
     "OpenX login panel was detected. Note that OpenX is now a Revive Adserver.": "wykryto panel logowania OpenX / Revive Adserver.",
     "Passbolt login panel was detected.": "wykryto panel logowania Passbolt.",
+    "Sentry login panel was detected.": "wykryto panel logowania Sentry.",
 }

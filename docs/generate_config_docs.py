@@ -3,9 +3,10 @@ import textwrap
 from pathlib import Path
 from typing import IO, Any, get_type_hints
 
-# By default, these two variables are required by config. As we are importing the config
+# By default, these variables are required by config. As we are importing the config
 # only to get the docs, let's mock them.
 os.environ["DB_CONN_STR"] = ""
+os.environ["POSTGRES_CONN_STR"] = ""
 os.environ["REDIS_CONN_STR"] = ""
 from config import DEFAULTS, Config  # type: ignore # noqa
 from sphinx.application import Sphinx  # type: ignore # noqa

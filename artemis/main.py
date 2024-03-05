@@ -9,9 +9,11 @@ from artemis import csrf, db_migration
 from artemis.api import router as router_api
 from artemis.db import DB
 from artemis.frontend import router as router_front
+from artemis.frontend import error_content_not_found
 
 app = FastAPI()
 app.exception_handler(CsrfProtectError)(csrf.csrf_protect_exception_handler)
+app.exception_handler(404)(error_content_not_found)
 
 db = DB()
 

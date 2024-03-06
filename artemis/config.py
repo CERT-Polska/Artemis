@@ -1,3 +1,4 @@
+import os
 from typing import Annotated, Any, List, get_type_hints
 
 import decouple
@@ -9,6 +10,15 @@ def get_config(name: str, **kwargs) -> Any:  # type: ignore
     if "default" in kwargs:
         DEFAULTS[name] = kwargs["default"]
     return decouple.config(name, **kwargs)
+
+
+if "POSTGRES_CONN_STR" not in os.environ:
+    raise Exception(
+        "Unable to find the POSTGRES_CONN_STR environment variable. Artemis was migrated to store task results in "
+        "PostgreSQL - you might have an old .env file where a PostgreSQL connection string is not provided. To use "
+        "the default PostgreSQL container started by Artemis, add "
+        "POSTGRES_CONN_STR=postgresql://postgres:postgres@postgres/artemis to the .env file."
+    )
 
 
 class Config:

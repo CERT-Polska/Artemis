@@ -20,6 +20,7 @@ if "POSTGRES_CONN_STR" not in os.environ:
         "POSTGRES_CONN_STR=postgresql://postgres:postgres@postgres/artemis to the .env file."
     )
 
+
 class Config:
     class Data:
         POSTGRES_CONN_STR: Annotated[str, "Connection string to the PostgreSQL database."] = get_config(

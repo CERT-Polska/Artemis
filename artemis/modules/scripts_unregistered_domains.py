@@ -87,13 +87,17 @@ class ScriptsUnregisteredDomains(ArtemisBase):
             if netloc and self._is_domain(netloc):
                 privatesuffix = PUBLIC_SUFFIX_LIST.privatesuffix(netloc)
 
-                if self._is_domain_registered(privatesuffix):
-                    self.log.info(f"Script on {netloc}, but {privatesuffix} is registered")
+                if privatesuffix:
+                    domain_to_check = privatesuffix
                 else:
-                    self.log.info(f"Script on {netloc} - {privatesuffix} unregistered!")
-                    messages.append(
-                        f"{url} loads script from unregistered domain {netloc} (privatesuffix {privatesuffix})"
-                    )
+                    # if a domain is a public suffix
+                    domain_to_check = netloc
+
+                if self._is_domain_registered(domain_to_check):
+                    self.log.info(f"Script on {netloc}, but {domain_to_check} is registered")
+                else:
+                    self.log.info(f"Script on {netloc} - {domain_to_check} unregistered!")
+                    messages.append(f"{url} loads script from unregistered domain {netloc}")
                     scripts_from_unregistered_domains.append(
                         {"src": src, "domain": netloc, "privatesuffix": privatesuffix}
                     )

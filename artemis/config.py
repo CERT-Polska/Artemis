@@ -376,6 +376,7 @@ class Config:
                         "http/exposed-panels/projectsend-login.yaml",
                         # Source of FPs
                         "custom:CVE-2019-1579",
+                        "custom:xss-inside-tag-top-params.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -413,6 +414,7 @@ class Config:
                         "http/misconfiguration/springboot/springboot-threaddump.yaml",
                         "http/misconfiguration/springboot/springboot-trace.yaml",
                         "http/vulnerabilities/generic/basic-xss-prober.yaml",
+                        "http/vulnerabilities/generic/cors-misconfig.yaml",
                         "http/vulnerabilities/generic/xss-fuzz.yaml",
                     ]
                 ),

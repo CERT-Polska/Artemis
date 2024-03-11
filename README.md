@@ -33,7 +33,7 @@ For an up-to-date list of features, please refer to [the documentation](https://
 ### Tests
 To run the tests, use:
 
-```
+```console
 ./scripts/test
 ```
 
@@ -43,13 +43,13 @@ Artemis uses `pre-commit` to run linters and format the code.
 
 To run it locally, use:
 
-```
+```console
 pre-commit run --all-files
 ```
 
 To setup `pre-commit` so that it runs before each commit, use:
 
-```
+```console
 pre-commit install
 ```
 
@@ -57,7 +57,7 @@ pre-commit install
 
 To build the documentation, use:
 
-```
+```console
 cd docs
 python3 -m venv venv
 . venv/bin/activate

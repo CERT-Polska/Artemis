@@ -33,7 +33,7 @@ For an up-to-date list of features, please refer to [the documentation](https://
 ### Tests
 To run the tests, use:
 
-```
+```console
 ./scripts/test
 ```
 
@@ -43,13 +43,13 @@ Artemis uses `pre-commit` to run linters and format the code.
 
 To run it locally, use:
 
-```
+```console
 pre-commit run --all-files
 ```
 
 To setup `pre-commit` so that it runs before each commit, use:
 
-```
+```console
 pre-commit install
 ```
 
@@ -57,7 +57,7 @@ pre-commit install
 
 To build the documentation, use:
 
-```
+```console
 cd docs
 python3 -m venv venv
 . venv/bin/activate
@@ -97,6 +97,7 @@ Huge thanks to the following people that contributed to Artemis development!
       <td align="center" valign="top" width="14.28%"><a href="https://eliszewski.pl/"><img src="https://avatars.githubusercontent.com/u/565758?v=4?s=100" width="100px;" alt="Grzegorz Eliszewski"/><br /><sub><b>Grzegorz Eliszewski</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=es1o" title="Code">💻</a> <a href="#ideas-es1o" title="Ideas, Planning, & Feedback">🤔</a> <a href="#platform-es1o" title="Packaging/porting to new platform">📦</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kshitijk4poor"><img src="https://avatars.githubusercontent.com/u/82637225?v=4?s=100" width="100px;" alt="kshitij kapoor"/><br /><sub><b>kshitij kapoor</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=kshitijk4poor" title="Code">💻</a> <a href="#ideas-kshitijk4poor" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/DelfinSR"><img src="https://avatars.githubusercontent.com/u/91948384?v=4?s=100" width="100px;" alt="Delfin"/><br /><sub><b>Delfin</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=DelfinSR" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://bornunique911.github.io/"><img src="https://avatars.githubusercontent.com/u/69379200?v=4?s=100" width="100px;" alt="Bornunique911"/><br /><sub><b>Bornunique911</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=Bornunique911" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

@@ -49,10 +49,6 @@ class TaskFilter(str, Enum):
 
 
 Base = declarative_base()
-engine = create_engine(
-    Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
-)
-Session = sessionmaker(bind=engine)
 
 
 class TSVector(TypeDecorator):  # type: ignore
@@ -115,9 +111,6 @@ class TaskResult(Base):  # type: ignore
     __table_args__ = (Index("task_result_fulltext", fulltext, postgresql_using="gin"),)
 
 
-Base.metadata.create_all(bind=engine)
-
-
 @dataclasses.dataclass
 class PaginatedResults:
     records_count_total: int
@@ -152,12 +145,18 @@ class DB:
     def __init__(self) -> None:
         self.logger = build_logger(__name__)
 
+        self._engine = create_engine(
+            Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
+        )
+        self.session = sessionmaker(bind=self._engine)
+        Base.metadata.create_all(bind=self._engine)
+
     def list_analysis(self) -> List[Dict[str, Any]]:
-        with Session() as session:
+        with self.session() as session:
             return [item.__dict__ for item in session.query(Analysis).all()]
 
     def mark_analysis_as_stopped(self, analysis_id: str) -> None:
-        with Session() as session:
+        with self.session() as session:
             analysis = session.query(Analysis).get(analysis_id)
             analysis.stopped = True
             session.add(analysis)
@@ -176,7 +175,7 @@ class DB:
             stopped=False,
             task=analysis_dict,
         )
-        with Session() as session:
+        with self.session() as session:
             session.add(analysis)
             session.commit()
 
@@ -206,13 +205,13 @@ class DB:
         del to_save["id"]
         statement = statement.on_conflict_do_update(index_elements=[TaskResult.id], set_=to_save)
 
-        with Session() as session:
+        with self.session() as session:
             session.execute(statement)
             session.commit()
 
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
         try:
-            with Session() as session:
+            with self.session() as session:
                 item = session.query(Analysis).get(analysis_id)
 
                 if item:
@@ -237,7 +236,7 @@ class DB:
             for ordering_rule in ordering
         ]
 
-        with Session() as session:
+        with self.session() as session:
             records_count_total = session.query(Analysis).count()
 
             query = session.query(Analysis)
@@ -271,7 +270,7 @@ class DB:
             for ordering_rule in ordering
         ]
 
-        with Session() as session:
+        with self.session() as session:
             records_count_total = session.query(TaskResult).count()
 
             query = session.query(TaskResult)
@@ -296,7 +295,7 @@ class DB:
 
     def get_task_by_id(self, task_id: str) -> Optional[Dict[str, Any]]:
         try:
-            with Session() as session:
+            with self.session() as session:
                 item = session.query(TaskResult).get(task_id)
 
                 if item:
@@ -323,7 +322,7 @@ class DB:
         statement = postgres_insert(ScheduledTask).values([created_task])
 
         statement = statement.on_conflict_do_nothing()
-        with Session() as session:
+        with self.session() as session:
             result = session.execute(statement)
             session.commit()
             return bool(result.rowcount)
@@ -331,7 +330,7 @@ class DB:
     def get_task_results_since(
         self, time_from: datetime.datetime, batch_size: int = 1000
     ) -> Generator[Dict[str, Any], None, None]:
-        with engine.connect() as conn:
+        with self._engine.connect() as conn:
             query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
             with conn.execution_options(stream_results=True, max_row_buffer=batch_size).execute(query) as result:
                 for item in result:

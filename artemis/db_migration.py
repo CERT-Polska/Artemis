@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import insert as postgres_upsert
 from tqdm import tqdm
 
 from artemis.config import Config
-from artemis.db import DB, Analysis, ScheduledTask, Session, TaskResult
+from artemis.db import DB, Analysis, ScheduledTask, TaskResult
 from artemis.utils import build_logger
 
 logger = build_logger(__name__)
@@ -26,6 +26,7 @@ def _list_of_tuples_to_str(lst: List[Tuple[str, Any]]) -> str:
 
 
 def _single_migration_iteration() -> None:
+    db = DB()
     client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
     with client.start_session() as mongo_session:
         if client.artemis.analysis.count_documents({"migrated": {"$exists": False}}):
@@ -46,7 +47,7 @@ def _single_migration_iteration() -> None:
                         ]
                     )
                     statement = statement.on_conflict_do_nothing()
-                    session = Session()
+                    session = db.session()
                     session.execute(statement)
                     session.commit()
                     client.artemis.analysis.update_one({"_id": item["_id"]}, {"$set": {"migrated": True}})
@@ -76,7 +77,7 @@ def _single_migration_iteration() -> None:
                         ]
                     )
                     statement = statement.on_conflict_do_nothing()
-                    session = Session()
+                    session = db.session()
                     session.execute(statement)
                     session.commit()
                     client.artemis.task_results.update_one({"_id": item["_id"]}, {"$set": {"migrated": True}})
@@ -104,7 +105,7 @@ def _single_migration_iteration() -> None:
                         ]
                     )
                     statement = statement.on_conflict_do_nothing()
-                    session = Session()
+                    session = db.session()
                     session.execute(statement)
                     session.commit()
                     client.artemis.scheduled_tasks.update_one({"_id": item["_id"]}, {"$set": {"migrated": True}})

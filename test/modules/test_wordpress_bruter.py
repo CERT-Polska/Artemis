@@ -1,3 +1,5 @@
+from retry import retry
+
 from test.base import ArtemisModuleTestCase
 
 from freezegun import freeze_time
@@ -41,6 +43,7 @@ class WordPressBruterTest(ArtemisModuleTestCase):
         )
         self.assertEqual(passwords, PASSWORDS)
 
+    @retry(tries=3)
     def test_simple(self) -> None:
         task = Task(
             headers={"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},

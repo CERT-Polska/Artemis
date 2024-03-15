@@ -1,9 +1,8 @@
-from retry import retry
-
 from test.base import ArtemisModuleTestCase
 
 from freezegun import freeze_time
 from karton.core import Task
+from retry import retry
 
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.modules.wordpress_bruter import PASSWORDS, WordPressBruter

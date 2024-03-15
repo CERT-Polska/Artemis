@@ -41,6 +41,7 @@ repos:
     - types-PyYAML==6.0.12.11
     - types-redis==4.6.0.5
     - types-requests==2.31.0.2
+    - types-retry==0.9.9.4
     - types-termcolor==1.1.6.2
     - types-tqdm==4.66.0.2
     - uvicorn==0.23.2

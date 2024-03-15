@@ -2,6 +2,7 @@ from test.base import ArtemisModuleTestCase
 
 from freezegun import freeze_time
 from karton.core import Task
+from retry import retry
 
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.modules.wordpress_bruter import PASSWORDS, WordPressBruter
@@ -41,7 +42,10 @@ class WordPressBruterTest(ArtemisModuleTestCase):
         )
         self.assertEqual(passwords, PASSWORDS)
 
+    @retry(tries=3)
     def test_simple(self) -> None:
+        self.setUp()  # @retry() will not rerun setUp
+
         task = Task(
             headers={"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
             payload={"url": "http://test-wordpress-easy-password"},

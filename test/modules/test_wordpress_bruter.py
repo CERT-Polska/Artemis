@@ -44,6 +44,8 @@ class WordPressBruterTest(ArtemisModuleTestCase):
 
     @retry(tries=3)
     def test_simple(self) -> None:
+        self.setUp()  # @retry() will not rerun setUp
+
         task = Task(
             headers={"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
             payload={"url": "http://test-wordpress-easy-password"},

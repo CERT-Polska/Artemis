@@ -321,6 +321,7 @@ class Config:
                         "http/exposed-panels/contao-login-panel.yaml",
                         "http/exposed-panels/craftcms-admin-panel.yaml",
                         "http/exposed-panels/django-admin-panel.yaml",
+                        "http/exposed-panels/dokuwiki-panel.yaml",
                         "http/exposed-panels/drupal-login.yaml",
                         "http/exposed-panels/ez-publish-panel.yaml",
                         "http/exposed-panels/joomla-panel.yaml",
@@ -367,6 +368,7 @@ class Config:
                         "http/exposed-panels/mautic-crm-panel.yaml",
                         "http/exposed-panels/opencart-panel.yaml",
                         "http/exposed-panels/osticket-panel.yaml",
+                        "http/exposed-panels/redmine-panel.yaml",
                         # Mostly meant to be publicly accessible
                         "http/exposed-panels/bigbluebutton-login.yaml",
                         "http/exposed-panels/ilias-panel.yaml",
@@ -374,6 +376,7 @@ class Config:
                         "http/exposed-panels/onlyoffice-login-panel.yaml",
                         "http/exposed-panels/opensis-panel.yaml",
                         "http/exposed-panels/projectsend-login.yaml",
+                        "http/exposed-panels/rocketchat-panel.yaml",
                         # Source of FPs
                         "custom:CVE-2019-1579",
                         "custom:xss-inside-tag-top-params.yaml",

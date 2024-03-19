@@ -376,6 +376,7 @@ class Config:
                         "http/exposed-panels/onlyoffice-login-panel.yaml",
                         "http/exposed-panels/opensis-panel.yaml",
                         "http/exposed-panels/projectsend-login.yaml",
+                        "http/exposed-panels/rocketchat-panel.yaml",
                         # Source of FPs
                         "custom:CVE-2019-1579",
                         "custom:xss-inside-tag-top-params.yaml",

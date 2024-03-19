@@ -595,11 +595,13 @@ TRANSLATIONS = {
     "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
     "OwnCloud is susceptible to the Installation page exposure due to misconfiguration.": "wykryto, że panel instalacyjny narzędzia OwnCloud jest publicznie dostępny, co może umożliwić atakującemu nieuprawniony dostęp do systemu.",
+    'phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.': "Wykryto, że do systemu phpMyAdmin można zalogować się prostym hasłem. Atakujący może uzyskać dostęp do kont użytkowników czy wrażliwych danych, zmienić dane lub wykonać nieuprawnione operacje.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "netlify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Netlify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Netlify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "shopify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Shopify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Shopify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "auth.json file is exposed.": "Wykryto plik auth.json, zawierający login i hasło lub inne dane autoryzacyjne. Rekomendujemy, aby takie dane nie były dostępne publicznie.",
     "Django Debug Method is enabled.": "Wykryto framework Django skonfigurowany aby udostępniać informacje diagnostyczne, takie jak konfiguracja systemu czy ścieżki.",
+    "[no description] http/vulnerabilities/generic/cors-misconfig.yaml": "Wykryto, że nagłówki Access-Control-Allow-Origin i Access-Control-Allow-Credentials są skonfigurowane w sposób umożliwiający innym stronom odczyt plików cookie, co może skutkować nieuprawnionym dostępem do systemu.",
     "Remote Code Execution in PAN-OS 7.1.18 and earlier, PAN-OS 8.0.11-h1 and earlier, and PAN-OS 8.1.2 and earlier with GlobalProtect Portal or GlobalProtect Gateway Interface enabled may allow an unauthenticated remote attacker to execute arbitrary code.": "PAN-OS w wersji 7.1.18 i wcześniejszych, 8.0.11-h1 i wcześniejszych oraz 8.1.2 i wcześniejszych z włączonymi modułami GlobalProtect Portal lub GlobalProtect Gateway Interface mogą umożliwiać atakującym zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -607,6 +609,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Internal information is exposed in elasticsearch to external users.": "Wykryto konfigurację lub dane systemu Elasticsearch dostępne bez logowania."
     + DATA_HIDE_HINT,
+    "Remote code execution vulnerability in Telerik ASP.NET AJAX version before 2017.2.711": "Wykryto podatność w oprogramowaniu Telerik ASP.NET AJAX w wersji poniżej 2017.2.711 umożliwiającą zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",
     "Exposed Wordpress Setup Configuration.": "Wykryto publicznie dostępny panel instalacyjny systemu WordPress.",

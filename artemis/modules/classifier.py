@@ -28,7 +28,9 @@ class Classifier(ArtemisBase):
 
     @staticmethod
     def _sanitize(data: str) -> str:
-        if "hxxp://" in data.lower() or "hxxps://" in data.lower() or "[.]" in data:
+        data = data.lower()
+
+        if "hxxp://" in data or "hxxps://" in data or "[.]" in data:
             raise RuntimeError(
                 "Defanged URL detected. If you really want to scan it, please provide it as a standard one."
             )

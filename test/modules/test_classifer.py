@@ -29,6 +29,7 @@ class ClassifierTest(ArtemisModuleTestCase):
 
     def test_parsing(self) -> None:
         urls = [
+            TestData("https://CERT.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
             TestData("https://cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
             TestData("http://cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
             TestData("cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),

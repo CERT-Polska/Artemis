@@ -595,7 +595,7 @@ TRANSLATIONS = {
     "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
     "OwnCloud is susceptible to the Installation page exposure due to misconfiguration.": "wykryto, że panel instalacyjny narzędzia OwnCloud jest publicznie dostępny, co może umożliwić atakującemu nieuprawniony dostęp do systemu.",
-    'phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.': "Wykryto, że do systemu phpMyAdmin można zalogować się prostym hasłem. Atakujący może uzyskać dostęp do kont użytkowników czy wrażliwych danych, zmienić dane lub wykonać nieuprawnione operacje.",
+    "phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że do systemu phpMyAdmin można zalogować się prostym hasłem. Atakujący może uzyskać dostęp do kont użytkowników czy wrażliwych danych, zmienić dane lub wykonać nieuprawnione operacje.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "netlify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Netlify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Netlify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "shopify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Shopify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Shopify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
@@ -609,7 +609,9 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Internal information is exposed in elasticsearch to external users.": "Wykryto konfigurację lub dane systemu Elasticsearch dostępne bez logowania."
     + DATA_HIDE_HINT,
-    "Remote code execution vulnerability in Telerik ASP.NET AJAX version before 2017.2.711": "Wykryto podatność w oprogramowaniu Telerik ASP.NET AJAX w wersji poniżej 2017.2.711 umożliwiającą zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
+    "Remote code execution vulnerability in Telerik ASP.NET AJAX version before 2017.2.711": "Wykryto podatność w oprogramowaniu Telerik ASP.NET AJAX w wersji poniżej 2017.2.711 umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",
     "Exposed Wordpress Setup Configuration.": "Wykryto publicznie dostępny panel instalacyjny systemu WordPress.",

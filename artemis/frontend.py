@@ -25,6 +25,7 @@ from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import restart_crashed_tasks
+from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.templating import templates
 
@@ -130,6 +131,25 @@ async def post_add(
         total_list += (x.strip() for x in targets.split())
     if file:
         total_list += (x.strip() for x in file.decode().split())
+
+    for task in total_list:
+        if not Classifier.is_supported(task):
+            binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
+
+            return csrf.csrf_form_template_response(
+                "add.jinja2",
+                {
+                    "validation_message": f"{task} is not supported - Artemis supports domains, IPs or IP ranges",
+                    "request": request,
+                    "binds": binds,
+                    "tasks": total_list,
+                    "tag": tag or "",
+                    "disabled_modules": disabled_modules,
+                    "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
+                },
+                csrf_protect,
+            )
+
     create_tasks(total_list, tag, disabled_modules)
     if redirect:
         return RedirectResponse("/", status_code=301)

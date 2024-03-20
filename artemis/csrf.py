@@ -53,8 +53,7 @@ def validate_csrf(func: Any) -> Any:
     @wraps(func)
     async def wrapper(request: Request, csrf_protect: CsrfProtect, *args: Any, **kwargs: Any) -> Any:
         await csrf_protect.validate_csrf(request)
-        response = await func(request, *args, **kwargs)
-        csrf_protect.unset_csrf_cookie(response)
+        response = await func(request, *args, csrf_protect=csrf_protect, **kwargs)
         return response
 
     return wrapper

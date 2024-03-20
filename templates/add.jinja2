@@ -14,11 +14,18 @@
 
     <h1>Add targets</h1>
     <form action="/add" method="post" class="w-100">
+        {% if validation_message %}
+            <div class="alert alert-danger" role="alert">
+                {{ validation_message }}
+            </div>
+        {% endif %}
+
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
         <div class="form-group mb-3">
             <label class="form-label">Targets (separated with newlines)</label>
-            <textarea class="form-control" name="targets"></textarea>
+            <textarea class="form-control" name="targets">{% for task in tasks %}{{ task }}
+{% endfor %}</textarea>
         </div>
         <div class="form-group mb-3">
             <label class="form-label">Batch file (should contain one target per line)</label>
@@ -26,7 +33,7 @@
         </div>
         <div class="form-group mb-3">
             <label class="form-label">Tag</label>
-            <input type="text" class="form-control" name="tag" />
+            <input type="text" class="form-control" name="tag" value="{{ tag }}">
             <small class="form-text text-muted">
                 You may provide any string here - it will be saved in the task results
                 in the database so that you can e.g. use the value when processing
@@ -57,7 +64,12 @@
                 {% for bind in binds %}
                     <div class="form-check col-md-4">
                         <label class="form-check-label">
-                            <input class="form-check-input" type="checkbox" value="" name="module_enabled_{{ bind.identity }}" {% if bind.identity not in modules_disabled_by_default %}checked{% endif %}>
+                            <input class="form-check-input" type="checkbox" value="" name="module_enabled_{{ bind.identity }}"
+                                {% if disabled_modules %}
+                                    {% if bind.identity not in disabled_modules %}checked{% endif %}
+                                {% else %}
+                                    {% if bind.identity not in modules_disabled_by_default %}checked{% endif %}
+                                {% endif %}>
                             {{ bind.identity }}<br/>
                             <span class="small text-muted">{{ bind.info|dedent|render_markdown|safe }}</span>
                         </label>

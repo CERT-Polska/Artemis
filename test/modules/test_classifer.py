@@ -27,18 +27,31 @@ class ClassifierTest(ArtemisModuleTestCase):
 
         self.assertTasksEqual(results, [])
 
+    def test_support(self) -> None:
+        self.assertTrue(Classifier.is_supported("cert.pl"))
+        self.assertTrue(Classifier.is_supported("CERT.pl"))
+        self.assertFalse(Classifier.is_supported("https://CERT.pl"))
+        self.assertFalse(Classifier.is_supported("http://cert.pl"))
+        self.assertFalse(Classifier.is_supported("cert.pl:8080"))
+        self.assertFalse(Classifier.is_supported("ws://cert.pl"))
+        self.assertFalse(Classifier.is_supported("root@cert.pl"))
+        self.assertFalse(Classifier.is_supported("ssh://127.0.0.1"))
+        self.assertFalse(Classifier.is_supported("127.0.0.1:8080"))
+
     def test_parsing(self) -> None:
         urls = [
-            TestData("https://CERT.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
-            TestData("https://cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
-            TestData("http://cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
-            TestData("cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
-            TestData("cert.pl:8080", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
-            TestData("ws://cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
-            TestData("root@cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
-            TestData("ssh://cert.pl", [ExpectedTaskData(TaskType.DOMAIN, "cert.pl")]),
-            TestData("ssh://127.0.0.1", [ExpectedTaskData(TaskType.IP, "127.0.0.1")]),
-            TestData("127.0.0.1:8080", [ExpectedTaskData(TaskType.IP, "127.0.0.1")]),
+            TestData(
+                "cert.pl",
+                [
+                    ExpectedTaskData(TaskType.DOMAIN, "cert.pl"),
+                ],
+            ),
+            TestData(
+                "CERT.pl",
+                [
+                    ExpectedTaskData(TaskType.DOMAIN, "cert.pl"),
+                ],
+            ),
             TestData(
                 "127.0.0.1-127.0.0.5",
                 [

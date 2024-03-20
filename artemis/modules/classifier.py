@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import ipaddress
-import urllib.parse
 from typing import List, Optional
 
 from karton.core import Task
@@ -30,33 +29,27 @@ class Classifier(ArtemisBase):
     def _sanitize(data: str) -> str:
         data = data.lower()
 
-        if "hxxp://" in data or "hxxps://" in data or "[.]" in data:
-            raise RuntimeError(
-                "Defanged URL detected. If you really want to scan it, please provide it as a standard one."
-            )
-
-        # strip URL schemes
-        if "://" in data:
-            hostname = urllib.parse.urlparse(data).hostname
-            assert hostname is not None
-            data = hostname
-
-        # strip after slash
-        if "/" in data:
-            data = data.split("/")[0]
-
-        # if contains '@', then split after
-        if "@" in data:
-            data = data.split("@")[1]
-
-        # split last ":" (port)
-        if ":" in data:
-            data = data.rsplit(":")[0]
-
         # Strip leading and trailing dots (e.g. domain.com.)
         data = data.strip(".")
 
         return data
+
+    @staticmethod
+    def is_supported(data: str) -> bool:
+        if Classifier._to_ip_range(data):
+            return True
+
+        try:
+            # if this doesn't throw then we have an IP address
+            ipaddress.ip_address(data)
+            return True
+        except ValueError:
+            pass
+
+        if is_domain(data):
+            return True
+
+        return False
 
     @staticmethod
     def _classify(data: str) -> TaskType:

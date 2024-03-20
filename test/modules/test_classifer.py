@@ -43,13 +43,13 @@ class ClassifierTest(ArtemisModuleTestCase):
             TestData(
                 "cert.pl",
                 [
-                    ExpectedTaskData(TaskType.IP, "cert.pl"),
+                    ExpectedTaskData(TaskType.DOMAIN, "cert.pl"),
                 ],
             ),
             TestData(
                 "CERT.pl",
                 [
-                    ExpectedTaskData(TaskType.IP, "cert.pl"),
+                    ExpectedTaskData(TaskType.DOMAIN, "cert.pl"),
                 ],
             ),
             TestData(

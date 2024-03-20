@@ -30,14 +30,14 @@ class MailDNSScannerReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
-        MessageWithTarget = namedtuple("MessageWithTarget", "message target")
+        MessageWithTarget = namedtuple("MessageWithTarget", "message target type")
 
         messages_with_targets = []
         if task_result["result"].get("spf_dmarc_scan_result", {}):
             if not task_result["result"].get("spf_dmarc_scan_result", {}).get("spf", {}).get("valid", True):
                 for error in task_result["result"]["spf_dmarc_scan_result"]["spf"]["errors"]:
                     messages_with_targets.append(
-                        MessageWithTarget(message=error, target=task_result["payload"]["domain"])
+                        MessageWithTarget(message=error, target=task_result["payload"]["domain"], type="SPF")
                     )
             if not task_result["result"].get("spf_dmarc_scan_result", {}).get("dmarc", {}).get("valid", True):
                 report_dmarc_problems = True
@@ -57,7 +57,7 @@ class MailDNSScannerReporter(Reporter):
                         if not target:
                             target = task_result["result"]["spf_dmarc_scan_result"]["base_domain"]
 
-                        messages_with_targets.append(MessageWithTarget(message=error, target=target))
+                        messages_with_targets.append(MessageWithTarget(message=error, target=target, type="DMARC"))
 
         result = []
         for message_with_target in messages_with_targets:
@@ -78,6 +78,7 @@ class MailDNSScannerReporter(Reporter):
                     target=message_with_target.target,
                     report_type=MailDNSScannerReporter.MISCONFIGURED_EMAIL,
                     additional_data={
+                        "type": message_with_target.type,
                         "message_en": message_with_target.message,
                         "message_translated": translate(
                             message_with_target.message,

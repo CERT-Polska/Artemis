@@ -4,13 +4,18 @@ msgid ""
 "verification mechanisms:"
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:14
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:10
+#, python-format
+msgid "Problem with the %(type)s mechanism:"
+msgstr ""
+
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:21
 msgid ""
 "These mechanisms greatly increase the chance that the recipient server "
 "will reject a spoofed message."
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:15
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:22
 msgid ""
 "Even if a domain is not used to send e-mails, SPF and DMARC records are "
 "needed to reduce the possibility to spoof e-mails."

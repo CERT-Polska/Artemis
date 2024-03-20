@@ -4,7 +4,14 @@
             {% for report in data.reports %}
                 {% if report.report_type == "misconfigured_email" %}
                     <li>
-                        {{ report.target }}: {{ report.additional_data.message_translated }}
+                        {{ report.target }}:
+                            {% if 'SPF' not in report.additional_data.message_translated and 'DMARC' not in report.additional_data.message_translated %}
+                                {% with type=report.additional_data.type %}
+                                    {% trans %}Problem with the {{ type }} mechanism:{% endtrans %}
+                                {% endwith %}
+                            {% endif %}
+
+                            {{ report.additional_data.message_translated }}
                         {{ report_meta(report) }}
                     </li>
                 {% endif %}

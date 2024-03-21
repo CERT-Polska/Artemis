@@ -6,6 +6,10 @@ from unittest import TestCase
 import requests
 from bs4 import BeautifulSoup
 
+from karton.core.backend import KartonBackend, KartonBind
+from karton.core.config import Config as KartonConfig
+
+from artemis.db import DB
 from artemis.utils import build_logger
 
 BACKEND_URL = "http://web:5000/"
@@ -24,6 +28,14 @@ class BaseE2ETestCase(TestCase):
 
     def setUp(self) -> None:
         self._wait_for_backend()
+
+        db = DB()
+        db.session.query(ScheduledTask).delete()
+        db.session.query(Analysis).delete()
+        db.session.query(TaskResult).delete()
+
+        backend = KartonBackend(config=KartonConfig())
+        backend.redis.flushall()
 
     def submit_tasks(self, tasks: List[str], tag: str) -> None:
         with requests.Session() as s:

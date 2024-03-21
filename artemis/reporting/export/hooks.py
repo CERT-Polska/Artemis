@@ -21,7 +21,7 @@ def get_all_hooks() -> List[Type[ExportHook]]:
     return sorted(ExportHook.__subclasses__(), key=lambda cls: cls.get_ordering())
 
 
-def run_export_hooks(output_dir: Path, export_data: ExportData) -> None:
+def run_export_hooks(output_dir: Path, export_data: ExportData, silent: bool) -> None:
     for hook in get_all_hooks():
         logger.info("Running hook: %s (ordering=%s)", hook.__name__, hook.get_ordering())
-        hook.run(output_dir, export_data)
+        hook.run(output_dir, export_data, silent)

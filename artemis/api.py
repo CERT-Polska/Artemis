@@ -1,31 +1,41 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Annotated, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Body, HTTPException, Query, Request
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
+from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
+from artemis.modules.classifier import Classifier
+from artemis.producer import create_tasks
 from artemis.templating import render_analyses_table_row, render_task_table_row
 
 router = APIRouter()
 db = DB()
 
 
-@router.get("/task/{task_id}")
-def get_task(task_id: str) -> Dict[str, Any]:
-    if result := db.get_task_by_id(task_id):
-        return result
-    raise HTTPException(status_code=404, detail="Task not found")
+@router.post("/add")
+def add(targets: List[str], tag: Annotated[Optional[str], Body()]=None, disabled_modules: List[str]=Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT) -> Dict[str, Any]:
+    """Add targets to be scanned."""
+    for task in targets:
+        if not Classifier.is_supported(task):
+            return {"error": f"Invalid task: {task}"}
+
+    create_tasks(targets, tag, disabled_modules=disabled_modules)
+
+    return {"ok": True}
 
 
 @router.get("/analysis")
 def list_analysis() -> List[Dict[str, Any]]:
+    """Returns the list of analysed targets. Any target you added to scan would be listed here."""
     return db.list_analysis()
 
 
-@router.get("/num-queued-tasks")
-def num_queued_tasks(karton_names: Optional[List[str]] = Query(default=None)) -> int:
+@router.post("/num-queued-tasks")
+def num_queued_tasks(karton_names: Optional[List[str]]=None) -> int:
+    """Return the number of queued tasks for all or only some kartons."""
     # We check the backend redis queue length directly to avoid the long runtimes of
     # KartonState.get_all_tasks()
     backend = KartonBackend(config=KartonConfig())
@@ -39,14 +49,25 @@ def num_queued_tasks(karton_names: Optional[List[str]] = Query(default=None)) ->
         return sum([backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")])
 
 
-@router.get("/analysis/{root_id}")
-def get_analysis(root_id: str) -> Dict[str, Any]:
-    if result := db.get_analysis_by_id(root_id):
-        return result
-    raise HTTPException(status_code=404, detail="Analysis not found")
+@router.get("/task-results")
+def get_task_results(
+    only_interesting: bool=False,
+    page: int=1,
+    page_size: int=100,
+    analysis_id: Optional[str] = None,
+    search: Optional[str]=None,
+) -> List[Dict[str, Any]]:
+    return db.get_paginated_task_results(
+        start=(page - 1) * page_size,  # type: ignore
+        length=page_size,  # type: ignore
+        ordering=[ColumnOrdering(column_name="created_at", ascending=True)],
+        search_query=search,
+        analysis_id=analysis_id,
+        task_filter=TaskFilter.INTERESTING if only_interesting else None,
+    ).data
 
 
-@router.get("/analyses-table")
+@router.get("/analyses-table", include_in_schema=False)
 def get_analyses_table(
     request: Request,
     draw: int = Query(),
@@ -86,7 +107,7 @@ def get_analyses_table(
     }
 
 
-@router.get("/task-results-table")
+@router.get("/task-results-table", include_in_schema=False)
 def get_task_results_table(
     request: Request,
     analysis_id: Optional[str] = Query(default=None),
@@ -101,19 +122,6 @@ def get_task_results_table(
     )
     search_query = _get_search_query(request)
 
-    fields = [
-        "created_at",
-        "target_string",
-        "headers",
-        "payload_persistent",
-        "status",
-        "status_reason",
-        "priority",
-        "uid",
-        "decision_type",
-        "operator_comment",
-    ]
-
     if analysis_id:
         if not db.get_analysis_by_id(analysis_id):
             raise HTTPException(status_code=404, detail="Analysis not found")
@@ -121,14 +129,13 @@ def get_task_results_table(
             start,
             length,
             ordering,
-            fields=fields,
             search_query=search_query,
             analysis_id=analysis_id,
             task_filter=task_filter,
         )
     else:
         result = db.get_paginated_task_results(
-            start, length, ordering, fields=fields, search_query=search_query, task_filter=task_filter
+            start, length, ordering, search_query=search_query, task_filter=task_filter
         )
 
     return {

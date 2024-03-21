@@ -3,12 +3,17 @@ import subprocess
 import time
 import urllib.parse
 from ipaddress import ip_address
+from pathlib import Path
 from typing import Any, Callable, List, Optional
 
 from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
 from whoisdomain import query as whois_query
 
 from artemis.config import Config
+
+CONSOLE_LOG_HANDLER = logging.StreamHandler()
+CONSOLE_LOG_HANDLER.setLevel(logging.INFO)
+CONSOLE_LOG_HANDLER.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
 
 
 class CalledProcessErrorWithMessage(subprocess.CalledProcessError):
@@ -63,11 +68,11 @@ def perform_whois_or_sleep(domain: str, logger: logging.Logger) -> Optional[Doma
 
 def build_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
+    logger.propagate = False
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
-    logger.addHandler(handler)
+    for handler in logger.handlers:
+        logger.removeHandler(handler)
+    logger.addHandler(CONSOLE_LOG_HANDLER)
     return logger
 
 
@@ -111,3 +116,8 @@ def is_ip_address(host: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+def read_template(path: str) -> str:
+    with open(Path(__file__).parent.parent / "templates" / path) as f:
+        return f.read()

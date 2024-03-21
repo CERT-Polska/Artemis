@@ -13,5 +13,5 @@ class ExportHook(ABC):
 
     @staticmethod
     @abstractmethod
-    def run(output_dir: Path, export_data: ExportData) -> None:
+    def run(output_dir: Path, export_data: ExportData, silent: bool) -> None:
         raise NotImplementedError()

@@ -153,7 +153,7 @@ class DB:
 
     def list_analysis(self) -> List[Dict[str, Any]]:
         with self.session() as session:
-            return [item.__dict__ for item in session.query(Analysis).all()]
+            return [self._strip_internal_db_info(item.__dict__) for item in session.query(Analysis).all()]
 
     def mark_analysis_as_stopped(self, analysis_id: str) -> None:
         with self.session() as session:
@@ -164,6 +164,17 @@ class DB:
 
     def create_analysis(self, analysis: Task) -> None:
         analysis_dict = self.task_to_dict(analysis)
+
+        # These are either not populated or would be saved at the time of task creation,
+        # so would become obsolete - let's remove them so that they won't appear in the API/db.
+        del analysis_dict["parent_uid"]
+        del analysis_dict["orig_uid"]
+        del analysis_dict["root_uid"]
+        del analysis_dict["last_update"]
+        analysis_dict["headers"] = copy.deepcopy(analysis_dict["headers"])
+        del analysis_dict["headers"]["type"]
+        del analysis_dict["error"]
+
         del analysis_dict["status"]
         if "status_reason" in analysis_dict:
             del analysis_dict["status_reason"]
@@ -194,6 +205,9 @@ class DB:
             # Used to allow searching in the names and values of all existing headers
             headers_string=" ".join([key + " " + value for key, value in task.headers.items()]),
         )
+
+        del to_save["task"]["status"]  # at the moment of saving it's "started", which will be misleading
+
         if isinstance(data, BaseModel):
             to_save["result"] = data.dict()
         elif isinstance(data, Exception):
@@ -215,7 +229,7 @@ class DB:
                 item = session.query(Analysis).get(analysis_id)
 
                 if item:
-                    return item.__dict__  # type: ignore
+                    return self._strip_internal_db_info(item.__dict__)
                 else:
                     return None
         except NoResultFound:
@@ -245,7 +259,10 @@ class DB:
                 query = query.filter(Analysis.fulltext.match(self._to_postgresql_query(search_query)))  # type: ignore
 
             records_count_filtered: int = query.count()
-            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]
+            results_page = [
+                self._strip_internal_db_info(item.__dict__)
+                for item in query.order_by(*ordering_postgresql).slice(start, start + length)
+            ]
             return PaginatedResults(
                 records_count_total=records_count_total,
                 records_count_filtered=records_count_filtered,
@@ -257,7 +274,6 @@ class DB:
         start: int,
         length: int,
         ordering: List[ColumnOrdering],
-        fields: List[str],
         *,
         search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
@@ -286,7 +302,10 @@ class DB:
                     query = query.filter(getattr(TaskResult, key) == value)
 
             records_count_filtered = query.count()
-            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]
+            results_page = [
+                self._strip_internal_db_info(item.__dict__)
+                for item in query.order_by(*ordering_postgresql).slice(start, start + length)
+            ]
             return PaginatedResults(
                 records_count_total=records_count_total,
                 records_count_filtered=records_count_filtered,
@@ -299,7 +318,7 @@ class DB:
                 item = session.query(TaskResult).get(task_id)
 
                 if item:
-                    return item.__dict__  # type: ignore
+                    return self._strip_internal_db_info(item.__dict__)
                 else:
                     return None
         except NoResultFound:
@@ -389,3 +408,10 @@ class DB:
         query = query.replace("\\", " ")  # just in case
         query = query.replace('"', " ")  # just in case
         return " & ".join([f'"{item}"' for item in query.split(" ") if item])
+
+    def _strip_internal_db_info(self, d: Dict[str, Any]) -> Dict[str, Any]:
+        del d["_sa_instance_state"]
+        del d["fulltext"]
+        if "headers_string" in d:
+            del d["headers_string"]
+        return d

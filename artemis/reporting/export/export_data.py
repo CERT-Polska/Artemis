@@ -2,8 +2,6 @@ import datetime
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from tqdm import tqdm
-
 from artemis.domains import is_domain
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
@@ -41,7 +39,7 @@ def build_export_data(
     reports = deduplicate_reports(previous_reports, db.reports)
 
     reports_per_top_level_target: Dict[str, List[Report]] = {}
-    for report in tqdm(reports):
+    for report in reports:
         if report.top_level_target not in reports_per_top_level_target:
             reports_per_top_level_target[report.top_level_target] = []
         reports_per_top_level_target[report.top_level_target].append(report)

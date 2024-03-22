@@ -29,9 +29,11 @@ class BaseE2ETestCase(TestCase):
         self._wait_for_backend()
 
         db = DB()
-        db.session().query(ScheduledTask).delete()
-        db.session().query(Analysis).delete()
-        db.session().query(TaskResult).delete()
+        session = db.session()
+        session.query(ScheduledTask).delete()
+        session.query(Analysis).delete()
+        session.query(TaskResult).delete()
+        session.commit()
 
         backend = KartonBackend(config=KartonConfig())
         backend.redis.flushall()

@@ -1,50 +1,62 @@
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 
+import time
 import requests
+
+from artemis.frontend  import get_binds_that_can_be_disabled
 
 
 class AutomatedInteractionTestCase(BaseE2ETestCase):
     def test_api_token_is_required(self) -> None:
         self.assertEqual(
             requests.post(
-                BACKEND_URL + "/api/add",
+                BACKEND_URL + "api/add",
                 {},
                 headers={"Content-Type": "application/json", "X-API-Token": "invalid-api-token"},
             ).status_code,
             401,
         )
         self.assertEqual(
-            requests.get(BACKEND_URL + "/api/analyses", headers={"X-API-Token": "invalid-api-token"}).status_code, 401
+            requests.get(BACKEND_URL + "api/analyses", headers={"X-API-Token": "invalid-api-token"}).status_code, 401
         )
         self.assertEqual(
             requests.get(
-                BACKEND_URL + "/api/num-queued-tasks", headers={"X-API-Token": "invalid-api-token"}
+                BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "invalid-api-token"}
             ).status_code,
             401,
         )
         self.assertEqual(
-            requests.get(BACKEND_URL + "/api/task-results", headers={"X-API-Token": "invalid-api-token"}).status_code,
+            requests.get(BACKEND_URL + "api/task-results", headers={"X-API-Token": "invalid-api-token"}).status_code,
             401,
         )
 
     def test_automated_interaction(self) -> None:
         self.assertEqual(
             requests.post(
-                BACKEND_URL + "/api/add",
-                {
+                BACKEND_URL + "api/add",
+                json={
                     "targets": ["test-smtp-server.artemis"],
                     "tag": "automated-interaction",
-                    "disabled_modules": ["example", "humble"],
+                    "disabled_modules": [bind.identity for bind in get_binds_that_can_be_disabled() if bind.identity != 'mail_dns_scanner'],
                 },
-                headers={"Content-Type": "application/json", "X-API-Token": "api-token"},
+                headers={"X-API-Token": "api-token"},
             ).json(),
             {"ok": True},
         )
 
-        analyses = requests.get(BACKEND_URL + "/api/analyses", headers={"X-API-Token": "api-token"}).json()
+        analyses = requests.get(BACKEND_URL + "api/analyses", headers={"X-API-Token": "api-token"}).json()
         self.assertEqual(len(analyses), 1)
         self.assertEqual(set(analyses[0].keys()), {"stopped", "target", "created_at", "id", "tag", "task"})
         self.assertEqual(analyses[0]["stopped"], False)
         self.assertEqual(analyses[0]["target"], "test-smtp-server.artemis")
         self.assertEqual(analyses[0]["tag"], "automated-interaction")
         self.assertEqual(analyses[0]["task"]["payload"]["data"], "test-smtp-server.artemis")
+
+        for i in range(100):
+            num_queued_tasks = int(requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip())
+
+            if num_queued_tasks == 0:
+                break
+
+            time.sleep(1)
+        self.assertEqual(num_queued_tasks, 0)

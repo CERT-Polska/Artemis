@@ -4,16 +4,14 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    environment:
-      DB_CONN_STR: ""
-      POSTGRES_CONN_STR: postgresql://postgres:postgres@postgres-test/artemis
-      REDIS_CONN_STR: redis://test-redis:6379/1
+    env_file: env.test
     command: python -m unittest discover test.e2e
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
       - ./test/:/opt/test/
       - ./docker/karton.ini:/etc/karton/karton.ini
+      - data-test:/data/
 
   test:
     build:
@@ -21,12 +19,8 @@ services:
       dockerfile: docker/Dockerfile
     command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
-      DB_CONN_STR: ""
-
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
-      REDIS_CONN_STR: redis://test-redis:6379/1
-      POSTGRES_CONN_STR: postgresql://postgres:postgres@postgres-test/artemis
 
       # Use only one provider to speed up the tests
       GAU_ADDITIONAL_OPTIONS: "--providers otx"
@@ -38,6 +32,7 @@ services:
       SCANNING_PACKETS_PER_SECOND: 5
       CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
       NUCLEI_CHECK_TEMPLATE_LIST: False
+    env_file: env.test
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
@@ -184,3 +179,6 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
+
+volumes:
+  data-test:

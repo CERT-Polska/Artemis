@@ -81,7 +81,6 @@ def error_content_not_found(request: Request, exc: HTTPException) -> Response:
 
 
 if not Config.Miscellaneous.API_TOKEN:
-
     @router.get("/docs", include_in_schema=False)
     def api_docs_information(request: Request) -> Response:
         return templates.TemplateResponse(

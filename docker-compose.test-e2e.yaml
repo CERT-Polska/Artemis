@@ -1,13 +1,33 @@
 services:
   web:
+    env_file: env.test
     environment:
       API_TOKEN: api-token
-
-  karton-port_scanner:
-    environment:
-        SCANNING_PACKETS_PER_SECOND: 5
-        CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
+    volumes:
+      - data-web:/data
+      - ./docker/karton.ini:/etc/karton/karton-test.ini
 
   karton-bruter:
     environment:
       REQUESTS_PER_SECOND: 0
+    volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+  
+  karton-ftp_bruter:
+    env_file: env.test
+    volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+
+  karton-mail_dns_scanner:
+    env_file: env.test
+    volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+
+  karton-port_scanner:
+    env_file: env.test
+    environment:
+        SCANNING_PACKETS_PER_SECOND: 5
+        CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
+    volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+
+  karton-system:
+    env_file: env.test
+    volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+

@@ -47,7 +47,7 @@ def list_analysis() -> List[Dict[str, Any]]:
     return db.list_analysis()
 
 
-@router.post("/num-queued-tasks", dependencies=[Depends(verify_api_token)])
+@router.get("/num-queued-tasks", dependencies=[Depends(verify_api_token)])
 def num_queued_tasks(karton_names: Optional[List[str]] = None) -> int:
     """Return the number of queued tasks for all or only some kartons."""
     # We check the backend redis queue length directly to avoid the long runtimes of

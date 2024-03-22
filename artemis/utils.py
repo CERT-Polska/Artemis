@@ -68,7 +68,6 @@ def perform_whois_or_sleep(domain: str, logger: logging.Logger) -> Optional[Doma
 
 def build_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
-    logger.propagate = False
     logger.setLevel(logging.INFO)
     for handler in logger.handlers:
         logger.removeHandler(handler)

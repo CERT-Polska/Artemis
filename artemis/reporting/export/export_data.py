@@ -51,9 +51,13 @@ def build_export_data(
     message_data: Dict[str, SingleTopLevelTargetExportData] = {}
 
     for operator_name, operator in [("min", min), ("max", max)]:
-        custom_template_arguments_parsed[operator_name + "_vulnerability_date_str"] = datetime.datetime.strftime(
-            operator([report.timestamp for report in reports if report.timestamp]),
-            "%Y-%m-%d",
+        custom_template_arguments_parsed[operator_name + "_vulnerability_date_str"] = (
+            datetime.datetime.strftime(  # type: ignore
+                operator([report.timestamp for report in reports if report.timestamp]),
+                "%Y-%m-%d",
+            )
+            if reports
+            else None
         )
 
     for top_level_target in reports_per_top_level_target.keys():

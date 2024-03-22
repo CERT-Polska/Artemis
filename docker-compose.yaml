@@ -2,7 +2,9 @@ version: "3"
 
 services:
   redis:
-    image: redis
+    # Warning: don't upgrade to >=7.3 due to its non-free license
+    # until the licensing situation gets more clear or e.g. an open-source fork appears
+    image: redis:7.2.4
     restart: always
     volumes:
       - data-redis:/data

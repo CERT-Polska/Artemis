@@ -36,7 +36,12 @@ class BaseE2ETestCase(TestCase):
         session.commit()
 
         backend = KartonBackend(config=KartonConfig())
-        backend.redis.flushall()
+
+        for key in backend.redis.keys("karton.task*"):
+            backend.redis.delete(key)
+
+        for key in backend.redis.keys("karton.queue*"):
+            backend.redis.delete(key)
 
     def submit_tasks(self, tasks: List[str], tag: str) -> None:
         with requests.Session() as s:

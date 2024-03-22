@@ -5,11 +5,15 @@ services:
       API_TOKEN: api-token
     volumes:
       - data-web:/data
-      - ./docker/karton.ini:/etc/karton/karton-test.ini
+      - ./docker/karton-test.ini:/etc/karton/karton.ini
 
   karton-bruter:
     environment:
       REQUESTS_PER_SECOND: 0
+    volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+
+  karton-classifier:
+    env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
 
   karton-ftp_bruter:

@@ -40,7 +40,7 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
                     "disabled_modules": [
                         bind.identity
                         for bind in get_binds_that_can_be_disabled()
-                        if bind.identity != "mail_dns_scanner"
+                        if bind.identity not in ["mail_dns_scanner", "classifier"]
                     ],
                 },
                 headers={"X-API-Token": "api-token"},
@@ -66,3 +66,36 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
 
             time.sleep(1)
         self.assertEqual(num_queued_tasks, 0)
+
+        task_results = requests.get(
+            BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+        ).json()
+        self.assertEqual(len(task_results), 1)
+        self.assertEqual(
+            set(task_results[0].keys()),
+            {
+                "created_at",
+                "receiver",
+                "status_reason",
+                "task",
+                "status",
+                "analysis_id",
+                "id",
+                "tag",
+                "target_string",
+                "result",
+            },
+        )
+        self.assertEqual(task_results[0]["receiver"], "mail_dns_scanner")
+        self.assertEqual(task_results[0]["status"], "INTERESTING")
+        self.assertEqual(
+            task_results[0]["status_reason"],
+            "Found problems: Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+        )
+        self.assertEqual(task_results[0]["tag"], "automated-interaction")
+        self.assertEqual(task_results[0]["target_string"], "test-smtp-server.artemis")
+
+        task_results = requests.get(
+            BACKEND_URL + "api/task-results?search=should-not-exist", headers={"X-API-Token": "api-token"}
+        ).json()
+        self.assertEqual(len(task_results), 0)

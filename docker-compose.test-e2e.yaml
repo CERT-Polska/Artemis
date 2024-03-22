@@ -1,4 +1,8 @@
 services:
+  web:
+    environment:
+      API_TOKEN: api-token
+
   karton-port_scanner:
     environment:
         SCANNING_PACKETS_PER_SECOND: 5

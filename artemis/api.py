@@ -1,6 +1,6 @@
-from typing import Any, Annotated, Dict, List, Optional
+from typing import Annotated, Any, Dict, List, Optional
 
-from fastapi import APIRouter, Body, HTTPException, Query, Request
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
@@ -15,8 +15,22 @@ router = APIRouter()
 db = DB()
 
 
-@router.post("/add")
-def add(targets: List[str], tag: Annotated[Optional[str], Body()]=None, disabled_modules: List[str]=Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT) -> Dict[str, Any]:
+def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
+    if not Config.Miscellaneous.API_TOKEN:
+        raise HTTPException(
+            status_code=401,
+            detail="Please provide the API token in the API_TOKEN variable in .env in order to use the API",
+        )
+    elif x_api_token != Config.Miscellaneous.API_TOKEN:
+        raise HTTPException(status_code=401, detail="Invalid API token")
+
+
+@router.post("/add", dependencies=[Depends(verify_api_token)])
+def add(
+    targets: List[str],
+    tag: Annotated[Optional[str], Body()] = None,
+    disabled_modules: List[str] = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
+) -> Dict[str, Any]:
     """Add targets to be scanned."""
     for task in targets:
         if not Classifier.is_supported(task):
@@ -27,14 +41,14 @@ def add(targets: List[str], tag: Annotated[Optional[str], Body()]=None, disabled
     return {"ok": True}
 
 
-@router.get("/analysis")
+@router.get("/analyses", dependencies=[Depends(verify_api_token)])
 def list_analysis() -> List[Dict[str, Any]]:
     """Returns the list of analysed targets. Any target you added to scan would be listed here."""
     return db.list_analysis()
 
 
-@router.post("/num-queued-tasks")
-def num_queued_tasks(karton_names: Optional[List[str]]=None) -> int:
+@router.post("/num-queued-tasks", dependencies=[Depends(verify_api_token)])
+def num_queued_tasks(karton_names: Optional[List[str]] = None) -> int:
     """Return the number of queued tasks for all or only some kartons."""
     # We check the backend redis queue length directly to avoid the long runtimes of
     # KartonState.get_all_tasks()
@@ -49,17 +63,17 @@ def num_queued_tasks(karton_names: Optional[List[str]]=None) -> int:
         return sum([backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")])
 
 
-@router.get("/task-results")
+@router.get("/task-results", dependencies=[Depends(verify_api_token)])
 def get_task_results(
-    only_interesting: bool=False,
-    page: int=1,
-    page_size: int=100,
+    only_interesting: bool = False,
+    page: int = 1,
+    page_size: int = 100,
     analysis_id: Optional[str] = None,
-    search: Optional[str]=None,
+    search: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     return db.get_paginated_task_results(
-        start=(page - 1) * page_size,  # type: ignore
-        length=page_size,  # type: ignore
+        start=(page - 1) * page_size,
+        length=page_size,
         ordering=[ColumnOrdering(column_name="created_at", ascending=True)],
         search_query=search,
         analysis_id=analysis_id,

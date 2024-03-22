@@ -5,7 +5,7 @@ import dns.message
 import dns.query
 import dns.rcode
 import dns.resolver
-import dns.xfr
+import dns.xfr 
 import dns.zone
 from karton.core import Task
 

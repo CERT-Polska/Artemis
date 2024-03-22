@@ -1,9 +1,9 @@
+import time
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 
-import time
 import requests
 
-from artemis.frontend  import get_binds_that_can_be_disabled
+from artemis.frontend import get_binds_that_can_be_disabled
 
 
 class AutomatedInteractionTestCase(BaseE2ETestCase):
@@ -37,7 +37,11 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
                 json={
                     "targets": ["test-smtp-server.artemis"],
                     "tag": "automated-interaction",
-                    "disabled_modules": [bind.identity for bind in get_binds_that_can_be_disabled() if bind.identity != 'mail_dns_scanner'],
+                    "disabled_modules": [
+                        bind.identity
+                        for bind in get_binds_that_can_be_disabled()
+                        if bind.identity != "mail_dns_scanner"
+                    ],
                 },
                 headers={"X-API-Token": "api-token"},
             ).json(),
@@ -53,7 +57,9 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         self.assertEqual(analyses[0]["task"]["payload"]["data"], "test-smtp-server.artemis")
 
         for i in range(100):
-            num_queued_tasks = int(requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip())
+            num_queued_tasks = int(
+                requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()
+            )
 
             if num_queued_tasks == 0:
                 break

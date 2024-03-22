@@ -11,7 +11,7 @@ services:
     environment:
       REQUESTS_PER_SECOND: 0
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
-  
+
   karton-ftp_bruter:
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
@@ -30,4 +30,3 @@ services:
   karton-system:
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
-

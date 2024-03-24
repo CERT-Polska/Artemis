@@ -263,12 +263,6 @@ class Config:
             )
 
         class Nuclei:
-                        NUCLEI_AUTOMATIC_SCAN: Annotated[
-                bool,
-                "This flag enables automatic web scanning by utilizing Wappalyzer technology detection to map tags."
-                "This is useful for performing broad scans based on technology detection, allowing Nuclei to automatically select and apply relevant templates for scanning the target.",
-            ] = get_config("NUCLEI_AUTOMATIC_SCAN", default=False, cast=bool)
-            
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,
                 "Whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI "
@@ -475,6 +469,12 @@ class Config:
                 "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS (if more are seen, random "
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
             ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=100, cast=int)
+
+            NUCLEI_AUTOMATIC_SCAN: Annotated[
+                bool,
+                "This flag enables automatic web scanning by utilizing Wappalyzer technology detection to map tags."
+                "This is useful for performing broad scans based on technology detection, allowing Nuclei to automatically select and apply relevant templates for scanning the target.",
+            ] = get_config("NUCLEI_AUTOMATIC_SCAN", default=False, cast=bool)
 
         class PortScanner:
             CUSTOM_PORT_SCANNER_PORTS: Annotated[

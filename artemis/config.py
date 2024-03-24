@@ -263,6 +263,12 @@ class Config:
             )
 
         class Nuclei:
+                        NUCLEI_AUTOMATIC_SCAN: Annotated[
+                bool,
+                "This flag enables automatic web scanning by utilizing Wappalyzer technology detection to map tags."
+                "This is useful for performing broad scans based on technology detection, allowing Nuclei to automatically select and apply relevant templates for scanning the target.",
+            ] = get_config("NUCLEI_AUTOMATIC_SCAN", default=False, cast=bool)
+            
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,
                 "Whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI "

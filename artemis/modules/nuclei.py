@@ -88,11 +88,8 @@ class Nuclei(ArtemisBase):
         links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
         return links
 
-    def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
-        if Config.Miscellaneous.CUSTOM_USER_AGENT:
-            additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
-        else:
-            additional_configuration = []
+    def _scan(self, templates: List[str], targets: List[str], auto_scan: bool = False) -> List[Dict[str, Any]]:
+        additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT] if Config.Miscellaneous.CUSTOM_USER_AGENT else []
 
         command = [
             "nuclei",
@@ -111,16 +108,11 @@ class Nuclei(ArtemisBase):
             "-headless-bulk-size",
             str(len(targets)),
             "-milliseconds-per-request",
-            str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets)))
-            if Config.Limits.REQUESTS_PER_SECOND != 0
-            else str(int(0)),
+            str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))) if Config.Limits.REQUESTS_PER_SECOND != 0 else str(int(0)),
         ] + additional_configuration
 
-        # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
-        # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
-        for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
-            command.append("-it")
-            command.append(template)
+        if auto_scan:
+            command.append("-as")  
 
         for target in targets:
             command.append("-target")
@@ -139,7 +131,6 @@ class Nuclei(ArtemisBase):
                 assert finding["host"] in targets, f'{finding["host"]} not found in {targets}'
                 findings.append(finding)
         return findings
-
     def run_multiple(self, tasks: List[Task]) -> None:
         self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
 
@@ -152,20 +143,22 @@ class Nuclei(ArtemisBase):
 
         links_per_task = {}
         links = []
-        for task in tasks:
-            links_per_task[task.uid] = self._get_links(get_target_url(task))
-            self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
-            links.extend(links_per_task[task.uid])
+        if not Config.Modules.Nuclei.NUCLEI_AUTOMATIC_SCAN:
+            for task in tasks:
+                links_per_task[task.uid] = self._get_links(get_target_url(task))
+                self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
+                links.extend(links_per_task[task.uid])
 
-        findings = self._scan(self._templates, targets) + self._scan(
-            Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS, links
-        )
+        auto_scan_enabled = Config.Modules.Nuclei.NUCLEI_AUTOMATIC_SCAN
+        findings = self._scan(self._templates, targets, auto_scan=auto_scan_enabled)
+        if not auto_scan_enabled:
+            findings.extend(self._scan(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS, links))
 
         for task in tasks:
             result = []
             messages = []
             for finding in findings:
-                if finding["host"] not in [get_target_url(task)] + links_per_task[task.uid]:
+                if finding["host"] not in [get_target_url(task)] + (links_per_task[task.uid] if not Config.Modules.Nuclei.NUCLEI_AUTOMATIC_SCAN else []):
                     continue
 
                 result.append(finding)
@@ -180,7 +173,5 @@ class Nuclei(ArtemisBase):
                 status = TaskStatus.OK
                 status_reason = None
             self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=result)
-
-
 if __name__ == "__main__":
     Nuclei().loop()

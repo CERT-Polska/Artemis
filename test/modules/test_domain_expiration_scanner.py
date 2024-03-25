@@ -29,3 +29,5 @@ class TestDomainExpirationScanner(ArtemisModuleTestCase):
             reason = call.kwargs["status_reason"]
             self.assertTrue(reason.startswith("Scanned domain will expire in"))
             self.assertTrue(isinstance(call.kwargs["data"]["expiration_date"], datetime.datetime))
+            sys.stderr.write("Z\n")
+        sys.stderr.write("Zz\n")

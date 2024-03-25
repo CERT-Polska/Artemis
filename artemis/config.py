@@ -470,6 +470,12 @@ class Config:
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
             ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=100, cast=int)
 
+            NUCLEI_AUTOMATIC_SCAN: Annotated[
+                bool,
+                "This flag enables automatic web scanning by utilizing Wappalyzer technology detection to map tags."
+                "This is useful for performing broad scans based on technology detection, allowing Nuclei to automatically select and apply relevant templates for scanning the target.",
+            ] = get_config("NUCLEI_AUTOMATIC_SCAN", default=False, cast=bool)
+
         class PortScanner:
             CUSTOM_PORT_SCANNER_PORTS: Annotated[
                 List[int],

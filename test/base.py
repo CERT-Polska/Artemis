@@ -1,5 +1,4 @@
 import os
-import sys
 import socket
 import tempfile
 from pathlib import Path
@@ -44,9 +43,7 @@ class ArtemisModuleTestCase(KartonTestCase):
         )
 
     def tearDown(self) -> None:
-        sys.stderr.write("a\n")
         self._lookup_mock.__exit__([])  # type: ignore
-        sys.stderr.write("b\n")
 
 
 class BaseReportingTest(ArtemisModuleTestCase):

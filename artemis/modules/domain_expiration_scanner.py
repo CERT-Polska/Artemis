@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import sys
 import datetime
 from typing import Any, Dict, Optional
 
@@ -38,17 +37,13 @@ class DomainExpirationScanner(ArtemisBase):
                 expiry_date = domain_data.expiration_date
                 result = self._prepare_expiration_data(expiration_date=expiry_date, result=result)
 
-                sys.stderr.write("A\n")
                 if "close_expiration_date" in result:
                     status = TaskStatus.INTERESTING
                     status_reason = self._prepare_expiration_status_reason(
                         days_to_expire=result["days_to_expire"], expiration_date=result["expiration_date"]
                     )
-                sys.stderr.write("A'\n")
 
-        sys.stderr.write("B\n")
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
-        sys.stderr.write("C\n")
 
     @staticmethod
     def _prepare_expiration_data(

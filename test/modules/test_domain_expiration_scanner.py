@@ -1,4 +1,3 @@
-import sys
 import datetime
 from test.base import ArtemisModuleTestCase
 from unittest.mock import patch
@@ -21,13 +20,9 @@ class TestDomainExpirationScanner(ArtemisModuleTestCase):
         with patch("artemis.config.Config.Modules.DomainExpirationScanner") as mocked_config:
             mocked_config.DOMAIN_EXPIRATION_TIMEFRAME_DAYS = 5000
             self.run_task(task)
-            sys.stderr.write("X\n")
 
             (call,) = self.mock_db.save_task_result.call_args_list
-            sys.stderr.write("Y\n")
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             reason = call.kwargs["status_reason"]
             self.assertTrue(reason.startswith("Scanned domain will expire in"))
             self.assertTrue(isinstance(call.kwargs["data"]["expiration_date"], datetime.datetime))
-            sys.stderr.write("Z\n")
-        sys.stderr.write("Zz\n")

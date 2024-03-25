@@ -19,7 +19,7 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
     if not Config.Miscellaneous.API_TOKEN:
         raise HTTPException(
             status_code=401,
-            detail="Please provide the API token in the API_TOKEN variable in .env in order to use the API",
+            detail="Please fill the API_TOKEN variable in .env in order to use the API",
         )
     elif x_api_token != Config.Miscellaneous.API_TOKEN:
         raise HTTPException(status_code=401, detail="Invalid API token")

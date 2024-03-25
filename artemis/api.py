@@ -43,7 +43,7 @@ def add(
 
 @router.get("/analyses", dependencies=[Depends(verify_api_token)])
 def list_analysis() -> List[Dict[str, Any]]:
-    """Returns the list of analysed targets. Any target you added to scan would be listed here."""
+    """Returns the list of analysed targets. Any scanned target would be listed here."""
     return db.list_analysis()
 
 

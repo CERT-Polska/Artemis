@@ -23,7 +23,7 @@ services:
       TEST_REDIS_PORT: 6379
 
       # Use only one provider to speed up the tests
-      GAU_ADDITIONAL_OPTIONS: "--providers otx"
+      GAU_ADDITIONAL_OPTIONS: "--providers wayback"
 
       POSTMAN_MAIL_FROM: artemis@localhost.com
       POSTMAN_MAIL_TO: artemis@localhost.com

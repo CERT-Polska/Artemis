@@ -54,7 +54,6 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         self.assertEqual(analyses[0]["stopped"], False)
         self.assertEqual(analyses[0]["target"], "test-smtp-server.artemis")
         self.assertEqual(analyses[0]["tag"], "automated-interaction")
-        self.assertEqual(analyses[0]["task"]["payload"]["data"], "test-smtp-server.artemis")
 
         for i in range(100):
             num_queued_tasks = int(

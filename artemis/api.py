@@ -106,8 +106,7 @@ def get_analyses_table(
             {
                 "id": entry["id"],
                 "tag": entry["tag"],
-                "payload": entry["task"]["payload"],
-                "payload_persistent": entry["task"]["payload_persistent"],
+                "target": entry["target"],
                 "num_active_tasks": num_active_tasks,
                 "stopped": entry.get("stopped", None),
             }

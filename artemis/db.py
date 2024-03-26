@@ -75,7 +75,6 @@ class Analysis(Base):  # type: ignore
     target = Column(String, index=True)
     tag = Column(String, index=True)
     stopped = Column(Boolean, index=True)
-    task = Column(JSON)
 
     fulltext = Column(
         TSVector(),
@@ -165,26 +164,11 @@ class DB:
     def create_analysis(self, analysis: Task) -> None:
         analysis_dict = self.task_to_dict(analysis)
 
-        # These are either not populated or would be saved at the time of task creation,
-        # so would become obsolete - let's remove them so that they won't appear in the API/db.
-        del analysis_dict["parent_uid"]
-        del analysis_dict["orig_uid"]
-        del analysis_dict["root_uid"]
-        del analysis_dict["last_update"]
-        analysis_dict["headers"] = copy.deepcopy(analysis_dict["headers"])
-        del analysis_dict["headers"]["type"]
-        del analysis_dict["error"]
-
-        del analysis_dict["status"]
-        if "status_reason" in analysis_dict:
-            del analysis_dict["status_reason"]
-
         analysis = Analysis(
             id=analysis.uid,
             target=analysis_dict["payload"]["data"],
             tag=analysis_dict["payload_persistent"].get("tag", None),
             stopped=False,
-            task=analysis_dict,
         )
         with self.session() as session:
             session.add(analysis)

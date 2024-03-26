@@ -230,9 +230,11 @@ class DB:
         search_query: Optional[str] = None,
     ) -> PaginatedResults:
         ordering_postgresql = [
-            getattr(Analysis, ordering_rule.column_name)
-            if ordering_rule.ascending
-            else getattr(Analysis, ordering_rule.column_name).desc()
+            (
+                getattr(Analysis, ordering_rule.column_name)
+                if ordering_rule.ascending
+                else getattr(Analysis, ordering_rule.column_name).desc()
+            )
             for ordering_rule in ordering
         ]
 
@@ -264,9 +266,11 @@ class DB:
         task_filter: Optional[TaskFilter] = None,
     ) -> PaginatedResults:
         ordering_postgresql = [
-            getattr(TaskResult, ordering_rule.column_name)
-            if ordering_rule.ascending
-            else getattr(TaskResult, ordering_rule.column_name).desc()
+            (
+                getattr(TaskResult, ordering_rule.column_name)
+                if ordering_rule.ascending
+                else getattr(TaskResult, ordering_rule.column_name).desc()
+            )
             for ordering_rule in ordering
         ]
 

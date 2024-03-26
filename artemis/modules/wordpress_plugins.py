@@ -63,6 +63,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
     "themesflat-addons-for-elementor",
+    "userway-accessibility-widget",
     "website-monetization-by-magenet",
     "woo-tools",
     "wpfront-user-role-editor",
@@ -187,7 +188,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
 
     if tag_lines:
         (tag_line,) = tag_lines
-        tag = tag_line.strip().split(":")[1].strip().lstrip("v")
+        tag = tag_line.strip(" -\t").split(":")[1].strip().lstrip("v")
 
         if tag != "trunk" and (
             # Sometimes the changelog version is greater, sometimes the "stable tag" version is greater -

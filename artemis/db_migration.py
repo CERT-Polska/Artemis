@@ -114,6 +114,9 @@ def _single_migration_iteration() -> None:
 
 
 def migrate_and_start_thread() -> None:
+    if not Config.Data.LEGACY_MONGODB_CONN_STR:
+        return
+
     client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
     client.artemis.task_results.create_index([("migrated", ASCENDING)])
     client.artemis.analysis.create_index([("migrated", ASCENDING)])

@@ -154,6 +154,10 @@ class Config:
         ] = get_config("REQUESTS_PER_SECOND", default=0, cast=float)
 
     class Miscellaneous:
+        API_TOKEN: Annotated[str, "The token to authenticate to the API. Provide one to use the API."] = get_config(
+            "API_TOKEN", default=None
+        )
+
         BLOCKLIST_FILE: Annotated[
             str,
             "A file that determines what should not be scanned or reported",

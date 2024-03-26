@@ -5,7 +5,7 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.export.export_data import ExportData
 
 
-def print_and_save_stats(export_data: ExportData, output_dir: Path) -> None:
+def print_and_save_stats(export_data: ExportData, output_dir: Path, silent: bool) -> None:
     num_reports_per_type: Counter[ReportType] = Counter()
 
     for _, data in export_data.messages.items():
@@ -20,7 +20,9 @@ def print_and_save_stats(export_data: ExportData, output_dir: Path) -> None:
             sorted([(count, report_type) for report_type, count in num_reports_per_type.items()])
         ):
             f.write(f"Num reports of type {report_type}: {count}\n")
-    print(f"Stats (written to file: {output_stats_file_name}):")
-    with open(output_stats_file_name, "r") as f:
-        for line in f:
-            print("\t" + line.strip())
+
+    if not silent:
+        print(f"Stats (written to file: {output_stats_file_name}):")
+        with open(output_stats_file_name, "r") as f:
+            for line in f:
+                print("\t" + line.strip())

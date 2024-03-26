@@ -22,6 +22,7 @@ this setting will fix the problem.
 To solve this, run:
 
 .. code-block::
+
     git config --global core.autocrlf input
 
 This command sets Git to convert line endings to LF on checkout but doesn't convert them when committing files.

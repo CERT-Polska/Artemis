@@ -19,7 +19,7 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
     if not Config.Miscellaneous.API_TOKEN:
         raise HTTPException(
             status_code=401,
-            detail="Please provide the API token in the API_TOKEN variable in .env in order to use the API",
+            detail="Please fill the API_TOKEN variable in .env in order to use the API",
         )
     elif x_api_token != Config.Miscellaneous.API_TOKEN:
         raise HTTPException(status_code=401, detail="Invalid API token")
@@ -43,7 +43,7 @@ def add(
 
 @router.get("/analyses", dependencies=[Depends(verify_api_token)])
 def list_analysis() -> List[Dict[str, Any]]:
-    """Returns the list of analysed targets. Any target you added to scan would be listed here."""
+    """Returns the list of analysed targets. Any scanned target would be listed here."""
     return db.list_analysis()
 
 

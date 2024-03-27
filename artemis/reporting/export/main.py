@@ -1,6 +1,7 @@
 import dataclasses
 import datetime
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Optional
@@ -28,6 +29,7 @@ from artemis.reporting.export.long_unseen_report_types import (
 from artemis.reporting.export.previous_reports import load_previous_reports
 from artemis.reporting.export.stats import print_and_save_stats
 from artemis.reporting.export.translations import install_translations
+from artemis.utils import CONSOLE_LOG_HANDLER
 
 environment = Environment(
     loader=BaseLoader(), extensions=["jinja2.ext.i18n"], undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True
@@ -37,7 +39,7 @@ environment = Environment(
 HOST_ROOT_PATH = "/host-root/"
 
 
-def _build_message_template_and_print_path(output_dir: Path) -> Template:
+def _build_message_template_and_print_path(output_dir: Path, silent: bool) -> Template:
     output_message_template_file_name = output_dir / "message_template.jinja2"
 
     message_template_content = build_message_template()
@@ -46,29 +48,34 @@ def _build_message_template_and_print_path(output_dir: Path) -> Template:
     with open(output_message_template_file_name, "w") as f:
         f.write(message_template_content)
 
-    print(f"Message template written to file: {output_message_template_file_name}")
+    if not silent:
+        print(f"Message template written to file: {output_message_template_file_name}")
     return message_template
 
 
-def _install_translations_and_print_path(language: Language, output_dir: Path) -> None:
+def _install_translations_and_print_path(language: Language, output_dir: Path, silent: bool) -> None:
     translations_file_name = output_dir / "translations.po"
     compiled_translations_file_name = output_dir / "compiled_translations.mo"
     install_translations(language, environment, translations_file_name, compiled_translations_file_name)
 
-    print(f"Translations written to file: {translations_file_name}")
-    print(f"Compiled translations written to file: {compiled_translations_file_name}")
+    if not silent:
+        print(f"Translations written to file: {translations_file_name}")
+        print(f"Compiled translations written to file: {compiled_translations_file_name}")
 
 
-def _dump_export_data_and_print_path(export_data: ExportData, output_dir: Path) -> None:
+def _dump_export_data_and_print_path(export_data: ExportData, output_dir: Path, silent: bool) -> None:
     output_json_file_name = output_dir / "output.json"
 
     with open(output_json_file_name, "w") as f:
         json.dump(export_data, f, indent=4, cls=JSONEncoderAdditionalTypes)
 
-    print(f"JSON written to file: {output_json_file_name}")
+    if not silent:
+        print(f"JSON written to file: {output_json_file_name}")
 
 
-def _build_messages_and_print_path(message_template: Template, export_data: ExportData, output_dir: Path) -> None:
+def _build_messages_and_print_path(
+    message_template: Template, export_data: ExportData, output_dir: Path, silent: bool
+) -> None:
     output_messages_directory_name = output_dir / "messages"
 
     # We dump and reload the message data to/from JSON before rendering in order to make sure the template
@@ -86,8 +93,10 @@ def _build_messages_and_print_path(message_template: Template, export_data: Expo
 
         with open(output_messages_directory_name / (top_level_target_shortened + ".html"), "w") as f:
             f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))
-    print()
-    print(termcolor.colored(f"Messages written to: {output_messages_directory_name}", attrs=["bold"]))
+
+    if not silent:
+        print()
+        print(termcolor.colored(f"Messages written to: {output_messages_directory_name}", attrs=["bold"]))
 
 
 def main(
@@ -107,12 +116,19 @@ def main(
         help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "
         "don't need them, but if you modified them on your side, they might.",
     ),
+    silent: bool = typer.Option(
+        False,
+        "--silent",
+        help="Print only the resulting folder path",
+    ),
     verbose: bool = typer.Option(
         False,
         "--verbose",
         help="Print more information (e.g. whether some types of reports have not been observed for a long time).",
     ),
 ) -> None:
+    if silent:
+        CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
     blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
 
     if previous_reports_directory:
@@ -122,7 +138,7 @@ def main(
 
     custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
     db = DB()
-    export_db_connector = DataLoader(db, blocklist, language, tag)
+    export_db_connector = DataLoader(db, blocklist, language, tag, silent)
     # we strip microseconds so that the timestamp in export_data json and folder name are equal
     timestamp = datetime.datetime.now().replace(microsecond=0)
     export_data = build_export_data(
@@ -132,16 +148,19 @@ def main(
     output_dir = OUTPUT_LOCATION / date_str
     os.mkdir(output_dir)
 
-    _install_translations_and_print_path(language, output_dir)
+    _install_translations_and_print_path(language, output_dir, silent)
 
-    run_export_hooks(output_dir, export_data)
+    run_export_hooks(output_dir, export_data, silent)
 
-    _dump_export_data_and_print_path(export_data, output_dir)
-    message_template = _build_message_template_and_print_path(output_dir)
+    _dump_export_data_and_print_path(export_data, output_dir, silent)
+    message_template = _build_message_template_and_print_path(output_dir, silent)
 
-    print_and_save_stats(export_data, output_dir)
+    print_and_save_stats(export_data, output_dir, silent)
 
-    if verbose:
+    if silent:
+        print(output_dir)
+
+    if verbose and not silent:
         print_long_unseen_report_types(previous_reports + export_db_connector.reports)
 
         print("Available tags (and the counts of raw task results - not to be confused with vulnerabilities):")
@@ -151,10 +170,11 @@ def main(
         for tag in sorted([key for key in export_db_connector.tag_stats.keys() if key]):
             print(f"\t{tag}: {export_db_connector.tag_stats[tag]}")
 
-    _build_messages_and_print_path(message_template, export_data, output_dir)
+    _build_messages_and_print_path(message_template, export_data, output_dir, silent)
 
-    for alert in export_data.alerts:
-        print(termcolor.colored("ALERT:" + alert, color="red"))
+    if not silent:
+        for alert in export_data.alerts:
+            print(termcolor.colored("ALERT:" + alert, color="red"))
 
 
 if __name__ == "__main__":

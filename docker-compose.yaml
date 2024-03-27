@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   redis:
     # Warning: don't upgrade to >=7.3 due to its non-free license

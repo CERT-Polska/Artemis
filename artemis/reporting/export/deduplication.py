@@ -47,7 +47,7 @@ def deduplicate_reports(previous_reports: List[Report], reports_to_send: List[Re
 
         if report_normal_form in previous_reports_normalized.by_normal_forms:
             previous_reports_for_same_problem = previous_reports_normalized.by_normal_forms[report_normal_form]
-            if _all_reports_are_old(previous_reports_for_same_problem):
+            if _all_reports_are_old(previous_reports_for_same_problem, report):
                 reports_scoring_dict[report_normal_form] = _build_subsequent_reminder(
                     previous_reports_for_same_problem,
                     report,
@@ -91,7 +91,7 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
             previous_reports_for_same_problem = previous_reports_normalized.by_alternative_ip_normal_forms[
                 processed_report.get_normal_form()
             ]
-            if _all_reports_are_old(previous_reports_for_same_problem):
+            if _all_reports_are_old(previous_reports_for_same_problem, processed_report):
                 filtered_reports.append(_build_subsequent_reminder(previous_reports_for_same_problem, processed_report))
             return
 
@@ -107,7 +107,7 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
             previous_reports_for_same_problem = previous_reports_normalized.by_normal_forms[
                 alternative_with_ip_address.get_normal_form()
             ]
-            if _all_reports_are_old(previous_reports_for_same_problem):
+            if _all_reports_are_old(previous_reports_for_same_problem, processed_report):
                 filtered_reports.append(_build_subsequent_reminder(previous_reports_for_same_problem, processed_report))
             return
         filtered_reports.append(processed_report)
@@ -121,21 +121,30 @@ def _deduplicate_ip_vs_domains(previous_reports: List[Report], reports_to_send: 
     return filtered_reports
 
 
-def _all_reports_are_old(reports: List[Report]) -> bool:
-    for report in reports:
-        if report.report_type not in SEVERITY_MAP:
+def _all_reports_are_old(previous_reports: List[Report], current_report: Report) -> bool:
+    for processed_previous_report in previous_reports:
+        assert processed_previous_report.report_type == current_report.report_type
+
+        if processed_previous_report.report_type not in SEVERITY_MAP:
             threshold_days = Config.Reporting.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW
         else:
-            if SEVERITY_MAP[report.report_type] == Severity.LOW:
+            if SEVERITY_MAP[processed_previous_report.report_type] == Severity.LOW:
                 threshold_days = Config.Reporting.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW
-            elif SEVERITY_MAP[report.report_type] == Severity.MEDIUM:
+            elif SEVERITY_MAP[processed_previous_report.report_type] == Severity.MEDIUM:
                 threshold_days = Config.Reporting.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM
-            elif SEVERITY_MAP[report.report_type] == Severity.HIGH:
+            elif SEVERITY_MAP[processed_previous_report.report_type] == Severity.HIGH:
                 threshold_days = Config.Reporting.MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH
             else:
                 assert False
 
-        if report.timestamp and report.timestamp >= datetime.datetime.now() - datetime.timedelta(days=threshold_days):
+        if (
+            processed_previous_report.timestamp
+            and current_report.timestamp
+            and (
+                processed_previous_report.timestamp
+                >= current_report.timestamp - datetime.timedelta(days=threshold_days)
+            )
+        ):
             return False
     return True
 

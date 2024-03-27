@@ -13,7 +13,7 @@ from fastapi import (
     Request,
     Response,
 )
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
@@ -74,7 +74,22 @@ def get_binds_that_can_be_disabled() -> List[KartonBind]:
 
 
 def error_content_not_found(request: Request, exc: HTTPException) -> Response:
-    return templates.TemplateResponse("not_found.jinja2", {"request": request}, status_code=404)
+    if request.url.path.startswith("/api"):
+        return JSONResponse({"error": 404}, status_code=404)
+    else:
+        return templates.TemplateResponse("not_found.jinja2", {"request": request}, status_code=404)
+
+
+if not Config.Miscellaneous.API_TOKEN:
+
+    @router.get("/docs", include_in_schema=False)
+    def api_docs_information(request: Request) -> Response:
+        return templates.TemplateResponse(
+            "no_api_token.jinja2",
+            {
+                "request": request,
+            },
+        )
 
 
 @router.get("/", include_in_schema=False)

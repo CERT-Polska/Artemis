@@ -24,5 +24,5 @@ if exists */docker-compose.additional*; then
     done
 fi
 
-docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS build autoreporter
+docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS build --quiet autoreporter
 docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS run autoreporter python3 -m artemis.reporting.export.main "$@"

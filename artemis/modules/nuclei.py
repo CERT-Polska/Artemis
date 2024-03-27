@@ -111,9 +111,11 @@ class Nuclei(ArtemisBase):
             "-headless-bulk-size",
             str(len(targets)),
             "-milliseconds-per-request",
-            str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets)))
-            if Config.Limits.REQUESTS_PER_SECOND != 0
-            else str(int(0)),
+            (
+                str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets)))
+                if Config.Limits.REQUESTS_PER_SECOND != 0
+                else str(int(0))
+            ),
         ] + additional_configuration
 
         # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if

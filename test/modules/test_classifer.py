@@ -81,9 +81,11 @@ class ClassifierTest(ArtemisModuleTestCase):
             expected_tasks = [
                 Task(
                     {"type": item.task_type, "origin": Classifier.identity},
-                    payload={"domain": item.data, "last_domain": item.data}
-                    if item.task_type == TaskType.DOMAIN
-                    else {"ip": item.data},
+                    payload=(
+                        {"domain": item.data, "last_domain": item.data}
+                        if item.task_type == TaskType.DOMAIN
+                        else {"ip": item.data}
+                    ),
                     payload_persistent={f"original_{item.task_type.value}": item.data},
                 )
                 for item in entry.expected

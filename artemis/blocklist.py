@@ -140,7 +140,7 @@ def should_block_scanning(
                 "a single scanning module can cause different report types to be generated."
             )
 
-        if item.nuclei_template_name:
+        if item.nuclei_template_names:
             raise NotImplementedError()
 
         logger.info(

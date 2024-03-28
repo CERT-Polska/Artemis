@@ -39,6 +39,7 @@ class BlocklistItem:
     karton_name: Optional[str] = None
     report_target_should_contain: Optional[str] = None
     report_type: Optional[ReportType] = None
+    nuclei_template_name: Optional[str] = None
 
 
 class BlocklistError(Exception):
@@ -61,6 +62,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         "karton_name",
         "report_target_should_contain",
         "report_type",
+        "nuclei_template_name",
     }
 
     for item in data:
@@ -78,7 +80,8 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
             until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if item.get("until", None) else None,
             karton_name=item.get("karton_name", None),
             report_target_should_contain=item.get("report_target_should_contain", None),
-            report_type=item.get("report_Type", None),
+            report_type=item.get("report_type", None),
+            nuclei_template_name=item.get("nuclei_template_name", None),
         )
         for item in data
     ]
@@ -137,6 +140,9 @@ def should_block_scanning(
                 "a single scanning module can cause different report types to be generated."
             )
 
+        if item.nuclei_template_name:
+            raise NotImplementedError()
+
         logger.info(
             "scanning of domain=%s ip=%s by %s filtered due to blocklist rule %s", domain, ip, karton_name, item
         )
@@ -184,6 +190,13 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
                 continue
 
             if item.report_type and report.report_type != item.report_type:
+                continue
+
+            if (
+                item.nuclei_template_name
+                and item.report_type in ["nuclei_vulnerability", "nuclei_exposed_panel"]
+                and report.additional_data["template_name"] == item.nuclei_template_name
+            ):
                 continue
 
             filtered = True

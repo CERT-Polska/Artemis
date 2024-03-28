@@ -39,7 +39,7 @@ class BlocklistItem:
     karton_name: Optional[str] = None
     report_target_should_contain: Optional[str] = None
     report_type: Optional[ReportType] = None
-    nuclei_template_name: Optional[str] = None
+    nuclei_template_names: Optional[List[str]] = None
 
 
 class BlocklistError(Exception):
@@ -81,7 +81,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
             karton_name=item.get("karton_name", None),
             report_target_should_contain=item.get("report_target_should_contain", None),
             report_type=item.get("report_type", None),
-            nuclei_template_name=item.get("nuclei_template_name", None),
+            nuclei_template_names=item.get("nuclei_template_names", None),
         )
         for item in data
     ]
@@ -193,9 +193,9 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
                 continue
 
             if (
-                item.nuclei_template_name
+                item.nuclei_template_names
                 and item.report_type in ["nuclei_vulnerability", "nuclei_exposed_panel"]
-                and report.additional_data["template_name"] == item.nuclei_template_name
+                and report.additional_data["template_name"] in item.nuclei_template_names
             ):
                 continue
 

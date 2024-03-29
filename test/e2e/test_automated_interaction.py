@@ -55,15 +55,26 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         self.assertEqual(analyses[0]["target"], "test-smtp-server.artemis")
         self.assertEqual(analyses[0]["tag"], "automated-interaction")
 
-        for i in range(100):
-            num_queued_tasks = int(
-                requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()
-            )
+        self.assertEqual(
+            len(requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()),
+            1
+        )
 
-            if num_queued_tasks == 0:
+        for i in range(100):
+            task_results = requests.get(
+                BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+            ).json()
+
+            if ten(task_results) == 1:
                 break
 
             time.sleep(1)
+
+        self.assertEqual(
+            len(requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()),
+            0
+        )
+
         self.assertEqual(num_queued_tasks, 0)
 
         task_results = requests.get(

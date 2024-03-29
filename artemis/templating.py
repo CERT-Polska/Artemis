@@ -18,13 +18,13 @@ TEMPLATE_ANALYSIS_TABLE_ROW_ACTIONS = templates.get_template("table_row/analysis
 
 def dedent(text: str) -> str:
     if not text:
-        return ''
+        return ""
     return textwrap.dedent(text)
-        
+
 
 def render_markdown(markdown_text: str) -> str:
     if not markdown_text:
-        return ''
+        return ""
     return markdown.markdown(markdown_text)
 
 

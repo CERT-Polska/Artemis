@@ -56,8 +56,10 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         self.assertEqual(analyses[0]["tag"], "automated-interaction")
 
         self.assertEqual(
-            len(requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()),
-            1
+            len(
+                requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()
+            ),
+            1,
         )
 
         for i in range(100):
@@ -65,17 +67,17 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
                 BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
             ).json()
 
-            if ten(task_results) == 1:
+            if len(task_results) == 1:
                 break
 
             time.sleep(1)
 
         self.assertEqual(
-            len(requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()),
-            0
+            len(
+                requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()
+            ),
+            0,
         )
-
-        self.assertEqual(num_queued_tasks, 0)
 
         task_results = requests.get(
             BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}

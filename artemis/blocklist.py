@@ -62,7 +62,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         "karton_name",
         "report_target_should_contain",
         "report_type",
-        "nuclei_template_name",
+        "nuclei_template_names",
     }
 
     for item in data:

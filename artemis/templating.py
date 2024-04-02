@@ -17,10 +17,14 @@ TEMPLATE_ANALYSIS_TABLE_ROW_ACTIONS = templates.get_template("table_row/analysis
 
 
 def dedent(text: str) -> str:
+    if not text:
+        return ""
     return textwrap.dedent(text)
 
 
 def render_markdown(markdown_text: str) -> str:
+    if not markdown_text:
+        return ""
     return markdown.markdown(markdown_text)
 
 
@@ -41,7 +45,7 @@ def render_task_table_row(task_result: Dict[str, Any]) -> List[str]:
 
 def render_analyses_table_row(entry: Dict[str, Any]) -> List[str]:
     return [
-        html.escape(entry["payload"]["data"]),
+        html.escape(entry["target"]),
         html.escape(entry["tag"] or ""),
         TEMPLATE_ANALYSIS_TABLE_ROW_PENDING_TASKS.render({"entry": entry}),
         TEMPLATE_ANALYSIS_TABLE_ROW_ACTIONS.render({"entry": entry}),

@@ -2,8 +2,8 @@
 
 Generating reports to be sent
 =============================
-Artemis can generate HTML reports containing a description of found vulnerabilities. An
-example report can be found in the :ref:`generating-reports-example-report` section.
+Artemis contains a command-line tool to generate HTML reports containing a description of
+found vulnerabilities. An example report can be found in the :ref:`generating-reports-example-report` section.
 
 Such reports are sent by CERT PL via e-mail to the scanned entities in our constituency.
 
@@ -15,7 +15,7 @@ To generate such reports, you first need to start Artemis and scan some targets,
 
 Then, run the following script in the repository root:
 
-``./scripts/export_emails``
+``./scripts/export_reports``
 
 This script will produce **HTML messages ready to be sent**.
 
@@ -33,7 +33,7 @@ yourself.
 .. note ::
    Please keep in mind that the reporting script resolves domains and performs HTTP requests.
 
-To view additional options, use ``./scripts/export_emails --help`` - for example, you will be able to change
+To view additional options, use ``./scripts/export_reports --help`` - for example, you will be able to change
 language, filter reports by tag or skip sending messages that have already been sent.
 
 Troubleshooting

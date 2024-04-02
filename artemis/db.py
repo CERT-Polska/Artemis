@@ -75,7 +75,6 @@ class Analysis(Base):  # type: ignore
     target = Column(String, index=True)
     tag = Column(String, index=True)
     stopped = Column(Boolean, index=True)
-    task = Column(JSON)
 
     fulltext = Column(
         TSVector(),
@@ -153,7 +152,7 @@ class DB:
 
     def list_analysis(self) -> List[Dict[str, Any]]:
         with self.session() as session:
-            return [item.__dict__ for item in session.query(Analysis).all()]
+            return [self._strip_internal_db_info(item.__dict__) for item in session.query(Analysis).all()]
 
     def mark_analysis_as_stopped(self, analysis_id: str) -> None:
         with self.session() as session:
@@ -164,16 +163,12 @@ class DB:
 
     def create_analysis(self, analysis: Task) -> None:
         analysis_dict = self.task_to_dict(analysis)
-        del analysis_dict["status"]
-        if "status_reason" in analysis_dict:
-            del analysis_dict["status_reason"]
 
         analysis = Analysis(
             id=analysis.uid,
             target=analysis_dict["payload"]["data"],
             tag=analysis_dict["payload_persistent"].get("tag", None),
             stopped=False,
-            task=analysis_dict,
         )
         with self.session() as session:
             session.add(analysis)
@@ -194,6 +189,9 @@ class DB:
             # Used to allow searching in the names and values of all existing headers
             headers_string=" ".join([key + " " + value for key, value in task.headers.items()]),
         )
+
+        del to_save["task"]["status"]  # at the moment of saving it's "started", which will be misleading
+
         if isinstance(data, BaseModel):
             to_save["result"] = data.dict()
         elif isinstance(data, Exception):
@@ -215,7 +213,7 @@ class DB:
                 item = session.query(Analysis).get(analysis_id)
 
                 if item:
-                    return item.__dict__  # type: ignore
+                    return self._strip_internal_db_info(item.__dict__)
                 else:
                     return None
         except NoResultFound:
@@ -230,9 +228,11 @@ class DB:
         search_query: Optional[str] = None,
     ) -> PaginatedResults:
         ordering_postgresql = [
-            getattr(Analysis, ordering_rule.column_name)
-            if ordering_rule.ascending
-            else getattr(Analysis, ordering_rule.column_name).desc()
+            (
+                getattr(Analysis, ordering_rule.column_name)
+                if ordering_rule.ascending
+                else getattr(Analysis, ordering_rule.column_name).desc()
+            )
             for ordering_rule in ordering
         ]
 
@@ -245,7 +245,10 @@ class DB:
                 query = query.filter(Analysis.fulltext.match(self._to_postgresql_query(search_query)))  # type: ignore
 
             records_count_filtered: int = query.count()
-            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]
+            results_page = [
+                self._strip_internal_db_info(item.__dict__)
+                for item in query.order_by(*ordering_postgresql).slice(start, start + length)
+            ]
             return PaginatedResults(
                 records_count_total=records_count_total,
                 records_count_filtered=records_count_filtered,
@@ -257,16 +260,17 @@ class DB:
         start: int,
         length: int,
         ordering: List[ColumnOrdering],
-        fields: List[str],
         *,
         search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
     ) -> PaginatedResults:
         ordering_postgresql = [
-            getattr(TaskResult, ordering_rule.column_name)
-            if ordering_rule.ascending
-            else getattr(TaskResult, ordering_rule.column_name).desc()
+            (
+                getattr(TaskResult, ordering_rule.column_name)
+                if ordering_rule.ascending
+                else getattr(TaskResult, ordering_rule.column_name).desc()
+            )
             for ordering_rule in ordering
         ]
 
@@ -286,7 +290,10 @@ class DB:
                     query = query.filter(getattr(TaskResult, key) == value)
 
             records_count_filtered = query.count()
-            results_page = [item.__dict__ for item in query.order_by(*ordering_postgresql).slice(start, start + length)]
+            results_page = [
+                self._strip_internal_db_info(item.__dict__)
+                for item in query.order_by(*ordering_postgresql).slice(start, start + length)
+            ]
             return PaginatedResults(
                 records_count_total=records_count_total,
                 records_count_filtered=records_count_filtered,
@@ -299,7 +306,7 @@ class DB:
                 item = session.query(TaskResult).get(task_id)
 
                 if item:
-                    return item.__dict__  # type: ignore
+                    return self._strip_internal_db_info(item.__dict__)
                 else:
                     return None
         except NoResultFound:
@@ -389,3 +396,10 @@ class DB:
         query = query.replace("\\", " ")  # just in case
         query = query.replace('"', " ")  # just in case
         return " & ".join([f'"{item}"' for item in query.split(" ") if item])
+
+    def _strip_internal_db_info(self, d: Dict[str, Any]) -> Dict[str, Any]:
+        del d["_sa_instance_state"]
+        del d["fulltext"]
+        if "headers_string" in d:
+            del d["headers_string"]
+        return d

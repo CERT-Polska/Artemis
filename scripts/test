@@ -9,7 +9,7 @@ fi
 docker compose -f docker-compose.test.yaml down --remove-orphans
 
 # Let's first start everything except the test container and perform relevant setup
-docker compose -f docker-compose.test.yaml up -d --build --scale test=0
+docker compose -f docker-compose.test.yaml up -d --build --scale test=0 --scale=test-e2e=0
 
 # Wait for the dependency services to be available
 docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-joomla-mysql:3306

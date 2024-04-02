@@ -20,12 +20,15 @@ class DataLoader:
     A wrapper around DB that loads data and converts them to Reports.
     """
 
-    def __init__(self, db: DB, blocklist: List[BlocklistItem], language: Language, tag: Optional[str]):
+    def __init__(
+        self, db: DB, blocklist: List[BlocklistItem], language: Language, tag: Optional[str], silent: bool = False
+    ):
         self._db = db
         self._blocklist = blocklist
         self._language = language
         self._tag = tag
         self._data_initialized = False
+        self._silent = silent
 
     def _initialize_data_if_needed(self) -> None:
         """
@@ -43,11 +46,13 @@ class DataLoader:
         self._scanned_targets = set()
         self._tag_stats: DefaultDict[str, int] = defaultdict(lambda: 0)
 
-        for result in tqdm(
-            self._db.get_task_results_since(
-                datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS)
-            )
-        ):
+        results = self._db.get_task_results_since(
+            datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS)
+        )
+        if not self._silent:
+            results = tqdm(results)  # type: ignore
+
+        for result in results:
             result_tag = result["task"].get("payload_persistent", {}).get("tag", None)
             self._tag_stats[result_tag] += 1
 

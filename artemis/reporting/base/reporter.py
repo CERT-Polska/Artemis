@@ -87,8 +87,10 @@ class Reporter(ABC):
         return Reporter.dict_to_tuple(
             {
                 "type": report.report_type,
-                "target": get_url_normal_form(report.target)
-                if report.target_is_url()
-                else get_domain_normal_form(report.target),
+                "target": (
+                    get_url_normal_form(report.target)
+                    if report.target_is_url()
+                    else get_domain_normal_form(report.target)
+                ),
             }
         )

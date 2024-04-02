@@ -803,4 +803,5 @@ TRANSLATIONS = {
     "Storybook panel was detected.": "wykryto panel Storybook.",
     "ServiceNow Login Panel was detected.": "wykryto panel logowania Servicenow.",
     "Archibus Web Central login panel was detected.": "wykryto panel logowania Archibus Web Central.",
+    "Metabase login panel was detected.": "wykryto panel logowania Metabase.",
 }

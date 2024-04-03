@@ -806,4 +806,5 @@ TRANSLATIONS = {
     "Graylog login panel was detected.": "wykryto panel logowania Graylog.",
     "Login page for Eset Protect": "wykryto panel logowania Eset Protect",
     "OpenNebula login panel was detected.": "wykryto panel logowania OpenNebula.",
+    "Metabase login panel was detected.": "wykryto panel logowania Metabase.",
 }

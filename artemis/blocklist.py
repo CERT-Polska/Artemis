@@ -195,7 +195,10 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
             if (
                 item.nuclei_template_names
                 and item.report_type in ["nuclei_vulnerability", "nuclei_exposed_panel"]
-                and report.additional_data["template_name"] in item.nuclei_template_names
+                and (
+                    report.additional_data["template_name"] in item.nuclei_template_names or 
+                    report.additional_data["original_template_name"] in item.nuclei_template_names
+                )
             ):
                 continue
 

@@ -1,5 +1,6 @@
+from socket import gethostbyname
 from test.base import ArtemisModuleTestCase
-from typing import List, NamedTuple
+from typing import Any, Dict, List, NamedTuple
 
 from karton.core import Task
 
@@ -8,8 +9,9 @@ from artemis.modules.classifier import Classifier
 
 
 class ExpectedTaskData(NamedTuple):
-    task_type: TaskType
-    data: str
+    headers: Dict[str, Any]
+    payload: Dict[str, Any]
+    payload_persistent: Dict[str, Any]
 
 
 class TestData(NamedTuple):
@@ -29,6 +31,9 @@ class ClassifierTest(ArtemisModuleTestCase):
 
     def test_support(self) -> None:
         self.assertTrue(Classifier.is_supported("cert.pl"))
+        self.assertTrue(Classifier.is_supported("cert.pl:8080"))
+        self.assertFalse(Classifier.is_supported("cert.pl:8080port"))
+        self.assertTrue(Classifier.is_supported("1.2.3.4:56"))
         self.assertTrue(Classifier.is_supported("CERT.pl"))
         self.assertFalse(Classifier.is_supported("https://CERT.pl"))
         self.assertFalse(Classifier.is_supported("http://cert.pl"))
@@ -39,54 +44,116 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertFalse(Classifier.is_supported("127.0.0.1:8080"))
 
     def test_parsing(self) -> None:
-        urls = [
+        cert_ip = gethostbyname("cert.pl")
+
+        entries = [
+            TestData(
+                "cert.pl:80",
+                [
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "service", "service": "http"},
+                        payload={"host": "cert.pl", "port": 80, "last_domain": "cert.pl", "ssl": False},
+                        payload_persistent={"original_domain": "cert.pl"},
+                    ),
+                ],
+            ),
+            TestData(
+                f"{cert_ip}:80",
+                [
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "service", "service": "http"},
+                        payload={"host": cert_ip, "port": 80, "ssl": False},
+                        payload_persistent={"original_ip": cert_ip},
+                    ),
+                ],
+            ),
             TestData(
                 "cert.pl",
                 [
-                    ExpectedTaskData(TaskType.DOMAIN, "cert.pl"),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "domain"},
+                        payload={"domain": "cert.pl", "last_domain": "cert.pl"},
+                        payload_persistent={"original_domain": "cert.pl"},
+                    ),
                 ],
             ),
             TestData(
                 "CERT.pl",
                 [
-                    ExpectedTaskData(TaskType.DOMAIN, "cert.pl"),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "domain"},
+                        payload={"domain": "cert.pl", "last_domain": "cert.pl"},
+                        payload_persistent={"original_domain": "cert.pl"},
+                    ),
                 ],
             ),
             TestData(
                 "127.0.0.1-127.0.0.5",
                 [
-                    ExpectedTaskData(TaskType.IP, "127.0.0.1"),
-                    ExpectedTaskData(TaskType.IP, "127.0.0.2"),
-                    ExpectedTaskData(TaskType.IP, "127.0.0.3"),
-                    ExpectedTaskData(TaskType.IP, "127.0.0.4"),
-                    ExpectedTaskData(TaskType.IP, "127.0.0.5"),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.1"},
+                        payload_persistent={"original_ip": "127.0.0.1"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.2"},
+                        payload_persistent={"original_ip": "127.0.0.2"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.3"},
+                        payload_persistent={"original_ip": "127.0.0.3"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.4"},
+                        payload_persistent={"original_ip": "127.0.0.4"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.5"},
+                        payload_persistent={"original_ip": "127.0.0.5"},
+                    ),
                 ],
             ),
             TestData(
                 "127.0.0.0/30",
                 [
-                    ExpectedTaskData(TaskType.IP, "127.0.0.0"),
-                    ExpectedTaskData(TaskType.IP, "127.0.0.1"),
-                    ExpectedTaskData(TaskType.IP, "127.0.0.2"),
-                    ExpectedTaskData(TaskType.IP, "127.0.0.3"),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.0"},
+                        payload_persistent={"original_ip": "127.0.0.0"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.1"},
+                        payload_persistent={"original_ip": "127.0.0.1"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.2"},
+                        payload_persistent={"original_ip": "127.0.0.2"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.3"},
+                        payload_persistent={"original_ip": "127.0.0.3"},
+                    ),
                 ],
             ),
         ]
 
-        for entry in urls:
+        for entry in entries:
             self.karton.cache.flush()
             task = Task({"type": TaskType.NEW}, payload={"data": entry.raw})
             results = self.run_task(task)
 
             expected_tasks = [
                 Task(
-                    {"type": item.task_type, "origin": Classifier.identity},
-                    payload=(
-                        {"domain": item.data, "last_domain": item.data}
-                        if item.task_type == TaskType.DOMAIN
-                        else {"ip": item.data}
-                    ),
-                    payload_persistent={f"original_{item.task_type.value}": item.data},
+                    headers=item.headers,
+                    payload=item.payload,
+                    payload_persistent=item.payload_persistent,
                 )
                 for item in entry.expected
             ]

@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 import ipaddress
+import json
+import subprocess
 from typing import List, Optional
 
 from karton.core import Task
 from publicsuffixlist import PublicSuffixList
 
-from artemis.binds import TaskStatus, TaskType
+from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.domains import is_domain
 from artemis.module_base import ArtemisBase
-from artemis.utils import is_ip_address
+from artemis.utils import check_output_log_on_error, is_ip_address, throttle_request
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -39,6 +41,14 @@ class Classifier(ArtemisBase):
         if Classifier._to_ip_range(data):
             return True
 
+        if ":" in data:
+            data, port = data.split(":", 1)
+
+            try:
+                int(port)
+            except ValueError:
+                return False
+
         try:
             # if this doesn't throw then we have an IP address
             ipaddress.ip_address(data)
@@ -56,6 +66,10 @@ class Classifier(ArtemisBase):
         """
         :raises: ValueError if failed to find domain/IP
         """
+
+        if ":" in data:
+            return TaskType.SERVICE
+
         try:
             # if this doesn't throw then we have an IP address
             ipaddress.ip_address(data)
@@ -119,37 +133,76 @@ class Classifier(ArtemisBase):
 
         sanitized = self._sanitize(data)
         task_type = self._classify(sanitized)
+        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": task_type, "data": [sanitized]})
 
-        if task_type == TaskType.DOMAIN:
-            if (
-                PUBLIC_SUFFIX_LIST.publicsuffix(sanitized) == sanitized
-                or sanitized in Config.PublicSuffixes.ADDITIONAL_PUBLIC_SUFFIXES
-            ):
-                if not Config.PublicSuffixes.ALLOW_SCANNING_PUBLIC_SUFFIXES:
-                    message = (
-                        f"{sanitized} is a public suffix - adding it to the list of "
-                        "scanned targets may result in scanning too much. Quitting."
-                    )
-                    self.log.warning(message)
-                    self.db.save_task_result(
-                        task=current_task, status=TaskStatus.ERROR, status_reason=message, data=task_type
-                    )
-                    return
+        if task_type == TaskType.SERVICE:
+            host, port_str = data.split(":")
+            port = int(port_str)
 
-        new_task = Task(
-            {"type": task_type},
-            payload={
-                task_type.value: sanitized,
-            },
-            payload_persistent={
-                f"original_{task_type.value}": sanitized,
-            },
-        )
+            if is_domain(host):
+                host_type = "domain"
+            else:
+                host_type = "ip"
 
-        self.db.save_task_result(
-            task=current_task, status=TaskStatus.OK, data={"type": new_task.headers["type"], "data": [sanitized]}
-        )
-        self.add_task(current_task, new_task)
+            try:
+                output = throttle_request(
+                    lambda: check_output_log_on_error(["fingerprintx", "--json"], self.log, input=data.encode("ascii")).strip()
+                )
+            except subprocess.CalledProcessError:
+                self.log.exception("Unable to fingerprint %s", data)
+                return
+
+            if not output:
+                self.log.exception("Unable to fingerpritn %s", data)
+                return
+
+            data = json.loads(output)
+            ssl = data["tls"]
+            service = data["protocol"]
+            if ssl:
+                service = service.rstrip("s")
+
+            self.log.info("%s identified to be %s", data, service)
+
+            new_task = Task(
+                {
+                    "type": TaskType.SERVICE,
+                    "service": Service(service.lower()),
+                },
+                payload={"host": host, "port": port, "ssl": ssl, **({"last_domain": host} if is_domain(host) else {})},
+                payload_persistent={
+                    f"original_{host_type}": host,
+                },
+            )
+            self.add_task(current_task, new_task)
+        else:
+            if task_type == TaskType.DOMAIN:
+                if (
+                    PUBLIC_SUFFIX_LIST.publicsuffix(sanitized) == sanitized
+                    or sanitized in Config.PublicSuffixes.ADDITIONAL_PUBLIC_SUFFIXES
+                ):
+                    if not Config.PublicSuffixes.ALLOW_SCANNING_PUBLIC_SUFFIXES:
+                        message = (
+                            f"{sanitized} is a public suffix - adding it to the list of "
+                            "scanned targets may result in scanning too much. Quitting."
+                        )
+                        self.log.warning(message)
+                        self.db.save_task_result(
+                            task=current_task, status=TaskStatus.ERROR, status_reason=message, data=task_type
+                        )
+                        return
+
+            new_task = Task(
+                {"type": task_type},
+                payload={
+                    task_type.value: sanitized,
+                },
+                payload_persistent={
+                    f"original_{task_type.value}": sanitized,
+                },
+            )
+
+            self.add_task(current_task, new_task)
 
 
 if __name__ == "__main__":

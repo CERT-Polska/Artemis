@@ -15,7 +15,8 @@ Artemis includes:
  - port scanning,
  - metrics export for Prometheus (including data such as number of processed or crashed tasks): http://127.0.0.1:5000/metrics
  - easy extensibility via plug-and-play modules,
- - easy :doc:`integration of a new tool<user-guide/writing-a-module>`.
+ - easy :doc:`integration of a new tool<user-guide/writing-a-module>`,
+ - HTTP API to facilitate integration with other tools.
 
 Artemis is able to **automatically generate reports containing findings description** (to do that,
 please refer to :ref:`generating-reports`).

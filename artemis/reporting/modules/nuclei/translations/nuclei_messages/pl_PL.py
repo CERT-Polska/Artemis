@@ -612,6 +612,8 @@ TRANSLATIONS = {
     "Remote code execution vulnerability in Telerik ASP.NET AJAX version before 2017.2.711": "Wykryto podatność w oprogramowaniu Telerik ASP.NET AJAX w wersji poniżej 2017.2.711 umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "A misconfiguration in Gitea allows arbitrary users to sign up and read code hosted on the service.": "Wykryto serwis Gitea, którego konfiguracja umożliwia nowym użytkownikom rejestrację, co może dać atakującemu dostęp do kodu źródłowego przechowywanego w serwisie.",
+    "Checks websites for Balada Injector malware.": "Wykryto, że strona jest zainfekowana złośliwym oprogramowaniem Balada Injector.",
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",
     "Exposed Wordpress Setup Configuration.": "Wykryto publicznie dostępny panel instalacyjny systemu WordPress.",
@@ -798,4 +800,11 @@ TRANSLATIONS = {
     "Passbolt login panel was detected.": "wykryto panel logowania Passbolt.",
     "Sentry login panel was detected.": "wykryto panel logowania Sentry.",
     "A Dahua admin login panel was detected.": "wykryto panel logowania Dahua.",
+    "Storybook panel was detected.": "wykryto panel Storybook.",
+    "ServiceNow Login Panel was detected.": "wykryto panel logowania Servicenow.",
+    "Archibus Web Central login panel was detected.": "wykryto panel logowania Archibus Web Central.",
+    "Graylog login panel was detected.": "wykryto panel logowania Graylog.",
+    "Login page for Eset Protect": "wykryto panel logowania Eset Protect",
+    "OpenNebula login panel was detected.": "wykryto panel logowania OpenNebula.",
+    "Metabase login panel was detected.": "wykryto panel logowania Metabase.",
 }

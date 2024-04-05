@@ -45,12 +45,11 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "userway-accessibility-widget",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "athemes-starter-sites",
     "blocks-animation",
     "button-contact-vr",
     "cf7-to-zapier",
     "change-admin-email-setting-without-outbound-email",
-    "cyrlitera",
+    "clearfy",
     "coming-soon",
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
@@ -59,6 +58,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "official-facebook-pixel",
     "page-or-post-clone",
     "printfriendly",
+    "robin-image-optimizer",
     "shapepress-dsgvo",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
@@ -66,7 +66,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "userway-accessibility-widget",
     "website-monetization-by-magenet",
     "woo-tools",
-    "wpfront-user-role-editor",
     "wp-less",
     "wp-lightbox-2",
     "wp-maximum-execution-time-exceeded",
@@ -182,7 +181,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     if slug in PLUGINS_TO_SKIP_STABLE_TAG:
         return changelog_version
 
-    tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* ").startswith("stable tag")]
+    tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* -").startswith("stable tag")]
     if len(tag_lines) > 1:
         return changelog_version
 

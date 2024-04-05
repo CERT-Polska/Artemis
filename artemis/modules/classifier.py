@@ -32,6 +32,11 @@ class Classifier(ArtemisBase):
         # Strip leading and trailing dots (e.g. domain.com.)
         data = data.strip(".")
 
+        if is_domain(data):
+            # Just in case some downstream modules didn't support Unicode in
+            # domains - let's encode them using IDNA
+            data = data.encode("idna").decode("ascii")
+
         return data
 
     @staticmethod

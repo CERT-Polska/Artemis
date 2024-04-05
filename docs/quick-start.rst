@@ -57,7 +57,8 @@ Adding targets to scan
 ----------------------
 To add targets to be scanned, select ``Add targets`` from the top navigation bar. Artemis takes input
 in the form of entries separated with newlines. Artemis works with both IPs and domains. It also supports
-IP ranges, both in the form of `127.0.0.1-127.0.0.10` or `127.0.0.0/30`.
+IP ranges, both in the form of `127.0.0.1-127.0.0.10` or `127.0.0.0/30` and `host:port` syntax - in the latest
+case, no port scanning will be performed.
 
 If a URL is provided, the host from this URL will be scanned.
 

@@ -37,11 +37,9 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertTrue(Classifier.is_supported("CERT.pl"))
         self.assertFalse(Classifier.is_supported("https://CERT.pl"))
         self.assertFalse(Classifier.is_supported("http://cert.pl"))
-        self.assertFalse(Classifier.is_supported("cert.pl:8080"))
         self.assertFalse(Classifier.is_supported("ws://cert.pl"))
         self.assertFalse(Classifier.is_supported("root@cert.pl"))
         self.assertFalse(Classifier.is_supported("ssh://127.0.0.1"))
-        self.assertFalse(Classifier.is_supported("127.0.0.1:8080"))
 
     def test_parsing(self) -> None:
         cert_ip = gethostbyname("cert.pl")

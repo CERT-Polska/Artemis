@@ -31,10 +31,10 @@ def get_target_host(task: Task) -> str:
 
     if task_type == TaskType.NEW:
         payload = task.get_payload("data")
+        assert isinstance(payload, str)
 
         if ":" in payload:  # host:port
             return payload.split(":")[0]
-        assert isinstance(payload, str)
         return payload
 
     raise ValueError(f"Unknown target found: {task_type}")

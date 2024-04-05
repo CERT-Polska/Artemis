@@ -146,7 +146,9 @@ class Classifier(ArtemisBase):
 
             try:
                 output = throttle_request(
-                    lambda: check_output_log_on_error(["fingerprintx", "--json"], self.log, input=data.encode("ascii")).strip()
+                    lambda: check_output_log_on_error(
+                        ["fingerprintx", "--json"], self.log, input=data.encode("ascii")
+                    ).strip()
                 )
             except subprocess.CalledProcessError:
                 self.log.exception("Unable to fingerprint %s", data)

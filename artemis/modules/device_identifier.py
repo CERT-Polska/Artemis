@@ -1,7 +1,7 @@
 from karton.core import Task
 
 from artemis import http_requests
-from artemis.binds import Service, TaskStatus, TaskType, Device
+from artemis.binds import Device, Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host, get_target_url
 
@@ -20,25 +20,20 @@ class DeviceIdentifier(ArtemisBase):
     @staticmethod
     def _identify(url: str) -> Device:
         response = http_requests.get(url, allow_redirects=True)
-        if ("xxxxxxxx-xxxxx" in response.headers.get("Server", "") and 
-            "/remote/login" in response.url):
-                return Device.FORTIOS
-            
+        if "xxxxxxxx-xxxxx" in response.headers.get("Server", "") and "/remote/login" in response.url:
+            return Device.FORTIOS
+
         return Device.UNKNOWN
 
     def _process(self, current_task: Task, url: str, host: str, port: int) -> None:
         device = self._identify(url)
-        
+
         new_task = Task(
             {
                 "type": TaskType.SERVICE,
                 "device": device,
             },
-            payload={
-                "host": host,
-                "port": int(port),
-                "ssl": current_task.get_payload("ssl")
-            },
+            payload={"host": host, "port": int(port), "ssl": current_task.get_payload("ssl")},
         )
         self.add_task(current_task, new_task)
 
@@ -50,7 +45,7 @@ class DeviceIdentifier(ArtemisBase):
         port = current_task.get_payload("port")
 
         self.log.info(f"device identifier scanning {url}")
-        
+
         self._process(current_task, url, host, port)
 
 

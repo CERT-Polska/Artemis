@@ -26,7 +26,7 @@ class HTTPResponse:
     encoding: str
     is_redirect: bool
     url: str
-    headers: dict
+    headers: Dict[str, str]
 
     def json(self) -> Any:
         return json.loads(self.content)
@@ -80,7 +80,7 @@ def _request(
             encoding=response.encoding if response.encoding else "utf-8",
             is_redirect=bool(response.history),
             url=response.url,
-            headers=response.headers
+            headers=response.headers,
         )
 
     return throttle_request(_internal_request)  # type: ignore

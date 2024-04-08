@@ -22,7 +22,7 @@ class TaskType(str, Enum):
     # {URL: just a HTTP URL. Must have content attached to make further operations faster}
     URL = "url"
 
-    # {device: having an ip, port, ssl, and a device type, e.g. Device.FORTIOS}
+    # {device: having a host, port, ssl, and a device type, e.g. Device.FORTIOS}
     DEVICE = "device"
 
 

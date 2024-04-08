@@ -22,6 +22,9 @@ class TaskType(str, Enum):
     # {URL: just a HTTP URL. Must have content attached to make further operations faster}
     URL = "url"
 
+    # {device: having an ip, port, ssl, and a device type, e.g. Device.FORTIOS}
+    DEVICE = "device"
+
 
 class Service(str, Enum):
     # Each of the services can have the SSL flag enabled - therefore HTTP covers both HTTP and HTTPS.

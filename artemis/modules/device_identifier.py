@@ -30,7 +30,7 @@ class DeviceIdentifier(ArtemisBase):
 
         new_task = Task(
             {
-                "type": TaskType.SERVICE,
+                "type": TaskType.DEVICE,
                 "device": device,
             },
             payload={"host": host, "port": int(port), "ssl": current_task.get_payload("ssl")},

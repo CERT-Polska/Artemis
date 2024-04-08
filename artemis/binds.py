@@ -56,6 +56,12 @@ class WebApplication(str, Enum):
     @classmethod
     def _missing_(cls, value: object) -> WebApplication:
         return WebApplication.UNKNOWN
+    
+
+class Device(str, Enum):
+    UNKNOWN = "unknown"
+
+    FORTIOS = "fortios"
 
 
 class TaskStatus(str, Enum):

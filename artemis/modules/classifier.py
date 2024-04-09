@@ -37,17 +37,7 @@ class Classifier(ArtemisBase):
         return data
 
     @staticmethod
-    def is_supported(data: str) -> bool:
-        if Classifier._to_ip_range(data):
-            return True
-
-        if ":" in data:
-            data, port = data.split(":", 1)
-
-            try:
-                int(port)
-            except ValueError:
-                return False
+    def _is_ip_or_domain(data: str) -> bool:
 
         try:
             # if this doesn't throw then we have an IP address
@@ -62,23 +52,47 @@ class Classifier(ArtemisBase):
         return False
 
     @staticmethod
+    def _clean_ipv4_brackets(data: str) -> str:
+        if data.startswith("[") and data.endswith("]"):
+            data = data[1:-1]
+        return data
+
+    @staticmethod
+    def is_supported(data: str) -> bool:
+        if Classifier._to_ip_range(data):
+            return True
+
+        if Classifier._is_ip_or_domain(data):
+            return True
+
+        data, port_str = data.rsplit(":", 1)
+
+        try:
+            int(port_str)
+        except ValueError:
+            return False
+
+        data = Classifier._clean_ipv4_brackets(data)
+        return Classifier._is_ip_or_domain(data)
+
+    @staticmethod
     def _classify(data: str) -> TaskType:
         """
         :raises: ValueError if failed to find domain/IP
         """
 
-        if ":" in data:
+        if Classifier._is_ip_or_domain(data):
+            try:
+                # if this doesn't throw then we have an IP address
+                ipaddress.ip_address(data)
+                return TaskType.IP
+            except ValueError:
+                pass
+
+            if is_domain(data):
+                return TaskType.DOMAIN
+        else:
             return TaskType.SERVICE
-
-        try:
-            # if this doesn't throw then we have an IP address
-            ipaddress.ip_address(data)
-            return TaskType.IP
-        except ValueError:
-            pass
-
-        if is_domain(data):
-            return TaskType.DOMAIN
 
         raise ValueError("Failed to find domain/IP in input")
 
@@ -92,10 +106,11 @@ class Classifier(ArtemisBase):
             if not is_ip_address(start_ip_str) or not is_ip_address(end_ip_str):
                 return None
 
-            start_ip = ipaddress.IPv4Address(start_ip_str)
-            end_ip = ipaddress.IPv4Address(end_ip_str)
+            start_ip = ipaddress.ip_address(start_ip_str)
+            end_ip = ipaddress.ip_address(end_ip_str)
 
-            return [str(ipaddress.IPv4Address(i)) for i in range(int(start_ip), int(end_ip) + 1)]
+            cls = ipaddress.IPv6Address if ":" in data else ipaddress.IPv4Address
+            return [str(cls(i)) for i in range(int(start_ip), int(end_ip) + 1)]
         if "/" in data:
             ip, mask = data.split("/", 1)
             ip = ip.strip()
@@ -104,7 +119,7 @@ class Classifier(ArtemisBase):
             if not is_ip_address(ip) or not mask.isdigit():
                 return None
 
-            return list(map(str, ipaddress.IPv4Network(data.strip(), strict=False)))
+            return list(map(str, ipaddress.ip_network(data.strip(), strict=False)))
         return None
 
     def run(self, current_task: Task) -> None:
@@ -136,7 +151,8 @@ class Classifier(ArtemisBase):
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": task_type, "data": [sanitized]})
 
         if task_type == TaskType.SERVICE:
-            host, port_str = data.split(":")
+            host, port_str = data.rsplit(":", 1)
+            host = Classifier._clean_ipv4_brackets(host)
             port = int(port_str)
 
             if is_domain(host):

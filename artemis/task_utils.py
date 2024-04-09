@@ -32,6 +32,14 @@ def get_target_host(task: Task) -> str:
     if task_type == TaskType.NEW:
         payload = task.get_payload("data")
         assert isinstance(payload, str)
+
+        if ":" in payload:  # host:port
+            return payload.split(":")[0]
+        return payload
+
+    if task_type == TaskType.DEVICE:
+        payload = task.get_payload("host")
+        assert isinstance(payload, str)
         return payload
 
     if task_type == TaskType.DEVICE:

@@ -30,7 +30,13 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertTasksEqual(results, [])
 
     def test_support(self) -> None:
+        # URLs are not supported
+        self.assertFalse(Classifier.is_supported("http://example.com"))
+        self.assertFalse(Classifier.is_supported("http://a:b@example.com"))
         self.assertTrue(Classifier.is_supported("cert.pl"))
+        self.assertTrue(Classifier.is_supported("[::1]:2"))
+        self.assertTrue(Classifier.is_supported("[::1]"))
+        self.assertFalse(Classifier.is_supported("[::1]:a"))
         self.assertTrue(Classifier.is_supported("cert.pl:8080"))
         self.assertFalse(Classifier.is_supported("cert.pl:8080port"))
         self.assertTrue(Classifier.is_supported("1.2.3.4:56"))
@@ -82,6 +88,26 @@ class ClassifierTest(ArtemisModuleTestCase):
                         headers={"origin": "classifier", "type": "domain"},
                         payload={"domain": "cert.pl", "last_domain": "cert.pl"},
                         payload_persistent={"original_domain": "cert.pl"},
+                    ),
+                ],
+            ),
+            TestData(
+                "::1-::3",
+                [
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "::1"},
+                        payload_persistent={"original_ip": "::1"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "::2"},
+                        payload_persistent={"original_ip": "::2"},
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "::3"},
+                        payload_persistent={"original_ip": "::3"},
                     ),
                 ],
             ),

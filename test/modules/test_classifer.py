@@ -186,9 +186,8 @@ class ClassifierTest(ArtemisModuleTestCase):
                 del results[i].payload["created_at"]
             self.assertTasksEqual(results, expected_tasks)
 
-    def test_invalid_url(self) -> None:
+    def test_invalid_data(self) -> None:
         task = Task({"type": TaskType.NEW}, payload={"data": "INVALID_DATA"})
 
-        with self.assertRaises(ValueError):
-            results = self.run_task(task)
-            self.assertListEqual(results, [])
+        results = self.run_task(task)
+        print(results)

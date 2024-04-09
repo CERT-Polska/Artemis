@@ -44,11 +44,14 @@ else:
     PORTS_SET.add(23)  # telnet
     PORTS_SET.add(139)  # SMB
     PORTS_SET.add(445)  # SMB
+    PORTS_SET.add(4433)  # FortiOS
     PORTS_SET.add(6379)  # redis
     PORTS_SET.add(8000)  # http
     PORTS_SET.add(8080)  # http
     PORTS_SET.add(3389)  # RDP
     PORTS_SET.add(9200)  # Elasticsearch
+    PORTS_SET.add(9443)  # FortiOS
+    PORTS_SET.add(10443)  # FortiOS
     PORTS_SET.add(27017)  # MongoDB
     PORTS_SET.add(27018)  # MongoDB
 

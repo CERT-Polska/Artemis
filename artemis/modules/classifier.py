@@ -62,6 +62,8 @@ class Classifier(ArtemisBase):
         if Classifier._to_ip_range(data):
             return True
 
+        data = Classifier._clean_ipv6_brackets(data)
+
         if Classifier._is_ip_or_domain(data):
             return True
 
@@ -127,6 +129,10 @@ class Classifier(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")
+
+        if not Classifier._is_supported(data):
+            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data)
+            return
 
         data_as_ip_range = self._to_ip_range(data)
         if data_as_ip_range:
@@ -198,6 +204,8 @@ class Classifier(ArtemisBase):
             )
             self.add_task(current_task, new_task)
         else:
+            data = Classifier._clean_ipv6_brackets(data)
+
             if task_type == TaskType.DOMAIN:
                 if (
                     PUBLIC_SUFFIX_LIST.publicsuffix(sanitized) == sanitized

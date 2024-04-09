@@ -130,8 +130,10 @@ class Classifier(ArtemisBase):
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")
 
-        if not Classifier._is_supported(data):
-            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data)
+        if not Classifier.is_supported(data):
+            self.db.save_task_result(
+                task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data
+            )
             return
 
         data_as_ip_range = self._to_ip_range(data)

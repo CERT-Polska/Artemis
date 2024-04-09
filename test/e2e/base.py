@@ -53,6 +53,7 @@ class BaseE2ETestCase(TestCase):
                 BACKEND_URL + "add",
                 data={
                     "csrf_token": csrf_token,
+                    "priority": "normal",
                     "targets": "\n".join(tasks),
                     "tag": tag,
                 },
@@ -69,6 +70,7 @@ class BaseE2ETestCase(TestCase):
                 BACKEND_URL + "add",
                 data={
                     "csrf_token": csrf_token,
+                    "priority": "normal",
                     "targets": "\n".join(tasks),
                     "tag": tag,
                     "choose_modules_to_enable": True,

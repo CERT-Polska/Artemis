@@ -18,6 +18,7 @@ from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
+from karton.core.task import TaskPriority
 from starlette.datastructures import Headers
 
 from artemis import csrf
@@ -116,6 +117,8 @@ def get_add_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> Res
         {
             "request": request,
             "binds": binds,
+            "priority": TaskPriority.NORMAL.value,
+            "priorities": list(TaskPriority),
             "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
         },
         csrf_protect,
@@ -129,6 +132,7 @@ async def post_add(
     targets: Optional[str] = Form(None),
     file: Optional[bytes] = File(None),
     tag: Optional[str] = Form(None),
+    priority: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
     redirect: bool = Form(True),
     csrf_protect: CsrfProtect = Depends(),
@@ -157,6 +161,8 @@ async def post_add(
                     "validation_message": f"{task} is not supported - Artemis supports domains, IPs or IP ranges",
                     "request": request,
                     "binds": binds,
+                    "priority": priority,
+                    "priorities": list(TaskPriority),
                     "tasks": total_list,
                     "tag": tag or "",
                     "disabled_modules": disabled_modules,
@@ -165,7 +171,7 @@ async def post_add(
                 csrf_protect,
             )
 
-    create_tasks(total_list, tag, disabled_modules)
+    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:
         return RedirectResponse("/", status_code=301)
     else:

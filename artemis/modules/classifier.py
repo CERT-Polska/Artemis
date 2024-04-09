@@ -52,7 +52,7 @@ class Classifier(ArtemisBase):
         return False
 
     @staticmethod
-    def _clean_ipv4_brackets(data: str) -> str:
+    def _clean_ipv6_brackets(data: str) -> str:
         if data.startswith("[") and data.endswith("]"):
             data = data[1:-1]
         return data
@@ -72,7 +72,7 @@ class Classifier(ArtemisBase):
         except ValueError:
             return False
 
-        data = Classifier._clean_ipv4_brackets(data)
+        data = Classifier._clean_ipv6_brackets(data)
         return Classifier._is_ip_or_domain(data)
 
     @staticmethod
@@ -152,7 +152,7 @@ class Classifier(ArtemisBase):
 
         if task_type == TaskType.SERVICE:
             host, port_str = data.rsplit(":", 1)
-            host = Classifier._clean_ipv4_brackets(host)
+            host = Classifier._clean_ipv6_brackets(host)
             port = int(port_str)
 
             if is_domain(host):

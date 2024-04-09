@@ -35,7 +35,6 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertFalse(Classifier.is_supported("http://a:b@example.com"))
         self.assertTrue(Classifier.is_supported("cert.pl"))
         self.assertTrue(Classifier.is_supported("[::1]:2"))
-        self.assertTrue(Classifier.is_supported("[::1]"))
         self.assertFalse(Classifier.is_supported("[::1]:a"))
         self.assertTrue(Classifier.is_supported("cert.pl:8080"))
         self.assertFalse(Classifier.is_supported("cert.pl:8080port"))

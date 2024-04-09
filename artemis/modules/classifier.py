@@ -162,6 +162,7 @@ class Classifier(ArtemisBase):
             ssl = data["tls"]
             service = data["protocol"]
             if ssl:
+                # If the service is a SSL service, fingerprintx will append s (e.g. `https`) to the end of the name
                 service = service.rstrip("s")
 
             self.log.info("%s identified to be %s", data, service)

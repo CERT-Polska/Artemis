@@ -155,7 +155,7 @@ class Classifier(ArtemisBase):
                 return
 
             if not output:
-                self.log.exception("Unable to fingerpritn %s", data)
+                self.log.exception("Unable to fingerprint %s", data)
                 return
 
             data = json.loads(output)

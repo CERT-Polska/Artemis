@@ -65,6 +65,9 @@ class Classifier(ArtemisBase):
         if Classifier._is_ip_or_domain(data):
             return True
 
+        if ":" not in data:
+            return False
+
         data, port_str = data.rsplit(":", 1)
 
         try:

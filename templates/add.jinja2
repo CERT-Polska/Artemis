@@ -43,6 +43,19 @@
         <input type="submit" class="btn btn-primary" value="Start scan">
 
         <h2 class="mt-4">Advanced settings</h2>
+        <div class="form-group mb-3">
+            <label class="form-label">Priority</label>
+            <select name="priority" class="form-control">
+                {% for possible_priority in priorities %}
+                    <option name="{{ possible_priority.value }}" {% if priority == possible_priority.value %}selected{% endif %}>{{ possible_priority.value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <small class="form-text text-muted">
+                The priority defines how fast the scanning will be performed - tasks with higher priority will be done earlier.
+            </small>
+        </div>
         <div class="form-group mb-3 enabled-modules">
             <label class="form-label">Enabled modules</label>
             (<a href="" onclick="setSelectionForAllModules(true); return false;">select all except example</a> |

@@ -438,6 +438,11 @@ class ArtemisBase(Karton):
                 result = self._get_ip_for_locking(task.payload["host"])
             except UnknownIPException:
                 result = task.payload["host"]
+        elif task.headers["type"] == TaskType.DEVICE:
+            try:
+                result = self._get_ip_for_locking(task.payload["host"])
+            except UnknownIPException:
+                result = task.payload["host"]
 
         assert isinstance(result, str)
         return result

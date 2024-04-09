@@ -37,6 +37,11 @@ def get_target_host(task: Task) -> str:
             return payload.split(":")[0]
         return payload
 
+    if task_type == TaskType.DEVICE:
+        payload = task.get_payload("host")
+        assert isinstance(payload, str)
+        return payload
+
     raise ValueError(f"Unknown target found: {task_type}")
 
 

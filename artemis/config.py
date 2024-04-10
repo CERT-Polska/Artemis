@@ -224,6 +224,11 @@ class Config:
 
     class Modules:
         class Bruter:
+            BRUTER_OVERRIDE_PATHS_FILE: Annotated[
+                str,
+                "A custom file that will override the list of paths used by bruter.",
+            ] = get_config("BRUTER_OVERRIDE_PATHS_FILE", default=None)
+
             BRUTER_FALSE_POSITIVE_THRESHOLD: Annotated[
                 float,
                 "A threshold in case bruter finds too many files on a server "

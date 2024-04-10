@@ -55,6 +55,11 @@ with open(os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")) a
     IGNORE_PATHS = set(IGNORE_PATHS_ORIGINAL) | {path + "/" for path in IGNORE_PATHS_ORIGINAL}
     FILENAMES_TO_SCAN = FILENAMES_TO_SCAN - IGNORE_PATHS
 
+
+if Config.Modules.Bruter.BRUTER_OVERRIDE_PATHS_FILE:
+    with open(Config.Modules.Bruter.BRUTER_OVERRIDE_PATHS_FILE) as override_paths_file:
+        FILENAMES_TO_SCAN = set(read_paths_from_file(override_paths_file))
+
 IGNORED_CONTENTS = [
     "",
     "<!-- dummy index.html -->",

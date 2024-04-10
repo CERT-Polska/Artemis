@@ -41,7 +41,7 @@ LOCK_SUSTAIN_THREAD.start()
 
 
 class ResourceLock:
-    def __init__(self, res_name: str, max_tries: Optional[int] = None):  # type: ignore[type-arg]
+    def __init__(self, res_name: str, max_tries: Optional[int] = None):
         self.res_name = res_name
         self.lid = str(uuid4()) + "-" + " ".join(sys.argv)
         self.max_tries = max_tries

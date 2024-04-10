@@ -20,6 +20,8 @@ class FailedToAcquireLockException(Exception):
 # stops, the locks will expire.
 LOCK_HEARTBEAT_TIMEOUT = 60
 LOCKS_TO_SUSTAIN: Dict[str, str] = dict()
+
+# This lock gatekeeps access to LOCKS_TO_SUSTAIN dict, as assuming dict access is thread-safe is a bad practice.
 LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)

@@ -109,16 +109,6 @@ class Config:
             """,
         ] = get_config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
 
-        DEFAULT_LOCK_EXPIRY_SECONDS: Annotated[
-            int,
-            """
-            Requires LOCK_SCANNED_TARGETS to be enabled.
-
-            Locks are not permanent, because a service that has acquired a lock may get restarted or killed.
-            This is the lock default expiry time.
-            """,
-        ] = get_config("DEFAULT_LOCK_EXPIRY_SECONDS", default=48 * 60 * 60, cast=int)
-
     class PublicSuffixes:
         ALLOW_SCANNING_PUBLIC_SUFFIXES: Annotated[
             bool,

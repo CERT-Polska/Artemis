@@ -66,10 +66,8 @@ class ArtemisBase(Karton):
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
-        self.lock = ResourceLock(redis=REDIS, res_name=self.identity)
-        self.taking_tasks_from_queue_lock = ResourceLock(
-            redis=REDIS, res_name=f"taking-tasks-from-queue-{self.identity}"
-        )
+        self.lock = ResourceLock(res_name=self.identity)
+        self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
 
         if Config.Miscellaneous.BLOCKLIST_FILE:
@@ -168,7 +166,6 @@ class ArtemisBase(Karton):
     def _single_iteration(self) -> int:
         if self.resource_name_to_lock_before_scanning:
             resource_lock = ResourceLock(
-                REDIS,
                 f"resource-lock-{self.resource_name_to_lock_before_scanning}",
                 max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES,
             )
@@ -217,7 +214,7 @@ class ArtemisBase(Karton):
 
                     if self.lock_target:
                         lock = ResourceLock(
-                            REDIS, f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
+                            f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
                         )
 
                         if lock.is_acquired():

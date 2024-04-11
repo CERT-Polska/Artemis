@@ -439,6 +439,9 @@ class Config:
                         # our recipients with FPs.
                         "http/cnvd/2020/CNVD-2020-23735.yaml",
                         "http/vulnerabilities/other/ecshop-sqli.yaml",
+                        # Until https://github.com/CERT-Polska/Artemis/issues/899 gets fixed, let's review
+                        # these manually.
+                        "group:sql-injection",
                     ]
                 ),
                 cast=decouple.Csv(str),

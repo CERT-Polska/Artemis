@@ -158,7 +158,7 @@ async def post_add(
             return csrf.csrf_form_template_response(
                 "add.jinja2",
                 {
-                    "validation_message": f"{task} is not supported - Artemis supports domains, IPs or IP ranges",
+                    "validation_message": f"{task} is not supported - Artemis supports domains, IPs (with optional ports) or IP ranges",
                     "request": request,
                     "binds": binds,
                     "priority": priority,

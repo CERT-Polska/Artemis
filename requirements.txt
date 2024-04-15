@@ -7,7 +7,7 @@ certifi==2024.2.2
 chardet==5.2.0
 click==8.1.7
 cryptography==42.0.5
-dkimpy==1.1.5
+dkimpy==1.1.6
 dnspython==2.6.1
 fastapi==0.110.1
 fastapi-csrf-protect==0.3.3

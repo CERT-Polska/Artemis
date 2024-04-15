@@ -42,7 +42,6 @@ def _single_migration_iteration() -> None:
                                 "target": item["payload"]["data"],
                                 "tag": item["payload_persistent"].get("tag", ""),
                                 "stopped": item.get("stopped", False),
-                                "task": item,
                             }
                         ]
                     )

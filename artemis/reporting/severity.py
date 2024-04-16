@@ -60,5 +60,5 @@ SEVERITY_MAP = {
 if Config.Reporting.ADDITIONAL_SEVERITY_FILE:
     with open(Config.Reporting.ADDITIONAL_SEVERITY_FILE) as f:
         additional = json.load(f)
-    for report_type, severity in additional.items():
-        SEVERITY_MAP[ReportType(report_type)] = Severity(severity)
+    for report, severity in additional.items():
+        SEVERITY_MAP[ReportType(report)] = Severity(severity)

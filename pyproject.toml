@@ -21,6 +21,9 @@ authorized_licenses = [
 ]
 
 [tool.liccheck.authorized_packages]
+# The license name in the package is too generic ("DFSG approved") to be whitelisted in `authorized_licenses`
+dkimpy = "1.1.5"
+
 # BSD, not properly provided in package metadata
 karton-core = "5.0.0"
 libmailgoose = "1.0"

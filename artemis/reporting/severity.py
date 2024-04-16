@@ -1,5 +1,7 @@
+import json
 from enum import Enum
 
+from artemis.config import Config
 from artemis.reporting.base.report_type import ReportType
 
 
@@ -54,3 +56,9 @@ SEVERITY_MAP = {
     ReportType("nuclei_exposed_panel"): Severity.LOW,
     ReportType("missing_security_headers"): Severity.LOW,
 }
+
+if Config.Reporting.ADDITIONAL_SEVERITY_FILE:
+    with open(Config.Reporting.ADDITIONAL_SEVERITY_FILE) as f:
+        additional = json.load(f)
+    for report_type, severity in additional.items():
+        SEVERITY_MAP[ReportType(report_type)] = Severity(severity)

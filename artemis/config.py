@@ -70,6 +70,13 @@ class Config:
             int,
             "If a high-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
         ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=2 * 30, cast=int)
+        ADDITIONAL_SEVERITY_FILE: Annotated[
+            str,
+            """
+            A path (inside Docker container) of a file with JSON dictionary containing severities of additional report types:
+            '{"report_type1": "high", "report_type2": "medium", ...}'.
+            """,
+        ] = get_config("ADDITIONAL_SEVERITY_FILE", default=None)
 
     class Locking:
         LOCK_SCANNED_TARGETS: Annotated[

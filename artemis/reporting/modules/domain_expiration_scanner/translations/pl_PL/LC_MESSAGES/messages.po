@@ -2,6 +2,10 @@
 msgid "The following domains will soon expire: "
 msgstr "Poniższe domeny wkrótce wygasną: "
 
-#: artemis/reporting/modules/domain_expiration_scanner/template_close_domain_expiration_scanner.jinja2:7
+#: artemis/reporting/modules/domain_expiration_scanner/template_close_domain_expiration_scanner.jinja2:9
+msgid "domain"
+msgstr "domena"
+
+#: artemis/reporting/modules/domain_expiration_scanner/template_close_domain_expiration_scanner.jinja2:11
 msgid "will expire on"
 msgstr "wygaśnie dnia"

@@ -27,6 +27,11 @@ CHOSEN_BRUTER_LISTS_PATH = os.path.join(
 
 FILENAMES_TO_SCAN: Set[str] = set()
 
+if Config.Modules.Bruter.BRUTER_FILE_LIST not in ["full", "short"]:
+    raise Exception(
+        "There are two possible bruter file list: short and full, not %s" % Config.Modules.Bruter.BRUTER_FILE_LIST
+    )
+
 for file_name in os.listdir(CHOSEN_BRUTER_LISTS_PATH):
     with open(os.path.join(CHOSEN_BRUTER_LISTS_PATH, file_name)) as f:
         for item in read_paths_from_file(f):

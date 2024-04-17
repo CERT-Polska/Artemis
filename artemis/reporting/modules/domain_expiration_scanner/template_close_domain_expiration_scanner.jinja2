@@ -4,7 +4,11 @@
             {% for report in data.reports %}
                 {% if report.report_type == "close_domain_expiration_date" %}
                     <li>
-                        <p> {{ report.target }} - {% trans %}will expire on{% endtrans %} {{ report.additional_data["expiration_date"] }}.</p>
+                        <p> {{ report.target }} -
+                            {% if report.additional_data["name"] and report.additional_data["name"] != report.target %}
+                                {% trans %}domain{% endtrans %} {{ report.additional_data["name"] }}
+                            {% endif %}
+                        {% trans %}will expire on{% endtrans %} {{ report.additional_data["expiration_date"] }}.</p>
                     </li>
                 {% endif %}
             {% endfor %}

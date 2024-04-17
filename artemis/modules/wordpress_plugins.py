@@ -58,6 +58,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "official-facebook-pixel",
     "page-or-post-clone",
     "printfriendly",
+    "rafflepress",
     "robin-image-optimizer",
     "shapepress-dsgvo",
     "skyboot-custom-icons-for-elementor",

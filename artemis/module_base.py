@@ -239,7 +239,7 @@ class ArtemisBase(Karton):
                                     break
                             except FailedToAcquireLockException:
                                 self.log.warning(
-                                    "Failed to lock task %s (orig_uid=%s destination=%s), %d/%d locked",
+                                    "Failed to lock task %s (orig_uid=%s destination=%s)",
                                     task.uid,
                                     task.orig_uid,
                                     scan_destination,

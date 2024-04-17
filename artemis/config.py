@@ -221,10 +221,10 @@ class Config:
 
     class Modules:
         class Bruter:
-            BRUTER_OVERRIDE_PATHS_FILE: Annotated[
+            BRUTER_FILE_LIST: Annotated[
                 str,
-                "A custom file that will override the list of paths used by bruter.",
-            ] = get_config("BRUTER_OVERRIDE_PATHS_FILE", default=None)
+                "Possible values: 'full' or 'short'. Whether a short or full file list will be used to brute-force paths.",
+            ] = get_config("BRUTER_FILE_LIST", default="short")
 
             BRUTER_FALSE_POSITIVE_THRESHOLD: Annotated[
                 float,

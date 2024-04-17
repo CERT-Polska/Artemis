@@ -4,7 +4,6 @@ import os
 import random
 import string
 from difflib import SequenceMatcher
-from itertools import product
 from typing import IO, List, Set
 
 from karton.core import Task
@@ -22,43 +21,17 @@ def read_paths_from_file(file: IO[str]) -> List[str]:
     return [line.strip().lstrip("/") for line in file if not line.startswith("#")]
 
 
-FILENAMES_WITHOUT_EXTENSIONS = [
-    "admin_backup",
-    "admin.backup",
-    "admin_bkp",
-    "admin.bkp",
-    "admin_old",
-    "admin.old",
-    "panel",
-    "pack",
-    "backup",
-    "old",
-    "sql",
-    "www",
-]
+CHOSEN_BRUTER_LISTS_PATH = os.path.join(
+    os.path.dirname(__file__), "data", "bruter", "lists", Config.Modules.Bruter.BRUTER_FILE_LIST
+)
 
-EXTENSIONS = ["zip", "tar.gz", "7z", "tar", "gz", "tgz"]
-with open(os.path.join(os.path.dirname(__file__), "data", "Common-DB-Backups.txt")) as common_db_backups_file:
-    with open(os.path.join(os.path.dirname(__file__), "data", "quickhits.txt")) as quickhits_file:
-        with open(
-            os.path.join(os.path.dirname(__file__), "data", "bruter_additional_paths.txt")
-        ) as bruter_additional_paths_file:
-            FILENAMES_TO_SCAN: Set[str] = set(
-                [f"{a}.{b}" for a, b in product(FILENAMES_WITHOUT_EXTENSIONS, EXTENSIONS)]
-                + read_paths_from_file(common_db_backups_file)
-                + read_paths_from_file(quickhits_file)
-                + read_paths_from_file(bruter_additional_paths_file)
-            )
+FILENAMES_TO_SCAN: Set[str] = set()
 
-with open(os.path.join(os.path.dirname(__file__), "data", "ignore_paths.txt")) as ignore_paths_file:
-    IGNORE_PATHS_ORIGINAL = read_paths_from_file(ignore_paths_file)
-    IGNORE_PATHS = set(IGNORE_PATHS_ORIGINAL) | {path + "/" for path in IGNORE_PATHS_ORIGINAL}
-    FILENAMES_TO_SCAN = FILENAMES_TO_SCAN - IGNORE_PATHS
+for file_name in os.listdir(CHOSEN_BRUTER_LISTS_PATH):
+    with open(os.path.join(CHOSEN_BRUTER_LISTS_PATH, file_name)) as f:
+        for item in read_paths_from_file(f):
+            FILENAMES_TO_SCAN.add(item)
 
-
-if Config.Modules.Bruter.BRUTER_OVERRIDE_PATHS_FILE:
-    with open(Config.Modules.Bruter.BRUTER_OVERRIDE_PATHS_FILE) as override_paths_file:
-        FILENAMES_TO_SCAN = set(read_paths_from_file(override_paths_file))
 
 IGNORED_CONTENTS = [
     "",

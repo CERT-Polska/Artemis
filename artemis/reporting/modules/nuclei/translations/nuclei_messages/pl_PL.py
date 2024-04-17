@@ -96,7 +96,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "X-UI contains default credentials. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Logowanie do X-UI za pomocą domyślnych danych jest możliwe. Atakujący może uzyskać dostęp do kont użytkowników, pobrać wrażliwe dane, modyfikować dane lub uruchomić nieuprawnione operacje."
     + DEFAULT_CREDENTIALS_HINT,
-    "Zabbix default admin credentials were discovered.": "Wykryto, że logowanie do systemu Zabbix za pomocą domyślnych danych jest możliwe. Atakujący może pobrać wrażliwe dane, modyfikować ustawienia lub uruchomić nieuprawnione operacje."
+    "Zabbix default admin credentials were discovered.": "Wykryto, że możliwe jest logowanie do systemu Zabbix za pomocą domyślnych danych. Atakujący może pobrać wrażliwe dane, modyfikować ustawienia lub uruchomić nieuprawnione operacje."
     + DEFAULT_CREDENTIALS_HINT,
     "WordPress Statistic plugin versions prior to version 13.0.8 are affected by an unauthenticated time-based blind SQL injection vulnerability.": "Wersje wtyczki WordPress Statistics poniżej 13.0.8 zawierają podatność Time-based Blind SQL Injection, która umożliwia pobranie dowolnej informacji z bazy danych."
     + WORDPRESS_UPDATE_HINT,

@@ -20,6 +20,7 @@ services:
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
+      BRUTER_FILE_LIST: full
 
       # Use only one provider to speed up the tests
       GAU_ADDITIONAL_OPTIONS: "--providers wayback"

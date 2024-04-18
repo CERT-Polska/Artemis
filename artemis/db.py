@@ -374,7 +374,7 @@ class DB:
                 "payload": task_as_dict["payload"],
                 "payload_persistent": task_as_dict["payload_persistent"],
             }
-        )
+        ).replace("\x00", " ")
 
     @staticmethod
     def dict_to_str(d: Dict[str, Any]) -> str:

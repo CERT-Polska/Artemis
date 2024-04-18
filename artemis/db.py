@@ -132,6 +132,9 @@ def get_task_target(task: Task) -> str:
     elif task.headers["type"] == TaskType.SERVICE:
         if "host" in task.payload and "port" in task.payload:
             result = task.payload["host"] + ":" + str(task.payload["port"])
+    elif task.headers["type"] == TaskType.DEVICE:
+        if "host" in task.payload and "port" in task.payload:
+            result = task.payload["host"] + ":" + str(task.payload["port"])
 
     if not result:
         result = task.headers["type"] + ": " + task.uid

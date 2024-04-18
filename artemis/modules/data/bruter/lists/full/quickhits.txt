@@ -24,7 +24,7 @@
 /!.gitignore
 /!.htaccess
 /!.htpasswd
-/%3f/
+# /%3f/ Commented as most probably not interesting
 /%ff/
 /.7z
 /.access

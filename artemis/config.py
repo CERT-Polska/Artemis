@@ -70,6 +70,13 @@ class Config:
             int,
             "If a high-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
         ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_HIGH", default=2 * 30, cast=int)
+        ADDITIONAL_SEVERITY_FILE: Annotated[
+            str,
+            """
+            A path (inside Docker container) of a file with JSON dictionary containing severities of additional report types:
+            '{"report_type1": "high", "report_type2": "medium", ...}'.
+            """,
+        ] = get_config("ADDITIONAL_SEVERITY_FILE", default=None)
 
     class Locking:
         LOCK_SCANNED_TARGETS: Annotated[
@@ -214,10 +221,10 @@ class Config:
 
     class Modules:
         class Bruter:
-            BRUTER_OVERRIDE_PATHS_FILE: Annotated[
+            BRUTER_FILE_LIST: Annotated[
                 str,
-                "A custom file that will override the list of paths used by bruter.",
-            ] = get_config("BRUTER_OVERRIDE_PATHS_FILE", default=None)
+                "Possible values: 'full' or 'short'. Whether a short or full file list will be used to brute-force paths.",
+            ] = get_config("BRUTER_FILE_LIST", default="short")
 
             BRUTER_FALSE_POSITIVE_THRESHOLD: Annotated[
                 float,

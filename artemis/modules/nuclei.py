@@ -89,6 +89,9 @@ class Nuclei(ArtemisBase):
         return links
 
     def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
+        if not targets:
+            return []
+
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
         else:

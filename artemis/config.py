@@ -363,6 +363,7 @@ class Config:
                         "http/exposed-panels/cas-login.yaml",
                         "http/exposed-panels/casdoor-login.yaml",
                         "http/exposed-panels/openam-panel.yaml",
+                        "http/exposed-panels/sonicwall-sslvpn-panel.yaml",
                         # Too small impact to report
                         "http/exposed-panels/webeditors-check-detect.yaml",
                         # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization

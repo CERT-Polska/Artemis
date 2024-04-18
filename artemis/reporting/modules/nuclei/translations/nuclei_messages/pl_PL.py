@@ -96,6 +96,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "X-UI contains default credentials. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Logowanie do X-UI za pomocą domyślnych danych jest możliwe. Atakujący może uzyskać dostęp do kont użytkowników, pobrać wrażliwe dane, modyfikować dane lub uruchomić nieuprawnione operacje."
     + DEFAULT_CREDENTIALS_HINT,
+    "Zabbix default admin credentials were discovered.": "Wykryto, że możliwe jest logowanie do systemu Zabbix za pomocą domyślnych danych. Atakujący może pobrać wrażliwe dane, modyfikować ustawienia lub uruchomić nieuprawnione operacje."
+    + DEFAULT_CREDENTIALS_HINT,
     "WordPress Statistic plugin versions prior to version 13.0.8 are affected by an unauthenticated time-based blind SQL injection vulnerability.": "Wersje wtyczki WordPress Statistics poniżej 13.0.8 zawierają podatność Time-based Blind SQL Injection, która umożliwia pobranie dowolnej informacji z bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "ClamAV server 0.99.2, and possibly other previous versions, allow the execution\nof dangerous service commands without authentication. Specifically, the command 'SCAN'\nmay be used to list system files and the command 'SHUTDOWN' shut downs the service.": "Serwer ClamAV w wersji 0.99.2 (możliwe jest, że również w niektórych wcześniejszych wersjach) umożliwia uruchamianie niebezpiecznych komend bez uwierzytelnienia, co może skutkować np. pobraniem listy plików na serwerze lub wyłączeniem usługi."
@@ -143,6 +145,7 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
     "[no description] PHP Debug bar": "Wykryto narzędzie PHP Debug Bar, które umożliwia pobranie wrażliwych informacji, np. konfiguracji aplikacji. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
+    "The DebugBar integrates easily in any projects and can display profiling data from any part of your application. It comes built-in with data collectors for standard PHP features and popular projects.": "Wykryto narzędzie PHP Debug Bar, które umożliwia pobranie wrażliwych informacji, np. konfiguracji aplikacji. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
     "The PHP Debug Bar tool was discovered, which allows the attacker to obtain sensitive information, e.g. application configuration.": "Wykryto narzędzie PHP Debug Bar, które umożliwia pobranie wrażliwych informacji, np. konfiguracji aplikacji. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
     "The Django settings.py file containing a secret key was discovered. An attacker may use the secret key to bypass many security mechanisms and potentially obtain other sensitive configuration information such as database password) from the settings file.": "Wykryto plik z konfiguracją frameworku Django w którym znajduje się zmienna SECRET_KEY której poznanie umożliwi atakującemu ominięcie niektórych mechanizmów bezpieczeństwa Django. W tym pliku mogą też znajdować się inne wrażliwe dane, takie jak np. hasła do bazy danych."
     + DATA_HIDE_HINT,
@@ -378,6 +381,8 @@ TRANSLATIONS = {
     "IBM InfoPrint 4247-Z03 Impact Matrix Printer is subject to local file inclusion.": "Wykryto, że drukarka IBM InfoPrint 4247-Z03 Impact Matrix Printer zawiera podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "Generic Linux is subject to local file Inclusion on searches for /etc/passwd on passed URLs.": "Wykryto serwer HTTP systemu Linux skonfigurowany w sposób umożliwiający atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Generic Linux is subject to Local File Inclusion - the vulnerability was identified by requesting /etc/passwd from the server.": "Wykryto serwer HTTP systemu Linux skonfigurowany w sposób umożliwiający atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     'Zyxel VMG1312-B10D 5.13AAXA.8 is susceptible to local file inclusion. A remote unauthenticated attacker can send a specially crafted URL request containing "dot dot" sequences (/../), conduct directory traversal attacks, and view arbitrary files.': "Wykryto urządzenie Zyxel VMG1312-B10D 5.13AAXA.8 zawierające podatność Directory Traversal umożliwiającą odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
@@ -807,4 +812,5 @@ TRANSLATIONS = {
     "Login page for Eset Protect": "wykryto panel logowania Eset Protect",
     "OpenNebula login panel was detected.": "wykryto panel logowania OpenNebula.",
     "Metabase login panel was detected.": "wykryto panel logowania Metabase.",
+    "[no description] http/exposed-panels/fortinet/forticlientems-panel.yaml": "wykryto panel logowania FortiClient Endpoint Management Server.",
 }

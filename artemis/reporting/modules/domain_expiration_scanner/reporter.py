@@ -35,7 +35,7 @@ class DomainExpirationScannerReporter(Reporter):
                 top_level_target=get_top_level_target(task_result),
                 target=task_result["payload"]["domain"],
                 report_type=DomainExpirationScannerReporter.CLOSE_DOMAIN_EXPIRATION_DATE,
-                additional_data={"expiration_date": expiration_date},
+                additional_data={"expiration_date": expiration_date, "name": data.get("name", None)},
                 timestamp=task_result["created_at"],
             )
         ]

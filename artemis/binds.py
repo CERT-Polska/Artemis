@@ -67,6 +67,7 @@ class Device(str, Enum):
     FORTIOS = "fortios"
     PANOSGP = "panos-globalprotect"
 
+
 class TaskStatus(str, Enum):
     OK = "OK"
     ERROR = "ERROR"

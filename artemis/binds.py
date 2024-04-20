@@ -65,7 +65,7 @@ class Device(str, Enum):
     UNKNOWN = "unknown"
 
     FORTIOS = "fortios"
-
+    PANOSGP = "panos-globalprotect"
 
 class TaskStatus(str, Enum):
     OK = "OK"

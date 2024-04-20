@@ -24,6 +24,8 @@ class DeviceIdentifier(ArtemisBase):
             response = http_requests.get(f"{url}/remote/login", allow_redirects=True)
             if response.status_code == 200 and "/remote/login" in response.url:
                 return Device.FORTIOS
+        if "/global-protect/login.esp" in response.url:
+            return Device.PANOSGP
 
         return Device.UNKNOWN
 

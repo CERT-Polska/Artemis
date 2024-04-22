@@ -1,5 +1,7 @@
 import dataclasses
 import json
+import ssl
+import urllib.parse
 from typing import Any, Dict, Optional
 
 import chardet
@@ -7,6 +9,23 @@ import requests
 
 from artemis.config import Config
 from artemis.utils import throttle_request
+
+
+# As our goal in Artemis is to access the sites in order to test their security, let's
+# enable SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION in order to make a connection even if it's
+# not secure.
+class SSLContextAdapter(requests.adapters.HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):  # type: ignore
+        context = ssl.create_default_context()
+
+        SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION = 1 << 18
+
+        context.check_hostname = False
+        context.options |= SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION
+
+        kwargs["ssl_context"] = context
+        return super().init_poolmanager(*args, **kwargs)  # type: ignore
+
 
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)  # type: ignore
 
@@ -53,7 +72,11 @@ def _request(
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
 ) -> HTTPResponse:
     def _internal_request() -> HTTPResponse:
-        response = getattr(requests, method_name)(
+        s = requests.Session()
+        if urllib.parse.urlparse(url).scheme.lower() == "https":
+            s.mount(url, SSLContextAdapter())
+
+        response = getattr(s, method_name)(
             url,
             allow_redirects=allow_redirects,
             data=data,

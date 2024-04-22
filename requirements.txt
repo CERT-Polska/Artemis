@@ -1,5 +1,5 @@
 aiofiles==23.2.1
-aiohttp==3.9.4
+aiohttp==3.9.5
 anytree==2.12.1
 Babel==2.14.0
 beautifulsoup4==4.12.3
@@ -24,7 +24,7 @@ packaging==24.0
 paramiko==3.4.0
 prometheus-client==0.20.0
 psycopg2-binary==2.9.9
-publicsuffixlist==0.10.0.20240412
+publicsuffixlist==0.10.0.20240420
 pydantic==2.3.0
 pymongo==4.6.3
 PyMySQL==1.1.0

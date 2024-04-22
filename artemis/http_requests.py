@@ -11,6 +11,9 @@ from artemis.config import Config
 from artemis.utils import throttle_request
 
 
+# As our goal in Artemis is to access the sites in order to test their security, let's
+# enable SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION in order to make a connection even if it's
+# not secure.
 class SSLContextAdapter(requests.adapters.HTTPAdapter):
     def init_poolmanager(self, *args, **kwargs):  # type: ignore
         context = ssl.create_default_context()

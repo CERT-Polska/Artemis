@@ -20,8 +20,10 @@ class DeviceIdentifier(ArtemisBase):
     @staticmethod
     def _identify(url: str) -> Device:
         response = http_requests.get(url, allow_redirects=True)
-        if "xxxxxxxx-xxxxx" in response.headers.get("Server", "") and "/remote/login" in response.url:
-            return Device.FORTIOS
+        if "xxxxxxxx-xxxxx" in response.headers.get("Server", ""):
+            response = http_requests.get(f"{url}/remote/login", allow_redirects=True)
+            if response.status_code == 200 and "/remote/login" in response.url:
+                return Device.FORTIOS
 
         return Device.UNKNOWN
 

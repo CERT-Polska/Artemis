@@ -3,15 +3,7 @@ import urllib
 from typing import Dict, List, Optional
 
 import requests
-from fastapi import (
-    APIRouter,
-    Depends,
-    Form,
-    Header,
-    HTTPException,
-    Request,
-    Response,
-)
+from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend, KartonBind

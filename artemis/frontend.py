@@ -8,7 +8,6 @@ from typing import Dict, List, Optional
 from zipfile import ZipFile
 
 import requests
-from aiohttp.web_exceptions import HTTPNotFound
 from fastapi import (
     APIRouter,
     Depends,
@@ -26,16 +25,10 @@ from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority
 from starlette.datastructures import Headers
-from starlette.responses import FileResponse
 
 from artemis import csrf
 from artemis.config import Config
-from artemis.db import (
-    DB,
-    ColumnOrdering,
-    ReportGenerationSkipPreviouslyReported,
-    TaskFilter, ReportGenerationTaskStatus,
-)
+from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import restart_crashed_tasks
 from artemis.modules.classifier import Classifier
@@ -216,6 +209,7 @@ def get_export_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> 
         csrf_protect,
     )
 
+
 @router.get("/export/delete/{id}", include_in_schema=False)
 def export_delete_form(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
     task = db.get_report_generation_task(id)
@@ -228,11 +222,13 @@ def export_delete_form(request: Request, id: int, csrf_protect: CsrfProtect = De
         csrf_protect,
     )
 
+
 @router.post("/export/confirm-delete/{id}", include_in_schema=False)
 @csrf.validate_csrf
 async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
     db.delete_report_generation_task(id)
     return RedirectResponse("/exports", status_code=301)
+
 
 @router.get("/export/download-zip/{id}", include_in_schema=False)
 def export_download_zip(request: Request, id: int) -> Response:
@@ -249,7 +245,10 @@ def export_download_zip(request: Request, id: int) -> Response:
         zipfile.write(path, os.path.relpath(path, task.output_location))
     zipfile.close()
 
-    return Response(byte_stream.getvalue(), headers={"Content-Disposition": f"attachment; filename=artemis-export-{id}.zip"})
+    return Response(
+        byte_stream.getvalue(), headers={"Content-Disposition": f"attachment; filename=artemis-export-{id}.zip"}
+    )
+
 
 @router.post("/export", include_in_schema=False)
 @csrf.validate_csrf

@@ -1,4 +1,3 @@
-import os
 import shutil
 import tempfile
 import time
@@ -8,12 +7,11 @@ from pathlib import Path
 from artemis import utils
 from artemis.db import DB, ReportGenerationTask, ReportGenerationTaskStatus
 from artemis.reporting.base.language import Language
-from artemis.reporting.export.common import OUTPUT_LOCATION
 from artemis.reporting.export.main import export
-
 
 db = DB()
 logger = utils.build_logger(__name__)
+
 
 def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
     if report_generation_task.skip_previously_exported:
@@ -26,7 +24,7 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
 
     try:
         return export(
-            Path('../opt/') / previous_reports_directory if previous_reports_directory else None,
+            Path("../opt/") / previous_reports_directory if previous_reports_directory else None,
             report_generation_task.tag,
             Language(report_generation_task.language),
             report_generation_task.custom_template_arguments,  # type: ignore
@@ -38,7 +36,6 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
 
 
 def main() -> None:
-
 
     while True:
         task = db.take_single_report_generation_task()

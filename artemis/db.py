@@ -411,7 +411,9 @@ class DB:
 
     def take_single_report_generation_task(self) -> Optional[ReportGenerationTask]:
         with self.session() as session:
-            query = session.query(ReportGenerationTask).filter(ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value)
+            query = session.query(ReportGenerationTask).filter(
+                ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value
+            )
             if query.count() > 0:
                 return query[0]  # type: ignore
         return None
@@ -449,14 +451,15 @@ class DB:
     def get_report_generation_task(self, id: int) -> Optional[ReportGenerationTask]:
         with self.session() as session:
             try:
-                return session.query(ReportGenerationTask).get(id)
+                return session.query(ReportGenerationTask).get(id)  # type: ignore
             except NoResultFound:
                 return None
+
     def list_report_generation_tasks(self) -> List[ReportGenerationTask]:
         with self.session() as session:
             return list(session.query(ReportGenerationTask).order_by(ReportGenerationTask.created_at.desc()))
 
-    def delete_report_generation_task(self, id):
+    def delete_report_generation_task(self, id: int) -> None:
         with self.session() as session:
             task = session.query(ReportGenerationTask).get(id)
             output_location = "/opt/" + task.output_location
@@ -497,5 +500,3 @@ class DB:
         if "headers_string" in d:
             del d["headers_string"]
         return d
-
-

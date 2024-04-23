@@ -1,0 +1,82 @@
+{% extends "components/base.jinja2" %}
+{% block main %}
+    {%  for report_generation_task in report_generation_tasks %}
+        {%  if report_generation_task.error %}
+            <div class="modal" tabindex="-1" role="dialog" id="error-{{  report_generation_task.id }}" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Error</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <pre>{{  report_generation_task.error }}</pre>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {%  endif %}
+    {% endfor %}
+
+    {%  if not report_generation_tasks %}
+        <p>
+            You have not yet exported reports from Artemis.
+        </p>
+        <p>
+            <a href="/export" class="btn btn-primary">Export reports</a>
+        </p>
+
+    {%  else %}
+        <h1>Report export tasks</h1>
+
+        <table id="task_list" class="table table-hover mb-3">
+            <thead>
+                <tr>
+                    <th scope="col">Created at</th>
+                    <th scope="col">Tag</th>
+                    <th scope="col">Comment</th>
+                    <th scope="col">Language</th>
+                    <th scope="col">Skip previously exported issues</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%  for report_generation_task in report_generation_tasks %}
+                    <tr>
+                        <td>{{ report_generation_task.created_at }}</td>
+                        <td>{{ report_generation_task.tag }}</td>
+                        <td>{{ report_generation_task.comment }}</td>
+                        <td>{{ report_generation_task.language }}</td>
+                        <td>{%  if report_generation_task.skip_previously_exported %}Yes{%  else %}No{% endif %}</td>
+                        <td>
+                            {%  if report_generation_task.status == "pending" %}
+                                <span class="badge bg-warning">pending</span>
+                            {%  elif report_generation_task.status == "done" %}
+                                <span class="badge bg-success">done</span>
+                            {%  elif report_generation_task.status == "failed" %}
+                                <span class="badge bg-danger">failed</span>
+                            {%  endif %}
+                        </td>
+                        <td>
+                            {%  if report_generation_task.status == "done" %}
+                                <a href="/export/download-zip/{{ report_generation_task.id }}">Download ZIP</a> |
+                            {%  elif report_generation_task.status == "failed" %}
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#error-{{  report_generation_task.id }}">
+                                  Show error
+                                </a> |
+                            {%  endif %}
+
+                            <a href="/export/delete/{{ report_generation_task.id }}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/export" class="btn btn-primary">Export reports</a>
+    {%  endif %}
+{% endblock %}

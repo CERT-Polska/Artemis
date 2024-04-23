@@ -1,0 +1,40 @@
+{% extends "components/base.jinja2" %}
+
+{% block main %}
+    <h1>Export reports</h1>
+    <form action="/export" method="post" class="w-100">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+        <div class="form-group mb-3">
+            <label class="form-label">Tag to export</label>
+            <input type="text" class="form-control" name="tag" placeholder="Leave blank to export all">
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="form-label">Comment</label>
+            <textarea
+                    class="form-control"
+                    name="comment"
+                    placeholder="Visible only to you. Use this to additionally describe the export if such a need arises."></textarea>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="form-label">Skip previously exported reports</label>
+            <select name="skip_previously_exported" class="form-control">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="form-label">Language</label>
+            <select name="language" class="form-control">
+                {%  for language in languages %}
+                    <option name="{{  language.value }}">{{  language.value }}</option>
+                {%  endfor %}
+            </select>
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Export">
+    </form>
+{% endblock %}

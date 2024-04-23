@@ -1,0 +1,17 @@
+{% extends "components/base.jinja2" %}
+
+{% block main %}
+    <h1>Delete export</h1>
+    <div class="alert alert-danger">
+        Caution: the delete cannot be reversed. The export files will be deleted as well.
+    </div>
+    <p>
+        <b>Creation date</b>: {{  task.created_at }}<br/>
+        <b>Tag</b>: {{  task.tag }}<br/>
+        <b>Comment</b>: {{  task.comment }}
+    </p>
+    <form action="/export/confirm-delete/{{ task.id }}" method="post" class="w-100">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <input type="submit" class="btn btn-danger" value="Delete" />
+    </form>
+{% endblock %}

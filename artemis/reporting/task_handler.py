@@ -1,0 +1,70 @@
+import os
+import shutil
+import tempfile
+import time
+import traceback
+from pathlib import Path
+
+from artemis import utils
+from artemis.db import DB, ReportGenerationTask, ReportGenerationTaskStatus
+from artemis.reporting.base.language import Language
+from artemis.reporting.export.common import OUTPUT_LOCATION
+from artemis.reporting.export.main import export
+
+
+db = DB()
+logger = utils.build_logger(__name__)
+
+def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
+    if report_generation_task.skip_previously_exported:
+        previous_reports_directory = tempfile.mkdtemp()
+        # We want to treat only the reports visible from web as already known
+        for report_generation_task in db.list_report_generation_tasks():
+            shutil.copy(report_generation_task.output_location, previous_reports_directory)
+    else:
+        previous_reports_directory = None
+
+    try:
+        return export(
+            Path('../opt/') / previous_reports_directory if previous_reports_directory else None,
+            report_generation_task.tag,
+            Language(report_generation_task.language),
+            report_generation_task.custom_template_arguments,  # type: ignore
+            silent=True,
+        )
+    finally:
+        if previous_reports_directory:
+            shutil.rmtree(previous_reports_directory)
+
+
+def main() -> None:
+
+
+    while True:
+        task = db.take_single_report_generation_task()
+
+        if task:
+            logger.info(
+                "Took reporting task: skip_previously_exported=%s tag=%s language=%s custom_template_arguments=%s",
+                task.skip_previously_exported,
+                task.tag,
+                task.language,
+                task.custom_template_arguments,
+            )
+            try:
+                output_location = handle_single_task(task)
+                db.mark_report_generation_task_as_completed(
+                    task, ReportGenerationTaskStatus.DONE, output_location=str(output_location)
+                )
+                logger.exception("Reporting task succeeded")
+            except Exception:
+                logger.exception("Reporting task failed")
+                db.mark_report_generation_task_as_completed(
+                    task, ReportGenerationTaskStatus.FAILED, error=traceback.format_exc()
+                )
+
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()

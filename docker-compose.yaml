@@ -53,7 +53,9 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    command: "bash -c '/wait-for-it.sh postgres:5432 -- python3 -m artemis.reporting.task_handler'"
     env_file: .env
+    restart: always
     volumes:
       # Because the options parsing (which will tell us which previous reports directory the
       # user needs) happens inside the container, we don't know what directory to mount before
@@ -63,7 +65,6 @@ services:
       - ./output/autoreporter/:/opt/output/autoreporter
       - ./docker/karton.ini:/etc/karton/karton.ini
       - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
-    profiles: ["autoreporter"]  # This will prevent the service from starting by default
 
   metrics:
     build:
@@ -86,6 +87,7 @@ services:
     volumes:
       - data-web:/data
       - ./docker/karton.ini:/etc/karton/karton.ini:ro
+      - ./output/autoreporter/:/opt/output/autoreporter
       - ${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/
 
   karton-bruter:

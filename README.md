@@ -100,6 +100,9 @@ Huge thanks to the following people that contributed to Artemis development!
       <td align="center" valign="top" width="14.28%"><a href="https://bornunique911.github.io/"><img src="https://avatars.githubusercontent.com/u/69379200?v=4?s=100" width="100px;" alt="Bornunique911"/><br /><sub><b>Bornunique911</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=Bornunique911" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/RasenRhino"><img src="https://avatars.githubusercontent.com/u/53192732?v=4?s=100" width="100px;" alt="Ridham Bhagat"/><br /><sub><b>Ridham Bhagat</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=RasenRhino" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Matie26"><img src="https://avatars.githubusercontent.com/u/56604997?v=4?s=100" width="100px;" alt="Mateusz Borkowski"/><br /><sub><b>Mateusz Borkowski</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=Matie26" title="Code">💻</a> <a href="#ideas-Matie26" title="Ideas, Planning, & Feedback">🤔</a></td>
+    </tr>
   </tbody>
 </table>
 

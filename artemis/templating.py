@@ -45,6 +45,7 @@ def render_task_table_row(task_result: Dict[str, Any]) -> List[str]:
 
 def render_analyses_table_row(entry: Dict[str, Any]) -> List[str]:
     return [
+        html.escape(entry["created_at"].strftime("%Y-%m-%d %H:%M:%S")) if "created_at" in entry else None,
         html.escape(entry["target"]),
         html.escape(entry["tag"] or ""),
         TEMPLATE_ANALYSIS_TABLE_ROW_PENDING_TASKS.render({"entry": entry}),

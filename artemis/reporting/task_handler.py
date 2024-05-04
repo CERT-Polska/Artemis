@@ -1,3 +1,4 @@
+import json
 import shutil
 import tempfile
 import time
@@ -36,7 +37,6 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
 
 
 def main() -> None:
-
     while True:
         task = db.take_single_report_generation_task()
 
@@ -50,13 +50,17 @@ def main() -> None:
             )
             try:
                 output_location = handle_single_task(task)
-                db.mark_report_generation_task_as_completed(
-                    task, ReportGenerationTaskStatus.DONE, output_location=str(output_location)
+                with open(output_location / "advanced" / "output.json") as output_file:
+                    output_data = json.load(output_file)
+                    alerts = output_data["alerts"]
+
+                db.save_report_generation_task_results(
+                    task, ReportGenerationTaskStatus.DONE, output_location=str(output_location), alerts=alerts
                 )
                 logger.exception("Reporting task succeeded")
             except Exception:
                 logger.exception("Reporting task failed")
-                db.mark_report_generation_task_as_completed(
+                db.save_report_generation_task_results(
                     task, ReportGenerationTaskStatus.FAILED, error=traceback.format_exc()
                 )
 

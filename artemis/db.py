@@ -141,6 +141,7 @@ class ReportGenerationTask(Base):  # type: ignore
     custom_template_arguments = Column(JSON)
     output_location = Column(String, nullable=True)
     error = Column(String, nullable=True)
+    alerts = Column(JSON, nullable=True)
 
 
 @dataclasses.dataclass
@@ -418,12 +419,13 @@ class DB:
                 return query[0]  # type: ignore
         return None
 
-    def mark_report_generation_task_as_completed(
+    def save_report_generation_task_results(
         self,
         task: ReportGenerationTask,
         status: ReportGenerationTaskStatus,
         output_location: Optional[str] = None,
         error: Optional[str] = None,
+        alerts: Optional[List[str]] = None,
     ) -> None:
         with self.session() as session:
             task.status = status.value
@@ -431,6 +433,8 @@ class DB:
                 task.output_location = output_location
             if error:
                 task.error = error
+            if alerts:
+                task.alerts = alerts
             session.add(task)
             session.commit()
 

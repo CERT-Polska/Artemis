@@ -24,12 +24,8 @@
 
         <div class="form-group mb-3">
             <label class="form-label">Targets (separated with newlines)</label>
-            <textarea class="form-control" name="targets">{% for task in tasks %}{{ task }}
+            <textarea class="form-control" name="targets" rows="10">{% for task in tasks %}{{ task }}
 {% endfor %}</textarea>
-        </div>
-        <div class="form-group mb-3">
-            <label class="form-label">Batch file (should contain one target per line)</label>
-            <input class="form-control btn" type="file" name="file">
         </div>
         <div class="form-group mb-3">
             <label class="form-label">Tag</label>

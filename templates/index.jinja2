@@ -10,6 +10,7 @@
         <table id="analysis_list" class="table table-hover">
             <thead>
                 <tr>
+                    <th scope="col">Created at</th>
                     <th scope="col">Target</th>
                     <th scope="col">Tag</th>
                     <th scope="col">Status</th>
@@ -36,7 +37,7 @@
                 pageLength: 10,
                 serverSide: true,
                 columnDefs: [{
-                    "targets": [2, 3],
+                    "targets": [3, 4],
                     "orderable": false
                 }]
             });

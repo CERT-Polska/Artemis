@@ -8,16 +8,7 @@ from typing import Dict, List, Optional
 from zipfile import ZipFile
 
 import requests
-from fastapi import (
-    APIRouter,
-    Depends,
-    File,
-    Form,
-    Header,
-    HTTPException,
-    Request,
-    Response,
-)
+from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend, KartonBind
@@ -136,7 +127,6 @@ def get_add_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> Res
 async def post_add(
     request: Request,
     targets: Optional[str] = Form(None),
-    file: Optional[bytes] = File(None),
     tag: Optional[str] = Form(None),
     priority: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
@@ -154,8 +144,6 @@ async def post_add(
     total_list: List[str] = []
     if targets:
         total_list += (x.strip() for x in targets.split())
-    if file:
-        total_list += (x.strip() for x in file.decode().split())
 
     for task in total_list:
         if not Classifier.is_supported(task):

@@ -4,7 +4,7 @@
 
 from typing import Any, Callable, Dict, Tuple
 
-import dns.resolver
+from dns import resolver
 
 from artemis.config import Config
 from artemis.utils import build_logger
@@ -41,11 +41,11 @@ def retry(function: Callable[..., Any], function_args: Tuple[Any, ...], function
     return result
 
 
-class WrappedResolver(dns.resolver.Resolver):
+class WrappedResolver(resolver.Resolver):
     def resolve(self, *args, **kwargs):  # type: ignore
         return retry(super().resolve, args, kwargs)
 
 
 def setup_retrying_resolver() -> None:
-    if dns.resolver.Resolver != WrappedResolver:
-        dns.resolver.Resolver = WrappedResolver  # type: ignore
+    if resolver.Resolver != WrappedResolver:
+        resolver.Resolver = WrappedResolver  # type: ignore

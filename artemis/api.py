@@ -88,7 +88,7 @@ def get_analyses_table(
     start: int = Query(),
     length: int = Query(),
 ) -> Dict[str, Any]:
-    ordering = _get_ordering(request, column_names=["target", "tag", None, None])
+    ordering = _get_ordering(request, column_names=["created_at", "target", "tag", None, None])
     search_query = _get_search_query(request)
 
     karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
@@ -107,6 +107,7 @@ def get_analyses_table(
                 "id": entry["id"],
                 "tag": entry["tag"],
                 "target": entry["target"],
+                "created_at": entry["created_at"],
                 "num_active_tasks": num_active_tasks,
                 "stopped": entry.get("stopped", None),
             }

@@ -343,6 +343,12 @@ class DB:
         except NoResultFound:
             return None
 
+    def delete_task_result(self, id: str) -> None:
+        with self.session() as session:
+            task_result = session.query(TaskResult).get(id)
+            session.delete(task_result)
+            session.commit()
+
     def save_scheduled_task(self, task: Task) -> bool:
         """
         Saves a scheduled task and returns True if it didn't exist in the database.
@@ -368,41 +374,34 @@ class DB:
     def get_task_results_since(
         self, time_from: datetime.datetime, batch_size: int = 1000
     ) -> Generator[Dict[str, Any], None, None]:
-        with self._engine.connect() as conn:
-            query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
-            with conn.execution_options(stream_results=True, max_row_buffer=batch_size).execute(query) as result:
-                for item in result:
-                    yield item._mapping
+        query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
+        return self._iter_results(query, batch_size)
 
-    def _get_task_deduplication_data(self, task: Task) -> str:
-        """
-        Represents a task so that two identical tasks with different IDs will have the same representation.
+    def get_oldest_task_results_before(
+        self, time_to: datetime.datetime, max_length: int, batch_size: int = 1000
+    ) -> List[Dict[str, Any]]:
+        query = select(TaskResult).filter(TaskResult.created_at <= time_to).order_by(TaskResult.created_at)  # type: ignore
+        result = []
+        for i, item in enumerate(self._iter_results(query, batch_size)):
+            if i >= max_length:
+                break
+            result.append(self._strip_internal_db_info(dict(item)))
+        return result
 
-        Instead of dictionaries, strings are used (so that e.g. {"domain": "google.com"} becomes
-        domain=google.com to facillitate indexing.
-        """
+    @staticmethod
+    def dict_to_str(d: Dict[str, Any]) -> str:
+        result = ""
+        # We sort the items so that the same dict will always have the same representation
+        # regardless of how are the items ordered internally.
+        for key, value in sorted(d.items()):
+            if isinstance(value, dict):
+                result += f"{key}=({DB.dict_to_str(value)})"
+            else:
+                result += f"{key}={value}"
+        return result
 
-        # We convert the task to dict so that we don't have problems e.g. with enums.
-        task_as_dict = self.task_to_dict(task)
-
-        # We treat a task that originates from a different karton than an existing one
-        # as an existing one.
-        if "origin" in task_as_dict["headers"]:
-            del task_as_dict["headers"]["origin"]
-        if "receiver" in task_as_dict["headers"]:
-            del task_as_dict["headers"]["receiver"]
-        if "last_domain" in task_as_dict["payload"]:
-            del task_as_dict["payload"]["last_domain"]
-        if "created_at" in task_as_dict["payload"]:
-            del task_as_dict["payload"]["created_at"]
-
-        return self.dict_to_str(
-            {
-                "headers": task_as_dict["headers"],
-                "payload": task_as_dict["payload"],
-                "payload_persistent": task_as_dict["payload_persistent"],
-            }
-        ).replace("\x00", " ")
+    def task_to_dict(self, task: Task) -> Dict[str, Any]:
+        return task.to_dict()
 
     def take_single_report_generation_task(self) -> Optional[ReportGenerationTask]:
         with self.session() as session:
@@ -464,20 +463,41 @@ class DB:
             session.delete(task)
             session.commit()
 
-    @staticmethod
-    def dict_to_str(d: Dict[str, Any]) -> str:
-        result = ""
-        # We sort the items so that the same dict will always have the same representation
-        # regardless of how are the items ordered internally.
-        for key, value in sorted(d.items()):
-            if isinstance(value, dict):
-                result += f"{key}=({DB.dict_to_str(value)})"
-            else:
-                result += f"{key}={value}"
-        return result
+    def _iter_results(self, query: Any, batch_size: int) -> Generator[Dict[str, Any], None, None]:
+        with self._engine.connect() as conn:
+            with conn.execution_options(stream_results=True, max_row_buffer=batch_size).execute(query) as result:
+                for item in result:
+                    yield item._mapping
 
-    def task_to_dict(self, task: Task) -> Dict[str, Any]:
-        return task.to_dict()
+    def _get_task_deduplication_data(self, task: Task) -> str:
+        """
+        Represents a task so that two identical tasks with different IDs will have the same representation.
+
+        Instead of dictionaries, strings are used (so that e.g. {"domain": "google.com"} becomes
+        domain=google.com to facillitate indexing.
+        """
+
+        # We convert the task to dict so that we don't have problems e.g. with enums.
+        task_as_dict = self.task_to_dict(task)
+
+        # We treat a task that originates from a different karton than an existing one
+        # as an existing one.
+        if "origin" in task_as_dict["headers"]:
+            del task_as_dict["headers"]["origin"]
+        if "receiver" in task_as_dict["headers"]:
+            del task_as_dict["headers"]["receiver"]
+        if "last_domain" in task_as_dict["payload"]:
+            del task_as_dict["payload"]["last_domain"]
+        if "created_at" in task_as_dict["payload"]:
+            del task_as_dict["payload"]["created_at"]
+
+        return self.dict_to_str(
+            {
+                "headers": task_as_dict["headers"],
+                "payload": task_as_dict["payload"],
+                "payload_persistent": task_as_dict["payload_persistent"],
+            }
+        ).replace("\x00", " ")
 
     def _to_postgresql_query(self, query: str) -> str:
         """Converts a space-separated query (e.g. directory_index wp-content) to a MongoDB query
@@ -489,8 +509,10 @@ class DB:
         return " & ".join([f'"{item}"' for item in query.split(" ") if item])
 
     def _strip_internal_db_info(self, d: Dict[str, Any]) -> Dict[str, Any]:
-        del d["_sa_instance_state"]
-        del d["fulltext"]
+        if "_sa_instance_state" in d:
+            del d["_sa_instance_state"]
+        if "fulltext" in d:
+            del d["fulltext"]
         if "headers_string" in d:
             del d["headers_string"]
         return d

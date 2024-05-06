@@ -618,6 +618,12 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "A misconfiguration in Gitea allows arbitrary users to sign up and read code hosted on the service.": "Wykryto serwis Gitea, którego konfiguracja umożliwia nowym użytkownikom rejestrację, co może dać atakującemu dostęp do kodu źródłowego przechowywanego w serwisie.",
+    "JBoss JMX Console default login information was discovered.": "wykryto, że do panelu JBoss JMX Console można zalogować się domyślnymi danymi."
+    + DEFAULT_CREDENTIALS_HINT,
+    "Apache ActiveMQ default login information was discovered.": "wykryto, że do panelu Apache ActiveMQ Console można zalogować się domyślnymi danymi."
+    + DEFAULT_CREDENTIALS_HINT,
+    "SiteCore 9.3 is vulnerable to LFI.": "Narzędzie SiteCore w wersji 9.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "Checks websites for Balada Injector malware.": "Wykryto, że strona jest zainfekowana złośliwym oprogramowaniem Balada Injector.",
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",
@@ -813,4 +819,6 @@ TRANSLATIONS = {
     "OpenNebula login panel was detected.": "wykryto panel logowania OpenNebula.",
     "Metabase login panel was detected.": "wykryto panel logowania Metabase.",
     "[no description] http/exposed-panels/fortinet/forticlientems-panel.yaml": "wykryto panel logowania FortiClient Endpoint Management Server.",
+    "Rancher Dashboard was detected.": "wykryto panel Rancher Dashboard.",
+    "VMware Cloud Director Availability login panel was detected.": "wykryto panel logowania VMware Cloud Director Availability.",
 }

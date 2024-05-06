@@ -277,7 +277,7 @@ def get_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = D
 
 @router.post("/remove-finished-analyses", include_in_schema=False)
 @csrf.validate_csrf
-def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
     for analysis in db.list_analysis():
         if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:

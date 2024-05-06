@@ -317,8 +317,8 @@ class DB:
 
     def delete_task_result(self, id: str) -> None:
         with self.session() as session:
-            for task in select(TaskResult).filter(TaskResult.id == id):  # type: ignore
-                session.delete(task)
+            task_result = session.query(TaskResult).get(id)
+            session.delete(task_result)
             session.commit()
 
     def save_scheduled_task(self, task: Task) -> bool:
@@ -355,9 +355,9 @@ class DB:
         query = select(TaskResult).filter(TaskResult.created_at <= time_to).order_by(TaskResult.created_at)  # type: ignore
         result = []
         for i, item in enumerate(self._iter_results(query, batch_size)):
-            result.append(item)
             if i >= max_length:
                 break
+            result.append(self._strip_internal_db_info(dict(item)))
         return result
 
     @staticmethod
@@ -421,8 +421,10 @@ class DB:
         return " & ".join([f'"{item}"' for item in query.split(" ") if item])
 
     def _strip_internal_db_info(self, d: Dict[str, Any]) -> Dict[str, Any]:
-        del d["_sa_instance_state"]
-        del d["fulltext"]
+        if "_sa_instance_state" in d:
+            del d["_sa_instance_state"]
+        if "fulltext" in d:
+            del d["fulltext"]
         if "headers_string" in d:
             del d["headers_string"]
         return d

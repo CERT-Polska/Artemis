@@ -47,8 +47,8 @@ class Config:
             AUTOARCHIVER_MIN_AGE_SECONDS: Annotated[
                 int, "How old the task results need to be to be archived (in seconds)"
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS", default=50 * 24 * 60 * 60, cast=int
-            )  # 50 days
+                "AUTOARCHIVER_MIN_AGE_SECONDS", default=80 * 24 * 60 * 60, cast=int
+            )  # 80 days
             AUTOARCHIVER_PACK_SIZE: Annotated[
                 int,
                 "How many task results will go into single .json.gz archive. If there are not that many old task results, archiving will not be performed.",

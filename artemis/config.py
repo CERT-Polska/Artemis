@@ -34,12 +34,6 @@ class Config:
             "migrate data from older Artemis versions to PostgreSQL.",
         ] = get_config("DB_CONN_STR")
 
-        ARCHIVE_TASK_RESULTS_AFTER: Annotated[
-            str,
-            "Connection string to the MongoDB database. MongoDB is not used anymore - it is present here to seamlessly "
-            "migrate data from older Artemis versions to PostgreSQL.",
-        ] = get_config("DB_CONN_STR")
-
         class Autoarchiver:
             AUTOARCHIVER_INTERVAL_SECONDS: Annotated[
                 int, "How frequently the archive process is triggered (in seconds)"

@@ -39,9 +39,5 @@ def reports_from_task_result(task_result: Dict[str, Any], language: Language) ->
     """
     reports = []
     for reporter in get_all_reporters():
-        if "example" in reporter.__name__.lower() or "admin_panel" in reporter.__name__.lower():
-            # if "mail" not in reporter.__name__.lower():
-            continue
-
         reports.extend(reporter.create_reports(task_result, language))
     return reports

@@ -15,23 +15,23 @@ LOGGER = utils.build_logger(__name__)
 
 
 def archive_old_results(self) -> None:
-    archive_age_timedelta = datetime.timedelta(seconds=Config.Data.Autoarchiver.ARCHIVE_MIN_AGE_SECONDS)
+    archive_age_timedelta = datetime.timedelta(seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS)
 
-    old_items = db.get_oldest_task_results_before(time_to=datetime.datetime.now() - archive_age_timedelta, max_length=Config.Data.Autoarchiver.ARCHIVE_PACK_SIZE)
+    old_items = db.get_oldest_task_results_before(time_to=datetime.datetime.now() - archive_age_timedelta, max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE)
 
     LOGGER.info("Found %s old items", len(old_items))
 
-    if len(old_items) < Config.Data.Autoarchiver.ARCHIVE_PACK_SIZE:
+    if len(old_items) < Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE:
         LOGGER.info("Too small, not archiving")
         return
 
-    LOGGER.info("Building list of %s earliest...", max_length=Config.Data.Autoarchiver.ARCHIVE_PACK_SIZE)
+    LOGGER.info("Building list of %s earliest...", max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE)
 
     date_from = old_items[0]["created_at"]
     date_to = old_items[-1]["created_at"]
 
     output_path = str(
-        pathlib.Path(Config.Data.Autoarchiver.ARCHIVE_OUTPUT_PATH)
+        pathlib.Path(Config.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH)
         / (
             "%s-%s.json.gz"
             % (
@@ -55,13 +55,12 @@ def archive_old_results(self) -> None:
 
 
 def main() -> None:
-    db = DB()
     while True:
         LOGGER.info("Archiving old results...")
-        db.archive_old_results()
+        archive_old_results()
 
-        LOGGER.info("Sleeping %s seconds", Config.ARCHIVE_INTERVAL_SECONDS)
-        time.sleep(Config.ARCHIVE_INTERVAL_SECONDS)
+        LOGGER.info("Sleeping %s seconds", Config.Data.Autoarchiver.AUTOARCHIVER_INTERVAL_SECONDS)
+        time.sleep(Config.Data.Autoarchiver.AUTOARCHIVER_INTERVAL_SECONDS)
 
 
 if __name__ == "__main__":

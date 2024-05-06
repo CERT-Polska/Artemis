@@ -78,10 +78,11 @@ services:
   autoarchiver:
     build:
       context: .
-      dockerfile: artemis/autoarchiver/Dockerfile
+      dockerfile: docker/Dockerfile
     env_file: .env
     volumes:
       - ./archived-task-results/:/opt/archived-task-results/
+    command: "python3 -m artemis.autoarchiver.autoarchiver"
     restart: always
 
   web:

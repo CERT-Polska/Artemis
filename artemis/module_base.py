@@ -5,7 +5,6 @@ import sys
 import time
 import traceback
 import urllib.parse
-import warnings
 from ipaddress import ip_address
 from typing import List, Optional, Tuple
 
@@ -31,12 +30,6 @@ from artemis.utils import is_ip_address
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 setup_retrying_resolver()
-
-# We filter this message as each karton sends the logs to stdout
-warnings.filterwarnings(
-    "ignore",
-    message=".*There is no active log consumer to receive logged messages..*",
-)
 
 
 class UnknownIPException(Exception):

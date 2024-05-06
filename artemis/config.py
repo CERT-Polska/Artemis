@@ -34,6 +34,30 @@ class Config:
             "migrate data from older Artemis versions to PostgreSQL.",
         ] = get_config("DB_CONN_STR")
 
+        ARCHIVE_TASK_RESULTS_AFTER: Annotated[
+            str,
+            "Connection string to the MongoDB database. MongoDB is not used anymore - it is present here to seamlessly "
+            "migrate data from older Artemis versions to PostgreSQL.",
+        ] = get_config("DB_CONN_STR")
+
+        class Autoarchiver:
+            AUTOARCHIVER_INTERVAL_SECONDS: Annotated[
+                int, "How frequently the archive process is triggered (in seconds)"
+            ] = get_config("AUTOARCHIVER_INTERVAL_SECONDS", default=3600, cast=int)
+            AUTOARCHIVER_MIN_AGE_SECONDS: Annotated[
+                int, "How old the task results need to be to be archived (in seconds)"
+            ] = get_config(
+                "AUTOARCHIVER_MIN_AGE_SECONDS", default=50 * 24 * 60 * 60, cast=int
+            )  # 50 days
+            AUTOARCHIVER_PACK_SIZE: Annotated[
+                int,
+                "How many task results will go into single .json.gz archive. If there are not that many old task results, archiving will not be performed.",
+            ] = get_config("AUTOARCHIVER_PACK_SIZE", default=20_000, cast=int)
+            AUTOARCHIVER_OUTPUT_PATH: Annotated[
+                int,
+                "Where the archived task results will be saved (remember that this is a path inside the container).",
+            ] = get_config("AUTOARCHIVEr_OUTPUT_PATH", default="/opt/archived-task-results/")
+
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."

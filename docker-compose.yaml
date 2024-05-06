@@ -75,6 +75,15 @@ services:
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     command: "python3 -m artemis.metrics"
 
+  autoarchiver:
+    build:
+      context: .
+      dockerfile: artemis/autoarchiver/Dockerfile
+    env_file: .env
+    volumes:
+      - ./archived-task-results/:/opt/archived-task-results/
+    restart: always
+
   web:
     build:
       context: .

@@ -121,12 +121,6 @@ class ReportGenerationTaskStatus(str, enum.Enum):
     FAILED = "failed"
 
 
-class ReportGenerationSkipPreviouslyReported(str, enum.Enum):
-    YES = "yes"
-    NO = "no"
-    ONLY_THIS_TAG = "only-this-tag"
-
-
 class ReportGenerationTask(Base):  # type: ignore
     __tablename__ = "report_generation_task"
 

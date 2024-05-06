@@ -94,11 +94,18 @@ if not Config.Miscellaneous.API_TOKEN:
 def get_root(request: Request) -> Response:
     karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
     has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
+    has_finished_analyses = False
+
+    for analysis in db.list_analysis():
+        if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
+            has_finished_analyses = True
+
     return templates.TemplateResponse(
         "index.jinja2",
         {
             "request": request,
             "has_analyses": has_analyses,
+            "has_finished_analyses": has_finished_analyses,
             "api_url": "/api/analyses-table",
             "num_active_tasks": sum([len(analysis.pending_tasks) for analysis in karton_state.analyses.values()]),
         },
@@ -255,6 +262,27 @@ async def post_export(
         language=Language(language),
     )
     return RedirectResponse("/exports", status_code=301)
+
+
+@router.get("/remove-finished-analyses", include_in_schema=False)
+def get_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+    return csrf.csrf_form_template_response(
+        "/remove_finished_analyses.jinja2",
+        {
+            "request": request,
+        },
+        csrf_protect,
+    )
+
+
+@router.post("/remove-finished-analyses", include_in_schema=False)
+@csrf.validate_csrf
+def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+    for analysis in db.list_analysis():
+        if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
+            db.delete_analysis(analysis["id"])
+    return RedirectResponse("/", status_code=301)
 
 
 @router.get("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)

@@ -1,9 +1,12 @@
 import copy
 import dataclasses
 import datetime
+import enum
 import functools
 import hashlib
 import json
+import os
+import shutil
 from enum import Enum
 from typing import Any, Dict, Generator, List, Optional
 
@@ -16,6 +19,7 @@ from sqlalchemy import (  # type: ignore
     Computed,
     DateTime,
     Index,
+    Integer,
     String,
     create_engine,
 )
@@ -29,6 +33,7 @@ from sqlalchemy.types import TypeDecorator
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.json_utils import JSONEncoderAdditionalTypes
+from artemis.reporting.base.language import Language
 from artemis.utils import build_logger
 
 
@@ -108,6 +113,29 @@ class TaskResult(Base):  # type: ignore
     )
 
     __table_args__ = (Index("task_result_fulltext", fulltext, postgresql_using="gin"),)
+
+
+class ReportGenerationTaskStatus(str, enum.Enum):
+    PENDING = "pending"
+    DONE = "done"
+    FAILED = "failed"
+
+
+class ReportGenerationTask(Base):  # type: ignore
+    __tablename__ = "report_generation_task"
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+    comment = Column(String, index=True)
+
+    status = Column(String, index=True)
+    tag = Column(String, nullable=True)
+    language = Column(String)
+    skip_previously_exported = Column(Boolean)
+    custom_template_arguments = Column(JSON)
+    output_location = Column(String, nullable=True)
+    error = Column(String, nullable=True)
+    alerts = Column(JSON, nullable=True)
 
 
 @dataclasses.dataclass
@@ -374,6 +402,66 @@ class DB:
 
     def task_to_dict(self, task: Task) -> Dict[str, Any]:
         return task.to_dict()
+
+    def take_single_report_generation_task(self) -> Optional[ReportGenerationTask]:
+        with self.session() as session:
+            return (  # type: ignore
+                session.query(ReportGenerationTask)
+                .filter(ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value)
+                .first()
+            )
+
+    def save_report_generation_task_results(
+        self,
+        task: ReportGenerationTask,
+        status: ReportGenerationTaskStatus,
+        output_location: Optional[str] = None,
+        error: Optional[str] = None,
+        alerts: Optional[List[str]] = None,
+    ) -> None:
+        with self.session() as session:
+            task.status = status.value
+            if output_location:
+                task.output_location = output_location
+            if error:
+                task.error = error
+            if alerts:
+                task.alerts = alerts
+            session.add(task)
+            session.commit()
+
+    def create_report_generation_task(
+        self, tag: Optional[str], comment: Optional[str], language: Language, skip_previously_exported: bool
+    ) -> None:
+        with self.session() as session:
+            task = ReportGenerationTask(
+                tag=tag,
+                comment=comment,
+                language=language.value,
+                skip_previously_exported=skip_previously_exported,
+                status=ReportGenerationTaskStatus.PENDING,
+            )
+            session.add(task)
+            session.commit()
+
+    def get_report_generation_task(self, id: int) -> Optional[ReportGenerationTask]:
+        with self.session() as session:
+            return session.query(ReportGenerationTask).filter(ReportGenerationTask.id == id).first()  # type: ignore
+
+    def list_report_generation_tasks(self) -> List[ReportGenerationTask]:
+        with self.session() as session:
+            return list(session.query(ReportGenerationTask).order_by(ReportGenerationTask.created_at.desc()))
+
+    def delete_report_generation_task(self, id: int) -> None:
+        with self.session() as session:
+            task = session.query(ReportGenerationTask).get(id)
+            output_location = "/opt/" + task.output_location
+            if os.path.exists(output_location):
+                # Make sure we don't remove too much
+                assert os.path.normpath(output_location).startswith("/opt/output/autoreporter/")
+                shutil.rmtree(output_location)
+            session.delete(task)
+            session.commit()
 
     def _iter_results(self, query: Any, batch_size: int) -> Generator[Dict[str, Any], None, None]:
         with self._engine.connect() as conn:

@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional, Union
 
 import termcolor
 import typer
@@ -40,7 +40,7 @@ HOST_ROOT_PATH = "/host-root/"
 
 
 def _build_message_template_and_print_path(output_dir: Path, silent: bool) -> Template:
-    output_message_template_file_name = output_dir / "message_template.jinja2"
+    output_message_template_file_name = output_dir / "advanced" / "message_template.jinja2"
 
     message_template_content = build_message_template()
     message_template = environment.from_string(message_template_content)
@@ -54,8 +54,8 @@ def _build_message_template_and_print_path(output_dir: Path, silent: bool) -> Te
 
 
 def _install_translations_and_print_path(language: Language, output_dir: Path, silent: bool) -> None:
-    translations_file_name = output_dir / "translations.po"
-    compiled_translations_file_name = output_dir / "compiled_translations.mo"
+    translations_file_name = output_dir / "advanced" / "translations.po"
+    compiled_translations_file_name = output_dir / "advanced" / "compiled_translations.mo"
     install_translations(language, environment, translations_file_name, compiled_translations_file_name)
 
     if not silent:
@@ -64,7 +64,7 @@ def _install_translations_and_print_path(language: Language, output_dir: Path, s
 
 
 def _dump_export_data_and_print_path(export_data: ExportData, output_dir: Path, silent: bool) -> None:
-    output_json_file_name = output_dir / "output.json"
+    output_json_file_name = output_dir / "advanced" / "output.json"
 
     with open(output_json_file_name, "w") as f:
         json.dump(export_data, f, indent=4, cls=JSONEncoderAdditionalTypes)
@@ -99,8 +99,8 @@ def _build_messages_and_print_path(
         print(termcolor.colored(f"Messages written to: {output_messages_directory_name}", attrs=["bold"]))
 
 
-def main(
-    previous_reports_directory: Path = typer.Argument(
+def export(
+    previous_reports_directory: Optional[Path] = typer.Argument(
         None,
         help="The directory where JSON files from previous exports reside. This is to prevent the same (or similar) "
         "bug to be reported multiple times.",
@@ -111,7 +111,7 @@ def main(
         "from targets with this tag will be exported.",
     ),
     language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),
-    custom_template_arguments: str = typer.Option(
+    custom_template_arguments: Union[Dict[str, str], str] = typer.Option(
         "",
         help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "
         "don't need them, but if you modified them on your side, they might.",
@@ -126,7 +126,7 @@ def main(
         "--verbose",
         help="Print more information (e.g. whether some types of reports have not been observed for a long time).",
     ),
-) -> None:
+) -> Path:
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
     blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
@@ -136,17 +136,23 @@ def main(
     else:
         previous_reports = []
 
-    custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
+    if isinstance(custom_template_arguments, dict):
+        custom_template_arguments_parsed = custom_template_arguments
+    elif custom_template_arguments is None:
+        custom_template_arguments_parsed = {}
+    else:
+        custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
+
     db = DB()
     export_db_connector = DataLoader(db, blocklist, language, tag, silent)
-    # we strip microseconds so that the timestamp in export_data json and folder name are equal
-    timestamp = datetime.datetime.now().replace(microsecond=0)
+    timestamp = datetime.datetime.now()
     export_data = build_export_data(
         previous_reports, tag, export_db_connector, custom_template_arguments_parsed, timestamp
     )
-    date_str = timestamp.strftime("%Y-%m-%d_%H_%M_%S")
-    output_dir = OUTPUT_LOCATION / date_str
-    os.mkdir(output_dir)
+    date_str = timestamp.isoformat()
+    output_dir = OUTPUT_LOCATION / str(tag) / date_str
+    os.makedirs(output_dir)
+    os.makedirs(output_dir / "advanced")
 
     _install_translations_and_print_path(language, output_dir, silent)
 
@@ -175,7 +181,8 @@ def main(
     if not silent:
         for alert in export_data.alerts:
             print(termcolor.colored("ALERT:" + alert, color="red"))
+    return output_dir
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    typer.run(export)

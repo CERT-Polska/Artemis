@@ -1,6 +1,11 @@
+import glob
 import json
+import os
 import urllib
+from io import BytesIO
+from pathlib import Path
 from typing import Dict, List, Optional
+from zipfile import ZipFile
 
 import requests
 from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
@@ -14,11 +19,12 @@ from starlette.datastructures import Headers
 
 from artemis import csrf
 from artemis.config import Config
-from artemis.db import DB, ColumnOrdering, TaskFilter
+from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import restart_crashed_tasks
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
+from artemis.reporting.base.language import Language
 from artemis.templating import templates
 
 router = APIRouter()
@@ -167,6 +173,88 @@ async def post_add(
             content="OK",
             status_code=200,
         )
+
+
+@router.get("/exports", include_in_schema=False)
+def get_exports(request: Request) -> Response:
+    return templates.TemplateResponse(
+        "exports.jinja2",
+        {
+            "request": request,
+            "report_generation_tasks": db.list_report_generation_tasks(),
+        },
+    )
+
+
+@router.get("/export", include_in_schema=False)
+def get_export_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+    return csrf.csrf_form_template_response(
+        "export.jinja2",
+        {
+            "request": request,
+            "languages": list(Language),
+        },
+        csrf_protect,
+    )
+
+
+@router.get("/export/delete/{id}", include_in_schema=False)
+def export_delete_form(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
+    task = db.get_report_generation_task(id)
+    return csrf.csrf_form_template_response(
+        "export_delete_form.jinja2",
+        {
+            "request": request,
+            "task": task,
+        },
+        csrf_protect,
+    )
+
+
+@router.post("/export/confirm-delete/{id}", include_in_schema=False)
+@csrf.validate_csrf
+async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
+    db.delete_report_generation_task(id)
+    return RedirectResponse("/exports", status_code=301)
+
+
+@router.get("/export/download-zip/{id}", include_in_schema=False)
+def export_download_zip(request: Request, id: int) -> Response:
+    task = db.get_report_generation_task(id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Report generation task not found")
+    if task.status != ReportGenerationTaskStatus.DONE.value:
+        raise HTTPException(status_code=404, detail="Report generation task not yet finished")
+
+    byte_stream = BytesIO()
+    zipfile = ZipFile(byte_stream, "w")
+
+    for path in glob.glob(str(Path(task.output_location) / "**" / "*"), recursive=True):
+        zipfile.write(path, os.path.relpath(path, task.output_location))
+    zipfile.close()
+
+    return Response(
+        byte_stream.getvalue(), headers={"Content-Disposition": f"attachment; filename=artemis-export-{id}.zip"}
+    )
+
+
+@router.post("/export", include_in_schema=False)
+@csrf.validate_csrf
+async def post_export(
+    request: Request,
+    csrf_protect: CsrfProtect = Depends(),
+    tag: Optional[str] = Form(None),
+    comment: Optional[str] = Form(None),
+    language: Optional[str] = Form(None),
+    skip_previously_exported: Optional[str] = Form(None),
+) -> Response:
+    db.create_report_generation_task(
+        skip_previously_exported=skip_previously_exported == "yes",
+        tag=tag,
+        comment=comment,
+        language=Language(language),
+    )
+    return RedirectResponse("/exports", status_code=301)
 
 
 @router.get("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)

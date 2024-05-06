@@ -2,7 +2,7 @@
 
 Generating reports to be sent
 =============================
-Artemis contains a command-line tool to generate HTML reports containing a description of
+Artemis can generate HTML reports containing a description of
 found vulnerabilities. An example report can be found in the :ref:`generating-reports-example-report` section.
 
 Such reports are sent by CERT PL via e-mail to the scanned entities in our constituency.
@@ -13,28 +13,21 @@ is a true positive and interesting enough to be reported.
 
 To generate such reports, you first need to start Artemis and scan some targets, as described in :doc:`quick-start`.
 
-Then, run the following script in the repository root:
+Then, click Export in the top navigation banner and configure how you want the data to be exported:
 
-``./scripts/export_reports``
+.. image:: _static/img/exporting-reports.png
 
-This script will produce **HTML messages ready to be sent**.
+This tool will produce **HTML messages ready to be sent** - you will be able to download them as a ``.zip`` file.
 
-.. note ::
-   Run this script on the host, not inside any of the Docker containers.
-
-You may translate the reports using the ``--language`` option. If your language is not
+You may also translate the reports. If your language is not
 supported or you want to edit the translations, please refer to
 :doc:`user-guide/translating-report-messages`.
 
-Besides the messages, the script will also produce a JSON file with vulnerability data, a
-jinja2 template and a .po translation file - using these three files you can build the messages
-yourself.
+Besides the messages, the script will also produce additional files in the ``advanced/`` directory in the ``.zip`` file: a JSON file with vulnerability data, a
+jinja2 template and a .po translation file - using these three files you can build the messages yourself.
 
 .. note ::
-   Please keep in mind that the reporting script resolves domains and performs HTTP requests.
-
-To view additional options, use ``./scripts/export_reports --help`` - for example, you will be able to change
-language, filter reports by tag or skip sending messages that have already been sent.
+   Please keep in mind that the reporting tool resolves domains and performs HTTP requests.
 
 Troubleshooting
 ^^^^^^^^^^^^^^^
@@ -44,10 +37,7 @@ or if you see that no messages have been generated:
 
 .. code-block:: none
 
-  Stats (written to file: output/autoreporter/2023-07-10_12_47_48/stats.txt):
-          Reports total: 0
-
-  Messages written to: output/autoreporter/2023-07-10_12_47_48/messages
+  Reports total: 0
 
 
 You can browse to http://127.0.0.1:5000/results?task_filter=interesting to see everything found by Artemis.

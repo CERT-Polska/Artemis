@@ -19,7 +19,7 @@ def print_and_save_stats(export_data: ExportData, output_dir: Path, silent: bool
         for count, report_type in reversed(
             sorted([(count, report_type) for report_type, count in num_reports_per_type.items()])
         ):
-            f.write(f"Num reports of type {report_type}: {count}\n")
+            f.write(f"Number of reports of type {report_type}: {count}\n")
 
     if not silent:
         print(f"Stats (written to file: {output_stats_file_name}):")

@@ -315,6 +315,12 @@ class DB:
         except NoResultFound:
             return None
 
+    def delete_task_result(self, id: str) -> None:
+        with self.session() as session:
+            task_result = session.query(TaskResult).get(id)
+            session.delete(task_result)
+            session.commit()
+
     def save_scheduled_task(self, task: Task) -> bool:
         """
         Saves a scheduled task and returns True if it didn't exist in the database.
@@ -340,8 +346,37 @@ class DB:
     def get_task_results_since(
         self, time_from: datetime.datetime, batch_size: int = 1000
     ) -> Generator[Dict[str, Any], None, None]:
+        query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
+        return self._iter_results(query, batch_size)
+
+    def get_oldest_task_results_before(
+        self, time_to: datetime.datetime, max_length: int, batch_size: int = 1000
+    ) -> List[Dict[str, Any]]:
+        query = select(TaskResult).filter(TaskResult.created_at <= time_to).order_by(TaskResult.created_at)  # type: ignore
+        result = []
+        for i, item in enumerate(self._iter_results(query, batch_size)):
+            if i >= max_length:
+                break
+            result.append(self._strip_internal_db_info(dict(item)))
+        return result
+
+    @staticmethod
+    def dict_to_str(d: Dict[str, Any]) -> str:
+        result = ""
+        # We sort the items so that the same dict will always have the same representation
+        # regardless of how are the items ordered internally.
+        for key, value in sorted(d.items()):
+            if isinstance(value, dict):
+                result += f"{key}=({DB.dict_to_str(value)})"
+            else:
+                result += f"{key}={value}"
+        return result
+
+    def task_to_dict(self, task: Task) -> Dict[str, Any]:
+        return task.to_dict()
+
+    def _iter_results(self, query: Any, batch_size: int) -> Generator[Dict[str, Any], None, None]:
         with self._engine.connect() as conn:
-            query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
             with conn.execution_options(stream_results=True, max_row_buffer=batch_size).execute(query) as result:
                 for item in result:
                     yield item._mapping
@@ -376,21 +411,6 @@ class DB:
             }
         ).replace("\x00", " ")
 
-    @staticmethod
-    def dict_to_str(d: Dict[str, Any]) -> str:
-        result = ""
-        # We sort the items so that the same dict will always have the same representation
-        # regardless of how are the items ordered internally.
-        for key, value in sorted(d.items()):
-            if isinstance(value, dict):
-                result += f"{key}=({DB.dict_to_str(value)})"
-            else:
-                result += f"{key}={value}"
-        return result
-
-    def task_to_dict(self, task: Task) -> Dict[str, Any]:
-        return task.to_dict()
-
     def _to_postgresql_query(self, query: str) -> str:
         """Converts a space-separated query (e.g. directory_index wp-content) to a MongoDB query
         that requires all words to be present (in that case it would be "directory_index" AND "wp-content").
@@ -401,8 +421,10 @@ class DB:
         return " & ".join([f'"{item}"' for item in query.split(" ") if item])
 
     def _strip_internal_db_info(self, d: Dict[str, Any]) -> Dict[str, Any]:
-        del d["_sa_instance_state"]
-        del d["fulltext"]
+        if "_sa_instance_state" in d:
+            del d["_sa_instance_state"]
+        if "fulltext" in d:
+            del d["fulltext"]
         if "headers_string" in d:
             del d["headers_string"]
         return d

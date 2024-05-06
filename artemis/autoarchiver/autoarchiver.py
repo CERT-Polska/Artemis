@@ -1,14 +1,14 @@
 import datetime
 import gzip
 import json
-import pathlib
 import os
+import pathlib
 import time
 
+from artemis import utils
 from artemis.config import Config
 from artemis.db import DB
 from artemis.json_utils import JSONEncoderAdditionalTypes
-from artemis import utils
 
 db = DB()
 LOGGER = utils.build_logger(__name__)
@@ -17,7 +17,10 @@ LOGGER = utils.build_logger(__name__)
 def archive_old_results() -> None:
     archive_age_timedelta = datetime.timedelta(seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS)
 
-    old_items = db.get_oldest_task_results_before(time_to=datetime.datetime.now() - archive_age_timedelta, max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE)
+    old_items = db.get_oldest_task_results_before(
+        time_to=datetime.datetime.now() - archive_age_timedelta,
+        max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
+    )
 
     LOGGER.info("Found %s old items", len(old_items))
 
@@ -47,7 +50,7 @@ def archive_old_results() -> None:
     LOGGER.info("Saved %s megabytes", os.stat(output_path).st_size / (1024 * 1024 * 1.0))
 
     for item in old_items:
-        db.delete_task_result(item['id'])
+        db.delete_task_result(item["id"])
 
     LOGGER.info("Deleted %d documents", len(old_items))
 

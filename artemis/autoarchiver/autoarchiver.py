@@ -14,7 +14,7 @@ db = DB()
 LOGGER = utils.build_logger(__name__)
 
 
-def archive_old_results(self) -> None:
+def archive_old_results() -> None:
     archive_age_timedelta = datetime.timedelta(seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS)
 
     old_items = db.get_oldest_task_results_before(time_to=datetime.datetime.now() - archive_age_timedelta, max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE)
@@ -24,8 +24,6 @@ def archive_old_results(self) -> None:
     if len(old_items) < Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE:
         LOGGER.info("Too small, not archiving")
         return
-
-    LOGGER.info("Building list of %s earliest...", max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE)
 
     date_from = old_items[0]["created_at"]
     date_to = old_items[-1]["created_at"]

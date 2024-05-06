@@ -822,4 +822,5 @@ TRANSLATIONS = {
     "VMware Cloud Director Availability login panel was detected.": "wykryto panel logowania VMware Cloud Director Availability.",
     "Rancher Dashboard was detected.": "wykryto panel systemu Rancher.",
     "Mitric Checker login panel was detected.": "wykryto panel logowania Mitrix Checker.",
+    "Magento Connect Manager installer was detected. The software, available via /downloader/ location, requires Magento admin rights and uses the same authorization methods as for backend. If an attacker locates a matching pair of login/password, the installation will be compromised. An attacker can then discover backend URL for login (even if it is customized as described in Securing Magento  /admin/) and install a Filesystem extension to obtain full access to all files and finally the database.": "Wykryto panel Magento Connect Manager.",
 }

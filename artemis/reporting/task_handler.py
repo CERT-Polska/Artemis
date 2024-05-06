@@ -57,7 +57,7 @@ def main() -> None:
                 db.save_report_generation_task_results(
                     task, ReportGenerationTaskStatus.DONE, output_location=str(output_location), alerts=alerts
                 )
-                logger.exception("Reporting task succeeded")
+                logger.info("Reporting task succeeded")
             except Exception:
                 logger.exception("Reporting task failed")
                 db.save_report_generation_task_results(

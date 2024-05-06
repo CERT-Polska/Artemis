@@ -18,6 +18,12 @@ class FileLogger(LogConsumer):
                     self.opened_file.close()
                 self.opened_file_date = datetime.datetime.now().date()
                 self.opened_file = open(Path("/karton-logs") / f"{self.opened_file_date.strftime('%Y-%m-%d')}.log", "w")
+                # There should be one instance of the consumer, but for extra safety let's lock the file.
+                # From the documentation (https://docs.python.org/3/library/fcntl.html):
+                # "If LOCK_NB is used and the lock cannot be acquired, an OSError will be raised"
+                # From https://www.gnu.org/software/libc/manual/html_node/File-Locks.html: "locks are released
+                # when a process exits".
+                fcntl.lockf(self.opened_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             self.opened_file.write(f"{event['name']}: {event['message']}\n")
             self.opened_file.flush()
 

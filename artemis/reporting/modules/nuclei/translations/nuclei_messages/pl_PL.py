@@ -821,4 +821,6 @@ TRANSLATIONS = {
     "[no description] http/exposed-panels/fortinet/forticlientems-panel.yaml": "wykryto panel logowania FortiClient Endpoint Management Server.",
     "Rancher Dashboard was detected.": "wykryto panel Rancher Dashboard.",
     "VMware Cloud Director Availability login panel was detected.": "wykryto panel logowania VMware Cloud Director Availability.",
+    "Rancher Dashboard was detected.": "wykryto panel systemu Rancher.",
+    "Mitric Checker login panel was detected.": "wykryto panel logowania Mitrix Checker.",
 }

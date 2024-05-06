@@ -50,7 +50,7 @@ class Config:
             AUTOARCHIVER_OUTPUT_PATH: Annotated[
                 int,
                 "Where the archived task results will be saved (remember that this is a path inside the container).",
-            ] = get_config("AUTOARCHIVEr_OUTPUT_PATH", default="/opt/archived-task-results/")
+            ] = get_config("AUTOARCHIVER_OUTPUT_PATH", default="/opt/archived-task-results/")
 
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[

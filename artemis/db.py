@@ -412,12 +412,9 @@ class DB:
 
     def take_single_report_generation_task(self) -> Optional[ReportGenerationTask]:
         with self.session() as session:
-            query = session.query(ReportGenerationTask).filter(
+            return session.query(ReportGenerationTask).filter(
                 ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value
-            )
-            if query.count() > 0:
-                return query[0]  # type: ignore
-        return None
+            ).first()
 
     def save_report_generation_task_results(
         self,
@@ -454,10 +451,7 @@ class DB:
 
     def get_report_generation_task(self, id: int) -> Optional[ReportGenerationTask]:
         with self.session() as session:
-            try:
-                return session.query(ReportGenerationTask).get(id)  # type: ignore
-            except NoResultFound:
-                return None
+            return session.query(ReportGenerationTask).filter(ReportGenerationTask.id == id).first()
 
     def list_report_generation_tasks(self) -> List[ReportGenerationTask]:
         with self.session() as session:

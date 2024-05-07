@@ -825,4 +825,5 @@ TRANSLATIONS = {
     "Magento Connect Manager installer was detected. The software, available via /downloader/ location, requires Magento admin rights and uses the same authorization methods as for backend. If an attacker locates a matching pair of login/password, the installation will be compromised. An attacker can then discover backend URL for login (even if it is customized as described in Securing Magento  /admin/) and install a Filesystem extension to obtain full access to all files and finally the database.": "Wykryto panel Magento Connect Manager pod adresem /downloader/",
     "AWS OpenSearch login page was detected.": "wykryto panel AWS OpenSearch.",
     "Zyxel Firewall panel was detected.": "wykryto panel Zyxel Firewall.",
+    "[no description] http/exposed-panels/powerchute-network-panel.yaml": "wykryto panel PowerChute Network Shutdown",
 }

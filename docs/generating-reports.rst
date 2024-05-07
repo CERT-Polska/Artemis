@@ -13,7 +13,7 @@ is a true positive and interesting enough to be reported.
 
 To generate such reports, you first need to start Artemis and scan some targets, as described in :doc:`quick-start`.
 
-Then, click Export in the top navigation banner and configure how you want the data to be exported:
+Then, click Export in the top navigation bar and configure how you want the data to be exported:
 
 .. image:: _static/img/exporting-reports.png
 

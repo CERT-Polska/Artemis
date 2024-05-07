@@ -20,6 +20,10 @@
         </table>
         <p>
             <a class="btn btn-primary" href="/results?task_filter=interesting">Show results for all targets</a>
+
+            {% if has_finished_analyses %}
+                <a class="btn btn-success" href="/remove-finished-analyses">Remove finished analyses</a>
+            {% endif %}
         </p>
         <p>
             Hint: Browse to the <a href="/queue">task queue</a> to see how the tasks are progressing.
@@ -27,6 +31,7 @@
     {% else %}
         No targets have yet been analysed. <a href="/add">Analyze targets.</a>
     {% endif %}
+
 {% endblock %}
 
 {% block scripts %}

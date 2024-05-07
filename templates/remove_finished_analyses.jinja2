@@ -1,0 +1,18 @@
+{% extends "components/base.jinja2" %}
+
+{% block main %}
+    <h1>Remove all finished analyses</h1>
+
+    <p>
+        This will remove the finished analyses (with the <b>done</b> badge) from the table on the homepage. The
+        corresponding task results will still be in the database and you will still be able to <a href="/export">export
+        them</a> or view them on the <a href="/results?task_filter=interesting">all task results</a> list.
+    </p>
+    <p>
+
+    <form method="POST" action="/remove-finished-analyses">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+        <input type="submit" class="btn btn-primary" value="Remove" />
+    </form>
+{% endblock %}

@@ -343,6 +343,12 @@ class DB:
         except NoResultFound:
             return None
 
+    def delete_analysis(self, id: str) -> None:
+        with self.session() as session:
+            analysis = session.query(Analysis).get(id)
+            session.delete(analysis)
+            session.commit()
+
     def delete_task_result(self, id: str) -> None:
         with self.session() as session:
             task_result = session.query(TaskResult).get(id)

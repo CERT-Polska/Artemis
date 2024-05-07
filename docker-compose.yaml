@@ -262,6 +262,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: "python3 -m artemis.karton_logger"
+    depends_on: [karton-system]
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/", "./karton-logs/:/karton-logs"]

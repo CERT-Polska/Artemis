@@ -46,7 +46,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
-    "button-contact-vr",
     "cf7-to-zapier",
     "change-admin-email-setting-without-outbound-email",
     "clearfy",
@@ -64,13 +63,12 @@ PLUGINS_BAD_VERSION_IN_README = [
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
     "themesflat-addons-for-elementor",
+    "the-plus-addons-for-elementor-page-builder",
     "userway-accessibility-widget",
     "website-monetization-by-magenet",
     "woo-tools",
-    "wp-less",
     "wp-lightbox-2",
     "wp-maximum-execution-time-exceeded",
-    "yet-another-stars-rating",
 ]
 
 

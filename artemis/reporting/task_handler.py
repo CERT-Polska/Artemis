@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import tempfile
 import time
@@ -19,13 +20,14 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
         previous_reports_directory = tempfile.mkdtemp()
         # We want to treat only the reports visible from web as already known
         for report_generation_task in db.list_report_generation_tasks():
-            shutil.copy(report_generation_task.output_location, previous_reports_directory)
+            if report_generation_task.output_location:
+                shutil.copy(Path(report_generation_task.output_location) / "advanced" / "output.json", previous_reports_directory)
     else:
         previous_reports_directory = None
 
     try:
         return export(
-            Path("../opt/") / previous_reports_directory if previous_reports_directory else None,
+            Path("..") / previous_reports_directory.lstrip(os.sep) if previous_reports_directory else None,
             report_generation_task.tag,
             Language(report_generation_task.language),
             report_generation_task.custom_template_arguments,  # type: ignore

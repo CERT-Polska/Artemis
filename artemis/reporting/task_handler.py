@@ -21,7 +21,10 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
         # We want to treat only the reports visible from web as already known
         for report_generation_task in db.list_report_generation_tasks():
             if report_generation_task.output_location:
-                shutil.copy(Path(report_generation_task.output_location) / "advanced" / "output.json", previous_reports_directory)
+                shutil.copy(
+                    Path(report_generation_task.output_location) / "advanced" / "output.json",
+                    previous_reports_directory,
+                )
     else:
         previous_reports_directory = None
 

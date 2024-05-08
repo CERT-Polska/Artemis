@@ -38,3 +38,5 @@ If you want to add or modify all other translation messages, first update the tr
 
 and then put the translations in the respective ``.po`` files. The compilation will happen
 automatically when building the report messages.
+
+**You don't have to translate everything - pull requests with partial translations are also welcome!**

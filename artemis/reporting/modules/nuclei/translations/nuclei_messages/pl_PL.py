@@ -821,4 +821,9 @@ TRANSLATIONS = {
     "[no description] http/exposed-panels/fortinet/forticlientems-panel.yaml": "wykryto panel logowania FortiClient Endpoint Management Server.",
     "Rancher Dashboard was detected.": "wykryto panel Rancher Dashboard.",
     "VMware Cloud Director Availability login panel was detected.": "wykryto panel logowania VMware Cloud Director Availability.",
+    "Mitric Checker login panel was detected.": "wykryto panel logowania Mitric Checker.",
+    "http/exposed-panels/magento-downloader-panel.yaml": "Wykryto panel Magento Connect Manager pod adresem /downloader/",
+    "AWS OpenSearch login page was detected.": "wykryto panel AWS OpenSearch.",
+    "Zyxel Firewall panel was detected.": "wykryto panel Zyxel Firewall.",
+    "[no description] http/exposed-panels/powerchute-network-panel.yaml": "wykryto panel PowerChute Network Shutdown",
 }

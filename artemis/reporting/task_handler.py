@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import shutil
@@ -23,7 +24,8 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
             if report_generation_task.output_location:
                 shutil.copy(
                     Path(report_generation_task.output_location) / "advanced" / "output.json",
-                    previous_reports_directory,
+                    Path(previous_reports_directory)
+                    / (hashlib.sha256(report_generation_task.output_location.encode("ascii")).hexdigest() + ".json"),
                 )
     else:
         previous_reports_directory = None

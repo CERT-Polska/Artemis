@@ -91,7 +91,7 @@ class Nuclei(ArtemisBase):
 
     def _strip_query_string(self, url: str) -> str:
         url_parsed = urllib.parse.urlparse(url)
-        return urllib.parse.urlunparse(url_parsed._replace(query=None, fragment=None))
+        return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
     def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
         if not targets:

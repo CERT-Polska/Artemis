@@ -3,6 +3,7 @@ import json
 import os
 import random
 import subprocess
+import urllib
 from typing import Any, Dict, List
 
 from karton.core import Task
@@ -88,6 +89,10 @@ class Nuclei(ArtemisBase):
         links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
         return links
 
+    def _strip_query_string(self, url: str) -> str:
+        url_parsed = urllib.parse.urlparse(url)
+        return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
+
     def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
         if not targets:
             return []
@@ -158,7 +163,10 @@ class Nuclei(ArtemisBase):
         links_per_task = {}
         links = []
         for task in tasks:
-            links_per_task[task.uid] = self._get_links(get_target_url(task))
+            links = self._get_links(get_target_url(task))
+            # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
+            # of them.
+            links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
             links.extend(links_per_task[task.uid])
 

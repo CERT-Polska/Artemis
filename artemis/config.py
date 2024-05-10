@@ -481,8 +481,8 @@ class Config:
                 default=",".join(
                     [
                         "http/vulnerabilities/generic/top-xss-params.yaml",
+                        "http/vulnerabilities/generic/xss-fuzz.yaml",
                         "http/vulnerabilities/generic/basic-xss-prober.yaml",
-                        "/opt/artemis/modules/data/nuclei_templates_custom/xss-inside-tag-top-params.yaml",
                         "http/vulnerabilities/generic/error-based-sql-injection.yaml",
                         "/opt/artemis/modules/data/nuclei_templates_custom/error-based-sql-injection.yaml",
                     ]

@@ -19,8 +19,8 @@ logger = utils.build_logger(__name__)
 
 
 @lru_cache(maxsize=10_000)
-def cached_get_text(url: str) -> str:
-    return requests.get(url).text
+def cached_get_text(url: str) -> requests.Response:
+    return requests.get(url)
 
 
 class WordpressPluginsReporter(Reporter):
@@ -34,19 +34,25 @@ class WordpressPluginsReporter(Reporter):
     @staticmethod
     def _is_version_known_to_wordpress(plugin_slug: str, plugin_version: str) -> bool:
         # Some plugins don't have the latest version as a tag on SVN repo
-        plugin_site_text = cached_get_text(f"https://wordpress.org/plugins/{plugin_slug}/")
-        if re_match := re.search(WordpressPluginsReporter.VERSION_RE, plugin_site_text):
-            (latest_version,) = re_match.groups(1)
+        plugin_site_response = cached_get_text(f"https://wordpress.org/plugins/{plugin_slug}/")
+        if plugin_site_response.status_code == 404:
+            return False  # developed outside repo
 
-            if latest_version == plugin_version:
+        re_match = re.search(WordpressPluginsReporter.VERSION_RE, plugin_site_response.text)
+        if not re_match:  # the site is overloaded or other problem - let's fall back to considering the version known
+            return True
+
+        (latest_version,) = re_match.groups(1)
+
+        if latest_version == plugin_version:
+            return True
+
+        try:
+            assert isinstance(latest_version, str)
+            if version.parse(latest_version) >= version.parse(plugin_version):
                 return True
-
-            try:
-                assert isinstance(latest_version, str)
-                if version.parse(latest_version) >= version.parse(plugin_version):
-                    return True
-            except version.InvalidVersion:
-                pass
+        except version.InvalidVersion:
+            pass
 
         return False
 

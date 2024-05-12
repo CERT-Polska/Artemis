@@ -41,5 +41,5 @@ class NucleiTest(ArtemisModuleTestCase):
             call.kwargs["status_reason"],
             "[high] http://test-php-xss-but-not-on-homepage:80/xss.php: Top 38 Parameters - Cross-Site Scripting Cross-site scripting was discovered via a search for reflected parameter "
             "values in the server response via GET-requests., [medium] http://test-php-xss-but-not-on-homepage:80/xss.php: Fuzzing Parameters - Cross-Site Scripting Cross-site scripting "
-            "was discovered via a search for reflected parameter values in the server response via GET-requests.",
+            "was discovered via a search for reflected parameter values in the server response via GET-requests.\n",
         )

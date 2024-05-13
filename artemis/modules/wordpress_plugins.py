@@ -64,7 +64,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
     "themesflat-addons-for-elementor",
-    "the-plus-addons-for-elementor-page-builder",
     "userway-accessibility-widget",
     "website-monetization-by-magenet",
     "woo-tools",

@@ -198,4 +198,4 @@ def export_cli(
 
 
 if __name__ == "__main__":
-    typer.run(export)
+    typer.run(export_cli)

@@ -116,17 +116,16 @@ def migrate_and_start_thread() -> None:
     if not Config.Data.LEGACY_MONGODB_CONN_STR:
         return
 
-    client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
-    client.artemis.task_results.create_index([("migrated", ASCENDING)])
-    client.artemis.analysis.create_index([("migrated", ASCENDING)])
-    client.artemis.scheduled_tasks.create_index([("migrated", ASCENDING)])
-
-    _single_migration_iteration()
-
     def migration_thread_body() -> None:
         while True:
-            time.sleep(20)
+            client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
+            client.artemis.task_results.create_index([("migrated", ASCENDING)])
+            client.artemis.analysis.create_index([("migrated", ASCENDING)])
+            client.artemis.scheduled_tasks.create_index([("migrated", ASCENDING)])
+
             _single_migration_iteration()
+
+            time.sleep(20)
 
     migration_thread = threading.Thread(target=migration_thread_body)
     migration_thread.daemon = True

@@ -31,7 +31,8 @@ the Artemis directory** and run ``./scripts/start``.
 
    To add authorization (or SSL termination), you may for example use a reverse proxy, e.g. nginx.
 
-**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in** ``./scripts/start``. By default
+**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in** ``./scripts/start``
+(e.g. by changing ``--scale=karton-bruter=5`` to ``--scale=karton-bruter=20``). By default
 some modules are spawned in a couple of instances, but you may want more of them.
 
 For the full list of available configuration options you may set in the ``.env`` file, see :doc:`user-guide/configuration`.

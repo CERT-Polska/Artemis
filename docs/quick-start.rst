@@ -31,7 +31,7 @@ SQL injection check.
 To do that, clone https://github.com/CERT-Polska/Artemis-modules-extra/ **inside
 the Artemis directory** and run ``./scripts/start``.
 
-**If you want to increase the number of instances of a module to speed up scanning, modify the numbers in ./scripts/start**.
+**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in ./scripts/start**.
 
 For the full list of available configuration options you may set in the ``.env`` file, see :doc:`user-guide/configuration`.
 

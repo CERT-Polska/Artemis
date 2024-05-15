@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 
 import termcolor
 import typer
@@ -100,32 +100,12 @@ def _build_messages_and_print_path(
 
 
 def export(
-    previous_reports_directory: Optional[Path] = typer.Argument(
-        None,
-        help="The directory where JSON files from previous exports reside. This is to prevent the same (or similar) "
-        "bug to be reported multiple times.",
-    ),
-    tag: Optional[str] = typer.Option(
-        None,
-        help="Allows you to filter by the tag you provided when adding targets to be scanned. Only vulnerabilities "
-        "from targets with this tag will be exported.",
-    ),
-    language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),
-    custom_template_arguments: Union[Dict[str, str], str] = typer.Option(
-        "",
-        help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "
-        "don't need them, but if you modified them on your side, they might.",
-    ),
-    silent: bool = typer.Option(
-        False,
-        "--silent",
-        help="Print only the resulting folder path",
-    ),
-    verbose: bool = typer.Option(
-        False,
-        "--verbose",
-        help="Print more information (e.g. whether some types of reports have not been observed for a long time).",
-    ),
+    language: Language,
+    custom_template_arguments: Dict[str, str] = {},
+    silent: bool = False,
+    verbose: bool = False,
+    previous_reports_directory: Optional[Path] = None,
+    tag: Optional[str] = None,
 ) -> Path:
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
@@ -136,19 +116,10 @@ def export(
     else:
         previous_reports = []
 
-    if isinstance(custom_template_arguments, dict):
-        custom_template_arguments_parsed = custom_template_arguments
-    elif custom_template_arguments is None:
-        custom_template_arguments_parsed = {}
-    else:
-        custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
-
     db = DB()
     export_db_connector = DataLoader(db, blocklist, language, tag, silent)
     timestamp = datetime.datetime.now()
-    export_data = build_export_data(
-        previous_reports, tag, export_db_connector, custom_template_arguments_parsed, timestamp
-    )
+    export_data = build_export_data(previous_reports, tag, export_db_connector, custom_template_arguments, timestamp)
     date_str = timestamp.isoformat()
     output_dir = OUTPUT_LOCATION / str(tag) / date_str
     os.makedirs(output_dir)
@@ -184,5 +155,47 @@ def export(
     return output_dir
 
 
+def export_cli(
+    previous_reports_directory: Optional[Path] = typer.Argument(
+        None,
+        help="The directory where JSON files from previous exports reside. This is to prevent the same (or similar) "
+        "bug to be reported multiple times.",
+    ),
+    tag: Optional[str] = typer.Option(
+        None,
+        help="Allows you to filter by the tag you provided when adding targets to be scanned. Only vulnerabilities "
+        "from targets with this tag will be exported.",
+    ),
+    language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),
+    custom_template_arguments: Optional[str] = typer.Option(
+        "",
+        help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "
+        "don't need them, but if you modified them on your side, they might.",
+    ),
+    silent: bool = typer.Option(
+        False,
+        "--silent",
+        help="Print only the resulting folder path",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        help="Print more information (e.g. whether some types of reports have not been observed for a long time).",
+    ),
+) -> Path:
+    if custom_template_arguments is None:
+        custom_template_arguments_parsed = {}
+    else:
+        custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
+    return export(
+        previous_reports_directory=previous_reports_directory,
+        tag=tag,
+        language=language,
+        custom_template_arguments=custom_template_arguments_parsed,
+        silent=silent,
+        verbose=verbose,
+    )
+
+
 if __name__ == "__main__":
-    typer.run(export)
+    typer.run(export_cli)

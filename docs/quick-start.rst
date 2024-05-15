@@ -16,13 +16,6 @@ following 2 commands in your terminal in the ``Artemis`` directory:
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 
-.. note ::
-
-   Artemis exposes port 5000 that can be used to add tasks and view results. Remember that this port
-   shouldn't be available publicly, but e.g. on an internal network.
-
-   To add authorization (or SSL termination), you may for example use a reverse proxy, e.g. nginx.
-
 **We recommend you to add additional Artemis modules from** https://github.com/CERT-Polska/Artemis-modules-extra/ -
 these modules haven't been included in core due to licensing reasons, but provide additional features such
 as e.g. SSL verification (certificate validity, proper redirect, etc.), subdomain takeover check or
@@ -31,7 +24,15 @@ SQL injection check.
 To do that, clone https://github.com/CERT-Polska/Artemis-modules-extra/ **inside
 the Artemis directory** and run ``./scripts/start``.
 
-**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in ./scripts/start**.
+.. note ::
+
+   Artemis exposes port 5000 that can be used to add tasks and view results. Remember that this port
+   shouldn't be available publicly, but e.g. on an internal network.
+
+   To add authorization (or SSL termination), you may for example use a reverse proxy, e.g. nginx.
+
+**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in ./scripts/start**. By default
+some modules are spawned in a couple of instances, but you may want more of them.
 
 For the full list of available configuration options you may set in the ``.env`` file, see :doc:`user-guide/configuration`.
 

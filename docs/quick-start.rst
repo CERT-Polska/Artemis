@@ -12,7 +12,7 @@ following 2 commands in your terminal in the ``Artemis`` directory:
 .. code-block:: console
 
    cp env.example .env  # you may also configure the settings (e.g. by providing a User-Agent to override the default one)
-   docker compose up --build
+   ./scripts/start
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 
@@ -29,21 +29,9 @@ as e.g. SSL verification (certificate validity, proper redirect, etc.), subdomai
 SQL injection check.
 
 To do that, clone https://github.com/CERT-Polska/Artemis-modules-extra/ **inside
-the Artemis directory** and use:
+the Artemis directory** and run ``./scripts/start``.
 
-.. code-block:: console
-
-  docker compose -f docker-compose.yaml -f Artemis-modules-extra/docker-compose.yml up --build
-
-
-**If you want to start multiple instances of a module to speed up scanning, use a command such as:**
-
-.. code-block:: console
-
-  docker compose -f docker-compose.yaml -f Artemis-modules-extra/docker-compose.yml up --build \
-       --scale=karton-nuclei=10 \
-       --scale=karton-bruter=10 \
-       --scale=karton-port_scanner=10
+**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in ./scripts/start**.
 
 For the full list of available configuration options you may set in the ``.env`` file, see :doc:`user-guide/configuration`.
 

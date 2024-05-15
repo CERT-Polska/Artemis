@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+. scripts/run_docker_compose up -d --build \
+    --scale=karton-mail_dns_scanner=3 \
+    --scale=karton-wp_scanner=3 \
+    --scale=karton-identifier=3 \
+    --scale=karton-port_scanner=5 \
+    --scale=karton-wordpress_plugins=5 \
+    --scale=karton-sqlmap=5 \
+    --scale=karton-nuclei=5 \
+    --scale=karton-bruter=5

@@ -2,27 +2,5 @@
 
 cd $(dirname $0)/..
 
-. scripts/check_docker_compose
-
-# The following builds a string: -f docker-compose.yaml -f Artemis-modules-extra/docker-compose.yml etc.
-# if any additional module repositories are cloned inside the current directory.
-FILE_OPTIONS="-f docker-compose.yaml"
-
-exists() {
-    [ -e "$1" ]
-}
-
-if exists */docker-compose.yml; then
-    for DOCKER_COMPOSE_FILE in */docker-compose.yml; do
-        FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"
-    done
-fi
-
-if exists */docker-compose.additional*; then
-    for DOCKER_COMPOSE_FILE in */docker-compose.additional*; do
-        FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"
-    done
-fi
-
-docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS build --quiet autoreporter
-docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS run autoreporter python3 -m artemis.reporting.export.main "$@"
+. scripts/run_docker_compose build --quiet autoreporter
+. scripts/run_docker_compose run autoreporter python3 -m artemis.reporting.export.main "$@"

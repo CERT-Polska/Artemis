@@ -83,7 +83,7 @@ services:
     env_file: .env
     volumes:
       - ./archived-task-results/:/opt/archived-task-results/
-    command: "python3 -m artemis.autoarchiver.autoarchiver"
+    command: "bash -c '/wait-for-it.sh postgres:5432 -- python3 -m artemis.autoarchiver.autoarchiver'"
     restart: always
 
   web:

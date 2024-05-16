@@ -147,9 +147,14 @@ class ArtemisBase(Karton):
                     self.log.info("Binds changed, shutting down.")
                     break
 
-                time.sleep(self.task_poll_interval_seconds)
+                num_tasks_done = self._single_iteration()
 
-                task_id += self._single_iteration()
+                task_id += num_tasks_done
+
+                if not num_tasks_done:
+                    # Prevent busywaiting causing a large load on Redis, but don't wait if we actually
+                    # are consuming tasks.
+                    time.sleep(self.task_poll_interval_seconds)
 
         if task_id >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
             self.log.info("Exiting loop after processing %d tasks", task_id)

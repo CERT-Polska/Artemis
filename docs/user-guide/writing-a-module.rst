@@ -1,5 +1,12 @@
 Writing custom modules
 ======================
+.. note ::
+
+   Before writing an Artemis module, make sure that simpler tools aren't sufficient.
+
+   If you have a simple task (e.g. performing some HTTP requests and checking their results), you may instead
+   add a custom Nuclei (https://github.com/projectdiscovery/nuclei/) module to ``artemis/modules/data/nuclei_templates_custom/``.
+
 Artemis contains an example module (https://github.com/CERT-Polska/Artemis/blob/main/artemis/modules/example.py) that
 checks whether the URL length is even. It also contains a component that adds findings from the example module to
 the :ref:`HTML reports<generating-reports>`: https://github.com/CERT-Polska/Artemis/blob/main/artemis/reporting/modules/example/.

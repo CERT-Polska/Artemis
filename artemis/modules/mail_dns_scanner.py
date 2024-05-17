@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import dataclasses
 import os
-import socket
-from smtplib import SMTP, SMTPServerDisconnected
 from typing import List, Optional
 
 import dns.name
@@ -12,12 +10,9 @@ from libmailgoose.scan import DomainScanResult as SPFDMARCScanResult
 from libmailgoose.scan import ScanningException, scan_domain
 from publicsuffixlist import PublicSuffixList
 
-from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import Config
+from artemis.binds import TaskStatus, TaskType
 from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
-from artemis.resolvers import lookup
-from artemis.utils import throttle_request
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -43,7 +38,7 @@ class MailDNSScanner(ArtemisBase):
 
         # Try to find an SMTP for current domain
         try:
-            has_mx_records = len(dns.resolver.resolve(domain, "MX"))
+            has_mx_records = len(dns.resolver.resolve(domain, "MX")) > 0
             result.mail_server_found = has_mx_records
         except dns.resolver.NoAnswer:
             pass

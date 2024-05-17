@@ -52,7 +52,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
-    "event-tickets",
     "famethemes-demo-importer",
     "link-manager",
     "official-facebook-pixel",

@@ -826,4 +826,6 @@ TRANSLATIONS = {
     "AWS OpenSearch login page was detected.": "wykryto panel AWS OpenSearch.",
     "Zyxel Firewall panel was detected.": "wykryto panel Zyxel Firewall.",
     "[no description] http/exposed-panels/powerchute-network-panel.yaml": "wykryto panel PowerChute Network Shutdown",
+    "BeyondTrust Privileged Remote Access login panel was detected.": "wykryto panel logowania BeyondTrust Privileged.",
+    "Proofpoint Protection Server panel was detected.": "wykryto panel Proofpoint Protection Server.",
 }

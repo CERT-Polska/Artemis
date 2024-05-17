@@ -8,7 +8,14 @@
 Artemis is a modular vulnerability scanner. This is the tool that powers CERT PL scanning activities, not only
 [checking various aspects of website security](https://artemis-scanner.readthedocs.io/en/latest/features.html)
 but also [building easy-to-read messages that are sent to organizations to improve their
-security](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html).
+security](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html). With Artemis, you will be
+able to easily export reports like:
+
+> The following addresses contain version control system data:
+>
+> - https://subdomain1.example.com:443/.git/
+>
+> Making a code repository public may allow an attacker to learn the inner workings of a system, and if it contains passwords or API keys - also gain unautorized access. Such data shouldn’t be publicly available.
 
 The Artemis project has been initiated by the [KN Cyber](https://kncyber.pl/) science club of [Warsaw University of Technology](https://pw.edu.pl) and is currently being developed by [CERT Polska](https://cert.pl).
 

@@ -196,7 +196,7 @@ class DB:
         analysis_dict = self.task_to_dict(analysis)
 
         analysis = Analysis(
-            id=analysis.uid,
+            id=analysis.root_uid,
             target=analysis_dict["payload"]["data"],
             tag=analysis_dict["payload_persistent"].get("tag", None),
             stopped=False,

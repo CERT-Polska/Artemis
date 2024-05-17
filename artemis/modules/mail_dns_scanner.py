@@ -19,7 +19,6 @@ PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 @dataclasses.dataclass
 class MailDNSScannerResult:
-    mail_server_found: bool = False
     spf_dmarc_scan_result: Optional[SPFDMARCScanResult] = None
 
 
@@ -39,7 +38,6 @@ class MailDNSScanner(ArtemisBase):
         # Try to find an SMTP for current domain
         try:
             has_mx_records = len(dns.resolver.resolve(domain, "MX")) > 0
-            result.mail_server_found = has_mx_records
         except dns.resolver.NoAnswer:
             pass
 

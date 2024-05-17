@@ -23,8 +23,8 @@ To chat about Artemis, join the Discord server:
 [![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
 
 ## Features
-For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html). What we consider
-the most important one is the possibility to [easily export](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html) reports such as:
+For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html). 
+The most important one is the possibility to [easily export](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html) reports such as:
 
 > The following addresses contain version control system data:
 >
@@ -34,11 +34,11 @@ the most important one is the possibility to [easily export](https://artemis-sca
 >
 > The following addresses contain old Joomla versions:
 >
- https://subdomain2.example.com:443 - Joomla 2.5.4
+> - https://subdomain2.example.com:443 - Joomla 2.5.4
 >
 > If a site is no longer used, we recommend shutting it down to eliminate the risk of exploitation of known vulnerabilities in older Joomla versions. Otherwise, we recommend regular Joomla core and plugin updates.
 
-The possibility to automatically prepare such reports allowed us to notify entities in our constituency about [hundreds of thousands](https://cert.pl/en/posts/2024/01/artemis-security-scanner/) of vulnerabilities.
+The possibility to automatically prepare such reports enabled us to notify entities in our constituency about [hundreds of thousands](https://cert.pl/en/posts/2024/01/artemis-security-scanner/) of vulnerabilities.
 
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)

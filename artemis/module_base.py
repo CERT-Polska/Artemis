@@ -280,6 +280,11 @@ class ArtemisBase(Karton):
         return tasks_not_blocklisted, locks_for_tasks_not_blocklisted
 
     def _is_blocklisted(self, task: Task) -> bool:
+        if self.identity == "classifier":
+            # It's not possible to blocklist classifier, as blocklists block IPs or domains, and classifier supports
+            # various input types (e.g. IP ranges, converting them to IPs).
+            return False
+
         host = get_target_host(task)
 
         if is_domain(host):

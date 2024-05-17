@@ -23,7 +23,7 @@ To chat about Artemis, join the Discord server:
 [![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
 
 ## Features
-For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html). 
+For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html).
 The most important one is the possibility to [easily export](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html) reports such as:
 
 > The following addresses contain version control system data:

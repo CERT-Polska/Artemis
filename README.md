@@ -8,14 +8,7 @@
 Artemis is a modular vulnerability scanner. This is the tool that powers CERT PL scanning activities, not only
 [checking various aspects of website security](https://artemis-scanner.readthedocs.io/en/latest/features.html)
 but also [building easy-to-read messages that are sent to organizations to improve their
-security](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html). With Artemis, you will be
-able to easily export reports like:
-
-> The following addresses contain version control system data:
->
-> - https://subdomain1.example.com:443/.git/
->
-> Making a code repository public may allow an attacker to learn the inner workings of a system, and if it contains passwords or API keys - also gain unautorized access. Such data shouldn’t be publicly available.
+security](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html).
 
 The Artemis project has been initiated by the [KN Cyber](https://kncyber.pl/) science club of [Warsaw University of Technology](https://pw.edu.pl) and is currently being developed by [CERT Polska](https://cert.pl).
 
@@ -30,7 +23,22 @@ To chat about Artemis, join the Discord server:
 [![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
 
 ## Features
-For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html).
+For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html). What we consider
+the most important one is the possibility to [easily export](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html) reports such as:
+
+> The following addresses contain version control system data:
+>
+> - https://subdomain1.example.com:443/.git/
+>
+> Making a code repository public may allow an attacker to learn the inner workings of a system, and if it contains passwords or API keys - also gain unautorized access. Such data shouldn’t be publicly available.
+>
+> The following addresses contain old Joomla versions:
+>
+ https://subdomain2.example.com:443 - Joomla 2.5.4
+>
+> If a site is no longer used, we recommend shutting it down to eliminate the risk of exploitation of known vulnerabilities in older Joomla versions. Otherwise, we recommend regular Joomla core and plugin updates.
+
+The possibility to automatically prepare such reports allowed us to notify entities in our constituency about [hundreds of thousands](https://cert.pl/en/posts/2024/01/artemis-security-scanner/) of vulnerabilities.
 
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)

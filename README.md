@@ -24,6 +24,21 @@ To chat about Artemis, join the Discord server:
 
 ## Features
 For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html).
+The most important one is the possibility to [easily export](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html) reports such as:
+
+> The following addresses contain version control system data:
+>
+> - https://subdomain1.example.com:443/.git/
+>
+> Making a code repository public may allow an attacker to learn the inner workings of a system, and if it contains passwords or API keys - also gain unautorized access. Such data shouldn’t be publicly available.
+>
+> The following addresses contain old Joomla versions:
+>
+> - https://subdomain2.example.com:443 - Joomla 2.5.4
+>
+> If a site is no longer used, we recommend shutting it down to eliminate the risk of exploitation of known vulnerabilities in older Joomla versions. Otherwise, we recommend regular Joomla core and plugin updates.
+
+The possibility to automatically prepare such reports enabled us to notify entities in our constituency about [hundreds of thousands](https://cert.pl/en/posts/2024/01/artemis-security-scanner/) of vulnerabilities.
 
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)

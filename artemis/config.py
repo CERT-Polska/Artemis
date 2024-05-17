@@ -388,6 +388,7 @@ class Config:
                         "http/exposed-panels/dynamicweb-panel.yaml",
                         "http/exposed-panels/jira-detect.yaml",
                         "http/exposed-panels/kanboard-login.yaml",
+                        "http/exposed-panels/linshare-panel.yaml",
                         "http/exposed-panels/magento-admin-panel.yaml",
                         "http/exposed-panels/mantisbt-panel.yaml",
                         "http/exposed-panels/mautic-crm-panel.yaml",

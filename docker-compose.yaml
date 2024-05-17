@@ -321,19 +321,6 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-postman:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: "python3 -m artemis.modules.postman"
-    depends_on: [karton-system, karton-logger]
-    env_file: .env
-    environment:
-     - POSTMAN_MAIL_FROM=artemis@example.com
-     - POSTMAN_MAIL_TO=artemis@example.com
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
   karton-reverse_dns:
     build:
       context: .

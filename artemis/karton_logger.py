@@ -38,7 +38,7 @@ class FileLogger(LogConsumer):
 
     def _rotate_logs(self) -> None:
         for file_name in os.listdir(LOGS_PATH):
-            log_date, _ = os.path.splitext(file_name)
+            log_date, _ = tuple(file_name.split('.', 1))
             if datetime.datetime.strptime(log_date, LOG_DATE_FORMAT) < datetime.datetime.now() - datetime.timedelta(
                 days=Config.Miscellaneous.REMOVE_LOGS_AFTER_DAYS
             ):

@@ -44,11 +44,11 @@ class FileLogger(LogConsumer):
             ):
                 try:
                     os.unlink(LOGS_PATH / file_name)
-                    continue
                 except OSError:
                     pass
+                continue
 
-            if log_date != self.opened_file_date:
+            if log_date.date() != self.opened_file_date:
                 with open(LOGS_PATH / file_name, "w") as f:
                     try:
                         fcntl.lockf(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)

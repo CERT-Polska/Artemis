@@ -1,4 +1,4 @@
-FROM python:3.11-alpine3.18
+FROM python:3.11-alpine3.19
 
 COPY docker/wait-for-it.sh /wait-for-it.sh
 

@@ -174,7 +174,7 @@ class Config:
         )
 
         REMOVE_LOGS_AFTER_DAYS: Annotated[int, "After what number of days the logs in karton-logs are removed."] = (
-            get_config("REMOVE_LOGS_AFTER_DAYS", default=14)
+            get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
         )
 
         BLOCKLIST_FILE: Annotated[

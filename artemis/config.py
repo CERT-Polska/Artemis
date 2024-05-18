@@ -173,6 +173,10 @@ class Config:
             "API_TOKEN", default=None
         )
 
+        REMOVE_LOGS_AFTER_DAYS: Annotated[int, "After what number of days the logs in karton-logs are removed."] = (
+            get_config("REMOVE_LOGS_AFTER_DAYS", default=10)
+        )
+
         BLOCKLIST_FILE: Annotated[
             str,
             "A file that determines what should not be scanned or reported",

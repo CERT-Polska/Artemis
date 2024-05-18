@@ -41,9 +41,9 @@ class FileLogger(LogConsumer):
             log_date_str, _ = tuple(file_name.split('.', 1))
             log_date = datetime.datetime.strptime(log_date_str, LOG_DATE_FORMAT).date()
 
-            if log_date < datetime.datetime.now() - datetime.timedelta(
+            if log_date < (datetime.datetime.now() - datetime.timedelta(
                 days=Config.Miscellaneous.REMOVE_LOGS_AFTER_DAYS
-            ).date():
+            )).date():
                 try:
                     os.unlink(LOGS_PATH / file_name)
                 except OSError:

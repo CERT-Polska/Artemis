@@ -22,12 +22,30 @@ def restart_crashed_tasks() -> None:
 def check_connection_to_base_url_and_save_error(db: DB, task: Task) -> bool:
     base_url = get_target_url(task)
     try:
-        get(base_url)
+        response = get(base_url)
+        if any(
+            [
+                message in response.content
+                for message in [
+                    "Cloudflare</title>",
+                    "Incapsula incident ID",
+                    "Please wait while your request is being verified...",
+                    "<title>Unauthorized Access</title>",
+                ]
+            ]
+        ):
+            db.save_task_result(
+                task=task,
+                status=TaskStatus.ERROR,
+                status_reason=f"Unable to connect to base URL: {base_url}: WAF detected, task skipped",
+            )
+            return False
+
         return True
-    except RequestException:
+    except RequestException as e:
         db.save_task_result(
             task=task,
             status=TaskStatus.ERROR,
-            status_reason=f"Unable to connect to base URL: {base_url}, task skipped",
+            status_reason=f"Unable to connect to base URL {base_url}: {repr(e)}, task skipped",
         )
         return False

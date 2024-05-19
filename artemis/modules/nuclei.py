@@ -11,6 +11,7 @@ from karton.core import Task
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 from artemis.utils import check_output_log_on_error
@@ -151,6 +152,8 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
+        tasks = [task for task in tasks if check_connection_to_base_url_and_save_error(self.db, task)]
+
         self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
 
         if len(tasks) == 0:

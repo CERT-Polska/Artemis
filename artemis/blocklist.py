@@ -71,7 +71,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         if unexpected_keys:
             raise BlocklistError(f"Unexpected keys in entry: {','.join(unexpected_keys)}")
 
-        if item.karton_name == "classifier":
+        if "karton_name" in item and item["karton_name"] == "classifier":
             raise BlocklistError(
                 "It's not possible to blocklist classifier, as blocklists block IPs or domains, "
                 "and classifier supports various input types (e.g. IP ranges converting them to IPs)."

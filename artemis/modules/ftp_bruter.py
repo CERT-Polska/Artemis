@@ -88,7 +88,9 @@ class FTPBruter(ArtemisBase):
                         result.files.extend(ftp.nlst())
 
                         data = io.BytesIO(b"")
-                        ftp.storbinary(f"STOR Artemis-test-file-{binascii.hexlify(os.urandom(10))}.txt", data)
+                        ftp.storbinary(
+                            f"STOR Artemis-test-file-{binascii.hexlify(os.urandom(10)).decode('ascii')}.txt", data
+                        )
                         result.is_writable = True
                     except ftplib.error_temp:
                         pass

@@ -1,3 +1,21 @@
+#: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:2
+msgid "The following servers have open database ports:"
+msgstr "Następujące serwery mają otwarty port bazy danych:"
+
+#: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:14
+msgid ""
+"Databases shouldn't be publicly available - an attack is possible when "
+"the password leaks (e.g. because of an exposed configuration file such as"
+" a backup of <tt>/wp-config.php</tt>). The recommended configuration is "
+"to make the database available to the application locally or using an "
+"internal network."
+msgstr ""
+"Bazy danych nie powinny być publicznie dostępne - atak jest możliwy np. "
+"gdy hasło wycieknie (np. gdy kopia zapasowa pliku konfiguracyjnego "
+"takiego jak <tt>/wp.config.php</tt> zostanie przypadkowo upubliczniona). "
+"Zalecamy, aby baza danych była dostępna tylko lokalnie lub w sieci "
+"wewnętrznej."
+
 #: artemis/reporting/modules/port_scanner/template_open_port_remote_desktop.jinja2:2
 msgid "The following servers have remote desktop ports open:"
 msgstr ""

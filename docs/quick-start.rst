@@ -5,6 +5,11 @@ Currently, only Docker Compose based deployment is supported.
 
 Using Docker Compose
 --------------------
+First, you need to prepare a machine. The recommended configuration for the scanning machine is:
+
+- 16GB of RAM,
+- 2 cores,
+- 30GB of free disk space to store Docker images and scan results.
 
 To start Artemis, clone the ``https://github.com/CERT-Polska/Artemis/`` repository and execute the
 following 2 commands in your terminal in the ``Artemis`` directory:

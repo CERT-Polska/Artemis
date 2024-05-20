@@ -32,11 +32,11 @@ class PortScannerReporter(Reporter):
                     result.append(
                         Report(
                             top_level_target=get_top_level_target(task_result),
-                            target=f"{port_data['service'].lower()}://{ip}:{port}",
+                            target=f"{service}://{ip}:{port}",
                             report_type=PortScannerReporter.OPEN_PORT_DATABASE,
                             additional_data={
                                 "port": port,
-                                "service": port_data["service"],
+                                "service": service,
                             },
                             timestamp=task_result["created_at"],
                         )
@@ -48,11 +48,11 @@ class PortScannerReporter(Reporter):
                     result.append(
                         Report(
                             top_level_target=get_top_level_target(task_result),
-                            target=f"{port_data['service'].lower()}://{ip}:{port}",
+                            target=f"{service}://{ip}:{port}",
                             report_type=PortScannerReporter.OPEN_PORT_REMOTE_DESKTOP,
                             additional_data={
                                 "port": port,
-                                "service": port_data["service"],
+                                "service": service,
                             },
                             timestamp=task_result["created_at"],
                         )

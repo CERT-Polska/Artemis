@@ -27,7 +27,8 @@ class PortScannerReporter(Reporter):
             assert is_ip_address(ip)
 
             for port, port_data in data.items():
-                if port_data["service"].lower() in ["mysql", "postgresql", "mssql"]:
+                service = port_data["service"].lower()
+                if service in ["mysql", "postgresql", "mssql"]:
                     result.append(
                         Report(
                             top_level_target=get_top_level_target(task_result),
@@ -40,7 +41,7 @@ class PortScannerReporter(Reporter):
                             timestamp=task_result["created_at"],
                         )
                     )
-                if port_data["service"] in ["rdp", "VNC"]:
+                if service in ["rdp", "vnc"]:
                     if int(port) == 111:
                         continue  # RDPs on this port are false positives
 

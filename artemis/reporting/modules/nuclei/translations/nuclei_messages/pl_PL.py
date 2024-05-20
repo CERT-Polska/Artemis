@@ -624,7 +624,8 @@ TRANSLATIONS = {
     + DEFAULT_CREDENTIALS_HINT,
     "SiteCore 9.3 is vulnerable to LFI.": "Narzędzie SiteCore w wersji 9.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
-    "WordPress `wp-config` was discovered. This file is remotely accessible and its content available for reading.": "Wykryto kopię zapasową pliku `wp-config`, która może zawierać np. dane do logowania do bazy danych, umożliwiające atakującemu przejęcie pełnej kontroli nad systemem." + DATA_HIDE_HINT,
+    "WordPress `wp-config` was discovered. This file is remotely accessible and its content available for reading.": "Wykryto kopię zapasową pliku `wp-config`, która może zawierać np. dane do logowania do bazy danych, umożliwiające atakującemu przejęcie pełnej kontroli nad systemem."
+    + DATA_HIDE_HINT,
     "Checks websites for Balada Injector malware.": "Wykryto, że strona jest zainfekowana złośliwym oprogramowaniem Balada Injector.",
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",

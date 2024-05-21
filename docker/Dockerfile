@@ -13,7 +13,7 @@ RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev
     GOBIN=/usr/local/bin/ go install github.com/praetorian-inc/fingerprintx/cmd/fingerprintx@v1.1.9 && \
     GOBIN=/usr/local/bin/ go install github.com/lc/gau/v2/cmd/gau@v2.1.2 && \
     git clone https://github.com/projectdiscovery/nuclei.git -b v2.9.7 /nuclei && \
-    cd /nuclei && git apply nuclei-rate-limiting.patch && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install && rm -rf /nuclei && \
+    cd /nuclei && git apply nuclei-rate-limiting.patch && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install && cd / && rm -rf /nuclei && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
     pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt $ADDITIONAL_REQUIREMENTS && \
     apk del .build-deps

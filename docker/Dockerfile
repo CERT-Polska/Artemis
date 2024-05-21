@@ -5,6 +5,8 @@ COPY requirements.txt requirements.txt
 COPY docker/patches/nuclei-rate-limiting.patch /
 
 ARG ADDITIONAL_REQUIREMENTS
+# We run a single RUN command to decrease layer size - e.g. the final `apk del .build-deps` will
+# remove some apk packages.
 # Whois here is important - if we wouldn't install it, we would default to busybox whois,
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
 RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \

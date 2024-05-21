@@ -185,9 +185,9 @@ class NucleiReporter(Reporter):
 
     @staticmethod
     def _translate_description(template_name: str, description: str, language: Language) -> str:
-        if language == Language.en_US:
+        if language == Language.en_US:  # type: ignore
             return description
-        elif language == Language.pl_PL:
+        elif language == Language.pl_PL:  # type: ignore
             # See the comment in the artemis.reporting.modules.nuclei.translations.nuclei_messsages.pl_PL
             # module for the rationale of using Python dictionaries instead of .po files.
             description = description.strip()

@@ -49,7 +49,7 @@ class SSHBruterAutoreporterIntegrationTest(BaseReportingTest):
             "result": call.kwargs["data"],
         }
 
-        reports = reports_from_task_result(data, Language.en_US)
+        reports = reports_from_task_result(data, Language.en_US)  # type: ignore
         message_template = self.generate_message_template()
         return message_template.render(
             {"data": {"contains_type": set([report.report_type for report in reports]), "reports": reports}}

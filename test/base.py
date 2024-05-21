@@ -57,6 +57,6 @@ class BaseReportingTest(ArtemisModuleTestCase):
             lstrip_blocks=True,
         )
         with tempfile.NamedTemporaryFile() as f:
-            install_translations(Language.en_US, environment, Path(f.name), Path("/dev/null"))
+            install_translations(Language.en_US, environment, Path(f.name), Path("/dev/null"))  # type: ignore
             message_template_content = build_message_template()
         return environment.from_string(message_template_content)

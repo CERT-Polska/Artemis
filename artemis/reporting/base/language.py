@@ -1,6 +1,5 @@
 from enum import Enum
+from pathlib import Path
 
-
-class Language(Enum):
-    en_US = "en_US"
-    pl_PL = "pl_PL"
+with open(Path(__file__).parent.parent / "languages.txt") as f:
+    Language = Enum("Language", {line.strip(): line.strip() for line in f})  # type: ignore

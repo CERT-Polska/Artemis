@@ -59,7 +59,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "printfriendly",
     "rafflepress",
     "robin-image-optimizer",
-    "shapepress-dsgvo",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
     "themesflat-addons-for-elementor",

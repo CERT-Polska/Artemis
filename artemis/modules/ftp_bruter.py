@@ -10,6 +10,7 @@ from karton.core import Task
 from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
 from artemis.utils import throttle_request
@@ -89,7 +90,8 @@ class FTPBruter(ArtemisBase):
 
                         data = io.BytesIO(b"")
                         ftp.storbinary(
-                            f"STOR Artemis-test-file-{binascii.hexlify(os.urandom(10)).decode('ascii')}.txt", data
+                            f"STOR {Config.Modules.FTPBruter.FTP_BRUTER_TEST_FILE_NAME_PREFIX}-{binascii.hexlify(os.urandom(10)).decode('ascii')}.txt",
+                            data,
                         )
                         result.is_writable = True
                     except ftplib.error_temp:

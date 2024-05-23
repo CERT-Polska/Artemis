@@ -66,11 +66,20 @@ def get_target_url(task: Task) -> str:
 
 
 ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX = b"analysis-num-finished-tasks-"
+ANALYSIS_NUM_IN_PROGRESS_TASKS_KEY_PREFIX = b"analysis-num-in-progress-tasks-"
 
 
-def increase_analysis_num_done_tasks(redis: Redis, task: Task) -> None:  # type: ignore[type-arg]
-    redis.incr(ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX + task.root_uid.encode("ascii"))
+def increase_analysis_num_finished_tasks(redis: Redis, root_uid: str, by: int = 1) -> None:  # type: ignore[type-arg]
+    redis.incrby(ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX + root_uid.encode("ascii"), by)
 
 
-def get_analysis_num_done_tasks(redis: Redis, root_uid: str) -> int:  # type: ignore[type-arg]
-    return int(redis.get(ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX + root_uid.encode('ascii')) or 0)  # type: ignore
+def get_analysis_num_finished_tasks(redis: Redis, root_uid: str) -> int:  # type: ignore[type-arg]
+    return int(redis.get(ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX + root_uid.encode("ascii")) or 0)
+
+
+def increase_analysis_num_in_progress_tasks(redis: Redis, root_uid: str, by: int = 1) -> None:  # type: ignore[type-arg]
+    redis.incrby(ANALYSIS_NUM_IN_PROGRESS_TASKS_KEY_PREFIX + root_uid.encode("ascii"), by)
+
+
+def get_analysis_num_in_progress_tasks(redis: Redis, root_uid: str) -> int:  # type: ignore[type-arg]
+    return int(redis.get(ANALYSIS_NUM_IN_PROGRESS_TASKS_KEY_PREFIX + root_uid.encode("ascii")) or 0)

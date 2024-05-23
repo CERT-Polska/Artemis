@@ -38,10 +38,12 @@ if Config.Modules.PortScanner.CUSTOM_PORT_SCANNER_PORTS:
     PORTS_SET = set(Config.Modules.PortScanner.CUSTOM_PORT_SCANNER_PORTS)
 
 else:
-    if Config.Modules.PortScanner.PORT_SCANNER_PORT_LIST not in ['short', 'long']:
-        raise ValueError("Unable to start port scanner - Config.Modules.PortScanner.PORT_LIST should be `short` or `long`")
+    if Config.Modules.PortScanner.PORT_SCANNER_PORT_LIST not in ["short", "long"]:
+        raise ValueError(
+            "Unable to start port scanner - Config.Modules.PortScanner.PORT_LIST should be `short` or `long`"
+        )
 
-    if Config.Modules.PortScanner.PORT_SCANNER_PORT_LIST == 'short':
+    if Config.Modules.PortScanner.PORT_SCANNER_PORT_LIST == "short":
         PORTS_SET = load_ports("ports-artemis-short.txt")
     else:
         PORTS_SET = load_ports("ports-naabu.txt") | {

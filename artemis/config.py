@@ -499,10 +499,9 @@ class Config:
             ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=100, cast=int)
 
         class PortScanner:
-            PORT_SCANNER_PORT_LIST: Annotated[
-                str,
-                "Chosen list of ports to scan (can be 'short' or 'long')"
-            ] = get_config("PORT_SCANNER_PORT_LIST", default="short")
+            PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (
+                get_config("PORT_SCANNER_PORT_LIST", default="short")
+            )
 
             CUSTOM_PORT_SCANNER_PORTS: Annotated[
                 List[int],

@@ -30,7 +30,7 @@ The most important one is the possibility to [easily export](https://artemis-sca
 >
 > - https://subdomain1.example.com:443/.git/
 >
-> Making a code repository public may allow an attacker to learn the inner workings of a system, and if it contains passwords or API keys - also gain unautorized access. Such data shouldn’t be publicly available.
+> Making a code repository public may allow an attacker to learn the inner workings of a system, and if it contains passwords or API keys - also gain unauthorized access. Such data shouldn't be publicly available.
 >
 > The following addresses contain old Joomla versions:
 >
@@ -62,7 +62,7 @@ To run it locally, use:
 pre-commit run --all-files
 ```
 
-To setup `pre-commit` so that it runs before each commit, use:
+To set up `pre-commit` so that it runs before each commit, use:
 
 ```console
 pre-commit install

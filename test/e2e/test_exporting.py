@@ -2,13 +2,14 @@ import time
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 
 import requests
-
-from artemis.frontend import get_binds_that_can_be_disabled
+from bs4 import BeautifulSoup
 
 
 class ExportingTestCase(BaseE2ETestCase):
     def test_exporting_gui(self) -> None:
-        self.submit_tasks_with_modules_enabled(["test-smtp-server.artemis"], ["mail_dns_scanner", "classifier"])
+        self.submit_tasks_with_modules_enabled(
+            ["test-smtp-server.artemis"], "exporting-gui", ["mail_dns_scanner", "classifier"]
+        )
 
         for i in range(100):
             task_results = requests.get(
@@ -29,9 +30,9 @@ class ExportingTestCase(BaseE2ETestCase):
                 BACKEND_URL + "export",
                 data={
                     "csrf_token": csrf_token,
-                    "tag": "",
+                    "tag": "exporting-gui",
                     "comment": "",
-                    "skip_previously_exported": "no"
+                    "skip_previously_exported": "no",
                     "language": "en_US",
                 },
             )
@@ -48,11 +49,11 @@ class ExportingTestCase(BaseE2ETestCase):
                 break
             data = s.get(BACKEND_URL + "exports").content
             assert (
-                '<span class="badge bg-warning">pending</span>' in data or 
-                '<span class="badge bg-success">done</span>' in data 
+                b'<span class="badge bg-warning">pending</span>' in data
+                or b'<span class="badge bg-success">done</span>' in data
             )
 
-            if '<span class="badge bg-success">done</span>' in data:
+            if b'<span class="badge bg-success">done</span>' in data:
                 break
 
             time.sleep(1)

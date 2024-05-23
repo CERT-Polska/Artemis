@@ -2,7 +2,8 @@
 
 cd $(dirname $0)/..
 
-. scripts/run_docker_compose up -d --build \
+# We don't use `-d` here so that the user sees the logs by default.
+. scripts/run_docker_compose up --build \
     --scale=karton-wp_scanner=3 \
     --scale=karton-identifier=3 \
     --scale=karton-port_scanner=5 \

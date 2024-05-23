@@ -38,27 +38,35 @@ if Config.Modules.PortScanner.CUSTOM_PORT_SCANNER_PORTS:
     PORTS_SET = set(Config.Modules.PortScanner.CUSTOM_PORT_SCANNER_PORTS)
 
 else:
-    PORTS_SET = load_ports("ports-naabu.txt")
+    if Config.Modules.PortScanner.PORT_SCANNER_PORT_LIST not in ['short', 'long']:
+        raise ValueError("Unable to start port scanner - Config.Modules.PortScanner.PORT_LIST should be `short` or `long`")
 
-    # Additional ports we want to check for
-    PORTS_SET.add(23)  # telnet
-    PORTS_SET.add(139)  # SMB
-    PORTS_SET.add(445)  # SMB
-    PORTS_SET.add(4433)  # FortiOS
-    PORTS_SET.add(6379)  # redis
-    PORTS_SET.add(8000)  # http
-    PORTS_SET.add(8080)  # http
-    PORTS_SET.add(3389)  # RDP
-    PORTS_SET.add(9200)  # Elasticsearch
-    PORTS_SET.add(9443)  # FortiOS
-    PORTS_SET.add(10443)  # FortiOS
-    PORTS_SET.add(27017)  # MongoDB
-    PORTS_SET.add(27018)  # MongoDB
+    if Config.Modules.PortScanner.PORT_SCANNER_PORT_LIST == 'short':
+        PORTS_SET = load_ports("ports-artemis-short.txt")
+    else:
+        PORTS_SET = load_ports("ports-naabu.txt") | {
+            23,  # telnet
+            139,  # SMB
+            445,  # SMB
+            4433,  # FortiOS
+            6379,  # redis
+            8000,  # http
+            8080,  # http
+            3389,  # RDP
+            9200,  # Elasticsearch
+            9443,  # FortiOS
+            10443,  # FortiOS
+            27017,  # MongoDB
+            27018,  # MongoDB
+        }
 
-    PORTS_SET_SHORT = load_ports("ports-naabu-short.txt")
+    PORTS_SET_SHORT = load_ports("ports-artemis-short.txt")
 
 PORTS = sorted(list(PORTS_SET))
 
+# This list means that these ports won't be displayed as interesing in the Artemis task list UI - they still be used
+# to create tasks for other modules - so if a module listens for identified HTTP services, it will receive such
+# information.
 NOT_INTERESTING_PORTS = [
     # None means "any port" - (None, "http") means "http on any port"
     (None, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP

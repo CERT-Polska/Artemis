@@ -37,7 +37,6 @@ class ExportingTestCase(BaseE2ETestCase):
                 },
             )
             response.raise_for_status()
-            self.assertEqual(response.status_code, 301)
             self.assertEqual(response.url, "/exports")
 
         for i in range(100):

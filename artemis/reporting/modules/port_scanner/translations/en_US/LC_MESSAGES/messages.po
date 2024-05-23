@@ -2,6 +2,11 @@
 msgid "The following servers have open database ports:"
 msgstr ""
 
+#: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:7
+#: artemis/reporting/modules/port_scanner/template_open_port_remote_desktop.jinja2:7
+msgid "domain: "
+msgstr ""
+
 #: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:14
 msgid ""
 "Databases shouldn't be publicly available - an attack is possible when "

@@ -266,14 +266,15 @@ class ArtemisBase(Karton):
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []
         for task, lock_for_task in zip(tasks, locks):
+            skip = False
             if self._is_blocklisted(task):
                 self.log.info("Task %s is blocklisted for module %s", task, self.identity)
-                self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
-                self.backend.set_task_status(task, KartonTaskState.FINISHED)
-                if lock_for_task:
-                    lock_for_task.release()
+                skip = True
             elif self.identity in task.payload_persistent.get("disabled_modules", []):
                 self.log.info("Module %s disabled for task %s", self.identity, task)
+                skip = True
+            if skip:
+                increase_analysis_num_finished_tasks(REDIS, task.root_uid)
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
                 self.backend.set_task_status(task, KartonTaskState.FINISHED)
                 if lock_for_task:

@@ -90,7 +90,8 @@ Contributions are welcome! We will appreciate both ideas for new Artemis modules
 However obvious it may seem we kindly remind you that by contributing to Artemis you agree that the BSD 3-Clause License shall apply to your input automatically, without the need for any additional declarations to be made.
 
 ## Contributors
-Huge thanks to the following people that contributed to Artemis development!
+Huge thanks to the following people that contributed to Artemis development, especially the [KN Cyber](https://kncyber.pl/) science club of [Warsaw University of Technology](https://pw.edu.pl) that initiated the project!
+
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

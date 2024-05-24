@@ -44,6 +44,8 @@ The possibility to automatically prepare such reports enabled us to notify entit
 ![Artemis - scan](.github/screenshots/scan.png)
 
 ## Development
+If you want to develop Artemis, remember to change the [Docker Compose file](https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml#L7) so that
+the Artemis image is built locally (from the code you are changing) not downloaded from Docker Hub.
 
 ### Tests
 To run the tests, use:

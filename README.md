@@ -5,10 +5,9 @@
     </picture>
 </h1>
 
-Artemis is a modular vulnerability scanner. This is the tool that powers CERT PL scanning activities, not only
+Artemis is a modular vulnerability scanner. It's the tool that powers CERT PL scanning activities by
 [checking various aspects of website security](https://artemis-scanner.readthedocs.io/en/latest/features.html)
-but also [building easy-to-read messages that are sent to organizations to improve their
-security](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html).
+and [building easy-to-read messages ready to be sent to the scanned organizations](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html).
 
 If you are a national or government CSIRT and want to learn how to use Artemis to improve
 the security of your constituency, you may sign up for [a free training led by CERT PL](https://cert.pl/artemis-trainings)!

@@ -27,7 +27,6 @@ from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import (
     get_target_host,
     increase_analysis_num_finished_tasks,
-    increase_analysis_num_in_progress_tasks,
 )
 from artemis.utils import is_ip_address
 
@@ -382,9 +381,6 @@ class ArtemisBase(Karton):
         if len(tasks) == 0:
             return
 
-        for task in tasks:
-            increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
-
         try:
             if self.batch_tasks:
                 timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
@@ -398,7 +394,6 @@ class ArtemisBase(Karton):
         finally:
             for task in tasks:
                 increase_analysis_num_finished_tasks(REDIS, task.root_uid)
-                increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

@@ -831,4 +831,5 @@ TRANSLATIONS = {
     "[no description] http/exposed-panels/powerchute-network-panel.yaml": "wykryto panel PowerChute Network Shutdown",
     "BeyondTrust Privileged Remote Access login panel was detected.": "wykryto panel logowania BeyondTrust Privileged.",
     "Proofpoint Protection Server panel was detected.": "wykryto panel Proofpoint Protection Server.",
+    "Strapi CMS Documentation login panel was detected.": "wykryto panel logowania Strapi CMS Documentation.",
 }

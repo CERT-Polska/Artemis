@@ -24,7 +24,11 @@ from artemis.redis_cache import RedisCache
 from artemis.resolvers import lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
-from artemis.task_utils import get_target_host
+from artemis.task_utils import (
+    get_target_host,
+    increase_analysis_num_finished_tasks,
+    increase_analysis_num_in_progress_tasks,
+)
 from artemis.utils import is_ip_address
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
@@ -178,7 +182,15 @@ class ArtemisBase(Karton):
 
         tasks, locks = self._take_and_lock_tasks(self.task_max_batch_size)
         self._log_tasks(tasks)
+
+        for task in tasks:
+            increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
+
         self.internal_process_multiple(tasks)
+
+        for task in tasks:
+            increase_analysis_num_finished_tasks(REDIS, task.root_uid)
+            increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
 
         for lock in locks:
             if lock:
@@ -262,14 +274,15 @@ class ArtemisBase(Karton):
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []
         for task, lock_for_task in zip(tasks, locks):
+            skip = False
             if self._is_blocklisted(task):
                 self.log.info("Task %s is blocklisted for module %s", task, self.identity)
-                self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
-                self.backend.set_task_status(task, KartonTaskState.FINISHED)
-                if lock_for_task:
-                    lock_for_task.release()
+                skip = True
             elif self.identity in task.payload_persistent.get("disabled_modules", []):
                 self.log.info("Module %s disabled for task %s", self.identity, task)
+                skip = True
+            if skip:
+                increase_analysis_num_finished_tasks(REDIS, task.root_uid)
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
                 self.backend.set_task_status(task, KartonTaskState.FINISHED)
                 if lock_for_task:

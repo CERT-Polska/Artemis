@@ -182,7 +182,15 @@ class ArtemisBase(Karton):
 
         tasks, locks = self._take_and_lock_tasks(self.task_max_batch_size)
         self._log_tasks(tasks)
+
+        for task in tasks:
+            increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
+
         self.internal_process_multiple(tasks)
+
+        for task in tasks:
+            increase_analysis_num_finished_tasks(REDIS, task.root_uid)
+            increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
 
         for lock in locks:
             if lock:
@@ -274,7 +282,6 @@ class ArtemisBase(Karton):
                 self.log.info("Module %s disabled for task %s", self.identity, task)
                 skip = True
             if skip:
-                increase_analysis_num_finished_tasks(REDIS, task.root_uid)
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
                 self.backend.set_task_status(task, KartonTaskState.FINISHED)
                 if lock_for_task:
@@ -383,9 +390,6 @@ class ArtemisBase(Karton):
         if len(tasks) == 0:
             return
 
-        for task in tasks:
-            increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
-
         try:
             if self.batch_tasks:
                 timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
@@ -396,10 +400,6 @@ class ArtemisBase(Karton):
             for task in tasks:
                 self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
-        finally:
-            for task in tasks:
-                increase_analysis_num_finished_tasks(REDIS, task.root_uid)
-                increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

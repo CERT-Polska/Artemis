@@ -4,6 +4,7 @@ from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Requ
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
+from redis import Redis
 
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
@@ -13,6 +14,7 @@ from artemis.templating import render_analyses_table_row, render_task_table_row
 
 router = APIRouter()
 db = DB()
+redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:

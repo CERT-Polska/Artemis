@@ -18,4 +18,10 @@ if exists */docker-compose.yml; then
     done
 fi
 
-docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS $@
+if exists */docker-compose.additional*.yml; then
+    for DOCKER_COMPOSE_FILE in */docker-compose.additional*.yml; do
+        FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"
+    done
+fi
+
+docker compose $FILE_OPTIONS $ADDITIONAL_DOCKER_COMPOSE_OPTIONS "$@"

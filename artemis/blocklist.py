@@ -71,7 +71,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         if unexpected_keys:
             raise BlocklistError(f"Unexpected keys in entry: {','.join(unexpected_keys)}")
 
-        if item.karton_name == "classifier":
+        if "karton_name" in item and item["karton_name"] == "classifier":
             raise BlocklistError(
                 "It's not possible to blocklist classifier, as blocklists block IPs or domains, "
                 "and classifier supports various input types (e.g. IP ranges converting them to IPs)."
@@ -198,15 +198,14 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
             if item.report_type and report.report_type != item.report_type:
                 continue
 
-            if (
-                item.nuclei_template_names
-                and report.report_type in ["nuclei_vulnerability", "nuclei_exposed_panel"]
-                and (
-                    report.additional_data["template_name"] in item.nuclei_template_names
-                    or report.additional_data["original_template_name"] in item.nuclei_template_names
-                )
-            ):
-                continue
+            if item.nuclei_template_names:
+                if report.report_type not in ["nuclei_vulnerability", "nuclei_exposed_panel"]:
+                    continue
+                if (
+                    report.additional_data["template_name"] not in item.nuclei_template_names
+                    and report.additional_data["original_template_name"] not in item.nuclei_template_names
+                ):
+                    continue
 
             filtered = True
             logger.info(

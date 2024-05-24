@@ -11,6 +11,7 @@ from karton.core import Task
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 from artemis.utils import check_output_log_on_error
@@ -52,6 +53,15 @@ class Nuclei(ArtemisBase):
             self._high_templates = (
                 check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log).decode("ascii").split()
             )
+            # These are not high severity, but may lead to significant information leaks and are easy to fix
+            self._log_exposures_templates = [
+                item
+                for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
+                if item.startswith("http/exposures/logs")
+                # we already have a git detection module that filters FPs such as
+                # exposed source code of a repo that is already public
+                and not item.startswith("http/exposures/logs/git-")
+            ]
             self._exposed_panels_templates = [
                 item
                 for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
@@ -67,6 +77,8 @@ class Nuclei(ArtemisBase):
                     raise RuntimeError("Unable to obtain Nuclei critical-severity templates list")
                 if len(self._high_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei high-severity templates list")
+                if len(self._log_exposures_templates) == 0:
+                    raise RuntimeError("Unable to obtain Nuclei log exposure templates list")
                 if len(self._exposed_panels_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei exposed panels templates list")
 
@@ -75,6 +87,7 @@ class Nuclei(ArtemisBase):
                 for template in self._critical_templates
                 + self._high_templates
                 + self._exposed_panels_templates
+                + self._log_exposures_templates
                 + self._known_exploited_vulnerability_templates
                 if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
             ] + Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
@@ -151,6 +164,8 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
+        tasks = [task for task in tasks if check_connection_to_base_url_and_save_error(self.db, task)]
+
         self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
 
         if len(tasks) == 0:

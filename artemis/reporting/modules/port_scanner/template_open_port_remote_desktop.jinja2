@@ -4,7 +4,7 @@
             {% for report in data.reports %}
                 {% if report.report_type == "open_port_remote_desktop" %}
                     <li>
-                        {{ report.target }} ({{ report.additional_data.service }})
+                        {{ report.target }} ({{ report.additional_data.service }}) ({% trans %}domain: {% endtrans %}{{ report.last_domain }})
                         {{ report_meta(report) }}
                     </li>
                 {% endif %}

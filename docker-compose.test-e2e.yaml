@@ -1,3 +1,9 @@
+x-artemis-build:
+  &artemis-build
+  build:
+     context: .
+     dockerfile: docker/Dockerfile
+
 services:
   web:
     env_file: env.test
@@ -8,23 +14,28 @@ services:
       - ./docker/karton-test.ini:/etc/karton/karton.ini
 
   karton-bruter:
+    <<: *artemis-build
     environment:
       REQUESTS_PER_SECOND: 0
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
 
   karton-classifier:
+    <<: *artemis-build
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
 
   karton-ftp_bruter:
+    <<: *artemis-build
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
 
   karton-mail_dns_scanner:
+    <<: *artemis-build
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
 
   karton-port_scanner:
+    <<: *artemis-build
     env_file: env.test
     environment:
         SCANNING_PACKETS_PER_SECOND: 5

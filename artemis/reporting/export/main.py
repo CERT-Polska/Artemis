@@ -166,7 +166,7 @@ def export_cli(
         help="Allows you to filter by the tag you provided when adding targets to be scanned. Only vulnerabilities "
         "from targets with this tag will be exported.",
     ),
-    language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),
+    language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),  # type: ignore
     custom_template_arguments: Optional[str] = typer.Option(
         "",
         help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "

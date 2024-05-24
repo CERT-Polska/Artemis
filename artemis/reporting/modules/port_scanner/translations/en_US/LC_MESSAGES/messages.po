@@ -1,3 +1,21 @@
+#: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:2
+msgid "The following servers have open database ports:"
+msgstr ""
+
+#: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:7
+#: artemis/reporting/modules/port_scanner/template_open_port_remote_desktop.jinja2:7
+msgid "domain: "
+msgstr ""
+
+#: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:14
+msgid ""
+"Databases shouldn't be publicly available - an attack is possible when "
+"the password leaks (e.g. because of an exposed configuration file such as"
+" a backup of <tt>/wp-config.php</tt>). The recommended configuration is "
+"to make the database available to the application locally or using an "
+"internal network."
+msgstr ""
+
 #: artemis/reporting/modules/port_scanner/template_open_port_remote_desktop.jinja2:2
 msgid "The following servers have remote desktop ports open:"
 msgstr ""

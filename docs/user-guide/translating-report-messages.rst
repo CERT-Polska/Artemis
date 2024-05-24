@@ -23,8 +23,7 @@ Adding a new language
 
 If you want to support a new language:
 
-- add it in ``./scripts/update_translation_files``,
-- add it in ``artemis/reporting/base/language.py``,
+- add it in ``artemis/reporting/languages.txt``,
 - if you want SPF/DMARC verification messages to be supported, add support in https://github.com/CERT-Polska/mailgoose
   (https://mailgoose.readthedocs.io/en/latest/user-guide/translation.html).
 

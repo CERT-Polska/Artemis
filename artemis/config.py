@@ -273,6 +273,13 @@ class Config:
                 int, "The number of domains below which zone transfer won't be reported."
             ] = get_config("ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD", cast=int, default=2)
 
+        class FTPBruter:
+            FTP_BRUTER_TEST_FILE_NAME_PREFIX: Annotated[
+                str,
+                "The prefix that will be added to the name of the file the module will attempt to create (to check "
+                "whether writing is possible).",
+            ] = get_config("FTP_BRUTER_TEST_FILE_NAME_PREFIX", default="test-")
+
         class Gau:
             GAU_ADDITIONAL_OPTIONS: Annotated[
                 List[str],
@@ -503,6 +510,10 @@ class Config:
             ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=100, cast=int)
 
         class PortScanner:
+            PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (
+                get_config("PORT_SCANNER_PORT_LIST", default="short")
+            )
+
             CUSTOM_PORT_SCANNER_PORTS: Annotated[
                 List[int],
                 "Custom port list to scan in CSV form (replaces default list).",

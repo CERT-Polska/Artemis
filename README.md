@@ -5,12 +5,12 @@
     </picture>
 </h1>
 
-Artemis is a modular vulnerability scanner. This is the tool that powers CERT PL scanning activities, not only
+Artemis is a modular vulnerability scanner. It's the tool that powers CERT PL scanning activities by
 [checking various aspects of website security](https://artemis-scanner.readthedocs.io/en/latest/features.html)
-but also [building easy-to-read messages that are sent to organizations to improve their
-security](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html).
+and [building easy-to-read messages ready to be sent to the scanned organizations](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html).
 
-The Artemis project has been initiated by the [KN Cyber](https://kncyber.pl/) science club of [Warsaw University of Technology](https://pw.edu.pl) and is currently being developed by [CERT Polska](https://cert.pl).
+> [!NOTE]
+> We run free on-line training sessions on how to setup and use Artemis. If you are a national or governmental CSIRT, you can [sign up here](https://cert.pl/artemis-trainings).
 
 ## [Quick Start 🔨](https://artemis-scanner.readthedocs.io/en/latest/quick-start.html) | [Docs 📚](https://artemis-scanner.readthedocs.io/en/latest/)
 
@@ -30,7 +30,7 @@ The most important one is the possibility to [easily export](https://artemis-sca
 >
 > - https://subdomain1.example.com:443/.git/
 >
-> Making a code repository public may allow an attacker to learn the inner workings of a system, and if it contains passwords or API keys - also gain unautorized access. Such data shouldn’t be publicly available.
+> Making a code repository public may allow an attacker to learn the inner workings of a system, and if it contains passwords or API keys - also gain unauthorized access. Such data shouldn't be publicly available.
 >
 > The following addresses contain old Joomla versions:
 >
@@ -44,6 +44,8 @@ The possibility to automatically prepare such reports enabled us to notify entit
 ![Artemis - scan](.github/screenshots/scan.png)
 
 ## Development
+If you want to develop Artemis, remember to change the [Docker Compose file](https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml#L7) so that
+the Artemis image is built locally (from the code you are changing) not downloaded from Docker Hub.
 
 ### Tests
 To run the tests, use:
@@ -62,7 +64,7 @@ To run it locally, use:
 pre-commit run --all-files
 ```
 
-To setup `pre-commit` so that it runs before each commit, use:
+To set up `pre-commit` so that it runs before each commit, use:
 
 ```console
 pre-commit install
@@ -90,7 +92,8 @@ Contributions are welcome! We will appreciate both ideas for new Artemis modules
 However obvious it may seem we kindly remind you that by contributing to Artemis you agree that the BSD 3-Clause License shall apply to your input automatically, without the need for any additional declarations to be made.
 
 ## Contributors
-Huge thanks to the following people that contributed to Artemis development!
+Huge thanks to the following people that contributed to Artemis development, especially the [KN Cyber](https://kncyber.pl/) science club of [Warsaw University of Technology](https://pw.edu.pl) that initiated the project!
+
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

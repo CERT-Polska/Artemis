@@ -10,6 +10,9 @@ from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
+from artemis.task_utils import (
+    get_analysis_num_finished_tasks,
+)
 from artemis.templating import render_analyses_table_row, render_task_table_row
 
 router = APIRouter()
@@ -104,6 +107,7 @@ def get_analyses_table(
         else:
             num_pending_tasks = 0
 
+        num_finished_tasks = get_analysis_num_finished_tasks(redis, entry["id"])
         num_all_tasks = db.num_scheduled_tasks(entry["id"])
 
         entries.append(
@@ -112,12 +116,10 @@ def get_analyses_table(
                 "tag": entry["tag"],
                 "target": entry["target"],
                 "created_at": entry["created_at"],
-                "num_pending_tasks": num_pending_tasks,
+                "num_pending_tasks": num_scheduled_tasks - num_finished_tasks,
                 "num_all_tasks": num_all_tasks,
-                "num_finished_tasks": num_pending_tasks - num_all_tasks,
-                "percentage_finished_tasks": (
-                    100.0 * (num_pending_tasks - num_all_tasks) / num_all_tasks if num_all_tasks else "N/A"
-                ),
+                "num_finished_tasks": num_finished_tasks,
+                "percentage_finished_tasks": 100.0 * num_finished_tasks / num_all_tasks if num_all_tasks else "N/A",
                 "stopped": entry.get("stopped", None),
             }
         )

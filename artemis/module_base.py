@@ -245,7 +245,6 @@ class ArtemisBase(Karton):
                                     num_tasks,
                                 )
                                 self.backend.redis.lrem(queue, 1, item)
-                                self.log.info("STAT OK")
                                 if len(tasks) >= num_tasks:
                                     break
                             except FailedToAcquireLockException:

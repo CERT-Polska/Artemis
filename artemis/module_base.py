@@ -24,10 +24,7 @@ from artemis.redis_cache import RedisCache
 from artemis.resolvers import lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
-from artemis.task_utils import (
-    get_target_host,
-    increase_analysis_num_finished_tasks,
-)
+from artemis.task_utils import get_target_host
 from artemis.utils import is_ip_address
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
@@ -391,9 +388,6 @@ class ArtemisBase(Karton):
             for task in tasks:
                 self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
-        finally:
-            for task in tasks:
-                increase_analysis_num_finished_tasks(REDIS, task.root_uid)
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

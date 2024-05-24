@@ -376,9 +376,10 @@ class DB:
             result = session.execute(statement)
             session.commit()
             return bool(result.rowcount)
-    
+
     def num_scheduled_tasks(self, analysis_id: str) -> int:
-        return select(ScheduledTask).filter(ScheduledTask.analysis_id == analysis_id).count()
+        with self.session() as session:
+            return int(session.query(ScheduledTask).filter(ScheduledTask.analysis_id == analysis_id).count())
 
     def get_task_results_since(
         self, time_from: datetime.datetime, batch_size: int = 1000

@@ -245,6 +245,7 @@ class ArtemisBase(Karton):
                                     num_tasks,
                                 )
                                 self.backend.redis.lrem(queue, 1, item)
+                                self.log.info("STAT OK")
                                 if len(tasks) >= num_tasks:
                                     break
                             except FailedToAcquireLockException:
@@ -282,6 +283,7 @@ class ArtemisBase(Karton):
                 self.log.info("Module %s disabled for task %s", self.identity, task)
                 skip = True
             if skip:
+                increase_analysis_num_finished_tasks(REDIS, task.root_uid)
                 self.backend.increment_metrics(KartonMetrics.TASK_CONSUMED, self.identity)
                 self.backend.set_task_status(task, KartonTaskState.FINISHED)
                 if lock_for_task:

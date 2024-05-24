@@ -1,23 +1,27 @@
 #!/bin/bash
 
-cd $(dirname $0)/..
-
-exists() {
-    [ -e "$1" ]
-}
-
-if exists Artemis-modules-extra; then
-    ADDITIONAL_OPTIONS=--scale=karton-sqlmap=5
+if [[ $(uname -m) != "arm"* ]]; then
+    echo "Artemis-Extra-Modules are only x86 compatible yet"
+    . scripts/run_docker_compose --profile x86 up \
+        --scale=karton-wp_scanner=3 \
+        --scale=karton-identifier=3 \
+        --scale=karton-port_scanner=5 \
+        --scale=karton-wordpress_plugins=5 \
+        --scale=karton-sqlmap=5 \
+        --scale=karton-nuclei=5 \
+        --scale=karton-bruter=5
 else
-    ADDITIONAL_OPTIONS=
-fi
+    echo "Artemis-Extra-Modules are only x86 compatible yet"
+    . scripts/run_docker_compose up --build \
+        --scale=karton-wp_scanner=3 \
+        --scale=karton-identifier=3 \
+        --scale=karton-port_scanner=5 \
+        --scale=karton-wordpress_plugins=5 \
+        --scale=karton-sqlmap=5 \
+        --scale=karton-nuclei=5 \
+        --scale=karton-bruter=5
 
-# We don't use `-d` here so that the user sees the logs by default.
-. scripts/run_docker_compose up --build \
-    --scale=karton-wp_scanner=3 \
-    --scale=karton-identifier=3 \
-    --scale=karton-port_scanner=5 \
-    --scale=karton-wordpress_plugins=5 \
-    --scale=karton-nuclei=5 \
-    --scale=karton-bruter=5 \
-    $ADDITIONAL_OPTIONS
+    if [[ $(. scripts/run_docker_compose up -d --build) == *"karton-sqlmap: not found"* ]]; then
+        echo "You don't seem to have Artemis-Extra-Modules. refer to the https://artemis-scanner.readthedocs.io/en/latest/quick-start.html"
+    fi
+fi

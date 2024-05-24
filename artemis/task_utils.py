@@ -62,3 +62,7 @@ def get_target_url(task: Task) -> str:
         protocol += "s"
 
     return f"{protocol}://{target}:{port}"
+
+
+ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX = b"analysis-num-finished-tasks-"
+ANALYSIS_NUM_IN_PROGRESS_TASKS_KEY_PREFIX = b"analysis-num-in-progress-tasks-"

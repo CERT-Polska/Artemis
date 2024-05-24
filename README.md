@@ -9,8 +9,7 @@ Artemis is a modular vulnerability scanner. It's the tool that powers CERT PL sc
 [checking various aspects of website security](https://artemis-scanner.readthedocs.io/en/latest/features.html)
 and [building easy-to-read messages ready to be sent to the scanned organizations](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html).
 
-If you are a national or government CSIRT and want to learn how to use Artemis to improve
-the security of your constituency, you may sign up for [a free training led by CERT PL](https://cert.pl/artemis-trainings)!
+We run free on-line training sessions on how to setup and use Artemis. If you are a national or governmental CSIRT, you can [sign up here](https://cert.pl/artemis-trainings).
 
 The Artemis project has been initiated by the [KN Cyber](https://kncyber.pl/) science club of [Warsaw University of Technology](https://pw.edu.pl) and is currently being developed by [CERT Polska](https://cert.pl).
 

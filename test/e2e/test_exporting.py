@@ -37,7 +37,7 @@ class ExportingTestCase(BaseE2ETestCase):
                 },
             )
             response.raise_for_status()
-            self.assertEqual(response.url, "/exports")
+            self.assertEqual(response.url, 'http://web:5000/exports')
 
         for i in range(100):
             task_results = requests.get(

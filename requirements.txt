@@ -27,7 +27,7 @@ psycopg2-binary==2.9.9
 publicsuffixlist==0.10.0.20240515
 pydantic==2.3.0
 pymongo==4.7.2
-PyMySQL==1.1.0
+PyMySQL==1.1.1
 python-decouple==3.8
 pytz==2024.1
 PyYAML==6.0.1

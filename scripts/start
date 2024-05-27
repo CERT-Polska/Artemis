@@ -10,6 +10,8 @@ if [[ $(uname -m) != "arm"* ]]; then
 else
     echo "some modules are not ARM compatible yet so skipping them."
     PROFILE=
+fi
+
 if exists Artemis-modules-extra; then
     ADDITIONAL_OPTIONS=--scale=karton-sqlmap=5
 else
@@ -18,12 +20,11 @@ else
 fi
 
 # We don't use `-d` here so that the user sees the logs by default.
-. scripts/run_docker_compose up --build \
+. scripts/run_docker_compose $PROFILE up --build \
     --scale=karton-wp_scanner=3 \
     --scale=karton-identifier=3 \
     --scale=karton-port_scanner=5 \
     --scale=karton-wordpress_plugins=5 \
     --scale=karton-nuclei=5 \
     --scale=karton-bruter=5 \
-    $ADDITIONAL_OPTIONS \
-    $PROFILE
+    $ADDITIONAL_OPTIONS

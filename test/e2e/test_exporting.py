@@ -56,17 +56,15 @@ class ExportingTestCase(BaseE2ETestCase):
             time.sleep(1)
 
         m = re.search('href="/(export/download-zip/[0-9]*)"', data.decode("utf-8"))
-        print(data.decode("utf-8"), m)
         assert m is not None
         (path,) = m.groups(1)
-        print(path)
         filename = tempfile.mktemp()
-        print(filename)
+
         with open(filename, "wb") as f:
             f.write(requests.get(BACKEND_URL + str(path)).content)
 
         with zipfile.ZipFile(filename) as export:
-            with export.open("messages/test-smtp-server.artemis", "r") as f:
+            with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
                 print(content)
                 self.assertEqual(content, "dd")

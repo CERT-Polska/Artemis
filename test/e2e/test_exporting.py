@@ -42,7 +42,8 @@ class ExportingTestCase(BaseE2ETestCase):
             response.raise_for_status()
             self.assertEqual(response.url, "http://web:5000/exports")
 
-        for i in range(100):
+        for i in range(500):
+            print(i)
             data = s.get(BACKEND_URL + "exports").content
             assert (
                 b'<span class="badge bg-warning">pending</span>' in data

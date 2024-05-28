@@ -72,11 +72,6 @@ docker compose \
     test-e2e
 
 EXIT_CODE=$?
-docker compose \
-    -f docker-compose.test.yaml \
-    -f docker-compose.yaml \
-    -f docker-compose.test-e2e.yaml \
-    logs autoreporter
 
 docker compose \
     -f docker-compose.test.yaml \

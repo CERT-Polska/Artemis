@@ -4,15 +4,21 @@ from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Requ
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
+from redis import Redis
 
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
+from artemis.task_utils import (
+    get_analysis_num_finished_tasks,
+    get_analysis_num_in_progress_tasks,
+)
 from artemis.templating import render_analyses_table_row, render_task_table_row
 
 router = APIRouter()
 db = DB()
+redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
@@ -98,9 +104,13 @@ def get_analyses_table(
     entries = []
     for entry in result.data:
         if entry["id"] in karton_state.analyses:
-            num_active_tasks = len(karton_state.analyses[entry["id"]].pending_tasks)
+            num_pending_tasks = len(karton_state.analyses[entry["id"]].pending_tasks)
         else:
-            num_active_tasks = 0
+            num_pending_tasks = 0
+
+        num_finished_tasks = get_analysis_num_finished_tasks(redis, entry["id"])
+        num_in_progress_tasks = get_analysis_num_in_progress_tasks(redis, entry["id"])
+        num_all_tasks = num_finished_tasks + num_in_progress_tasks + num_pending_tasks
 
         entries.append(
             {
@@ -108,7 +118,10 @@ def get_analyses_table(
                 "tag": entry["tag"],
                 "target": entry["target"],
                 "created_at": entry["created_at"],
-                "num_active_tasks": num_active_tasks,
+                "num_pending_tasks": num_pending_tasks,
+                "num_all_tasks": num_all_tasks,
+                "num_finished_tasks": num_finished_tasks,
+                "percentage_finished_tasks": 100.0 * num_finished_tasks / num_all_tasks if num_all_tasks else "N/A",
                 "stopped": entry.get("stopped", None),
             }
         )

@@ -173,6 +173,10 @@ class Config:
             "API_TOKEN", default=None
         )
 
+        REMOVE_LOGS_AFTER_DAYS: Annotated[int, "After what number of days the logs in karton-logs are removed."] = (
+            get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
+        )
+
         BLOCKLIST_FILE: Annotated[
             str,
             "A file that determines what should not be scanned or reported",
@@ -268,6 +272,13 @@ class Config:
             ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD: Annotated[
                 int, "The number of domains below which zone transfer won't be reported."
             ] = get_config("ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD", cast=int, default=2)
+
+        class FTPBruter:
+            FTP_BRUTER_TEST_FILE_NAME_PREFIX: Annotated[
+                str,
+                "The prefix that will be added to the name of the file the module will attempt to create (to check "
+                "whether writing is possible).",
+            ] = get_config("FTP_BRUTER_TEST_FILE_NAME_PREFIX", default="test-")
 
         class Gau:
             GAU_ADDITIONAL_OPTIONS: Annotated[

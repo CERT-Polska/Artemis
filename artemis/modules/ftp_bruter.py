@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
+import binascii
 import ftplib
+import io
+import os
 import ssl
 from typing import List, Optional, Tuple
 
@@ -7,6 +10,7 @@ from karton.core import Task
 from pydantic import BaseModel
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
 from artemis.utils import throttle_request
@@ -28,6 +32,7 @@ class FTPBruterResult(BaseModel):
     credentials: List[Tuple[str, str]] = []
     files: List[str] = []
     tls: bool = False
+    is_writable: bool = False
 
 
 class FTPBruter(ArtemisBase):
@@ -79,8 +84,16 @@ class FTPBruter(ArtemisBase):
 
                     try:
                         throttle_request(lambda: ftp.login(username, password))
+
                         result.credentials.append((username, password))
                         result.files.extend(ftp.nlst())
+
+                        data = io.BytesIO(b"")
+                        ftp.storbinary(
+                            f"STOR {Config.Modules.FTPBruter.FTP_BRUTER_TEST_FILE_NAME_PREFIX}-{binascii.hexlify(os.urandom(10)).decode('ascii')}.txt",
+                            data,
+                        )
+                        result.is_writable = True
                     except ftplib.error_temp:
                         pass
                     except ftplib.error_perm:
@@ -94,11 +107,18 @@ class FTPBruter(ArtemisBase):
         except TimeoutError:
             pass
 
+        messages = []
         if result.credentials:
-            status = TaskStatus.INTERESTING
-            status_reason = "Found working credentials for the FTP server: " + ", ".join(
-                sorted([username + ":" + password for username, password in result.credentials])
+            messages.append(
+                "Found working credentials for the FTP server: "
+                + ", ".join(sorted([username + ":" + password for username, password in result.credentials]))
             )
+        if result.is_writable:
+            messages.append("The credentials allow creating files.")
+
+        if messages:
+            status = TaskStatus.INTERESTING
+            status_reason = ", ".join(messages)
         else:
             status = TaskStatus.OK
             status_reason = None

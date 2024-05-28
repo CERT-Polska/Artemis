@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 
 class ExportingTestCase(BaseE2ETestCase):
     def test_exporting_gui(self) -> None:
+        self.maxDiff=None
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-gui", ["mail_dns_scanner", "classifier"]
         )
@@ -105,6 +106,7 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
     def test_exporting_api(self) -> None:
+        self.maxDiff=None
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
         )
@@ -132,14 +134,14 @@ class ExportingTestCase(BaseE2ETestCase):
         for i in range(500):
             data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
             assert len(data) == 1
-            if data[0]["export_url"]:
+            if data[0]["zip_url"]:
                 break
 
             time.sleep(1)
 
         self.assertEqual(
             data[0].keys(),
-            {"id", "created_at", "comment", "status", "language", "skip_previously_exported", "error", "alerts"},
+            {"id", "created_at", "comment", "tag", "status", "language", "skip_previously_exported", "zip_url", "error", "alerts"},
         )
 
         self.assertEqual(

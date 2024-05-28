@@ -61,7 +61,8 @@ class ExportingTestCase(BaseE2ETestCase):
             time.sleep(1)
 
         m = re.search('href="/(export/download-zip/[0-9]*)"', data.decode("utf-8"))
-        assert m
+        print(data.decode('utf-8'), m)
+        assert m is not None
         (path,) = m.groups(1)
         print(path)
         filename = tempfile.mktemp()

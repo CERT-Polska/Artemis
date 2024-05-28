@@ -43,12 +43,6 @@ class ExportingTestCase(BaseE2ETestCase):
             self.assertEqual(response.url, "http://web:5000/exports")
 
         for i in range(100):
-            task_results = requests.get(
-                BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
-            ).json()
-
-            if len(task_results) == 1:
-                break
             data = s.get(BACKEND_URL + "exports").content
             assert (
                 b'<span class="badge bg-warning">pending</span>' in data

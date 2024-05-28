@@ -1,4 +1,7 @@
+import re
+import tempfile
 import time
+import zipfile
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 
 import requests
@@ -37,7 +40,7 @@ class ExportingTestCase(BaseE2ETestCase):
                 },
             )
             response.raise_for_status()
-            self.assertEqual(response.url, 'http://web:5000/exports')
+            self.assertEqual(response.url, "http://web:5000/exports")
 
         for i in range(100):
             task_results = requests.get(
@@ -57,4 +60,17 @@ class ExportingTestCase(BaseE2ETestCase):
 
             time.sleep(1)
 
-        print(data)
+        m = re.search('href="/(export/download-zip/[0-9]*)"', data.decode("utf-8"))
+        assert m
+        (path,) = m.groups(1)
+        print(path)
+        filename = tempfile.mktemp()
+        print(filename)
+        with open(filename, "wb") as f:
+            f.write(requests.get(BACKEND_URL + str(path)).content)
+
+        with zipfile.ZipFile(filename) as export:
+            with export.open("messages/test-smtp-server.artemis", "r") as f:
+                content = f.read()
+                print(content)
+                self.assertEqual(content, "dd")

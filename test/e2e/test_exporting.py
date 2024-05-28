@@ -65,7 +65,9 @@ class ExportingTestCase(BaseE2ETestCase):
 
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
+                self.maxDiff = None
                 content = f.read()
+                print(content)
                 self.assertEqual(
                     content,
                     "\n".join(
@@ -167,11 +169,12 @@ class ExportingTestCase(BaseE2ETestCase):
         filename = tempfile.mktemp()
 
         with open(filename, "wb") as f:
-            f.write(requests.get(BACKEND_URL + data[0]["export_url"], headers={"X-Api-Token": "api-token"}).content)
+            f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
 
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
+                print(content)
                 self.assertEqual(
                     content,
                     "\n".join(

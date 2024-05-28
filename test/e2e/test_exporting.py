@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 class ExportingTestCase(BaseE2ETestCase):
     def test_exporting_gui(self) -> None:
-        self.maxDiff=None
+        self.maxDiff = None
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-gui", ["mail_dns_scanner", "classifier"]
         )
@@ -106,7 +106,7 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
     def test_exporting_api(self) -> None:
-        self.maxDiff=None
+        self.maxDiff = None
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
         )
@@ -141,7 +141,18 @@ class ExportingTestCase(BaseE2ETestCase):
 
         self.assertEqual(
             data[0].keys(),
-            {"id", "created_at", "comment", "tag", "status", "language", "skip_previously_exported", "zip_url", "error", "alerts"},
+            {
+                "id",
+                "created_at",
+                "comment",
+                "tag",
+                "status",
+                "language",
+                "skip_previously_exported",
+                "zip_url",
+                "error",
+                "alerts",
+            },
         )
 
         self.assertEqual(

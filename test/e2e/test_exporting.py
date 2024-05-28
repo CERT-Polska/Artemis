@@ -99,6 +99,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        </ol>",
                             "    </body>",
                             "</html>",
+                            ""
                         ]
                     ),
                 )
@@ -121,7 +122,7 @@ class ExportingTestCase(BaseE2ETestCase):
         self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
         self.assertEqual(
             requests.post(
-                "api/export",
+                BACKEND_URL + "api/export",
                 data={"skip_previously_exported": True, "language": "pl_PL"},
                 headers={"X-Api-Token": "api-token"},
             ).json(),
@@ -192,6 +193,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        </ol>",
                             "    </body>",
                             "</html>",
+                            ""
                         ]
                     ),
                 )

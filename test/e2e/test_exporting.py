@@ -102,3 +102,96 @@ class ExportingTestCase(BaseE2ETestCase):
                         ]
                     ),
                 )
+
+    def test_exporting_api(self) -> None:
+        self.submit_tasks_with_modules_enabled(
+            ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
+        )
+
+        for i in range(100):
+            task_results = requests.get(
+                BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+            ).json()
+
+            if len(task_results) == 1:
+                break
+
+            time.sleep(1)
+
+        self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
+        self.assertEqual(
+            requests.post(
+                "api/export",
+                data={"skip_previously_exported": True, "language": "pl_PL"},
+                headers={"X-Api-Token": "api-token"},
+            ).json(),
+            {"ok": True},
+        )
+
+        for i in range(500):
+            data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
+            assert len(data) == 1
+            if data[0]["export_url"]:
+                break
+
+            time.sleep(1)
+
+        self.assertEqual(
+            data[0].keys(),
+            {"id", "created_at", "comment", "status", "language", "skip_previously_exported", "error", "alerts"},
+        )
+
+        self.assertEqual(
+            data[0]["status"],
+            "done",
+        )
+        self.assertEqual(
+            data[0]["language"],
+            "pl_PL",
+        )
+
+        filename = tempfile.mktemp()
+
+        with open(filename, "wb") as f:
+            f.write(requests.get(BACKEND_URL + data[0]["export_url"], headers={"X-Api-Token": "api-token"}).content)
+
+        with zipfile.ZipFile(filename) as export:
+            with export.open("messages/test-smtp-server.artemis.html", "r") as f:
+                content = f.read()
+                self.assertEqual(
+                    content,
+                    "\n".join(
+                        [
+                            "",
+                            "",
+                            "<html>",
+                            "    <head>",
+                            '        <meta charset="UTF-8">',
+                            "    </head>",
+                            "    <style>",
+                            "        ul {",
+                            "            margin-top: 10px;",
+                            "            margin-bottom: 10px;",
+                            "        }",
+                            "    </style>",
+                            "    <body>",
+                            "        <ol>",
+                            "    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                            "                    <li>",
+                            "                        test-smtp-server.artemis:",
+                            "",
+                            "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            "                        ",
+                            "                    </li>",
+                            "        </ul>",
+                            "        <p>",
+                            "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                            "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                            "        </p>",
+                            "    </li>",
+                            "        </ol>",
+                            "    </body>",
+                            "</html>",
+                        ]
+                    ),
+                )

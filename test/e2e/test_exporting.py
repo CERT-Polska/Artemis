@@ -99,7 +99,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        </ol>",
                             "    </body>",
                             "</html>",
-                            ""
+                            "",
                         ]
                     ),
                 )
@@ -193,7 +193,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        </ol>",
                             "    </body>",
                             "</html>",
-                            ""
+                            "",
                         ]
                     ),
                 )

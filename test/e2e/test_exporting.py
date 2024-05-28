@@ -43,7 +43,6 @@ class ExportingTestCase(BaseE2ETestCase):
             self.assertEqual(response.url, "http://web:5000/exports")
 
         for i in range(500):
-            print(i)
             data = s.get(BACKEND_URL + "exports").content
             assert (
                 b'<span class="badge bg-warning">pending</span>' in data
@@ -66,5 +65,40 @@ class ExportingTestCase(BaseE2ETestCase):
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
-                print(content)
-                self.assertEqual(content, "dd")
+                self.assertEqual(
+                    content,
+                    "\n".join(
+                        [
+                            "",
+                            "",
+                            "<html>",
+                            "    <head>",
+                            '        <meta charset="UTF-8">',
+                            "    </head>",
+                            "    <style>",
+                            "        ul {",
+                            "            margin-top: 10px;",
+                            "            margin-bottom: 10px;",
+                            "        }",
+                            "    </style>",
+                            "    <body>",
+                            "        <ol>",
+                            "    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                            "                    <li>",
+                            "                        test-smtp-server.artemis:",
+                            "",
+                            "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            "                        ",
+                            "                    </li>",
+                            "        </ul>",
+                            "        <p>",
+                            "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                            "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                            "        </p>",
+                            "    </li>",
+                            "        </ol>",
+                            "    </body>",
+                            "</html>",
+                        ]
+                    ),
+                )

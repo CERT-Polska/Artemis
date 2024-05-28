@@ -49,6 +49,7 @@ if [ $? -ne 0 ]; then
 fi
 
 docker volume rm artemis_data-test-redis
+docker volume rm artemis_data-test-postgres
 docker volume rm artemis_data-test-mongodb
 
 # Let's first start everything except the test container and perform relevant setup

@@ -1,7 +1,6 @@
 import urllib
 
 from karton.core import Task
-from redis import Redis
 
 from artemis.binds import Service, TaskType
 
@@ -63,14 +62,3 @@ def get_target_url(task: Task) -> str:
         protocol += "s"
 
     return f"{protocol}://{target}:{port}"
-
-
-ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX = b"analysis-num-finished-tasks-"
-
-
-def increase_analysis_num_done_tasks(redis: Redis, task: Task) -> None:  # type: ignore[type-arg]
-    redis.incr(ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX + task.root_uid.encode("ascii"))
-
-
-def get_analysis_num_done_tasks(redis: Redis, root_uid: str) -> int:  # type: ignore[type-arg]
-    return int(redis.get(ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX + root_uid.encode('ascii')) or 0)  # type: ignore

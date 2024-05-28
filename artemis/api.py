@@ -4,18 +4,15 @@ from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Requ
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
-from redis import Redis
 
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
-from artemis.task_utils import get_analysis_num_done_tasks
 from artemis.templating import render_analyses_table_row, render_task_table_row
 
 router = APIRouter()
 db = DB()
-redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
@@ -105,8 +102,6 @@ def get_analyses_table(
         else:
             num_active_tasks = 0
 
-        num_done_tasks = get_analysis_num_done_tasks(redis, entry["id"])
-
         entries.append(
             {
                 "id": entry["id"],
@@ -114,8 +109,6 @@ def get_analyses_table(
                 "target": entry["target"],
                 "created_at": entry["created_at"],
                 "num_active_tasks": num_active_tasks,
-                "num_done_tasks": num_done_tasks,
-                "percentage_done_tasks": 100.0 * num_done_tasks / (num_done_tasks + num_active_tasks),
                 "stopped": entry.get("stopped", None),
             }
         )

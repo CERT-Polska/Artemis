@@ -1,6 +1,6 @@
 {% if entry.num_active_tasks > 0 %}
     <span class="badge bg-warning">
-        In progress ({{ entry.num_done_tasks }} / {{ entry.num_done_tasks + entry.num_active_tasks }} tasks done, {{ '%.01f' % entry.percentage_done_tasks }}%)
+        In progress (pending tasks: {{ entry.num_active_tasks }})
     </span>
 {% elif entry.stopped %}
     <span class="badge bg-danger">

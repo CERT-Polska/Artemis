@@ -14,8 +14,6 @@ class Severity(str, Enum):
 SEVERITY_MAP = {
     ReportType("insecure_wordpress"): Severity.HIGH,
     ReportType("nuclei_vulnerability"): Severity.HIGH,
-    ReportType("subdomain_takeover_possible"): Severity.HIGH,
-    ReportType("sql_injection"): Severity.HIGH,
     ReportType("script_unregistered_domain"): Severity.HIGH,
     ReportType("closed_wordpress_plugin"): Severity.HIGH,
     ReportType("exposed_database_with_easy_password"): Severity.HIGH,
@@ -37,7 +35,6 @@ SEVERITY_MAP = {
     # This doesn't mean that a version is insecure, as WordPress maintains a separate list
     # of insecure versions. This just means "turn on the automatic updates"
     ReportType("old_wordpress"): Severity.LOW,
-    ReportType("close_domain_expiration_date"): Severity.MEDIUM,
     ReportType("exposed_http_server_info_status"): Severity.MEDIUM,
     ReportType("exposed_php_source"): Severity.MEDIUM,
     ReportType("zone_transfer_possible"): Severity.MEDIUM,
@@ -45,17 +42,27 @@ SEVERITY_MAP = {
     ReportType("directory_index"): Severity.MEDIUM,
     ReportType("open_port_remote_desktop"): Severity.MEDIUM,
     ReportType("exposed_bash_history"): Severity.MEDIUM,
+    ReportType("close_domain_expiration_date"): Severity.MEDIUM,
     ReportType("close_domain_expiry_date"): Severity.MEDIUM,
     ReportType("open_port_database"): Severity.LOW,
+    ReportType("exposed_php_var_dump"): Severity.LOW,
+    ReportType("exposed_phpinfo"): Severity.LOW,
+    ReportType("nuclei_exposed_panel"): Severity.LOW,
+    ReportType("missing_security_headers"): Severity.LOW,
+    # This is a fake "vulnerability" from an example module
+    ReportType("url_has_even_number_of_characters"): Severity.LOW,
+    ReportType("missing_security_headers"): Severity.LOW,
+    # These modules are not available in core Artemis for licensing reasons, but let's
+    # keep the severity information in one place.
+    ReportType("subdomain_takeover_possible"): Severity.HIGH,
+    ReportType("sql_injection"): Severity.HIGH,
+    ReportType("wpscan_vulnerability"): Severity.HIGH,
+    ReportType("wpscan_interesting_url"): Severity.LOW,
     ReportType("certificate_authority_invalid"): Severity.LOW,
     ReportType("expired_ssl_certificate"): Severity.LOW,
     ReportType("almost_expired_ssl_certificate"): Severity.LOW,
     ReportType("bad_certificate_names"): Severity.LOW,
     ReportType("no_https_redirect"): Severity.LOW,
-    ReportType("exposed_php_var_dump"): Severity.LOW,
-    ReportType("exposed_phpinfo"): Severity.LOW,
-    ReportType("nuclei_exposed_panel"): Severity.LOW,
-    ReportType("missing_security_headers"): Severity.LOW,
 }
 
 if Config.Reporting.ADDITIONAL_SEVERITY_FILE:

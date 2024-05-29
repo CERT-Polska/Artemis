@@ -233,7 +233,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "                    </li>",
                             "        </ul>",
                             "        <p>",
-                            "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleÅºć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
+                            "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
                             "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
                             "        </p>",
                             "    </li>",

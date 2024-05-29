@@ -55,10 +55,10 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         self.assertEqual(analyses[0]["target"], "test-smtp-server.artemis")
         self.assertEqual(analyses[0]["tag"], "automated-interaction")
 
-        self.assertEqual(
+        self.assertTrue(
             int(
                 requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()
-            ),
+            ) in [1, 0] # 0 as the task may have already finished
             1,
         )
 

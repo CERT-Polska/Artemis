@@ -51,7 +51,6 @@ SEVERITY_MAP = {
     ReportType("missing_security_headers"): Severity.LOW,
     # This is a fake "vulnerability" from an example module
     ReportType("url_has_even_number_of_characters"): Severity.LOW,
-    ReportType("missing_security_headers"): Severity.LOW,
     # These modules are not available in core Artemis for licensing reasons, but let's
     # keep the severity information in one place.
     ReportType("subdomain_takeover_possible"): Severity.HIGH,

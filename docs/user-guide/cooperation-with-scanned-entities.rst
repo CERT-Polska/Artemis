@@ -3,7 +3,7 @@ Cooperation with scanned entities
 We strongly encourage you to be as transparent to the scanned entities as possible.
 
 The minimum is setting the User-Agent header (in Artemis, you can do this by setting
-the ``CUSTOM_USER_AGENT`` variable in the ``.env`` file) to information about what
+the ``CUSTOM_USER_AGENT`` variable in the ``.env`` file) to information about which
 entity is performing the scans and how to contact you.
 
 At CERT PL we also:

@@ -1,0 +1,208 @@
+import re
+import tempfile
+import time
+import zipfile
+from test.e2e.base import BACKEND_URL, BaseE2ETestCase
+
+import requests
+from bs4 import BeautifulSoup
+
+
+class ExportingTestCase(BaseE2ETestCase):
+    def test_exporting_gui(self) -> None:
+        self.submit_tasks_with_modules_enabled(
+            ["test-smtp-server.artemis"], "exporting-gui", ["mail_dns_scanner", "classifier"]
+        )
+
+        for i in range(100):
+            task_results = requests.get(
+                BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+            ).json()
+
+            if len(task_results) == 1:
+                break
+
+            time.sleep(1)
+
+        with requests.Session() as s:
+            data = s.get(BACKEND_URL + "export").content
+            soup = BeautifulSoup(data, "html.parser")
+            csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
+
+            response = s.post(
+                BACKEND_URL + "export",
+                data={
+                    "csrf_token": csrf_token,
+                    "tag": "exporting-gui",
+                    "comment": "",
+                    "skip_previously_exported": "no",
+                    "language": "en_US",
+                },
+            )
+            response.raise_for_status()
+            self.assertEqual(response.url, "http://web:5000/exports")
+
+        for i in range(500):
+            data = s.get(BACKEND_URL + "exports").content
+            assert (
+                b'<span class="badge bg-warning">pending</span>' in data
+                or b'<span class="badge bg-success">done</span>' in data
+            )
+
+            if b'<span class="badge bg-success">done</span>' in data:
+                break
+
+            time.sleep(1)
+
+        m = re.search('href="/(export/download-zip/[0-9]*)"', data.decode("utf-8"))
+        assert m is not None
+        (path,) = m.groups(1)
+        filename = tempfile.mktemp()
+
+        with open(filename, "wb") as f:
+            f.write(requests.get(BACKEND_URL + str(path)).content)
+
+        with zipfile.ZipFile(filename) as export:
+            with export.open("messages/test-smtp-server.artemis.html", "r") as f:
+                content = f.read()
+                self.assertEqual(
+                    content,
+                    b"\n".join(
+                        [
+                            b"",
+                            b"",
+                            b"<html>",
+                            b"    <head>",
+                            b'        <meta charset="UTF-8">',
+                            b"    </head>",
+                            b"    <style>",
+                            b"        ul {",
+                            b"            margin-top: 10px;",
+                            b"            margin-bottom: 10px;",
+                            b"        }",
+                            b"    </style>",
+                            b"    <body>",
+                            b"        <ol>",
+                            b"    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                            b"                    <li>",
+                            b"                        test-smtp-server.artemis:",
+                            b"",
+                            b"                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            b"                        ",
+                            b"                    </li>",
+                            b"        </ul>",
+                            b"        <p>",
+                            b"            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                            b"            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                            b"        </p>",
+                            b"    </li>",
+                            b"        </ol>",
+                            b"    </body>",
+                            b"</html>",
+                        ]
+                    ),
+                )
+
+    def test_exporting_api(self) -> None:
+        self.submit_tasks_with_modules_enabled(
+            ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
+        )
+
+        for i in range(100):
+            task_results = requests.get(
+                BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+            ).json()
+
+            if len(task_results) == 1:
+                break
+
+            time.sleep(1)
+
+        self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
+        self.assertEqual(
+            requests.post(
+                BACKEND_URL + "api/export",
+                data={"skip_previously_exported": True, "language": "pl_PL"},
+                headers={"X-Api-Token": "api-token"},
+            ).json(),
+            {"ok": True},
+        )
+
+        for i in range(500):
+            data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
+            assert len(data) == 1
+            if data[0]["zip_url"]:
+                break
+
+            time.sleep(1)
+
+        self.assertEqual(
+            data[0].keys(),
+            {
+                "id",
+                "created_at",
+                "comment",
+                "tag",
+                "status",
+                "language",
+                "skip_previously_exported",
+                "zip_url",
+                "error",
+                "alerts",
+            },
+        )
+
+        self.assertEqual(
+            data[0]["status"],
+            "done",
+        )
+        self.assertEqual(
+            data[0]["language"],
+            "pl_PL",
+        )
+
+        filename = tempfile.mktemp()
+
+        with open(filename, "wb") as f:
+            f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+
+        with zipfile.ZipFile(filename) as export:
+            with export.open("messages/test-smtp-server.artemis.html", "r") as f:
+                content = f.read()
+                self.assertEqual(
+                    content,
+                    "\n".join(
+                        [
+                            "",
+                            "",
+                            "<html>",
+                            "    <head>",
+                            '        <meta charset="UTF-8">',
+                            "    </head>",
+                            "    <style>",
+                            "        ul {",
+                            "            margin-top: 10px;",
+                            "            margin-bottom: 10px;",
+                            "        }",
+                            "    </style>",
+                            "    <body>",
+                            "        <ol>",
+                            "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
+                            "                    <li>",
+                            "                        test-smtp-server.artemis:",
+                            "",
+                            "                            Nie znaleziono poprawnego rekordu DMARC. Rekomendujemy używanie wszystkich trzech mechanizmów: SPF, DKIM i DMARC, aby zmniejszyć szansę, że sfałszowana wiadomość zostanie zaakceptowana przez serwer odbiorcy.",
+                            "                        ",
+                            "                    </li>",
+                            "        </ul>",
+                            "        <p>",
+                            "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
+                            "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
+                            "        </p>",
+                            "    </li>",
+                            "        </ol>",
+                            "    </body>",
+                            "</html>",
+                        ]
+                    ).encode("utf-8"),
+                )

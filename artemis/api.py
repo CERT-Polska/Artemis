@@ -1,15 +1,28 @@
+import datetime
 from typing import Annotated, Any, Dict, List, Optional
 
-from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    Form,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+)
+from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
+from pydantic import BaseModel
 from redis import Redis
 
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
+from artemis.reporting.base.language import Language
 from artemis.task_utils import (
     get_analysis_num_finished_tasks,
     get_analysis_num_in_progress_tasks,
@@ -19,6 +32,19 @@ from artemis.templating import render_analyses_table_row, render_task_table_row
 router = APIRouter()
 db = DB()
 redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
+
+
+class ReportGenerationTaskModel(BaseModel):
+    id: int
+    created_at: datetime.datetime
+    comment: Optional[str]
+    tag: Optional[str]
+    status: str
+    language: str
+    skip_previously_exported: bool
+    zip_url: Optional[str]
+    error: Optional[str]
+    alerts: Any
 
 
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
@@ -85,6 +111,57 @@ def get_task_results(
         analysis_id=analysis_id,
         task_filter=TaskFilter.INTERESTING if only_interesting else None,
     ).data
+
+
+@router.get("/exports", dependencies=[Depends(verify_api_token)])
+def get_exports() -> List[ReportGenerationTaskModel]:
+    return [
+        ReportGenerationTaskModel(
+            id=task.id,
+            created_at=task.created_at,
+            comment=task.comment,
+            tag=task.tag,
+            status=task.status,
+            language=task.language,
+            skip_previously_exported=task.skip_previously_exported,
+            zip_url=f"/api/export/download-zip/{task.id}" if task.output_location else None,
+            error=task.error,
+            alerts=task.alerts,
+        )
+        for task in db.list_report_generation_tasks()
+    ]
+
+
+# This is a redirect so that we have an entry in api docs
+@router.get("/export/download-zip/{id}", dependencies=[Depends(verify_api_token)])
+def download_zip(id: int) -> RedirectResponse:
+    return RedirectResponse(f"/export/download-zip/{id}")
+
+
+@router.post("/export/delete/{id}", dependencies=[Depends(verify_api_token)])
+async def post_export_delete(id: int) -> Dict[str, Any]:
+    db.delete_report_generation_task(id)
+    return {
+        "ok": True,
+    }
+
+
+@router.post("/export")
+async def post_export(
+    language: str = Form(),
+    skip_previously_exported: bool = Form(),
+    tag: Optional[str] = Form(None),
+    comment: Optional[str] = Form(None),
+) -> Dict[str, Any]:
+    db.create_report_generation_task(
+        skip_previously_exported=skip_previously_exported,
+        tag=tag,
+        comment=comment,
+        language=Language(language),
+    )
+    return {
+        "ok": True,
+    }
 
 
 @router.get("/analyses-table", include_in_schema=False)

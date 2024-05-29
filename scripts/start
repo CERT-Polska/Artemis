@@ -6,16 +6,17 @@ exists() {
     [ -e "$1" ]
 }
 if [[ $(uname -m) != "arm"* ]]; then
-    PROFILE=--profile x86
+    PROFILE=--profile not-arm
 else
-    echo "some modules are not ARM compatible yet so skipping them."
+    echo "you have an ARM architecture so we have skipped some modules, for all features we recommend using a x86 architecture system."
     PROFILE=
 fi
 
 if exists Artemis-modules-extra; then
     ADDITIONAL_OPTIONS=--scale=karton-sqlmap=5
 else
-    echo "you do not have Artemis-modules-extra installed. please refer to https://artemis-scanner.readthedocs.io/en/latest/quick-start.html"
+    echo "you do not have Artemis-modules-extra installed. it is recommended to have these modules installed as They detect subdomain takeovers, SSL misconfigurations, SQL injections, and WordPress vulnerabilities.CERT PL finds tens of thousands of misconfigured SSL and hundreds of SQL injections using these modules.
+    run git clone https://github.com/CERT-Polska/Artemis-modules-extra.git to install them."
     ADDITIONAL_OPTIONS=
 fi
 

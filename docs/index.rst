@@ -37,6 +37,7 @@ To chat about Artemis, join the Discord server:
    generating-reports
    architecture
    user-guide/configuration
+   user-guide/cooperation-with-scanned-entities
    user-guide/writing-a-module
    user-guide/translating-report-messages
    user-guide/troubleshooting

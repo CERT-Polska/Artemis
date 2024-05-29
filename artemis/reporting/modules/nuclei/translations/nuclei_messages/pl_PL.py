@@ -833,4 +833,6 @@ TRANSLATIONS = {
     "Proofpoint Protection Server panel was detected.": "wykryto panel Proofpoint Protection Server.",
     "http/exposed-panels/n8n-panel.yaml": "Wykryto panel logowania systemu n8n.",
     "Strapi CMS Documentation login panel was detected.": "wykryto panel logowania Strapi CMS Documentation.",
+    "NPM Debug log file exposed.": "Wykryto dziennik z danymi diagnostycznymi narzędzia NPM.",
+    "Jboss Seam Debug Page was exposed.": "wykryto stronę z danymi diagnostycznymi Jboss Seam.",
 }

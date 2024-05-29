@@ -241,7 +241,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "    </body>",
                             "</html>",
                         ]
-                    ).encode('utf-8'),
+                    ).encode("utf-8"),
                 )
                 self.assertEqual(
                     content,
@@ -278,5 +278,5 @@ class ExportingTestCase(BaseE2ETestCase):
                             "    </body>",
                             "</html>",
                         ]
-                    ).encode('utf-8'),
+                    ).encode("utf-8"),
                 )

@@ -58,8 +58,8 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         self.assertTrue(
             int(
                 requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()
-            ) in [1, 0] # 0 as the task may have already finished
-            1,
+            )
+            in [1, 0]  # 0 as the task may have already finished
         )
 
         for i in range(100):

@@ -6,17 +6,26 @@ exists() {
     [ -e "$1" ]
 }
 if [[ $(uname -m) != "arm"* ]]; then
-    PROFILE=--profile not-arm
+    PROFILE='--profile not-arm'
 else
-    echo "you have an ARM architecture so we have skipped some modules, for all features we recommend using a x86 architecture system."
+    echo "Some modules are not supported on the ARM architecture - not starting them. "
+    echo "To make use of all Artemis features, we recommend using an x86 system."
     PROFILE=
 fi
 
 if exists Artemis-modules-extra; then
     ADDITIONAL_OPTIONS=--scale=karton-sqlmap=5
 else
-    echo "you do not have Artemis-modules-extra installed. it is recommended to have these modules installed as They detect subdomain takeovers, SSL misconfigurations, SQL injections, and WordPress vulnerabilities.CERT PL finds tens of thousands of misconfigured SSL and hundreds of SQL injections using these modules.
-    run git clone https://github.com/CERT-Polska/Artemis-modules-extra.git to install them."
+    echo "We recommend you to add additional Artemis modules from https://github.com/CERT-Polska/Artemis-modules-extra/ "
+    echo "- these modules haven’t been included in core due to their licenses (e.g. GPL or AGPL), but provide additional "
+    echo "features such as e.g. SSL verification (certificate validity, proper redirect, etc.), subdomain takeover check or SQL "
+    echo "injection check."
+    echo
+    echo "CERT PL finds tens of thousands of misconfigured SSL and hundreds of SQL injections using these modules."
+    echo
+    echo "To set up Artemis-modules-extra, clone https://github.com/CERT-Polska/Artemis-modules-extra/ inside "
+    echo "the Artemis directory and run ./scripts/start."
+    echo
     ADDITIONAL_OPTIONS=
 fi
 

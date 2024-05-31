@@ -13,6 +13,9 @@ services:
       - data-web:/data
       - ./docker/karton-test.ini:/etc/karton/karton.ini
 
+  autoreporter:
+    env_file: env.test
+
   karton-bruter:
     <<: *artemis-build
     environment:

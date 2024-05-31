@@ -30,7 +30,8 @@ else
 fi
 
 # We don't use `-d` here so that the user sees the logs by default.
-. scripts/run_docker_compose $PROFILE up --build \
+./scripts/run_docker_compose stop
+./scripts/run_docker_compose $PROFILE up --build \
     --scale=karton-wp_scanner=3 \
     --scale=karton-identifier=3 \
     --scale=karton-port_scanner=5 \

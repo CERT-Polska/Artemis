@@ -45,6 +45,7 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "userway-accessibility-widget",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
+    "athemes-starter-sites",
     "blocks-animation",
     "cf7-to-zapier",
     "change-admin-email-setting-without-outbound-email",
@@ -62,7 +63,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
     "themesflat-addons-for-elementor",
-    "userway-accessibility-widget",
+    "throws-spam-away",
     "website-monetization-by-magenet",
     "woo-tools",
     "wp-lightbox-2",

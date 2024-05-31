@@ -461,13 +461,14 @@ class DB:
     def delete_report_generation_task(self, id: int) -> None:
         with self.session() as session:
             task = session.query(ReportGenerationTask).get(id)
-            output_location = "/opt/" + task.output_location
-            if os.path.exists(output_location):
-                # Make sure we don't remove too much
-                assert os.path.normpath(output_location).startswith("/opt/output/autoreporter/")
-                shutil.rmtree(output_location)
-            session.delete(task)
-            session.commit()
+            if task.output_location:
+                output_location = "/opt/" + task.output_location
+                if os.path.exists(output_location):
+                    # Make sure we don't remove too much
+                    assert os.path.normpath(output_location).startswith("/opt/output/autoreporter/")
+                    shutil.rmtree(output_location)
+                session.delete(task)
+                session.commit()
 
     def _iter_results(self, query: Any, batch_size: int) -> Generator[Dict[str, Any], None, None]:
         with self._engine.connect() as conn:

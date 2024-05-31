@@ -8,7 +8,7 @@ exists() {
 if [[ $(uname -m) != "arm"* ]]; then
     PROFILE='--profile not-arm'
 else
-    echo "Some modules are not supported on the ARM architecture - not starting them. "
+    echo "Some modules are not supported on CPUs with ARM architecture - not starting them. "
     echo "To make use of all Artemis features, we recommend using an x86 system."
     PROFILE=
 fi

@@ -25,7 +25,7 @@ def _list_of_tuples_to_str(lst: List[Tuple[str, Any]]) -> str:
     return DB.dict_to_str(tmp)
 
 
-def _single_migration_iteration(client) -> None:
+def _single_migration_iteration(client: MongoClient) -> None:
     db = DB()
     with client.start_session() as mongo_session:
         if client.artemis.analysis.count_documents({"migrated": {"$exists": False}}):

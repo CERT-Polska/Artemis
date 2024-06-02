@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from artemis.config import Config
 from artemis.db import DB, Analysis, ScheduledTask, TaskResult
-from artemis.utils import build_logger, CONSOLE_LOG_HANDLER
+from artemis.utils import CONSOLE_LOG_HANDLER, build_logger
 
 logger = build_logger(__name__)
 

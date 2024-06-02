@@ -1,6 +1,5 @@
 import datetime
 import hashlib
-import logging
 import threading
 import time
 from typing import Any, List, Tuple
@@ -11,7 +10,7 @@ from tqdm import tqdm
 
 from artemis.config import Config
 from artemis.db import DB, Analysis, ScheduledTask, TaskResult
-from artemis.utils import CONSOLE_LOG_HANDLER, build_logger
+from artemis.utils import build_logger
 
 logger = build_logger(__name__)
 
@@ -26,9 +25,8 @@ def _list_of_tuples_to_str(lst: List[Tuple[str, Any]]) -> str:
     return DB.dict_to_str(tmp)
 
 
-def _single_migration_iteration() -> None:
+def _single_migration_iteration(client) -> None:
     db = DB()
-    client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
     with client.start_session() as mongo_session:
         if client.artemis.analysis.count_documents({"migrated": {"$exists": False}}):
             logger.info("Migrating analyses...")
@@ -117,21 +115,15 @@ def migrate_and_start_thread() -> None:
     if not Config.Data.LEGACY_MONGODB_CONN_STR:
         return
 
-    # Decrease spam in logs
-    logger = logging.getLogger("pymongo.serverSelection")
-    logger.setLevel(logging.WARNING)
-    for handler in logger.handlers:
-        logger.removeHandler(handler)
-    logger.addHandler(CONSOLE_LOG_HANDLER)
-
     def migration_thread_body() -> None:
+        client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR, server_selector=lambda servers: servers)
+
         while True:
-            client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
             client.artemis.task_results.create_index([("migrated", ASCENDING)])
             client.artemis.analysis.create_index([("migrated", ASCENDING)])
             client.artemis.scheduled_tasks.create_index([("migrated", ASCENDING)])
 
-            _single_migration_iteration()
+            _single_migration_iteration(client)
 
             time.sleep(20)
 

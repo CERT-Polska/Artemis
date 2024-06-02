@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from artemis.config import Config
 from artemis.db import DB, Analysis, ScheduledTask, TaskResult
-from artemis.utils import build_logger
+from artemis.utils import build_logger, CONSOLE_LOG_HANDLER
 
 logger = build_logger(__name__)
 
@@ -122,6 +122,7 @@ def migrate_and_start_thread() -> None:
     logger.setLevel(logging.WARNING)
     for handler in logger.handlers:
         logger.removeHandler(handler)
+    logger.addHandler(CONSOLE_LOG_HANDLER)
 
     def migration_thread_body() -> None:
         while True:

@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import logging
 import threading
 import time
 from typing import Any, List, Tuple
@@ -115,6 +116,12 @@ def _single_migration_iteration() -> None:
 def migrate_and_start_thread() -> None:
     if not Config.Data.LEGACY_MONGODB_CONN_STR:
         return
+
+    # Decrease spam in logs
+    logger = logging.getLogger("pymongo.serverSelection")
+    logger.setLevel(logging.WARNING)
+    for handler in logger.handlers:
+        logger.removeHandler(handler)
 
     def migration_thread_body() -> None:
         while True:

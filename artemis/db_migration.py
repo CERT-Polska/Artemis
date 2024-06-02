@@ -117,7 +117,7 @@ def migrate_and_start_thread() -> None:
         return
 
     def migration_thread_body() -> None:
-        logging.getLogger('pymongo.serverSelection').setLevel(logging.WARNING)
+        logging.getLogger("pymongo.serverSelection").setLevel(logging.WARNING)
         client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR, server_selector=lambda servers: servers)
 
         while True:

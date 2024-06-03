@@ -29,9 +29,8 @@ else
     ADDITIONAL_OPTIONS=
 fi
 
-# We don't use `-d` here so that the user sees the logs by default.
 ./scripts/run_docker_compose stop
-./scripts/run_docker_compose $PROFILE up --build \
+./scripts/run_docker_compose $PROFILE up -d --build \
     --scale=karton-wp_scanner=3 \
     --scale=karton-identifier=3 \
     --scale=karton-port_scanner=5 \
@@ -39,3 +38,8 @@ fi
     --scale=karton-nuclei=5 \
     --scale=karton-bruter=5 \
     $ADDITIONAL_OPTIONS
+
+echo "Artemis started in the background. To view the logs, use:"
+echo "./scripts/run_docker_compose logs  # this will print all logs"
+echo "./scripts/run_docker_compose logs  -f # this will print all logs and start printing any new logs as they appear"
+echo "./scripts/run_docker_compose logs  --tail=0 -f # this will start printing any new logs as they appear"

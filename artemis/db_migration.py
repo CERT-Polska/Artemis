@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import logging
 import threading
 import time
 from typing import Any, List, Tuple
@@ -25,9 +26,8 @@ def _list_of_tuples_to_str(lst: List[Tuple[str, Any]]) -> str:
     return DB.dict_to_str(tmp)
 
 
-def _single_migration_iteration() -> None:
+def _single_migration_iteration(client: MongoClient) -> None:
     db = DB()
-    client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
     with client.start_session() as mongo_session:
         if client.artemis.analysis.count_documents({"migrated": {"$exists": False}}):
             logger.info("Migrating analyses...")
@@ -117,13 +117,15 @@ def migrate_and_start_thread() -> None:
         return
 
     def migration_thread_body() -> None:
+        logging.getLogger("pymongo.serverSelection").setLevel(logging.WARNING)
+        client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR, server_selector=lambda servers: servers)
+
         while True:
-            client = MongoClient(Config.Data.LEGACY_MONGODB_CONN_STR)
             client.artemis.task_results.create_index([("migrated", ASCENDING)])
             client.artemis.analysis.create_index([("migrated", ASCENDING)])
             client.artemis.scheduled_tasks.create_index([("migrated", ASCENDING)])
 
-            _single_migration_iteration()
+            _single_migration_iteration(client)
 
             time.sleep(20)
 

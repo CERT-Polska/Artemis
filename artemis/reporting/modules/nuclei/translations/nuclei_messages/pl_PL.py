@@ -837,4 +837,5 @@ TRANSLATIONS = {
     "Strapi CMS Documentation login panel was detected.": "wykryto panel logowania Strapi CMS Documentation.",
     "NPM Debug log file exposed.": "Wykryto dziennik z danymi diagnostycznymi narzędzia NPM.",
     "Jboss Seam Debug Page was exposed.": "wykryto stronę z danymi diagnostycznymi Jboss Seam.",
+    "go pprof debug page was exposed.": "wykryto stronę z informacjami diagnostycznymi systemu go pprof.",
 }

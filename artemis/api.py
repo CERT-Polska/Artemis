@@ -103,6 +103,7 @@ def get_task_results(
     analysis_id: Optional[str] = None,
     search: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
+    """Return raw results of the scanning tasks."""
     return db.get_paginated_task_results(
         start=(page - 1) * page_size,
         length=page_size,
@@ -115,6 +116,7 @@ def get_task_results(
 
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
 def get_exports() -> List[ReportGenerationTaskModel]:
+    """List all exports. An export is a request to create human-readable messages that may be sent to scanned entities."""
     return [
         ReportGenerationTaskModel(
             id=task.id,
@@ -135,11 +137,13 @@ def get_exports() -> List[ReportGenerationTaskModel]:
 # This is a redirect so that we have an entry in api docs
 @router.get("/export/download-zip/{id}", dependencies=[Depends(verify_api_token)])
 def download_zip(id: int) -> RedirectResponse:
+    """Download a zip file containing an export - all messages that can be sent to scanned entities + additional data such as statistics."""
     return RedirectResponse(f"/export/download-zip/{id}")
 
 
 @router.post("/export/delete/{id}", dependencies=[Depends(verify_api_token)])
 async def post_export_delete(id: int) -> Dict[str, Any]:
+    """Delete an export."""
     db.delete_report_generation_task(id)
     return {
         "ok": True,
@@ -153,6 +157,7 @@ async def post_export(
     tag: Optional[str] = Form(None),
     comment: Optional[str] = Form(None),
 ) -> Dict[str, Any]:
+    """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
     db.create_report_generation_task(
         skip_previously_exported=skip_previously_exported,
         tag=tag,

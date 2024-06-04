@@ -22,15 +22,15 @@ msgstr ""
 msgid "The vulnerability was identified on:"
 msgstr ""
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:14
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:25
 msgid " under "
 msgstr ""
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:21
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:36
 msgid "More information is available on:"
 msgstr ""
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:28
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:43
 msgid ""
 "Please contact us if more information is needed - e.g. an address or "
 "command that proves that the vulnerability exists."

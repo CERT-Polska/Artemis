@@ -62,6 +62,10 @@ class NucleiReporter(Reporter):
             url_parsed = urllib.parse.urlparse(url)
             return url_parsed.path.strip("/") == "" and not url_parsed.query and not url_parsed.fragment
 
+        def _is_url_without_query_fragment(url: str) -> bool:
+            url_parsed = urllib.parse.urlparse(url)
+            return not url_parsed.query and not url_parsed.fragment
+
         if task_result["headers"]["receiver"] != "nuclei":
             return []
 
@@ -99,6 +103,8 @@ class NucleiReporter(Reporter):
                 description = vulnerability["info"]["description"]
             else:
                 description = "[no description] " + template
+
+            matched_at_parsed = urllib.parse.urlparse(vulnerability["matched-at"])
 
             if template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
                 result.append(
@@ -141,6 +147,11 @@ class NucleiReporter(Reporter):
                         target=target,
                         report_type=NucleiReporter.NUCLEI_VULNERABILITY,
                         additional_data={
+                            "is_url_without_query_fragment": _is_url_without_query_fragment(matched_at),
+                            "hostname": matched_at_parsed.hostname,
+                            "path_query_fragment": matched_at_parsed.path
+                            + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
+                            + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else ""),
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
                                 template, description, language

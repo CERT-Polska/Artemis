@@ -45,3 +45,11 @@ if [ $? -eq 0 ]; then
     echo "./scripts/run_docker_compose logs  -f # this will print all logs and start printing any new logs as they appear"
     echo "./scripts/run_docker_compose logs  --tail=0 -f # this will start printing any new logs as they appear"
 fi
+
+(
+    source .env
+
+    if [ -z "$CUSTOM_USER_AGENT" ]; then
+        echo "We strongly recommend to set the CUSTOM_USER_AGENT setting: https://artemis-scanner.readthedocs.io/en/latest/user-guide/cooperation-with-scanned-entities.html"
+    fi
+)

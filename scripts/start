@@ -40,7 +40,11 @@ fi
     $ADDITIONAL_OPTIONS
 
 if [ $? -eq 0 ]; then
-    echo "Artemis started in the background. To view the logs, use:"
+    ./docker/wait-for-it.sh 127.0.0.1:5000 -t 30 -q
+
+    echo "Artemis started in the background. Browse to http://127.0.0.1:5000 and scan!"
+    echo
+    echo "To view the logs, use:"
     echo "./scripts/run_docker_compose logs  # this will print all logs"
     echo "./scripts/run_docker_compose logs  -f # this will print all logs and start printing any new logs as they appear"
     echo "./scripts/run_docker_compose logs  --tail=0 -f # this will start printing any new logs as they appear"

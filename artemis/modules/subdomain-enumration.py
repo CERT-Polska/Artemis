@@ -115,8 +115,7 @@ def get_subdomains_from_subfinder(self, current_task: Task) -> None:
     domain = current_task.get_payload("domain")
     try:
         subdomains: Set[str] = set()
-        try:
-            output = check_output_log_on_error(
+        output = check_output_log_on_error(
                 ["subfinder", 
                 "-d", 
                 domain, 
@@ -125,8 +124,8 @@ def get_subdomains_from_subfinder(self, current_task: Task) -> None:
                 text=True,
                 check=True
             )
-            subdomains.update(output.stdout.splitlines())
-        except subprocess.CalledProcessError as e:
+        subdomains.update(output.stdout.splitlines())
+    except subprocess.CalledProcessError as e:
             self.log.exception("Unable to obtain information from subfinder for domain %s: %s", domain, e)
 
 #amass implementation
@@ -152,14 +151,14 @@ def get_subdomains_from_subfinder(self, current_task: Task) -> None:
 
 def run(self, current_task: Task) -> None:
     domains: Set[str] = set()
-    domains = (
+    domains = ( 
         get_subdomains_from_GAU() |
         get_subdomains_from_jldc()|
         get_subdomains_from_rapid()
         )
 
-        def subdomain_check(subdomain):
-                        if is_subdomain(url_parsed.hostname, domain):
+def subdomain_check(subdomain):
+                if is_subdomain(url_parsed.hostname, domain):
                 self.redis.setex(
                     f"gau-done-{domain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
                 )

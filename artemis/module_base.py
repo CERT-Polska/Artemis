@@ -265,6 +265,7 @@ class ArtemisBase(Karton):
                         self.backend.redis.lrem(queue, 1, item)
                         if len(tasks) >= num_tasks:
                             break
+                self.log.debug(f"[taking tasks] {len(tasks)} tasks after checking queue {queue}")
                 if len(tasks) >= num_tasks:
                     break
         except Exception:

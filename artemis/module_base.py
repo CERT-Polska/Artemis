@@ -166,7 +166,9 @@ class ArtemisBase(Karton):
             self.log.info("Exiting loop, shutdown=%s", self.shutdown)
 
     def _single_iteration(self) -> int:
+        self.log.debug("single iteration")
         if self.resource_name_to_lock_before_scanning:
+            self.log.debug(f"locking {self.resource_name_to_lock_before_scanning}")
             resource_lock = ResourceLock(
                 f"resource-lock-{self.resource_name_to_lock_before_scanning}",
                 max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES,
@@ -202,17 +204,18 @@ class ArtemisBase(Karton):
         return len(tasks)
 
     def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]]]:
-        self.log.debug("Acquiring lock to take tasks from queue")
+        self.log.debug("[taking tasks] Acquiring lock to take tasks from queue")
         try:
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
-            self.log.info("Failed to acquire lock to take tasks from queue")
+            self.log.info("[taking tasks] Failed to acquire lock to take tasks from queue")
             return [], []
 
         try:
             tasks = []
             locks: List[Optional[ResourceLock]] = []
             for queue in self.backend.get_queue_names(self.identity):
+                self.log.debug("[taking tasks] Taking tasks from queue {queue}")
                 for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
                     task = self.backend.get_task(item)
 
@@ -235,7 +238,7 @@ class ArtemisBase(Karton):
                                 tasks.append(task)
                                 locks.append(lock)
                                 self.log.info(
-                                    "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s), %d/%d locked",
+                                    "[taking tasks] Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s), %d/%d locked",
                                     task.uid,
                                     task.orig_uid,
                                     scan_destination,
@@ -421,6 +424,11 @@ class ArtemisBase(Karton):
         self.log.info(message)
 
     def _get_scan_destination(self, task: Task) -> str:
+        cache_key = "scan-destination-" + task.uid
+        cached_destination = self.cache.get(cache_key)
+        if cached_destination:
+            return cached_destination.decode("ascii")
+
         result = None
         if task.headers["type"] == TaskType.NEW:
             result = task.payload["data"]
@@ -458,6 +466,7 @@ class ArtemisBase(Karton):
                 result = task.payload["host"]
 
         assert isinstance(result, str)
+        self.cache.set(cache_key, result)
         return result
 
     def _get_ip_for_locking(self, host: str) -> str:

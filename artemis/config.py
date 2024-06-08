@@ -187,6 +187,13 @@ class Config:
             "Custom User-Agent string used by Artemis (if not set, the library defaults will be used, different for requests, Nuclei etc.)",
         ] = get_config("CUSTOM_USER_AGENT", default="")
 
+        LOG_LEVEL: Annotated[
+            str,
+            "Log level (e.g. INFO or DEBUG) - for available levels browse to https://docs.python.org/3/library/logging.html#logging-levels",
+        ] = get_config(
+            "LOG_LEVEL",
+            default="INFO",
+        )
         LOGGING_FORMAT_STRING: Annotated[
             str,
             "Logging format string (according to the syntax in https://docs.python.org/3/library/logging.html#logrecord-attributes)",

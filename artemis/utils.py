@@ -12,7 +12,7 @@ from whoisdomain import query as whois_query
 from artemis.config import Config
 
 CONSOLE_LOG_HANDLER = logging.StreamHandler()
-CONSOLE_LOG_HANDLER.setLevel(logging.INFO)
+CONSOLE_LOG_HANDLER.setLevel(getattr(logging, Config.Miscellaneous.LOG_LEVEL))
 CONSOLE_LOG_HANDLER.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
 
 

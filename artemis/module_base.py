@@ -45,7 +45,7 @@ class ArtemisBase(Karton):
     Artemis base module. Provides helpers (such as e.g. cache) for all modules.
     """
 
-    task_poll_interval_seconds = 2
+    task_poll_interval_seconds = 30
     batch_tasks = False
     # This is the maximum batch size. Due to the fact that we may be unable to lock some targets because
     # their IPs are already scanned, the actual batch size may be lower.

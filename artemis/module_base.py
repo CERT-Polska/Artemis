@@ -274,6 +274,8 @@ class ArtemisBase(Karton):
         finally:
             self.taking_tasks_from_queue_lock.release()
 
+        self.log.debug("[taking tasks] Tasks from queue taken")
+
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []
         for task, lock_for_task in zip(tasks, locks):
@@ -293,6 +295,7 @@ class ArtemisBase(Karton):
             else:
                 tasks_not_blocklisted.append(task)
                 locks_for_tasks_not_blocklisted.append(lock_for_task)
+        self.log.debug("[taking tasks] Tasks from queue taken and filtered, %d left after filtering", len(tasks_not_blocklisted))
         return tasks_not_blocklisted, locks_for_tasks_not_blocklisted
 
     def _is_blocklisted(self, task: Task) -> bool:

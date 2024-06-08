@@ -68,7 +68,7 @@ def perform_whois_or_sleep(domain: str, logger: logging.Logger) -> Optional[Doma
 
 def build_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(getattr(logging, Config.Miscellaneous.LOG_LEVEL))
     for handler in logger.handlers:
         logger.removeHandler(handler)
     logger.addHandler(CONSOLE_LOG_HANDLER)

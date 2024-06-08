@@ -216,7 +216,7 @@ class ArtemisBase(Karton):
             tasks = []
             locks: List[Optional[ResourceLock]] = []
             for queue in self.backend.get_queue_names(self.identity):
-                self.log.debug("[taking tasks] Taking tasks from queue {queue}")
+                self.log.debug(f"[taking tasks] Taking tasks from queue {queue}")
                 for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
                     task = self.backend.get_task(item)
 

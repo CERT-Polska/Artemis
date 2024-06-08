@@ -12,7 +12,7 @@ from whoisdomain import query as whois_query
 from artemis.config import Config
 
 CONSOLE_LOG_HANDLER = logging.StreamHandler()
-CONSOLE_LOG_HANDLER.setLevel(logging.INFO)
+CONSOLE_LOG_HANDLER.setLevel(getattr(logging, Config.Miscellaneous.LOG_LEVEL))
 CONSOLE_LOG_HANDLER.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
 
 
@@ -68,7 +68,7 @@ def perform_whois_or_sleep(domain: str, logger: logging.Logger) -> Optional[Doma
 
 def build_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(getattr(logging, Config.Miscellaneous.LOG_LEVEL))
     for handler in logger.handlers:
         logger.removeHandler(handler)
     logger.addHandler(CONSOLE_LOG_HANDLER)

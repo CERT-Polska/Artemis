@@ -58,27 +58,12 @@ class subdomainenumeration(ArtemisBase):
             self.log.exception("Unable to obtain information from jldc.me for domain %s", domain)
         return subdomains
 
-    def get_subdomains_from_subfinder(self, current_task: Task) -> Set[str]:
-        domain = current_task.get_payload("domain")
-        subdomains: Set[str] = set()
-        try:
-            output = check_output_log_on_error(
-                ["subfinder", "-d", domain, "-all"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            subdomains.update(output.stdout.splitlines())
-        except subprocess.CalledProcessError as e:
-            self.log.exception("Unable to obtain information from subfinder for domain %s: %s", domain, e)
-        return subdomains
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
         subdomains = (
             self.get_subdomains_from_rapid(current_task) |
-            self.get_subdomains_from_jldc(current_task) |
-            self.get_subdomains_from_subfinder(current_task)
+            self.get_subdomains_from_jldc(current_task)
         )
 
         for subdomain in subdomains:

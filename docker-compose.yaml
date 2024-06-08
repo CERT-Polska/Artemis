@@ -4,9 +4,9 @@ x-artemis-build-or-image:
   # Replace with the following to use local Artemis source code to build the container,
   # not one downloaded from Docker Hub:
   #
-  # build:
-  #    context: .
-  #    dockerfile: docker/Dockerfile
+  build:
+      context: .
+      dockerfile: docker/Dockerfile
 
 services:
   redis:
@@ -94,7 +94,7 @@ services:
     <<: *artemis-build-or-image
     depends_on: [karton-system, karton-logger]
     env_file: .env
-    ports: ["5000:5000"]
+    ports: ["7500:5000"]
     restart: always
     volumes:
       - data-web:/data
@@ -370,6 +370,14 @@ services:
   karton-wp_scanner:
     <<: *artemis-build-or-image
     command: "python3 -m artemis.modules.wp_scanner"
+    depends_on: [karton-system, karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-subdomainenumeration:
+    <<: *artemis-build-or-image
+    command: "python3 -m artemis.modules.subdomainenumeration"
     depends_on: [karton-system, karton-logger]
     env_file: .env
     restart: always

@@ -11,9 +11,9 @@ ARG ADDITIONAL_REQUIREMENTS
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
 RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois && \
-    GOBIN=/usr/local/bin/ go install github.com/projectdiscovery/naabu/v2/cmd/naabu@v2.1.6 && \
-    GOBIN=/usr/local/bin/ go install github.com/praetorian-inc/fingerprintx/cmd/fingerprintx@v1.1.9 && \
-    GOBIN=/usr/local/bin/ go install github.com/lc/gau/v2/cmd/gau@v2.1.2 && \
+    GOBIN=/usr/local/bin/ go install github.com/projectdiscovery/naabu/v2/cmd/naabu@v2.3.1 && \
+    GOBIN=/usr/local/bin/ go install github.com/praetorian-inc/fingerprintx/cmd/fingerprintx@v1.1.13 && \
+    GOBIN=/usr/local/bin/ go install github.com/lc/gau/v2/cmd/gau@v2.2.3 && \
     git clone https://github.com/projectdiscovery/nuclei.git -b v2.9.7 /nuclei && \
     cd /nuclei && git apply /nuclei-rate-limiting.patch && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install && cd / && rm -rf /nuclei && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \

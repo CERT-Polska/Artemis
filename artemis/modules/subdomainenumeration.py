@@ -58,10 +58,50 @@ class subdomainenumeration(ArtemisBase):
             self.log.exception("Unable to obtain information from jldc.me for domain %s", domain)
         return subdomains
 
+    def get_subdomains_from_subfinder(self, current_task: Task) -> Set[str]:
+        domain = current_task.get_payload("domain")
+        subdomains: Set[str] = set()
+        try:
+            result = check_output_log_on_error(
+                [
+                    "subfinder", 
+                    "-d", 
+                    domain, 
+                    "-silent",
+                    "-all"
+                    ],
+                    self.log
+            )
+            subdomains.update(result.decode().splitlines())
+        except Exception:
+            self.log.exception("Unable to obtain information from subfinder for domain %s", domain)
+        return subdomains
+
+    def get_subdomains_from_amass(self, current_task: Task) -> Set[str]:
+        domain = current_task.get_payload("domain")
+        subdomains: Set[str] = set()
+        try:
+            result = check_output_log_on_error(
+                [
+                    "amass",
+                    "enum",
+                    "-d",
+                    domain,
+                    "-silent"
+                ],
+                self.log
+            )
+            subdomains.update(result.decode().splitlines())
+        except Exception:
+            self.log.exception("Unable to obtain information from amass for domain %s", domain)
+        return subdomains
+
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
         subdomains = (
+            self.get_subdomains_from_subfinder(current_task) |
+            self.get_subdomains_from_amass(current_task) |
             self.get_subdomains_from_rapid(current_task) |
             self.get_subdomains_from_jldc(current_task)
         )

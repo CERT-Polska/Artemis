@@ -50,7 +50,7 @@ if [ $? -eq 0 ]; then
     if [ "`docker compose ps -q web --status running`" == "" ]; then
         echo "Artemis web container doesn't appear to have started. Run ./scripts/run_docker_compose logs to view the logs."
     else
-        docker compose run --no-deps karton-logger /wait-for-it.sh -q -t 30 web:5000
+        docker compose run --no-deps karton-logger /wait-for-it.sh -q -t 60 web:5000
 
         echo "Artemis started in the background. Browse to http://127.0.0.1:5000 and scan!"
         echo

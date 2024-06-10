@@ -1,12 +1,12 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
-  image: certpl/artemis:latest
+  # image: certpl/artemis:latest
   # Replace with the following to use local Artemis source code to build the container,
   # not one downloaded from Docker Hub:
   #
-  # build:
-  #    context: .
-  #    dockerfile: docker/Dockerfile
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
 
 services:
   redis:
@@ -97,6 +97,8 @@ services:
     ports: ["5000:5000"]
     restart: always
     volumes:
+      # Add new volume to modify local Artemis source code to see changes on website.
+      - ./:/opt
       - data-web:/data
       - ./docker/karton.ini:/etc/karton/karton.ini:ro
       - ./output/autoreporter/:/opt/output/autoreporter

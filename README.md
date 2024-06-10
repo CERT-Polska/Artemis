@@ -16,6 +16,9 @@ and [building easy-to-read messages ready to be sent to the scanned organization
 
 If you want to use additional modules that weren't included here due to non-BSD-compatible licenses, browse to the [Artemis-modules-extra](https://github.com/CERT-Polska/Artemis-modules-extra) repository.
 
+If you work as a developer and you want to modify code, you have to do some modifications ⮕  **[Developers](#develop)**
+
+
 **Artemis is experimental software, under active development - use at your own risk.**
 
 To chat about Artemis, join the Discord server:
@@ -43,9 +46,16 @@ The possibility to automatically prepare such reports enabled us to notify entit
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)
 
+<a name="develop"></a>
 ## Development
-If you want to develop Artemis, remember to change the [Docker Compose file](https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml#L7) so that
+If you want to develop Artemis, remember to change the Docker Compose file in two places. 
+- **[First modification](https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml#L7)** so that
 the Artemis image is built locally (from the code you are changing) not downloaded from Docker Hub.
+- **[Second modification](https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml#L100)** to do
+modifications on the local machine.
+
+To provide reloading whole web app you have to use **[cmd command](https://github.com/CERT-Polska/Artemis/blob/main/docker/Dockerfile#L30)** with *"--reload"* option. 
+This will allow you to see the results of code modifications on the page without reloading the entire container.
 
 ### Tests
 To run the tests, use:

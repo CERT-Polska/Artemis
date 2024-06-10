@@ -26,4 +26,6 @@ COPY "artemis/" "artemis/"
 COPY "static/" "static/"
 COPY "templates/" "templates/"
 
-CMD ["uvicorn", "artemis.main:app", "--host", "0.0.0.0", "--port", "5000"]
+# Add "--reload" option to see changes on website without reloading web container.
+CMD ["uvicorn", "artemis.main:app", "--host", "0.0.0.0", "--port", "5000", "--reload"]
+# CMD ["uvicorn", "artemis.main:app", "--host", "0.0.0.0", "--port", "5000"]

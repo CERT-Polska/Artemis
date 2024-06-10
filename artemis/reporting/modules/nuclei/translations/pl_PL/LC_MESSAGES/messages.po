@@ -34,11 +34,11 @@ msgstr "Podatność wykryto pod poniższymi adresami:"
 msgid " under "
 msgstr " pod ścieżką "
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:36
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:37
 msgid "More information is available on:"
 msgstr "Więcej informacji można uzyskać pod adresami:"
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:43
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:44
 msgid ""
 "Please contact us if more information is needed - e.g. an address or "
 "command that proves that the vulnerability exists."
@@ -46,3 +46,11 @@ msgstr ""
 "Prosimy o kontakt, jeśli potrzebują Państwo więcej informacji (np. "
 "konkretny adres na Państwa stronie, za pomocą którego można potwierdzić, "
 "że podatność istnieje)."
+
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:49
+msgid ""
+"The above links are automatically generated - contact us if they aren't "
+"sufficient for you to reproduce the vulnerability."
+msgstr ""
+"Powyższe odnośniki są generowane automatycznie - prosimy o kontakt, jeśli "
+"nie są dla Państwa wystarczające, aby odtworzyć podatność po Państwa stronie."

@@ -26,12 +26,18 @@ msgstr ""
 msgid " under "
 msgstr ""
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:36
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:37
 msgid "More information is available on:"
 msgstr ""
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:43
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:44
 msgid ""
 "Please contact us if more information is needed - e.g. an address or "
 "command that proves that the vulnerability exists."
+msgstr ""
+
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:49
+msgid ""
+"The above links are automatically generated - contact us if they aren't "
+"sufficient for you to reproduce the vulnerability."
 msgstr ""

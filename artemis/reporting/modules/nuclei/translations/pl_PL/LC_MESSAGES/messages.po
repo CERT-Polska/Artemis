@@ -26,19 +26,19 @@ msgstr ""
 "Rekomendujemy, aby takie zasoby były dostępne tylko w sieci wewnętrznej, "
 "za pomocą VPN lub z ograniczonej puli adresów IP."
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:9
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:12
 msgid "The vulnerability was identified on:"
 msgstr "Podatność wykryto pod poniższymi adresami:"
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:25
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:28
 msgid " under "
 msgstr " pod ścieżką "
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:37
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:40
 msgid "More information is available on:"
 msgstr "Więcej informacji można uzyskać pod adresami:"
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:44
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:47
 msgid ""
 "Please contact us if more information is needed - e.g. an address or "
 "command that proves that the vulnerability exists."
@@ -47,7 +47,7 @@ msgstr ""
 "konkretny adres na Państwa stronie, za pomocą którego można potwierdzić, "
 "że podatność istnieje)."
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:49
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:52
 msgid ""
 "The above links are automatically generated - contact us if they aren't "
 "sufficient for you to reproduce the vulnerability."

@@ -626,6 +626,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "WordPress `wp-config` was discovered. This file is remotely accessible and its content available for reading.": "Wykryto kopię zapasową pliku `wp-config`, która może zawierać np. dane do logowania do bazy danych, umożliwiające atakującemu przejęcie pełnej kontroli nad systemem."
     + DATA_HIDE_HINT,
+    "ISPConfig Default Password Vulnerability exposes systems to unauthorized access, compromising data integrity and security.": "wykryto, że do panelu ISPConfig można zalogować się domyślnym hasłem, co umożliwia atakującemu nieuprawniony dostęp do systemu.",
     "Jolokia is vulnerable to local file inclusion via compilerDirectivesAdd.": "wykryto wersję systemu Jolokia zawierającą podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Checks websites for Balada Injector malware.": "Wykryto, że strona jest zainfekowana złośliwym oprogramowaniem Balada Injector.",
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
@@ -637,6 +638,7 @@ TRANSLATIONS = {
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",
     "An Adminer login panel was detected.": "wykryto panel logowania narzędzia Adminer.",
     "Webalizer panel was detected.": "wykryto panel narzędzia Webalizer.",
+    "http/exposed-panels/ghost-panel.yaml": "wykryto panel systemu Ghost",
     "FortiOS admin login panel was detected.": "wykryto panel logowania do panelu administracyjnego narzędzia FortiOS.",
     "Fortinet FortiGate SSL VPN login panel was detected.": "wykryto panel logowania Fortinet FortiGate SSL VPN.",
     "Plesk Obsidian login panel was detected.": "wykryto panel logowania narzędzia Plesk Obsidian.",

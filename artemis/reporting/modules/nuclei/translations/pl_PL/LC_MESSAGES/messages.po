@@ -47,7 +47,7 @@ msgstr ""
 "konkretny adres na Państwa stronie, za pomocą którego można potwierdzić, "
 "że podatność istnieje)."
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:52
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:53
 msgid ""
 "The above links are automatically generated - contact us if they aren't "
 "sufficient for you to reproduce the vulnerability."

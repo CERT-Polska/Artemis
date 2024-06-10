@@ -4,7 +4,7 @@ from typing import NamedTuple
 from karton.core import Task
 
 from artemis.binds import TaskType
-from artemis.modules.subdomainenumeration import subdomainenumeration
+from artemis.modules.subdomain_enumeration import subdomain_enumeration
 
 
 class TestData(NamedTuple):
@@ -12,9 +12,9 @@ class TestData(NamedTuple):
     expected_subdomain: str
 
 
-class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
+class subdomain_enumerationScannerTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
-    karton_class = subdomainenumeration 
+    karton_class = subdomain_enumeration 
 
     def test_simple(self) -> None:
         data = [

@@ -375,9 +375,9 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-subdomainenumeration:
+  karton-subdomain_enumeration:
     <<: *artemis-build-or-image
-    command: "python3 -m artemis.modules.subdomainenumeration"
+    command: "python3 -m artemis.modules.subdomain_enumeration"
     depends_on: [karton-system, karton-logger]
     env_file: .env
     restart: always

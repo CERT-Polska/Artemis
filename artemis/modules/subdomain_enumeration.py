@@ -18,12 +18,12 @@ from artemis.utils import check_output_log_on_error
 
 DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
 
-class subdomainenumeration(ArtemisBase):
+class subdomain_enumeration(ArtemisBase):
     """
     Consumes `type: domain` to gather subdomains and produces `type: domain`.
     """
 
-    identity = "subdomainenumeration"
+    identity = "subdomain_enumeration"
     filters = [
         {"type": TaskType.DOMAIN.value},
     ]
@@ -118,4 +118,4 @@ class subdomainenumeration(ArtemisBase):
         self.log.info(f"Added {len(subdomains)} subdomains to scan")
 
 if __name__ == "__main__":
-    subdomainenumeration().loop()
+    subdomain_enumeration().loop()

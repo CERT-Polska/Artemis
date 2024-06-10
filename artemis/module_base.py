@@ -434,7 +434,7 @@ class ArtemisBase(Karton):
         cache_key = "scan-destination-" + task.uid
         cached_destination = self.cache.get(cache_key)
         if cached_destination:
-            return cached_destination.decode("ascii")
+            return cached_destination.decode("utf-8")
 
         result = None
         if task.headers["type"] == TaskType.NEW:
@@ -473,7 +473,7 @@ class ArtemisBase(Karton):
                 result = task.payload["host"]
 
         assert isinstance(result, str)
-        self.cache.set(cache_key, result.encode("ascii"))
+        self.cache.set(cache_key, result.encode("utf-8"))
         return result
 
     def _get_ip_for_locking(self, host: str) -> str:

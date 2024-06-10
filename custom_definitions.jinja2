@@ -1,0 +1,15 @@
+{% macro custom_header_text() %}
+    [example custom definitions]
+
+    <p>
+        During scanning performed
+        {# this is not actual scanning time as we don't have it - we use minimum and maximum vulnerability timestamp to approximate it #}
+        {% if data.custom_template_arguments.min_vulnerability_date_str == data.custom_template_arguments.max_vulnerability_date_str %}
+            on {{ data.custom_template_arguments.min_vulnerability_date_str }}
+        {% else %}
+            from {{ data.custom_template_arguments.min_vulnerability_date_str }} to {{ data.custom_template_arguments.max_vulnerability_date_str }}
+        {% endif %}
+        we detected, that:
+    </p>
+{% endmacro %}
+

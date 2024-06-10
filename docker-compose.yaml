@@ -70,6 +70,7 @@ services:
       # starting the container. This solution is far from perfect - feel free to propose a better
       # one.
       - /:/host-root/:ro
+      - ./custom_definitions.jinja2:/opt/artemis/reporting/templates/custom_definitions.jinja2:ro
       - ./output/autoreporter/:/opt/output/autoreporter
       - ./docker/karton.ini:/etc/karton/karton.ini
       - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"

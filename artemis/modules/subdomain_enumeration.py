@@ -29,8 +29,7 @@ class subdomain_enumeration(ArtemisBase):
     ]
     lock_target = False
 
-    def get_subdomains_from_rapid(self, current_task: Task) -> Set[str]:
-        domain = current_task.get_payload("domain")
+    def get_subdomains_from_rapiddns(self, domain: str) -> Set[str]:
         subdomains: Set[str] = set()
         try:
             response = requests.get(f"https://rapiddns.io/subdomain/{domain}#result")
@@ -46,8 +45,7 @@ class subdomain_enumeration(ArtemisBase):
             self.log.exception("Unable to obtain information from rapiddns.io for domain %s", domain)
         return subdomains
 
-    def get_subdomains_from_jldc(self, current_task: Task) -> Set[str]:
-        domain = current_task.get_payload("domain")
+    def get_subdomains_from_jldc(self, domain: str) -> Set[str]:
         subdomains: Set[str] = set()
         try:
             response = requests.get(f"https://jldc.me/anubis/subdomains/{domain}")
@@ -58,8 +56,7 @@ class subdomain_enumeration(ArtemisBase):
             self.log.exception("Unable to obtain information from jldc.me for domain %s", domain)
         return subdomains
 
-    def get_subdomains_from_subfinder(self, current_task: Task) -> Set[str]:
-        domain = current_task.get_payload("domain")
+    def get_subdomains_from_subfinder(self, domain: str) -> Set[str]:
         subdomains: Set[str] = set()
         try:
             result = check_output_log_on_error(
@@ -77,8 +74,7 @@ class subdomain_enumeration(ArtemisBase):
             self.log.exception("Unable to obtain information from subfinder for domain %s", domain)
         return subdomains
 
-    def get_subdomains_from_amass(self, current_task: Task) -> Set[str]:
-        domain = current_task.get_payload("domain")
+    def get_subdomains_from_amass(self, domain: str) -> Set[str]:
         subdomains: Set[str] = set()
         try:
             result = check_output_log_on_error(
@@ -103,10 +99,10 @@ class subdomain_enumeration(ArtemisBase):
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
         subdomains = (
-            self.get_subdomains_from_subfinder(current_task) |
-            self.get_subdomains_from_amass(current_task) |
-            self.get_subdomains_from_rapid(current_task) |
-            self.get_subdomains_from_jldc(current_task)
+            self.get_subdomains_from_subfinder(domain) |
+            self.get_subdomains_from_amass(domain) |
+            self.get_subdomains_from_rapiddns(domain) |
+            self.get_subdomains_from_jldc(domain)
         )
 
         for subdomain in subdomains:

@@ -92,8 +92,11 @@ class subdomain_enumeration(ArtemisBase):
                 self.log
             )
             subdomains.update(result.decode().splitlines())
-        except Exception:
-            self.log.exception("Unable to obtain information from amass for domain %s", domain)
+        except Exception as e:
+            if "panic: runtime error: invalid memory address or nil pointer dereference" in str(e):
+                self.log.error(f"Amass encountered a runtime error for domain {domain}. Skipping subdomain enumeration.")
+            else:
+                self.log.exception("Unable to obtain information from amass for domain %s", domain)
         return subdomains
 
 

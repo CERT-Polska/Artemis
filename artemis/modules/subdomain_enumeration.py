@@ -28,34 +28,6 @@ class subdomain_enumeration(ArtemisBase):
         {"type": TaskType.DOMAIN.value},
     ]
     lock_target = False
-
-    def get_subdomains_from_rapiddns(self, domain: str) -> Set[str]:
-        subdomains: Set[str] = set()
-        try:
-            response = requests.get(f"https://rapiddns.io/subdomain/{domain}#result")
-            if response.ok:
-                soup = BeautifulSoup(response.text, 'html.parser')
-                th_tags = soup.find_all('th')
-                for th_tag in th_tags:
-                    td_tag = th_tag.find_next_sibling('td')
-                    if td_tag is not None:
-                        url = td_tag.get_text()
-                        subdomains.add(url)
-        except requests.exceptions.RequestException:
-            self.log.exception("Unable to obtain information from rapiddns.io for domain %s", domain)
-        return subdomains
-
-    def get_subdomains_from_jldc(self, domain: str) -> Set[str]:
-        subdomains: Set[str] = set()
-        try:
-            response = requests.get(f"https://jldc.me/anubis/subdomains/{domain}")
-            if response.ok:
-                urls = eval(response.text)
-                subdomains.update(urls)
-        except requests.exceptions.RequestException:
-            self.log.exception("Unable to obtain information from jldc.me for domain %s", domain)
-        return subdomains
-
     def get_subdomains_from_subfinder(self, domain: str) -> Set[str]:
         subdomains: Set[str] = set()
         try:
@@ -65,7 +37,8 @@ class subdomain_enumeration(ArtemisBase):
                     "-d", 
                     domain, 
                     "-silent",
-                    "-all"
+                    "-all",
+                    "-recursive"
                     ],
                     self.log
             )
@@ -100,9 +73,7 @@ class subdomain_enumeration(ArtemisBase):
         domain = current_task.get_payload("domain")
         subdomains = (
             self.get_subdomains_from_subfinder(domain) |
-            self.get_subdomains_from_amass(domain) |
-            self.get_subdomains_from_rapiddns(domain) |
-            self.get_subdomains_from_jldc(domain)
+            self.get_subdomains_from_amass(domain)
         )
 
         for subdomain in subdomains:

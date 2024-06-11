@@ -234,13 +234,6 @@ class Config:
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config("MODULES_DISABLED_BY_DEFAULT", default="example,humble", cast=decouple.Csv(str, delimiter=","))
 
-        SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
-            int,
-            "If we request a domain for subdomain enumeration, we will save that it has already been enumerated, so that e.g. "
-            "if we requested crtsh enumeration on example.com and received www.example.com, crtsh enumeration on www.example.com won't happen "
-            "in SUBDOMAIN_ENUMERATION_TTL_DAYS days. This is the TTL of such markers.",
-        ] = get_config("SUBDOMAIN_ENUMERATION_TTL_DAYS", default=10, cast=int)
-
     class Modules:
         class Bruter:
             BRUTER_FILE_LIST: Annotated[
@@ -260,14 +253,6 @@ class Config:
                 "doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.",
             ] = get_config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
-        class Crtsh:
-            CRTSH_NUM_RETRIES: Annotated[int, "How many times should we try to obtain subdomains list."] = get_config(
-                "CRTSH_NUM_RETRIES", default=10, cast=int
-            )
-            CRTSH_SLEEP_ON_RETRY_SECONDS: Annotated[int, "How long to sleep between tries."] = get_config(
-                "CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int
-            )
-
         class DNSScanner:
             ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD: Annotated[
                 int, "The number of domains below which zone transfer won't be reported."
@@ -279,12 +264,6 @@ class Config:
                 "The prefix that will be added to the name of the file the module will attempt to create (to check "
                 "whether writing is possible).",
             ] = get_config("FTP_BRUTER_TEST_FILE_NAME_PREFIX", default="test-")
-
-        class Gau:
-            GAU_ADDITIONAL_OPTIONS: Annotated[
-                List[str],
-                "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
-            ] = get_config("GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
 
         class Humble:
             HUMBLE_HEADERS_TO_REPORT: Annotated[

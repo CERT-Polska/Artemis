@@ -54,8 +54,8 @@ the Artemis image is built locally (from the code you are changing) not download
 - **[Second modification](https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml#L100)** to do
 modifications on the local machine.
 
-To provide reloading whole web app you have to use **[cmd command](https://github.com/CERT-Polska/Artemis/blob/main/docker/Dockerfile#L30)** with *"--reload"* option. 
-This will allow you to see the results of code modifications on the page without reloading the entire container.
+To provide reloading entire web app you have to use **[cmd command](https://github.com/CERT-Polska/Artemis/blob/main/docker/Dockerfile#L30)** with *"--reload"* option. 
+You will be able to see the results of code modifications on the page without reloading the entire container.
 
 ### Tests
 To run the tests, use:

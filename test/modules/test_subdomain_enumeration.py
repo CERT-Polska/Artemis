@@ -4,7 +4,7 @@ from typing import NamedTuple
 from karton.core import Task
 
 from artemis.binds import TaskType
-from artemis.modules.subdomain_enumeration import subdomain_enumeration
+from artemis.modules.SubdomainEnumeration import SubdomainEnumeration
 
 
 class TestData(NamedTuple):
@@ -12,9 +12,9 @@ class TestData(NamedTuple):
     expected_subdomain: str
 
 
-class subdomain_enumerationScannerTest(ArtemisModuleTestCase):
+class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
-    karton_class = subdomain_enumeration 
+    karton_class = SubdomainEnumeration 
 
     def test_simple(self) -> None:
         data = [
@@ -33,3 +33,13 @@ class subdomain_enumerationScannerTest(ArtemisModuleTestCase):
                 if item.payload["domain"] == entry.expected_subdomain:
                     found = True
             self.assertTrue(found)
+
+    def test_get_subdomains_from_subfinder(self) -> None:
+        subdomain_enum = SubdomainEnumeration()
+        result = subdomain_enum.et_subdomains_from_subfinder("cert.pl")
+        self.assertIn("ci.drakvuf.cert.pl", result)
+
+    def test_get_subdomains_from_amass(self) -> None:
+        subdomain_enum = SubdomainEnumeration()
+        result = subdomain_enum.et_subdomains_from_amass("cert.pl")
+        self.assertIn("ci.drakvuf.cert.pl", result)

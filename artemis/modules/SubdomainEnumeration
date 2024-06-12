@@ -1,29 +1,26 @@
 #!/usr/bin/env python3
-import urllib.parse
-import re
-import string
 import time
 from typing import Optional, Set
-from bs4 import BeautifulSoup
-import requests
-from psycopg2 import OperationalError, connect
 
 from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
-from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
 DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
 
-class subdomain_enumeration(ArtemisBase):
+# NOTE: The rappidns, jldc, gau and crtsh modules were removed from this class 
+# as their functionality is already implemented internally by the subfinder and amass utilities.
+
+
+class SubdomainEnumeration(ArtemisBase):
     """
     Consumes `type: domain` to gather subdomains and produces `type: domain`.
     """
 
-    identity = "subdomain_enumeration"
+    identity = "SubdomainEnumeration"
     filters = [
         {"type": TaskType.DOMAIN.value},
     ]
@@ -52,7 +49,7 @@ class subdomain_enumeration(ArtemisBase):
         try:
             result = check_output_log_on_error(
                 [
-                    "amass",
+                    "amass", #amass is recursive by default
                     "enum",
                     "-d",
                     domain,
@@ -76,16 +73,16 @@ class subdomain_enumeration(ArtemisBase):
             self.get_subdomains_from_amass(domain)
         )
 
-        for subdomain in subdomains:
-            if is_subdomain(subdomain, domain):
-                task = Task(
-                    {"type": TaskType.DOMAIN},
-                    payload={"domain": subdomain},
-                )
-                self.add_task(current_task, task)
+        if self.redis.get(f"crtsh-done-{domain}"):
+            self.log.info(
+                "Crtsh has already returned %s - and as it's a recursive query, no further query will be performed.",
+                domain,
+            )
+            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            return
 
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(subdomains))
         self.log.info(f"Added {len(subdomains)} subdomains to scan")
 
 if __name__ == "__main__":
-    subdomain_enumeration().loop()
+    SubdomainEnumeration().loop()

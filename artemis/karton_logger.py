@@ -54,7 +54,7 @@ class FileLogger(LogConsumer):
                 continue
 
             if log_date != datetime.datetime.now().date() and not file_name.endswith("gz"):
-                with open(LOGS_PATH / file_name, "w") as f:
+                with open(LOGS_PATH / file_name, "a") as f:
                     try:
                         fcntl.lockf(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                     except OSError:

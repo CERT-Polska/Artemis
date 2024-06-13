@@ -50,7 +50,7 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
 
         analyses = requests.get(BACKEND_URL + "api/analyses", headers={"X-API-Token": "api-token"}).json()
         self.assertEqual(len(analyses), 1)
-        self.assertEqual(set(analyses[0].keys()), {"stopped", "target", "created_at", "id", "tag"})
+        self.assertEqual(set(analyses[0].keys()), {"stopped", "target", "created_at", "id", "tag", "num_pending_tasks"})
         self.assertEqual(analyses[0]["stopped"], False)
         self.assertEqual(analyses[0]["target"], "test-smtp-server.artemis")
         self.assertEqual(analyses[0]["tag"], "automated-interaction")

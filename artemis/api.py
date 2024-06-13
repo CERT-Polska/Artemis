@@ -5,7 +5,6 @@ from fastapi import (
     APIRouter,
     Body,
     Depends,
-    Form,
     Header,
     HTTPException,
     Query,
@@ -96,8 +95,11 @@ def list_analysis() -> List[Dict[str, Any]]:
     analyses = db.list_analysis()
     karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
     for analysis in analyses:
-        analysis['num_pending_tasks'] = len(karton_state.analyses[analysis['id']].pending_tasks) if analysis['id'] in karton_state.analyses else 0
+        analysis["num_pending_tasks"] = (
+            len(karton_state.analyses[analysis["id"]].pending_tasks) if analysis["id"] in karton_state.analyses else 0
+        )
     return analyses
+
 
 @router.get("/num-queued-tasks", dependencies=[Depends(verify_api_token)])
 def num_queued_tasks(karton_names: Optional[List[str]] = None) -> int:
@@ -133,8 +135,9 @@ def get_task_results(
         task_filter=TaskFilter.INTERESTING if only_interesting else None,
     ).data
 
+
 @router.post("/stop-and-delete-analysis", dependencies=[Depends(verify_api_token)])
-def stop_and_delete_analysis(analysis_id: str):
+def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
     backend = KartonBackend(config=KartonConfig())
 
     for task in backend.get_all_tasks():
@@ -143,6 +146,7 @@ def stop_and_delete_analysis(analysis_id: str):
     db.delete_analysis(analysis_id)
 
     return {"ok": True}
+
 
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
 def get_exports() -> List[ReportGenerationTaskModel]:

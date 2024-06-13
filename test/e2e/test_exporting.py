@@ -122,7 +122,7 @@ class ExportingTestCase(BaseE2ETestCase):
         self.assertEqual(
             requests.post(
                 BACKEND_URL + "api/export",
-                data={"skip_previously_exported": True, "language": "pl_PL"},
+                json={"skip_previously_exported": True, "language": "pl_PL"},
                 headers={"X-Api-Token": "api-token"},
             ).json(),
             {"ok": True},

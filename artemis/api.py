@@ -68,7 +68,7 @@ def add(
     """Add targets to be scanned."""
     if disabled_modules and enabled_modules:
         raise HTTPException(
-            status_code=400, detail="It's not possible to set both disabled_modules and You enabled_modules."
+            status_code=400, detail="It's not possible to set both disabled_modules and enabled_modules."
         )
 
     for task in targets:

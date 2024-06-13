@@ -183,7 +183,7 @@ class ArtemisBase(Karton):
         else:
             resource_lock = None
 
-        tasks, locks = self._take_and_lock_tasks(self.task_max_batch_size)
+        tasks, locks, num_task_removed_from_queue = self._take_and_lock_tasks(self.task_max_batch_size)
         self._log_tasks(tasks)
 
         for task in tasks:
@@ -202,9 +202,9 @@ class ArtemisBase(Karton):
         if resource_lock:
             resource_lock.release()
 
-        return len(tasks)
+        return num_task_removed_from_queue
 
-    def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]]]:
+    def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]], int]:
         self.log.debug("[taking tasks] Acquiring lock to take tasks from queue")
         try:
             self.taking_tasks_from_queue_lock.acquire()
@@ -300,7 +300,7 @@ class ArtemisBase(Karton):
         self.log.debug(
             "[taking tasks] Tasks from queue taken and filtered, %d left after filtering", len(tasks_not_blocklisted)
         )
-        return tasks_not_blocklisted, locks_for_tasks_not_blocklisted
+        return tasks_not_blocklisted, locks_for_tasks_not_blocklisted, len(tasks)
 
     def _is_blocklisted(self, task: Task) -> bool:
         if self.identity == "classifier":

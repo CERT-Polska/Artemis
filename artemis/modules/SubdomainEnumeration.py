@@ -25,6 +25,15 @@ class SubdomainEnumeration(ArtemisBase):
         {"type": TaskType.DOMAIN.value},
     ]
     lock_target = False
+
+    def get_subdomains_with_retry(self, func, domain: str, retries: int = 20) -> Set[str]:
+        for retry in range(retries):
+            try:
+                return func(domain)
+            except Exception:
+                self.log.exception("Retry %d/%d for %s", retry + 1, retries, func.__name__)
+        return set()
+
     def get_subdomains_from_subfinder(self, domain: str) -> Set[str]:
         subdomains: Set[str] = set()
         try:
@@ -49,7 +58,7 @@ class SubdomainEnumeration(ArtemisBase):
         try:
             result = check_output_log_on_error(
                 [
-                    "amass", #amass is recursive by default
+                    "amass", #amass is recursive by default use -norecursive to make it non-recursive
                     "enum",
                     "-d",
                     domain,
@@ -69,13 +78,13 @@ class SubdomainEnumeration(ArtemisBase):
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
         subdomains = (
-            self.get_subdomains_from_subfinder(domain) |
-            self.get_subdomains_from_amass(domain)
+            self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain) |
+            self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
         )
 
-        if self.redis.get(f"crtsh-done-{domain}"):
+        if self.redis.get(f"SubdomainEnumeration-done-{domain}"):
             self.log.info(
-                "Crtsh has already returned %s - and as it's a recursive query, no further query will be performed.",
+                "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",
                 domain,
             )
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)

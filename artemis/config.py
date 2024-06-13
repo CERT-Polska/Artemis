@@ -233,6 +233,13 @@ class Config:
             List[str],
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config("MODULES_DISABLED_BY_DEFAULT", default="example,humble", cast=decouple.Csv(str, delimiter=","))
+        
+        SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
+            int,
+            "If we request a domain for subdomain enumeration, we will save that it has already been enumerated, so that e.g. "
+            "if we requested crtsh enumeration on example.com and received www.example.com, crtsh enumeration on www.example.com won't happen "
+            "in SUBDOMAIN_ENUMERATION_TTL_DAYS days. This is the TTL of such markers.",
+        ] = get_config("SUBDOMAIN_ENUMERATION_TTL_DAYS", default=10, cast=int)
 
     class Modules:
         class Bruter:

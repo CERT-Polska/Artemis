@@ -1,15 +1,7 @@
 import datetime
 from typing import Annotated, Any, Dict, List, Optional
 
-from fastapi import (
-    APIRouter,
-    Body,
-    Depends,
-    Header,
-    HTTPException,
-    Query,
-    Request,
-)
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
@@ -74,15 +66,20 @@ def add(
         if not Classifier.is_supported(task):
             return {"error": f"Invalid task: {task}"}
 
-    if disabled_modules:
-        pass
-    else:
-        if enabled_modules:
-            disabled_modules = list(
-                set([bind.identity for bind in get_binds_that_can_be_disabled()]) - set(enabled_modules)
+    identities_that_can_be_disabled = set([bind.identity for bind in get_binds_that_can_be_disabled()])
+
+    if enabled_modules:
+        if len(set(enabled_modules) - identities_that_can_be_disabled) > 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"The following modules from enabled_modules either don't exist or must always be enabled: {','.join(set(enabled_modules) - identities_that_can_be_disabled)}",
             )
-        else:
-            disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
+
+    if enabled_modules:
+        # Let's disable all modules that can be disabled and aren't included in enabled_modules
+        disabled_modules = list(identities_that_can_be_disabled - set(enabled_modules))
+    elif not disabled_modules:
+        disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
     create_tasks(targets, tag, disabled_modules=disabled_modules)
 

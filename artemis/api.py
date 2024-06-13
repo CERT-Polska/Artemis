@@ -140,7 +140,7 @@ def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
     for task in backend.get_all_tasks():
         if task.root_uid == analysis_id:
             backend.delete_task(task)
-    
+
     if db.get_analysis_by_id(analysis_id):
         db.delete_analysis(analysis_id)
 

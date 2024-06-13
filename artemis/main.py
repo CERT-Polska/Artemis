@@ -11,7 +11,6 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.frontend import error_content_not_found
 from artemis.frontend import router as router_front
-from artemis.utils import read_template
 
 app = FastAPI(
     docs_url="/docs" if Config.Miscellaneous.API_TOKEN else None,

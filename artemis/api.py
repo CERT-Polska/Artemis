@@ -1,16 +1,7 @@
 import datetime
 from typing import Annotated, Any, Dict, List, Optional
 
-from fastapi import (
-    APIRouter,
-    Body,
-    Depends,
-    Form,
-    Header,
-    HTTPException,
-    Query,
-    Request,
-)
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
@@ -20,6 +11,7 @@ from redis import Redis
 
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
+from artemis.frontend import get_binds_that_can_be_disabled
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
@@ -60,13 +52,34 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
 @router.post("/add", dependencies=[Depends(verify_api_token)])
 def add(
     targets: List[str],
-    tag: Annotated[Optional[str], Body()] = None,
-    disabled_modules: List[str] = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
+    tag: str | None = Body(default=None),
+    disabled_modules: Optional[List[str]] = Body(default=None),
+    enabled_modules: Optional[List[str]] = Body(default=None),
 ) -> Dict[str, Any]:
     """Add targets to be scanned."""
+    if disabled_modules and enabled_modules:
+        raise HTTPException(
+            status_code=400, detail="It's not possible to set both disabled_modules and enabled_modules."
+        )
+
     for task in targets:
         if not Classifier.is_supported(task):
             return {"error": f"Invalid task: {task}"}
+
+    identities_that_can_be_disabled = set([bind.identity for bind in get_binds_that_can_be_disabled()])
+
+    if enabled_modules:
+        if len(set(enabled_modules) - identities_that_can_be_disabled) > 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"The following modules from enabled_modules either don't exist or must always be enabled: {','.join(set(enabled_modules) - identities_that_can_be_disabled)}",
+            )
+
+    if enabled_modules:
+        # Let's disable all modules that can be disabled and aren't included in enabled_modules
+        disabled_modules = list(identities_that_can_be_disabled - set(enabled_modules))
+    elif not disabled_modules:
+        disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
     create_tasks(targets, tag, disabled_modules=disabled_modules)
 
@@ -76,7 +89,13 @@ def add(
 @router.get("/analyses", dependencies=[Depends(verify_api_token)])
 def list_analysis() -> List[Dict[str, Any]]:
     """Returns the list of analysed targets. Any scanned target would be listed here."""
-    return db.list_analysis()
+    analyses = db.list_analysis()
+    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+    for analysis in analyses:
+        analysis["num_pending_tasks"] = (
+            len(karton_state.analyses[analysis["id"]].pending_tasks) if analysis["id"] in karton_state.analyses else 0
+        )
+    return analyses
 
 
 @router.get("/num-queued-tasks", dependencies=[Depends(verify_api_token)])
@@ -97,7 +116,7 @@ def num_queued_tasks(karton_names: Optional[List[str]] = None) -> int:
 
 @router.get("/task-results", dependencies=[Depends(verify_api_token)])
 def get_task_results(
-    only_interesting: bool = False,
+    only_interesting: bool = True,
     page: int = 1,
     page_size: int = 100,
     analysis_id: Optional[str] = None,
@@ -112,6 +131,20 @@ def get_task_results(
         analysis_id=analysis_id,
         task_filter=TaskFilter.INTERESTING if only_interesting else None,
     ).data
+
+
+@router.post("/stop-and-delete-analysis", dependencies=[Depends(verify_api_token)])
+def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
+    backend = KartonBackend(config=KartonConfig())
+
+    for task in backend.get_all_tasks():
+        if task.root_uid == analysis_id:
+            backend.delete_task(task)
+
+    if db.get_analysis_by_id(analysis_id):
+        db.delete_analysis(analysis_id)
+
+    return {"ok": True}
 
 
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
@@ -150,12 +183,12 @@ async def post_export_delete(id: int) -> Dict[str, Any]:
     }
 
 
-@router.post("/export")
+@router.post("/export", dependencies=[Depends(verify_api_token)])
 async def post_export(
-    language: str = Form(),
-    skip_previously_exported: bool = Form(),
-    tag: Optional[str] = Form(None),
-    comment: Optional[str] = Form(None),
+    language: str = Body(),
+    skip_previously_exported: bool = Body(),
+    tag: Optional[str] = Body(None),
+    comment: Optional[str] = Body(None),
 ) -> Dict[str, Any]:
     """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
     db.create_report_generation_task(

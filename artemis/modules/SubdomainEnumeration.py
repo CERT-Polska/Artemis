@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import time
-from typing import Optional, Set
+from typing import Optional, Set, Callable
 
 from karton.core import Task
 
@@ -26,12 +26,13 @@ class SubdomainEnumeration(ArtemisBase):
     ]
     lock_target = False
 
-    def get_subdomains_with_retry(self, func, domain: str, retries: int = 20) -> Set[str]:
+    def get_subdomains_with_retry(self, func: Callable[[str], Set[str]], domain: str, retries: int = 20) -> Set[str]:
         for retry in range(retries):
             try:
                 return func(domain)
             except Exception:
                 self.log.exception("Retry %d/%d for %s", retry + 1, retries, func.__name__)
+                time.sleep(300)
         return set()
 
     def get_subdomains_from_subfinder(self, domain: str) -> Set[str]:
@@ -77,11 +78,7 @@ class SubdomainEnumeration(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
-        subdomains = (
-            self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain) |
-            self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
-        )
-
+        
         if self.redis.get(f"SubdomainEnumeration-done-{domain}"):
             self.log.info(
                 "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",
@@ -90,6 +87,24 @@ class SubdomainEnumeration(ArtemisBase):
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 
+        subdomains = (
+            self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain) |
+            self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
+        )
+        
+        self.redis.setex(
+            f"SubdomainEnumeration-done-{domain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
+            )
+
+        for subdomain in subdomains:
+            task = Task(
+                {"type": TaskType.DOMAIN},
+                payload={
+                    "domain": subdomain,
+                },
+            )
+            # need to filter subdomains
+            self.add_task(current_task, task)
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(subdomains))
         self.log.info(f"Added {len(subdomains)} subdomains to scan")
 

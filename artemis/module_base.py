@@ -210,7 +210,7 @@ class ArtemisBase(Karton):
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
             self.log.info("[taking tasks] Failed to acquire lock to take tasks from queue")
-            return [], []
+            return [], [], 0
 
         try:
             tasks = []

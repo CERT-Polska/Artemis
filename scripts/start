@@ -40,7 +40,7 @@ fi
     $ADDITIONAL_OPTIONS
 
 if [ $? -eq 0 ]; then
-    ./docker/wait-for-it.sh 127.0.0.1:7500 -t 30 -q
+    ./docker/wait-for-it.sh 127.0.0.1:5000 -t 30 -q
 
     echo "Artemis started in the background. Browse to http://127.0.0.1:5000 and scan!"
     echo

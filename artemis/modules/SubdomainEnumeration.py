@@ -6,6 +6,7 @@ from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
@@ -78,8 +79,13 @@ class SubdomainEnumeration(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
-        encoded_domain = subdomain.encode("idna") # using this so that special charecters do not break the redis db.
-# just encode subdomains and not the base domain.
+        encoded_domain = domain.encode("idna")  # using this so that special characters do not break the redis db.
+        
+        subdomains = (
+            self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain) |
+            self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
+        )
+
         if self.redis.get(f"SubdomainEnumeration-done-{encoded_domain}"):
             self.log.info(
                 "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",
@@ -88,26 +94,29 @@ class SubdomainEnumeration(ArtemisBase):
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return
  
-        subdomains = (
-            self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain) |
-            self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
-        )
-        
+        valid_subdomains = set()
+        for subdomain in subdomains:
+            if not is_subdomain(subdomain, domain):
+                self.log.info("Non-subdomain returned: %s from %s", subdomain, domain)
+                continue
+
+            valid_subdomains.add(subdomain)
+
         self.redis.setex(
             f"SubdomainEnumeration-done-{encoded_domain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
-            )
- 
-        for subdomain in subdomains:
+        )
+
+        for subdomain in valid_subdomains:
             task = Task(
                 {"type": TaskType.DOMAIN},
                 payload={
                     "domain": subdomain,
                 },
             )
-            # need to filter subdomains
             self.add_task(current_task, task)
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(subdomains))
-        self.log.info(f"Added {len(subdomains)} subdomains to scan")
+        
+        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(valid_subdomains))
+        self.log.info(f"Added {len(valid_subdomains)} subdomains to scan")
 
 if __name__ == "__main__":
     SubdomainEnumeration().loop()

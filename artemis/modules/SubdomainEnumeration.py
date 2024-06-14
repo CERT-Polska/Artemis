@@ -26,13 +26,13 @@ class SubdomainEnumeration(ArtemisBase):
     ]
     lock_target = False
 
-    def get_subdomains_with_retry(self, func: Callable[[str], Set[str]], domain: str, retries: int = 20) -> Set[str]:
+    def get_subdomains_with_retry(self, func: Callable[[str], Set[str]], domain: str, retries: int = 20, sleep_time: int = 300) -> Set[str]:
         for retry in range(retries):
             try:
                 return func(domain)
             except Exception:
                 self.log.exception("Retry %d/%d for %s", retry + 1, retries, func.__name__)
-                time.sleep(300)
+                time.sleep(sleep_time)
         return set()
 
     def get_subdomains_from_subfinder(self, domain: str) -> Set[str]:
@@ -78,8 +78,8 @@ class SubdomainEnumeration(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
-        encoded_domain = domain.encode("idna") # using this so that special charecters do not break the redis db.
-
+        encoded_domain = subdomain.encode("idna") # using this so that special charecters do not break the redis db.
+# just encode subdomains and not the base domain.
         if self.redis.get(f"SubdomainEnumeration-done-{encoded_domain}"):
             self.log.info(
                 "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",

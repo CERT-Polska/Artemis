@@ -78,24 +78,25 @@ class SubdomainEnumeration(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
-        
-        if self.redis.get(f"SubdomainEnumeration-done-{domain}"):
+        encoded_domain = domain.encode("idna") # using this so that special charecters do not break the redis db.
+
+        if self.redis.get(f"SubdomainEnumeration-done-{encoded_domain}"):
             self.log.info(
                 "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",
                 domain,
             )
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return
-
+ 
         subdomains = (
             self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain) |
             self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
         )
         
         self.redis.setex(
-            f"SubdomainEnumeration-done-{domain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
+            f"SubdomainEnumeration-done-{encoded_domain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
             )
-
+ 
         for subdomain in subdomains:
             task = Task(
                 {"type": TaskType.DOMAIN},

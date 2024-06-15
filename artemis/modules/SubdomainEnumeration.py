@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import time
-from typing import Optional, Set, Callable
+from typing import Set, Callable
 
 from karton.core import Task
 

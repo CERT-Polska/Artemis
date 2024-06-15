@@ -591,6 +591,7 @@ TRANSLATIONS = {
     "The Integrate Google Drive plugin for WordPress is vulnerable to unauthorized access due to a missing capability check on several REST API endpoints in versions up to, and including, 1.1.99. This makes it possible for unauthenticated attackers to perform a wide variety of operations, such as moving files, creating folders, copying details, and much more.": "Wtyczka WordPress o nazwie Integrate Google Drive w wersjach do 1.1.99 zawiera podatność umożliwiającą atakującemu nieuprawnione wykonywanie operacji takich jak np. pobieranie informacji, przenoszenie plików itp."
     + WORDPRESS_UPDATE_HINT,
     "http/misconfiguration/installer/webcalendar-install.yaml": "Wykryto dostępny publicznie instalator systemu WebCalendar, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
+    "Detects exposed CMS Made Simple Installation page.": "Wykryto dostępny publicznie instalator systemu CMS Made Simple, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "A source code disclosure vulnerability in a web server caused by improper handling of multiple requests in quick succession, leading to the server treating requested files as static files instead of executing scripts.": "Serwer deweloperski udostępniany przez język programowania PHP w wersjach do 7.4.21 włącznie zawiera podatność umożliwiającą atakującemu nieuprawniony odczyt kodu źródłowego."
     + UPDATE_HINT,
     "GoIP-1 GSM is vulnerable to local file inclusion because input passed thru the 'content' or 'sidebar' GET parameter in 'frame.html' or 'frame.A100.html' is not properly sanitized before being used to read files. This can be exploited by an unauthenticated attacker to read arbitrary files on the affected system.": "Wykryto, że GoIP-1 GSM zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
@@ -610,6 +611,8 @@ TRANSLATIONS = {
     "Remote Code Execution in PAN-OS 7.1.18 and earlier, PAN-OS 8.0.11-h1 and earlier, and PAN-OS 8.1.2 and earlier with GlobalProtect Portal or GlobalProtect Gateway Interface enabled may allow an unauthenticated remote attacker to execute arbitrary code.": "PAN-OS w wersji 7.1.18 i wcześniejszych, 8.0.11-h1 i wcześniejszych oraz 8.1.2 i wcześniejszych z włączonymi modułami GlobalProtect Portal lub GlobalProtect Gateway Interface mogą umożliwiać atakującym zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Selenium was shown to have an exposed node. If a Selenium node is exposed without any form of authentication, remote command execution could be possible if chromium is configured. By default the port is 4444, still, most of the internet facing are done through reverse proxies.": "Wykryto publicznie dostępny węzeł narzędzia Selenium, potencjalnie umożliwiający atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
     'HTTP.sys in Microsoft Windows 7 SP1, Windows Server 2008 R2 SP1, Windows 8, Windows 8.1, and Windows Server 2012 Gold and R2 allows remote attackers to execute arbitrary code via crafted HTTP requests, aka "HTTP.sys Remote Code Execution Vulnerability."': "Implementacja serwera internetowego HTTP.sys w systemach Microsoft Windows 7 SP1, Windows Server 2008 R2 SP1, Windows 8, Windows 8.1 i Windows Server 2012 Gold i R2 umożliwia atakującym zdalne wykonanie kodu przy użyciu spreparowanych żądań HTTP."
     + UPDATE_HINT,
     "Internal information is exposed in elasticsearch to external users.": "Wykryto konfigurację lub dane systemu Elasticsearch dostępne bez logowania."
@@ -626,6 +629,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "WordPress `wp-config` was discovered. This file is remotely accessible and its content available for reading.": "Wykryto kopię zapasową pliku `wp-config`, która może zawierać np. dane do logowania do bazy danych, umożliwiające atakującemu przejęcie pełnej kontroli nad systemem."
     + DATA_HIDE_HINT,
+    "ISPConfig Default Password Vulnerability exposes systems to unauthorized access, compromising data integrity and security.": "wykryto, że do panelu ISPConfig można zalogować się domyślnym hasłem, co umożliwia atakującemu nieuprawniony dostęp do systemu.",
     "Jolokia is vulnerable to local file inclusion via compilerDirectivesAdd.": "wykryto wersję systemu Jolokia zawierającą podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Checks websites for Balada Injector malware.": "Wykryto, że strona jest zainfekowana złośliwym oprogramowaniem Balada Injector.",
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
@@ -637,6 +641,7 @@ TRANSLATIONS = {
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",
     "An Adminer login panel was detected.": "wykryto panel logowania narzędzia Adminer.",
     "Webalizer panel was detected.": "wykryto panel narzędzia Webalizer.",
+    "http/exposed-panels/ghost-panel.yaml": "wykryto panel systemu Ghost",
     "FortiOS admin login panel was detected.": "wykryto panel logowania do panelu administracyjnego narzędzia FortiOS.",
     "Fortinet FortiGate SSL VPN login panel was detected.": "wykryto panel logowania Fortinet FortiGate SSL VPN.",
     "Plesk Obsidian login panel was detected.": "wykryto panel logowania narzędzia Plesk Obsidian.",

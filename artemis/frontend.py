@@ -150,7 +150,7 @@ async def post_add(
 
     total_list: List[str] = []
     if targets:
-        total_list += (x.strip() for x in targets.split())
+        total_list += (x.strip() for x in targets.split("\n"))
 
     for task in total_list:
         if not Classifier.is_supported(task):

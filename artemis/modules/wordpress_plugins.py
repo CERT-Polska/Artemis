@@ -62,7 +62,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "robin-image-optimizer",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
-    "themesflat-addons-for-elementor",
     "throws-spam-away",
     "website-monetization-by-magenet",
     "woo-tools",

@@ -45,7 +45,7 @@ class ArtemisBase(Karton):
     Artemis base module. Provides helpers (such as e.g. cache) for all modules.
     """
 
-    task_poll_interval_seconds = 2
+    task_poll_interval_seconds = 10
     batch_tasks = False
     # This is the maximum batch size. Due to the fact that we may be unable to lock some targets because
     # their IPs are already scanned, the actual batch size may be lower.
@@ -64,6 +64,7 @@ class ArtemisBase(Karton):
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
         self.lock = ResourceLock(res_name=self.identity)
+        self.setup_logger(Config.Miscellaneous.LOG_LEVEL)
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
 
@@ -166,7 +167,9 @@ class ArtemisBase(Karton):
             self.log.info("Exiting loop, shutdown=%s", self.shutdown)
 
     def _single_iteration(self) -> int:
+        self.log.debug("single iteration")
         if self.resource_name_to_lock_before_scanning:
+            self.log.debug(f"locking {self.resource_name_to_lock_before_scanning}")
             resource_lock = ResourceLock(
                 f"resource-lock-{self.resource_name_to_lock_before_scanning}",
                 max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES,
@@ -180,7 +183,7 @@ class ArtemisBase(Karton):
         else:
             resource_lock = None
 
-        tasks, locks = self._take_and_lock_tasks(self.task_max_batch_size)
+        tasks, locks, num_task_removed_from_queue = self._take_and_lock_tasks(self.task_max_batch_size)
         self._log_tasks(tasks)
 
         for task in tasks:
@@ -199,20 +202,21 @@ class ArtemisBase(Karton):
         if resource_lock:
             resource_lock.release()
 
-        return len(tasks)
+        return num_task_removed_from_queue
 
-    def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]]]:
-        self.log.debug("Acquiring lock to take tasks from queue")
+    def _take_and_lock_tasks(self, num_tasks: int) -> Tuple[List[Task], List[Optional[ResourceLock]], int]:
+        self.log.debug("[taking tasks] Acquiring lock to take tasks from queue")
         try:
             self.taking_tasks_from_queue_lock.acquire()
         except FailedToAcquireLockException:
-            self.log.info("Failed to acquire lock to take tasks from queue")
-            return [], []
+            self.log.info("[taking tasks] Failed to acquire lock to take tasks from queue")
+            return [], [], 0
 
         try:
             tasks = []
             locks: List[Optional[ResourceLock]] = []
             for queue in self.backend.get_queue_names(self.identity):
+                self.log.debug(f"[taking tasks] Taking tasks from queue {queue}")
                 for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
                     task = self.backend.get_task(item)
 
@@ -235,7 +239,7 @@ class ArtemisBase(Karton):
                                 tasks.append(task)
                                 locks.append(lock)
                                 self.log.info(
-                                    "Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s), %d/%d locked",
+                                    "[taking tasks] Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s), %d/%d locked",
                                     task.uid,
                                     task.orig_uid,
                                     scan_destination,
@@ -261,6 +265,7 @@ class ArtemisBase(Karton):
                         self.backend.redis.lrem(queue, 1, item)
                         if len(tasks) >= num_tasks:
                             break
+                self.log.debug(f"[taking tasks] {len(tasks)} tasks after checking queue {queue}")
                 if len(tasks) >= num_tasks:
                     break
         except Exception:
@@ -270,6 +275,8 @@ class ArtemisBase(Karton):
             raise
         finally:
             self.taking_tasks_from_queue_lock.release()
+
+        self.log.debug("[taking tasks] Tasks from queue taken")
 
         tasks_not_blocklisted = []
         locks_for_tasks_not_blocklisted: List[Optional[ResourceLock]] = []
@@ -290,7 +297,10 @@ class ArtemisBase(Karton):
             else:
                 tasks_not_blocklisted.append(task)
                 locks_for_tasks_not_blocklisted.append(lock_for_task)
-        return tasks_not_blocklisted, locks_for_tasks_not_blocklisted
+        self.log.debug(
+            "[taking tasks] Tasks from queue taken and filtered, %d left after filtering", len(tasks_not_blocklisted)
+        )
+        return tasks_not_blocklisted, locks_for_tasks_not_blocklisted, len(tasks)
 
     def _is_blocklisted(self, task: Task) -> bool:
         if self.identity == "classifier":
@@ -421,6 +431,11 @@ class ArtemisBase(Karton):
         self.log.info(message)
 
     def _get_scan_destination(self, task: Task) -> str:
+        cache_key = "scan-destination-" + task.uid
+        cached_destination = self.cache.get(cache_key)
+        if cached_destination:
+            return cached_destination.decode("utf-8")
+
         result = None
         if task.headers["type"] == TaskType.NEW:
             result = task.payload["data"]
@@ -458,6 +473,7 @@ class ArtemisBase(Karton):
                 result = task.payload["host"]
 
         assert isinstance(result, str)
+        self.cache.set(cache_key, result.encode("utf-8"))
         return result
 
     def _get_ip_for_locking(self, host: str) -> str:

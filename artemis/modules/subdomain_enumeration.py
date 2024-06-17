@@ -101,7 +101,7 @@ class SubdomainEnumeration(ArtemisBase):
 
             valid_subdomains.add(subdomain)
 
-            encoded_subdomain = subdomain.encode("idna")  # using this so that special characters do not break the redis db.
+            encoded_subdomain = subdomain.encode("idna").decode("utf-8") # using this so that special characters do not break the redis db.
             if self.redis.get(f"subdomainenumeration-done-{encoded_subdomain}"):
                 self.log.info(
                     "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",

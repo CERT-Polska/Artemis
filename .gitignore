@@ -144,4 +144,4 @@ cython_debug/
 .vim/
 
 #temp
-docker-compose.temporary.yaml
+docker-compose.dev.yaml

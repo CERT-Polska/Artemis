@@ -63,7 +63,7 @@ class FileProcessor:
 if __name__ == "__main__":
 
     input_yaml_file = "docker-compose.yaml"
-    output_yaml_file = "docker-compose.temporary.yaml"
+    output_yaml_file = "docker-compose.dev.yaml"
 
     processor = FileProcessor(input_yaml_file, output_yaml_file)
     processor.set_data()

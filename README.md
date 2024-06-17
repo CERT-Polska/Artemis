@@ -16,8 +16,7 @@ and [building easy-to-read messages ready to be sent to the scanned organization
 
 If you want to use additional modules that weren't included here due to non-BSD-compatible licenses, browse to the [Artemis-modules-extra](https://github.com/CERT-Polska/Artemis-modules-extra) repository.
 
-If you work as a developer, and you want to modify code, you have to run start_developers.py file ⮕ **[Developers](#develop)**.
-Remember on that - it provides development on web part of Artemis, not kartons.
+If you want to modify/develop Artemis, read ⮕ **[Developers](#develop)** first!
 
 **Artemis is experimental software, under active development - use at your own risk.**
 
@@ -48,13 +47,13 @@ The possibility to automatically prepare such reports enabled us to notify entit
 
 <a name="develop"></a>
 ## Development
-If you want to develop Artemis, remember to run:
+To start a locally modified version of Artemis, run:
 ```commandline
  cp env.example .env  # after doing that, configure the settings by changing the user-agent and any other settings you want to change
- ./scripts/start_developers
+ ./scripts/start_dev
 ```
-The Artemis image is then built locally (from the code you are changing) not downloaded from Docker Hub.
-You will be able to see the results of code modifications on the page without reloading the entire container.
+The Artemis image is then built locally (from the code you are developing) not downloaded from Docker Hub.
+For `web`, you will also be able to see the results of code modifications on the page without reloading the entire container.
 
 ### Tests
 To run the tests, use:

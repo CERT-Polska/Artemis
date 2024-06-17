@@ -12,19 +12,19 @@ exists() {
     [ -e "$1" ]
 }
 
-# For every single module in Artemis.
+# This includes Docker Compose files from subdirectories, if e.g. the user cloned https://github.com/cert-polska/artemis-modules-extra
 if exists */docker-compose.yml; then
     for DOCKER_COMPOSE_FILE in */docker-compose.yml; do
         FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"
     done
 fi
 
-# For development version.
-if exists docker-compose.temporary.yaml; then
-    FILE_OPTIONS="-f docker-compose.temporary.yaml"
+# For development version
+if exists docker-compose.dev.yaml; then
+    FILE_OPTIONS="-f docker-compose.dev.yaml"
 fi
 
-# For additional modules in Artemis.
+# For additional modules in Artemis
 if exists */docker-compose.additional*.yml; then
     for DOCKER_COMPOSE_FILE in */docker-compose.additional*.yml; do
         FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"

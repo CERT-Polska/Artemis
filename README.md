@@ -16,7 +16,7 @@ and [building easy-to-read messages ready to be sent to the scanned organization
 
 If you want to use additional modules that weren't included here due to non-BSD-compatible licenses, browse to the [Artemis-modules-extra](https://github.com/CERT-Polska/Artemis-modules-extra) repository.
 
-If you want to modify/develop Artemis, read ⮕ **[Developers](#develop)** first!
+If you want to modify/develop Artemis, read ⮕ **[Development](#development)** first!
 
 **Artemis is experimental software, under active development - use at your own risk.**
 
@@ -45,7 +45,7 @@ The possibility to automatically prepare such reports enabled us to notify entit
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)
 
-<a name="develop"></a>
+<a name="development"></a>
 ## Development
 To start a locally modified version of Artemis, run:
 ```commandline

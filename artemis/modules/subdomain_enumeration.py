@@ -93,14 +93,6 @@ class SubdomainEnumeration(ArtemisBase):
             self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
         )
 
-        if self.redis.get(f"subdomainenumeration-done-{encoded_subdomain}"):
-            self.log.info(
-                "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",
-                domain,
-            )
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
-            return
- 
         valid_subdomains = set()
         for subdomain in subdomains:
             if not is_subdomain(subdomain, domain):
@@ -109,7 +101,15 @@ class SubdomainEnumeration(ArtemisBase):
 
             valid_subdomains.add(subdomain)
 
-            encoded_subdomain = subdomain.encode("idna") # using this so that special characters do not break the redis db.
+            encoded_subdomain = subdomain.encode("idna")  # using this so that special characters do not break the redis db.
+            if self.redis.get(f"subdomainenumeration-done-{encoded_subdomain}"):
+                self.log.info(
+                    "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",
+                    domain,
+                )
+                self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+                return
+
             self.redis.setex(
                 f"SubdomainEnumeration-done-{encoded_subdomain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
             )

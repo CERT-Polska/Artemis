@@ -94,7 +94,7 @@ services:
     <<: *artemis-build-or-image
     depends_on: [karton-system, karton-logger]
     env_file: .env
-    ports: ["7500:5000"]
+    ports: ["5000:5000"]
     restart: always
     volumes:
       - data-web:/data

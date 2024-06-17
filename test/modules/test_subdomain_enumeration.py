@@ -4,7 +4,7 @@ from typing import NamedTuple, Optional, Type
 from karton.core import Task
 
 from artemis.binds import TaskType
-from artemis.modules.SubdomainEnumeration import SubdomainEnumeration
+from artemis.modules.subdomain_enumeration import SubdomainEnumeration
 
 
 class TestData(NamedTuple):

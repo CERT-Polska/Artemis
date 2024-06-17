@@ -19,11 +19,6 @@ if exists */docker-compose.yml; then
     done
 fi
 
-# For development version
-if exists docker-compose.dev.yaml; then
-    FILE_OPTIONS="-f docker-compose.dev.yaml"
-fi
-
 # For additional modules in Artemis
 if exists */docker-compose.additional*.yml; then
     for DOCKER_COMPOSE_FILE in */docker-compose.additional*.yml; do

@@ -143,5 +143,5 @@ cython_debug/
 .idea/
 .vim/
 
-#temp
+# Development Docker Compose file
 docker-compose.dev.yaml

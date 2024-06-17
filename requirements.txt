@@ -9,7 +9,7 @@ click==8.1.7
 cryptography==42.0.8
 dnspython==2.6.1
 fastapi==0.111.0
-fastapi-csrf-protect==0.3.3
+fastapi-csrf-protect==0.3.4
 freezegun==1.5.1
 h11==0.14.0
 idna==3.7

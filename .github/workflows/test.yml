@@ -10,9 +10,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: create .env
-        run: cp env.example .env
-      - name: set RUNNING_ON_GITHUB in .env
-        run: echo RUNNING_ON_GITHUB=1 >> .env
+      - name: set RUNNING_ON_GITHUB in env.test
+        run: echo RUNNING_ON_GITHUB=1 >> env.test
       - name: run tests
         run: ./scripts/test

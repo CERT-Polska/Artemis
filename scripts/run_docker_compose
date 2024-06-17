@@ -12,6 +12,7 @@ exists() {
     [ -e "$1" ]
 }
 
+# This includes Docker Compose files from subdirectories, if e.g. the user cloned https://github.com/cert-polska/artemis-modules-extra
 if exists */docker-compose.yml; then
     for DOCKER_COMPOSE_FILE in */docker-compose.yml; do
         FILE_OPTIONS="$FILE_OPTIONS -f $DOCKER_COMPOSE_FILE"

@@ -94,7 +94,7 @@ services:
     <<: *artemis-build-or-image
     depends_on: [karton-system, karton-logger]
     env_file: .env
-    ports: ["5000:5000"]
+    ports: ["7500:5000"]
     restart: always
     volumes:
       - data-web:/data
@@ -317,7 +317,7 @@ services:
 
   karton-subdomain_enumeration:
     <<: *artemis-build-or-image
-    command: "python3 -m artemis.modules.SubdomainEnumeration"
+    command: "python3 -m artemis.modules.subdomain_enumeration"
     depends_on: [karton-system, karton-logger]
     env_file: .env
     restart: always

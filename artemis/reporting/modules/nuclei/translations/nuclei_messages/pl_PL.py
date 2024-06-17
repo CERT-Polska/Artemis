@@ -843,4 +843,6 @@ TRANSLATIONS = {
     "NPM Debug log file exposed.": "Wykryto dziennik z danymi diagnostycznymi narzędzia NPM.",
     "Jboss Seam Debug Page was exposed.": "wykryto stronę z danymi diagnostycznymi Jboss Seam.",
     "go pprof debug page was exposed.": "wykryto stronę z informacjami diagnostycznymi systemu go pprof.",
+    "http/exposed-panels/maltrail-panel.yaml": "wykryto panel systemu Mailtrail.",
+    "Gargoyle Router Management Utility admin login panel was detected.": "wykryto panel systemu Gargoyle Router Management Utility.",
 }

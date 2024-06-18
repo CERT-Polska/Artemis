@@ -39,3 +39,8 @@ and then put the translations in the respective ``.po`` files. The compilation w
 automatically when building the report messages.
 
 **You don't have to translate everything - pull requests with partial translations are also welcome!**
+
+After modifying the translations, restart Artemis **in developer mode** so that the Docker images will be built
+locally and your changes will be included:
+
+``./scripts/start_dev``

@@ -45,3 +45,7 @@ Issues when scanning localhost
 ------------------------------
 As Artemis modules are Docker containers, you won't be able to scan your host's ``localhost``.
 Entering ``localhost`` as the target to scan will cause the modules to scan themselves.
+
+Modules with identified services on a given port
+------------------------------------------------------
+If you want to use any module that works with identified services on a given port (not with domains) such as **bruter**, remember to **enable the port_scanner** module as well.

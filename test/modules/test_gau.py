@@ -16,6 +16,10 @@ class GAUTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = GAU  # type: ignore
 
+    @unittest.skipIf(
+        "RUNNING_ON_GITHUB" in os.environ,
+        reason="We skip the test on GitHub as sometimes the data source is banned/blocklisted from GitHub",
+    )
     def test_simple(self) -> None:
         data = [
             TestData("cert.pl", "nomoreransom.cert.pl"),

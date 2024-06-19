@@ -10,5 +10,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: set RUNNING_ON_GITHUB in env.test
+        run: echo RUNNING_ON_GITHUB=1 >> env.test
       - name: run tests
         run: ./scripts/test

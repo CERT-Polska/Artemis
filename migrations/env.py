@@ -4,6 +4,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from artemis.config import Config
 from artemis.db import Base
 
 # this is the Alembic Config object, which provides
@@ -20,13 +21,14 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 
 target_metadata = Base.metadata
-
 # target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+DATABASE_URL = Config.Data.POSTGRES_CONN_STR
 
 
 def run_migrations_offline():
@@ -41,9 +43,9 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    # url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url,
+        url=DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -61,7 +63,7 @@ def run_migrations_online():
 
     """
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+        {"sqlalchemy.url": DATABASE_URL},
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

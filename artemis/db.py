@@ -138,6 +138,14 @@ class ReportGenerationTask(Base):  # type: ignore
     alerts = Column(JSON, nullable=True)
 
 
+class Tag(Base):  # type: ignore
+    __tablename__ = "tag"
+
+    id = Column(Integer, primary_key=True)
+    tag_name = Column(String, index=True, unique=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+
+
 @dataclasses.dataclass
 class PaginatedResults:
     records_count_total: int
@@ -179,7 +187,6 @@ class DB:
             Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
         )
         self.session = sessionmaker(bind=self._engine)
-        Base.metadata.create_all(bind=self._engine, checkfirst=True)
 
     def list_analysis(self) -> List[Dict[str, Any]]:
         with self.session() as session:

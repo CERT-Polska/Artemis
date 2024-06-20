@@ -23,7 +23,9 @@ class WebCommandStrategy(YamlProcessor):
     def process(self, data: Any) -> Any:
         for service in data["services"]:
             if service == "web":
-                data["services"][service]["command"] = "uvicorn artemis.main:app --host 0.0.0.0 --port 5000 --reload"
+                data["services"][service][
+                    "command"
+                ] = "bash -c 'alembic upgrade head && uvicorn artemis.main:app --host 0.0.0.0 --port 5000 --reload'"
         return data
 
 
@@ -41,6 +43,13 @@ class LocalBuildContainersStrategy(YamlProcessor):
             if data["services"][service]["image"] == "certpl/artemis:latest":
                 del data["services"][service]["image"]
                 data["services"][service]["build"] = {"context": ".", "dockerfile": "docker/Dockerfile"}
+        return data
+
+
+class NoRestartContainerStrategy(YamlProcessor):
+    def process(self, data: Any) -> Any:
+        for service in data["services"]:
+            data["services"][service]["restart"] = "no"
         return data
 
 
@@ -75,3 +84,5 @@ if __name__ == "__main__":
     processor.process_file(VolumeDevelopStrategy())
 
     processor.process_file(LocalBuildContainersStrategy())
+
+    processor.process_file(NoRestartContainerStrategy())

@@ -1,19 +1,19 @@
-#  type: ignore
+# type: ignore
 """Initial migration
 
-Revision ID: 040ea57b3ea5
+Revision ID: 99b5570a348e
 Revises:
-Create Date: 2024-06-19 21:43:15.560972
+Create Date: 2024-06-20 11:51:11.766529
 
 """
 
 import sqlalchemy as sa
 from alembic import op
 
-import artemis.db
+from artemis.db import TSVector
 
 # revision identifiers, used by Alembic.
-revision = "040ea57b3ea5"
+revision = "99b5570a348e"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,7 +30,7 @@ def upgrade():
         sa.Column("stopped", sa.Boolean(), nullable=True),
         sa.Column(
             "fulltext",
-            artemis.db.TSVector(),
+            TSVector(),
             sa.Computed("to_tsvector('english', COALESCE(tag, '') || ' ' || COALESCE(target, ''))", persisted=True),
             nullable=True,
         ),
@@ -67,14 +67,6 @@ def upgrade():
         sa.PrimaryKeyConstraint("analysis_id", "deduplication_data"),
     )
     op.create_table(
-        "tag",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("tag_name", sa.String(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.text("NOW()"), nullable=True),
-        sa.PrimaryKeyConstraint("id"),
-    )
-    op.create_index(op.f("ix_tag_tag_name"), "tag", ["tag_name"], unique=True)
-    op.create_table(
         "task_result",
         sa.Column("id", sa.String(), nullable=False),
         sa.Column("analysis_id", sa.String(), nullable=True),
@@ -89,7 +81,7 @@ def upgrade():
         sa.Column("result", sa.JSON(), nullable=True),
         sa.Column(
             "fulltext",
-            artemis.db.TSVector(),
+            TSVector(),
             sa.Computed(
                 "to_tsvector('english', COALESCE(status, '') || ' ' || COALESCE(tag, '') || ' ' || COALESCE(target_string, '') || ' ' || COALESCE(headers_string, '') || ' ' || COALESCE(status_reason, ''))",
                 persisted=True,
@@ -116,8 +108,6 @@ def downgrade():
     op.drop_index(op.f("ix_task_result_receiver"), table_name="task_result")
     op.drop_index(op.f("ix_task_result_analysis_id"), table_name="task_result")
     op.drop_table("task_result")
-    op.drop_index(op.f("ix_tag_tag_name"), table_name="tag")
-    op.drop_table("tag")
     op.drop_table("scheduled_task")
     op.drop_index(op.f("ix_report_generation_task_status"), table_name="report_generation_task")
     op.drop_index(op.f("ix_report_generation_task_comment"), table_name="report_generation_task")

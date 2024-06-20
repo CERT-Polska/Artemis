@@ -48,4 +48,4 @@ urllib3==1.26.18
 uvicorn==0.30.1
 validators==0.28.3
 whoisdomain==1.20240129.1
-alembic
+alembic==1.13.1

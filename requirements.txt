@@ -1,5 +1,6 @@
 aiofiles==23.2.1
 aiohttp==3.9.5
+alembic==1.13.1
 anytree==2.12.1
 Babel==2.15.0
 beautifulsoup4==4.12.3
@@ -48,4 +49,3 @@ urllib3==1.26.18
 uvicorn==0.30.1
 validators==0.28.3
 whoisdomain==1.20240129.1
-alembic==1.13.1

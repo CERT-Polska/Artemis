@@ -112,21 +112,27 @@ class MailDNSScanner(ArtemisBase):
             return
 
         domain = current_task.get_payload(TaskType.DOMAIN)
-        result = self.scan(current_task, domain)
 
-        status_reasons: List[str] = []
-        if (
-            result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.spf
-            and not result.spf_dmarc_scan_result.spf.valid
-        ):
-            status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
-        if (
-            result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.dmarc
-            and not result.spf_dmarc_scan_result.dmarc.valid
-        ):
-            status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
+        try:
+            dns.resolver.resolve(domain)
+
+            result = self.scan(current_task, domain)
+
+            status_reasons: List[str] = []
+            if (
+                result.spf_dmarc_scan_result
+                and result.spf_dmarc_scan_result.spf
+                and not result.spf_dmarc_scan_result.spf.valid
+            ):
+                status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
+            if (
+                result.spf_dmarc_scan_result
+                and result.spf_dmarc_scan_result.dmarc
+                and not result.spf_dmarc_scan_result.dmarc.valid
+            ):
+                status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
+        except dns.resolver.NXDOMAIN:
+            status_reasons = []
 
         if status_reasons:
             status = TaskStatus.INTERESTING

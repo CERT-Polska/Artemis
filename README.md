@@ -16,6 +16,8 @@ and [building easy-to-read messages ready to be sent to the scanned organization
 
 If you want to use additional modules that weren't included here due to non-BSD-compatible licenses, browse to the [Artemis-modules-extra](https://github.com/CERT-Polska/Artemis-modules-extra) repository.
 
+If you want to modify/develop Artemis, read **[Development](#development)** first.
+
 **Artemis is experimental software, under active development - use at your own risk.**
 
 To chat about Artemis, join the Discord server:
@@ -43,9 +45,15 @@ The possibility to automatically prepare such reports enabled us to notify entit
 ## Screenshots
 ![Artemis - scan](.github/screenshots/scan.png)
 
+<a name="development"></a>
 ## Development
-If you want to develop Artemis, remember to change the [Docker Compose file](https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml#L7) so that
-the Artemis image is built locally (from the code you are changing) not downloaded from Docker Hub.
+To start a locally modified version of Artemis, run:
+```commandline
+ cp env.example .env  # after doing that, configure the settings by changing the user-agent and any other settings you want to change
+ ./scripts/start_dev
+```
+The Artemis image is then built locally (from the code you are developing) not downloaded from Docker Hub.
+For `web`, you will also be able to see the results of code modifications on the page without reloading the entire container.
 
 ### Tests
 To run the tests, use:

@@ -45,3 +45,9 @@ Issues when scanning localhost
 ------------------------------
 As Artemis modules are Docker containers, you won't be able to scan your host's ``localhost``.
 Entering ``localhost`` as the target to scan will cause the modules to scan themselves.
+
+No results for modules communicating via e.g. HTTP
+--------------------------------------------------
+If you don't see any results when scanning with modules that work with HTTP services (such as e.g.
+``bruter``, ``joomla_scanner``, ``wp_scanner``) or (more generally) services on a particular port (i.e. not
+domains), make sure the ``port_scanner`` module is enabled.

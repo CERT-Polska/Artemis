@@ -27,12 +27,12 @@ class WordpressPluginsReporter(Reporter):
     WORDPRESS_OUTDATED_PLUGIN_THEME = ReportType("wordpress_outdated_plugin_theme")
     CLOSED_WORDPRESS_PLUGIN = ReportType("closed_wordpress_plugin")
 
-    VERSION_RE = re.compile("Version: <strong>([^<]*)</strong>")
+    VERSION_RE = re.compile("Version.{0,10}<strong>([^<]*)</strong>")
 
     CLOSED_PLUGINS: Set[str] = set()
 
     @staticmethod
-    def _is_version_known_to_wordpress(plugin_slug: str, plugin_version: str) -> bool:
+    def is_version_known_to_wordpress(plugin_slug: str, plugin_version: str) -> bool:
         # Some plugins don't have the latest version as a tag on SVN repo
         plugin_site_response = cached_get_text(f"https://wordpress.org/plugins/{plugin_slug}/")
         if plugin_site_response.status_code == 404:
@@ -40,6 +40,7 @@ class WordpressPluginsReporter(Reporter):
 
         re_match = re.search(WordpressPluginsReporter.VERSION_RE, plugin_site_response.text)
         if not re_match:  # the site is overloaded or other problem - let's fall back to considering the version known
+            logger.error(f"Unable to extract version information about {plugin_slug}")
             return True
 
         (latest_version,) = re_match.groups(1)
@@ -69,7 +70,7 @@ class WordpressPluginsReporter(Reporter):
             plugin_data = task_result["result"]["plugins"][slug]
             if plugin_data["version"]:
                 version = plugin_data["version"]
-                version_exists = WordpressPluginsReporter._is_version_known_to_wordpress(slug, version)
+                version_exists = WordpressPluginsReporter.is_version_known_to_wordpress(slug, version)
             else:
                 # If no version number, let's assume it's one known to WordPress, so the
                 # plugin is *not* developed separately.

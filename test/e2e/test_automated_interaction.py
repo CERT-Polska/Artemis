@@ -72,6 +72,10 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
 
             time.sleep(1)
 
+        # The disabled modules still need some time to take the task from queue and decide it's not for them.
+        # Let's wait 2 * task poll time (2 * 10s).
+        time.sleep(20)
+
         self.assertEqual(
             int(
                 requests.get(BACKEND_URL + "api/num-queued-tasks", headers={"X-API-Token": "api-token"}).content.strip()

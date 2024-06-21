@@ -1,12 +1,6 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
   image: certpl/artemis:latest
-  # Replace with the following to use local Artemis source code to build the container,
-  # not one downloaded from Docker Hub:
-  #
-  # build:
-  #    context: .
-  #    dockerfile: docker/Dockerfile
 
 services:
   redis:
@@ -49,7 +43,7 @@ services:
   # This is a legacy entry to facillitate migration - MongoDB is not used by Artemis anymore.
   db:
     # Even in the most quiet configuration, MongoDB produces a significant amount of logs.
-    # Therefore mongoDB logs are disabled by default (although they can be enabled).
+    # Therefore, mongoDB logs are disabled by default (although they can be enabled).
     command: ["bash", "-c", "/usr/local/bin/docker-entrypoint.sh mongod --wiredTigerCacheSizeGB 2 --auth --bind_ip_all 2>&1 >/dev/null"]
     environment:
      - MONGO_INITDB_ROOT_USERNAME=root

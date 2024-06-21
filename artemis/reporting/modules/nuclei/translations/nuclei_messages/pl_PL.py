@@ -630,6 +630,7 @@ TRANSLATIONS = {
     "WordPress `wp-config` was discovered. This file is remotely accessible and its content available for reading.": "Wykryto kopię zapasową pliku `wp-config`, która może zawierać np. dane do logowania do bazy danych, umożliwiające atakującemu przejęcie pełnej kontroli nad systemem."
     + DATA_HIDE_HINT,
     "ISPConfig Default Password Vulnerability exposes systems to unauthorized access, compromising data integrity and security.": "wykryto, że do panelu ISPConfig można zalogować się domyślnym hasłem, co umożliwia atakującemu nieuprawniony dostęp do systemu.",
+    "ACTI video surveillance has loopholes in reading any files": "Wykryto, że system Acti-Video Monitoring zawiera podatność umożliwiającą odczyt dowolnych plików z serwera.",
     "Jolokia is vulnerable to local file inclusion via compilerDirectivesAdd.": "wykryto wersję systemu Jolokia zawierającą podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Checks websites for Balada Injector malware.": "Wykryto, że strona jest zainfekowana złośliwym oprogramowaniem Balada Injector.",
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
@@ -843,4 +844,9 @@ TRANSLATIONS = {
     "NPM Debug log file exposed.": "Wykryto dziennik z danymi diagnostycznymi narzędzia NPM.",
     "Jboss Seam Debug Page was exposed.": "wykryto stronę z danymi diagnostycznymi Jboss Seam.",
     "go pprof debug page was exposed.": "wykryto stronę z informacjami diagnostycznymi systemu go pprof.",
+    "http/exposed-panels/maltrail-panel.yaml": "wykryto panel systemu Mailtrail.",
+    "Gargoyle Router Management Utility admin login panel was detected.": "wykryto panel systemu Gargoyle Router Management Utility.",
+    "Vigor login panel was detected.": "wykryto panel logowania routera Vigor.",
+    "LuCi login panel was detected.": "wykryto panel logowania LuCi.",
+    "http/exposed-panels/openwrt-login.yaml": "wykryto panel logowania OpenWRT",
 }

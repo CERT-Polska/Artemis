@@ -57,6 +57,7 @@ class SubdomainEnumeration(ArtemisBase):
                     self.log
             )
             subdomains.update(result.decode().splitlines())
+            print(f"Subdomains found from subfinder: {subdomains}")
             return subdomains
         except Exception:
             self.log.exception("Unable to obtain information from subfinder for domain %s", domain)
@@ -86,17 +87,27 @@ class SubdomainEnumeration(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
-    
-        
-        subdomains = (
-            self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain) |
-            self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
-        )
+        self.log.debug(f"Running subdomain enumeration for domain: {domain}")
+        print(f"Running subdomain enumeration for domain: {domain}")
+
+        try:
+            subdomains = (
+                self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain) |
+                self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain)
+            )
+            self.log.debug(f"Subdomains found: {subdomains}")
+            print(f"Subdomains found: {subdomains}")
+        except UnableToObtainSubdomainsException as e:
+            self.log.error(f"Failed to obtain subdomains for domain {domain}: {e}")
+            print(f"Failed to obtain subdomains for domain {domain}: {e}")
+            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR)
+            return
 
         valid_subdomains = set()
         for subdomain in subdomains:
             if not is_subdomain(subdomain, domain):
                 self.log.info("Non-subdomain returned: %s from %s", subdomain, domain)
+                print(f"Non-subdomain returned: {subdomain} from {domain}")
                 continue
 
             valid_subdomains.add(subdomain)
@@ -107,12 +118,15 @@ class SubdomainEnumeration(ArtemisBase):
                     "SubdomainEnumeration has already returned %s - and as it's a recursive query, no further query will be performed.",
                     domain,
                 )
+                print(f"SubdomainEnumeration has already returned {subdomain} - skipping further queries.")
                 self.db.save_task_result(task=current_task, status=TaskStatus.OK)
                 return
 
             self.redis.setex(
                 f"SubdomainEnumeration-done-{encoded_subdomain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
             )
+            self.log.debug(f"Subdomain {subdomain} marked as done in Redis.")
+            print(f"Subdomain {subdomain} marked as done in Redis.")
 
         for subdomain in valid_subdomains:
             task = Task(
@@ -121,10 +135,13 @@ class SubdomainEnumeration(ArtemisBase):
                     "domain": subdomain,
                 },
             )
+            self.log.debug(f"Creating task for subdomain: {subdomain} with payload: {task.payload}")
+            print(f"Creating task for subdomain: {subdomain} with payload: {task.payload}")
             self.add_task(current_task, task)
         
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(valid_subdomains))
         self.log.info(f"Added {len(valid_subdomains)} subdomains to scan")
+        print(f"Added {len(valid_subdomains)} subdomains to scan")
 
 if __name__ == "__main__":
     SubdomainEnumeration().loop()

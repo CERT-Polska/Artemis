@@ -140,8 +140,6 @@ class SubdomainEnumeration(ArtemisBase):
             self.add_task(current_task, task)
         
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(valid_subdomains))
-        self.log.info(f"Added {len(valid_subdomains)} subdomains to scan")
-        print(f"Added {len(valid_subdomains)} subdomains to scan")
 
 if __name__ == "__main__":
     SubdomainEnumeration().loop()

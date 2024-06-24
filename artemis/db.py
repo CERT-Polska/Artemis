@@ -534,19 +534,15 @@ class DB:
             del d["headers_string"]
         return d
 
-    def get_task_result_tags(self) -> List[UnaryExpression[str]]:
-        with self.session() as session:
-            tags = []
-            length = 4
-            pages = int(session.query(func.count(TaskResult.id)).scalar() / length)
-            for page in range(1, pages):
-                start = (page - 1) * length
-                tags.extend(session.query(distinct(TaskResult.tag)).slice(start, start + length).all())
-            return tags
+    def get_existing_tags(self, table: Any) -> Generator[Dict[str, Any], None, None]:
+        # incompatible type "UnaryExpression[Any]"; expected "Iterable[ColumnElement[Any] | FromClause | int] | None"
+        query = select(distinct(table.tag))  # type: ignore
+        return self._iter_results(query, 4)
 
-    def save_tags(self, task_result_tag: List[UnaryExpression[str]]) -> None:
-        for row in task_result_tag:
-            statement = postgres_insert(Tag).values({Tag.tag_name: row[0]})
+    def save_tags_in_tag_table(self, *results_tag: Generator[Dict[str, Any], None, None]) -> None:
+        for result in results_tag:
+            row_values = [{Tag.tag_name: row.get("tag")} for row in result if row.get("tag") is not None]
+            statement = postgres_insert(Tag).values(row_values)
             statement = statement.on_conflict_do_nothing(index_elements=[Tag.tag_name])
 
             with self.session() as session:

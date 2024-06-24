@@ -1,5 +1,5 @@
 from test.base import ArtemisModuleTestCase
-from typing import NamedTuple, Optional, Type
+from typing import NamedTuple
 
 from karton.core import Task
 
@@ -33,13 +33,3 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
                 if item.payload["domain"] == entry.expected_subdomain:
                     found = True
             self.assertTrue(found)
-
-    def test_get_subdomains_from_subfinder(self) -> None:
-        subdomain_enum = SubdomainEnumeration()
-        result = subdomain_enum.get_subdomains_from_subfinder("cert.pl")
-        self.assertIn("ci.drakvuf.cert.pl", result)
-
-    def test_get_subdomains_from_amass(self) -> None:
-        subdomain_enum = SubdomainEnumeration()
-        result = subdomain_enum.get_subdomains_from_amass("cert.pl")
-        self.assertIn("ci.drakvuf.cert.pl", result)

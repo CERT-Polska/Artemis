@@ -21,7 +21,10 @@ from sqlalchemy import (  # type: ignore
     Index,
     Integer,
     String,
+    UnaryExpression,
     create_engine,
+    distinct,
+    func,
 )
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
@@ -530,3 +533,22 @@ class DB:
         if "headers_string" in d:
             del d["headers_string"]
         return d
+
+    def get_task_result_tags(self) -> List[UnaryExpression[str]]:
+        with self.session() as session:
+            tags = []
+            length = 4
+            pages = int(session.query(func.count(TaskResult.id)).scalar() / length)
+            for page in range(1, pages):
+                start = (page - 1) * length
+                tags.extend(session.query(distinct(TaskResult.tag)).slice(start, start + length).all())
+            return tags
+
+    def save_tags(self, task_result_tag: List[UnaryExpression[str]]) -> None:
+        for row in task_result_tag:
+            statement = postgres_insert(Tag).values({Tag.tag_name: row[0]})
+            statement = statement.on_conflict_do_nothing(index_elements=[Tag.tag_name])
+
+            with self.session() as session:
+                session.execute(statement)
+                session.commit()

@@ -150,6 +150,7 @@ async def post_add(
 
     total_list: List[str] = []
     if targets:
+        targets = targets.strip()
         total_list += (x.strip() for x in targets.split("\n"))
 
     for task in total_list:

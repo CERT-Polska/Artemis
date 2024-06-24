@@ -26,4 +26,5 @@ def create_tasks(
         task.add_payload("disabled_modules", disabled_modules, persistent=True)
         db.create_analysis(task)
         db.save_scheduled_task(task)
+        db.save_tag_in_tag_table(tag)
         producer.send_task(task)

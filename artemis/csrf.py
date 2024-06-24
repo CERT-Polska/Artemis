@@ -9,7 +9,10 @@ from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from pydantic import BaseModel
 
+from artemis.db import DB
 from artemis.templating import templates
+
+db = DB()
 
 
 def generate_csrf_secret() -> str:
@@ -44,6 +47,7 @@ def get_csrf_config() -> CsrfSettings:
 def csrf_form_template_response(template_name: str, context: Dict[str, Any], csrf_protect: CsrfProtect) -> Response:
     csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
     context["csrf_token"] = csrf_token
+    context["tag_names"] = db.get_tag_table_tags()
     response = templates.TemplateResponse(template_name, context)
     csrf_protect.set_csrf_cookie(signed_token, response)
     return response

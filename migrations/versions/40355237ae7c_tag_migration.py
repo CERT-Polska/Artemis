@@ -9,7 +9,7 @@ Create Date: 2024-06-20 13:47:53.630547
 import sqlalchemy as sa
 from alembic import op
 
-from artemis.db import DB
+from artemis.db import DB, Analysis, TaskResult
 
 # revision identifiers, used by Alembic.
 revision = "40355237ae7c"
@@ -18,8 +18,9 @@ branch_labels = None
 depends_on = None
 
 db = DB()
-task_tags = db.get_task_result_tags()
-db.save_tags(task_tags)
+task_tags = db.get_existing_tags(TaskResult)
+analysis_tags = db.get_existing_tags(Analysis)
+db.save_tags_in_tag_table(task_tags, analysis_tags)
 
 
 def upgrade():

@@ -8,7 +8,7 @@ import json
 import os
 import shutil
 from enum import Enum
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Dict, Generator, List, Optional, Type
 
 from karton.core import Task
 from pydantic import BaseModel
@@ -21,10 +21,8 @@ from sqlalchemy import (  # type: ignore
     Index,
     Integer,
     String,
-    UnaryExpression,
     create_engine,
     distinct,
-    func,
 )
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
@@ -548,3 +546,15 @@ class DB:
             with self.session() as session:
                 session.execute(statement)
                 session.commit()
+
+    def save_tag_in_tag_table(self, tag_name: str | None) -> None:
+        statement = postgres_insert(Tag).values(tag_name=tag_name)
+        statement = statement.on_conflict_do_nothing(index_elements=[Tag.tag_name])
+
+        with self.session() as session:
+            session.execute(statement)
+            session.commit()
+
+    def get_tag_table_tags(self) -> List[Type[Tag]] | Any:
+        with self.session() as session:
+            return session.query(Tag).all()

@@ -14,7 +14,7 @@ class TestData(NamedTuple):
 
 class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
-    karton_class: Optional[Type[SubdomainEnumeration]] = SubdomainEnumeration
+    karton_class = SubdomainEnumeration
 
     def test_simple(self) -> None:
         data = [

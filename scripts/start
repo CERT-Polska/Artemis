@@ -37,6 +37,7 @@ fi
     --scale=karton-wordpress_plugins=5 \
     --scale=karton-nuclei=5 \
     --scale=karton-bruter=5 \
+    --scale=karton-subdomain_enumeration=5 \
     $ADDITIONAL_OPTIONS
 
 if [ $? -eq 0 ]; then

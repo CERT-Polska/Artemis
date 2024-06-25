@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import time
-from typing import Optional, Set, Callable
+from typing import Optional, Set, Callable, List
 
 from karton.core import Task
 
@@ -42,48 +42,41 @@ class SubdomainEnumeration(ArtemisBase):
         
         return set()
 
-    def get_subdomains_from_subfinder(self, domain: str) -> Optional[Set[str]]:
+    def get_subdomains_from_tool(self, tool: str, args: List[str], domain: str) -> Optional[Set[str]]:
         subdomains: Set[str] = set()
         try:
-            result = check_output_log_on_error(
-                [
-                    "subfinder", 
-                    "-d", 
-                    domain, 
-                    "-silent",
-                    "-all",
-                    "-recursive"
-                    ],
-                    self.log
-            )
-            subdomains.update(result.decode().splitlines())
-            return subdomains
-        except Exception:
-            self.log.exception("Unable to obtain information from subfinder for domain %s", domain)
-            return None
-
-    def get_subdomains_from_amass(self, domain: str) -> Optional[Set[str]]:
-        subdomains: Set[str] = set()
-        try:
-            result = check_output_log_on_error(
-                [
-                    "amass", #amass is recursive by default use -norecursive to make it non-recursive
-                    "enum",
-                    "-passive"
-                    "-d",
-                    domain,
-                    "-silent"
-                ],
-                self.log
-            )
+            result = check_output_log_on_error([tool] + args, self.log)
             subdomains.update(result.decode().splitlines())
             return subdomains
         except Exception as e:
-            if "panic: runtime error: invalid memory address or nil pointer dereference" in str(e):
-                self.log.error(f"Amass encountered a runtime error for domain {domain}. Skipping subdomain enumeration.")
-            else:
-                self.log.exception("Unable to obtain information from amass for domain %s", domain)
+            self.log.exception(f"Unable to obtain information from {tool} for domain {domain}")
             return None
+
+    def get_subdomains_from_subfinder(self, domain: str) -> Optional[Set[str]]:
+        return self.get_subdomains_from_tool(
+            "subfinder", 
+            [
+                "-d", 
+                domain, 
+                "-silent", 
+                "-all", 
+                "-recursive"
+            ], 
+            domain
+        )
+
+    def get_subdomains_from_amass(self, domain: str) -> Optional[Set[str]]:
+        return self.get_subdomains_from_tool(
+            "amass", 
+            [
+                "enum", 
+                "-passive", 
+                "-d", 
+                domain, 
+                "-silent"
+            ], 
+            domain
+        )
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
@@ -118,13 +111,15 @@ class SubdomainEnumeration(ArtemisBase):
             if not is_subdomain(subdomain, domain):
                 self.log.info("Non-subdomain returned: %s from %s", subdomain, domain)
                 continue
-
             valid_subdomains.add(subdomain)
 
-            self.redis.setex(
-                f"SubdomainEnumeration-done-{encoded_subdomain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1
-            )
-
+            # Batch mark subdomains as done in Redis using a pipeline
+            with self.redis.pipeline() as pipe:
+                for subdomain in valid_subdomains:
+                    encoded_subdomain = subdomain.encode("idna").decode("utf-8")
+                    pipe.setex(f"SubdomainEnumeration-done-{encoded_subdomain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1)
+                pipe.execute()
+        
         for subdomain in valid_subdomains:
             task = Task(
                 {"type": TaskType.DOMAIN},

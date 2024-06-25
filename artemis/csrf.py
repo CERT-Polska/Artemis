@@ -3,7 +3,7 @@ import os
 from functools import wraps
 from typing import Any, Dict
 
-from fastapi import Form, Request, Response
+from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError

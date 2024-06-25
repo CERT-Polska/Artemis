@@ -3,7 +3,7 @@ import os
 from functools import wraps
 from typing import Any, Dict
 
-from fastapi import Request, Response
+from fastapi import Form, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError
@@ -52,6 +52,15 @@ def csrf_form_template_response(template_name: str, context: Dict[str, Any], csr
 def validate_csrf(func: Any) -> Any:
     @wraps(func)
     async def wrapper(request: Request, csrf_protect: CsrfProtect, *args: Any, **kwargs: Any) -> Any:
+        # This is important. For views that don't take form parameters this one will not get called by default and therefore
+        # csrf_token will not be available for the csrf_protect library, thus leading to:
+        #
+        # web-1  | pydantic_core._pydantic_core.ValidationError: 1 validation error for Body
+        # web-1  |   Input should be a valid dictionary or instance of Body [type=model_type, input_value='{"csrf_token":"(...)"}', input_type=str]
+        # web-1  |     For further information visit https://errors.pydantic.dev/2.3/v/model_type
+
+        await request.form()
+
         await csrf_protect.validate_csrf(request)
         response = await func(request, *args, csrf_protect=csrf_protect, **kwargs)
         return response

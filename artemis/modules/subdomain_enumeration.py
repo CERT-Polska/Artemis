@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import time
+import urllib.parse
 from typing import Callable, List, Optional, Set
 
 from karton.core import Task
@@ -58,7 +59,15 @@ class SubdomainEnumeration(ArtemisBase):
         subdomains: Set[str] = set()
         try:
             result = check_output_log_on_error([tool] + args, self.log, input=input)
-            subdomains.update(result.decode().splitlines())
+            for item in result.decode().splitlines():
+                if "://" in item:
+                    url_parsed = urllib.parse.urlparse(item)
+                    if not url_parsed.hostname:
+                        continue
+                    item = url_parsed.hostname
+
+                subdomains.add(item)
+
             return subdomains
         except Exception:
             self.log.exception(f"Unable to obtain information from {tool} for domain {domain}")

@@ -23,7 +23,7 @@ class SubdomainEnumeration(ArtemisBase):
     Consumes `type: domain` to gather subdomains and produces `type: domain`.
     """
 
-    identity = "SubdomainEnumeration"
+    identity = "subdomain_enumeration"
     filters = [
         {"type": TaskType.DOMAIN.value},
     ]
@@ -96,10 +96,10 @@ class SubdomainEnumeration(ArtemisBase):
         for f in [self.get_subdomains_from_subfinder, self.get_subdomains_from_amass, self.get_subdomains_from_gau]:
             try:
                 subdomains = self.get_subdomains_with_retry(f, domain)
-                self.log.info(f"Subdomains from {f}: {subdomains}")
+                self.log.info(f"Subdomains from {f.__name__}: {subdomains}")
                 subdomains.update(subdomains)
             except UnableToObtainSubdomainsException as e:
-                self.log.error(f"Failed to obtain subdomains from {f} for domain {domain}: {e}")
+                self.log.error(f"Failed to obtain subdomains from {f.__name__} for domain {domain}: {e}")
 
         if not subdomains:
             self.log.error(f"Failed to obtain any subdomains for domain {domain}")

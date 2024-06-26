@@ -110,6 +110,8 @@ class SubdomainEnumeration(ArtemisBase):
                 if not is_subdomain(subdomain, domain):
                     self.log.info("Non-subdomain returned: %s from %s", subdomain, domain)
                     continue
+                if subdomain in valid_subdomains:
+                    continue
                 valid_subdomains_from_tool.add(subdomain)
 
             # Batch mark subdomains as done in Redis using a pipeline

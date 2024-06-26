@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import shutil
+import tempfile
 import time
 import urllib.parse
 from typing import Callable, List, Optional, Set
@@ -49,6 +51,8 @@ class SubdomainEnumeration(ArtemisBase):
                     f"Unable to obtain subdomains for {domain} after {retries} retries"
                 )
 
+        return set()  # this is an unreachable statement but the linter doesn't see that
+
     def get_subdomains_from_tool(
         self, tool: str, args: List[str], domain: str, input: Optional[bytes] = None
     ) -> Optional[Set[str]]:
@@ -74,7 +78,9 @@ class SubdomainEnumeration(ArtemisBase):
 
     def get_subdomains_from_amass(self, domain: str) -> Optional[Set[str]]:
         temp_dir = tempfile.mkdtemp()
-        result = self.get_subdomains_from_tool("amass", ["enum", "-passive", "-d", domain, "-silent", "-dir", temp_dir], domain)
+        result = self.get_subdomains_from_tool(
+            "amass", ["enum", "-passive", "-d", domain, "-silent", "-dir", temp_dir], domain
+        )
         shutil.rmtree(temp_dir)
         return result
 

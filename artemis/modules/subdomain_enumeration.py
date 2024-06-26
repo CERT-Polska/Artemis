@@ -35,7 +35,7 @@ class SubdomainEnumeration(ArtemisBase):
         func: Callable[[str], Optional[Set[str]]],
         domain: str,
         retries: int = Config.Modules.SubdomainEnumeration.RETRIES,
-        sleep_time: int = Config.Modules.SubdomainEnumeration.SLEEP_TIME,
+        sleep_time_seconds: int = Config.Modules.SubdomainEnumeration.SLEEP_TIME_SECONDS,
     ) -> Set[str]:
         for retry_id in range(retries):
             subdomains = func(domain)
@@ -44,7 +44,7 @@ class SubdomainEnumeration(ArtemisBase):
 
             self.log.info("Retrying for domain %s", domain)
             if retry_id < retries - 1:
-                time.sleep(sleep_time)
+                time.sleep(sleep_time_seconds)
             else:
                 raise UnableToObtainSubdomainsException(
                     f"Unable to obtain subdomains for {domain} after {retries} retries"
@@ -52,10 +52,10 @@ class SubdomainEnumeration(ArtemisBase):
 
         return set()
 
-    def get_subdomains_from_tool(self, tool: str, args: List[str], domain: str) -> Optional[Set[str]]:
+    def get_subdomains_from_tool(self, tool: str, args: List[str], domain: str, input: Optional[str]=None) -> Optional[Set[str]]:
         subdomains: Set[str] = set()
         try:
-            result = check_output_log_on_error([tool] + args, self.log)
+            result = check_output_log_on_error([tool] + args, self.log, input=input)
             subdomains.update(result.decode().splitlines())
             return subdomains
         except Exception:
@@ -68,11 +68,14 @@ class SubdomainEnumeration(ArtemisBase):
     def get_subdomains_from_amass(self, domain: str) -> Optional[Set[str]]:
         return self.get_subdomains_from_tool("amass", ["enum", "-passive", "-d", domain, "-silent"], domain)
 
+    def get_subdomains_from_gau(self, domain: str) -> Optional[Set[str]]:
+        return self.get_subdomains_from_tool("gau", ["-subs"], domain, input=domain)
+
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
         encoded_domain = domain.encode("idna").decode("utf-8")
 
-        if self.redis.get(f"SubdomainEnumeration-done-{encoded_domain}"):
+        if self.redis.get(f"subdomain-enumeration-done-{encoded_domain}"):
             self.log.info(
                 "SubdomainEnumeration has already been performed for %s. Skipping further enumeration.", domain
             )
@@ -80,15 +83,14 @@ class SubdomainEnumeration(ArtemisBase):
             return
 
         subdomains = set()
-        try:
-            subdomains.update(self.get_subdomains_with_retry(self.get_subdomains_from_subfinder, domain))
-        except UnableToObtainSubdomainsException as e:
-            self.log.error(f"Failed to obtain subdomains from subfinder for domain {domain}: {e}")
 
-        try:
-            subdomains.update(self.get_subdomains_with_retry(self.get_subdomains_from_amass, domain))
-        except UnableToObtainSubdomainsException as e:
-            self.log.error(f"Failed to obtain subdomains from amass for domain {domain}: {e}")
+        for f in [self.get_subdomains_from_subfinder, self.get_subdomains_from_amass, self.get_subdomains_from_gau]:
+            try:
+                subdomains = self.get_subdomains_with_retry(f, domain)
+                self.log.info(f"Subdomains from {f}: {subdomains}")
+                subdomains.update(subdomains)
+            except UnableToObtainSubdomainsException as e:
+                self.log.error(f"Failed to obtain subdomains from {f} for domain {domain}: {e}")
 
         if not subdomains:
             self.log.error(f"Failed to obtain any subdomains for domain {domain}")
@@ -102,16 +104,16 @@ class SubdomainEnumeration(ArtemisBase):
                 continue
             valid_subdomains.add(subdomain)
 
-            # Batch mark subdomains as done in Redis using a pipeline
-            with self.redis.pipeline() as pipe:
-                for subdomain in valid_subdomains:
-                    encoded_subdomain = subdomain.encode("idna").decode("utf-8")
-                    pipe.setex(
-                        f"SubdomainEnumeration-done-{encoded_subdomain}",
-                        Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
-                        1,
-                    )
-                pipe.execute()
+        # Batch mark subdomains as done in Redis using a pipeline
+        with self.redis.pipeline() as pipe:
+            for subdomain in valid_subdomains:
+                encoded_subdomain = subdomain.encode("idna").decode("utf-8")
+                pipe.setex(
+                    f"subdomain-enumeration-done-{encoded_subdomain}",
+                    Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
+                    1,
+                )
+            pipe.execute()
 
         for subdomain in valid_subdomains:
             task = Task(

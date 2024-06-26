@@ -552,12 +552,12 @@ class Config:
             RETRIES: Annotated[
                 int,
                 "Number of retries for subdomain enumeration.",
-            ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=20, cast=int)
+            ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
 
-            SLEEP_TIME: Annotated[
+            SLEEP_TIME_SECONDS: Annotated[
                 int,
                 "Time to sleep between retries for subdomain enumeration in seconds.",
-            ] = get_config("SUBDOMAIN_ENUMERATION_SLEEP_TIME", default=300, cast=int)
+            ] = get_config("SUBDOMAIN_ENUMERATION_SLEEP_TIME_SECONDS", default=60, cast=int)
 
         class VCS:
             VCS_MAX_DB_SIZE_BYTES: Annotated[

@@ -13,6 +13,7 @@ RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev
     apk add --no-cache bash libpcap libpq git subversion whois && \
     GOBIN=/usr/local/bin/ go install github.com/projectdiscovery/naabu/v2/cmd/naabu@v2.3.1 && \
     GOBIN=/usr/local/bin/ go install github.com/praetorian-inc/fingerprintx/cmd/fingerprintx@v1.1.13 && \
+    GOBIN=/usr/local/bin/ go install github.com/lc/gau/v2/cmd/gau@v2.2.3 && \
     GOBIN=/usr/local/bin/ go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@v2.6.6 && \
     GOBIN=/usr/local/bin/ go install github.com/OWASP/Amass/v3/...@v3.18.0 && \
     git clone https://github.com/projectdiscovery/nuclei.git -b v2.9.7 /nuclei && \

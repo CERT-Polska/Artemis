@@ -11,8 +11,6 @@ from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
-DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
-
 
 # NOTE: The rappidns, jldc, and crtsh modules were removed from this class
 # as their functionality is already implemented internally by the subfinder and amass and gau utilities.

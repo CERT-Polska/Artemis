@@ -78,7 +78,7 @@ class SubdomainEnumeration(ArtemisBase):
         return self.get_subdomains_from_tool("amass", ["enum", "-passive", "-d", domain, "-silent"], domain)
 
     def get_subdomains_from_gau(self, domain: str) -> Optional[Set[str]]:
-        return self.get_subdomains_from_tool("gau", ["-subs"], domain, input=domain.encode("idna"))
+        return self.get_subdomains_from_tool("gau", ["--subs"], domain, input=domain.encode("idna"))
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
@@ -93,7 +93,12 @@ class SubdomainEnumeration(ArtemisBase):
 
         valid_subdomains = set()
 
-        for f in [self.get_subdomains_from_subfinder, self.get_subdomains_from_amass, self.get_subdomains_from_gau]:
+        # Let's keep amass the latest as it's the slowest
+        for f in [
+            self.get_subdomains_from_subfinder,
+            self.get_subdomains_from_gau,
+            self.get_subdomains_from_amass,
+        ]:
             try:
                 subdomains_from_tool = self.get_subdomains_with_retry(f, domain)
                 self.log.info(f"Subdomains from {f.__name__}: {subdomains_from_tool}")

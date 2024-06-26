@@ -78,7 +78,7 @@ class SubdomainEnumeration(ArtemisBase):
         return self.get_subdomains_from_tool("amass", ["enum", "-passive", "-d", domain, "-silent"], domain)
 
     def get_subdomains_from_gau(self, domain: str) -> Optional[Set[str]]:
-        return self.get_subdomains_from_tool("gau", ["-subs"], domain, input=domain)
+        return self.get_subdomains_from_tool("gau", ["-subs"], domain, input=domain.encode('idna'))
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")

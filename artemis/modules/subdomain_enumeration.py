@@ -49,8 +49,6 @@ class SubdomainEnumeration(ArtemisBase):
                     f"Unable to obtain subdomains for {domain} after {retries} retries"
                 )
 
-        return set()
-
     def get_subdomains_from_tool(
         self, tool: str, args: List[str], domain: str, input: Optional[bytes] = None
     ) -> Optional[Set[str]]:
@@ -94,16 +92,19 @@ class SubdomainEnumeration(ArtemisBase):
         valid_subdomains = set()
 
         # Let's keep amass the latest as it's the slowest
-        for f in [
+        subdomain_tools = [
             self.get_subdomains_from_subfinder,
             self.get_subdomains_from_gau,
             self.get_subdomains_from_amass,
-        ]:
+        ]
+
+        for tool_func in subdomain_tools:
             try:
-                subdomains_from_tool = self.get_subdomains_with_retry(f, domain)
-                self.log.info(f"Subdomains from {f.__name__}: {subdomains_from_tool}")
+                subdomains_from_tool = self.get_subdomains_with_retry(tool_func, domain)
+                self.log.info(f"Subdomains from {tool_func.__name__}: {subdomains_from_tool}")
             except UnableToObtainSubdomainsException as e:
-                self.log.error(f"Failed to obtain subdomains from {f.__name__} for domain {domain}: {e}")
+                self.log.error(f"Failed to obtain subdomains from {tool_func.__name__} for domain {domain}: {e}")
+                continue
 
             valid_subdomains_from_tool = set()
             for subdomain in subdomains_from_tool:

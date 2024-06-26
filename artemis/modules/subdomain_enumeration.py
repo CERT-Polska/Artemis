@@ -28,7 +28,7 @@ class SubdomainEnumeration(ArtemisBase):
     ]
     lock_target = False
 
-    def get_subdomains_with_retry(self, func: Callable[[str], Optional[Set[str]]], domain: str, retries: int = Config.SubdomainEnumeration.RETRIES, sleep_time: int = Config.SubdomainEnumeration.SLEEP_TIME) -> Set[str]:
+    def get_subdomains_with_retry(self, func: Callable[[str], Optional[Set[str]]], domain: str, retries: int = Config.Miscellaneous.SubdomainEnumeration.RETRIES, sleep_time: int = Config.Miscellaneous.SubdomainEnumeration.SLEEP_TIME) -> Set[str]:
         for retry_id in range(retries):
             subdomains = func(domain)
             if subdomains is not None:

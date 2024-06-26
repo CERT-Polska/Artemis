@@ -37,9 +37,9 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     def test_get_subdomains_from_subfinder(self) -> None:
         subdomain_enum = SubdomainEnumeration()
         result = subdomain_enum.get_subdomains_from_subfinder("cert.pl")
-        self.assertIn("ci.drakvuf.cert.pl", result)
+        self.assertEqual("ci.drakvuf.cert.pl", result)
 
     def test_get_subdomains_from_amass(self) -> None:
         subdomain_enum = SubdomainEnumeration()
         result = subdomain_enum.get_subdomains_from_amass("cert.pl")
-        self.assertIn("ci.drakvuf.cert.pl", result)
+        self.assertEqual("ci.drakvuf.cert.pl", result)

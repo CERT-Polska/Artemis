@@ -52,7 +52,7 @@ class SubdomainEnumeration(ArtemisBase):
         return set()
 
     def get_subdomains_from_tool(
-        self, tool: str, args: List[str], domain: str, input: Optional[str] = None
+        self, tool: str, args: List[str], domain: str, input: Optional[bytes] = None
     ) -> Optional[Set[str]]:
         subdomains: Set[str] = set()
         try:
@@ -78,7 +78,7 @@ class SubdomainEnumeration(ArtemisBase):
         return self.get_subdomains_from_tool("amass", ["enum", "-passive", "-d", domain, "-silent"], domain)
 
     def get_subdomains_from_gau(self, domain: str) -> Optional[Set[str]]:
-        return self.get_subdomains_from_tool("gau", ["-subs"], domain, input=domain.encode('idna'))
+        return self.get_subdomains_from_tool("gau", ["-subs"], domain, input=domain.encode("idna"))
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
@@ -91,49 +91,50 @@ class SubdomainEnumeration(ArtemisBase):
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 
-        subdomains = set()
+        valid_subdomains = set()
 
         for f in [self.get_subdomains_from_subfinder, self.get_subdomains_from_amass, self.get_subdomains_from_gau]:
             try:
-                subdomains = self.get_subdomains_with_retry(f, domain)
-                self.log.info(f"Subdomains from {f.__name__}: {subdomains}")
-                subdomains.update(subdomains)
+                subdomains_from_tool = self.get_subdomains_with_retry(f, domain)
+                self.log.info(f"Subdomains from {f.__name__}: {subdomains_from_tool}")
             except UnableToObtainSubdomainsException as e:
                 self.log.error(f"Failed to obtain subdomains from {f.__name__} for domain {domain}: {e}")
 
-        if not subdomains:
+            valid_subdomains_from_tool = set()
+            for subdomain in subdomains_from_tool:
+                if not is_subdomain(subdomain, domain):
+                    self.log.info("Non-subdomain returned: %s from %s", subdomain, domain)
+                    continue
+                valid_subdomains_from_tool.add(subdomain)
+
+            # Batch mark subdomains as done in Redis using a pipeline
+            with self.redis.pipeline() as pipe:
+                for subdomain in valid_subdomains_from_tool:
+                    encoded_subdomain = subdomain.encode("idna").decode("utf-8")
+                    pipe.setex(
+                        f"subdomain-enumeration-done-{encoded_subdomain}",
+                        Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
+                        1,
+                    )
+                pipe.execute()
+
+            for subdomain in valid_subdomains_from_tool:
+                task = Task(
+                    {"type": TaskType.DOMAIN},
+                    payload={
+                        "domain": subdomain,
+                    },
+                )
+                self.add_task(current_task, task)
+
+            valid_subdomains.update(valid_subdomains_from_tool)
+
+        if valid_subdomains:
+            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(valid_subdomains))
+        else:
             self.log.error(f"Failed to obtain any subdomains for domain {domain}")
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR)
             return
-
-        valid_subdomains = set()
-        for subdomain in subdomains:
-            if not is_subdomain(subdomain, domain):
-                self.log.info("Non-subdomain returned: %s from %s", subdomain, domain)
-                continue
-            valid_subdomains.add(subdomain)
-
-        # Batch mark subdomains as done in Redis using a pipeline
-        with self.redis.pipeline() as pipe:
-            for subdomain in valid_subdomains:
-                encoded_subdomain = subdomain.encode("idna").decode("utf-8")
-                pipe.setex(
-                    f"subdomain-enumeration-done-{encoded_subdomain}",
-                    Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
-                    1,
-                )
-            pipe.execute()
-
-        for subdomain in valid_subdomains:
-            task = Task(
-                {"type": TaskType.DOMAIN},
-                payload={
-                    "domain": subdomain,
-                },
-            )
-            self.add_task(current_task, task)
-
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(valid_subdomains))
 
 
 if __name__ == "__main__":

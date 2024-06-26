@@ -1,0 +1,28 @@
+id: smodbip
+
+info:
+  name: SmodBIP
+  author: kazet
+  severity: high
+  description: Obsolete and insecure SmodBIP system was detected. In Poland the system is not recommended to be used by the Government Plenipotentiary for Cybersecurity.
+  reference:
+    - https://www.gov.pl/web/cyfryzacja/rekomendacja-pelnomocnika-rzadu-ds-cyberbezpieczenstwa-dotyczaca-biuletynow-informacji-publicznej
+  metadata:
+    max-request: 1
+  tags: recommendation
+
+http:
+  - method: GET
+    stop-at-first-match: true
+    path:
+      - "{{BaseURL}}"
+
+    host-redirects: true
+    max-redirects: 2
+
+    matchers-condition: and
+    matchers:
+      - type: regex
+        regex:
+          - '<meta name="[a-zA-Z0-9_-]*" content="SmodB[Ii][Pp]'
+        part: body

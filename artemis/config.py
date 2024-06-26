@@ -559,6 +559,11 @@ class Config:
                 "Time to sleep between retries for subdomain enumeration in seconds.",
             ] = get_config("SUBDOMAIN_ENUMERATION_SLEEP_TIME_SECONDS", default=60, cast=int)
 
+            GAU_ADDITIONAL_OPTIONS: Annotated[
+                List[str],
+                "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
+            ] = get_config("SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
+
         class VCS:
             VCS_MAX_DB_SIZE_BYTES: Annotated[
                 int,

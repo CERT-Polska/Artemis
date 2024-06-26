@@ -23,7 +23,7 @@ services:
       BRUTER_FILE_LIST: full
 
       # Use only one provider to speed up the tests
-      GAU_ADDITIONAL_OPTIONS: "--providers wayback"
+      SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback"
 
       POSTMAN_MAIL_FROM: artemis@localhost.com
       POSTMAN_MAIL_TO: artemis@localhost.com

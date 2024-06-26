@@ -633,6 +633,7 @@ TRANSLATIONS = {
     "ISPConfig Default Password Vulnerability exposes systems to unauthorized access, compromising data integrity and security.": "wykryto, że do panelu ISPConfig można zalogować się domyślnym hasłem, co umożliwia atakującemu nieuprawniony dostęp do systemu.",
     "ACTI video surveillance has loopholes in reading any files": "Wykryto, że system Acti-Video Monitoring zawiera podatność umożliwiającą odczyt dowolnych plików z serwera.",
     "Jolokia is vulnerable to local file inclusion via compilerDirectivesAdd.": "wykryto wersję systemu Jolokia zawierającą podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "CVE-2024-24919 is an information disclosure vulnerability that can allow an attacker to access certain information on internet-connected Gateways which have been configured with IPSec VPN, remote access VPN or mobile access software blade.": "Wykryto podatność CVE-2024-24919 w urządzeniu Check Point Quantum Gateway umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Checks websites for Balada Injector malware.": "Wykryto, że strona jest zainfekowana złośliwym oprogramowaniem Balada Injector.",
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",

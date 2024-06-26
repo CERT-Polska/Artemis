@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 import time
 import urllib.parse
-from typing import Callable, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
-from karton.core import Task
+from karton.core import Consumer, Task
+from karton.core.config import Config as KartonConfig
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.db import DB
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
@@ -26,6 +28,47 @@ class SubdomainEnumeration(ArtemisBase):
         {"type": TaskType.DOMAIN.value},
     ]
     lock_target = False
+
+    def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
+        super().__init__(db, *args, **kwargs)
+
+        # before we migrate the tasks, let's create binds to make sure the new tasks will hit the queue of this module
+        self.backend.register_bind(self._bind)
+
+        with self.lock:
+            old_modules = ["crtsh", "gau"]
+
+            for old_task in self.backend.iter_all_tasks(parse_resources=False):
+                if old_task.receiver in old_modules:
+                    self.log.info(f"Moving task from {old_task.receiver} to {self.identity}")
+                    new_task = Task(
+                        {"type": TaskType.DOMAIN.value},
+                        payload={
+                            "domain": old_task.payload["domain"],
+                            "source": "migration",
+                        },
+                    )
+
+                    self.add_task(old_task, new_task)
+                    self.backend.delete_task(old_task)
+
+            for old_module in old_modules:
+
+                class KartonDummy(Consumer):
+                    """
+                    This karton has been replaced with subdomain_enumeration.
+                    """
+
+                    identity = old_module
+                    persistent = False
+                    filters: List[Dict[str, Any]] = []
+
+                    def process(self, task: Task) -> None:
+                        pass
+
+                karton = KartonDummy(config=KartonConfig())
+                karton._shutdown = True
+                karton.loop()
 
     def get_subdomains_with_retry(
         self,

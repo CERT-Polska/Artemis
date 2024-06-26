@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: bash -c "python -m unittest test.modules.test_subdomain_enumeration" # && python -m unittest discover test.reporting && python -m unittest discover test.unit"
+    command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379

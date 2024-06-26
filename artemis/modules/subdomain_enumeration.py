@@ -52,7 +52,9 @@ class SubdomainEnumeration(ArtemisBase):
 
         return set()
 
-    def get_subdomains_from_tool(self, tool: str, args: List[str], domain: str, input: Optional[str]=None) -> Optional[Set[str]]:
+    def get_subdomains_from_tool(
+        self, tool: str, args: List[str], domain: str, input: Optional[str] = None
+    ) -> Optional[Set[str]]:
         subdomains: Set[str] = set()
         try:
             result = check_output_log_on_error([tool] + args, self.log, input=input)

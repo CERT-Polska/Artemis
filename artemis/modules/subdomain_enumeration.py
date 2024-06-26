@@ -14,8 +14,6 @@ from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
 
-# NOTE: The rappidns, jldc, and crtsh modules were removed from this class
-# as their functionality is already implemented internally by the subfinder and amass and gau utilities.
 class UnableToObtainSubdomainsException(Exception):
     pass
 
@@ -100,11 +98,9 @@ class SubdomainEnumeration(ArtemisBase):
 
         valid_subdomains = set()
 
-        # Let's keep amass the latest as it's the slowest
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
             self.get_subdomains_from_gau,
-            self.get_subdomains_from_amass,
         ]
 
         for tool_func in subdomain_tools:

@@ -14,7 +14,7 @@ class TestData(NamedTuple):
 
 class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
-    karton_class = SubdomainEnumeration
+    karton_class = SubdomainEnumeration  # type: ignore
 
     def test_simple(self) -> None:
         data = [
@@ -33,3 +33,13 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
                 if item.payload["domain"] == entry.expected_subdomain:
                     found = True
             self.assertTrue(found)
+
+    def test_get_subdomains_from_subfinder(self) -> None:
+        subdomain_enum = SubdomainEnumeration()
+        result = subdomain_enum.get_subdomains_from_subfinder("cert.pl")
+        self.assertIn("ci.drakvuf.cert.pl", result)
+
+    def test_get_subdomains_from_amass(self) -> None:
+        subdomain_enum = SubdomainEnumeration()
+        result = subdomain_enum.et_subdomains_from_amass("cert.pl")
+        self.assertIn("ci.drakvuf.cert.pl", result)

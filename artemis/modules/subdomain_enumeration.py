@@ -48,7 +48,7 @@ class SubdomainEnumeration(ArtemisBase):
             result = check_output_log_on_error([tool] + args, self.log)
             subdomains.update(result.decode().splitlines())
             return subdomains
-        except Exception as e:
+        except Exception:
             self.log.exception(f"Unable to obtain information from {tool} for domain {domain}")
             return None
 

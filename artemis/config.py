@@ -547,7 +547,16 @@ class Config:
                 "Some SSH servers drop connections after a large number of tries in a short "
                 "time period. This is to combat this behavior.",
             ] = get_config("ADDITIONAL_BRUTE_FORCE_SLEEP_SECONDS", default=20)
+        class SubdomainEnumeration:
+            RETRIES: Annotated[
+                int,
+                "Number of retries for subdomain enumeration.",
+            ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=20, cast=int)
 
+            SLEEP_TIME: Annotated[
+                int,
+                "Time to sleep between retries for subdomain enumeration in seconds.",
+            ] = get_config("SUBDOMAIN_ENUMERATION_SLEEP_TIME", default=300, cast=int)
         class VCS:
             VCS_MAX_DB_SIZE_BYTES: Annotated[
                 int,

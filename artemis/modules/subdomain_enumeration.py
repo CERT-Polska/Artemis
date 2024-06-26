@@ -28,7 +28,7 @@ class SubdomainEnumeration(ArtemisBase):
     ]
     lock_target = False
 
-    def get_subdomains_with_retry(self, func: Callable[[str], Optional[Set[str]]], domain: str, retries: int = 20, sleep_time: int = 300) -> Set[str]:
+    def get_subdomains_with_retry(self, func: Callable[[str], Optional[Set[str]]], domain: str, retries: int = Config.SubdomainEnumeration.RETRIES, sleep_time: int = Config.SubdomainEnumeration.SLEEP_TIME) -> Set[str]:
         for retry_id in range(retries):
             subdomains = func(domain)
             if subdomains is not None:
@@ -80,13 +80,10 @@ class SubdomainEnumeration(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
-        
         encoded_domain = domain.encode("idna").decode("utf-8")
+
         if self.redis.get(f"SubdomainEnumeration-done-{encoded_domain}"):
-            self.log.info(
-                "SubdomainEnumeration has already been performed for %s. Skipping further enumeration.",
-                domain,
-            )
+            self.log.info("SubdomainEnumeration has already been performed for %s. Skipping further enumeration.", domain)
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 

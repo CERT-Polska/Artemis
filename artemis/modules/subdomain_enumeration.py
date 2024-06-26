@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import time
-from typing import Optional, Set, Callable, List
+from typing import Callable, List, Optional, Set
 
 from karton.core import Task
 
@@ -12,10 +12,12 @@ from artemis.utils import check_output_log_on_error
 
 DOMAIN_REGEX = r"([a-z0-9\-]+\.)+[a-z0-9\-]+"
 
-# NOTE: The rappidns, jldc, gau and crtsh modules were removed from this class 
+
+# NOTE: The rappidns, jldc, gau and crtsh modules were removed from this class
 # as their functionality is already implemented internally by the subfinder and amass utilities.
 class UnableToObtainSubdomainsException(Exception):
     pass
+
 
 class SubdomainEnumeration(ArtemisBase):
     """
@@ -28,7 +30,13 @@ class SubdomainEnumeration(ArtemisBase):
     ]
     lock_target = False
 
-    def get_subdomains_with_retry(self, func: Callable[[str], Optional[Set[str]]], domain: str, retries: int = Config.Modules.SubdomainEnumeration.RETRIES, sleep_time: int = Config.Modules.SubdomainEnumeration.SLEEP_TIME) -> Set[str]:
+    def get_subdomains_with_retry(
+        self,
+        func: Callable[[str], Optional[Set[str]]],
+        domain: str,
+        retries: int = Config.Modules.SubdomainEnumeration.RETRIES,
+        sleep_time: int = Config.Modules.SubdomainEnumeration.SLEEP_TIME,
+    ) -> Set[str]:
         for retry_id in range(retries):
             subdomains = func(domain)
             if subdomains is not None:
@@ -38,8 +46,10 @@ class SubdomainEnumeration(ArtemisBase):
             if retry_id < retries - 1:
                 time.sleep(sleep_time)
             else:
-                raise UnableToObtainSubdomainsException(f"Unable to obtain subdomains for {domain} after {retries} retries")
-        
+                raise UnableToObtainSubdomainsException(
+                    f"Unable to obtain subdomains for {domain} after {retries} retries"
+                )
+
         return set()
 
     def get_subdomains_from_tool(self, tool: str, args: List[str], domain: str) -> Optional[Set[str]]:
@@ -53,37 +63,19 @@ class SubdomainEnumeration(ArtemisBase):
             return None
 
     def get_subdomains_from_subfinder(self, domain: str) -> Optional[Set[str]]:
-        return self.get_subdomains_from_tool(
-            "subfinder", 
-            [
-                "-d", 
-                domain, 
-                "-silent", 
-                "-all", 
-                "-recursive"
-            ], 
-            domain
-        )
+        return self.get_subdomains_from_tool("subfinder", ["-d", domain, "-silent", "-all", "-recursive"], domain)
 
     def get_subdomains_from_amass(self, domain: str) -> Optional[Set[str]]:
-        return self.get_subdomains_from_tool(
-            "amass", 
-            [
-                "enum", 
-                "-passive", 
-                "-d", 
-                domain, 
-                "-silent"
-            ], 
-            domain
-        )
+        return self.get_subdomains_from_tool("amass", ["enum", "-passive", "-d", domain, "-silent"], domain)
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
         encoded_domain = domain.encode("idna").decode("utf-8")
 
         if self.redis.get(f"SubdomainEnumeration-done-{encoded_domain}"):
-            self.log.info("SubdomainEnumeration has already been performed for %s. Skipping further enumeration.", domain)
+            self.log.info(
+                "SubdomainEnumeration has already been performed for %s. Skipping further enumeration.", domain
+            )
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 
@@ -114,9 +106,13 @@ class SubdomainEnumeration(ArtemisBase):
             with self.redis.pipeline() as pipe:
                 for subdomain in valid_subdomains:
                     encoded_subdomain = subdomain.encode("idna").decode("utf-8")
-                    pipe.setex(f"SubdomainEnumeration-done-{encoded_subdomain}", Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60, 1)
+                    pipe.setex(
+                        f"SubdomainEnumeration-done-{encoded_subdomain}",
+                        Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
+                        1,
+                    )
                 pipe.execute()
-        
+
         for subdomain in valid_subdomains:
             task = Task(
                 {"type": TaskType.DOMAIN},
@@ -125,8 +121,9 @@ class SubdomainEnumeration(ArtemisBase):
                 },
             )
             self.add_task(current_task, task)
-        
+
         self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(valid_subdomains))
+
 
 if __name__ == "__main__":
     SubdomainEnumeration().loop()

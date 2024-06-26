@@ -17,9 +17,7 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     karton_class = SubdomainEnumeration  # type: ignore
 
     def test_simple(self) -> None:
-        data = [
-            TestData("cert.pl", "ci.drakvuf.cert.pl")
-        ]
+        data = [TestData("cert.pl", "ci.drakvuf.cert.pl")]
 
         for entry in data:
             task = Task(

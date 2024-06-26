@@ -562,7 +562,9 @@ class Config:
             GAU_ADDITIONAL_OPTIONS: Annotated[
                 List[str],
                 "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
-            ] = get_config("SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
+            ] = get_config(
+                "SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" ")
+            )
 
         class VCS:
             VCS_MAX_DB_SIZE_BYTES: Annotated[

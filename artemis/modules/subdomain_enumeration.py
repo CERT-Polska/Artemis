@@ -118,6 +118,7 @@ class SubdomainEnumeration(ArtemisBase):
                     )
                 pipe.execute()
 
+            # We save the task as soon as we have results from a single tool so that other kartons can do something.
             for subdomain in valid_subdomains_from_tool:
                 task = Task(
                     {"type": TaskType.DOMAIN},

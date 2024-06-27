@@ -521,7 +521,7 @@ class Config:
                 int,
                 "How big are the chunks to split the template list. E.g. if the template list contains 3000 templates and "
                 "NUCLEI_TEMPLATE_CHUNK_SIZE is 1000, three calls will be made with 1000 templates each.",
-            ] = get_config("TEMPLATE_CHUNK_SIZE", default=1000, cast=int)
+            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=1000, cast=int)
 
         class PortScanner:
             PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (

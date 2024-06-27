@@ -7,7 +7,12 @@
 
         <div class="form-group mb-3">
             <label class="form-label">Tag to export</label>
-            <input type="text" class="form-control" name="tag" placeholder="Leave blank to export all. Only task results from scans with exactly this tag will be included in the exported zip file.">
+             <input list="objectList" class="form-control" name="tag" placeholder="Leave blank to export all. Only task results from scans with exactly this tag will be included in the exported zip file." autocomplete="off">
+                <datalist id="objectList">
+                     {% for tag in tag_names %}
+                        <option>{{ tag.tag_name }}</option>
+                     {% endfor %}
+                </datalist>
         </div>
 
         <div class="form-group mb-3">

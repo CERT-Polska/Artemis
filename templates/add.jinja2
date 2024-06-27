@@ -28,22 +28,21 @@
 {% endfor %}</textarea>
         </div>
         <div class="form-group mb-3">
-            <label class="form-label">Tag</label>
-                <input list="objectList" class="form-control" name="tag" autocomplete="off">
-                <datalist id="objectList">
-                     {% for tag in tag_names %}
-                        <option value={{ tag.tag_name }}></option>
-                     {% endfor %}
-                </datalist>
+            <label class="form-label">Enter your <b>Tag</b> or select an existing label</label>
+            <input list="objectList" class="form-control" name="tag" autocomplete="off">
+            <datalist id="objectList">
+                 {% for tag in tag_names %}
+                    <option >{{ tag.tag_name }}</option>
+                 {% endfor %}
+            </datalist>
+
             <small class="form-text text-muted">
-                You may provide any string here - it will be saved in the task results
-                in the database so that you can e.g. use the value when processing
+                You can enter any string of characters here - it will be saved in the database, or select
+                a tag already existing, so that you can e.g. use the value when processing
                 the results automatically.
             </small>
         </div>
         <input type="submit" class="btn btn-primary" value="Start scan">
-
-
         <h2 class="mt-4">Advanced settings</h2>
         <div class="form-group mb-3">
             <label class="form-label">Priority</label>

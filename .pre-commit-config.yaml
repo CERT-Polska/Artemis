@@ -26,6 +26,7 @@ repos:
     - Jinja2==3.1.2
     - karton-core==5.2.0
     - git+https://github.com/CERT-Polska/mailgoose@v1.0#egg=libmailgoose&subdirectory=scan
+    - more-itertools==10.3.0
     - packaging==23.2
     - prometheus-client==0.17.1
     - pymongo-stubs==0.2.0

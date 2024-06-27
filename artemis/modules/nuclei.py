@@ -7,6 +7,7 @@ import subprocess
 import urllib
 from typing import Any, Dict, List
 
+import more_itertools
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
@@ -125,45 +126,47 @@ class Nuclei(ArtemisBase):
         else:
             additional_configuration = []
 
-        command = [
-            "nuclei",
-            "-disable-update-check",
-            "-etags",
-            "intrusive",
-            "-ni",
-            "-templates",
-            ",".join(templates),
-            "-timeout",
-            str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
-            "-jsonl",
-            "-system-resolvers",
-            "-bulk-size",
-            str(len(targets)),
-            "-headless-bulk-size",
-            str(len(targets)),
-            "-milliseconds-per-request",
-            (
-                str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets)))
-                if Config.Limits.REQUESTS_PER_SECOND != 0
-                else str(int(0))
-            ),
-        ] + additional_configuration
+        lines = []
+        for template_chunk in more_itertools.chunked(templates, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE):
+            command = [
+                "nuclei",
+                "-disable-update-check",
+                "-etags",
+                "intrusive",
+                "-ni",
+                "-templates",
+                ",".join(template_chunk),
+                "-timeout",
+                str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
+                "-jsonl",
+                "-system-resolvers",
+                "-bulk-size",
+                str(len(targets)),
+                "-headless-bulk-size",
+                str(len(targets)),
+                "-milliseconds-per-request",
+                (
+                    str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets)))
+                    if Config.Limits.REQUESTS_PER_SECOND != 0
+                    else str(int(0))
+                ),
+            ] + additional_configuration
 
-        # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
-        # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
-        for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
-            command.append("-it")
-            command.append(template)
+            # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
+            # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
+            for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
+                command.append("-it")
+                command.append(template)
 
-        for target in targets:
-            command.append("-target")
-            command.append(target)
+            for target in targets:
+                command.append("-target")
+                command.append(target)
 
-        data = check_output_log_on_error(
-            command,
-            self.log,
-        )
-        lines = data.decode("ascii", errors="ignore").split("\n")
+            data = check_output_log_on_error(
+                command,
+                self.log,
+            )
+            lines.extend(data.decode("ascii", errors="ignore").split("\n"))
 
         findings = []
         for line in lines:

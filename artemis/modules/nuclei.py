@@ -57,6 +57,9 @@ class Nuclei(ArtemisBase):
             self._high_templates = (
                 check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log).decode("ascii").split()
             )
+            self._medium_templates = (
+                check_output_log_on_error(["nuclei", "-s", "medium", "-tl"], self.log).decode("ascii").split()
+            )
             # These are not high severity, but may lead to significant information leaks and are easy to fix
             self._log_exposures_templates = [
                 item
@@ -81,6 +84,8 @@ class Nuclei(ArtemisBase):
                     raise RuntimeError("Unable to obtain Nuclei critical-severity templates list")
                 if len(self._high_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei high-severity templates list")
+                if len(self._medium_templates) == 0:
+                    raise RuntimeError("Unable to obtain Nuclei medium-severity templates list")
                 if len(self._log_exposures_templates) == 0:
                     raise RuntimeError("Unable to obtain Nuclei log exposure templates list")
                 if len(self._exposed_panels_templates) == 0:
@@ -90,6 +95,7 @@ class Nuclei(ArtemisBase):
                 template
                 for template in self._critical_templates
                 + self._high_templates
+                + self._medium_templates
                 + self._exposed_panels_templates
                 + self._log_exposures_templates
                 + self._known_exploited_vulnerability_templates

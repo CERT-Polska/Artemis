@@ -146,3 +146,4 @@ cython_debug/
 # Development Docker Compose file
 docker-compose.dev.yaml
 karton-logs
+output

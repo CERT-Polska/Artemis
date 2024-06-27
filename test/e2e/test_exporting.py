@@ -206,3 +206,16 @@ class ExportingTestCase(BaseE2ETestCase):
                         ]
                     ).encode("utf-8"),
                 )
+
+    def test_tag_gui(self) -> None:
+        self.submit_tasks_with_modules_enabled(
+            ["test-smtp-server.artemis"], "saving_tag-gui", ["mail_dns_scanner", "classifier"]
+        )
+
+        with requests.Session() as s:
+            data = s.get(BACKEND_URL + "export").content
+            soup = BeautifulSoup(data, "html.parser")
+
+            option_values = [option.text for option in soup.select("datalist#objectList option")]
+
+        self.assertTrue("saving_tag-gui" in option_values)

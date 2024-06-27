@@ -18,9 +18,6 @@ branch_labels = None
 depends_on = None
 
 db = DB()
-task_tags = db.get_existing_tags(TaskResult)
-analysis_tags = db.get_existing_tags(Analysis)
-db.save_tags_in_tag_table(task_tags, analysis_tags)
 
 
 def upgrade():
@@ -35,6 +32,16 @@ def upgrade():
     )
     op.create_index(op.f("ix_tag_tag_name"), "tag", ["tag_name"], unique=True)
     # ### end Alembic commands ###
+    print(
+        """
+        Data is now being migrated. We recommend being patient as it may take some time...
+        """
+    )
+    db_tags = db.get_existing_tags(TaskResult, Analysis)
+    tags_list = set(filter(None, map(lambda x: x[0], db_tags)))
+
+    for tag in tags_list:
+        op.execute(f"insert into tag (tag_name) values ('{tag}') on conflict (tag_name) do nothing")
 
 
 def downgrade():

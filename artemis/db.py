@@ -21,6 +21,7 @@ from sqlalchemy import (  # type: ignore
     Index,
     Integer,
     String,
+    UnaryExpression,
     create_engine,
     distinct,
 )
@@ -532,29 +533,21 @@ class DB:
             del d["headers_string"]
         return d
 
-    def get_existing_tags(self, table: Any) -> Generator[Dict[str, Any], None, None]:
-        # incompatible type "UnaryExpression[Any]"; expected "Iterable[ColumnElement[Any] | FromClause | int] | None"
-        query = select(distinct(table.tag))  # type: ignore
-        return self._iter_results(query, 4)
+    def get_existing_tags(self, *tables: Any) -> List[UnaryExpression] | Any:
+        result = []
+        with self.session() as session:
+            for table in tables:
+                result.extend(session.query(distinct(table.tag)).all())
+        return result
 
-    def save_tags_in_tag_table(self, *results_tag: Generator[Dict[str, Any], None, None]) -> None:
-        for result in results_tag:
-            row_values = [{Tag.tag_name: row.get("tag")} for row in result if row.get("tag") is not None]
-            statement = postgres_insert(Tag).values(row_values)
+    def save_tag(self, tag_name: str | None) -> None:
+        if tag_name is not None:
+            statement = postgres_insert(Tag).values(tag_name=tag_name)
             statement = statement.on_conflict_do_nothing(index_elements=[Tag.tag_name])
-
             with self.session() as session:
                 session.execute(statement)
                 session.commit()
 
-    def save_tag_in_tag_table(self, tag_name: str | None) -> None:
-        statement = postgres_insert(Tag).values(tag_name=tag_name)
-        statement = statement.on_conflict_do_nothing(index_elements=[Tag.tag_name])
-
-        with self.session() as session:
-            session.execute(statement)
-            session.commit()
-
-    def get_tag_table_tags(self) -> List[Type[Tag]] | Any:
+    def get_tags(self) -> List[Type[Tag]] | Any:
         with self.session() as session:
             return session.query(Tag).all()

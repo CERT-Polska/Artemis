@@ -13,7 +13,7 @@ from artemis.db import DB, Analysis, TaskResult
 
 # revision identifiers, used by Alembic.
 revision = "40355237ae7c"
-down_revision = "99b5570a348e"
+down_revision = None
 branch_labels = None
 depends_on = None
 

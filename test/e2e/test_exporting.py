@@ -207,7 +207,7 @@ class ExportingTestCase(BaseE2ETestCase):
                     ).encode("utf-8"),
                 )
 
-    def test_tag_gui(self) -> None:
+    def test_tag_export_gui(self) -> None:
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "saving_tag-gui", ["mail_dns_scanner", "classifier"]
         )

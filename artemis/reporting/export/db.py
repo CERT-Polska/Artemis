@@ -48,7 +48,7 @@ class DataLoader:
 
         results = self._db.get_task_results_since(
             datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS),
-            tag = self._tag
+            tag=self._tag,
         )
         if not self._silent:
             results = tqdm(results)  # type: ignore

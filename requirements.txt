@@ -27,7 +27,7 @@ prometheus-client==0.20.0
 psycopg2-binary==2.9.9
 publicsuffixlist==1.0.1.20240622
 pydantic==2.3.0
-pymongo==4.7.3
+pymongo==4.8.0
 PyMySQL==1.1.1
 python-decouple==3.8
 pytz==2024.1

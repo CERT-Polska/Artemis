@@ -66,7 +66,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "throws-spam-away",
     "website-monetization-by-magenet",
     "woo-tools",
-    "wp-lightbox-2",
     "wp-maximum-execution-time-exceeded",
 ]
 

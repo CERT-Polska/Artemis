@@ -852,4 +852,5 @@ TRANSLATIONS = {
     "Vigor login panel was detected.": "wykryto panel logowania routera Vigor.",
     "LuCi login panel was detected.": "wykryto panel logowania LuCi.",
     "http/exposed-panels/openwrt-login.yaml": "wykryto panel logowania OpenWRT",
+    "TurnKey LAMP Control Panel was detected.": "wykryto panel TurnKey LAMP.",
 }

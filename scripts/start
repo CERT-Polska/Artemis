@@ -5,6 +5,13 @@ cd $(dirname $0)/..
 exists() {
     [ -e "$1" ]
 }
+
+if ! exists .env; then
+    echo "Before starting Artemis, create .env file (e.g. by copying env.example) and "
+    echo "configure any settings you want to change."
+    exit 1
+fi
+
 if [[ $(uname -m) != "arm"* ]]; then
     PROFILE='--profile not-arm'
 else

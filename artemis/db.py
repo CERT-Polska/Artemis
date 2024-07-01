@@ -469,8 +469,8 @@ class DB:
                     # Make sure we don't remove too much
                     assert os.path.normpath(output_location).startswith("/opt/output/autoreporter/")
                     shutil.rmtree(output_location)
-                session.delete(task)
-                session.commit()
+            session.delete(task)
+            session.commit()
 
     def _iter_results(self, query: Any, batch_size: int) -> Generator[Dict[str, Any], None, None]:
         with self._engine.connect() as conn:

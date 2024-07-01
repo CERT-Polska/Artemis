@@ -25,7 +25,7 @@ packaging==24.1
 paramiko==3.4.0
 prometheus-client==0.20.0
 psycopg2-binary==2.9.9
-publicsuffixlist==1.0.1.20240622
+publicsuffixlist==1.0.1.20240701
 pydantic==2.3.0
 pymongo==4.7.3
 PyMySQL==1.1.1

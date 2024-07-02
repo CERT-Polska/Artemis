@@ -40,7 +40,7 @@ class SubdomainEnumeration(ArtemisBase):
 
             if len({bind.identity for bind in self.backend.get_binds()} & set(old_modules)) > 0:
                 for old_task in self.backend.iter_all_tasks(parse_resources=False):
-                    if old_task.receiver in old_modules:
+                    if old_task.receiver in old_modules and old_task.payload.get("source", None) != "migration":
                         self.log.info(f"Moving task from {old_task.receiver} to {self.identity}")
                         new_task = Task(
                             {"type": TaskType.DOMAIN.value},

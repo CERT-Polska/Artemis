@@ -9,7 +9,7 @@ from karton.core.config import Config as KartonConfig
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.db import DB
-from artemis.domains import is_subdomain
+from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
@@ -40,7 +40,7 @@ class SubdomainEnumeration(ArtemisBase):
 
             if len({bind.identity for bind in self.backend.get_binds()} & set(old_modules)) > 0:
                 for old_task in self.backend.iter_all_tasks(parse_resources=False):
-                    if old_task.receiver in old_modules:
+                    if old_task.receiver in old_modules and old_task.payload.get("source", None) != "migration":
                         self.log.info(f"Moving task from {old_task.receiver} to {self.identity}")
                         new_task = Task(
                             {"type": TaskType.DOMAIN.value},
@@ -152,6 +152,10 @@ class SubdomainEnumeration(ArtemisBase):
 
             valid_subdomains_from_tool = set()
             for subdomain in subdomains_from_tool:
+                subdomain = subdomain.strip(".")
+                if not is_domain(subdomain):
+                    self.log.info("Non-domain returned: %s from %s", subdomain, domain)
+                    continue
                 if not is_subdomain(subdomain, domain):
                     self.log.info("Non-subdomain returned: %s from %s", subdomain, domain)
                     continue

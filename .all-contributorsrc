@@ -163,6 +163,25 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "jxdv",
+      "name": "jxdv",
+      "avatar_url": "https://avatars.githubusercontent.com/u/138708600?v=4",
+      "profile": "https://github.com/jxdv",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "michalkrzem",
+      "name": "kvothe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24720262?v=4",
+      "profile": "https://github.com/michalkrzem",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,

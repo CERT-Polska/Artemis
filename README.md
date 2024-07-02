@@ -129,6 +129,7 @@ Huge thanks to the following people that contributed to Artemis development, esp
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Matie26"><img src="https://avatars.githubusercontent.com/u/56604997?v=4?s=100" width="100px;" alt="Mateusz Borkowski"/><br /><sub><b>Mateusz Borkowski</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=Matie26" title="Code">💻</a> <a href="#ideas-Matie26" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jxdv"><img src="https://avatars.githubusercontent.com/u/138708600?v=4?s=100" width="100px;" alt="jxdv"/><br /><sub><b>jxdv</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=jxdv" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/michalkrzem"><img src="https://avatars.githubusercontent.com/u/24720262?v=4?s=100" width="100px;" alt="kvothe"/><br /><sub><b>kvothe</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=michalkrzem" title="Code">💻</a> <a href="#ideas-michalkrzem" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>

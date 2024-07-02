@@ -4,7 +4,6 @@ import urllib.parse
 from typing import Any, Callable, Dict, List, Optional, Set
 
 from karton.core import Consumer, Task
-from karton.core.config import Config as KartonConfig
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config

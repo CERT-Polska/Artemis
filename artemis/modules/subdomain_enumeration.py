@@ -9,7 +9,7 @@ from karton.core.config import Config as KartonConfig
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.db import DB
-from artemis.domains import is_subdomain, is_domain
+from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 

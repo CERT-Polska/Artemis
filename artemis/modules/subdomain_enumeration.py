@@ -53,6 +53,7 @@ class SubdomainEnumeration(ArtemisBase):
                     self.backend.delete_task(old_task)
 
             for old_module in old_modules:
+
                 class KartonDummy(Consumer):
                     """
                     This karton has been replaced with subdomain_enumeration.
@@ -65,7 +66,7 @@ class SubdomainEnumeration(ArtemisBase):
                     def process(self, task: Task) -> None:
                         pass
 
-                karton = KartonDummy(config=self.config)
+                karton = KartonDummy(config=KartonConfig())
                 karton._shutdown = True
                 karton.loop()
 

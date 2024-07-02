@@ -38,37 +38,38 @@ class SubdomainEnumeration(ArtemisBase):
         with self.lock:
             old_modules = ["crtsh", "gau"]
 
-            for old_task in self.backend.iter_all_tasks(parse_resources=False):
-                if old_task.receiver in old_modules:
-                    self.log.info(f"Moving task from {old_task.receiver} to {self.identity}")
-                    new_task = Task(
-                        {"type": TaskType.DOMAIN.value},
-                        payload={
-                            "domain": old_task.payload["domain"],
-                            "source": "migration",
-                        },
-                    )
+            if len({bind.identity for bind in self.backend.get_binds()} & set(old_modules)) > 0:
+                for old_task in self.backend.iter_all_tasks(parse_resources=False):
+                    if old_task.receiver in old_modules:
+                        self.log.info(f"Moving task from {old_task.receiver} to {self.identity}")
+                        new_task = Task(
+                            {"type": TaskType.DOMAIN.value},
+                            payload={
+                                "domain": old_task.payload["domain"],
+                                "source": "migration",
+                            },
+                        )
 
-                    self.add_task(old_task, new_task)
-                    self.backend.delete_task(old_task)
+                        self.add_task(old_task, new_task)
+                        self.backend.delete_task(old_task)
 
-            for old_module in old_modules:
+                for old_module in old_modules:
 
-                class KartonDummy(Consumer):
-                    """
-                    This karton has been replaced with subdomain_enumeration.
-                    """
+                    class KartonDummy(Consumer):
+                        """
+                        This karton has been replaced with subdomain_enumeration.
+                        """
 
-                    identity = old_module
-                    persistent = False
-                    filters: List[Dict[str, Any]] = []
+                        identity = old_module
+                        persistent = False
+                        filters: List[Dict[str, Any]] = []
 
-                    def process(self, task: Task) -> None:
-                        pass
+                        def process(self, task: Task) -> None:
+                            pass
 
-                karton = KartonDummy(config=KartonConfig())
-                karton._shutdown = True
-                karton.loop()
+                    karton = KartonDummy(config=KartonConfig())
+                    karton._shutdown = True
+                    karton.loop()
 
     def get_subdomains_with_retry(
         self,

@@ -267,14 +267,6 @@ class Config:
                 "doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.",
             ] = get_config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
-        class Crtsh:
-            CRTSH_NUM_RETRIES: Annotated[int, "How many times should we try to obtain subdomains list."] = get_config(
-                "CRTSH_NUM_RETRIES", default=10, cast=int
-            )
-            CRTSH_SLEEP_ON_RETRY_SECONDS: Annotated[int, "How long to sleep between tries."] = get_config(
-                "CRTSH_SLEEP_ON_RETRY_SECONDS", default=30, cast=int
-            )
-
         class DNSScanner:
             ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD: Annotated[
                 int, "The number of domains below which zone transfer won't be reported."
@@ -286,12 +278,6 @@ class Config:
                 "The prefix that will be added to the name of the file the module will attempt to create (to check "
                 "whether writing is possible).",
             ] = get_config("FTP_BRUTER_TEST_FILE_NAME_PREFIX", default="test-")
-
-        class Gau:
-            GAU_ADDITIONAL_OPTIONS: Annotated[
-                List[str],
-                "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
-            ] = get_config("GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" "))
 
         class Humble:
             HUMBLE_HEADERS_TO_REPORT: Annotated[
@@ -568,6 +554,24 @@ class Config:
                 "Some SSH servers drop connections after a large number of tries in a short "
                 "time period. This is to combat this behavior.",
             ] = get_config("ADDITIONAL_BRUTE_FORCE_SLEEP_SECONDS", default=20)
+
+        class SubdomainEnumeration:
+            RETRIES: Annotated[
+                int,
+                "Number of retries for subdomain enumeration.",
+            ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
+
+            SLEEP_TIME_SECONDS: Annotated[
+                int,
+                "Time to sleep between retries for subdomain enumeration in seconds.",
+            ] = get_config("SUBDOMAIN_ENUMERATION_SLEEP_TIME_SECONDS", default=60, cast=int)
+
+            GAU_ADDITIONAL_OPTIONS: Annotated[
+                List[str],
+                "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
+            ] = get_config(
+                "SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" ")
+            )
 
         class VCS:
             VCS_MAX_DB_SIZE_BYTES: Annotated[

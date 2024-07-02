@@ -2,9 +2,11 @@ import os
 import socket
 import tempfile
 from pathlib import Path
+from typing import List
 from unittest.mock import MagicMock, patch
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
+from karton.core import Task
 from karton.core.test import BackendMock, ConfigMock, KartonTestCase
 from redis import StrictRedis
 
@@ -22,6 +24,15 @@ class KartonBackendMockWithRedis(BackendMock):
             port=int(os.environ["TEST_REDIS_PORT"]),
         )
         self.redis.flushall()
+
+    def register_bind(self, *args) -> None:  # type: ignore
+        pass
+
+    def get_binds(self) -> List:  # type: ignore
+        return []
+
+    def iter_all_tasks(self, *args, **kwargs) -> List[Task]:  # type: ignore
+        return []
 
 
 class ArtemisModuleTestCase(KartonTestCase):

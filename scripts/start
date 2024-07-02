@@ -37,13 +37,14 @@ else
 fi
 
 ./scripts/run_docker_compose stop
-./scripts/run_docker_compose $PROFILE up -d --build \
+./scripts/run_docker_compose $PROFILE up -d --remove-orphans --build \
     --scale=karton-wp_scanner=3 \
     --scale=karton-identifier=3 \
     --scale=karton-port_scanner=5 \
     --scale=karton-wordpress_plugins=5 \
     --scale=karton-nuclei=5 \
     --scale=karton-bruter=5 \
+    --scale=karton-subdomain_enumeration=5 \
     $ADDITIONAL_OPTIONS
 
 if [ $? -eq 0 ]; then

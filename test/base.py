@@ -23,6 +23,9 @@ class KartonBackendMockWithRedis(BackendMock):
         )
         self.redis.flushall()
 
+    def register_bind(self, *args) -> None:  # type: ignore
+        pass
+
 
 class ArtemisModuleTestCase(KartonTestCase):
     def setUp(self) -> None:

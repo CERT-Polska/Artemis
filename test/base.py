@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
+from karton.core import Task
 from karton.core.test import BackendMock, ConfigMock, KartonTestCase
 from redis import StrictRedis
 
@@ -25,6 +26,9 @@ class KartonBackendMockWithRedis(BackendMock):
 
     def register_bind(self, *args) -> None:  # type: ignore
         pass
+    
+    def iter_all_tasks(self, *args) -> List[Task]:  # type: ignore
+        return []
 
 
 class ArtemisModuleTestCase(KartonTestCase):

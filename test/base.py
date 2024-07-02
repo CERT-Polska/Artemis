@@ -2,6 +2,7 @@ import os
 import socket
 import tempfile
 from pathlib import Path
+from typing import List
 from unittest.mock import MagicMock, patch
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
@@ -26,7 +27,7 @@ class KartonBackendMockWithRedis(BackendMock):
 
     def register_bind(self, *args) -> None:  # type: ignore
         pass
-    
+
     def iter_all_tasks(self, *args) -> List[Task]:  # type: ignore
         return []
 

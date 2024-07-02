@@ -28,6 +28,9 @@ class KartonBackendMockWithRedis(BackendMock):
     def register_bind(self, *args) -> None:  # type: ignore
         pass
 
+    def get_binds() -> List:  # type: ignore
+        return []
+
     def iter_all_tasks(self, *args, **kwargs) -> List[Task]:  # type: ignore
         return []
 

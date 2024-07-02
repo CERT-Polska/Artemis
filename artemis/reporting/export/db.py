@@ -47,7 +47,8 @@ class DataLoader:
         self._tag_stats: DefaultDict[str, int] = defaultdict(lambda: 0)
 
         results = self._db.get_task_results_since(
-            datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS)
+            datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS),
+            tag=self._tag,
         )
         if not self._silent:
             results = tqdm(results)  # type: ignore
@@ -55,9 +56,6 @@ class DataLoader:
         for result in results:
             result_tag = result["task"].get("payload_persistent", {}).get("tag", None)
             self._tag_stats[result_tag] += 1
-
-            if self._tag and result_tag != self._tag:
-                continue
 
             try:
                 top_level_target = get_top_level_target(result["task"])

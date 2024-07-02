@@ -378,9 +378,11 @@ class DB:
             return bool(result.rowcount)
 
     def get_task_results_since(
-        self, time_from: datetime.datetime, batch_size: int = 1000
+        self, time_from: datetime.datetime, tag: Optional[str] = None, batch_size: int = 1000
     ) -> Generator[Dict[str, Any], None, None]:
         query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
+        if tag:
+            query = query.filter(TaskResult.tag == tag)
         return self._iter_results(query, batch_size)
 
     def get_oldest_task_results_before(

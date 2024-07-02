@@ -37,7 +37,7 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "visual-footer-credit-remover",
     "zarinpal-woocommerce-payment-gateway",
 ]
-PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup"]
+PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup", "backwpup"]
 PLUGINS_TO_SKIP_STABLE_TAG = [
     "flowpaper-lite-pdf-flipbook",
     "scheduled-post-trigger",
@@ -66,7 +66,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "throws-spam-away",
     "website-monetization-by-magenet",
     "woo-tools",
-    "wp-lightbox-2",
     "wp-maximum-execution-time-exceeded",
 ]
 

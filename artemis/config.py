@@ -503,6 +503,12 @@ class Config:
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
             ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=100, cast=int)
 
+            NUCLEI_TEMPLATE_CHUNK_SIZE: Annotated[
+                int,
+                "How big are the chunks to split the template list. E.g. if the template list contains 3000 templates and "
+                "NUCLEI_TEMPLATE_CHUNK_SIZE is 1000, three calls will be made with 1000 templates each.",
+            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=1000, cast=int)
+
         class PortScanner:
             PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (
                 get_config("PORT_SCANNER_PORT_LIST", default="short")

@@ -21,9 +21,7 @@ from sqlalchemy import (  # type: ignore
     Index,
     Integer,
     String,
-    UnaryExpression,
     create_engine,
-    distinct,
 )
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
@@ -532,13 +530,6 @@ class DB:
         if "headers_string" in d:
             del d["headers_string"]
         return d
-
-    def get_existing_tags(self, *tables: Any) -> List[UnaryExpression] | Any:
-        result = []
-        with self.session() as session:
-            for table in tables:
-                result.extend(session.query(distinct(table.tag)).all())
-        return result
 
     def save_tag(self, tag_name: str | None) -> None:
         if tag_name is not None:

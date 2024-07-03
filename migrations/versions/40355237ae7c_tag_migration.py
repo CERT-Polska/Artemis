@@ -8,7 +8,6 @@ Create Date: 2024-06-20 13:47:53.630547
 """
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy import inspect
 
 from artemis.config import Config
 
@@ -22,22 +21,21 @@ engine = sa.create_engine(DATABASE_URL)
 
 
 def upgrade():
-    if not inspect(engine).has_table("tag"):
-        op.create_table(
-            "tag",
-            sa.Column("id", sa.Integer(), nullable=False),
-            sa.Column("tag_name", sa.String(), nullable=True),
-            sa.Column("created_at", sa.DateTime(), server_default=sa.text("NOW()"), nullable=True),
-            sa.PrimaryKeyConstraint("id"),
-        )
-        op.create_index(op.f("ix_tag_tag_name"), "tag", ["tag_name"], unique=True)
+    op.create_table(
+        "tag",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("tag_name", sa.String(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), server_default=sa.text("NOW()"), nullable=True),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(op.f("ix_tag_tag_name"), "tag", ["tag_name"], unique=True)
 
-        print(
-            """
+    print(
+        """
             Data is now being migrated. We recommend being patient as it may take some time...
             """
-        )
-        op.execute("INSERT INTO tag (tag_name) SELECT tag FROM analysis UNION SELECT tag FROM task_result;")
+    )
+    op.execute("INSERT INTO tag (tag_name) SELECT tag FROM analysis UNION SELECT tag FROM task_result;")
 
 
 def downgrade():

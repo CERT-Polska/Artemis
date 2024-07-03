@@ -125,11 +125,6 @@ class SubdomainEnumeration(ArtemisBase):
         )
 
     def run(self, current_task: Task) -> None:
-        if "original_domain" in current_task.payload_persistent:
-            if current_task.get_payload("domain").endswith("." + current_task.payload_persistent["original_domain"]):
-                self.log.info("skipping not top")
-                return
-
         domain = current_task.get_payload("domain")
         encoded_domain = domain.encode("idna").decode("utf-8")
 

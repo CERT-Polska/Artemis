@@ -13,7 +13,7 @@ ARG ADDITIONAL_REQUIREMENTS
 RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois && \
     cd /go && \
-    go install -modfile go.mod github.com/projectdiscovery/naabu/v2 && \
+    go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
     go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
     go install -modfile go.mod github.com/lc/gau/v2/cmd/gau && \
     go install -modfile go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \

@@ -20,6 +20,7 @@ repos:
     args: [--strict]
     additional_dependencies:
     - aiohttp==3.8.5
+    - alembic==1.13.2
     - dnspython==2.4.2
     - fastapi==0.103.0
     - freezegun==1.2.2

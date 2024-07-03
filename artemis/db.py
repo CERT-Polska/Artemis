@@ -132,6 +132,7 @@ class ReportGenerationTask(Base):  # type: ignore
     tag = Column(String, nullable=True)
     language = Column(String)
     skip_previously_exported = Column(Boolean)
+    skip_hooks = Column(Boolean)
     custom_template_arguments = Column(JSON)
     output_location = Column(String, nullable=True)
     error = Column(String, nullable=True)
@@ -446,7 +447,12 @@ class DB:
             session.commit()
 
     def create_report_generation_task(
-        self, tag: Optional[str], comment: Optional[str], language: Language, skip_previously_exported: bool
+        self,
+        tag: Optional[str],
+        comment: Optional[str],
+        language: Language,
+        skip_previously_exported: bool,
+        skip_hooks: bool = False,
     ) -> None:
         with self.session() as session:
             task = ReportGenerationTask(
@@ -455,6 +461,7 @@ class DB:
                 language=language.value,
                 skip_previously_exported=skip_previously_exported,
                 status=ReportGenerationTaskStatus.PENDING,
+                skip_hooks=skip_hooks,
             )
             session.add(task)
             session.commit()

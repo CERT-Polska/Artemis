@@ -189,6 +189,7 @@ async def post_export(
     skip_previously_exported: bool = Body(),
     tag: Optional[str] = Body(None),
     comment: Optional[str] = Body(None),
+    skip_hooks: bool = Body(False),
 ) -> Dict[str, Any]:
     """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
     db.create_report_generation_task(
@@ -196,6 +197,7 @@ async def post_export(
         tag=tag,
         comment=comment,
         language=Language(language),
+        skip_hooks=skip_hooks,
     )
     return {
         "ok": True,

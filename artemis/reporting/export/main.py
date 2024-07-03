@@ -106,6 +106,7 @@ def export(
     verbose: bool = False,
     previous_reports_directory: Optional[Path] = None,
     tag: Optional[str] = None,
+    skip_hooks: bool = False,
 ) -> Path:
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
@@ -127,7 +128,8 @@ def export(
 
     _install_translations_and_print_path(language, output_dir, silent)
 
-    run_export_hooks(output_dir, export_data, silent)
+    if not skip_hooks:
+        run_export_hooks(output_dir, export_data, silent)
 
     _dump_export_data_and_print_path(export_data, output_dir, silent)
     message_template = _build_message_template_and_print_path(output_dir, silent)

@@ -20,6 +20,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+        allow:
+      - dependency-name: "*"  # Allow all packages from requirements.txt
 
   # GitHub Actions
   - package-ecosystem: "github-actions"

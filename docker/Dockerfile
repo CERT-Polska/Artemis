@@ -3,7 +3,7 @@ FROM python:3.11-alpine3.19
 COPY docker/wait-for-it.sh /wait-for-it.sh
 COPY requirements.txt requirements.txt
 COPY docker/patches/nuclei-rate-limiting.patch /
-COPY go.mod /
+COPY docker/go.mod /go/
 
 ARG ADDITIONAL_REQUIREMENTS
 # We run a single RUN command to decrease layer size - e.g. the final `apk del .build-deps` will
@@ -12,11 +12,12 @@ ARG ADDITIONAL_REQUIREMENTS
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
 RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois && \
-    go install -modfile /go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
-    go install -modfile /go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
-    go install -modfile /go.mod github.com/lc/gau/v2/cmd/gau && \
-    go install -modfile /go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
-    NUCLEI_VERSION=$(grep -oP 'github.com/projectdiscovery/nuclei/v2\s+v\K\d+\.\d+\.\d+' /go.mod) && \
+    cd /go && \
+    go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
+    go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
+    go install -modfile go.mod github.com/lc/gau/v2/cmd/gau && \
+    go install -modfile go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
+    NUCLEI_VERSION=$(grep -oP 'github.com/projectdiscovery/nuclei/v2\s+v\K\d+\.\d+\.\d+' go.mod) && \
     git clone https://github.com/projectdiscovery/nuclei.git -b v$NUCLEI_VERSION /nuclei && \
     cd /nuclei && git apply /nuclei-rate-limiting.patch && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install && cd / && rm -rf /nuclei && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
@@ -24,7 +25,6 @@ RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev
     apk del .build-deps
 
 WORKDIR /opt
-
 COPY "artemis/" "artemis/"
 COPY "alembic.ini" "alembic.ini"
 COPY "migrations/" "migrations/"

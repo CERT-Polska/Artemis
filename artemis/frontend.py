@@ -133,7 +133,7 @@ def get_add_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> Res
 @csrf.validate_csrf
 async def post_add(
     request: Request,
-    targets: Optional[str] = Form(None),
+    targets: str = Form(),
     tag: Optional[str] = Form(None),
     priority: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),

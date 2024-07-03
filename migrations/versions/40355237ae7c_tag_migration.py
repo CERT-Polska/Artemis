@@ -30,7 +30,6 @@ def upgrade():
     )
     op.create_index(op.f("ix_tag_tag_name"), "tag", ["tag_name"], unique=True)
 
-    print("""Data is now being migrated. We recommend being patient as it may take some time...""")
     op.execute("INSERT INTO tag (tag_name) SELECT tag FROM analysis UNION SELECT tag FROM task_result;")
 
 

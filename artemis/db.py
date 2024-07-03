@@ -8,7 +8,7 @@ import json
 import os
 import shutil
 from enum import Enum
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Dict, Generator, List, Optional, Type
 
 from karton.core import Task
 from pydantic import BaseModel
@@ -138,6 +138,14 @@ class ReportGenerationTask(Base):  # type: ignore
     alerts = Column(JSON, nullable=True)
 
 
+class Tag(Base):  # type: ignore
+    __tablename__ = "tag"
+
+    id = Column(Integer, primary_key=True)
+    tag_name = Column(String, index=True, unique=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+
+
 @dataclasses.dataclass
 class PaginatedResults:
     records_count_total: int
@@ -179,7 +187,6 @@ class DB:
             Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
         )
         self.session = sessionmaker(bind=self._engine)
-        Base.metadata.create_all(bind=self._engine, checkfirst=True)
 
     def list_analysis(self) -> List[Dict[str, Any]]:
         with self.session() as session:
@@ -525,3 +532,15 @@ class DB:
         if "headers_string" in d:
             del d["headers_string"]
         return d
+
+    def save_tag(self, tag_name: str | None) -> None:
+        if tag_name is not None:
+            statement = postgres_insert(Tag).values(tag_name=tag_name)
+            statement = statement.on_conflict_do_nothing(index_elements=[Tag.tag_name])
+            with self.session() as session:
+                session.execute(statement)
+                session.commit()
+
+    def get_tags(self) -> List[Type[Tag]] | Any:
+        with self.session() as session:
+            return session.query(Tag).all()

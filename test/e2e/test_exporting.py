@@ -206,3 +206,47 @@ class ExportingTestCase(BaseE2ETestCase):
                         ]
                     ).encode("utf-8"),
                 )
+
+    def test_tag_export_gui(self) -> None:
+        self.submit_tasks_with_modules_enabled(
+            ["test-smtp-server.artemis"], "saving_tag-gui", ["mail_dns_scanner", "classifier"]
+        )
+
+        with requests.Session() as s:
+            data = s.get(BACKEND_URL + "export").content
+            soup = BeautifulSoup(data, "html.parser")
+
+            option_values = [option.text for option in soup.select("select option")]
+
+        self.assertTrue("saving_tag-gui" in option_values)
+
+    def test_reporting_export_tag_gui(self) -> None:
+        tag = "reporting_export_tag-gui"
+        self.submit_tasks_with_modules_enabled(["test-smtp-server.artemis"], tag, ["mail_dns_scanner", "classifier"])
+
+        with requests.Session() as s:
+            data = s.get(BACKEND_URL + "export").content
+            soup = BeautifulSoup(data, "html.parser")
+            csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
+
+            s.post(
+                BACKEND_URL + "export",
+                data={
+                    "csrf_token": csrf_token,
+                    "comment": "something",
+                    "language": "en_US",
+                    "tag": tag,
+                    "skip_previously_exported": "No",
+                },
+            )
+
+        with requests.Session() as s:
+            data = s.get(BACKEND_URL + "exports").content
+            soup = BeautifulSoup(data, "html.parser")
+            t_body = soup.find_all(id="task_list")[0].tbody
+
+            for tr in t_body.find_all("tr"):
+                package = tr.find_all("td")[1]
+                print(package.text)
+
+        self.assertTrue(tag == package.text)

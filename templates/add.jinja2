@@ -28,16 +28,20 @@
 {% endfor %}</textarea>
         </div>
         <div class="form-group mb-3">
-            <label class="form-label">Tag</label>
-            <input type="text" class="form-control" name="tag" value="{{ tag }}">
+            <label class="form-label">Enter your tag{% if tag_names %} or select existing one{% endif %}</label>
+            <input list="object-list" class="form-control" name="tag" autocomplete="off">
+            <datalist id="object-list">
+                 {% for tag in tag_names %}
+                    <option>{{ tag.tag_name }}</option>
+                 {% endfor %}
+            </datalist>
+
             <small class="form-text text-muted">
-                You may provide any string here - it will be saved in the task results
-                in the database so that you can e.g. use the value when processing
-                the results automatically.
+                You can enter any value here. Tags can be used to group scanned targets - you can use them e.g. when browsing the results or exporting
+                the scanning reports.
             </small>
         </div>
         <input type="submit" class="btn btn-primary" value="Start scan">
-
         <h2 class="mt-4">Advanced settings</h2>
         <div class="form-group mb-3">
             <label class="form-label">Priority</label>

@@ -24,7 +24,9 @@ RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev
 WORKDIR /opt
 
 COPY "artemis/" "artemis/"
+COPY "alembic.ini" "alembic.ini"
+COPY "migrations/" "migrations/"
 COPY "static/" "static/"
 COPY "templates/" "templates/"
 
-CMD ["uvicorn", "artemis.main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["bash", "-c", "alembic upgrade head && uvicorn artemis.main:app --host 0.0.0.0 --port 5000"]

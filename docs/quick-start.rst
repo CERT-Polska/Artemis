@@ -19,7 +19,7 @@ following 2 commands in your terminal in the ``Artemis`` directory:
    cp env.example .env  # after doing that, configure the settings by changing the user-agent and any other settings you want to change
    ./scripts/start
 
-We strongly recommend to set the ``CUSTOM_USER_AGENT`` setting (more information here: :doc:`user-guide/cooperation-with-scanned-entities`).
+We recommend to set the ``CUSTOM_USER_AGENT`` setting and rate-limit the scanning (more information here: :doc:`user-guide/cooperation-with-scanned-entities`).
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 

@@ -27,21 +27,27 @@ Besides, the additional modules repository (https://github.com/CERT-Polska/Artem
  - subdomain takeover check,
  - SSL configuration check.
 
+.. _rate-limiting:
+
 Rate limiting
 -------------
 
-Artemis is build in such a way that no particular host can be overloaded with requests.
-This is disabled by default. To enable that behavior, configure the following variables:
+It is possible to rate-limit the scanning. This feature is disabled by default. To enable that behavior, configure the following variables:
 
- - set ``LOCK_SCANNED_TARGETS`` to ``True`` to enable locking,
- - ``SECONDS_PER_REQUEST`` - e.g. when set to 2, Artemis will strive to make no more than
-   one HTTP/MySQL connect/... request per two seconds for any IP,
- - ``SCANNING_PACKETS_PER_SECOND`` - e.g. when set to 100, Artemis will strive to send no more than
-   100 port scanning packets per seconds to any IP.
+ - set ``LOCK_SCANNED_TARGETS`` to ``True`` to enable locking - if it is enabled, Artemis will make sure that no more than one module scans a given host at one time,
+ - ``REQUESTS_PER_SECOND`` - e.g. when set to 0.5, Artemis will strive to make no more than
+   one HTTP/MySQL connect/... request per two seconds for any IP from each module,
+ - ``SCANNING_PACKETS_PER_SECOND`` - this configures the port scanning speed. For example, when set to 5, Artemis will strive to send no more than
+   5 port scanning packets per seconds to any IP.
 
-The IP lock is global - Artemis strives to allow at most one module to communicate with a given IP.
-Due to the way this behavior is implemented, we cannot guarantee that a host will never receive more than X
-requests per second.
+For CERT PL scans, the settings are:
+
+ - ``LOCK_SCANNED_TARGETS=True``
+ - ``REQUESTS_PER_SECOND=1``
+ - ``SCANNING_PACKETS_PER_SECOND=5``
+
+The limits work on a best-effort basis - due to the way this behavior is implemented, we cannot guarantee that a host
+will never receive more than ``REQUESTS_PER_SECOND`` requests per second.
 
 REST API
 --------

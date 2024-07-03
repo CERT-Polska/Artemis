@@ -28,7 +28,7 @@
 {% endfor %}</textarea>
         </div>
         <div class="form-group mb-3">
-            <label class="form-label">Enter your <b>tag</b> or select existing one</label>
+            <label class="form-label">Enter your tag{% if tag_names %} or select existing one{% endif %}</label>
             <input list="object-list" class="form-control" name="tag" autocomplete="off">
             <datalist id="object-list">
                  {% for tag in tag_names %}

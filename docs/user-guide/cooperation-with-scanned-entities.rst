@@ -2,9 +2,11 @@ Cooperation with scanned entities
 =================================
 We strongly encourage you to be as transparent to the scanned entities as possible.
 
-The minimum is setting the User-Agent header (in Artemis, you can do this by setting
+This can be achieved by setting the User-Agent header (in Artemis, you can do this by setting
 the ``CUSTOM_USER_AGENT`` variable in the ``.env`` file) to information about which
 entity is performing the scans and how to contact you.
+
+We also recommend you to rate-limit the scanning. To do that, please refer to :ref:`rate-limiting`.
 
 At CERT PL we also:
 

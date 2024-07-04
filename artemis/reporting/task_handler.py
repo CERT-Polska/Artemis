@@ -39,6 +39,7 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
             language=Language(report_generation_task.language),
             custom_template_arguments=report_generation_task.custom_template_arguments or {},  # type: ignore
             silent=True,
+            skip_hooks=report_generation_task.skip_hooks,
         )
     finally:
         if previous_reports_directory:

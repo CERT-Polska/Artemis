@@ -4,7 +4,7 @@ COPY docker/wait-for-it.sh /wait-for-it.sh
 COPY requirements.txt requirements.txt
 COPY docker/patches/nuclei-rate-limiting.patch /
 COPY docker/go.mod /go/
-COPY docker/go.sum /go/go.sum   
+COPY docker/go.sum /go/go.sum
 
 ARG ADDITIONAL_REQUIREMENTS
 # We run a single RUN command to decrease layer size - e.g. the final `apk del .build-deps` will
@@ -26,6 +26,7 @@ RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev
     apk del .build-deps
 
 WORKDIR /opt
+
 COPY "artemis/" "artemis/"
 COPY "alembic.ini" "alembic.ini"
 COPY "migrations/" "migrations/"

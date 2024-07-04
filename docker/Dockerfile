@@ -3,7 +3,7 @@ FROM python:3.11-alpine3.19
 COPY docker/wait-for-it.sh /wait-for-it.sh
 COPY requirements.txt requirements.txt
 COPY docker/patches/nuclei-rate-limiting.patch /
-COPY docker/go.mod docker/go.sum /go/
+COPY docker/go.mod /go/
 
 ARG ADDITIONAL_REQUIREMENTS
 # We run a single RUN command to decrease layer size - e.g. the final `apk del .build-deps` will
@@ -13,6 +13,7 @@ ARG ADDITIONAL_REQUIREMENTS
 RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois && \
     cd /go && \
+    go mod download && \
     go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
     go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
     go install -modfile go.mod github.com/lc/gau/v2/cmd/gau && \

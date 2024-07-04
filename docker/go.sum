@@ -1,6 +1,5 @@
 github.com/lc/gau/v2 v2.2.3/go.mod h1:FeFAGvk2jn/xJ7fybHbhDax2Cn8ZnJQDykcuk3YfYj4=
 github.com/praetorian-inc/fingerprintx v1.1.13/go.mod h1:k6EJIHe/Da4DH5e4JuoZHe+qSGq/KPUmXGaK+xW74OI=
-github.com/projectdiscovery/naabu/v2 v2.3.1 h1:SQhb7QIvgdL+bvCGu3p+sW+3ZFLttZnPBBbGhEBfqAI=
-github.com/projectdiscovery/naabu/v2 v2.3.1/go.mod h1:r3hRgTtz7+Wh+HGr4rtzFgWCPABZ3RFmmGV6xXqORko=
+github.com/projectdiscovery/naabu/v2 v2.3.1/go.mod h1:CpYIH9ogqGsFNANH2YVLQjxnmvdaqRZfiEai4yXJIn8=
 github.com/projectdiscovery/nuclei/v2 v2.9.15/go.mod h1:02mbEM5FYAfSyOgnx1euguiXbsg5LRR+eJWPIWVL4pI=
 github.com/projectdiscovery/subfinder/v2 v2.6.6/go.mod h1:NX2fBFBUXU4BGteXrwDIfShaoivsP5e9qC4ZyZtszcE=

@@ -10,7 +10,7 @@ from artemis.reporting.utils import get_top_level_target
 from artemis.resolvers import ResolutionException, lookup
 
 
-class MySQLBruterReporter(Reporter):
+class FTPBruterReporter(Reporter):
     WRITABLE_FTP = ReportType("writable_ftp")
 
     @staticmethod
@@ -39,7 +39,7 @@ class MySQLBruterReporter(Reporter):
                     top_level_target=get_top_level_target(task_result),
                     target=f"ftp://{host}:{task_result['payload']['port']}",
                     additional_data={"credentials": task_result["result"]["credentials"]},
-                    report_type=MySQLBruterReporter.WRITABLE_FTP,
+                    report_type=FTPBruterReporter.WRITABLE_FTP,
                     timestamp=task_result["created_at"],
                 )
             ]

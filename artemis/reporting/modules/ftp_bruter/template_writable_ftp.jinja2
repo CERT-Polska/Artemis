@@ -1,8 +1,8 @@
-{% if "writable_ftp_server" in data.contains_type %}
+{% if "writable_ftp" in data.contains_type %}
     <li>{% trans %}The following FTP servers allow writing files after logging in with a simple password:{% endtrans %}
         <ul>
             {% for report in data.reports %}
-                {% if report.report_type == "writable_ftp_server" %}
+                {% if report.report_type == "writable_ftp" %}
                     <li>{{ report.target }}: {% trans %}the following credentials allow login{% endtrans %}:
                         <ul>
                             {% for credentials in report.additional_data.credentials %}

@@ -453,6 +453,7 @@ class DB:
         language: Language,
         skip_previously_exported: bool,
         skip_hooks: bool = False,
+        custom_template_arguments: Dict[str, Any] = P{,
     ) -> None:
         with self.session() as session:
             task = ReportGenerationTask(
@@ -462,6 +463,7 @@ class DB:
                 skip_previously_exported=skip_previously_exported,
                 status=ReportGenerationTaskStatus.PENDING,
                 skip_hooks=skip_hooks,
+                custom_template_arguments=custom_template_arguments,
             )
             session.add(task)
             session.commit()

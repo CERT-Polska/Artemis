@@ -23,6 +23,3 @@ msgstr ""
 #: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:14
 msgid "empty password"
 msgstr ""
-
-#~ msgid "The following FTP servers allow writing files:"
-#~ msgstr ""

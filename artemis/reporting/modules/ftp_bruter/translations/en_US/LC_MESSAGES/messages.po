@@ -1,25 +1,28 @@
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:2
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:2
 msgid ""
-"The following servers expose a database where simple login/password pair "
-"allows login:"
+"The following FTP servers allow writing files after logging in with a "
+"simple password:"
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:6
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:6
 msgid "the following credentials allow login"
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:10
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:10
 msgid "username"
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:11
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:11
 msgid "and"
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:12
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:12
 msgid "password"
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:14
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:14
 msgid "empty password"
 msgstr ""
+
+#~ msgid "The following FTP servers allow writing files:"
+#~ msgstr ""

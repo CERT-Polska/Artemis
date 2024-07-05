@@ -24,6 +24,15 @@ class MySQLBruterReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
+        try:
+            ips = list(lookup(task_result["payload"]["host"]))
+            if ips:
+                host = ips[0]
+            else:
+                host = task_result["payload"]["host"]
+        except ResolutionException:
+            return []
+
         if task_result["result"].get("is_writable", False):
             return [
                 Report(
@@ -34,7 +43,8 @@ class MySQLBruterReporter(Reporter):
                     timestamp=task_result["created_at"],
                 )
             ]
-    
+        return []
+
     @staticmethod
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [

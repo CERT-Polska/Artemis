@@ -453,7 +453,7 @@ class DB:
         language: Language,
         skip_previously_exported: bool,
         skip_hooks: bool = False,
-        custom_template_arguments: Dict[str, Any] = P{,
+        custom_template_arguments: Dict[str, Any] = {},
     ) -> None:
         with self.session() as session:
             task = ReportGenerationTask(

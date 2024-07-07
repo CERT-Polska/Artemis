@@ -8,9 +8,10 @@ import typer
 def main(
     tag: str,
     targets_file_name: str,
+    api_token: str,
     max_queued_tasks: int = 50_000,
     max_queued_tasks_target_enumeration_kartons: int = 5000,
-    time_between_attempts_seconds: int = 60,
+    time_between_attempts_seconds: int = 300,
     batch_size: int = 10,
     artemis_url: str = "http://127.0.0.1:5000/",
 ) -> None:
@@ -22,20 +23,34 @@ def main(
     `max_queued_tasks_target_enumeration_kartons` for kartons that create a large number of
     downstream tasks, such as `port_scanner` or `subdomain_enumeration`), this tool will
     sleep so that Artemis is not overlodaed.
+
+    To use the script, Artemis API needs to be enabled.
     """
     with open(targets_file_name, "r") as f:
         all_targets = set([line.strip() for line in f])
 
     while True:
-        num_queued_tasks = int(requests.get(artemis_url + "api/num-queued-tasks").content)
+        num_queued_tasks = int(
+            requests.get(
+                artemis_url + "api/num-queued-tasks",
+                headers={"X-API-Token": api_token},
+            ).content
+        )
         num_queued_tasks_target_enumeration_kartons = int(
             requests.get(
-                artemis_url + "api/num-queued-tasks?karton_names=subdomain_enumeration&karton_names=port_scanner"
+                artemis_url + "api/num-queued-tasks?karton_names=subdomain_enumeration&karton_names=port_scanner",
+                headers={"X-API-Token": api_token},
             ).content
         )
 
         existing_targets = set(
-            [item["payload"]["data"] for item in requests.get(artemis_url + "api/analysis").json()]
+            [
+                item["target"]
+                for item in requests.get(
+                    artemis_url + "api/analyses",
+                    headers={"X-API-Token": api_token},
+                ).json()
+            ]
         ) & set(all_targets)
 
         print(f"Num queued tasks: {num_queued_tasks}")
@@ -54,13 +69,15 @@ def main(
 
             print(f"Adding {', '.join(targets)}")
             response = requests.post(
-                artemis_url + "add", data={"targets": "\n".join(targets), "tag": tag, "redirect": False}
+                artemis_url + "api/add",
+                json={"targets": targets, "tag": tag, "redirect": False},
+                headers={"X-API-Token": api_token},
             )
 
             if response.status_code == 200:
                 print(f"Added {', '.join(targets)} successfully")
             else:
-                print(f"Failed to add {', '.join(targets)}, code={response.status_code}")
+                print(f"Failed to add {', '.join(targets)}, code={response.status_code}, result={response.json()}")
         else:
             print(
                 f"Sleeping - need <{max_queued_tasks} (all kartons) and <{max_queued_tasks_target_enumeration_kartons} (target enumeration kartons) to continue"

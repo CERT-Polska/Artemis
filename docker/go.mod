@@ -72,6 +72,7 @@ require (
 	github.com/projectdiscovery/clistats v0.0.20 // indirect
 	github.com/projectdiscovery/dnsx v1.2.1 // indirect
 	github.com/projectdiscovery/fastdialer v0.1.5 // indirect
+	github.com/projectdiscovery/fdmax v0.0.4 // indirect
 	github.com/projectdiscovery/freeport v0.0.5 // indirect
 	github.com/projectdiscovery/goflags v0.1.51 // indirect
 	github.com/projectdiscovery/gologger v1.1.13 // indirect

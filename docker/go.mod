@@ -11,3 +11,5 @@ require (
 	github.com/projectdiscovery/nuclei/v2 v2.9.15
 	github.com/projectdiscovery/subfinder/v2 v2.6.6
 )
+
+require github.com/projectdiscovery/utils v0.2.0 // indirect

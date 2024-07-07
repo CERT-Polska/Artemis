@@ -24,7 +24,8 @@ def main(
     downstream tasks, such as `port_scanner` or `subdomain_enumeration`), this tool will
     sleep so that Artemis is not overlodaed.
 
-    To use the script, Artemis API needs to be enabled.
+    To use the script, Artemis API needs to be enabled. To do that, provide the API_TOKEN
+    variable in .env.
     """
     with open(targets_file_name, "r") as f:
         all_targets = set([line.strip() for line in f])

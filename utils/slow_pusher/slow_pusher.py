@@ -39,7 +39,7 @@ def main(
         num_queued_tasks_target_enumeration_kartons = int(
             requests.get(
                 artemis_url + "api/num-queued-tasks",
-                json=["subdomain_enumeration","port_scanner"],
+                json=["subdomain_enumeration", "port_scanner"],
                 headers={"X-API-Token": api_token},
             ).content
         )

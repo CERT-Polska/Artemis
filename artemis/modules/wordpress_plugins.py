@@ -46,7 +46,9 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "athemes-starter-sites",
+    "backup",
     "blocks-animation",
+    "button-contact-vr",
     "cf7-to-zapier",
     "change-admin-email-setting-without-outbound-email",
     "clearfy",
@@ -63,7 +65,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "robin-image-optimizer",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
-    "throws-spam-away",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
 ]
@@ -137,6 +138,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
             if (
                 line.startswith("for the plugin's full changelog")
                 or line.startswith("this changelog is for")
+                or line.startswith("for detailed release notes")
                 or line.startswith("-----")
             ):
                 continue
@@ -156,7 +158,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                     line = line[1:]
 
                 version = (
-                    re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|<h4>|</h4>)", " ", line)
+                    re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|=|<h4>|</h4>)", " ", line)
                     .strip()
                     # Some versions are prefixed with 'v' (e.g. v1.0.0)
                     .lstrip("v")

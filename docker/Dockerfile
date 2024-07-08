@@ -29,6 +29,8 @@ COPY "migrations/" "migrations/"
 COPY "static/" "static/"
 COPY "templates/" "templates/"
 
-RUN DB_CONN_STR=unused POSTGRES_CONN_STR=unused REDIS_CONN_STR=unused python3 -m artemis.fallback_api_cache  # warmup the cache
+# Warmup the cache. That way if the user is in an environment where such requests fail, the response
+# will be served from an on-disk cache.
+RUN DB_CONN_STR=unused POSTGRES_CONN_STR=unused REDIS_CONN_STR=unused python3 -m artemis.fallback_api_cache
 
 CMD ["bash", "-c", "alembic upgrade head && uvicorn artemis.main:app --host 0.0.0.0 --port 5000"]

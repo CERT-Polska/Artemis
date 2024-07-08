@@ -27,7 +27,7 @@ class FallbackAPICache:
     LOGGER = utils.build_logger(__name__)
 
     CACHE = CachedSession(
-        backend=FileCache("/opt/artemis/cache"),
+        backend=FileCache("/cache"),
         cache_control=False,
         expire_after=timedelta(seconds=3600),
         allowable_codes=[200],

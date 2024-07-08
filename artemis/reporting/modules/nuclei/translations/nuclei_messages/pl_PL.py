@@ -22,6 +22,8 @@ BUG_FIX_HINT = " Rekomendujemy poprawienie tego błędu, a także sprawdzenie, c
 
 DATA_HIDE_HINT = " Rekomendujemy, aby takie dane nie były dostępne publicznie."
 
+DIRECTORY_INDEX_HINT = "Taka konfiguracja może w niektórych przypadkach stworzyć ryzyko wycieku wrażliwych danych. Nawet jeśli w podanych wyżej folderach nie ma wrażliwych danych, zaobserwowana konfiguracja może oznaczać, że serwer wyświetla listingi również innych katalogów. Jeśli nie jest to działanie celowe, to rekomendujemy konfigurację serwera tak, aby listing plików nie był publicznie dostępny."
+
 # This needs to be lowercase and begin with a space as it's part of a sentence
 REFLECTED_XSS_VULNERABILITY_DESCRIPTION = " umożliwiającą atakującemu spreparowanie linku, który, gdy zostanie kliknięty przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikację treści)."
 
@@ -573,6 +575,9 @@ TRANSLATIONS = {
     "WordPress Custom Tables 3.4.4 plugin contains a cross-site scripting vulnerability via the key parameter.": "Wtyczka WordPress o nazwie Custom Tables w wersji 3.4.4 zawiera podatność Cross-Site Scripting"
     + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "Cross-site scripting vulnerability was discovered.": "Wykryto podatność Cross-Site Scripting"
+    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "WordPress NextGEN Gallery 1.9.10 plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie NextGEN Gallery w wersji 1.9.10 zawiera podatność Cross-Site Scripting"
     + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -599,6 +604,7 @@ TRANSLATIONS = {
     "Execution After Redirect happens when after emitting a Location header that redirects the user, some other code is executed. This may lead to data leak or application compromise.": "Wykryto podatność Execution After Redirect, czyli sytuację, gdy serwer, pomimo przekierowania użytkownika na inny adres, kontynuuje wykonanie skryptu. Może to doprowadzić do wycieku wrażliwych danych lub uzyskania przez atakującego nieuprawnionego dostępu do aplikacji.",
     "[no description] http/misconfiguration/django-debug-detect.yaml": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "Django debug configuration is enabled, which allows an attacker to obtain system configuration information such as paths or settings.": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
+    "Laravel with APP_DEBUG set to true is prone to show verbose errors.": "Wykryto system Laravel w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
     "OwnCloud is susceptible to the Installation page exposure due to misconfiguration.": "wykryto, że panel instalacyjny narzędzia OwnCloud jest publicznie dostępny, co może umożliwić atakującemu nieuprawniony dostęp do systemu.",
@@ -636,10 +642,35 @@ TRANSLATIONS = {
     "CVE-2024-24919 is an information disclosure vulnerability that can allow an attacker to access certain information on internet-connected Gateways which have been configured with IPSec VPN, remote access VPN or mobile access software blade.": "Wykryto podatność CVE-2024-24919 w urządzeniu Check Point Quantum Gateway umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "ELMAH (Error Logging Modules and Handlers) is an application-wide error logging facility that is completely pluggable. It can be dynamically added to a running ASP.NET web application, or even all ASP.NET web applications on a machine, without any need for re-compilation or re-deployment. In some cases, the logs expose ASPXAUTH cookies allowing to hijack a logged in administrator session.": "Wykryto, że dziennik zdarzeń udostępniany przez moduł ELMAH (Error Logging Modules and Handlers) jest publicznie dostępny. W niektórych sytuacjach może on zawierać informacje umożliwiające przejęcie zalogowanej sesji administratora.",
     "Checks websites for Balada Injector malware.": "Wykryto, że strona jest zainfekowana złośliwym oprogramowaniem Balada Injector.",
+    "WS_FTP software, which is a popular FTP (File Transfer Protocol) client used for transferring files between a local computer and a remote server has its log file exposed.": "Wykryto dziennik zdarzeń oprogramowania WS_FTP.",
     "[no description] http/exposed-panels/compalex-panel-detect.yaml": "Wykryto panel Compalex.",
     "Joomla is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny panel instalacyjny systemu Joomla.",
     "Exposed Wordpress Setup Configuration.": "Wykryto publicznie dostępny panel instalacyjny systemu WordPress.",
     "Error log files were exposed.": "Wykryto publicznie dostępny dziennik zdarzeń serwera HTTP." + DATA_HIDE_HINT,
+    "Multiple compressed backup files were detected.": "Wykryto publicznie dostępny plik kopii zapasowej."
+    + DATA_HIDE_HINT,
+    "Multiple Docker Compose configuration files were detected. The configuration allows deploy, combine and configure operations on multiple containers at the same time. The default is to outsource each process to its own container, which is then publicly accessible.": "Wykryto pliki konfiguracyjne Docker Compose, umożliwiające atakującemu poznanie konfiguracji aplikacji."
+    + DATA_HIDE_HINT,
+    "An open redirect vulnerability was detected. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
+    "WordPress WPtouch plugin 3.x contains an open redirect vulnerability. The plugin fails to properly sanitize user-supplied input. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wtyczka WordPress o nazwie WPtouch w wersji 3.x zawiera podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress WPtouch 3.7.5 is affected by an Open Redirect issue.": "Wtyczka WordPress o nazwie WPtouch w wersji 3.7.5 zawiera podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress All-in-One Security plugin through 4.4.1 contains an open redirect vulnerability which can expose the actual URL of the hidden login page feature. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wtyczka WordPress o nazwie All-in-One Security plugin w wersji do 4.4.1 zawiera podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + WORDPRESS_UPDATE_HINT,
+    "HomeAutomation 3.3.2 contains an open redirect vulnerability. An attacker can inject a redirect URL via the api.php endpoint and the redirect parameter, making it possible to redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że narzędzie HomeAutomation zawiera podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
+    "A Joomla! database directory /libraries/joomla/database/ was found exposed and has directory indexing enabled.": "Wykryto listing plików w katalogu /libraries/joomla/database/. "
+    + DIRECTORY_INDEX_HINT,
+    "A MySQL dump file was found": "Wykryto zrzut bazy danych MySQL." + DATA_HIDE_HINT,
+    "WordPress theme with a 'Mega-Theme' design is vulnerable to a reflected XSS attack through the '?s=' parameter.": "Wykryto, że szablon WordPress oparty na Mega-Theme zawiera podatność Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który - kliknięty przez użytkownika - wykona dowolną akcję z jego uprawnieniami.",
+    "An ioncube Loader Wizard was discovered.": "Wykryto narzędzie ioncube Loader Wizard. Rekomendujemy, aby takie zasoby nie były publicznie dostępne.",
+    "Multiple phpMyAdmin setup files were detected.": "Wykryto pliki instalacyjne systemu phpMyAdmin. Rekomendujemy, aby takie zasoby nie były publicznie dostępne.",
+    "Webalizer log analyzer configuration was detected.": "Wykryto konfigurację analizera logów Webalizer."
+    + DATA_HIDE_HINT,
+    "Multiple NETGEAR router models disclose their serial number which can be used to obtain the admin password if password recovery is enabled.": "Wykryto router NETGEAR skonfigurowany, aby udostępniać dane takie jak numer seryjny, które w niektórych sytuacjach wystarczają do odzyskania hasła administratora.",
+    "HAProxy statistics page was detected.": "Wykryto stronę ze statystykami systemu HAProxy.",
+    "This template can be used to detect a Laravel debug information leak by making a POST-based request.": "Wykryto, że za pomocą żądania POST można odczytać konfigurację systemu Laravel, zawierającą dane dostępowe do bazy danych.",
+    "Test CGI script was detected. Response page returned by this CGI script exposes a list of server environment variables.": "Wykryto skrypt CGI udostępniający publicznie konfigurację serwera.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",

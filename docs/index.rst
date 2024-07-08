@@ -41,4 +41,5 @@ To chat about Artemis, join the Discord server:
    user-guide/writing-a-module
    user-guide/translating-report-messages
    user-guide/troubleshooting
+   user-guide/utilities
    uninstalling-artemis

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Callable, Dict, Any, List
+from typing import Any, Callable, Dict, List
 
 from requests import Response
 from requests_cache import CachedSession
@@ -45,13 +45,12 @@ class FallbackAPICache:
     )
 
     URL_WORDPRESS_STABLE_CHECK = CachedURL(
-        "https://api.wordpress.org/core/stable-check/1.0/",
-        lambda item: item["1.0.2"] == "insecure"
+        "https://api.wordpress.org/core/stable-check/1.0/", lambda item: item["1.0.2"] == "insecure"
     )
 
     URL_WORDPRESS_PLUGINS_LIST = CachedURL(
         "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[page]=1&request[per_page]=1000",
-        lambda item: "info" in item and "page" in item["info"] and "plugins" in item and "name" in item["plugins"][0]
+        lambda item: "info" in item and "page" in item["info"] and "plugins" in item and "name" in item["plugins"][0],
     )
 
     @classmethod

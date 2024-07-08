@@ -1,11 +1,11 @@
 import re
 from typing import Any, Dict, List, Union
 
-import requests
 from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
+from artemis.fallback_api_cache import FallbackAPICache
 from artemis.modules.base.base_newer_version_comparer import (
     BaseNewerVersionComparerModule,
 )
@@ -40,7 +40,8 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
             joomla_version = match.group(1)
             result["joomla_version"] = joomla_version
             # Get latest release in repo from GitHub API
-            gh_api_response = requests.get("https://api.github.com/repos/joomla/joomla-cms/releases/latest")
+            gh_api_response = FallbackAPICache.URL_JOOMLA_LATEST_RELEASE.get()
+
             if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_obsolete(joomla_version):
                 found_problems.append(f"Joomla version is too old: {joomla_version}")
                 result["joomla_version_is_too_old"] = True

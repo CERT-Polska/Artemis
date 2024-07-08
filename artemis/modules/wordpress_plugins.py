@@ -16,6 +16,7 @@ from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.domains import is_subdomain
+from artemis.fallback_api_cache import FallbackAPICache
 from artemis.module_base import ArtemisBase
 
 # Some readmes are long, longer than the default 100kb
@@ -219,9 +220,7 @@ class WordpressPlugins(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        response = requests.get(
-            "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[page]=1&request[per_page]=1000"
-        )
+        response = FallbackAPICache.URL_WORDPRESS_PLUGINS_LIST.get()
         json_response = response.json()
         self._top_plugins = [
             {
@@ -244,13 +243,9 @@ class WordpressPlugins(ArtemisBase):
             match = re.search(pattern, link)
             if match:
                 slug = match.group(1)
-                data = json.loads(
-                    self.cached_get(
-                        f"https://api.wordpress.org/plugins/info/1.0/{slug}.json",
-                        "version-" + slug,
-                        timeout=3600,
-                    )
-                )
+                data = FallbackAPICache.get(
+                    f"https://api.wordpress.org/plugins/info/1.0/{slug}.json", allow_unknown=True
+                ).json()
 
                 plugin_data.append(
                     {
@@ -379,8 +374,17 @@ class WordpressPlugins(ArtemisBase):
         messages = []
         closed_plugins = []
         for plugin_slug in plugins.keys():
-            existed = len(requests.get("https://api.wordpress.org/stats/plugin/1.0/" + plugin_slug).json()) > 0
-            plugin_data = requests.get(f"https://api.wordpress.org/plugins/info/1.0/{plugin_slug}.json").json()
+            existed = (
+                len(
+                    FallbackAPICache.get(
+                        "https://api.wordpress.org/stats/plugin/1.0/" + plugin_slug, allow_unknown=True
+                    ).json()
+                )
+                > 0
+            )
+            plugin_data = FallbackAPICache.get(
+                f"https://api.wordpress.org/plugins/info/1.0/{plugin_slug}.json", allow_unknown=True
+            ).json()
             still_exists = "error" not in plugin_data
 
             if existed and not still_exists:

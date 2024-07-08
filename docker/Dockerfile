@@ -16,7 +16,7 @@ RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev
     go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
     go install -modfile go.mod github.com/lc/gau/v2/cmd/gau && \
     go install -modfile go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
-    NUCLEI_VERSION=$(grep -o 'github.com/projectdiscovery/nuclei/v2\s+v\K\d+\.\d+\.\d+' go.mod) && \
+    NUCLEI_VERSION=$(grep 'github.com/projectdiscovery/nuclei/v2' go.mod | sed -E 's/.*v([0-9]+\.[0-9]+\.[0-9]+).*/\1/') && \
     git clone https://github.com/projectdiscovery/nuclei.git -b v$NUCLEI_VERSION /nuclei && \
     cd /nuclei && git apply /nuclei-rate-limiting.patch && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install && cd / && rm -rf /nuclei && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \

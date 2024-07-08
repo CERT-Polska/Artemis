@@ -9,7 +9,7 @@ ARG ADDITIONAL_REQUIREMENTS
 # remove some apk packages.
 # Whois here is important - if we wouldn't install it, we would default to busybox whois,
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
-RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
+RUN apk add --no-cache --virtual .build-deps go gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev gnu-prep && \
     apk add --no-cache bash libpcap libpq git subversion whois && \
     cd /go && \
     go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \

@@ -325,6 +325,12 @@ class Config:
                 "NUCLEI_TEMPLATES_TO_SKIP",
                 default=",".join(
                     [
+                        # We have a separate module for that, checking whethet the repository is a copy of a public one
+                        "http/exposures/configs/exposed-svn.yaml",
+                        "http/exposures/configs/git-config.yaml",
+                        # We have a separate module checking for a larger number of directory indexes.
+                        "http/exposures/configs/configuration-listing.yaml",
+                        "http/misconfiguration/sound4-directory-listing.yaml",
                         # The two following templates caused panic: runtime
                         # error: integer divide by zero in github.com/projectdiscovery/retryabledns
                         "dns/azure-takeover-detection.yaml",
@@ -412,6 +418,9 @@ class Config:
                         # Source of FPs
                         "custom:CVE-2019-1579",
                         "custom:xss-inside-tag-top-params.yaml",
+                        # Nothing particularily interesting
+                        "http/miscellaneous/joomla-manifest-file.yaml",
+                        "http/exposures/configs/karma-config-js.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

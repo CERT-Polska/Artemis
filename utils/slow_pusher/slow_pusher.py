@@ -1,9 +1,15 @@
+import logging
 import random
 import time
 
 import requests
 import typer
 
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.INFO)
+HANDLER = logging.StreamHandler()
+HANDLER.setLevel(logging.INFO)
+LOGGER.addHandler(HANDLER)
 
 def main(
     tag: str,
@@ -30,34 +36,34 @@ def main(
     with open(targets_file_name, "r") as f:
         all_targets = set([line.strip() for line in f])
 
+    session = requests.Session()
+    session.headers = {"X-API-Token": api_token}
+
     while True:
         num_queued_tasks = int(
-            requests.get(
+            session.get(
                 artemis_url + "api/num-queued-tasks",
-                headers={"X-API-Token": api_token},
             ).content
         )
         num_queued_tasks_target_enumeration_kartons = int(
-            requests.get(
+            session.get(
                 artemis_url + "api/num-queued-tasks",
                 json=["subdomain_enumeration", "port_scanner"],
-                headers={"X-API-Token": api_token},
             ).content
         )
 
         existing_targets = set(
             [
                 item["target"]
-                for item in requests.get(
+                for item in session.get(
                     artemis_url + "api/analyses",
-                    headers={"X-API-Token": api_token},
                 ).json()
             ]
         ) & set(all_targets)
 
-        print(f"Num queued tasks: {num_queued_tasks}")
-        print(f"Num queued tasks for target enumeration kartons: {num_queued_tasks_target_enumeration_kartons}")
-        print(
+        LOGGER.info(f"Num queued tasks: {num_queued_tasks}")
+        LOGGER.info(f"Num queued tasks for target enumeration kartons: {num_queued_tasks_target_enumeration_kartons}")
+        LOGGER.info(
             f"Targets queued: {len(existing_targets)} of {len(all_targets)} ({100.0 * len(existing_targets) / len(all_targets):.2f}%)"
         )
 
@@ -69,19 +75,18 @@ def main(
             random.shuffle(potential_targets)
             targets = potential_targets[:batch_size]
 
-            print(f"Adding {', '.join(targets)}")
-            response = requests.post(
+            LOGGER.info(f"Adding {', '.join(targets)}")
+            response = session.post(
                 artemis_url + "api/add",
                 json={"targets": targets, "tag": tag, "redirect": False},
-                headers={"X-API-Token": api_token},
             )
 
             if response.status_code == 200:
-                print(f"Added {', '.join(targets)} successfully")
+                LOGGER.info(f"Added {', '.join(targets)} successfully")
             else:
-                print(f"Failed to add {', '.join(targets)}, code={response.status_code}, result={response.json()}")
+                LOGGER.info(f"Failed to add {', '.join(targets)}, code={response.status_code}, result={response.json()}")
         else:
-            print(
+            LOGGER.info(
                 f"Sleeping - need <{max_queued_tasks} (all kartons) and <{max_queued_tasks_target_enumeration_kartons} (target enumeration kartons) to continue"
             )
         time.sleep(time_between_attempts_seconds)

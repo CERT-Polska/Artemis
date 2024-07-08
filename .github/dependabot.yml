@@ -2,7 +2,7 @@ version: 2
 updates:
   # Docker updates
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/docker/"
     schedule:
       interval: "weekly"
     ignore:

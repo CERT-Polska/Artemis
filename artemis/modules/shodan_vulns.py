@@ -12,6 +12,7 @@ from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.utils import build_logger
 
+
 class ShodanVulnsResult(BaseModel):
     vulns: List[str] = []
 

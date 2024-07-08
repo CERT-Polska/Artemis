@@ -11,6 +11,7 @@ HANDLER = logging.StreamHandler()
 HANDLER.setLevel(logging.INFO)
 LOGGER.addHandler(HANDLER)
 
+
 def main(
     tag: str,
     targets_file_name: str,
@@ -84,7 +85,9 @@ def main(
             if response.status_code == 200:
                 LOGGER.info(f"Added {', '.join(targets)} successfully")
             else:
-                LOGGER.info(f"Failed to add {', '.join(targets)}, code={response.status_code}, result={response.json()}")
+                LOGGER.info(
+                    f"Failed to add {', '.join(targets)}, code={response.status_code}, result={response.json()}"
+                )
         else:
             LOGGER.info(
                 f"Sleeping - need <{max_queued_tasks} (all kartons) and <{max_queued_tasks_target_enumeration_kartons} (target enumeration kartons) to continue"

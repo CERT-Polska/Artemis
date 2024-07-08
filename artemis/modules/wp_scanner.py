@@ -23,9 +23,20 @@ class WordPressScanner(ArtemisBase):
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
 
+    def _is_version_latest(self, version: str) -> bool:
+        data = json.loads(FallbackAPICache.URL_WORDPRESS_STABLE_CHECK.get().content)
+
+        if version not in data:
+            raise Exception(f"Cannot check whether version is latest: {version}")
+
+        return bool(data[version] == "latest")
+
     def _is_version_old(
         self, version: str, age_threshold_days: int = Config.Modules.WordPressScanner.WORDPRESS_VERSION_AGE_DAYS
     ) -> bool:
+        if self._is_version_latest(version):
+            return False
+
         data = json.loads(FallbackAPICache.URL_WORDPRESS_TAGS.get().content)
 
         for tag in data:

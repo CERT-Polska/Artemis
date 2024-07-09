@@ -57,6 +57,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
+    "hcaptcha-for-forms-and-more",
     "icon-element",
     "link-manager",
     "official-facebook-pixel",

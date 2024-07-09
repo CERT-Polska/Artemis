@@ -134,6 +134,7 @@ class Nuclei(ArtemisBase):
                 "-etags",
                 "intrusive",
                 "-ni",
+                "-silent",
                 "-templates",
                 ",".join(template_chunk),
                 "-timeout",

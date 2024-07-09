@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Callable, Dict, List
+from enum import Enum
+from typing import Any, Callable, Dict
 
 from requests import Response
 from requests_cache import CachedSession
@@ -48,7 +49,10 @@ class FallbackAPICache:
         )
         WORDPRESS_PLUGINS_LIST = CachedURL(
             "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[page]=1&request[per_page]=1000",
-            lambda item: "info" in item and "page" in item["info"] and "plugins" in item and "name" in item["plugins"][0],
+            lambda item: "info" in item
+            and "page" in item["info"]
+            and "plugins" in item
+            and "name" in item["plugins"][0],
         )
 
     @classmethod
@@ -58,9 +62,9 @@ class FallbackAPICache:
             headers["User-Agent"] = Config.Miscellaneous.CUSTOM_USER_AGENT
 
         found = None
-        for item in cls.Urls.values():
-            if item.url == url:
-                found = item
+        for item in cls.Urls:
+            if item.value.url == url:
+                found = item.value
         if not allow_unknown:
             assert found
 
@@ -74,9 +78,9 @@ class FallbackAPICache:
 
     @classmethod
     def warmup(cls) -> None:
-        for url in cls.Urls.values():
-            FallbackAPICache.LOGGER.info("Warming up: %s", url.url)
-            cls.get(url.url)
+        for url in cls.Urls:
+            FallbackAPICache.LOGGER.info("Warming up: %s", url.value.url)
+            cls.get(url.value.url)
 
 
 if __name__ == "__main__":

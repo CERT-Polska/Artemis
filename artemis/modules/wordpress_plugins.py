@@ -220,7 +220,7 @@ class WordpressPlugins(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        response = FallbackAPICache.Urls.WORDPRESS_PLUGINS_LIST.get()
+        response = FallbackAPICache.Urls.WORDPRESS_PLUGINS_LIST.value.get()
         json_response = response.json()
         self._top_plugins = [
             {

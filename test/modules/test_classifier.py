@@ -191,4 +191,4 @@ class ClassifierTest(ArtemisModuleTestCase):
 
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
-        self.assertEquals(call.kwargs["status_reason"], "Unsupported data: INVALID_DATA")
+        self.assertEqual(call.kwargs["status_reason"], "Unsupported data: INVALID_DATA")

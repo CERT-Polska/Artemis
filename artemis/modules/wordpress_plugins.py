@@ -220,7 +220,7 @@ class WordpressPlugins(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        response = FallbackAPICache.URL_WORDPRESS_PLUGINS_LIST.get()
+        response = FallbackAPICache.Urls.WORDPRESS_PLUGINS_LIST.get()
         json_response = response.json()
         self._top_plugins = [
             {
@@ -377,7 +377,7 @@ class WordpressPlugins(ArtemisBase):
             existed = (
                 len(
                     FallbackAPICache.get(
-                        "https://api.wordpress.org/stats/plugin/1.0/" + plugin_slug, allow_unknown=True
+                        f"https://api.wordpress.org/stats/plugin/1.0/{plugin_slug}", allow_unknown=True
                     ).json()
                 )
                 > 0

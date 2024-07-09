@@ -24,7 +24,7 @@ class WordPressScanner(ArtemisBase):
     ]
 
     def _is_version_latest(self, version: str) -> bool:
-        data = json.loads(FallbackAPICache.URL_WORDPRESS_STABLE_CHECK.get().content)
+        data = json.loads(FallbackAPICache.Urls.WORDPRESS_STABLE_CHECK.get().content)
 
         if version not in data:
             raise Exception(f"Cannot check whether version is latest: {version}")
@@ -37,7 +37,7 @@ class WordPressScanner(ArtemisBase):
         if self._is_version_latest(version):
             return False
 
-        data = json.loads(FallbackAPICache.URL_WORDPRESS_TAGS.get().content)
+        data = json.loads(FallbackAPICache.Urls.WORDPRESS_TAGS.get().content)
 
         for tag in data:
             if tag["ref"] == "refs/tags/" + version:
@@ -49,7 +49,7 @@ class WordPressScanner(ArtemisBase):
         return True  # If we didn't find the version on the release list, it must be old
 
     def _is_version_insecure(self, version: str) -> bool:
-        data = json.loads(FallbackAPICache.URL_WORDPRESS_STABLE_CHECK.get().content)
+        data = json.loads(FallbackAPICache.Urls.WORDPRESS_STABLE_CHECK.get().content)
 
         if version not in data:
             raise Exception(f"Cannot check version stability: {version}")

@@ -40,7 +40,7 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
             joomla_version = match.group(1)
             result["joomla_version"] = joomla_version
             # Get latest release in repo from GitHub API
-            gh_api_response = FallbackAPICache.URL_JOOMLA_LATEST_RELEASE.get()
+            gh_api_response = FallbackAPICache.Urls.JOOMLA_LATEST_RELEASE.get()
 
             if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_obsolete(joomla_version):
                 found_problems.append(f"Joomla version is too old: {joomla_version}")

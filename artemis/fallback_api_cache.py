@@ -34,24 +34,22 @@ class FallbackAPICache:
         stale_if_error=True,
     )
 
-    URL_JOOMLA_LATEST_RELEASE = CachedURL(
-        "https://api.github.com/repos/joomla/joomla-cms/releases/latest",
-        lambda item: "url" in item and "author" in item,
-    )
-
-    URL_WORDPRESS_TAGS = CachedURL(
-        "https://api.github.com/repos/WordPress/WordPress/git/refs/tags",
-        lambda item: len(item) > 10 and "ref" in item[0] and "url" in item[0],
-    )
-
-    URL_WORDPRESS_STABLE_CHECK = CachedURL(
-        "https://api.wordpress.org/core/stable-check/1.0/", lambda item: item["1.0.2"] == "insecure"
-    )
-
-    URL_WORDPRESS_PLUGINS_LIST = CachedURL(
-        "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[page]=1&request[per_page]=1000",
-        lambda item: "info" in item and "page" in item["info"] and "plugins" in item and "name" in item["plugins"][0],
-    )
+    class Urls(Enum):
+        JOOMLA_LATEST_RELEASE = CachedURL(
+            "https://api.github.com/repos/joomla/joomla-cms/releases/latest",
+            lambda item: "url" in item and "author" in item,
+        )
+        WORDPRESS_TAGS = CachedURL(
+            "https://api.github.com/repos/WordPress/WordPress/git/refs/tags",
+            lambda item: len(item) > 10 and "ref" in item[0] and "url" in item[0],
+        )
+        WORDPRESS_STABLE_CHECK = CachedURL(
+            "https://api.wordpress.org/core/stable-check/1.0/", lambda item: item["1.0.2"] == "insecure"
+        )
+        WORDPRESS_PLUGINS_LIST = CachedURL(
+            "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[page]=1&request[per_page]=1000",
+            lambda item: "info" in item and "page" in item["info"] and "plugins" in item and "name" in item["plugins"][0],
+        )
 
     @classmethod
     def get(cls, url: str, allow_unknown: bool = False) -> Response:
@@ -59,32 +57,24 @@ class FallbackAPICache:
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             headers["User-Agent"] = Config.Miscellaneous.CUSTOM_USER_AGENT
 
-        response = FallbackAPICache.CACHE.get(url, headers=headers)
-
-        found = False
-        for item in cls.urls():
+        found = None
+        for item in cls.Urls.values():
             if item.url == url:
-                found = True
-                if not item.validator(response.json()):
-                    raise InvalidResponseException()
+                found = item
         if not allow_unknown:
             assert found
+
+        response = FallbackAPICache.CACHE.get(url, headers=headers)
+
+        if found:
+            if not found.validator(response.json()):
+                raise InvalidResponseException()
 
         return response
 
     @classmethod
-    def urls(cls) -> List[CachedURL]:
-        result = []
-        for url in dir(cls):
-            item = getattr(cls, url)
-            if not isinstance(item, CachedURL):
-                continue
-            result.append(item)
-        return result
-
-    @classmethod
     def warmup(cls) -> None:
-        for url in cls.urls():
+        for url in cls.Urls.values():
             FallbackAPICache.LOGGER.info("Warming up: %s", url.url)
             cls.get(url.url)
 

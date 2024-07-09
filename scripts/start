@@ -38,7 +38,6 @@ fi
 
 ./scripts/run_docker_compose stop
 ./scripts/run_docker_compose $PROFILE up -d --remove-orphans --build \
-    --scale=karton-wp_scanner=3 \
     --scale=karton-identifier=3 \
     --scale=karton-port_scanner=5 \
     --scale=karton-wordpress_plugins=5 \

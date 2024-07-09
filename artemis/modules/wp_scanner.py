@@ -9,6 +9,7 @@ from karton.core import Task
 from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
+from artemis.fallback_api_cache import FallbackAPICache
 from artemis.module_base import ArtemisBase
 
 
@@ -22,14 +23,25 @@ class WordPressScanner(ArtemisBase):
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
 
+    def _is_version_latest(self, version: str) -> bool:
+        data = json.loads(FallbackAPICache.Urls.WORDPRESS_STABLE_CHECK.value.get().content)
+
+        if version not in data:
+            raise Exception(f"Cannot check whether version is latest: {version}")
+
+        return bool(data[version] == "latest")
+
     def _is_version_old(
         self, version: str, age_threshold_days: int = Config.Modules.WordPressScanner.WORDPRESS_VERSION_AGE_DAYS
     ) -> bool:
-        data = json.loads(self.cached_get("https://api.github.com/repos/WordPress/WordPress/git/refs/tags", "tags"))
+        if self._is_version_latest(version):
+            return False
+
+        data = json.loads(FallbackAPICache.Urls.WORDPRESS_TAGS.value.get().content)
 
         for tag in data:
             if tag["ref"] == "refs/tags/" + version:
-                tag_data = json.loads(self.cached_get(tag["object"]["url"], "tag-" + version))
+                tag_data = json.loads(FallbackAPICache.get(tag["object"]["url"], allow_unknown=True).content)
                 version_age = datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.fromisoformat(
                     tag_data["committer"]["date"]
                 )
@@ -37,7 +49,7 @@ class WordPressScanner(ArtemisBase):
         return True  # If we didn't find the version on the release list, it must be old
 
     def _is_version_insecure(self, version: str) -> bool:
-        data = json.loads(self.cached_get("https://api.wordpress.org/core/stable-check/1.0/", "version-stability"))
+        data = json.loads(FallbackAPICache.Urls.WORDPRESS_STABLE_CHECK.value.get().content)
 
         if version not in data:
             raise Exception(f"Cannot check version stability: {version}")
@@ -74,9 +86,6 @@ class WordPressScanner(ArtemisBase):
             if self._is_version_old(wp_version):
                 found_problems.append(f"WordPress {wp_version} is old")
                 result["wp_version_old"] = True
-
-            # Enumerate installed plugins
-            result["wp_plugins"] = re.findall("wp-content/plugins/([^/]+)/.+ver=([0-9.]+)", response.text)
 
         if found_problems:
             status = TaskStatus.INTERESTING

@@ -103,7 +103,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "    </html>",
                             "",
                         ]
-                    ).encode('ascii'),
+                    ).encode("ascii"),
                 )
 
     def test_exporting_api(self) -> None:

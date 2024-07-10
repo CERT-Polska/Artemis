@@ -65,6 +65,8 @@ class ExportingTestCase(BaseE2ETestCase):
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
+                import base64
+                print(base64.b64encode(content))
                 self.assertEqual(
                     content,
                     b"\n".join(
@@ -169,6 +171,8 @@ class ExportingTestCase(BaseE2ETestCase):
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
+                import base64
+                print(base64.b64encode(content))
                 self.assertEqual(
                     content,
                     "\n".join(

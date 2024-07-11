@@ -19,7 +19,6 @@ msgstr ""
 "publicznie."
 
 #: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:27
-#, fuzzy
 msgid ""
 "A password leak may be caused by an accidentally exposed configuration "
 "file such as a backup of <tt>/wp-config.php</tt> or by a local file "
@@ -27,13 +26,13 @@ msgid ""
 " exposed database management panels makes it significantly harder to "
 "perform an attack."
 msgstr ""
-"Atak jest możliwy gdy hasło wycieknie, lub jest zbyt małej złożoności. Do"
-" wycieku hasła może dojść np. gdy kopia zapasowa pliku konfiguracyjnego "
-"takiego jak <tt>/wp.config.php</tt> zostanie przypadkowo upubliczniona, "
-"lub gdy zostanie wykorzystana inna podatność w aplikacji pozwalająca na "
-"odczyt plików. Z doświadczeń CERT Polska w obsłudze incydentów wynika, że"
-" takie błędy są częste, a brak publicznie dostępnego panelu zarządzania "
-"bazą danych znacząco utrudnia atakującym dalsze prowadzenie ataku."
+"Do  wycieku hasła może dojść np. gdy kopia zapasowa pliku "
+"konfiguracyjnego takiego jak <tt>/wp.config.php</tt> zostanie przypadkowo"
+" upubliczniona, lub gdy zostanie wykorzystana inna podatność w aplikacji "
+"pozwalająca na odczyt plików. Z doświadczeń CERT Polska w obsłudze "
+"incydentów wynika, że takie błędy są częste, a brak publicznie dostępnego"
+" panelu zarządzania bazą danych znacząco utrudnia atakującym dalsze "
+"prowadzenie ataku."
 
 #: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:36
 msgid ""

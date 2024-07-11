@@ -668,9 +668,12 @@ TRANSLATIONS = {
     "Webalizer log analyzer configuration was detected.": "Wykryto konfigurację analizera logów Webalizer."
     + DATA_HIDE_HINT,
     "Multiple NETGEAR router models disclose their serial number which can be used to obtain the admin password if password recovery is enabled.": "Wykryto router NETGEAR skonfigurowany, aby udostępniać dane takie jak numer seryjny, które w niektórych sytuacjach wystarczają do odzyskania hasła administratora.",
+    'CVE-2024-24919 is an information disclosure vulnerability that can allow an attacker to access certain information on internet-connected Gateways which have been configured with IPSec VPN, remote access VPN, or mobile access software blade.': "Wykryto urządzenie CheckPoint zawierajace podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "HAProxy statistics page was detected.": "Wykryto stronę ze statystykami systemu HAProxy.",
     "This template can be used to detect a Laravel debug information leak by making a POST-based request.": "Wykryto, że za pomocą żądania POST można odczytać konfigurację systemu Laravel, zawierającą dane dostępowe do bazy danych.",
     "Test CGI script was detected. Response page returned by this CGI script exposes a list of server environment variables.": "Wykryto skrypt CGI udostępniający publicznie konfigurację serwera.",
+    "Obsolete and insecure SmodBIP system was detected. In Poland the system is not recommended to be used by the Government Plenipotentiary for Cybersecurity.": "Wykryto system SmodBIP, który nie jest już utrzymywany i zawiera znane podatności, np. CVE-2023-4837. W dniu 12 czerwca 2024 Pełnomocnik Rządu ds. Cyberbezpieczeństwa wydał rekomendację niestosowania systemów SmodBIP i MegaBIP.",
+    "Leaked session of Wpdm Cache wordpress plugin.": "Wykryto pamięć podręczną wtyczki WordPress o nazwie Wpdm Cache, mogącą zawierać dane umożliwiające przejęcie sesji zalogowanego użytkownika.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",
@@ -884,4 +887,5 @@ TRANSLATIONS = {
     "LuCi login panel was detected.": "wykryto panel logowania LuCi.",
     "http/exposed-panels/openwrt-login.yaml": "wykryto panel logowania OpenWRT",
     "TurnKey LAMP Control Panel was detected.": "wykryto panel TurnKey LAMP.",
+    "Opache control Panel is exposed.": "Wykryto panel systemu Opcache.",
 }

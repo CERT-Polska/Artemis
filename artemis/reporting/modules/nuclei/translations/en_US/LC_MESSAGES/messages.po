@@ -14,6 +14,15 @@ msgstr ""
 
 #: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:21
 msgid ""
+"Even if they require correct username and password to login, an attack is"
+" possible when the password leaks (for example, for database management "
+"panels, the leak may be caused by an exposed configuration file such as a"
+" backup of <tt>/wp-config.php</tt>). Such path is often used by "
+"attackers."
+msgstr ""
+
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:28
+msgid ""
 "We recommend that such resources are only available in an internal "
 "network, using a VPN or from a restricted set of IP addresses."
 msgstr ""

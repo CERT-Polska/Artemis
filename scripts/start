@@ -23,16 +23,6 @@ fi
 if exists Artemis-modules-extra; then
     ADDITIONAL_OPTIONS=--scale=karton-sqlmap=5
 else
-    echo "We recommend you to add additional Artemis modules from https://github.com/CERT-Polska/Artemis-modules-extra/ "
-    echo "- these modules haven’t been included in core due to their licenses (e.g. GPL or AGPL), but provide additional "
-    echo "features such as e.g. SSL verification (certificate validity, proper redirect, etc.), subdomain takeover check or SQL "
-    echo "injection check."
-    echo
-    echo "CERT PL finds tens of thousands of misconfigured SSL and hundreds of SQL injections using these modules."
-    echo
-    echo "To set up Artemis-modules-extra, clone https://github.com/CERT-Polska/Artemis-modules-extra/ inside "
-    echo "the Artemis directory and run ./scripts/start."
-    echo
     ADDITIONAL_OPTIONS=
 fi
 
@@ -74,3 +64,16 @@ fi
         echo "We strongly recommend to set the CUSTOM_USER_AGENT setting: https://artemis-scanner.readthedocs.io/en/latest/user-guide/cooperation-with-scanned-entities.html"
     fi
 )
+
+if ! exists Artemis-modules-extra; then
+    echo
+    echo "We recommend you to add additional Artemis modules from https://github.com/CERT-Polska/Artemis-modules-extra/ "
+    echo "- these modules haven’t been included in core due to their licenses (e.g. GPL or AGPL), but provide additional "
+    echo "features such as e.g. SSL verification (certificate validity, proper redirect, etc.), subdomain takeover check or SQL "
+    echo "injection check."
+    echo
+    echo "CERT PL finds tens of thousands of misconfigured SSL and hundreds of SQL injections using these modules."
+    echo
+    echo "To set up Artemis-modules-extra, clone https://github.com/CERT-Polska/Artemis-modules-extra/ inside "
+    echo "the Artemis directory and run ./scripts/start."
+fi

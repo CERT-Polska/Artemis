@@ -1,4 +1,4 @@
-#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:2
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:4
 msgid ""
 "The following addresses contain login panels, analytics services, "
 "management panels etc.:"
@@ -6,7 +6,7 @@ msgstr ""
 "Poniższe adresy zawierają zasoby takie jak panele logowania, narzędzia "
 "analityczne, panele administracyjne itp.:"
 
-#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:14
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:19
 msgid ""
 "To decrease the probability of an attack (caused by an attacker using a "
 "leaked password, by one of the accounts having a weak password, or by "
@@ -18,22 +18,26 @@ msgstr ""
 "usłudze) rekomendujemy, aby jak najmniej takich zasobów było dostępnych "
 "publicznie."
 
-#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:21
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:27
 msgid ""
-"Even if they require correct username and password to login, an attack is"
-" possible when the password was leaked (for example, for database "
-"management panels, the leak may be caused by an exposed configuration "
-"file such as a backup of <tt>/wp-config.php</tt>). Such path is often "
-"used by attackers."
+"Even if the panel requires a correct username and password to login, an "
+"attack is possible because of a password leak or if the password is too "
+"simple. A password leak may be caused by an accidentally exposed "
+"configuration file such as a backup of <tt>/wp-config.php</tt> or by a "
+"local file inclusion vulnerability. Such mistakes are frequent, and lack "
+"of publicly exposed database management panels makes it significantly "
+"harder to perform an attack."
 msgstr ""
 "Nawet, jeśli logowanie wymaga podania nazwy użytkownika i hasła, atak "
-"jest możliwy np. gdy hasło wycieknie (np. w przypadku paneli służących do"
-" zarządzania bazą danych, wyciek jest możliwy w przypadku, gdy kopia "
-"zapasowa pliku konfiguracyjnego takiego jak <tt>/wp.config.php</tt> "
-"zostanie przypadkowo upubliczniona). Z doświadczeń CERT PL w obsłudze "
-"incydentów wynika, że taka ścieżka jest często używana przez atakujących."
+"jest możliwy gdy hasło wycieknie, lub jest zbyt małej złożoności. Do "
+"wycieku hasła może dojść np. gdy kopia zapasowa pliku konfiguracyjnego "
+"takiego jak <tt>/wp.config.php</tt> zostanie przypadkowo upubliczniona, "
+"lub gdy zostanie wykorzystana inna podatność w aplikacji pozwalająca na "
+"odczyt plików. Z doświadczeń CERT Polska w obsłudze incydentów wynika, że"
+" takie błędy są częste, a brak publicznie dostępnego panelu zarządzania "
+"bazą danych znacząco utrudnia atakującym dalsze prowadzenie ataku."
 
-#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:28
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:38
 msgid ""
 "We recommend that such resources are only available in an internal "
 "network, using a VPN or from a restricted set of IP addresses."

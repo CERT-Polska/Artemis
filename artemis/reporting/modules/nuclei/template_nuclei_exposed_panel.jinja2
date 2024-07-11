@@ -25,9 +25,7 @@
         {% if contains_db_admin.data %}
             <p>
                 {% trans trimmed %}
-                    Even if the panel requires a correct username and password to login, an attack is possible
-                    because of a password leak or if the password is too simple. A password
-                    leak may be caused by an accidentally exposed configuration file such as a backup of
+                    A password leak may be caused by an accidentally exposed configuration file such as a backup of
                     <tt>/wp-config.php</tt> or by a local file inclusion vulnerability. Such mistakes are
                     frequent, and lack of publicly exposed database management panels makes it significantly
                     harder to perform an attack.

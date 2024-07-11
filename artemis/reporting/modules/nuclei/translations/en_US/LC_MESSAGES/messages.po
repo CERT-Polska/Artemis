@@ -14,16 +14,14 @@ msgstr ""
 
 #: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:27
 msgid ""
-"Even if the panel requires a correct username and password to login, an "
-"attack is possible because of a password leak or if the password is too "
-"simple. A password leak may be caused by an accidentally exposed "
-"configuration file such as a backup of <tt>/wp-config.php</tt> or by a "
-"local file inclusion vulnerability. Such mistakes are frequent, and lack "
-"of publicly exposed database management panels makes it significantly "
-"harder to perform an attack."
+"A password leak may be caused by an accidentally exposed configuration "
+"file such as a backup of <tt>/wp-config.php</tt> or by a local file "
+"inclusion vulnerability. Such mistakes are frequent, and lack of publicly"
+" exposed database management panels makes it significantly harder to "
+"perform an attack."
 msgstr ""
 
-#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:38
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:36
 msgid ""
 "We recommend that such resources are only available in an internal "
 "network, using a VPN or from a restricted set of IP addresses."

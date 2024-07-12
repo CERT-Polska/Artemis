@@ -26,9 +26,9 @@ msgstr ""
 "jak <tt>/wp.config.php</tt> zostanie przypadkowo upubliczniona, lub gdy "
 "zostanie wykorzystana podatność w aplikacji pozwalająca na odczyt plików."
 " Z doświadczeń CERT Polska w obsłudze incydentów wynika, że takie błędy "
-"są częste, a brak publicznie dostępnego panelu zarządzania bazą danych "
-"znacząco utrudnia atakującym dalsze prowadzenie ataku. Zalecamy, aby baza"
-" danych była dostępna tylko lokalnie lub w sieci wewnętrznej."
+"są częste, a brak publicznie dostępnego portu bazy danych znacząco "
+"utrudnia atakującym dalsze prowadzenie ataku. Zalecamy, aby baza danych "
+"była dostępna tylko lokalnie lub w sieci wewnętrznej."
 
 #: artemis/reporting/modules/port_scanner/template_open_port_remote_desktop.jinja2:2
 msgid "The following servers have remote desktop ports open:"

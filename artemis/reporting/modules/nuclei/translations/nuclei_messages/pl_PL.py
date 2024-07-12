@@ -673,6 +673,8 @@ TRANSLATIONS = {
     "This template can be used to detect a Laravel debug information leak by making a POST-based request.": "Wykryto, że za pomocą żądania POST można odczytać konfigurację systemu Laravel, zawierającą dane dostępowe do bazy danych.",
     "Test CGI script was detected. Response page returned by this CGI script exposes a list of server environment variables.": "Wykryto skrypt CGI udostępniający publicznie konfigurację serwera.",
     "Obsolete and insecure SmodBIP system was detected. In Poland the system is not recommended to be used by the Government Plenipotentiary for Cybersecurity.": "Wykryto system SmodBIP, który nie jest już utrzymywany i zawiera znane podatności, np. CVE-2023-4837. W dniu 12 czerwca 2024 Pełnomocnik Rządu ds. Cyberbezpieczeństwa wydał rekomendację niestosowania systemów SmodBIP i MegaBIP.",
+    "phpMyAdmin before 4.9.0 is susceptible to cross-site request forgery. An attacker can utilize a broken <img> tag which points at the victim's phpMyAdmin database, thus leading to potential delivery of a payload, such as a specific INSERT or DELETE statement.": "Narzędzie phpMyAdmin w wersji poniżej 4.9.0 zawiera podatność Cross-Site Request Forgery umożliwiającą atakujacemu spreparowanie linku, który - gdy odwiedzony przez zalogowanego użytkownika - wykona zmianę w bazie danych."
+    + UPDATE_HINT,
     "Leaked session of Wpdm Cache wordpress plugin.": "Wykryto pamięć podręczną wtyczki WordPress o nazwie Wpdm Cache, mogącą zawierać dane umożliwiające przejęcie sesji zalogowanego użytkownika.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

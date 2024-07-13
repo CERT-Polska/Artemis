@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import List, Set
+from typing import Set
 
 from karton.core import Task
 

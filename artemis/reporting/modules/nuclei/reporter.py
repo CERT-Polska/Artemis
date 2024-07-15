@@ -156,7 +156,7 @@ class NucleiReporter(Reporter):
                             "description_translated": NucleiReporter._translate_description(
                                 template, description, language
                             ),
-                            "reference": vulnerability["info"]["reference"],
+                            "reference": vulnerability["info"].get("reference", []),
                             "matched_at": matched_at,
                             "template_name": template,
                             "original_template_name": original_template_name,

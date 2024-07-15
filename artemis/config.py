@@ -328,6 +328,7 @@ class Config:
                         # We have a separate module for that, checking whethet the repository is a copy of a public one
                         "http/exposures/configs/exposed-svn.yaml",
                         "http/exposures/configs/git-config.yaml",
+                        "http/exposures/files/svn-wc-db.yaml",
                         # We have a separate module checking for a larger number of directory indexes.
                         "http/exposures/configs/configuration-listing.yaml",
                         "http/misconfiguration/sound4-directory-listing.yaml",
@@ -419,8 +420,20 @@ class Config:
                         "custom:CVE-2019-1579",
                         "custom:xss-inside-tag-top-params.yaml",
                         # Nothing particularily interesting
+                        "http/exposures/apis/drupal-jsonapi-user-listing.yaml",
                         "http/miscellaneous/joomla-manifest-file.yaml",
                         "http/exposures/configs/karma-config-js.yaml",
+                        "http/cves/2000/CVE-2000-0114.yaml",
+                        # From the message: "there is no common path to exploit that has a user impact."
+                        "http/cves/2021/CVE-2021-20323.yaml",
+                        # This is Open Redirect in Host header, not exploitable in standard conditions. Besides, this is disputed by vendor.
+                        "http/cves/2023/CVE-2023-24044.yaml",
+                        # Open Redirect in Referer, X-Forwarded-Host or another header making it hard to exploit
+                        "http/vulnerabilities/wordpress/music-store-open-redirect.yaml",
+                        "http/cves/2021/CVE-2021-44528.yaml",
+                        # Minor information leaks
+                        "http/cves/2021/CVE-2021-3293.yaml",
+                        "http/cves/2024/CVE-2024-3097.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

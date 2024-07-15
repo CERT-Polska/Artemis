@@ -49,5 +49,5 @@ typer==0.12.3
 typing-extensions==4.12.2
 urllib3==1.26.18
 uvicorn==0.30.1
-validators==0.31.0
+validators==0.33.0
 whoisdomain==1.20240129.1

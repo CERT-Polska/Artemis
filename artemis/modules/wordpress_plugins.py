@@ -56,7 +56,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
-    'hostinger',
+    "hostinger",
     "icon-element",
     "link-manager",
     "official-facebook-pixel",
@@ -66,9 +66,9 @@ PLUGINS_BAD_VERSION_IN_README = [
     "robin-image-optimizer",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
-    'the-events-calendar-shortcode',
+    "the-events-calendar-shortcode",
     "website-monetization-by-magenet",
-    'woocommerce',
+    "woocommerce",
     "wp-maximum-execution-time-exceeded",
 ]
 

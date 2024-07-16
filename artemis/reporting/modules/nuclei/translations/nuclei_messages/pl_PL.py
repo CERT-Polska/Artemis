@@ -751,6 +751,9 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     "The EventON WordPress plugin before 2.1.2 lacks authentication and authorization in its eventon_ics_download ajax action, allowing unauthenticated visitors to access private and password protected Events by guessing their numeric id.": "Wtyczka WordPress o nazwie EventON Calendar w wersji 2.1.2 i niższych umożliwia atakującemu odczyt niepublicznych wydarzeń i wydarzeń chronionych hasłem."
     + WORDPRESS_UPDATE_HINT,
+    "XWiki Platform is a generic wiki platform offering runtime services for applications built on top of it. Users are able to forge an URL with a payload allowing to inject Javascript in the page (XSS). It's possible to exploit the DeleteApplication page to perform a XSS, e.g. by using URL such as: > xwiki/bin/view/AppWithinMinutes/DeleteApplication?appName=Menu&resolve=true&xredirect=javascript:alert(document.domain). This vulnerability exists since XWiki 6.2-milestone-1. The vulnerability has been patched in XWiki 14.10.5 and 15.1-rc-1.": "System XWiki w wersji do 14.10.5 (w gałęzi 14) i 15.1-rc-1 (w gałęzi 15) zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
     "Froxlor Server Management backup file was detected.": "Wykryto plik kopii zapasowej systemu Froxlor Server Management.",
     "Behat configuration file was detected.": "wykryto plik konfiguracyjny narzędzia Behat.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",

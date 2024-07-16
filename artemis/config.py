@@ -435,6 +435,7 @@ class Config:
                         "http/cves/2020/CVE-2020-14179.yaml",
                         "http/cves/2021/CVE-2021-3293.yaml",
                         "http/cves/2024/CVE-2024-1208.yaml",
+                        "http/cves/2024/CVE-2024-1210.yaml"
                         "http/cves/2024/CVE-2024-3097.yaml",
                     ]
                 ),

@@ -728,6 +728,9 @@ TRANSLATIONS = {
     "WordPress Transposh Translation plugin before 1.0.8 contains a reflected cross-site scripting vulnerability. It does not sanitize and escape the a parameter via an AJAX action (available to both unauthenticated and authenticated users when the curl library is installed) before outputting it back in the response.": "Wtyczka WordPress o nazwie Transposh Translation w wersji poniżej 1.0.8 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "Zarafa WebApp 2.0.1.47791 and earlier contains an unauthenticated reflected cross-site scripting vulnerability. An attacker can execute arbitrary script code in the browser of an unsuspecting user in the context of the affected site.": "Zarafa WebApp w wersji 2.0.1.47791 i wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
     "WordPress HC Custom WP-Admin URL plugin through 1.4 leaks the secret login URL when sending a specially crafted request, thereby allowing an attacker to discover the administrative login URL.": "Wtyczka WordPress o nazwie HC Custom WP-Admin URL w wersji do 1.4 włącznie zawiera podatność umożliwiającą atakującemu poznanie adresu panelu logowania, nawet jak został zmieniony w stosunku do domyślnego."
     + WORDPRESS_UPDATE_HINT,
     "TileServer GL through 3.0.0 is vulnerable to reflected cross-site scripting via server.js  because the content of the key GET parameter is reflected unsanitized in an HTTP response for the application's main page.": "Narzędzie TileServer GL w wersji do 3.0.0 zawiera podatność "

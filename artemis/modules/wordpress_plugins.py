@@ -47,7 +47,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "athemes-starter-sites",
-    "backup",
     "blocks-animation",
     "button-contact-vr",
     "cf7-to-zapier",
@@ -57,9 +56,9 @@ PLUGINS_BAD_VERSION_IN_README = [
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
+    'hostinger',
     "icon-element",
     "link-manager",
-    "mask-form-elementor",
     "official-facebook-pixel",
     "page-or-post-clone",
     "printfriendly",
@@ -67,7 +66,9 @@ PLUGINS_BAD_VERSION_IN_README = [
     "robin-image-optimizer",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
+    'the-events-calendar-shortcode',
     "website-monetization-by-magenet",
+    'woocommerce',
     "wp-maximum-execution-time-exceeded",
 ]
 

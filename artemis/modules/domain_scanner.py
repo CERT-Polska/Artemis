@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from typing import Set
 from karton.core import Task
 from artemis.resolvers import lookup, ResolutionException
 

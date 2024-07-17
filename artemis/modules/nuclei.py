@@ -128,6 +128,7 @@ class Nuclei(ArtemisBase):
 
         lines = []
         for template_chunk in more_itertools.chunked(templates, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE):
+            self.log.info("Running batch of %d templates on %d target(s)", len(template_chunk), len(targets))
             command = [
                 "nuclei",
                 "-disable-update-check",

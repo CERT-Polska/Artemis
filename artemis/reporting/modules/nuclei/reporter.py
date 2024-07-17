@@ -157,6 +157,7 @@ class NucleiReporter(Reporter):
                                 template, description, language
                             ),
                             "reference": vulnerability["info"].get("reference", []),
+                            "severity": vulnerability["info"]["severity"],
                             "matched_at": matched_at,
                             "template_name": template,
                             "original_template_name": original_template_name,

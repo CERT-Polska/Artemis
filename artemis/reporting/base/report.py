@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from artemis.domains import is_domain
+from artemis.reporting.severity import Severity
 from artemis.resolvers import ResolutionException, lookup
 from artemis.utils import get_host_from_url, is_ip_address
 
@@ -56,6 +57,9 @@ class Report:
     original_task_result_id: Optional[str] = None
     original_task_result_root_uid: Optional[str] = None
     original_task_target_string: Optional[str] = None
+
+    # The severity (added during report post-processing)
+    severity: Optional[Severity] = None
 
     def __post_init__(self) -> None:
         # Sanity check - at this moment, only URLs and domains are supported

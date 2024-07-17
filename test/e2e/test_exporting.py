@@ -111,21 +111,27 @@ class ExportingTestCase(BaseE2ETestCase):
                 output_data = json.loads(f.read().decode("ascii"))
                 import base64
                 import sys
+
                 sys.stderr.write(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"] + "\n")
-                sys.stderr.write(base64.b64encode(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"].encode('utf-8')).decode('ascii') + "\n")
+                sys.stderr.write(
+                    base64.b64encode(
+                        output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"].encode("utf-8")
+                    ).decode("ascii")
+                    + "\n"
+                )
                 self.assertEqual(
                     output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
                     "\n".join(
                         [
                             "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
-                            "                    <li>",
+                            "<li>",
                             "                        test-smtp-server.artemis:",
                             "",
                             "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
                             "                        ",
                             "                    </li>",
-                            "        </ul>",
-                            "        <p>",
+                            "</ul>",
+                            "<p>",
                             "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
                             "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
                             "        </p>",

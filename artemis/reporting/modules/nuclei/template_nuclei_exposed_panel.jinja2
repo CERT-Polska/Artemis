@@ -8,7 +8,7 @@
                     <li>
                         {{ report.target }}: {{ report.additional_data.description_translated }}
                         {{ report_meta(report) }}
-                        {% if 'phpmyadmin' in report.target.lower() or 'phpppgadmin' in report.target.lower() %}
+                        {% if "phpmyadmin" in report.target.lower() or "phpppgadmin" in report.target.lower() %}
                             {% set contains_db_admin.data = 1 %}
                         {% endif %}
                     </li>

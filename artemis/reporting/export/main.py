@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from typing import Dict, Optional
 
+import bs4
 import termcolor
 import typer
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
@@ -37,6 +38,22 @@ environment = Environment(
 
 
 HOST_ROOT_PATH = "/host-root/"
+
+
+def unwrap(html: str) -> str:
+    """Uwraps html if it's wrapped in a single tag (e.g. <div>)."""
+    html = html.strip()
+    soup = bs4.BeautifulSoup(html)
+    while len(list(soup.children)) == 1:
+        only_child = list(soup.children)[0]
+
+        if only_child.name:  # type: ignore
+            only_child.unwrap()
+            soup = bs4.BeautifulSoup(soup.renderContents().strip())
+        else:
+            break
+
+    return soup.renderContents().decode("utf-8", "ignore")
 
 
 def _build_message_template_and_print_path(output_dir: Path, silent: bool) -> Template:
@@ -103,7 +120,7 @@ def _build_messages_and_print_path(
             }
             message_data["custom_template_arguments"]["skip_html_and_body_tags"] = True  # type: ignore
             message_data["custom_template_arguments"]["skip_header_and_footer_text"] = True  # type: ignore
-            report.html = message_template.render({"data": message_data})
+            report.html = unwrap(message_template.render({"data": message_data}))
 
     if not silent:
         print()

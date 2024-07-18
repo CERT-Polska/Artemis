@@ -128,8 +128,7 @@ class Nuclei(ArtemisBase):
 
         milliseconds_per_request_candidates = [
             milliseconds_per_request_initial,
-            max(500, milliseconds_per_request_initial * 2),
-            max(2000, milliseconds_per_request_initial * 4),
+            max(200, milliseconds_per_request_initial * 2),
         ]
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
@@ -190,7 +189,10 @@ class Nuclei(ArtemisBase):
                         lines.append(line)
 
                 if "context deadline exceeded" in call_result_utf8:
-                    self.log.info("Detected 'context deadline exceeded', retrying with longer timeout")
+                    self.log.info(
+                        "Detected %d occurencies of 'context deadline exceeded', retrying with longer timeout",
+                        call_result_utf8.count("context deadline exceeded"),
+                    )
                     new_milliseconds_per_request_candidates = [
                         item for item in milliseconds_per_request_candidates if item > milliseconds_per_request
                     ]

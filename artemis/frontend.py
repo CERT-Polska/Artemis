@@ -223,6 +223,9 @@ def export_delete_form(request: Request, id: int, csrf_protect: CsrfProtect = De
 def view_export(request: Request, id: int) -> Response:
     task = db.get_report_generation_task(id)
 
+    if not task:
+        raise HTTPException(status_code=404, detail="Report generation task not found")
+
     vulnerabilities = []
 
     num_high_severity = 0
@@ -234,8 +237,7 @@ def view_export(request: Request, id: int) -> Response:
         messages_path = os.path.join(task.output_location, "messages")
         for item in os.listdir(messages_path):
             with open(os.path.join(messages_path, item)) as f:
-                domain_messages[item.removesuffix(".html")] = f.read() 
-
+                domain_messages[item.removesuffix(".html")] = f.read()
 
         with open(os.path.join(task.output_location, "advanced", "output.json")) as f:
             data = json.load(f)
@@ -250,7 +252,7 @@ def view_export(request: Request, id: int) -> Response:
                     elif report["severity"] == "low":
                         num_low_severity += 1
                     else:
-                        assert(False)
+                        assert False
 
     else:
         domain_messages = {}

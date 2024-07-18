@@ -28,9 +28,11 @@ class CalledProcessErrorWithMessage(subprocess.CalledProcessError):
         return self.message
 
 
-def check_output_log_on_error(command: List[str], logger: logging.Logger, **kwargs: Any) -> bytes:
+def check_output_log_on_error(
+    command: List[str], logger: logging.Logger, stderr: Any = subprocess.PIPE, **kwargs: Any
+) -> bytes:
     try:
-        return subprocess.check_output(command, stderr=subprocess.PIPE, **kwargs)  # type: ignore
+        return subprocess.check_output(command, stderr=stderr, **kwargs)  # type: ignore
     except subprocess.CalledProcessError as e:
         command_str_shortened = repr(command)
         if len(command_str_shortened) > 100:

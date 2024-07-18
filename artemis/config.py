@@ -437,6 +437,7 @@ class Config:
                         "http/cves/2024/CVE-2024-1208.yaml",
                         "http/cves/2024/CVE-2024-1210.yaml",
                         "http/cves/2024/CVE-2024-3097.yaml",
+                        "http/cves/2017/CVE-2017-5487.yaml",
                         # Over 50 requests
                         "http/cves/2017/CVE-2017-17562.yaml",
                         "http/cves/2019/CVE-2019-17382.yaml",
@@ -565,9 +566,9 @@ class Config:
 
             NUCLEI_TEMPLATE_CHUNK_SIZE: Annotated[
                 int,
-                "How big are the chunks to split the template list. E.g. if the template list contains 3000 templates and "
-                "NUCLEI_TEMPLATE_CHUNK_SIZE is 1000, three calls will be made with 1000 templates each.",
-            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=1000, cast=int)
+                "How big are the chunks to split the template list. E.g. if the template list contains 600 templates and "
+                "NUCLEI_TEMPLATE_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
+            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
 
         class PortScanner:
             PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (

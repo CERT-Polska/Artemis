@@ -121,6 +121,17 @@ class Nuclei(ArtemisBase):
         if not targets:
             return []
 
+        if Config.Limits.REQUESTS_PER_SECOND:
+            milliseconds_per_request_initial = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))
+        else:
+            milliseconds_per_request_initial = 0
+
+        milliseconds_per_request_candidates = [
+            milliseconds_per_request_initial,
+            max(500, milliseconds_per_request_initial * 2),
+            max(2000, milliseconds_per_request_initial * 4),
+        ]
+
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
         else:
@@ -128,47 +139,66 @@ class Nuclei(ArtemisBase):
 
         lines = []
         for template_chunk in more_itertools.chunked(templates, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE):
-            self.log.info("Running batch of %d templates on %d target(s)", len(template_chunk), len(targets))
-            command = [
-                "nuclei",
-                "-disable-update-check",
-                "-etags",
-                "intrusive",
-                "-ni",
-                "-silent",
-                "-templates",
-                ",".join(template_chunk),
-                "-timeout",
-                str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
-                "-jsonl",
-                "-system-resolvers",
-                "-bulk-size",
-                str(len(targets)),
-                "-headless-bulk-size",
-                str(len(targets)),
-                "-milliseconds-per-request",
-                (
-                    str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets)))
-                    if Config.Limits.REQUESTS_PER_SECOND != 0
-                    else str(int(0))
-                ),
-            ] + additional_configuration
+            for milliseconds_per_request in milliseconds_per_request_candidates:
+                self.log.info(
+                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",
+                    len(template_chunk),
+                    len(targets),
+                    milliseconds_per_request,
+                )
+                command = [
+                    "nuclei",
+                    "-disable-update-check",
+                    "-etags",
+                    "intrusive",
+                    "-ni",
+                    "-v",
+                    "-templates",
+                    ",".join(template_chunk),
+                    "-timeout",
+                    str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
+                    "-jsonl",
+                    "-system-resolvers",
+                    "-bulk-size",
+                    str(len(targets)),
+                    "-headless-bulk-size",
+                    str(len(targets)),
+                    "-milliseconds-per-request",
+                    str(milliseconds_per_request),
+                ] + additional_configuration
 
-            # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
-            # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
-            for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
-                command.append("-it")
-                command.append(template)
+                # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
+                # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
+                for template in template_chunk:
+                    command.append("-it")
+                    command.append(template)
 
-            for target in targets:
-                command.append("-target")
-                command.append(target)
+                for target in targets:
+                    command.append("-target")
+                    command.append(target)
 
-            data = check_output_log_on_error(
-                command,
-                self.log,
-            )
-            lines.extend(data.decode("ascii", errors="ignore").split("\n"))
+                self.log.debug("Running command: %s", " ".join(command))
+                data = check_output_log_on_error(command, self.log, stderr=subprocess.STDOUT)
+
+                data_utf = data.decode("utf-8", errors="ignore")
+                lines = data_utf.split("\n")
+
+                for line in lines:
+                    if line.startswith("{"):
+                        self.log.info("Found: %s...", line[:100])
+                        self.log.debug("%s", line)
+                        lines.append(line)
+
+                if "context deadline exceeded" in data_utf:
+                    self.log.info("Detected 'context deadline exceeded', retrying with longer timeout")
+                    new_milliseconds_per_request_candidates = [
+                        item for item in milliseconds_per_request_candidates if item > milliseconds_per_request
+                    ]
+                    if len(new_milliseconds_per_request_candidates) > 0:
+                        milliseconds_per_request_candidates = new_milliseconds_per_request_candidates
+
+                else:
+                    break
 
         findings = []
         for line in lines:

@@ -11,6 +11,7 @@ from artemis.db import DB
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.reporters import reports_from_task_result
+from artemis.reporting.severity import get_severity
 from artemis.reporting.utils import get_top_level_target
 from artemis.task_utils import get_target_host
 
@@ -78,6 +79,7 @@ class DataLoader:
                 report_to_add.original_task_result_id = result["id"]
                 report_to_add.original_task_result_root_uid = result["analysis_id"]
                 report_to_add.original_task_target_string = result["target_string"]
+                report_to_add.severity = get_severity(report_to_add)
                 report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))

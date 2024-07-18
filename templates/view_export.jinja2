@@ -59,7 +59,7 @@
                                         <span class="text-{% if vulnerability.severity == "high" %}danger{% elif vulnerability.severity == "medium" %}warning{% else %}info{% endif %}">
                                             {% if vulnerability.severity == "high" %}1.
                                             {% elif vulnerability.severity == "medium" %}2.
-                                            {% else %}3{% endif %}
+                                            {% else %}3.{% endif %}
 
                                             {{ vulnerability.severity }}
                                         </span>

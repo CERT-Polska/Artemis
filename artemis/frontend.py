@@ -219,6 +219,56 @@ def export_delete_form(request: Request, id: int, csrf_protect: CsrfProtect = De
     )
 
 
+@router.get("/export/view/{id}", include_in_schema=False)
+def view_export(request: Request, id: int) -> Response:
+    task = db.get_report_generation_task(id)
+
+    vulnerabilities = []
+
+    num_high_severity = 0
+    num_medium_severity = 0
+    num_low_severity = 0
+
+    if task.status == "done":
+        domain_messages = {}
+        messages_path = os.path.join(task.output_location, "messages")
+        for item in os.listdir(messages_path):
+            with open(os.path.join(messages_path, item)) as f:
+                domain_messages[item.removesuffix(".html")] = f.read() 
+
+
+        with open(os.path.join(task.output_location, "advanced", "output.json")) as f:
+            data = json.load(f)
+
+            for message in data["messages"].values():
+                for report in message["reports"]:
+                    vulnerabilities.append(report)
+                    if report["severity"] == "high":
+                        num_high_severity += 1
+                    elif report["severity"] == "medium":
+                        num_medium_severity += 1
+                    elif report["severity"] == "low":
+                        num_low_severity += 1
+                    else:
+                        assert(False)
+
+    else:
+        domain_messages = {}
+
+    return templates.TemplateResponse(
+        "view_export.jinja2",
+        {
+            "domain_messages": domain_messages,
+            "request": request,
+            "num_high_severity": num_high_severity,
+            "num_medium_severity": num_medium_severity,
+            "num_low_severity": num_low_severity,
+            "vulnerabilities": vulnerabilities,
+            "task": task,
+        },
+    )
+
+
 @router.post("/export/confirm-delete/{id}", include_in_schema=False)
 @csrf.validate_csrf
 async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:

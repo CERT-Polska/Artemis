@@ -178,12 +178,12 @@ class Nuclei(ArtemisBase):
                     command.append(target)
 
                 self.log.debug("Running command: %s", " ".join(command))
-                data = check_output_log_on_error(command, self.log, stderr=subprocess.STDOUT)
+                call_result = check_output_log_on_error(command, self.log, stderr=subprocess.STDOUT)
 
-                data_utf = data.decode("utf-8", errors="ignore")
-                lines = data_utf.split("\n")
+                call_result_utf8 = data.decode("utf-8", errors="ignore")
+                call_result_utf8_lines = call_result_utf8.split("\n")
 
-                for line in lines:
+                for line in call_result_utf8_lines:
                     if line.startswith("{"):
                         self.log.info("Found: %s...", line[:100])
                         self.log.debug("%s", line)

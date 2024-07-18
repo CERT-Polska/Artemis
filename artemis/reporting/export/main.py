@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from typing import Dict, Optional
 
+import bs4
 import termcolor
 import typer
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
@@ -37,6 +38,22 @@ environment = Environment(
 
 
 HOST_ROOT_PATH = "/host-root/"
+
+
+def unwrap(html: str) -> str:
+    """Uwraps html if it's wrapped in a single tag (e.g. <div>)."""
+    html = html.strip()
+    soup = bs4.BeautifulSoup(html)
+    while len(list(soup.children)) == 1:
+        only_child = list(soup.children)[0]
+
+        if only_child.name:  # type: ignore
+            only_child.unwrap()
+            soup = bs4.BeautifulSoup(soup.renderContents().strip())
+        else:
+            break
+
+    return soup.renderContents().decode("utf-8", "ignore")
 
 
 def _build_message_template_and_print_path(output_dir: Path, silent: bool) -> Template:
@@ -94,6 +111,17 @@ def _build_messages_and_print_path(
         with open(output_messages_directory_name / (top_level_target_shortened + ".html"), "w") as f:
             f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))
 
+    for message in export_data.messages.values():
+        for report in message.reports:
+            message_data = {
+                "contains_type": {report.report_type},
+                "reports": [report],
+                "custom_template_arguments": message.custom_template_arguments,
+            }
+            message_data["custom_template_arguments"]["skip_html_and_body_tags"] = True  # type: ignore
+            message_data["custom_template_arguments"]["skip_header_and_footer_text"] = True  # type: ignore
+            report.html = unwrap(message_template.render({"data": message_data}))
+
     if not silent:
         print()
         print(termcolor.colored(f"Messages written to: {output_messages_directory_name}", attrs=["bold"]))
@@ -131,8 +159,9 @@ def export(
     if not skip_hooks:
         run_export_hooks(output_dir, export_data, silent)
 
-    _dump_export_data_and_print_path(export_data, output_dir, silent)
     message_template = _build_message_template_and_print_path(output_dir, silent)
+    _build_messages_and_print_path(message_template, export_data, output_dir, silent)
+    _dump_export_data_and_print_path(export_data, output_dir, silent)
 
     print_and_save_stats(export_data, output_dir, silent)
 
@@ -148,8 +177,6 @@ def export(
 
         for tag in sorted([key for key in export_db_connector.tag_stats.keys() if key]):
             print(f"\t{tag}: {export_db_connector.tag_stats[tag]}")
-
-    _build_messages_and_print_path(message_template, export_data, output_dir, silent)
 
     if not silent:
         for alert in export_data.alerts:

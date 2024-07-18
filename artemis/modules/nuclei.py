@@ -180,7 +180,7 @@ class Nuclei(ArtemisBase):
                 self.log.debug("Running command: %s", " ".join(command))
                 call_result = check_output_log_on_error(command, self.log, stderr=subprocess.STDOUT)
 
-                call_result_utf8 = data.decode("utf-8", errors="ignore")
+                call_result_utf8 = call_result.decode("utf-8", errors="ignore")
                 call_result_utf8_lines = call_result_utf8.split("\n")
 
                 for line in call_result_utf8_lines:
@@ -189,7 +189,7 @@ class Nuclei(ArtemisBase):
                         self.log.debug("%s", line)
                         lines.append(line)
 
-                if "context deadline exceeded" in data_utf:
+                if "context deadline exceeded" in call_result_utf8:
                     self.log.info("Detected 'context deadline exceeded', retrying with longer timeout")
                     new_milliseconds_per_request_candidates = [
                         item for item in milliseconds_per_request_candidates if item > milliseconds_per_request

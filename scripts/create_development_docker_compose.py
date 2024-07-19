@@ -31,8 +31,10 @@ class WebCommandStrategy(YamlProcessor):
 
 class VolumeDevelopStrategy(YamlProcessor):
     def process(self, data: Any) -> Any:
+        services_to_create_volume = ["web", "karton-sql_injection_detector"]
+
         for service in data["services"]:
-            if service == "web" and "./:/opt" not in data["services"][service]["volumes"]:
+            if service in services_to_create_volume and "./:/opt" not in data["services"][service]["volumes"]:
                 data["services"][service]["volumes"].append("./:/opt")
         return data
 

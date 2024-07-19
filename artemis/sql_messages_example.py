@@ -1,4 +1,4 @@
-SQL_MESSAGES = [
+SQL_ERROR_MESSAGES = [
     "SQL syntax.{0,200}?MySQL",
     "Warning.{0,200}?\\Wmysqli?_",
     "MySQLSyntaxErrorException",
@@ -183,7 +183,7 @@ SQL_MESSAGES = [
     "\\[(Virtuoso Driver|Virtuoso iODBC Driver)\\]\\[Virtuoso Server\\]",
 ]
 
-SQL_INJECTIONS = [
+PAYLOADS = [
     "'",
     '"',
     "'||sleep(1)||'",

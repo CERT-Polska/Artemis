@@ -8,7 +8,7 @@ from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from karton.core import Task
 
 from artemis import http_requests
-from artemis.binds import TaskStatus
+from artemis.binds import TaskStatus, TaskType, Service
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
@@ -25,9 +25,9 @@ class SqlInjectionDetector(ArtemisBase):
     # Module name that will be displayed
     identity = "sql_injection_detector"
 
-    # filters = [
-    #     {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
-    # ]
+    filters = [
+        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+    ]
 
     @staticmethod
     def _strip_query_string(url: str) -> str:
@@ -78,10 +78,10 @@ class SqlInjectionDetector(ArtemisBase):
     @staticmethod
     def measure_time_request(url):
         start = datetime.datetime.now()
-        http_requests.get(url)
+        response = http_requests.get(url)
         elapsed_time = (datetime.datetime.now() - start).seconds
 
-        return elapsed_time
+        return elapsed_time, response
 
     @staticmethod
     def check_response_message(response):
@@ -98,9 +98,7 @@ class SqlInjectionDetector(ArtemisBase):
 
         for url in urls:
             url_to_scan = self.create_url_to_scan(url)
-            elapsed_time = self.measure_time_request(url_to_scan)
-
-            response_with_payload = http_requests.get(url_to_scan)
+            elapsed_time, response_with_payload = self.measure_time_request(url_to_scan)
             response_message = self.check_response_message(response_with_payload)
 
             if response_message:

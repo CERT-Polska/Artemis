@@ -297,6 +297,12 @@ class Config:
                 "when the Github API rate limits are spent).",
             ] = get_config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
+            NUCLEI_SECONDS_PER_REQUEST_ON_RETRY: Annotated[
+                bool,
+                "When retrying due to 'context deadline exceeded', each request will take at least max(2 * SECONDS_PER_REQUEST, "
+                "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY).",
+            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.25, cast=int)
+
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,
                 "A path (inside Docker container) of a file with JSON dictionary of template group assignments: "

@@ -444,6 +444,7 @@ class Config:
                         "http/cves/2024/CVE-2024-1210.yaml",
                         "http/cves/2024/CVE-2024-3097.yaml",
                         "http/cves/2017/CVE-2017-5487.yaml",
+                        "http/cves/2021/CVE-2021-25118.yaml",
                         # Over 50 requests
                         "http/cves/2017/CVE-2017-17562.yaml",
                         "http/cves/2019/CVE-2019-17382.yaml",

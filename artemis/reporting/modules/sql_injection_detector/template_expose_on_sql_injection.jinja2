@@ -1,0 +1,25 @@
+{% if "exposed_database_with_easy_password" in data.contains_type %}
+    <li>{% trans %}The following servers expose a database where simple login/password pair allows login:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_database_with_easy_password" %}
+                    <li>{{ report.target }}: {% trans %}the following credentials allow login{% endtrans %}:
+                        <ul>
+                            {% for credentials in report.additional_data.credentials %}
+                                <li>
+                                    {% trans %}username{% endtrans %} {{ credentials.0 }}
+                                    {% trans %}and{% endtrans %} {% if credentials.1 %}
+                                        {% trans %}password{% endtrans %} {{ credentials.1 }}
+                                    {% else %}
+                                        {% trans %}empty password{% endtrans %}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}

@@ -61,6 +61,9 @@ class Report:
     # The severity (added during report post-processing)
     severity: Optional[Severity] = None
 
+    # HTML render of the report (added during post-processing)
+    html: Optional[str] = None
+
     def __post_init__(self) -> None:
         # Sanity check - at this moment, only URLs and domains are supported
         assert self.target_is_url() or self.target_is_domain()

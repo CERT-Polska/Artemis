@@ -1,3 +1,4 @@
+import json
 import re
 import tempfile
 import time
@@ -104,6 +105,28 @@ class ExportingTestCase(BaseE2ETestCase):
                             "",
                         ]
                     ).encode("ascii"),
+                )
+
+            with export.open("advanced/output.json", "r") as f:
+                output_data = json.loads(f.read().decode("ascii"))
+                self.assertEqual(
+                    output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
+                    "\n".join(
+                        [
+                            "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                            "<li>",
+                            "                        test-smtp-server.artemis:",
+                            "",
+                            "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            "                        ",
+                            "                    </li>",
+                            "</ul>",
+                            "<p>",
+                            "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                            "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                            "        </p>",
+                        ]
+                    ),
                 )
 
     def test_exporting_api(self) -> None:

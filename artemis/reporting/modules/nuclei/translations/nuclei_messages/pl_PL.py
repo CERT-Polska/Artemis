@@ -757,9 +757,11 @@ TRANSLATIONS = {
     "Wordpress Wordfence is vulnerable to cross-site scripting.": "Wykryto wtyczkę WordPress o nazwie Wordfence w wersji zawierającej podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    'WorsPress Spider Calendar plugin through 1.5.65 is susceptible to cross-site scripting. The plugin does not sanitize and escape the callback parameter before outputting it back in the page via the window AJAX action, available to both unauthenticated and authenticated users. An attacker can inject arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.': "Wtyczka WordPress o nazwie Spider Calendar w wersji do 1.5.65 zawiera podatność " + REFLECTED_XSS_DESCRIPTION + WORDPRESS_UPDATE_HINT,
+    "WorsPress Spider Calendar plugin through 1.5.65 is susceptible to cross-site scripting. The plugin does not sanitize and escape the callback parameter before outputting it back in the page via the window AJAX action, available to both unauthenticated and authenticated users. An attacker can inject arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie Spider Calendar w wersji do 1.5.65 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "Froxlor Server Management backup file was detected.": "Wykryto plik kopii zapasowej systemu Froxlor Server Management.",
-    'PrestaShop modules by MyPrestaModules expose PHPInfo': "Wykryto moduł MyPrestaModules do systemu PrestaShop który udostępnia dane o konfiguracji serwera.",
+    "PrestaShop modules by MyPrestaModules expose PHPInfo": "Wykryto moduł MyPrestaModules do systemu PrestaShop który udostępnia dane o konfiguracji serwera.",
     "Behat configuration file was detected.": "wykryto plik konfiguracyjny narzędzia Behat.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

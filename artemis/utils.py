@@ -40,8 +40,8 @@ def check_output_log_on_error(
 
         message = 'Error when running "%s": output="%s" error="%s" original message="%s"' % (
             command_str_shortened,
-            e.stdout.decode("ascii", errors="ignore") if e.stdout else '',
-            e.stderr.decode("ascii", errors="ignore") if e.stderr else '',
+            e.stdout.decode("ascii", errors="ignore") if e.stdout else "",
+            e.stderr.decode("ascii", errors="ignore") if e.stderr else "",
             repr(e),
         )
         logger.error(message)

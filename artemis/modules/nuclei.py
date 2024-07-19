@@ -128,7 +128,12 @@ class Nuclei(ArtemisBase):
 
         milliseconds_per_request_candidates = [
             milliseconds_per_request_initial,
-            int(max(1000 * Config.Modules.Nuclei.NUCLEI_SECONDS_PER_REQUEST_ON_RETRY, milliseconds_per_request_initial * 2)),
+            int(
+                max(
+                    1000 * Config.Modules.Nuclei.NUCLEI_SECONDS_PER_REQUEST_ON_RETRY,
+                    milliseconds_per_request_initial * 2,
+                )
+            ),
         ]
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:

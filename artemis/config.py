@@ -533,6 +533,8 @@ class Config:
                         "custom:xss-inside-tag-top-params",
                         "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
+                        # This catches other Open Redirects as well
+                        "http/cves/2018/CVE-2018-11784.yaml",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
                         # gets fixed, these templates return a FP on phpinfo(). Let's not spam
                         # our recipients with FPs.

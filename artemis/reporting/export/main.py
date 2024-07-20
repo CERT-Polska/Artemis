@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 import datetime
 import json
@@ -116,7 +117,7 @@ def _build_messages_and_print_path(
             message_data = {
                 "contains_type": {report.report_type},
                 "reports": [report],
-                "custom_template_arguments": message.custom_template_arguments,
+                "custom_template_arguments": copy.deepcopy(message.custom_template_arguments),
             }
             message_data["custom_template_arguments"]["skip_html_and_body_tags"] = True  # type: ignore
             message_data["custom_template_arguments"]["skip_header_and_footer_text"] = True  # type: ignore

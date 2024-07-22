@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, List
 
 import yaml
 
@@ -30,8 +30,15 @@ class WebCommandStrategy(YamlProcessor):
 
 
 class VolumeDevelopStrategy(YamlProcessor):
+    @staticmethod
+    def create_karton_service_list(data) -> List[str]:
+        services = data.get('services', {})
+        karton_services = [name for name in services if name.startswith('karton')]
+
+        return karton_services
+
     def process(self, data: Any) -> Any:
-        services_to_create_volume = ["web", "karton-sql_injection_detector"]
+        services_to_create_volume = self.create_karton_service_list(data)
 
         for service in data["services"]:
             if service in services_to_create_volume and "./:/opt" not in data["services"][service]["volumes"]:

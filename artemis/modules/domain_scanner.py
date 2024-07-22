@@ -21,7 +21,6 @@ class DomainScanner(ArtemisBase):
             ns_records = lookup(domain, "NS")
             if ns_records:
                 return True
-            
             # If no NS records, check for A records
             a_records = lookup(domain, "A")
             return len(a_records) > 0
@@ -53,15 +52,16 @@ class DomainScanner(ArtemisBase):
 
         # Create a new task for existing domains
         if existing_domains:
-            self.add_task(Task(
-                headers={
-                    "type": TaskType.DOMAIN.value,
-                },
-                payload={
-                    TaskType.DOMAIN.value: existing_domains
-                }
-            ))
-
+            self.add_task(
+            new_task=Task(
+                    headers={
+                        "type": TaskType.DOMAIN.value,
+                    },
+                    payload={
+                        TaskType.DOMAIN.value: existing_domains
+                    }
+                )
+            )
         # Log or handle non-existing domains
         if non_existing_domains:
             self.log.info(f"The following domains do not exist and will not be scanned: {non_existing_domains}")

@@ -31,9 +31,9 @@ class WebCommandStrategy(YamlProcessor):
 
 class VolumeDevelopStrategy(YamlProcessor):
     @staticmethod
-    def create_karton_service_list(data) -> List[str]:
-        services = data.get('services', {})
-        karton_services = [name for name in services if name.startswith('karton')]
+    def create_karton_service_list(data: Any) -> List[str]:
+        services = data.get("services", {})
+        karton_services = [name for name in services if name.startswith("karton")]
 
         return karton_services
 

@@ -611,6 +611,12 @@ class Config:
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
             ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=30, cast=int)
 
+        class SqlInjectionDetector:
+            SQL_INJECTION_DETECTOR_MAX_BATCH_SIZE: Annotated[
+                int,
+                "How many sites to scan at once. This is the maximum batch size",
+            ] = get_config("SQL_INJECTION_DETECTOR_MAX_BATCH_SIZE", default=10, cast=int)
+
     @staticmethod
     def verify_each_variable_is_annotated() -> None:
         def verify_class(cls: type) -> None:

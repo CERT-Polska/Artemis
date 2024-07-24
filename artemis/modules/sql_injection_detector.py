@@ -2,6 +2,7 @@ import datetime
 import random
 import re
 import urllib
+from timeit import default_timer as timer
 from typing import Dict, List, Optional
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -9,6 +10,7 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.karton_utils import check_connection_to_base_url_and_save_error
@@ -29,6 +31,8 @@ class SqlInjectionDetector(ArtemisBase):
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
+    batch_tasks = True
+    task_max_batch_size = Config.Modules.SqlInjectionDetector.SQL_INJECTION_DETECTOR_MAX_BATCH_SIZE
 
     @staticmethod
     def _strip_query_string(url: str) -> str:
@@ -40,7 +44,6 @@ class SqlInjectionDetector(ArtemisBase):
         selected_params = random.sample(URL_PARAMS, 30)
         assignments = {key: sleep_payload if sleep_payload else random.choice(PAYLOADS) for key in selected_params}
         url_with_payload = f"{url}?" + "&".join([f"{key}={value}" for key, value in assignments.items()])
-
         return url_with_payload
 
     @staticmethod
@@ -70,7 +73,6 @@ class SqlInjectionDetector(ArtemisBase):
                 parsed_url.fragment,
             )
         )
-
         return new_url
 
     def create_url_to_scan(self, url: str, sleep_payload: Optional[str] = None) -> str:
@@ -81,12 +83,13 @@ class SqlInjectionDetector(ArtemisBase):
 
     def response_lt_1(self, url: str, sleep_payload: Optional[str] = None) -> bool:
         if_elapsed_time_gt_1 = []
-        for i in range(3):
-            start = datetime.datetime.now()
-            self.response_when_injecting(self.create_url_to_scan(url=url, sleep_payload=sleep_payload))
-            elapsed_time = (datetime.datetime.now() - start).seconds
+        url_to_scan = self.create_url_to_scan(url=url, sleep_payload=sleep_payload)
 
-            if_elapsed_time_gt_1.append(True) if elapsed_time < 1 else if_elapsed_time_gt_1.append(False)
+        for i in range(10):
+            start = timer()
+            self.response_when_injecting(url_to_scan)
+            elapsed_time = datetime.timedelta(seconds=timer() - start).seconds
+            if_elapsed_time_gt_1.append(True) if elapsed_time < 5 else if_elapsed_time_gt_1.append(False)
 
         return True if all(if_elapsed_time_gt_1) else False
 
@@ -116,11 +119,10 @@ class SqlInjectionDetector(ArtemisBase):
             if not self.contains_error(self.response_when_injecting(url_without_payload)) and self.contains_error(
                 self.response_when_injecting(url_with_payload)
             ):
-                print("is instance list? ", isinstance(task_result["message"], list))
                 message.append(f"{url_without_payload}: It appears that this url is vulnerable to SQL Injection")
 
             if self.response_lt_1(url_without_payload) and not self.response_lt_1(
-                url_without_payload, sleep_payload="'||pg_sleep(1)'||"
+                url_without_payload, sleep_payload=random.choice(["'||pg_sleep(5)||'", "'||sleep(5)||'"])
             ):
                 message.append(
                     f"{url_without_payload}: It appears that this url is vulnerable to SQL Time Base Injection"
@@ -133,12 +135,12 @@ class SqlInjectionDetector(ArtemisBase):
         return task_result
 
     def run_multiple(self, tasks: List[Task]) -> None:
+
         tasks = [task for task in tasks if check_connection_to_base_url_and_save_error(self.db, task)]
         self.log.info(f"running on {len(tasks)} hosts.")
-
         links = []
-
         links_per_task = {}
+
         for task in tasks:
             url = get_target_url(task)
             links = get_links_and_resources_on_same_domain(url)
@@ -148,8 +150,16 @@ class SqlInjectionDetector(ArtemisBase):
 
         for task in tasks:
             result = self.scan(urls=links_per_task[task.uid], task=task)
-            message = str(result["message"])
-            self.db.save_task_result(task=task, status=TaskStatus.INTERESTING, status_reason=message, data=links)
+            message = result["message"]
+
+            if message:
+                status = TaskStatus.INTERESTING
+                status_reason = str(message)
+            else:
+                status = TaskStatus.OK
+                status_reason = None
+
+            self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=links)
 
 
 if __name__ == "__main__":

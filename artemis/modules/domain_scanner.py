@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 from karton.core import Task
-from artemis.resolvers import lookup, ResolutionException
+
 from artemis.binds import TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
+from artemis.resolvers import ResolutionException, lookup
+
 
 class DomainScanner(ArtemisBase):
     """
@@ -44,27 +46,23 @@ class DomainScanner(ArtemisBase):
         self.db.save_task_result(
             task=current_task,
             status=TaskStatus.OK,
-            data={
-                "existing_domains": existing_domains,
-                "non_existing_domains": non_existing_domains
-            }
+            data={"existing_domains": existing_domains, "non_existing_domains": non_existing_domains},
         )
 
         # Create a new task for existing domains
         if existing_domains:
             self.add_task(
-            new_task=Task(
+                new_task=Task(
                     headers={
                         "type": TaskType.DOMAIN.value,
                     },
-                    payload={
-                        TaskType.DOMAIN.value: existing_domains
-                    }
+                    payload={TaskType.DOMAIN.value: existing_domains},
                 )
             )
         # Log or handle non-existing domains
         if non_existing_domains:
             self.log.info(f"The following domains do not exist and will not be scanned: {non_existing_domains}")
+
 
 if __name__ == "__main__":
     DomainScanner().loop()

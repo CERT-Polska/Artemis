@@ -48,18 +48,15 @@ class DomainScanner(ArtemisBase):
             status=TaskStatus.OK,
             data={"existing_domains": existing_domains, "non_existing_domains": non_existing_domains},
         )
-
-        # Create a new task for existing domains
+        # Create a new task only for existing domains
         if existing_domains:
-            self.add_task(
-                new_task=Task(
-                    headers={
-                        "type": TaskType.DOMAIN.value,
-                    },
-                    payload={TaskType.DOMAIN.value: existing_domains},
-                )
+            task = Task(
+                {"type": TaskType.DOMAIN.value},
+                payload={"domains": existing_domains},
             )
-        # Log or handle non-existing domains
+            self.add_task(current_task, task)
+
+        # Log non-existing domains
         if non_existing_domains:
             self.log.info(f"The following domains do not exist and will not be scanned: {non_existing_domains}")
 

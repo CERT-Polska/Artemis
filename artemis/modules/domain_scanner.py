@@ -5,6 +5,7 @@ from artemis.binds import TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ResolutionException, lookup
 
+
 class DomainScanner(ArtemisBase):
     """
     DNS checker to verify if domains exist in the DNS system.
@@ -58,6 +59,7 @@ class DomainScanner(ArtemisBase):
         # Log non-existing domains
         if non_existing_domains:
             self.log.info(f"The following domains do not exist and will not be scanned: {non_existing_domains}")
+
 
 if __name__ == "__main__":
     DomainScanner().loop()

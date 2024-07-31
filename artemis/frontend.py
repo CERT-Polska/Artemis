@@ -153,25 +153,37 @@ async def post_add(
         targets = targets.strip()
         total_list += (x.strip() for x in targets.split("\n"))
 
+    validation_messages = []
     for task in total_list:
         if not Classifier.is_supported(task):
-            binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
-
-            return csrf.csrf_form_template_response(
-                "add.jinja2",
-                {
-                    "validation_message": f"{task} is not supported - Artemis supports domains, IPs or IP ranges. Domains and IPs may also optionally be followed by port number.",
-                    "request": request,
-                    "binds": binds,
-                    "priority": priority,
-                    "priorities": list(TaskPriority),
-                    "tasks": total_list,
-                    "tag": tag or "",
-                    "disabled_modules": disabled_modules,
-                    "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
-                },
-                csrf_protect,
+            validation_messages.append(
+                f"{task} is not supported - Artemis supports domains, IPs or IP ranges. Domains and IPs may also optionally be followed by port number."
             )
+
+    if "port_scanner" in disabled_modules:
+        for bind in get_binds_that_can_be_disabled():
+            if bind.identity not in disabled_modules:
+                for item in bind.filters:
+                    if "type" in item and item["type"] == "service":
+                        validation_messages.append(f"Module {bind.identity} requires port_scanner to be enabled")
+
+    if validation_messages:
+        binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
+        return csrf.csrf_form_template_response(
+            "add.jinja2",
+            {
+                "validation_message": ", ".join(validation_messages),
+                "request": request,
+                "binds": binds,
+                "priority": priority,
+                "priorities": list(TaskPriority),
+                "tasks": total_list,
+                "tag": tag or "",
+                "disabled_modules": disabled_modules,
+                "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
+            },
+            csrf_protect,
+        )
 
     create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:

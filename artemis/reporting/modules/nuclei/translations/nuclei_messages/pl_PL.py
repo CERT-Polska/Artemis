@@ -910,6 +910,8 @@ TRANSLATIONS = {
     "Adobe ColdFusion Server 8.0.1 and earlier contain multiple cross-site scripting vulnerabilities which allow remote attackers to inject arbitrary web script or HTML via (1) the startRow parameter to administrator/logviewer/searchlog.cfm, or the query string to (2) wizards/common/_logintowizard.cfm, (3) wizards/common/_authenticatewizarduser.cfm, or (4) administrator/enter.cfm.": "Adobe ColdFusion Sever w wersji 8.0.1 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    'Netdata is exposed.': "Wykryto publiczne dostępne metryki systemu Netdata." + DATA_HIDE_HINT,
+    'A cross-site scripting vulnerability in edit-post.php in the Flexible Custom Post Type plugin before 0.1.7 for WordPress allows remote attackers to inject arbitrary web script or HTML via the id parameter.': "Wtyczka WordPress o nazwie Flexible Custom Post Type w wersji poniżej 0.1.7 zawiera podatność " + REFLECTED_XSS_DESCRIPTION + WORDPRESS_UPDATE_HINT,
     "Ruby Secret token is exposed.": "Wykryto plik konfiguracyjny secret_token.rb." + DATA_HIDE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",

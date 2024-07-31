@@ -897,6 +897,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Jira Server and Data Center is susceptible to information disclosure. An attacker can enumerate users via the QueryComponentRendererValue!Default.jspa endpoint and thus potentially access sensitive information, modify data, and/or execute unauthorized operations, Affected versions are before version 8.5.13, from version 8.6.0 before 8.13.5, and from version 8.14.0 before 8.15.1.": "Jira Server and Data Center w wersji 8.5.13 i wcześniejszych, pomiędzy 8.6.0 i 8.13.5 i pomiędzy 8.14.0 i 8.15.1 zawiera podatność umożliwiającą pobranie informacji o użytkownikach."
     + UPDATE_HINT,
+    'A flaw was found in keycloak in versions prior to 13.0.0. The client registration endpoint allows fetching information about PUBLIC clients (like client secret) without authentication which could be an issue if the same PUBLIC client changed to CONFIDENTIAL later. The highest threat from this vulnerability is to data confidentiality.': "Narzędzie keycloak w wersji poniżej 13.0.0 zawiera podatność umożliwiającą atakujacemu nieuprawniony odczyt niektórych informacji o klientach.",
     "Behat configuration file was detected.": "wykryto plik konfiguracyjny narzędzia Behat.",
     'Azure Resource Manager deploy file is disclosed.': "Wykryto plik konfiguracyjny narzędzia Azure Resource Manager." + DATA_HIDE_HINT,
     "Ruby Secret token is exposed.": "Wykryto plik konfiguracyjny secret_token.rb." + DATA_HIDE_HINT,

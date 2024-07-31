@@ -503,6 +503,7 @@ class Config:
                         "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mixed-active-content.yaml",
+                        "http/misconfiguration/no-host-directory-listing.yaml",
                         "http/misconfiguration/mysql-history.yaml",
                         "http/misconfiguration/elasticsearch.yaml",
                         "http/misconfiguration/proxy/open-proxy-external.yaml",

@@ -881,6 +881,9 @@ TRANSLATIONS = {
     "The Virtual Keyboard plugin for SquirrelMail 1.2.6/1.2.7 is prone to a cross-site scripting vulnerability because it fails to properly sanitize user-supplied input.": "Wtyczka systemu SquirrelMail o nazwie Virtual Keyboard w wersji 1.2.6/1.2.7 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Cross-site scripting vulnerability in Telerik.ReportViewer.WebForms.dll in Telerik Reporting for ASP.NET WebForms Report Viewer control before R1 2017 SP2 (11.0.17.406) allows remote attackers to inject arbitrary web script or HTML via the bgColor parameter to Telerik.ReportViewer.axd.": "Moduł Telerik.ReportViewer.WebForms.dll w narzędziu Telerik Reporting for ASP.NET WebForms Report Viewer control w wersji poniżej R1 2017 SP2 (11.0.17.406) zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
     "Multiple cross-site scripting (XSS) vulnerabilities in SquirrelMail 1.4.2 allow remote attackers to execute arbitrary script and possibly steal authentication information via multiple attack vectors, including the mailbox parameter in compose.php.": "System SquirrelMail w wersji 1.4.2 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -897,6 +900,12 @@ TRANSLATIONS = {
     "Cisco Adaptive Security Appliance (ASA) Software and Cisco Firepower Threat Defense (FTD) Software are vulnerable to cross-site scripting and could allow an unauthenticated, remote attacker to conduct attacks against a user of the web services interface of an affected device. The vulnerabilities are due to insufficient validation of user-supplied input by the web services interface of an affected device. An attacker could exploit these vulnerabilities by persuading a user of the interface to click a crafted link. A successful exploit could allow the attacker to execute arbitrary script code in the context of the interface or allow the attacker to access sensitive, browser-based information. Note: These vulnerabilities affect only specific AnyConnect and WebVPN configurations. For more information, see the reference links.": "Wykryto oprogramowanie Cisco Adaptive Security Appliance (ASA) lub Cisco Firepower Threat Defense (FTD) zawierające podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Multiple cross-site scripting vulnerabilities in ManageEngine Firewall Analyzer 7.2 allow remote attackers to inject arbitrary web script or HTML via the (1) subTab or (2) tab parameter to createAnomaly.do; (3) url, (4) subTab, or (5) tab parameter to mindex.do; (6) tab parameter to index2.do; or (7) port parameter to syslogViewer.do.": "ManageEngine Firewall Analyzer w wersji 7.2 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "AWStats is prone to multiple cross-site scripting vulnerabilities because the application fails to properly sanitize user-supplied input.": "Wykryto system AWStats w wersji zawierającej podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
     "Jira Server and Data Center is susceptible to information disclosure. An attacker can enumerate users via the QueryComponentRendererValue!Default.jspa endpoint and thus potentially access sensitive information, modify data, and/or execute unauthorized operations, Affected versions are before version 8.5.13, from version 8.6.0 before 8.13.5, and from version 8.14.0 before 8.15.1.": "Jira Server and Data Center w wersji 8.5.13 i wcześniejszych, pomiędzy 8.6.0 i 8.13.5 i pomiędzy 8.14.0 i 8.15.1 zawiera podatność umożliwiającą pobranie informacji o użytkownikach."
     + UPDATE_HINT,
     "A flaw was found in keycloak in versions prior to 13.0.0. The client registration endpoint allows fetching information about PUBLIC clients (like client secret) without authentication which could be an issue if the same PUBLIC client changed to CONFIDENTIAL later. The highest threat from this vulnerability is to data confidentiality.": "Narzędzie keycloak w wersji poniżej 13.0.0 zawiera podatność umożliwiającą atakujacemu nieuprawniony odczyt niektórych informacji o klientach.",
@@ -910,11 +919,25 @@ TRANSLATIONS = {
     "Adobe ColdFusion Server 8.0.1 and earlier contain multiple cross-site scripting vulnerabilities which allow remote attackers to inject arbitrary web script or HTML via (1) the startRow parameter to administrator/logviewer/searchlog.cfm, or the query string to (2) wizards/common/_logintowizard.cfm, (3) wizards/common/_authenticatewizarduser.cfm, or (4) administrator/enter.cfm.": "Adobe ColdFusion Sever w wersji 8.0.1 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    'Netdata is exposed.': "Wykryto publiczne dostępne metryki systemu Netdata." + DATA_HIDE_HINT,
-    'A cross-site scripting vulnerability in edit-post.php in the Flexible Custom Post Type plugin before 0.1.7 for WordPress allows remote attackers to inject arbitrary web script or HTML via the id parameter.': "Wtyczka WordPress o nazwie Flexible Custom Post Type w wersji poniżej 0.1.7 zawiera podatność " + REFLECTED_XSS_DESCRIPTION + WORDPRESS_UPDATE_HINT,
+    "Netdata is exposed.": "Wykryto publiczne dostępne metryki systemu Netdata." + DATA_HIDE_HINT,
+    "A cross-site scripting vulnerability in edit-post.php in the Flexible Custom Post Type plugin before 0.1.7 for WordPress allows remote attackers to inject arbitrary web script or HTML via the id parameter.": "Wtyczka WordPress o nazwie Flexible Custom Post Type w wersji poniżej 0.1.7 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes. The vulnerability allows unauthorized access to the sensitive settings exposed by /api/v1/settings endpoint without authentication. All sensitive settings are hidden except passwordPattern.": "Wykryto system Argo CD zawierający podatność umożliwiającą nieuprawniony odczyt ustawień."
+    + UPDATE_HINT,
+    "SteVe contains a cross-site scripting vulnerability. An attacker can inject arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto system SteVe w wersji zawierającej podatność "
+    + REFLECTED_XSS_DESCRIPTION,
+    "AppCMS 2.0.101 has a cross-site scripting vulnerability in \\templates\\m\\inc_head.php.": "AppCMS w wersji 2.0.101 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION,
+    "A cross-site scripting vulnerability in the integrated web server on Siemens SIMATIC S7-1200 CPU devices 2.x and 3.x allows remote attackers to inject arbitrary web script or HTML via unspecified vectors.": "Zintegrowany serwer WWW urządzeń Siemens SIMATIC S7-1200 CPU 2.x i 3.x zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION,
+    "The Podcast Channels WordPress plugin was affected by an unauthenticated reflected cross-site scripting security vulnerability.": "Wykryto wtyczkę WordPress o nazwie Podcast Channels w wersji zawierającej podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "Ruby Secret token is exposed.": "Wykryto plik konfiguracyjny secret_token.rb." + DATA_HIDE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
+    "OutSystems Service Center login panel was detected.": "Wykryto panel logowania OutSystems Service Center.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",
     "An Adminer login panel was detected.": "wykryto panel logowania narzędzia Adminer.",
     "Webalizer panel was detected.": "wykryto panel narzędzia Webalizer.",

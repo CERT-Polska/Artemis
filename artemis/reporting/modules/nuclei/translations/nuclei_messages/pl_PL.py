@@ -879,7 +879,27 @@ TRANSLATIONS = {
     "The Virtual Keyboard plugin for SquirrelMail 1.2.6/1.2.7 is prone to a cross-site scripting vulnerability because it fails to properly sanitize user-supplied input.": "Wtyczka systemu SquirrelMail o nazwie Virtual Keyboard w wersji 1.2.6/1.2.7 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Multiple cross-site scripting (XSS) vulnerabilities in SquirrelMail 1.4.2 allow remote attackers to execute arbitrary script and possibly steal authentication information via multiple attack vectors, including the mailbox parameter in compose.php.": "System SquirrelMail w wersji 1.4.2 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Odoo is a business suite that has features for many business-critical areas, such as e-commerce, billing, or CRM. Versions before the 16.0 release are vulnerable to CVE-2023-1434 and is caused by an incorrect content type being set on an API endpoint.": "System Odoo w wersji poniżej 16.0 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Cofax 2.0 RC3 and earlier contains a cross-site scripting vulnerability in search.htm which allows remote attackers to inject arbitrary web script or HTML via the searchstring parameter.": "Cofax 2.0 RC3 i potencjalnie poprzednie wersje zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Cisco Adaptive Security Appliance (ASA) Software and Cisco Firepower Threat Defense (FTD) Software are susceptible to directory traversal vulnerabilities that could allow an unauthenticated, remote attacker to obtain read and delete access to sensitive files on a targeted system.": "Wykryto oprogramowanie Cisco Adaptive Security Appliance (ASA) lub Cisco Firepower Threat Defense (FTD) zawierające podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "AppCMS 2.0.101 has a cross-site scripting vulnerability in \\templates\\m\\inc_head.php.": "AppCMS w wersji 2.0.101 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Jira Server and Data Center is susceptible to information disclosure. An attacker can enumerate users via the QueryComponentRendererValue!Default.jspa endpoint and thus potentially access sensitive information, modify data, and/or execute unauthorized operations, Affected versions are before version 8.5.13, from version 8.6.0 before 8.13.5, and from version 8.14.0 before 8.15.1.": "Jira Server and Data Center w wersji 8.5.13 i wcześniejszych, pomiędzy 8.6.0 i 8.13.5 i pomiędzy 8.14.0 i 8.15.1 zawiera podatność umożliwiającą pobranie informacji o użytkownikach."
+    + UPDATE_HINT,
     "Behat configuration file was detected.": "wykryto plik konfiguracyjny narzędzia Behat.",
+    'Azure Resource Manager deploy file is disclosed.': "Wykryto plik konfiguracyjny narzędzia Azure Resource Manager." + DATA_HIDE_HINT,
+    "Ruby Secret token is exposed.": "Wykryto plik konfiguracyjny secret_token.rb." + DATA_HIDE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",

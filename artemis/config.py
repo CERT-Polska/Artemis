@@ -404,6 +404,7 @@ class Config:
                         # Too small impact to report
                         "http/exposed-panels/webeditors-check-detect.yaml",
                         # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        "http/exposed-panels/bitrix-panel.yaml",
                         "http/exposed-panels/dynamicweb-panel.yaml",
                         "http/exposed-panels/jira-detect.yaml",
                         "http/exposed-panels/kanboard-login.yaml",

@@ -10,6 +10,7 @@ from typing import Any, Dict, List
 import more_itertools
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
@@ -22,6 +23,7 @@ EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class Nuclei(ArtemisBase):
     """
     Runs Nuclei templates on URLs.

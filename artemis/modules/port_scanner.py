@@ -7,6 +7,7 @@ from typing import Any, Dict, Set
 
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -86,6 +87,7 @@ NOT_INTERESTING_PORTS = [
 ]
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class PortScanner(ArtemisBase):
     """
     Consumes `type: IP` or `type: DOMAIN`, scans them with naabu and fingerprintx and produces

@@ -1,14 +1,15 @@
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class Example(ArtemisBase):
     """
     An example Artemis module that shows how to implement one.
-
     Look into artemis/reporting/modules/example/ to know how to add findings
     from this module to the HTML reports.
     """

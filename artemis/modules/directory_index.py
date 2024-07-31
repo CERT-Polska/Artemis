@@ -8,7 +8,7 @@ from typing import List
 from bs4 import BeautifulSoup
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.models import FoundURL
@@ -21,6 +21,7 @@ MAX_TESTS_PER_URL = 20
 S3_BASE_DOMAIN = "s3.amazonaws.com"
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class DirectoryIndex(ArtemisBase):
     """
     Detects directory index enabled on the server by checking paths mentioned in the home page source (e.g. with <link href="/styles/..." ...>).

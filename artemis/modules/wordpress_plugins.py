@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 import requests
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
@@ -210,6 +210,7 @@ class WordpressPluginsScanningException(Exception):
     pass
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class WordpressPlugins(ArtemisBase):
     """
     Checks whether WordPress plugins are up-to-date.

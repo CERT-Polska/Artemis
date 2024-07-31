@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class IPLookup(ArtemisBase):
     """
     Collects `type: domain`, performs IP lookup and produces `type: NEW`.

@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
@@ -20,6 +20,7 @@ WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
 ]
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class WebappIdentifier(ArtemisBase):
     """
     Tries to identify the web application and produces a WEBAPP task with proper type (e.g. WebApplication.WORDPRESS).

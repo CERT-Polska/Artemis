@@ -3,7 +3,7 @@ from typing import Optional
 import bs4
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.modules.base.base_newer_version_comparer import (
     BaseNewerVersionComparerModule,
@@ -14,6 +14,7 @@ class DrupalScannerException(Exception):
     pass
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class DrupalScanner(BaseNewerVersionComparerModule):
     """
     Drupal scanner - checks whether the version is obsolete.

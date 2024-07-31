@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -73,6 +74,7 @@ def process_json_data(result: Dict[str, Any]) -> List[Message]:
     return list(messages.values())
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class Humble(ArtemisBase):
     """
     Runs humble -> A HTTP Headers Analyzer

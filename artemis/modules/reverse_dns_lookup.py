@@ -4,12 +4,14 @@ from typing import List
 
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class ReverseDNSLookup(ArtemisBase):
     """
     Collects `type: IP`, performs reverse DNS lookup and produces `type: NEW` tasks.

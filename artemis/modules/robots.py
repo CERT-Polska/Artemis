@@ -5,7 +5,7 @@ from typing import List, Optional, Pattern
 
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.models import FoundURL
@@ -34,6 +34,7 @@ class RobotsResult:
     found_urls: List[FoundURL]
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class RobotsScanner(ArtemisBase):
     """
     Looks for robots.txt file, emits a URL task for each found path and checks whether the paths have a directory index enabled.

@@ -8,7 +8,7 @@ from typing import IO, List, Set
 
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.karton_utils import check_connection_to_base_url_and_save_error
@@ -55,6 +55,7 @@ class BruterResult:
     checked_paths: List[str]
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class Bruter(ArtemisBase):
     """
     Brute-forces common paths such as /index.php.bak. Tries commonly found paths on each target and experiments with random other paths

@@ -9,6 +9,7 @@ from typing import List, Optional, Tuple
 from karton.core import Task
 from pydantic import BaseModel
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -35,6 +36,7 @@ class FTPBruterResult(BaseModel):
     is_writable: bool = False
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class FTPBruter(ArtemisBase):
     """
     Performs a brute force attack on FTP servers to guess login and password.

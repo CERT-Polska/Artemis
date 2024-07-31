@@ -7,6 +7,7 @@ import shodan  # type: ignore
 from karton.core import Task
 from pydantic import BaseModel
 
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -17,6 +18,7 @@ class ShodanVulnsResult(BaseModel):
     vulns: List[str] = []
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class ShodanVulns(ArtemisBase):
     """
     Lists vulnerabilities from Shodan.

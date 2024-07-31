@@ -7,6 +7,7 @@ import paramiko
 from karton.core import Task
 from pydantic import BaseModel
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -30,6 +31,7 @@ class SSHBruterResult(BaseModel):
     credentials: List[Tuple[str, str]] = []
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class SSHBruter(ArtemisBase):
     """
     Performs a brute force attack on SSH.

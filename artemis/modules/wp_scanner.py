@@ -6,13 +6,14 @@ from typing import Any, Dict, List, Union
 import pytz
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.fallback_api_cache import FallbackAPICache
 from artemis.module_base import ArtemisBase
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class WordPressScanner(ArtemisBase):
     """
     WordPress scanner - checks e.g. whether the verson is secure or whether registration is enabled.

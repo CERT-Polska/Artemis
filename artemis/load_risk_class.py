@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Callable, Any
+from typing import Any, Callable
 
 
 class LoadRiskClass(str, Enum):
@@ -15,4 +15,5 @@ def load_risk_class(c: LoadRiskClass) -> Callable[[Any], Any]:
         else:
             decorated_class.__doc__ = c.value
         return decorated_class
+
     return decorator

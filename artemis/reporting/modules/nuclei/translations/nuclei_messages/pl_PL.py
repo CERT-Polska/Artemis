@@ -783,9 +783,6 @@ TRANSLATIONS = {
     "In JetBrains TeamCity before 2023.11.4 path traversal allowing to perform limited admin actions was possible": "JetBrains TeamCity w wersji poniżej 2023.11.4 zawiera podatność Path Traversal umożliwiającą nieuprawnione wykonanie części akcji administracyjnych."
     + UPDATE_HINT,
     "Log file was exposed.": "Wykryto plik logów serwera HTTP." + DATA_HIDE_HINT,
-    'Revive Adserver 5.0.3 and prior contains a reflected cross-site scripting vulnerability in the publicly accessible afr.php delivery script. In older versions, it is possible to steal the session identifier and gain access to the admin interface. The query string sent to the www/delivery/afr.php script is printed back without proper escaping, allowing an attacker to execute arbitrary JavaScript code on the browser of the victim.':"Revive Adserver w wersji 5.0.3 i wcześniejszych zawiera podatność "
-    + REFLECTED_XSS_DESCRIPTION
-    + UPDATE_HINT,
     "Revive Adserver 5.0.3 and prior contains a reflected cross-site scripting vulnerability in the publicly accessible afr.php delivery script. In older versions, it is possible to steal the session identifier and gain access to the admin interface. The query string sent to the www/delivery/afr.php script is printed back without proper escaping, allowing an attacker to execute arbitrary JavaScript code on the browser of the victim.": "Revive Adserver w wersji 5.0.3 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -838,7 +835,7 @@ TRANSLATIONS = {
     "Apache OFBiz 16.11.01 to 16.11.07 is vulnerable to cross-site scripting because data sent with contentId to /control/stream is not sanitized.": "Apache OFBiz w wersji 16.11.01 do 16.11.07 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    'Aruba Airwave before version 8.2.3.1 is vulnerable to reflected cross-site scripting.': "Aruba Ariwave w wersji poniżej 8.2.3.2 zawiera podatność "
+    "Aruba Airwave before version 8.2.3.1 is vulnerable to reflected cross-site scripting.": "Aruba Ariwave w wersji poniżej 8.2.3.2 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "MindPalette NateMail 3.0.15 is susceptible to reflected cross-site scripting which could allows an attacker to execute remote JavaScript in a victim's browser via a specially crafted POST request. The application will reflect the recipient value if it is not in the NateMail recipient array. Note that this array is keyed via integers by default, so any string input will be invalid.": "MindPalette NateMail w wersji 3.0.15 i potencjalnie wcześniejszych zawiera podatność "
@@ -874,8 +871,12 @@ TRANSLATIONS = {
     "A cross-site scripting vulnerability in application/controllers/dropbox.php in JustWriting 1.0.0 and below allow remote attackers to inject arbitrary web script or HTML via the challenge parameter.": "JustWriting w wersji 1.0.0 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    'WordPress XML Sitemap Generator for Google plugin before 2.0.4 contains a cross-site scripting vulnerability that can lead to remote code execution. It does not validate a parameter which can be set to an arbitrary value, thus causing cross-site scripting via error message or remote code execution if allow_url_include is turned on.': "Wtyczka WordPress o nazwie XML Sitemap Generator for Google w wersji poniżej 2.0.4 zawiera podatność " + REFLECTED_XSS_DESCRIPTION + " W niektórych konfiguracjach zawiera również podatność umożliwiającą zdalne wykonanie kodu. " + RCE_EFFECT_DESCRIPTION + WORDPRESS_UPDATE_HINT,
-    'The Virtual Keyboard plugin for SquirrelMail 1.2.6/1.2.7 is prone to a cross-site scripting vulnerability because it fails to properly sanitize user-supplied input.': "Wtyczka systemu SquirrelMail o nazwie Virtual Keyboard w wersji 1.2.6/1.2.7 zawiera podatność '
+    "WordPress XML Sitemap Generator for Google plugin before 2.0.4 contains a cross-site scripting vulnerability that can lead to remote code execution. It does not validate a parameter which can be set to an arbitrary value, thus causing cross-site scripting via error message or remote code execution if allow_url_include is turned on.": "Wtyczka WordPress o nazwie XML Sitemap Generator for Google w wersji poniżej 2.0.4 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + " W niektórych konfiguracjach zawiera również podatność umożliwiającą zdalne wykonanie kodu. "
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "The Virtual Keyboard plugin for SquirrelMail 1.2.6/1.2.7 is prone to a cross-site scripting vulnerability because it fails to properly sanitize user-supplied input.": "Wtyczka systemu SquirrelMail o nazwie Virtual Keyboard w wersji 1.2.6/1.2.7 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Behat configuration file was detected.": "wykryto plik konfiguracyjny narzędzia Behat.",
@@ -1105,5 +1106,5 @@ TRANSLATIONS = {
     "http/exposed-panels/woodwing-panel.yaml": "wykryto panel Woodwing Studio Server.",
     "Transmission dashboard was detected.": "wykryto panel systemu Transmission.",
     "AppVeyor configuration page was detected.": "wykryto stronę konfiguracyjną systemu AppVeyor.",
-    'An Apache Tomcat instance was detected.': "Wykryto panel Apache Tomcat.",
+    "An Apache Tomcat instance was detected.": "Wykryto panel Apache Tomcat.",
 }

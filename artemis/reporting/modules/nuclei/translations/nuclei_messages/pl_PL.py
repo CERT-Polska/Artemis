@@ -901,14 +901,14 @@ TRANSLATIONS = {
     "Knowage Suite 7.3 contains an unauthenticated reflected cross-site scripting vulnerability. An attacker can inject arbitrary web script in '/servlet/AdapterHTTP' via the 'targetService' parameter.": "Knowage Suite w wersji 7.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    'Moodle contains a cross-site scripting vulnerability via the Jsmol plugin and may also be susceptible to local file inclusion or server-side-request forgery. An attacker can execute arbitrary script in the browser of an unsuspecting user and steal cookie-based authentication credentials and launch other attacks.': "Wykryto system Moodle w wersji zawierającej podatność "
-    + REFLECTED_XSS_DESCRIPTION + " (i potencjalnie inne podatności). "
+    "Moodle contains a cross-site scripting vulnerability via the Jsmol plugin and may also be susceptible to local file inclusion or server-side-request forgery. An attacker can execute arbitrary script in the browser of an unsuspecting user and steal cookie-based authentication credentials and launch other attacks.": "Wykryto system Moodle w wersji zawierającej podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
-
-    'ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.': "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
+    "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-     'SquirrelMail Address Add 1.4.2 plugin contains a cross-site scripting vulnerability. It fails to properly sanitize user-supplied input, thus allowing an attacker to execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.': "Wtyczka SquirrelMail o nazwie Address Add w wersji 1.4.2 i potencjalnie wcześniejszych zawiera podatność "
+    "SquirrelMail Address Add 1.4.2 plugin contains a cross-site scripting vulnerability. It fails to properly sanitize user-supplied input, thus allowing an attacker to execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka SquirrelMail o nazwie Address Add w wersji 1.4.2 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "PacsOne Server (PACS Server In One Box) below 7.1.1 is vulnerable to cross-site scripting.": "PacsOne Server (PACS Server In One Box) w wersji poniżej 7.1.1 zawiera podatność "
@@ -1247,5 +1247,5 @@ TRANSLATIONS = {
     "Transmission dashboard was detected.": "wykryto panel systemu Transmission.",
     "AppVeyor configuration page was detected.": "wykryto stronę konfiguracyjną systemu AppVeyor.",
     "An Apache Tomcat instance was detected.": "Wykryto panel Apache Tomcat.",
-     'Citrix VPN panel was detected.': "wykryto panel Citrix VPN.",
+    "Citrix VPN panel was detected.": "wykryto panel Citrix VPN.",
 }

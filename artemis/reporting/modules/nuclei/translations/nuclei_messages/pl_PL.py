@@ -898,10 +898,22 @@ TRANSLATIONS = {
     "Odoo is a business suite that has features for many business-critical areas, such as e-commerce, billing, or CRM. Versions before the 16.0 release are vulnerable to CVE-2023-1434 and is caused by an incorrect content type being set on an API endpoint.": "System Odoo w wersji poniżej 16.0 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Knowage Suite 7.3 contains an unauthenticated reflected cross-site scripting vulnerability. An attacker can inject arbitrary web script in '/servlet/AdapterHTTP' via the 'targetService' parameter.": "Knowage Suite w wersji 7.3 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "PacsOne Server (PACS Server In One Box) below 7.1.1 is vulnerable to cross-site scripting.": "PacsOne Server (PACS Server In One Box) w wersji poniżej 7.1.1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "The Web Application Firewall in Bitrix24 up to and including 20.0.0 allows XSS via the items[ITEMS][ID] parameter to the components/bitrix/mobileapp.list/ajax.php/ URI.": "Komponent Web Application Firewall w Bitrix24 w wersji do 20.0.0 włącznie zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "SysAid 20.3.64 b14 contains a cross-site scripting vulnerability via the /KeepAlive.jsp?stamp= URI.": "SysAid w wersji 20.3.64 b14 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-     'Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.': "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
+    "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Zoho manageengine is vulnerable to reflected cross-site scripting. This impacts  Zoho ManageEngine Netflow Analyzer before build 123137, Network Configuration Manager before build 123128, OpManager before build 123148, OpUtils before build 123161, and Firewall Analyzer before build 123147 via the parameter 'operation' to /servlet/com.adventnet.me.opmanager.servlet.FailOverHelperServlet.": "Zoho ManageEngine Netflow Analyzer w wersji poniżej 123137, Network Configuration Manager w wersji poniżej 123128, OpManager w wersji poniżej 123148, OpUtils before build 123161, zawiera podatność "
@@ -944,6 +956,18 @@ TRANSLATIONS = {
     "Azure Resource Manager deploy file is disclosed.": "Wykryto plik konfiguracyjny narzędzia Azure Resource Manager."
     + DATA_HIDE_HINT,
     "A cross-site scripting vulnerability in remotereporter/load_logfiles.php in Netsweeper 4.0.3 and 4.0.4 allows remote attackers to inject arbitrary web script or HTML via the url parameter.": "Netsweeper w wersji 4.0.4, 4.0.3 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    'Clansphere CMS 2011.4 contains an unauthenticated reflected cross-site scripting vulnerability via the "language" parameter.': "Clansphere CMS w wersji 2011.4 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "myfactory.FMS before 7.1-912 allows cross-site scripting via the UID parameter.": "myfactory.FMS w wersji poniżej 7.1-912 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "myfactory.FMS before 7.1-912 allows cross-site scripting via the Error parameter.": "myfactory.FMS w wersji poniżej 7.1-912 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Cyberoam NetGenie C0101B1-20141120-NG11VO devices through 2021-08-14 are susceptible to reflected cross-site scripting via the 'u' parameter of ft.php.": "Cyberoam NetGenie C0101B1-20141120-NG11VO w wersi do 2021-08-14 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "A cross-site scripting vulnerability in Netsweeper 4.0.4 allows remote attackers to inject arbitrary web script or HTML via the url parameter to webadmin/deny/index.php.": "Netsweeper w wersji 4.0.4 i potencjalnie wcześniejszych zawiera podatność "

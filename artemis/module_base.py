@@ -20,7 +20,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.redis_cache import RedisCache
-from artemis.resolvers import lookup
+from artemis.resolvers import lookup, ResolutionException
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import (
@@ -113,6 +113,30 @@ class ArtemisBase(Karton):
             self.send_task(new_task)
         else:
             self.log.info("Task is not a new task, not adding: %s", new_task)
+
+    def add_valid_domains_task(self, current_task: Task, new_task: Task) -> None:
+        valid_domains = new_task.payload.get("valid_domains", [])
+        for domain in valid_domains:
+            if self.check_domain_exists(domain):
+                domain_task = Task(
+                    headers=new_task.headers,
+                    payload={**new_task.payload, "domain": domain},
+                )
+                self.add_task(current_task, domain_task)
+            else:
+                self.log.info("Skipping invalid domain: %s", domain)
+
+    def check_domain_exists(self, domain: str) -> bool:
+        try:
+            # Check for NS records
+            ns_records = lookup(domain, "NS")
+            if ns_records:
+                return True
+            # If no NS records, check for A records
+            a_records = lookup(domain, "A")
+            return len(a_records) > 0 # returns true if found
+        except ResolutionException:
+            return False
 
     def loop(self) -> None:
         """

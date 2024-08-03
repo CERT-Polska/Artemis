@@ -1,8 +1,6 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
-   build:
-     context: .
-     dockerfile: docker/Dockerfile
+  image: certpl/artemis:latest
 
 services:
   redis:
@@ -90,7 +88,7 @@ services:
     <<: *artemis-build-or-image
     depends_on: [karton-system, karton-logger]
     env_file: .env
-    ports: ["9000:5000"]
+    ports: ["5000:5000"]
     restart: always
     volumes:
       - data-web:/data

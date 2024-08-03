@@ -185,7 +185,7 @@ class Nuclei(ArtemisBase):
                     command.append(target)
 
                 self.log.debug("Running command: %s", " ".join(command))
-                call_result = check_output_log_on_error(command, self.log, stderr=subprocess.STDOUT)
+                call_result = check_output_log_on_error(command, self.log, capture_stderr=True)
 
                 call_result_utf8 = call_result.decode("utf-8", errors="ignore")
                 call_result_utf8_lines = call_result_utf8.split("\n")

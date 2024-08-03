@@ -18,6 +18,7 @@ from karton.core.task import TaskPriority
 from starlette.datastructures import Headers
 
 from artemis import csrf
+from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
@@ -160,12 +161,16 @@ async def post_add(
                 f"{task} is not supported - Artemis supports domains, IPs or IP ranges. Domains and IPs may also optionally be followed by port number."
             )
 
-    if "port_scanner" in disabled_modules:
-        for bind in get_binds_that_can_be_disabled():
-            if bind.identity not in disabled_modules:
-                for item in bind.filters:
-                    if "type" in item and item["type"] == "service":
-                        validation_messages.append(f"Module {bind.identity} requires port_scanner to be enabled")
+    for dependency, task_types in [
+        ("port_scanner", [TaskType.SERVICE.value, TaskType.WEBAPP.value]),
+        ("device_identifier", [TaskType.DEVICE.value]),
+    ]:
+        if dependency in disabled_modules:
+            for bind in get_binds_that_can_be_disabled():
+                if bind.identity not in disabled_modules:
+                    for item in bind.filters:
+                        if "type" in item and item["type"] in task_types:
+                            validation_messages.append(f"Module {bind.identity} requires {dependency} to be enabled")
 
     if validation_messages:
         binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())

@@ -122,10 +122,10 @@ TRANSLATIONS = {
     "Oracle GlassFish Server Open Source Edition 3.0.1 (build 22) is vulnerable to unauthenticated local file inclusion vulnerabilities that allow remote attackers to request arbitrary files on the server.": "Narzędzie Oracle GlassFish Server Open Source Edition 3.0.1 (build 22) zawiera podatność umożliwiającą atakującym pobieranie dowolnych plików z serwera."
     + UPDATE_HINT,
     "OEcms 3.1 is vulnerable to reflected cross-site scripting via the mod parameter of info.php.": "OEcms w wersji 3.1 i potencjalnie wcześniejszych zawiera podatność "
-    + RCE_EFFECT_DESCRIPTION
+    + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "LabKey Server Community Edition before 18.3.0-61806.763 contains a reflected cross-site scripting vulnerability via the onerror parameter in the /__r2/query endpoints, which allows an unauthenticated remote attacker to inject arbitrary JavaScript.": "LabKey Server Community Edition w wersji poniżej 18.3.0-61806.763 zawiera podatność "
-    + RCE_EFFECT_DESCRIPTION
+    + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Symfony profiler was detected.": "Wykryto narzędzie Symfony Profiler. Udostępnienie tego narzędzia może prowadzić np. do wycieku konfiguracji aplikacji (w tym haseł do bazy danych), kodu źródłowego lub innych informacji, które nie powinny być dostępne publicznie. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
     "Flir is vulnerable to local file inclusion.": "Narzędzie Flir zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
@@ -760,7 +760,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The plugin does not validate that the event_id parameter in its eventon_ics_download ajax action is a valid Event, allowing unauthenticated visitors\nto access any Post (including unpublished or protected posts) content via the ics export functionality by providing the numeric id of the post.": "Wtyczka WordPress o nazwie EventON Calendar w wersji 4.4 i niższych umożliwia atakującemu odczyt niepublicznych postów i postów chronionych hasłem."
     + WORDPRESS_UPDATE_HINT,
-    "The EventON WordPress plugin before 4.5.5, EventON WordPress plugin before 2.2.7 do not have authorization in an AJAX action, allowing unauthenticated users to retrieve email addresses of any users on the blog.": "Wtyczka WordPress o nazwie EventON Calendar w wersji 4.5.5 i niższych umożliwia atakującemu odczyt adresów e-mail użytkowników."
+    "The EventON WordPress plugin before 4.5.5, EventON WordPress plugin before 2.2.7 do not have authorization in an AJAX action, allowing unauthenticated users to retrieve email addresses of any users on the blog.": "Wtyczka WordPress o nazwie EventON Calendar w wersji poniżej 4.5.5 umożliwia atakującemu odczyt adresów e-mail użytkowników."
     + WORDPRESS_UPDATE_HINT,
     "The EventON WordPress plugin before 2.1.2 lacks authentication and authorization in its eventon_ics_download ajax action, allowing unauthenticated visitors to access private and password protected Events by guessing their numeric id.": "Wtyczka WordPress o nazwie EventON Calendar w wersji 2.1.2 i niższych umożliwia atakującemu odczyt niepublicznych wydarzeń i wydarzeń chronionych hasłem."
     + WORDPRESS_UPDATE_HINT,
@@ -775,9 +775,11 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     "The Duplicator WordPress plugin before 1.5.7.1, Duplicator Pro WordPress plugin before 4.5.14.2 does not disallow listing the `backups-dup-lite/tmp` directory (or the `backups-dup-pro/tmp` directory in the Pro version), which temporarily stores files containing sensitive data. When directory listing is enabled in the web server, this allows unauthenticated attackers to discover and access these sensitive files, which include a full database dump and a zip archive of the site.": "Wykryto wtyczkę WordPress o nazwie Duplicator w wersji poniżej 1.5.7.1 i serwer z włączonym listingiem katalogów, w tym katalogu backups-dup-lite/tmp lub backups-dup-pro/tmp, gdzie znajdują się pliki tymczasowe używane przy tworzeniu kopii zapasowej. Atakujący może odczytać taki plik w chwili gdy tworzona jest kopia zapasowa, a w ten sposób uzyskać pełen dostęp np. do zrzutu bazy danych strony internetowej.",
     "http/vulnerabilities/wordpress/unauthenticated-duplicator-disclosure.yaml": "Wykryto wtyczkę WordPress o nazwie Duplicator w wersji poniżej 1.5.7.1 i serwer z włączonym listingiem katalogów, w tym katalogu backups-dup-lite/tmp lub backups-dup-pro/tmp, gdzie znajdują się pliki tymczasowe używane przy tworzeniu kopii zapasowej. Atakujący może odczytać taki plik w chwili gdy tworzona jest kopia zapasowa, a w ten sposób uzyskać pełen dostęp np. do zrzutu bazy danych strony internetowej.",
-    'Django 1.10.x before 1.10.8 and 1.11.x before 1.11.5 has HTML autoescaping  disabled in a portion of the template for the technical 500 debug page. Given the right circumstances, this allows a cross-site scripting attack. This vulnerability shouldn\'t affect most production sites since run with "DEBUG = True" is not on by default (which is what makes the page visible).': "Wykryto system Django 1.10.x w wersji poniżej 1.10.8 lub 1.11.x w wersji poniżej 1.11.4, który, gdy jest włączony tryb DEBUG (a taki tryb wykryto na badanej stronie), zawiera podatność Cross-Site Scripting."
+    'Django 1.10.x before 1.10.8 and 1.11.x before 1.11.5 has HTML autoescaping  disabled in a portion of the template for the technical 500 debug page. Given the right circumstances, this allows a cross-site scripting attack. This vulnerability shouldn\'t affect most production sites since run with "DEBUG = True" is not on by default (which is what makes the page visible).': "Wykryto system Django 1.10.x w wersji poniżej 1.10.8 lub 1.11.x w wersji poniżej 1.11.5, który, gdy jest włączony tryb DEBUG (a taki tryb wykryto na badanej stronie), zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "Django 1.10.x before 1.10.8 and 1.11.x before 1.11.5 has HTML autoescaping disabled in a portion of the template for the technical 500 debug page. We detected that right circumstances (DEBUG=True) are present to allow a cross-site scripting attack.": "Wykryto system Django 1.10.x w wersji poniżej 1.10.8 lub 1.11.x w wersji poniżej 1.11.4, który, gdy jest włączony tryb DEBUG (a taki tryb wykryto na badanej stronie), zawiera podatność Cross-Site Scripting."
+    "Django 1.10.x before 1.10.8 and 1.11.x before 1.11.5 has HTML autoescaping disabled in a portion of the template for the technical 500 debug page. We detected that right circumstances (DEBUG=True) are present to allow a cross-site scripting attack.": "Wykryto system Django 1.10.x w wersji poniżej 1.10.8 lub 1.11.x w wersji poniżej 1.11.4, który, gdy jest włączony tryb DEBUG (a taki tryb wykryto na badanej stronie), zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Jenkins Gitlab Hook 1.4.2 and earlier does not escape project names in the build_now endpoint, resulting in a reflected cross-site scripting vulnerability.": "Wtyczka Jenkins o nazwie Gitlab Hook w wersji 1.4.2 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
@@ -792,7 +794,7 @@ TRANSLATIONS = {
     "A misconfig in Teslamate allows unauthorized access to /settings endpoint.": "Wykryto błędnie skonfigurowany system Teslamate, umożliwiający nieuprawniony dostęp do ustawień.",
     "In JetBrains TeamCity before 2023.11.4 path traversal allowing to perform limited admin actions was possible": "JetBrains TeamCity w wersji poniżej 2023.11.4 zawiera podatność Path Traversal umożliwiającą nieuprawnione wykonanie części akcji administracyjnych."
     + UPDATE_HINT,
-    "Log file was exposed.": "Wykryto plik logów serwera HTTP." + DATA_HIDE_HINT,
+    "Log file was exposed.": "Wykryto plik logów. " + DATA_HIDE_HINT,
     "Revive Adserver 5.0.3 and prior contains a reflected cross-site scripting vulnerability in the publicly accessible afr.php delivery script. In older versions, it is possible to steal the session identifier and gain access to the admin interface. The query string sent to the www/delivery/afr.php script is printed back without proper escaping, allowing an attacker to execute arbitrary JavaScript code on the browser of the victim.": "Revive Adserver w wersji 5.0.3 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -901,7 +903,7 @@ TRANSLATIONS = {
     "Knowage Suite 7.3 contains an unauthenticated reflected cross-site scripting vulnerability. An attacker can inject arbitrary web script in '/servlet/AdapterHTTP' via the 'targetService' parameter.": "Knowage Suite w wersji 7.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "Moodle contains a cross-site scripting vulnerability via the Jsmol plugin and may also be susceptible to local file inclusion or server-side-request forgery. An attacker can execute arbitrary script in the browser of an unsuspecting user and steal cookie-based authentication credentials and launch other attacks.": "Wykryto system Moodle w wersji zawierającej podatność "
+    "Moodle contains a cross-site scripting vulnerability via the Jsmol plugin and may also be susceptible to local file inclusion or server-side-request forgery. An attacker can execute arbitrary script in the browser of an unsuspecting user and steal cookie-based authentication credentials and launch other attacks.": "Wykryto system Moodle zawierający we wtyczce Jsmol podatność "
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
@@ -932,7 +934,7 @@ TRANSLATIONS = {
     "Web Port 1.19.1 is vulnerable to cross-site scripting via the /log type parameter.": "WebPort w wersji 1.19.1 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "Magmi 0.7.22 contains a cross-site scripting vulnerability due to insufficient filtration of user-supplied data (prefix) passed to the magmi-git-master/magmi/web/ajax_gettime.php URL.": "Magmi w wersji 0.7.2 i potencjalnie wcześniejszych zawiera podatność "
+    "Magmi 0.7.22 contains a cross-site scripting vulnerability due to insufficient filtration of user-supplied data (prefix) passed to the magmi-git-master/magmi/web/ajax_gettime.php URL.": "Magmi w wersji 0.7.22 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Apache ActiveMQ versions 5.0.0 to 5.15.5 are vulnerable to cross-site scripting via the web based administration console on the queue.jsp page. The root cause of this issue is improper data filtering of the QueueFilter parameter.": "Apache ActiveMQ w wersji 5.0.0 do 5.15.5 zawiera podatność "

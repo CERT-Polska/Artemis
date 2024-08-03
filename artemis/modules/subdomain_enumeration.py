@@ -183,7 +183,7 @@ class SubdomainEnumeration(ArtemisBase):
                             "domain": subdomain,
                         },
                     )
-                    self.add_valid_domains_task(current_task, task)
+                    self.add_task_if_domain_exists(current_task, task)
 
             valid_subdomains.update(valid_subdomains_from_tool)
 

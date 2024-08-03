@@ -114,7 +114,7 @@ class ArtemisBase(Karton):
         else:
             self.log.info("Task is not a new task, not adding: %s", new_task)
 
-    def add_valid_domains_task(self, current_task: Task, new_task: Task) -> None:
+    def add_task_if_domain_exists(self, current_task: Task, new_task: Task) -> None:
         domain = new_task.payload.get("domain")
         if domain and self.check_domain_exists(domain):
             self.add_task(current_task, new_task)

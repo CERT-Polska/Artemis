@@ -214,7 +214,7 @@ class PortScanner(ArtemisBase):
                     },
                 )
 
-                self.add_valid_domains_task(current_task, new_task)
+                self.add_task_if_domain_exists(current_task, new_task)
                 open_ports.append(int(port))
 
                 # Find whether relevant entries exist in the NOT_INTERESTING_PORTS list

@@ -124,12 +124,17 @@ class ArtemisBase(Karton):
     def check_domain_exists(self, domain: str) -> bool:
         try:
             # Check for NS records
-            ns_records = lookup(domain, "NS")
+            try:
+                ns_records = lookup(domain, "NS")
+            except NoAnswer:
+                self.log.info("NS record not found. Checking for A record")
+                ns_records = None
             if ns_records:
                 return True
+            else:
             # If no NS records, check for A records
-            a_records = lookup(domain, "A")
-            return len(a_records) > 0  # returns true if found
+                a_records = lookup(domain, "A")
+                return len(a_records) > 0  # returns true if found
         except ResolutionException:
             return False
 

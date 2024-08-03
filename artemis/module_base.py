@@ -20,7 +20,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.redis_cache import RedisCache
-from artemis.resolvers import ResolutionException, lookup
+from artemis.resolvers import NoAnswer, ResolutionException, lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import (
@@ -126,15 +126,16 @@ class ArtemisBase(Karton):
             # Check for NS records
             try:
                 ns_records = lookup(domain, "NS")
+                if ns_records:
+                    return True
             except NoAnswer:
-                self.log.info("NS record not found. Checking for A record")
-                ns_records = None
-            if ns_records:
-                return True
-            else:
-            # If no NS records, check for A records
-                a_records = lookup(domain, "A")
-                return len(a_records) > 0  # returns true if found
+                # No NS records, continue to check A records
+                pass
+
+            # Check for A records
+            a_records = lookup(domain, "A")
+            return len(a_records) > 0  # returns true if found
+
         except ResolutionException:
             return False
 

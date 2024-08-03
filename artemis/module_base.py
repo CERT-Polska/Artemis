@@ -115,13 +115,33 @@ class ArtemisBase(Karton):
             self.log.info("Task is not a new task, not adding: %s", new_task)
 
     def add_task_if_domain_exists(self, current_task: Task, new_task: Task) -> None:
+        """
+        Add a new task if the domain in the task payload exists.
+
+        Args:
+            current_task (Task): The current task being processed.
+            new_task (Task): The new task to potentially add.
+        """
         domain = new_task.payload.get("domain")
-        if domain and self.check_domain_exists(domain):
+        if not domain:
+            self.log.warning("No domain found in new task payload")
+            return
+
+        if self.check_domain_exists(domain):
             self.add_task(current_task, new_task)
         else:
             self.log.info("Skipping invalid domain: %s", domain)
 
     def check_domain_exists(self, domain: str) -> bool:
+        """
+        Check if a domain exists by looking up its NS and A records.
+
+        Args:
+            domain (str): The domain to check.
+
+        Returns:
+            bool: True if the domain exists, False otherwise.
+        """
         try:
             # Check for NS records
             try:

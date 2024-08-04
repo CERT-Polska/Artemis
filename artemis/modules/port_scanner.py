@@ -67,6 +67,7 @@ else:
 
 PORTS = sorted(list(PORTS_SET))
 
+
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class PortScanner(ArtemisBase):
     """

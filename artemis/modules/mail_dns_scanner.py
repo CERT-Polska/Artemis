@@ -117,16 +117,10 @@ class MailDNSScanner(ArtemisBase):
         result = self.scan(current_task, domain)
 
         status_reasons: List[str] = []
-        if (
-            result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.spf
-        ):
+        if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.spf:
             status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
             status_reasons.extend(result.spf_dmarc_scan_result.spf.warnings)
-        if (
-            result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.dmarc
-        ):
+        if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.dmarc:
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.warnings)
 

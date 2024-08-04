@@ -985,7 +985,8 @@ TRANSLATIONS = {
     "Jira Rainbow.Zen contains a cross-site scripting vulnerability via Jira/secure/BrowseProject.jspa which allows remote attackers to inject arbitrary web script or HTML via the id parameter.": "Wykryto, że narzędzie Jira Rainbow.Zen zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    'Agentejo Cockpit prior to 0.12.0 is vulnerable to NoSQL Injection via the newpassword method of the Auth controller, which is responsible for displaying the user password reset form.': "Agentejo Cockpit w wersji poniżej 0.12.0 zawiera podatność NoSQL Injection. " + UPDATE_HINT,
+    "Agentejo Cockpit prior to 0.12.0 is vulnerable to NoSQL Injection via the newpassword method of the Auth controller, which is responsible for displaying the user password reset form.": "Agentejo Cockpit w wersji poniżej 0.12.0 zawiera podatność NoSQL Injection. "
+    + UPDATE_HINT,
     "Github Workflow was exposed.": "Wykryto konfigurację workflow serwisu GitHub." + DATA_HIDE_HINT,
     "Adobe ColdFusion Server 8.0.1 and earlier contain multiple cross-site scripting vulnerabilities which allow remote attackers to inject arbitrary web script or HTML via (1) the startRow parameter to administrator/logviewer/searchlog.cfm, or the query string to (2) wizards/common/_logintowizard.cfm, (3) wizards/common/_authenticatewizarduser.cfm, or (4) administrator/enter.cfm.": "Adobe ColdFusion Sever w wersji 8.0.1 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
@@ -1019,6 +1020,7 @@ TRANSLATIONS = {
     "Magento Server Mass Importer plugin contains multiple cross-site scripting vulnerabilities which allow remote attackers to inject arbitrary web script or HTML via the (1) profile parameter to web/magmi.php or (2) QUERY_STRING to web/magmi_import_run.php.": "Wykryto, że Magento Server Mass Importer zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
+    "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "phpPgAdmin login ipanel was detected.": "wykryto panel logowania narzędzia phpPgAdmin.",
     "OutSystems Service Center login panel was detected.": "Wykryto panel logowania OutSystems Service Center.",
     "[no description] http/exposed-panels/tomcat/tomcat-exposed-docs.yaml": "wykryto dokumentację Apache Tomcat.",

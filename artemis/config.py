@@ -549,7 +549,6 @@ class Config:
                         "http/cves/2020/CVE-2020-2096.yaml",
                         "http/exposures/configs/behat-config.yaml",
                         "http/cves/2020/CVE-2020-6171.yaml",
-
                     ]
                 ),
                 cast=decouple.Csv(str),

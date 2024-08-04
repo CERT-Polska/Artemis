@@ -26,7 +26,7 @@
           </li>
           {% if task.alerts %}
               <li class="nav-item" role="presentation">
-                  <a class="nav-link" id="alerts-link" href="#" data-bs-toggle="tab" data-bs-target="#alerts" aria-selected="false">Alerts ({{ len(task.alerts) }})</a>
+                  <a class="nav-link" id="alerts-link" href="#" data-bs-toggle="tab" data-bs-target="#alerts" aria-selected="false">Alerts ({{ task.alerts|length }})</a>
               </li>
           {% endif %}
         </ul>

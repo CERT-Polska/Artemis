@@ -29,24 +29,29 @@ class CalledProcessErrorWithMessage(subprocess.CalledProcessError):
 
 
 def check_output_log_on_error(
-    command: List[str], logger: logging.Logger, stderr: Any = subprocess.PIPE, **kwargs: Any
+    command: List[str], logger: logging.Logger, capture_stderr: bool = False, **kwargs: Any
 ) -> bytes:
-    try:
-        return subprocess.check_output(command, stderr=stderr, **kwargs)  # type: ignore
-    except subprocess.CalledProcessError as e:
+    result = subprocess.run(command, capture_output=True, **kwargs)
+    if result.returncode == 0:
+        out: bytes = result.stdout
+        if capture_stderr:
+            # This is to keep the streams separate, not interleaved, in case a downstream tool attempts to parse them
+            out += b"\n" + result.stderr
+        return out
+    else:
         command_str_shortened = repr(command)
         if len(command_str_shortened) > 100:
             command_str_shortened = command_str_shortened[:100] + "..."
 
-        message = 'Error when running "%s": output="%s" error="%s" original message="%s"' % (
+        message = 'Error when running "%s": output="%s" error="%s" returncode="%d"' % (
             command_str_shortened,
-            e.stdout.decode("ascii", errors="ignore") if e.stdout else "",
-            e.stderr.decode("ascii", errors="ignore") if e.stderr else "",
-            repr(e),
+            result.stdout.decode("ascii", errors="ignore") if result.stdout else "",
+            result.stderr.decode("ascii", errors="ignore") if result.stderr else "",
+            result.returncode,
         )
         logger.error(message)
         raise CalledProcessErrorWithMessage(
-            message=message, returncode=e.returncode, cmd=e.cmd, output=e.output, stderr=e.stderr
+            message=message, returncode=result.returncode, cmd=command, output=result.stdout, stderr=result.stderr
         )
 
 

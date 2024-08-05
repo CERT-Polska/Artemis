@@ -4,7 +4,7 @@ from typing import List, NamedTuple
 
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
@@ -31,6 +31,7 @@ class VCSConfig(NamedTuple):
     magic: List[str]
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class VCSScanner(ArtemisBase):
     """
     Tries to find exposed git/SVN/Mercurial repositories.

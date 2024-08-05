@@ -7,6 +7,7 @@ from typing import Any, Dict, Set
 
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -66,26 +67,8 @@ else:
 
 PORTS = sorted(list(PORTS_SET))
 
-# This list means that these ports won't be displayed as interesing in the Artemis task list UI - they still be used
-# to create tasks for other modules - so if a module listens for identified HTTP services, it will receive such
-# information.
-NOT_INTERESTING_PORTS = [
-    # None means "any port" - (None, "http") means "http on any port"
-    (None, "ftp"),  # There is a module (artemis.modules.ftp_bruter) that checks FTP
-    (None, "ssh"),  # There is a module (artemis.modules.ssh_bruter) that checks SSH
-    (None, "smtp"),  # There is a module (artemis.modules.postman) that checks SMTP
-    (53, "dns"),  # Not worth reporting (DNS)
-    # We explicitely enumerate not interesting HTTP ports so that HTTP services
-    # such as Elasticsearch API would be reported.
-    (80, "http"),
-    (443, "http"),
-    (None, "pop3"),
-    (None, "imap"),
-    (3306, "MySQL"),  # There is a module (artemis.modules.mysql_bruter) that checks MySQL
-    (5432, "postgres"),  # There is a module (artemis.modules.postgresql_bruter) that checks PostgreSQL
-]
 
-
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class PortScanner(ArtemisBase):
     """
     Consumes `type: IP` or `type: DOMAIN`, scans them with naabu and fingerprintx and produces
@@ -217,12 +200,7 @@ class PortScanner(ArtemisBase):
                 self.add_task_if_domain_exists(current_task, new_task)
                 open_ports.append(int(port))
 
-                # Find whether relevant entries exist in the NOT_INTERESTING_PORTS list
-                entry = (int(port), result["service"])
-                entry_any_port = (None, result["service"])
-
-                if entry not in NOT_INTERESTING_PORTS and entry_any_port not in NOT_INTERESTING_PORTS:
-                    interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
+                interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
 
         if len(interesting_port_descriptions):
             status = TaskStatus.INTERESTING

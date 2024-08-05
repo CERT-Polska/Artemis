@@ -7,7 +7,7 @@ import validators
 from karton.core import Task
 from publicsuffixlist import PublicSuffixList
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
@@ -17,6 +17,7 @@ from artemis.utils import perform_whois_or_sleep
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class ScriptsUnregisteredDomains(ArtemisBase):
     """
     Checks, whether scripts are loaded from unregistered domains

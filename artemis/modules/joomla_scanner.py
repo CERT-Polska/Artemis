@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Union
 
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.fallback_api_cache import FallbackAPICache
 from artemis.modules.base.base_newer_version_comparer import (
@@ -11,6 +11,7 @@ from artemis.modules.base.base_newer_version_comparer import (
 )
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class JoomlaScanner(BaseNewerVersionComparerModule):
     """
     Joomla scanner - checks whether the version is old or registration is enabled.

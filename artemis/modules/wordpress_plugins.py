@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 import requests
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
@@ -36,9 +36,10 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "sumome",
     "userway-accessibility-widget",
     "visual-footer-credit-remover",
+    "wp-events-manager",
     "zarinpal-woocommerce-payment-gateway",
 ]
-PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup", "backwpup"]
+PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup", "backwpup", "yith-woocommerce-catalog-mode"]
 PLUGINS_TO_SKIP_STABLE_TAG = [
     "flowpaper-lite-pdf-flipbook",
     "scheduled-post-trigger",
@@ -46,29 +47,23 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "userway-accessibility-widget",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "athemes-starter-sites",
     "blocks-animation",
     "button-contact-vr",
-    "cf7-to-zapier",
     "change-admin-email-setting-without-outbound-email",
-    "clearfy",
     "coming-soon",
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
-    "hostinger",
     "icon-element",
     "link-manager",
+    "mask-form-elementor",
     "official-facebook-pixel",
     "page-or-post-clone",
-    "printfriendly",
     "rafflepress",
-    "robin-image-optimizer",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
-    "the-events-calendar-shortcode",
     "website-monetization-by-magenet",
-    "woocommerce",
+    "wp-events-manager",
     "wp-maximum-execution-time-exceeded",
 ]
 
@@ -210,6 +205,7 @@ class WordpressPluginsScanningException(Exception):
     pass
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class WordpressPlugins(ArtemisBase):
     """
     Checks whether WordPress plugins are up-to-date.

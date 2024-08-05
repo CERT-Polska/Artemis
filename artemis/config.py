@@ -480,6 +480,8 @@ class Config:
                         "http/vulnerabilities/tongda/tongda-auth-bypass.yaml",
                         "http/vulnerabilities/wordpress/wp-xmlrpc-brute-force.yaml",
                         "javascript/default-logins/ssh-default-logins.yaml",
+                        # Mostly Moodle config
+                        "http/exposures/configs/behat-config.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -544,6 +546,12 @@ class Config:
                         # Until https://github.com/CERT-Polska/Artemis/issues/899 gets fixed, let's review
                         # these manually.
                         "group:sql-injection",
+                        # Sometimes a source of FPs
+                        "http/cves/2023/CVE-2023-35161.yaml",
+                        "http/cves/2020/CVE-2020-2096.yaml",
+                        "http/cves/2020/CVE-2020-6171.yaml",
+                        "http/cves/2020/CVE-2020-35848.yaml",
+                        "http/exposed-panels/fireware-xtm-user-authentication.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

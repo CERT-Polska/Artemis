@@ -43,7 +43,7 @@ class ArtemisModuleTestCase(KartonTestCase):
         for item in ["artemis.module_base.lookup", "artemis.modules.port_scanner.lookup"]:
             # We cannot use Artemis default DoH resolvers as they wouldn't be able to resolve
             # internal test services' addresses.
-            self._lookup_mock = patch(item, MagicMock(side_effect=lambda host: {socket.gethostbyname(host)}))
+            self._lookup_mock = patch(item, MagicMock(side_effect=lambda host, *args: {socket.gethostbyname(host)}))
             self._lookup_mock.__enter__()
 
         self.mock_db = MagicMock()

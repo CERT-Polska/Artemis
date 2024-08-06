@@ -1,6 +1,8 @@
 # type: ignore
 from test.base import ArtemisModuleTestCase
+
 from karton.core import Task
+
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.modules.sql_injection_detector import SqlInjectionDetector

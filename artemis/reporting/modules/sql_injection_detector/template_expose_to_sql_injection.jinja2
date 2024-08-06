@@ -1,0 +1,42 @@
+{% if "exposed_to_sql_injection" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are exposed to Sql Injection or Time Base SQL Injection:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_to_sql_injection" %}
+                    <li>
+                        {{ report.target }}
+                        <ul>
+                        {% for message in report.additional_data.result %}
+                            <li>
+                                {{ message }}.
+                            </li>
+                        {% endfor %}
+                        </ul>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+            <p>
+                {% trans trimmed %}
+                    These vulnerabilities can lead to serious security breaches, including user data leaks and potential database manipulation.
+                    The vulnerability occurs when dangerous user input is directly injected into SQL queries, allowing attackers to execute any SQL commands.
+                {% endtrans %}
+            </p>
+            <p>
+                {% trans trimmed %}Effects of the vulnerability:{% endtrans %}
+                <ul>
+                    <li> {% trans trimmed %}Possibility of leaking personal user data.{% endtrans %}</li>
+                    <li> {% trans trimmed %}Manipulation of data in the database.{% endtrans %}</li>
+                    <li> {% trans trimmed %}Possibility of complete control over the database.{% endtrans %}</li>
+                </ul>
+            </p>
+            <p>
+                 {% trans trimmed %}We recommend:{% endtrans %}
+                <ul>
+                    <li>{% trans trimmed %}Validation and sanitization of input data.{% endtrans %}</li>
+                    <li>{% trans trimmed %}Using prepared statements and stored procedures.{% endtrans %}</li>
+                    <li>{% trans trimmed %}Limiting database permissions.{% endtrans %}</li>
+                </ul>
+            </p>
+
+{% endif %}

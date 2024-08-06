@@ -10,7 +10,7 @@ from artemis.reporting.utils import get_top_level_target
 
 
 class SqlInjectionDetectorReporter(Reporter):
-    EXPOSED_ON_SQL_INJECTION = ReportType("exposed_on_sql_injection")
+    EXPOSED_TO_SQL_INJECTION = ReportType("exposed_to_sql_injection")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
@@ -27,8 +27,8 @@ class SqlInjectionDetectorReporter(Reporter):
             Report(
                 top_level_target=get_top_level_target(task_result),
                 target=f"{task_result['payload']['host']}",
-                report_type=SqlInjectionDetectorReporter.EXPOSED_ON_SQL_INJECTION,
-                additional_data={"credentials": task_result["result"]["credentials"]},
+                report_type=SqlInjectionDetectorReporter.EXPOSED_TO_SQL_INJECTION,
+                additional_data=task_result["result"],
                 timestamp=task_result["created_at"],
             )
         ]
@@ -37,7 +37,7 @@ class SqlInjectionDetectorReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_expose_on_sql_injection.jinja2"),
+                os.path.join(os.path.dirname(__file__), "template_expose_to_sql_injection.jinja2"),
                 priority=8,
             ),
         ]

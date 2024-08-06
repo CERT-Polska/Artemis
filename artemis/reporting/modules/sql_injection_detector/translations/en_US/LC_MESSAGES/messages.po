@@ -1,25 +1,30 @@
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:2
-msgid ""
-"The following servers expose a database where simple login/password pair "
-"allows login:"
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2
+msgid "We identified that the following URLs are exposed to Sql Injection or Time Base SQL Injection:"
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:6
-msgid "the following credentials allow login"
+msgid "These vulnerabilities can lead to serious security breaches, including user data leaks and potential database manipulation. The vulnerability occurs when dangerous user input is directly injected into SQL queries, allowing attackers to execute any SQL commands."
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:10
-msgid "username"
+msgid "Effects of the vulnerability:"
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:11
-msgid "and"
+msgid "Possibility of leaking personal user data."
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:12
-msgid "password"
+msgid "Manipulation of data in the database."
 msgstr ""
 
-#: artemis/reporting/modules/mysql_bruter/template_exposed_database_with_easy_password.jinja2:14
-msgid "empty password"
+msgid "Possibility of complete control over the database."
+msgstr ""
+
+msgid "We recommend:"
+msgstr ""
+
+msgid "Validation and sanitization of input data."
+msgstr ""
+
+msgid "Using prepared statements and stored procedures."
+msgstr ""
+
+msgid "Limiting database permissions."
 msgstr ""

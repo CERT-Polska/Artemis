@@ -1,7 +1,8 @@
+# type: ignore
+from test.base import ArtemisModuleTestCase
 from karton.core import Task
 from artemis import http_requests
-from test.base import ArtemisModuleTestCase
-from artemis.binds import TaskStatus, TaskType, Service
+from artemis.binds import Service, TaskStatus, TaskType
 from artemis.modules.sql_injection_detector import SqlInjectionDetector
 
 
@@ -28,7 +29,7 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertFalse(self.karton_class.is_url_with_payload(current_url))
 
     def test_are_request_efficient_False(self) -> None:
-        current_url = ("http://test-apache-with-sql-injection-postgres")
+        current_url = "http://test-apache-with-sql-injection-postgres"
         url_with_sleep_payload = "http://test-apache-with-sql-injection-postgres?id='||pg_sleep(1)||'"
 
         self.assertTrue(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, current_url))
@@ -65,7 +66,7 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertFalse(self.karton_class.is_url_with_payload(current_url))
 
     def test_are_request_efficient_False(self) -> None:
-        current_url = ("http://test-apache-with-sql-injection-mysql")
+        current_url = "http://test-apache-with-sql-injection-mysql"
         url_with_sleep_payload = "http://test-apache-with-sql-injection-mysql?id='||sleep(1)||'"
 
         self.assertTrue(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, current_url))
@@ -77,4 +78,3 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
 
         self.assertFalse(self.karton_class.contains_error(http_requests.get(current_url)))
         self.assertTrue(self.karton_class.contains_error(http_requests.get(url_with_payload)))
-

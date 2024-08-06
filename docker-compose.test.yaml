@@ -51,6 +51,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
 
+  mysql-test:
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
   test-service-with-bruteable-files:
     image: php:7.4-apache
     volumes:
@@ -179,6 +184,20 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
+
+  test-apache-with-sql-injection-postgres:
+    build:
+      dockerfile: test/images/php-postgres/Dockerfile
+    command: systemctl start apache2.service
+    volumes:
+      - ./test/data/sql_injection_postgres/:/var/www/html/
+
+  test-apache-with-sql-injection-mysql:
+    build:
+      dockerfile: test/images/php-mysql/Dockerfile
+    command: systemctl start apache2.service
+    volumes:
+      - ./test/data/sql_injection_mysql/:/var/www/html/
 
 volumes:
   data-test:

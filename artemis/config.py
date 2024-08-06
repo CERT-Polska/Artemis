@@ -617,6 +617,23 @@ class Config:
                 "How many sites to scan at once. This is the maximum batch size",
             ] = get_config("SQL_INJECTION_DETECTOR_MAX_BATCH_SIZE", default=10, cast=int)
 
+            THRESHOLD: Annotated[
+                int,
+                "Seconds to method sleep() or pg_sleep()",
+            ] = get_config("THRESHOLD", default=1, cast=int)
+
+            SLEEP_PAYLOAD: Annotated[
+                List[str],
+                "Payload sleep() function",
+            ] = get_config(
+                "SLEEP_PAYLOAD", default=[f"'||sleep({THRESHOLD})||'", f"'||pg_sleep({THRESHOLD})||'"], cast=list
+            )
+
+            PAYLOADS: Annotated[
+                List[str],
+                "Payload to create new url",
+            ] = get_config("PAYLOAD", default=["'", '"'], cast=list)
+
     @staticmethod
     def verify_each_variable_is_annotated() -> None:
         def verify_class(cls: type) -> None:

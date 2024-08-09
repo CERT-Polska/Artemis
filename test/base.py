@@ -2,7 +2,7 @@ import os
 import socket
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import Any, List, Set
 from unittest.mock import MagicMock, patch
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
@@ -40,7 +40,7 @@ class ArtemisModuleTestCase(KartonTestCase):
         # Unfortunately, in the context of a test that is about to run and a respective module has already been
         # imported, to mock lookup we need to mock it in modules it has been imported to,
         # so we need to enumerate the locations it's used in in the list below.
-        def safe_lookup(host, *args):
+        def safe_lookup(host: str, *args: Any) -> Set[str]:
             try:
                 return {socket.gethostbyname(host)}
             except socket.gaierror:

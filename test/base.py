@@ -40,10 +40,14 @@ class ArtemisModuleTestCase(KartonTestCase):
         # Unfortunately, in the context of a test that is about to run and a respective module has already been
         # imported, to mock lookup we need to mock it in modules it has been imported to,
         # so we need to enumerate the locations it's used in in the list below.
+        def safe_lookup(host, *args):
+            try:
+                return {socket.gethostbyname(host)}
+            except socket.gaierror:
+                return set()  # Return an empty set if resolution fails
+
         for item in ["artemis.module_base.lookup", "artemis.modules.port_scanner.lookup"]:
-            # We cannot use Artemis default DoH resolvers as they wouldn't be able to resolve
-            # internal test services' addresses.
-            self._lookup_mock = patch(item, MagicMock(side_effect=lambda host, *args: {socket.gethostbyname(host)}))
+            self._lookup_mock = patch(item, MagicMock(side_effect=safe_lookup))
             self._lookup_mock.__enter__()
 
         self.mock_db = MagicMock()

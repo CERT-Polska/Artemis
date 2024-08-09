@@ -106,7 +106,8 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         self.assertEqual(task_results[0]["status"], "INTERESTING")
         self.assertEqual(
             task_results[0]["status_reason"],
-            "Found problems: Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+            "Found problems: Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing., "
+            "Valid SPF record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
         )
         self.assertEqual(task_results[0]["tag"], "automated-interaction")
         self.assertEqual(task_results[0]["target_string"], "test-smtp-server.artemis")

@@ -26,7 +26,7 @@ dkimpy = "1.1.8"
 
 # BSD, not properly provided in package metadata
 karton-core = "5.0.0"
-libmailgoose = "1.0"
+libmailgoose = "1.3.3"
 
 # Apache 2, not properly provided in package metadata
 aiofiles = "0.7.0"

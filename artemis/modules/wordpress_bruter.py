@@ -5,7 +5,7 @@ from typing import List
 
 from karton.core import Task
 
-from artemis import http_requests, utils
+from artemis import http_requests, load_risk_class, utils
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -28,6 +28,7 @@ PASSWORDS = [
 MAX_USERNAMES_TO_CHECK = 3
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class WordPressBruter(ArtemisBase):
     """
     Performs a brute-force attack on WordPress credentials.

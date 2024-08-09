@@ -1,4 +1,4 @@
-#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:2
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:4
 msgid ""
 "The following addresses contain login panels, analytics services, "
 "management panels etc.:"
@@ -6,7 +6,7 @@ msgstr ""
 "Poniższe adresy zawierają zasoby takie jak panele logowania, narzędzia "
 "analityczne, panele administracyjne itp.:"
 
-#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:14
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:19
 msgid ""
 "To decrease the probability of an attack (caused by an attacker using a "
 "leaked password, by one of the accounts having a weak password, or by "
@@ -18,7 +18,23 @@ msgstr ""
 "usłudze) rekomendujemy, aby jak najmniej takich zasobów było dostępnych "
 "publicznie."
 
-#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:21
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:27
+msgid ""
+"A password leak may be caused by an accidentally exposed configuration "
+"file such as a backup of <tt>/wp-config.php</tt> or by a local file "
+"inclusion vulnerability. Such mistakes are frequent, and lack of publicly"
+" exposed database management panels makes it significantly harder to "
+"perform an attack."
+msgstr ""
+"Do  wycieku hasła może dojść np. gdy kopia zapasowa pliku "
+"konfiguracyjnego takiego jak <tt>/wp.config.php</tt> zostanie przypadkowo"
+" upubliczniona, lub gdy zostanie wykorzystana podatność w aplikacji "
+"pozwalająca na odczyt plików. Z doświadczeń CERT Polska w obsłudze "
+"incydentów wynika, że takie błędy są częste, a brak publicznie dostępnego"
+" panelu zarządzania bazą danych znacząco utrudnia atakującym dalsze "
+"prowadzenie ataku."
+
+#: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:36
 msgid ""
 "We recommend that such resources are only available in an internal "
 "network, using a VPN or from a restricted set of IP addresses."
@@ -34,9 +50,14 @@ msgstr "Podatność wykryto pod poniższymi adresami:"
 msgid " under "
 msgstr " pod ścieżką "
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:40
-msgid "More information is available on:"
-msgstr "Więcej informacji można uzyskać pod adresami:"
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:41
+msgid ""
+"The above links are automatically generated - contact us if they aren't "
+"sufficient for you to reproduce the vulnerability."
+msgstr ""
+"Powyższe odnośniki są generowane automatycznie - prosimy o kontakt, jeśli"
+" nie są dla Państwa wystarczające, aby odtworzyć podatność po Państwa "
+"stronie."
 
 #: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:47
 msgid ""
@@ -48,10 +69,5 @@ msgstr ""
 "że podatność istnieje)."
 
 #: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:53
-msgid ""
-"The above links are automatically generated - contact us if they aren't "
-"sufficient for you to reproduce the vulnerability."
-msgstr ""
-"Powyższe odnośniki są generowane automatycznie - prosimy o kontakt, jeśli"
-" nie są dla Państwa wystarczające, aby odtworzyć podatność po Państwa "
-"stronie."
+msgid "More information is available on:"
+msgstr "Więcej informacji można uzyskać pod adresami:"

@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 from karton.core import Consumer, Task
 from karton.core.config import Config as KartonConfig
 
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.db import DB
@@ -18,6 +19,7 @@ class UnableToObtainSubdomainsException(Exception):
     pass
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class SubdomainEnumeration(ArtemisBase):
     """
     Consumes `type: domain` to gather subdomains and produces `type: domain`.

@@ -78,7 +78,7 @@ class Config:
         MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW: Annotated[
             int,
             "If a low-severity report has already been seen earlier - how much time needs to pass for a second report to be generated.",
-        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=8 * 30, cast=int)
+        ] = get_config("MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_LOW", default=18 * 30, cast=int)
 
         MIN_DAYS_BETWEEN_REMINDERS__SEVERITY_MEDIUM: Annotated[
             int,
@@ -297,6 +297,12 @@ class Config:
                 "when the Github API rate limits are spent).",
             ] = get_config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
+            NUCLEI_SECONDS_PER_REQUEST_ON_RETRY: Annotated[
+                bool,
+                "When retrying due to 'context deadline exceeded', each request will take at least max(2 * SECONDS_PER_REQUEST, "
+                "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY).",
+            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.25, cast=float)
+
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,
                 "A path (inside Docker container) of a file with JSON dictionary of template group assignments: "
@@ -328,6 +334,7 @@ class Config:
                         # We have a separate module for that, checking whethet the repository is a copy of a public one
                         "http/exposures/configs/exposed-svn.yaml",
                         "http/exposures/configs/git-config.yaml",
+                        "http/exposures/files/svn-wc-db.yaml",
                         # We have a separate module checking for a larger number of directory indexes.
                         "http/exposures/configs/configuration-listing.yaml",
                         "http/misconfiguration/sound4-directory-listing.yaml",
@@ -397,6 +404,7 @@ class Config:
                         # Too small impact to report
                         "http/exposed-panels/webeditors-check-detect.yaml",
                         # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        "http/exposed-panels/bitrix-panel.yaml",
                         "http/exposed-panels/dynamicweb-panel.yaml",
                         "http/exposed-panels/jira-detect.yaml",
                         "http/exposed-panels/kanboard-login.yaml",
@@ -419,8 +427,61 @@ class Config:
                         "custom:CVE-2019-1579",
                         "custom:xss-inside-tag-top-params.yaml",
                         # Nothing particularily interesting
+                        "http/exposures/apis/drupal-jsonapi-user-listing.yaml",
                         "http/miscellaneous/joomla-manifest-file.yaml",
                         "http/exposures/configs/karma-config-js.yaml",
+                        "http/cves/2000/CVE-2000-0114.yaml",
+                        # From the message: "there is no common path to exploit that has a user impact."
+                        "http/cves/2021/CVE-2021-20323.yaml",
+                        # This is Open Redirect in Host header, not exploitable in standard conditions. Besides, this is disputed by vendor.
+                        "http/cves/2023/CVE-2023-24044.yaml",
+                        # Open Redirect in Referer, X-Forwarded-Host or another header making it hard to exploit
+                        "http/vulnerabilities/wordpress/music-store-open-redirect.yaml",
+                        "http/cves/2021/CVE-2021-44528.yaml",
+                        # Minor information leaks
+                        "http/cves/2020/CVE-2020-14179.yaml",
+                        "http/cves/2021/CVE-2021-3293.yaml",
+                        "http/cves/2024/CVE-2024-1208.yaml",
+                        "http/cves/2024/CVE-2024-1210.yaml",
+                        "http/cves/2024/CVE-2024-3097.yaml",
+                        "http/cves/2017/CVE-2017-5487.yaml",
+                        "http/cves/2021/CVE-2021-25118.yaml",
+                        # Over 50 requests
+                        "http/cves/2017/CVE-2017-17562.yaml",
+                        "http/cves/2019/CVE-2019-17382.yaml",
+                        "http/cves/2022/CVE-2022-2034.yaml",
+                        "http/cves/2023/CVE-2023-24489.yaml",
+                        "http/default-logins/apache/tomcat-default-login.yaml",
+                        "http/default-logins/oracle/peoplesoft-default-login.yaml",
+                        "http/exposed-panels/adminer-panel-detect.yaml",
+                        "http/exposures/apis/swagger-api.yaml",
+                        "http/exposures/backups/php-backup-files.yaml",
+                        "http/exposures/backups/zip-backup-files.yaml",
+                        "http/exposures/files/generic-db.yaml",
+                        "http/fuzzing/cache-poisoning-fuzz.yaml",
+                        "http/fuzzing/header-command-injection.yaml",
+                        "http/fuzzing/mdb-database-file.yaml",
+                        "http/fuzzing/prestashop-module-fuzz.yaml",
+                        "http/fuzzing/waf-fuzz.yaml",
+                        "http/fuzzing/wordpress-plugins-detect.yaml",
+                        "http/fuzzing/wordpress-themes-detect.yaml",
+                        "http/fuzzing/wordpress-weak-credentials.yaml",
+                        "http/miscellaneous/defacement-detect.yaml",
+                        "http/misconfiguration/aem/aem-default-get-servlet.yaml",
+                        "http/misconfiguration/akamai/akamai-s3-cache-poisoning.yaml",
+                        "http/misconfiguration/gitlab/gitlab-api-user-enum.yaml",
+                        "http/misconfiguration/gitlab/gitlab-user-enum.yaml",
+                        "http/misconfiguration/servicenow-widget-misconfig.yaml",
+                        "http/technologies/graphql-detect.yaml",
+                        "http/technologies/graylog/graylog-api-exposure.yaml",
+                        "http/vulnerabilities/apache/shiro/shiro-deserialization-detection.yaml",
+                        "http/vulnerabilities/generic/open-redirect-generic.yaml",
+                        "http/vulnerabilities/grafana/grafana-file-read.yaml",
+                        "http/vulnerabilities/tongda/tongda-auth-bypass.yaml",
+                        "http/vulnerabilities/wordpress/wp-xmlrpc-brute-force.yaml",
+                        "javascript/default-logins/ssh-default-logins.yaml",
+                        # Mostly Moodle config
+                        "http/exposures/configs/behat-config.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -475,6 +536,8 @@ class Config:
                         "custom:xss-inside-tag-top-params",
                         "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
+                        # This catches other Open Redirects as well
+                        "http/cves/2018/CVE-2018-11784.yaml",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
                         # gets fixed, these templates return a FP on phpinfo(). Let's not spam
                         # our recipients with FPs.
@@ -483,6 +546,12 @@ class Config:
                         # Until https://github.com/CERT-Polska/Artemis/issues/899 gets fixed, let's review
                         # these manually.
                         "group:sql-injection",
+                        # Sometimes a source of FPs
+                        "http/cves/2023/CVE-2023-35161.yaml",
+                        "http/cves/2020/CVE-2020-2096.yaml",
+                        "http/cves/2020/CVE-2020-6171.yaml",
+                        "http/cves/2020/CVE-2020-35848.yaml",
+                        "http/exposed-panels/fireware-xtm-user-authentication.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -515,9 +584,9 @@ class Config:
 
             NUCLEI_TEMPLATE_CHUNK_SIZE: Annotated[
                 int,
-                "How big are the chunks to split the template list. E.g. if the template list contains 3000 templates and "
-                "NUCLEI_TEMPLATE_CHUNK_SIZE is 1000, three calls will be made with 1000 templates each.",
-            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=1000, cast=int)
+                "How big are the chunks to split the template list. E.g. if the template list contains 600 templates and "
+                "NUCLEI_TEMPLATE_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
+            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
 
         class PortScanner:
             PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (

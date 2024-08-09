@@ -57,8 +57,6 @@ in the form of entries separated with newlines. Artemis works with both IPs and 
 IP ranges, both in the form of `127.0.0.1-127.0.0.10` or `127.0.0.0/30` and `host:port` syntax - in the latter
 case, no port scanning will be performed.
 
-If a URL is provided, the host from this URL will be scanned.
-
 To be later able to filter various types of targets, provide a tag in the `Tag` field. You may
 also choose what modules will be executed, to increase scanning speed if you need only to check for
 a subset of vulnerabilities.

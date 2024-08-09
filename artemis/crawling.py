@@ -22,5 +22,5 @@ def get_links_and_resources_on_same_domain(url: str) -> List[str]:
 
             # Let's be lax and allow resources from different ports (or e.g. http vs https)
             if url_parsed.hostname == new_url_parsed.hostname:
-                links.append(new_url)
-    return links
+                links.append(new_url.split("#")[0])
+    return list(set(links))

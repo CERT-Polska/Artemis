@@ -8,7 +8,6 @@ import urllib.parse
 from ipaddress import ip_address
 from typing import List, Optional, Tuple
 
-import requests
 import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
@@ -89,16 +88,6 @@ class ArtemisBase(Karton):
 
         for handler in self.log.handlers:
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
-
-    def cached_get(self, url: str, cache_key: str, timeout: int = 24 * 60 * 60) -> bytes:
-        if not self.cache.get(cache_key):
-            data = requests.get(url).content
-            self.cache.set(cache_key, data, timeout=timeout)
-            return data
-        else:
-            cache_result = self.cache.get(cache_key)
-            assert cache_result
-            return cache_result
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         analysis = self.db.get_analysis_by_id(current_task.root_uid)

@@ -1,6 +1,10 @@
         </ol>
+
         {% if custom_footer_text is defined %}
             {{ custom_footer_text() }}
         {% endif %}
-    </body>
-</html>
+
+{% if "skip_html_and_body_tags" not in data.custom_template_arguments %}
+        </body>
+    </html>
+{% endif %}

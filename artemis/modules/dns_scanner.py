@@ -9,12 +9,14 @@ import dns.xfr
 import dns.zone
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 
 KNOWN_BAD_NAMESERVERS = ["fns1.42.pl", "fns2.42.pl"]
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class DnsScanner(ArtemisBase):
     """
     Check for domain transfer and known bad nameservers.

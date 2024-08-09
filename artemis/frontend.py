@@ -18,6 +18,7 @@ from karton.core.task import TaskPriority
 from starlette.datastructures import Headers
 
 from artemis import csrf
+from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
@@ -153,25 +154,41 @@ async def post_add(
         targets = targets.strip()
         total_list += (x.strip() for x in targets.split("\n"))
 
+    validation_messages = []
     for task in total_list:
         if not Classifier.is_supported(task):
-            binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
-
-            return csrf.csrf_form_template_response(
-                "add.jinja2",
-                {
-                    "validation_message": f"{task} is not supported - Artemis supports domains, IPs or IP ranges. Domains and IPs may also optionally be followed by port number.",
-                    "request": request,
-                    "binds": binds,
-                    "priority": priority,
-                    "priorities": list(TaskPriority),
-                    "tasks": total_list,
-                    "tag": tag or "",
-                    "disabled_modules": disabled_modules,
-                    "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
-                },
-                csrf_protect,
+            validation_messages.append(
+                f"{task} is not supported - Artemis supports domains, IPs or IP ranges. Domains and IPs may also optionally be followed by port number."
             )
+
+    for dependency, task_types in [
+        ("port_scanner", [TaskType.SERVICE.value, TaskType.WEBAPP.value]),
+        ("device_identifier", [TaskType.DEVICE.value]),
+    ]:
+        if dependency in disabled_modules:
+            for bind in get_binds_that_can_be_disabled():
+                if bind.identity not in disabled_modules:
+                    for item in bind.filters:
+                        if "type" in item and item["type"] in task_types:
+                            validation_messages.append(f"Module {bind.identity} requires {dependency} to be enabled")
+
+    if validation_messages:
+        binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
+        return csrf.csrf_form_template_response(
+            "add.jinja2",
+            {
+                "validation_message": ", ".join(validation_messages),
+                "request": request,
+                "binds": binds,
+                "priority": priority,
+                "priorities": list(TaskPriority),
+                "tasks": total_list,
+                "tag": tag or "",
+                "disabled_modules": disabled_modules,
+                "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
+            },
+            csrf_protect,
+        )
 
     create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:
@@ -216,6 +233,58 @@ def export_delete_form(request: Request, id: int, csrf_protect: CsrfProtect = De
             "task": task,
         },
         csrf_protect,
+    )
+
+
+@router.get("/export/view/{id}", include_in_schema=False)
+def view_export(request: Request, id: int) -> Response:
+    task = db.get_report_generation_task(id)
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Report generation task not found")
+
+    vulnerabilities = []
+
+    num_high_severity = 0
+    num_medium_severity = 0
+    num_low_severity = 0
+
+    if task.status == "done":
+        domain_messages = {}
+        messages_path = os.path.join(task.output_location, "messages")
+        for item in os.listdir(messages_path):
+            with open(os.path.join(messages_path, item)) as f:
+                domain_messages[item.removesuffix(".html")] = f.read()
+
+        with open(os.path.join(task.output_location, "advanced", "output.json")) as f:
+            data = json.load(f)
+
+            for message in data["messages"].values():
+                for report in message["reports"]:
+                    vulnerabilities.append(report)
+                    if report["severity"] == "high":
+                        num_high_severity += 1
+                    elif report["severity"] == "medium":
+                        num_medium_severity += 1
+                    elif report["severity"] == "low":
+                        num_low_severity += 1
+                    else:
+                        assert False
+
+    else:
+        domain_messages = {}
+
+    return templates.TemplateResponse(
+        "view_export.jinja2",
+        {
+            "domain_messages": domain_messages,
+            "request": request,
+            "num_high_severity": num_high_severity,
+            "num_medium_severity": num_medium_severity,
+            "num_low_severity": num_low_severity,
+            "vulnerabilities": vulnerabilities,
+            "task": task,
+        },
     )
 
 

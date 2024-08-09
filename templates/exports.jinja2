@@ -88,6 +88,7 @@
                         <td>
                             {%  if report_generation_task.status == "done" %}
                                 <a href="/export/download-zip/{{ report_generation_task.id }}">Download ZIP</a> |
+                                <a href="/export/view/{{ report_generation_task.id }}">Browse</a> |
                             {%  elif report_generation_task.status == "failed" %}
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#error-{{  report_generation_task.id }}">
                                   Show error

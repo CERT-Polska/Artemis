@@ -5,6 +5,7 @@ import pymysql
 from karton.core import Task
 from pydantic import BaseModel
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.common_sql_credentials import COMMON_SQL_CREDENTIALS
@@ -21,6 +22,7 @@ class MySQLBruterResult(BaseModel):
     credentials: List[Tuple[str, str]] = []
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class MySQLBruter(ArtemisBase):
     """
     Performs a brute force attack on MySQL servers to guess login and password.

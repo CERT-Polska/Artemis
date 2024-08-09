@@ -10,6 +10,7 @@ from libmailgoose.scan import DomainScanResult as SPFDMARCScanResult
 from libmailgoose.scan import ScanningException, scan_domain
 from publicsuffixlist import PublicSuffixList
 
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
@@ -22,6 +23,7 @@ class MailDNSScannerResult:
     spf_dmarc_scan_result: Optional[SPFDMARCScanResult] = None
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class MailDNSScanner(ArtemisBase):
     """
     Checks whether there is a mail server associated with the current domain and checks if SPF and DMARC records are present.
@@ -115,18 +117,12 @@ class MailDNSScanner(ArtemisBase):
         result = self.scan(current_task, domain)
 
         status_reasons: List[str] = []
-        if (
-            result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.spf
-            and not result.spf_dmarc_scan_result.spf.valid
-        ):
+        if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.spf:
             status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
-        if (
-            result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.dmarc
-            and not result.spf_dmarc_scan_result.dmarc.valid
-        ):
+            status_reasons.extend(result.spf_dmarc_scan_result.spf.warnings)
+        if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.dmarc:
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
+            status_reasons.extend(result.spf_dmarc_scan_result.dmarc.warnings)
 
         if status_reasons:
             status = TaskStatus.INTERESTING

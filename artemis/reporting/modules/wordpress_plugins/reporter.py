@@ -1,12 +1,11 @@
 import os
 import re
-from functools import lru_cache
 from typing import Any, Callable, Dict, List, Set
 
-import requests
 from packaging import version
 
 from artemis import utils
+from artemis.fallback_api_cache import FallbackAPICache
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_url_normal_form
 from artemis.reporting.base.report import Report
@@ -16,11 +15,6 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_target_url, get_top_level_target
 
 logger = utils.build_logger(__name__)
-
-
-@lru_cache(maxsize=10_000)
-def cached_get_text(url: str) -> requests.Response:
-    return requests.get(url)
 
 
 class WordpressPluginsReporter(Reporter):
@@ -34,7 +28,7 @@ class WordpressPluginsReporter(Reporter):
     @staticmethod
     def is_version_known_to_wordpress(plugin_slug: str, plugin_version: str) -> bool:
         # Some plugins don't have the latest version as a tag on SVN repo
-        plugin_site_response = cached_get_text(f"https://wordpress.org/plugins/{plugin_slug}/")
+        plugin_site_response = FallbackAPICache.get(f"https://wordpress.org/plugins/{plugin_slug}/", allow_unknown=True)
         if plugin_site_response.status_code == 404:
             return False  # developed outside repo
 

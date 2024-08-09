@@ -7,9 +7,10 @@ exists() {
 }
 
 if ! exists .env; then
-    echo "Before starting Artemis, create .env file (e.g. by copying env.example) and "
-    echo "configure any settings you want to change."
-    exit 1
+    echo "The .env file is missing. Creating a copy from env.example..."
+    cp env.example .env
+    echo "The .env file has been created. You can access it later to configure any settings you want to change."
+    echo "Continuing with startup..."
 fi
 
 if [[ $(uname -m) != "arm"* ]]; then

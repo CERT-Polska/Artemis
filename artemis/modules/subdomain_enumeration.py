@@ -178,13 +178,14 @@ class SubdomainEnumeration(ArtemisBase):
 
             # We save the task as soon as we have results from a single tool so that other kartons can do something.
             for subdomain in valid_subdomains_from_tool:
-                task = Task(
-                    {"type": TaskType.DOMAIN},
-                    payload={
-                        "domain": subdomain,
-                    },
-                )
-                self.add_task(current_task, task)
+                if subdomain != domain:  # ensure we are not adding the parent domain again
+                    task = Task(
+                        {"type": TaskType.DOMAIN},
+                        payload={
+                            "domain": subdomain,
+                        },
+                    )
+                    self.add_task_if_domain_exists(current_task, task)
 
             valid_subdomains.update(valid_subdomains_from_tool)
 

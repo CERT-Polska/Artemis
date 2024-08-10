@@ -49,9 +49,10 @@ The possibility to automatically prepare such reports enabled us to notify entit
 ## Development
 To start a locally modified version of Artemis, run:
 ```commandline
- cp env.example .env  # after doing that, configure the settings by changing the user-agent and any other settings you want to change
  ./scripts/start_dev
 ```
+This script automatically copies the example environment file (.env.example) to .env if it doesn't exist. You can then configure the settings in the .env file according to your needs, including customizing the user-agent and other relevant parameters.
+
 The Artemis image is then built locally (from the code you are developing) not downloaded from Docker Hub.
 For `web`, you will also be able to see the results of code modifications on the page without reloading the entire container.
 

@@ -1,6 +1,9 @@
 #!/bin/bash
 
 cd $(dirname $0)/..
-python3 scripts/create_development_docker_compose.py
+if [ ! -f docker-compose.dev.yaml ]; then
+    echo "Creating docker-compose.dev.yaml"
+    python3 scripts/create_development_docker_compose.py
+fi
 
 ADDITIONAL_DOCKER_COMPOSE_OPTIONS="-f docker-compose.dev.yaml" ./scripts/start

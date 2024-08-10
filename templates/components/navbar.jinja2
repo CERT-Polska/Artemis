@@ -1,35 +1,36 @@
 <header>
-    <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="/"><img src="/static/images/logo.png" class="logo"></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+    <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><img src="/static/images/logo_dark.png" class="logo"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav mr-auto">
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/add">Add targets</a>
+                        <a class="nav-link {{ 'active' if request.path == '/add' }}" href="/add">Add targets</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/">View targets</a>
+                        <a class="nav-link {{ 'active' if request.path == '/' }}" href="/">View targets</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/results?task_filter=interesting">View raw task results</a>
+                        <a class="nav-link {{ 'active' if request.path == '/results' }}" href="/results?task_filter=interesting">View raw task results</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/export">Export reports</a>
+                        <a class="nav-link {{ 'active' if request.path == '/export' }}" href="/export">Export reports</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/exports">View exported reports</a>
+                        <a class="nav-link {{ 'active' if request.path == '/exports' }}" href="/exports">View exported reports</a>
+                        <span class="visually-hidden">(current)</span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/queue">Task queue</a>
+                        <a class="nav-link {{ 'active' if request.path == '/queue' }}" href="/queue">Task queue</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/restart-crashed-tasks">Restart crashed tasks</a>
+                        <a class="nav-link {{ 'active' if request.path == '/restart-crashed-tasks' }}" href="/restart-crashed-tasks">Restart crashed tasks</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/docs">API</a>
+                        <a class="nav-link {{ 'active' if request.path == '/docs' }}" href="/docs">API</a>
                     </li>
                 </ul>
             </div>

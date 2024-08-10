@@ -2,15 +2,21 @@
 <html lang="en" class="h-100" style="scrollbar-gutter: stable">
     <head>
         <title>Artemis</title>
+        <script>
+            const isSystemThemeSetToDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
+            if (isSystemThemeSetToDark) {
+                document.body.dataset.bsTheme = "dark";
+            };
+        </script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="/static/bootstrap.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap4.min.css" integrity="sha512-PT0RvABaDhDQugEbpNMwgYBCnGCiTZMh9yOzUsJHDgl/dMhD9yjHAwoumnUk3JydV3QTcIkNDuN40CJxik5+WQ==" crossorigin="anonymous" />
 	<link rel="stylesheet" href="/static/style.css" />
-     <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
     </head>
-    <body class="w-100 h-100">
+    <body class="w-100 h-100" data-bs-theme="dark">
         {% include "components/navbar.jinja2" %}
 
         {% block main_raw %}
@@ -19,7 +25,8 @@
             {% endblock %}
         </main>
         {% endblock %}
-
+        <script src="/static/theme.js"></script>
+        <script src="https://kit.fontawesome.com/822c3cc402.js" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs//bootstrap/5.2.3/js/bootstrap.min.js" integrity="sha512-1/RvZcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g==" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js" integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg==" crossorigin="anonymous"></script>

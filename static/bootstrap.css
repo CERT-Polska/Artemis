@@ -45,7 +45,7 @@
   --bs-danger: #da292e;
   --bs-light: #f8f9fa;
   --bs-dark: #212529;
-  --bs-primary-rgb: 52, 89, 230;
+  --bs-primary-rgb: 0, 5, 245;
   --bs-secondary-rgb: 255, 255, 255;
   --bs-success-rgb: 47, 179, 128;
   --bs-info-rgb: 40, 123, 181;
@@ -12101,6 +12101,7 @@ textarea.form-control-lg {
 .navbar {
   font-size: 0.875rem;
   font-weight: 500;
+  background-color: #0005F5;
 }
 .navbar .nav-item {
   margin-right: 0.5rem;

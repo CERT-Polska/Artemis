@@ -12,16 +12,17 @@ First, you need to prepare a machine. The recommended configuration for the scan
 - 30GB of free disk space to store Docker images and scan results.
 
 To start Artemis, clone the ``https://github.com/CERT-Polska/Artemis/`` repository and execute the
-following 2 commands in your terminal in the ``Artemis`` directory:
+following command in your terminal in the ``Artemis`` directory:
 
 .. code-block:: console
 
-   cp env.example .env  # after doing that, configure the settings by changing the user-agent and any other settings you want to change
    ./scripts/start
 
-We recommend to set the ``CUSTOM_USER_AGENT`` setting and rate-limit the scanning (more information here: :doc:`user-guide/cooperation-with-scanned-entities`).
-
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
+
+The above command will automatically create a ``.env`` file with default settings if it doesn't exist. You can edit this file later to configure various settings, including customizing the user-agent by setting the ``CUSTOM_USER_AGENT`` variable, as well as other relevant parameters.
+
+We strongly recommend setting the ``CUSTOM_USER_AGENT`` and configuring rate-limiting for scanning (more information here: :doc:`user-guide/cooperation-with-scanned-entities`). For a complete list of configuration variables and their descriptions, please refer to the :doc:`user-guide/configuration` section in the documentation.
 
 **We recommend you to add additional Artemis modules from** https://github.com/CERT-Polska/Artemis-modules-extra/ -
 these modules haven't been included in core due to licensing reasons, but provide additional features such

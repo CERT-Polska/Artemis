@@ -47,7 +47,7 @@ class ArtemisModuleTestCase(KartonTestCase):
                 return set()  # Return an empty set if resolution fails
 
         for item in ["artemis.module_base.lookup", "artemis.modules.port_scanner.lookup"]:
-            self._lookup_mock = patch(item, MagicMock(side_effect=mock_lookup(host)))
+            self._lookup_mock = patch(item, MagicMock(side_effect=mock_lookup))
             self._lookup_mock.__enter__()
 
         self.mock_db = MagicMock()

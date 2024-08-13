@@ -484,6 +484,7 @@ class Config:
                         "http/exposures/configs/behat-config.yaml",
                         # Catches multiple open redirects
                         "http/cves/2018/CVE-2018-11784.yaml",
+                        "http/cves/2019/CVE-2019-10098.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -547,11 +548,30 @@ class Config:
                         # these manually.
                         "group:sql-injection",
                         # Sometimes a source of FPs
-                        "http/cves/2023/CVE-2023-35161.yaml",
+                        "http/cves/2008/CVE-2008-2398.yaml",
+                        "http/cves/2014/CVE-2014-9444.yaml",
+                        "http/cves/2015/CVE-2015-8349.yaml",
+                        "http/cves/2018/CVE-2018-11709.yaml",
+                        "http/cves/2018/CVE-2018-13380.yaml",
+                        "http/cves/2018/CVE-2018-14013.yaml",
+                        "http/cves/2019/CVE-2019-12461.yaml",
+                        "http/cves/2020/CVE-2020-15500.yaml",
                         "http/cves/2020/CVE-2020-2096.yaml",
+                        "http/cves/2020/CVE-2020-2140.yaml",
                         "http/cves/2020/CVE-2020-6171.yaml",
-                        "http/cves/2020/CVE-2020-35848.yaml",
+                        "http/cves/2020/CVE-2020-19282.yaml",
+                        "http/cves/2020/CVE-2020-19283.yaml",
+                        "http/cves/2020/CVE-2020-35848.yaml"
+                        "http/cves/2021/CVE-2021-26702.yaml",
+                        "http/cves/2021/CVE-2021-26723.yaml",
+                        "http/cves/2021/CVE-2021-29625.yaml",
+                        "http/cves/2021/CVE-2021-30213.yaml",
+                        "http/cves/2021/CVE-2021-41467.yaml",
+                        "http/cves/2023/CVE-2023-35161.yaml",
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
+                        "http/vulnerabilities/other/java-melody-xss.yaml",
+                        "http/vulnerabilities/other/parentlink-xss.yaml",
+                        "http/vulnerabilities/other/wems-manager-xss.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

@@ -363,6 +363,19 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-dalfox:
+    <<: *artemis-build-or-image
+    command: "python3 -m artemis.modules.dalfox"
+    depends_on: [karton-system, karton-logger]
+    env_file: .env
+    restart: always
+    volumes:
+      - "./docker/karton.ini:/etc/karton/karton.ini"
+      - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
+      - "./:/opt"
+#      - data-nuclei-templates:/root/nuclei-templates
+#      - data-nuclei-config:/root/.config/nuclei
+
 volumes:
   data-nuclei-templates:
   data-nuclei-config:

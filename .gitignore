@@ -147,5 +147,3 @@ cython_debug/
 docker-compose.dev.yaml
 karton-logs
 output
-Artemis-modules-extra
-/artemis/help_sql_error.py

@@ -552,6 +552,7 @@ class Config:
                         "http/cves/2020/CVE-2020-6171.yaml",
                         "http/cves/2020/CVE-2020-35848.yaml",
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
+                        "http/cves/2019/CVE-2019-10098.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

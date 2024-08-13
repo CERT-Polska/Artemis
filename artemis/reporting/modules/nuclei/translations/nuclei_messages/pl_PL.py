@@ -300,6 +300,10 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Revive Adserver before 5.1.0 contains an open redirect vulnerability via the dest, oadest, and ct0 parameters of the lg.php and ck.php delivery scripts. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Revive Adserver w wersji poniżej 5.1.0 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
+    "WordPress WebP Converter for Media < 4.0.3 contains a file (passthru.php) which does not validate the src parameter before redirecting the user to it, leading to an open redirect issue.": "Wtyczka WordPress o nazwie WebP Converter for Media w wersji poniżej 4.0.3 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + WORDPRESS_UPDATE_HINT,
+    "In Apache HTTP server 2.4.0 to 2.4.39, Redirects configured with mod_rewrite that were intended to be self-referential might be fooled by encoded newlines and redirect instead to an unexpected URL within the request URL.": "Serwer Apache w wersji 2.4.0 do 2.4.39 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + UPDATE_HINT,
     "IceWarp Mail Server contains an open redirect via the referer parameter. This can lead to phishing attacks or other unintended redirects.": "Wykryto serwer IceWarp zawierający podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
     "[no description] http/takeovers/tilda-takeover.yaml": "Wykryto domenę kierującą do narzędzia Tilda, ale domena docelowa jest wolna. Atakujący może zarejestrować domenę w narzędziu Tilda, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
@@ -896,7 +900,23 @@ TRANSLATIONS = {
     "Cross-site scripting vulnerability in Telerik.ReportViewer.WebForms.dll in Telerik Reporting for ASP.NET WebForms Report Viewer control before R1 2017 SP2 (11.0.17.406) allows remote attackers to inject arbitrary web script or HTML via the bgColor parameter to Telerik.ReportViewer.axd.": "Moduł Telerik.ReportViewer.WebForms.dll w narzędziu Telerik Reporting for ASP.NET WebForms Report Viewer control w wersji poniżej R1 2017 SP2 (11.0.17.406) zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Nginx is vulnerable to git configuration exposure.": "Wykryto błędną konfigurację serwera nginx umożliwiającą odczyt kodu źródłowego aplikacji.",
+    "Ruby on Rails 6.0.0-6.0.3.1 contains a CRLF issue which allows JavaScript to be injected into the response, resulting in cross-site scripting.": "Ruby on Rails 6.0.0-6.0.3.1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress Plugin WPML Version < 4.6.1  is vulnerable to RXSS via wp_lang parameter.": "Wtyczka WordPress o nazwie WPML w wersji poniżej 4.6.1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Docker Registry Listing enabled.": "Wykryto publicznie dostępny listing kontenerów w systemie Docker Registry."
+    + DATA_HIDE_HINT,
     "Multiple cross-site scripting (XSS) vulnerabilities in SquirrelMail 1.4.2 allow remote attackers to execute arbitrary script and possibly steal authentication information via multiple attack vectors, including the mailbox parameter in compose.php.": "System SquirrelMail w wersji 1.4.2 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    'Multiple directory traversal vulnerabilities in the web server for Motorola SURFBoard cable modem SBV6120E running firmware SBV6X2X-1.0.0.5-SCM-02-SHPC allow remote attackers to read arbitrary files via (1) "//" (multiple leading slash), (2) ../ (dot dot) sequences, and encoded dot dot sequences in a URL request.': "Modem SBV6120E z firmware SBV6X2X-1.0.0.5-SCM-02-SHPC zawiera podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików.",
+    "Parallels H-Sphere 3.0.0 P9 and 3.1 P1 contains multiple cross-site scripting vulnerabilities in login.php in webshell4. An attacker can inject arbitrary web script or HTML via the err, errorcode, and login parameters, thus allowing theft of cookie-based authentication credentials and launch of other attacks.": "Parallels H-Sphere 3.0.0 P9 i 3.1 P1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Odoo is a business suite that has features for many business-critical areas, such as e-commerce, billing, or CRM. Versions before the 16.0 release are vulnerable to CVE-2023-1434 and is caused by an incorrect content type being set on an API endpoint.": "System Odoo w wersji poniżej 16.0 zawiera podatność "
@@ -997,6 +1017,9 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Netdata is exposed.": "Wykryto publiczne dostępne metryki systemu Netdata." + DATA_HIDE_HINT,
     "SPIP 3.1.2 and earlier contains a cross-site scripting vulnerability in valider_xml.php which allows remote attackers to inject arbitrary web script or HTML via the var_url parameter in a valider_xml action.": "SPIP w wersji 3.1.2 i wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Triconsole Datepicker Calendar before 3.77 contains a cross-site scripting vulnerability in calendar_form.php. Attackers can read authentication cookies that are still active, which can be used to perform further attacks such as reading browser history, directory listings, and file contents.": "Triconsole Datepicker Calendar w wersji poniżej 3.77 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Multiple cross-site scripting vulnerabilities in Netsweeper before 3.1.10, 4.0.x before 4.0.9, and 4.1.x before 4.1.2 allow remote attackers to inject arbitrary web script or HTML via the (1) server parameter to remotereporter/load_logfiles.php, (2) customctid parameter to webadmin/policy/category_table_ajax.php, (3) urllist parameter to webadmin/alert/alert.php, (4) QUERY_STRING to webadmin/ajaxfilemanager/ajax_get_file_listing.php, or (5) PATH_INFO to webadmin/policy/policy_table_ajax.php/.": "Netsweeper w wersji poniżej 3.1.10, 4.0.x poniżej 4.0.9 i 4.1.x poniżej 4.1.2 zawiera podatność "
@@ -1259,4 +1282,6 @@ TRANSLATIONS = {
     "AppVeyor configuration page was detected.": "wykryto stronę konfiguracyjną systemu AppVeyor.",
     "An Apache Tomcat instance was detected.": "Wykryto panel Apache Tomcat.",
     "Citrix VPN panel was detected.": "wykryto panel Citrix VPN.",
+    "Parallels H-Sphere login panel was detected.": "Wykryto panel logowania Paralels H-Sphere.",
+    "WebShell4 login panel was detected.": "Wykryto panel logowania WebShell4.",
 }

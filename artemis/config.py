@@ -561,8 +561,7 @@ class Config:
                         "http/cves/2020/CVE-2020-6171.yaml",
                         "http/cves/2020/CVE-2020-19282.yaml",
                         "http/cves/2020/CVE-2020-19283.yaml",
-                        "http/cves/2020/CVE-2020-35848.yaml"
-                        "http/cves/2021/CVE-2021-26702.yaml",
+                        "http/cves/2020/CVE-2020-35848.yaml" "http/cves/2021/CVE-2021-26702.yaml",
                         "http/cves/2021/CVE-2021-26723.yaml",
                         "http/cves/2021/CVE-2021-29625.yaml",
                         "http/cves/2021/CVE-2021-30213.yaml",

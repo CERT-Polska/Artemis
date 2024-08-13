@@ -2,4 +2,5 @@
 
 cd $(dirname $0)/..
 python3 scripts/create_development_docker_compose.py
+
 ADDITIONAL_DOCKER_COMPOSE_OPTIONS="-f docker-compose.dev.yaml" ./scripts/start

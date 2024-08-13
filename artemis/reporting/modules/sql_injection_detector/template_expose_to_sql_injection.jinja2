@@ -1,5 +1,5 @@
 {% if "exposed_to_sql_injection" in data.contains_type %}
-    <li>{% trans %}We identified that the following URLs are exposed to Sql Injection or Time Base SQL Injection:{% endtrans %}
+    <li>{% trans %}We identified that the following URLs are exposed to SQL Injection or Time Base SQL Injection:{% endtrans %}
         <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "exposed_to_sql_injection" %}
@@ -7,8 +7,25 @@
                         {{ report.target }}
                         <ul>
                         {% for message in report.additional_data.result %}
+                            {% set url = message.split(': ')[0] %}
+                            {% set statement = message.split(': ')[1] %}
                             <li>
-                                {{ message }}.
+                                {{ url }}:
+                                {% if statement == "It appears that this url is vulnerable to SQL Injection" %}
+                                    {% trans trimmed %}
+                                        It appears that this url is vulnerable to SQL Injection
+                                {% endtrans %}
+
+                                {% elif statement == "It appears that this url is vulnerable to SQL Time Base Injection" %}
+                                    {% trans trimmed %}
+                                        It appears that this url is vulnerable to SQL Time Base Injection
+                                {% endtrans %}
+
+                                {% elif statement == "Response from server is equal to 500" %}
+                                    {% trans trimmed %}
+                                        Response from server is equal to 500
+                                    {% endtrans %}
+                                {% endif %}
                             </li>
                         {% endfor %}
                         </ul>

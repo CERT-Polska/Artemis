@@ -1,12 +1,26 @@
 #: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:2
 msgid ""
-"We identified that the following URLs are exposed to Sql Injection or "
+"We identified that the following URLs are exposed to SQL Injection or "
 "Time Base SQL Injection:"
 msgstr ""
 "Zidentyfikowaliśmy, że następujące adresy URL są podatne na SQL Injection"
 " lub Time-Based SQL Injection:"
 
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:15
+msgid "It appears that this url is vulnerable to SQL Injection"
+msgstr "Wygląda na to, że ten adres URL jest podatny na atak typu SQL Injection."
+
 #: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:20
+msgid "It appears that this url is vulnerable to SQL Time Base Injection"
+msgstr ""
+"Wygląda na to, że ten adres URL jest podatny na atak typu SQL Time-Based "
+"Injection."
+
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:25
+msgid "Response from server is equal to 500"
+msgstr "Odpowiedź z serwera równa się 500"
+
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:37
 msgid ""
 "These vulnerabilities can lead to serious security breaches, including "
 "user data leaks and potential database manipulation. The vulnerability "
@@ -19,34 +33,34 @@ msgstr ""
 "bezpośrednio wstrzykiwane do zapytań SQL, co umożliwia atakującym "
 "wykonanie dowolnych poleceń SQL."
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:26
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:43
 msgid "Effects of the vulnerability:"
 msgstr "Skutki podatności:"
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:28
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:45
 msgid "Possibility of leaking personal user data."
 msgstr "Możliwość wycieku danych osobowych użytkowników."
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:29
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:46
 msgid "Manipulation of data in the database."
 msgstr "Manipulacja danymi w bazie danych."
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:30
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:47
 msgid "Possibility of complete control over the database."
 msgstr "Możliwość całkowitego przejęcia kontroli nad bazą danych."
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:34
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:51
 msgid "We recommend:"
 msgstr "Rekomendujemy"
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:36
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:53
 msgid "Validation and sanitization of input data."
 msgstr "Walidacja i sanityzacja danych wejściowych."
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:37
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:54
 msgid "Using prepared statements and stored procedures."
 msgstr "Używanie przygotowanych zapytań i procedur składowanych."
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:38
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:55
 msgid "Limiting database permissions."
 msgstr "Ograniczanie uprawnień do bazy danych."

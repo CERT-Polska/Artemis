@@ -1,9 +1,8 @@
 import datetime
-import random
 import re
 import urllib
 from timeit import default_timer as timer
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
 
 import more_itertools
@@ -16,13 +15,13 @@ from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
-from artemis.sql_messages_example import SQL_ERROR_MESSAGES, URL_PARAMS
+from artemis.sql_injection_data import SQL_ERROR_MESSAGES, URL_PARAMS
 from artemis.task_utils import get_target_url
 
 
 class SqlInjectionDetector(ArtemisBase):
     """
-    Module for detecting sql Injection and Base Time Sql Injection vulnerabilities.
+    Module for detecting SQL Injection and Base Time SQL Injection vulnerabilities.
     """
 
     identity = "sql_injection_detector"
@@ -36,17 +35,11 @@ class SqlInjectionDetector(ArtemisBase):
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
     @staticmethod
-    def create_url_with_batch_payload(
-        url: str, param_batch: Optional[tuple[Any]], sleep_payload: Optional[str] = None
-    ) -> str:
-        if param_batch is not None:
-            assignments = {
-                key: sleep_payload if sleep_payload else random.choice(Config.Modules.SqlInjectionDetector.PAYLOADS)
-                for key in param_batch
-            }
-            url_with_payload = f"{url}?" + "&".join([f"{key}={value}" for key, value in assignments.items()])
-            return unquote(url_with_payload)
-        return url
+    def create_url_with_batch_payload(url: str, param_batch: tuple[Any], payload: str) -> str:
+
+        assignments = {key: payload for key in param_batch}
+        url_with_payload = f"{url}?" + "&".join([f"{key}={value}" for key, value in assignments.items()])
+        return unquote(url_with_payload)
 
     @staticmethod
     def is_url_with_payload(url: str) -> bool:
@@ -55,16 +48,14 @@ class SqlInjectionDetector(ArtemisBase):
         return False
 
     @staticmethod
-    def change_url_params(url: str, sleep_payload: Optional[str] = None) -> str:
+    def change_url_params(url: str, payload: str) -> str:
         parsed_url = urlparse(url)
         query_params = parse_qs(parsed_url.query)
         params = list(query_params.keys())
         new_query_params = {}
 
         for param in params:
-            new_query_params[param] = [
-                sleep_payload if sleep_payload else random.choice(Config.Modules.SqlInjectionDetector.PAYLOADS)
-            ]
+            new_query_params[param] = [payload]
 
         new_query_string = urlencode(new_query_params, doseq=True)
         new_url = urlunparse(
@@ -81,13 +72,13 @@ class SqlInjectionDetector(ArtemisBase):
 
     @staticmethod
     def is_response_time_within_threshold(elapsed_time: float) -> bool:
-        if elapsed_time < Config.Modules.SqlInjectionDetector.THRESHOLD:
+        if elapsed_time < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD:
             return True
         return False
 
     def are_requests_time_efficient(self, url: str) -> bool:
         start = timer()
-        self.response_when_injecting(url)
+        http_requests.get(url)
         elapsed_time = datetime.timedelta(seconds=timer() - start).seconds
 
         flag = self.is_response_time_within_threshold(elapsed_time)
@@ -101,12 +92,6 @@ class SqlInjectionDetector(ArtemisBase):
                 return True
         return False
 
-    @staticmethod
-    def response_when_injecting(url: str) -> HTTPResponse:
-        response = http_requests.get(url)
-
-        return response
-
     def scan(self, urls: List[str], task: Task) -> Dict[str, object]:
         task_result = {
             "task_host": get_target_url(task),
@@ -115,18 +100,18 @@ class SqlInjectionDetector(ArtemisBase):
         }
         message = []
         for current_url in urls:
-            #  Below is the code describing the logic, but it is repetitive. What is better (create a universal
-            #  function or leave it as below)
+            #  The code below may look complicated and repetitive, but it shows how the scanning logic works.
             if self.is_url_with_payload(current_url):
-                url_with_payload = self.change_url_params(url=current_url)
+                for error_payload in Config.Modules.SqlInjectionDetector.SQL_INJECTION_ERROR_PAYLOADS:
+                    url_with_payload = self.change_url_params(url=current_url, payload=error_payload)
 
-                if not self.contains_error(self.response_when_injecting(current_url)) and self.contains_error(
-                    self.response_when_injecting(url_with_payload)
-                ):
-                    message.append(f"{url_with_payload}: It appears that this url is vulnerable to SQL Injection")
+                    if not self.contains_error(http_requests.get(current_url)) and self.contains_error(
+                        http_requests.get(url_with_payload)
+                    ):
+                        message.append(f"{url_with_payload}: It appears that this url is vulnerable to SQL Injection")
 
-                for sleep_payload in Config.Modules.SqlInjectionDetector.SLEEP_PAYLOAD:
-                    url_with_sleep_payload = self.change_url_params(url=current_url, sleep_payload=sleep_payload)
+                for sleep_payload in Config.Modules.SqlInjectionDetector.SQL_INJECTION_SLEEP_PAYLOADS:
+                    url_with_sleep_payload = self.change_url_params(url=current_url, payload=sleep_payload)
 
                     if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
                         url_with_sleep_payload
@@ -136,25 +121,37 @@ class SqlInjectionDetector(ArtemisBase):
                         )
             else:
                 for param_batch in more_itertools.batched(URL_PARAMS, 10):
-                    url_with_payload = self.create_url_with_batch_payload(url=current_url, param_batch=param_batch)
-
-                    if not self.contains_error(self.response_when_injecting(current_url)) and self.contains_error(
-                        self.response_when_injecting(url_with_payload)
-                    ):
-                        message.append(f"{url_with_payload}: It appears that this url is vulnerable to SQL Injection")
-
-                    for sleep_payload in Config.Modules.SqlInjectionDetector.SLEEP_PAYLOAD:
-                        url_with_sleep_payload = self.create_url_with_batch_payload(
-                            url=current_url, param_batch=param_batch, sleep_payload=sleep_payload
+                    for error_payload in Config.Modules.SqlInjectionDetector.SQL_INJECTION_ERROR_PAYLOADS:
+                        url_with_payload = self.create_url_with_batch_payload(
+                            url=current_url, param_batch=param_batch, payload=error_payload
                         )
 
-                        if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
-                            url_with_sleep_payload
+                        if not self.contains_error(http_requests.get(current_url)) and self.contains_error(
+                            http_requests.get(url_with_payload)
                         ):
                             message.append(
-                                f"{url_with_sleep_payload} It appears that this url is vulnerable to SQL Time Base Injection"
+                                f"{url_with_payload}: It appears that this url is vulnerable to SQL Injection"
                             )
-            if self.response_when_injecting(current_url).status_code == 500:
+
+                    for sleep_payload in Config.Modules.SqlInjectionDetector.SQL_INJECTION_SLEEP_PAYLOADS:
+                        flags = []
+                        url_with_sleep_payload = self.create_url_with_batch_payload(
+                            url=current_url, param_batch=param_batch, payload=sleep_payload
+                        )
+                        for _ in range(3):
+                            if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
+                                url_with_sleep_payload
+                            ):
+                                flags.append(True)
+                            else:
+                                flags.append(False)
+
+                        if all(flags):
+                            message.append(
+                                f"{url_with_sleep_payload}: It appears that this url is vulnerable to SQL Time Base Injection"
+                            )
+
+            if http_requests.get(current_url).status_code == 500:
                 message.append(f"{current_url}: Response from server is equal to 500")
 
         task_result["message"] = list(set(message))

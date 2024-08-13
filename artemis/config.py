@@ -612,26 +612,26 @@ class Config:
             ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=30, cast=int)
 
         class SqlInjectionDetector:
-            SQL_INJECTION_DETECTOR_MAX_BATCH_SIZE: Annotated[
-                int,
-                "How many sites to scan at once. This is the maximum batch size",
-            ] = get_config("SQL_INJECTION_DETECTOR_MAX_BATCH_SIZE", default=10, cast=int)
-
-            THRESHOLD: Annotated[
+            SQL_INJECTION_TIME_THRESHOLD: Annotated[
                 int,
                 "Seconds to method sleep() or pg_sleep()",
             ] = get_config("THRESHOLD", default=1, cast=int)
 
-            SLEEP_PAYLOAD: Annotated[
+            SQL_INJECTION_SLEEP_PAYLOADS: Annotated[
                 List[str],
-                "Payload sleep() function",
+                "List of payloads with sleep() and pg_sleep() functions.",
             ] = get_config(
-                "SLEEP_PAYLOAD", default=[f"'||sleep({THRESHOLD})||'", f"'||pg_sleep({THRESHOLD})||'"], cast=list
+                "SLEEP_PAYLOAD",
+                default=[
+                    f"'||sleep({SQL_INJECTION_TIME_THRESHOLD})||'",
+                    f"'||pg_sleep({SQL_INJECTION_TIME_THRESHOLD})||'",
+                ],
+                cast=list,
             )
 
-            PAYLOADS: Annotated[
+            SQL_INJECTION_ERROR_PAYLOADS: Annotated[
                 List[str],
-                "Payload to create new url",
+                "Payloads to be substituted for parameter values when creating a URL with a payload.",
             ] = get_config("PAYLOAD", default=["'", '"'], cast=list)
 
     @staticmethod

@@ -8,7 +8,7 @@
         to jest z php mysql
         <?php
             error_reporting(-1);
-            $conn = new mysqli("mysql-test", "root", "root", "information_schema");
+            $conn = new mysqli("sql-injection-test-mysql", "root", "root", "information_schema");
 
              $sql = "
                 SELECT id, content FROM (

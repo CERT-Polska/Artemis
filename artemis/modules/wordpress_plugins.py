@@ -147,8 +147,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 if line.startswith(slug):
                     line = line[len(slug) :].strip(" :")
                 # Some changelog entries have the format version <version>
-                # let's take only first 10 characters as the "version" word may occur in a middle of a sentence
-                if "version" in line[:10]:
+                # let's take only first 25 characters as the "version" word may occur in a middle of a sentence
+                if "version" in line[:25]:
                     line = line[line.find("version") + len("version") :].strip(" :")
                 # Some changelog entries have the format V <version>
                 if "v " in line:

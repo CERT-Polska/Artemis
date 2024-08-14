@@ -8,7 +8,7 @@ function switchTheme() {
 }
 
 function updateToggleSwitch(theme) {
-  var toggleSwitch = document.getElementById('flexSwitchCheckChecked');
+  var toggleSwitch = document.getElementById('theme-switch');
   toggleSwitch.checked = theme === 'dark';
 }
 

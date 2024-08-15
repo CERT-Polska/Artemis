@@ -5,7 +5,7 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarColor01">
+            <div class="collapse navbar-collapse" id="navbar">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.path == '/add' }}" href="/add">Add targets</a>
@@ -21,7 +21,6 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.path == '/exports' }}" href="/exports">View exported reports</a>
-                        <span class="visually-hidden">(current)</span>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.path == '/queue' }}" href="/queue">Task queue</a>

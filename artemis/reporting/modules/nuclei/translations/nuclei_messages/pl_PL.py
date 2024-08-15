@@ -919,7 +919,8 @@ TRANSLATIONS = {
     "Odoo is a business suite that has features for many business-critical areas, such as e-commerce, billing, or CRM. Versions before the 16.0 release are vulnerable to CVE-2023-1434 and is caused by an incorrect content type being set on an API endpoint.": "System Odoo w wersji poniżej 16.0 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "http/cves/2023/CVE-2023-6875.yaml": "Wtyczka WordPress o nazwie The POST SMTP Mailer - Email log, Delivery Failure Notifications and Best Mail SMTP for WordPress w wersji do 2.8.7 włącznie zawiera podatność umożliwiającą nieuprawniony dostęp i modyfikację danych." + UPDATE_HINT,
+    "http/cves/2023/CVE-2023-6875.yaml": "Wtyczka WordPress o nazwie The POST SMTP Mailer - Email log, Delivery Failure Notifications and Best Mail SMTP for WordPress w wersji do 2.8.7 włącznie zawiera podatność umożliwiającą nieuprawniony dostęp i modyfikację danych."
+    + UPDATE_HINT,
     "The W3 Total Cache WordPress plugin was affected by an Unauthenticated Server Side Request Forgery (SSRF) security vulnerability.": "Wykryto wtyczkę WordPress o nazwie W3 Total Cache w wersji zawierającej podatność Server Side Request Forgery (SSRF), czyli umożliwiającą atakującemu dostęp do zasobów w sieci lokalnej. "
     + WORDPRESS_UPDATE_HINT,
     "Knowage Suite 7.3 contains an unauthenticated reflected cross-site scripting vulnerability. An attacker can inject arbitrary web script in '/servlet/AdapterHTTP' via the 'targetService' parameter.": "Knowage Suite w wersji 7.3 i potencjalnie wcześniejszych zawiera podatność "

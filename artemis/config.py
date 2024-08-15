@@ -547,22 +547,22 @@ class Config:
                         # Until https://github.com/CERT-Polska/Artemis/issues/899 gets fixed, let's review
                         # these manually.
                         "group:sql-injection",
-                        # Sometimes a source of FPs
+                        # Sometimes a source of FPs or true positives with misidentified software name
                         "http/cves/2008/CVE-2008-2398.yaml",
                         "http/cves/2014/CVE-2014-9444.yaml",
                         "http/cves/2015/CVE-2015-8349.yaml",
-                        "http/cves/2019/CVE-2019-10098.yaml",
                         "http/cves/2018/CVE-2018-11709.yaml",
                         "http/cves/2018/CVE-2018-13380.yaml",
                         "http/cves/2018/CVE-2018-14013.yaml",
+                        "http/cves/2019/CVE-2019-10098.yaml",
                         "http/cves/2019/CVE-2019-12461.yaml",
                         "http/cves/2020/CVE-2020-15500.yaml",
-                        "http/cves/2020/CVE-2020-2096.yaml",
-                        "http/cves/2020/CVE-2020-2140.yaml",
-                        "http/cves/2020/CVE-2020-6171.yaml",
                         "http/cves/2020/CVE-2020-19282.yaml",
                         "http/cves/2020/CVE-2020-19283.yaml",
+                        "http/cves/2020/CVE-2020-2096.yaml",
+                        "http/cves/2020/CVE-2020-2140.yaml",
                         "http/cves/2020/CVE-2020-35848.yaml",
+                        "http/cves/2020/CVE-2020-6171.yaml",
                         "http/cves/2021/CVE-2021-26702.yaml",
                         "http/cves/2021/CVE-2021-26723.yaml",
                         "http/cves/2021/CVE-2021-29625.yaml",

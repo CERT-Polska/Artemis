@@ -8,7 +8,7 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-center" id="navbar">
+            <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.path == '/add' }}" href="/add">Add targets</a>
@@ -42,7 +42,7 @@
                     <div class="ms-2 form-check form-switch">
                         <input class="form-check-input p-2" type="checkbox" role="switch" id="theme-switch" checked onclick="switchTheme()"/>
                     </div>
-                    <i class="fa-solid fa-moon"></i>
+                    <i class="fa-solid fa-moon"></i>    
                 </li>
             </div>
         </div>

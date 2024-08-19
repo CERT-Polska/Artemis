@@ -915,16 +915,19 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
-    "The Quttera Web Malware Scanner WordPress plugin before 3.4.2.1 doesn't restrict access to detailed scan logs, which allows a malicious actor to discover local paths and portions of the site's code": "Wtyczka WordPress o nazwie Quttera Web Malware Scanner w wersji poniżej 3.4.2.1 umożliwia atakującemu pobranie dziennika skanowania i poznanie ścieżek i fragmentów kodu aplikacji." 
+    + UPDATE_HINT,
+    "The Quttera Web Malware Scanner WordPress plugin before 3.4.2.1 doesn't restrict access to detailed scan logs, which allows a malicious actor to discover local paths and portions of the site's code": "Wtyczka WordPress o nazwie Quttera Web Malware Scanner w wersji poniżej 3.4.2.1 umożliwia atakującemu pobranie dziennika skanowania i poznanie ścieżek i fragmentów kodu aplikacji."
     + UPDATE_HINT,
     "Odoo is a business suite that has features for many business-critical areas, such as e-commerce, billing, or CRM. Versions before the 16.0 release are vulnerable to CVE-2023-1434 and is caused by an incorrect content type being set on an API endpoint.": "System Odoo w wersji poniżej 16.0 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "http/cves/2023/CVE-2023-6875.yaml": "Wtyczka WordPress o nazwie The POST SMTP Mailer - Email log, Delivery Failure Notifications and Best Mail SMTP for WordPress w wersji do 2.8.7 włącznie zawiera podatność umożliwiającą nieuprawniony dostęp i modyfikację danych."
     + UPDATE_HINT,
-     'phpinfo() is susceptible to resource exposure in unprotected composer vendor folders via phpfastcache/phpfastcache.' : "Wykryto błędną konfigurację narzędzia phpfastcache zawierającą publicznie dostępny plik phpinfo, udostępniający informacje o konfiguracji serwera. " + DATA_HIDE_HINT,
-    "GNU Bash through 4.3 processes trailing strings after function definitions in the values of environment variables, which allows remote attackers to execute arbitrary code via a crafted environment, as demonstrated by vectors involving the ForceCommand feature in OpenSSH sshd, the mod_cgi and mod_cgid modules in the Apache HTTP Server, scripts executed by unspecified DHCP clients, and other situations in which setting the environment occurs across a privilege boundary from Bash execution, aka ShellShock.": "Wykryto powłokę Bash w wersji do 4.3 zawierającą podatność ShellShock, umożliwiającą atakującemu zdalne wykonanie kodu " + UPDATE_HINT,
-     'WordPress White Label CMS plugin before 2.2.9 contains a reflected cross-site scripting vulnerability. It does not sanitize and validate the wlcms[_login_custom_js] parameter before outputting it back in the response while previewing.': "Wtyczka WordPress o nazwie White Label CMS w wersji poniżej 2.2.9 zawiera podatność "
+    "phpinfo() is susceptible to resource exposure in unprotected composer vendor folders via phpfastcache/phpfastcache.": "Wykryto błędną konfigurację narzędzia phpfastcache zawierającą publicznie dostępny plik phpinfo, udostępniający informacje o konfiguracji serwera. "
+    + DATA_HIDE_HINT,
+    "GNU Bash through 4.3 processes trailing strings after function definitions in the values of environment variables, which allows remote attackers to execute arbitrary code via a crafted environment, as demonstrated by vectors involving the ForceCommand feature in OpenSSH sshd, the mod_cgi and mod_cgid modules in the Apache HTTP Server, scripts executed by unspecified DHCP clients, and other situations in which setting the environment occurs across a privilege boundary from Bash execution, aka ShellShock.": "Wykryto powłokę Bash w wersji do 4.3 zawierającą podatność ShellShock, umożliwiającą atakującemu zdalne wykonanie kodu "
+    + UPDATE_HINT,
+    "WordPress White Label CMS plugin before 2.2.9 contains a reflected cross-site scripting vulnerability. It does not sanitize and validate the wlcms[_login_custom_js] parameter before outputting it back in the response while previewing.": "Wtyczka WordPress o nazwie White Label CMS w wersji poniżej 2.2.9 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "The W3 Total Cache WordPress plugin was affected by an Unauthenticated Server Side Request Forgery (SSRF) security vulnerability.": "Wykryto wtyczkę WordPress o nazwie W3 Total Cache w wersji zawierającej podatność Server Side Request Forgery (SSRF), czyli umożliwiającą atakującemu dostęp do zasobów w sieci lokalnej. "
@@ -1289,4 +1292,5 @@ TRANSLATIONS = {
     "Citrix VPN panel was detected.": "wykryto panel Citrix VPN.",
     "Parallels H-Sphere login panel was detected.": "Wykryto panel logowania Paralels H-Sphere.",
     "WebShell4 login panel was detected.": "Wykryto panel logowania WebShell4.",
+    "The Wagtail panel has been detected.": "Wykryto panel Wagtail.",
 }

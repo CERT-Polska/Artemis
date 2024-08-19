@@ -2,6 +2,14 @@ main.container {
     padding-top: 50px;
 }
 
+body[data-bs-theme=dark] .logo.light {
+    display: none;
+}
+
+body[data-bs-theme=light] .logo.dark {
+    display: none;
+}
+
 .logo {
     width: 200px;
 }

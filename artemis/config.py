@@ -615,7 +615,7 @@ class Config:
             SQL_INJECTION_TIME_THRESHOLD: Annotated[
                 int,
                 "Seconds to method sleep() or pg_sleep()",
-            ] = get_config("THRESHOLD", default=1, cast=int)
+            ] = get_config("THRESHOLD", default=2, cast=int)
 
             SQL_INJECTION_SLEEP_PAYLOADS: Annotated[
                 List[str],

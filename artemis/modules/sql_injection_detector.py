@@ -2,7 +2,7 @@ import datetime
 import re
 import urllib
 from timeit import default_timer as timer
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
 
 import more_itertools
@@ -15,7 +15,7 @@ from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
-from artemis.sql_injection_data import SQL_ERROR_MESSAGES, URL_PARAMS
+from artemis.sql_injection_data import HEADER_KEYS, SQL_ERROR_MESSAGES, URL_PARAMS
 from artemis.task_utils import get_target_url
 
 
@@ -76,9 +76,9 @@ class SqlInjectionDetector(ArtemisBase):
             return True
         return False
 
-    def are_requests_time_efficient(self, url: str) -> bool:
+    def are_requests_time_efficient(self, url: str, headers: Optional[Dict[str, str]] = None) -> bool:
         start = timer()
-        http_requests.get(url)
+        http_requests.get(url, headers=headers)
         elapsed_time = datetime.timedelta(seconds=timer() - start).seconds
 
         flag = self.is_response_time_within_threshold(elapsed_time)
@@ -92,6 +92,13 @@ class SqlInjectionDetector(ArtemisBase):
                 return True
         return False
 
+    @staticmethod
+    def create_headers(payload: str) -> dict[str, str]:
+        headers = {}
+        for key in HEADER_KEYS:
+            headers.update({key: payload})
+        return headers
+
     def scan(self, urls: List[str], task: Task) -> Dict[str, object]:
         task_result = {
             "task_host": get_target_url(task),
@@ -100,7 +107,7 @@ class SqlInjectionDetector(ArtemisBase):
         }
         message = []
         for current_url in urls:
-            #  The code below may look complicated and repetitive, but it shows how the scanning logic works.
+            # The code below may look complicated and repetitive, but it shows how the scanning logic works.
             if self.is_url_with_payload(current_url):
                 for error_payload in Config.Modules.SqlInjectionDetector.SQL_INJECTION_ERROR_PAYLOADS:
                     url_with_payload = self.change_url_params(url=current_url, payload=error_payload)
@@ -150,6 +157,24 @@ class SqlInjectionDetector(ArtemisBase):
                             message.append(
                                 f"{url_with_sleep_payload}: It appears that this url is vulnerable to SQL Time Base Injection"
                             )
+
+            for error_payload in Config.Modules.SqlInjectionDetector.SQL_INJECTION_ERROR_PAYLOADS:
+                headers = self.create_headers(payload=error_payload)
+                if not self.contains_error(http_requests.get(current_url)) and self.contains_error(
+                    http_requests.get(current_url, headers=headers)
+                ):
+                    message.append(
+                        f"{current_url}: It appears that this url is vulnerable to SQL Injection through HTTP Headers"
+                    )
+
+            for sleep_payload in Config.Modules.SqlInjectionDetector.SQL_INJECTION_SLEEP_PAYLOADS:
+                headers = self.create_headers(sleep_payload)
+                if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
+                    current_url, headers=headers
+                ):
+                    message.append(
+                        f"{current_url}: It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers"
+                    )
 
             if http_requests.get(current_url).status_code == 500:
                 message.append(f"{current_url}: Response from server is equal to 500")

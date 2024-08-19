@@ -21,6 +21,16 @@
                                         It appears that this url is vulnerable to SQL Time Base Injection
                                 {% endtrans %}
 
+                                {% elif statement == "It appears that this url is vulnerable to SQL Injection through HTTP Headers" %}
+                                    {% trans trimmed %}
+                                        It appears that this url is vulnerable to SQL Injection through HTTP Headers
+                                {% endtrans %}
+
+                                {% elif statement == "It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers" %}
+                                    {% trans trimmed %}
+                                        It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers
+                                {% endtrans %}
+
                                 {% elif statement == "Response from server is equal to 500" %}
                                     {% trans trimmed %}
                                         Response from server is equal to 500

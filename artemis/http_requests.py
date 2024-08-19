@@ -70,6 +70,7 @@ def _request(
     data: Optional[Dict[str, str]],
     cookies: Optional[Dict[str, str]],
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
+    **kwargs: Any
 ) -> HTTPResponse:
     def _internal_request() -> HTTPResponse:
         s = requests.Session()
@@ -84,7 +85,7 @@ def _request(
             verify=False,
             stream=True,
             timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
-            headers=HEADERS,
+            headers=HEADERS if kwargs.get("headers") is None else kwargs.get("headers"),
         )
 
         # Handling situations where the response is very long, which is not handled by requests timeout

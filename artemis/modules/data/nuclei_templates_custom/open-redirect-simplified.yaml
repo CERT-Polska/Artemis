@@ -21,6 +21,7 @@ http:
         - '.example.com'
         - 'example.com/'
         - 'example.com'
+        - '/http%3A%2F%2Fexample.com'
         - '/example.com/'
 
     stop-at-first-match: true

@@ -18,7 +18,7 @@ Jinja2==3.1.4
 karton-core==5.4.0
 git+https://github.com/CERT-Polska/mailgoose@v1.3.3#egg=libmailgoose&subdirectory=scan
 liccheck==0.9.2
-Markdown==3.6
+Markdown==3.7
 MarkupSafe==2.1.5
 minio==7.2.1
 more-itertools==10.4.0

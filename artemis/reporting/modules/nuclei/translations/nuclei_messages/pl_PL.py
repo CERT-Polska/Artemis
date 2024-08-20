@@ -901,7 +901,7 @@ TRANSLATIONS = {
     "Ruby on Rails 6.0.0-6.0.3.1 contains a CRLF issue which allows JavaScript to be injected into the response, resulting in cross-site scripting.": "Ruby on Rails 6.0.0-6.0.3.1 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    'Hotel Druid 3.0.2 contains a cross-site scripting vulnerability in multiple pages which allows for arbitrary execution of JavaScript commands.': "Hotel Druid w wersji 3.0.2 i potencjalnie wcześniejszych zawiera podatność "
+    "Hotel Druid 3.0.2 contains a cross-site scripting vulnerability in multiple pages which allows for arbitrary execution of JavaScript commands.": "Hotel Druid w wersji 3.0.2 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     'Cacti contains a cross-site scripting vulnerability via "http://<CACTI_SERVER>/auth_changepassword.php?ref=<script>alert(1)</script>" which can successfully execute the JavaScript payload present in the "ref" URL parameter.': "Wykryto, że system Cacti zawiera podatność "
@@ -1099,7 +1099,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION,
     "SAP NetWeaver Application Server ABAP, SAP NetWeaver Application Server Java, ABAP Platform, SAP Content Server 7.53 and SAP Web Dispatcher are vulnerable to request smuggling and request concatenation attacks. An unauthenticated attacker can prepend a victim's request with arbitrary data. This way, the attacker can execute functions impersonating the victim or poison intermediary web caches. A successful attack could result in complete compromise of Confidentiality, Integrity and Availability of the system.": "Wykryto oprogramowanie SAP NetWeaver Application Server ABAP, SAP NetWeaver Application Server Java, ABAP Platform, SAP Content Server lub SAP Web Dispatcher w wersji zawierającej podatność HTTP Request Smuggling lub HTTP Request Concatenation, umożliwiającą atakującemu uzyskanie nieuprawnionego dostępu lub zmianę odpowiedzi zwracanych przez serwer innym użytkownikom."
     + UPDATE_HINT,
-    'Opensis-Classic Version 8.0 is affected by cross-site scripting. An unauthenticated user can inject and execute JavaScript code through the link_url parameter in Ajax_url_encode.php.': "Opensis-Classic w wersji 8.0 (i potencjalnie wcześniejszych) zawiera podatność "
+    "Opensis-Classic Version 8.0 is affected by cross-site scripting. An unauthenticated user can inject and execute JavaScript code through the link_url parameter in Ajax_url_encode.php.": "Opensis-Classic w wersji 8.0 (i potencjalnie wcześniejszych) zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
@@ -1341,5 +1341,6 @@ TRANSLATIONS = {
     "The Wagtail panel has been detected.": "Wykryto panel Wagtail.",
     "Apache Spark panel was detected.": "Wykryto panel Apache Spark.",
     "An Apache Airflow admin login panel was discovered.": "Wykryto panel logowania Apache Airflow.",
-    'Micro Focus Application Lifecycle Management login panel was detected.': "Wykryto panel logowania Micro Focus Application Lifecycle Management.",
+    "Micro Focus Application Lifecycle Management login panel was detected.": "Wykryto panel logowania Micro Focus Application Lifecycle Management.",
+    "One Identity Password Manager is a secure password manager that gives enterprises control over password management, policies, and automated reset functions.": "Wykryto panel One Identity Password Manager.",
 }

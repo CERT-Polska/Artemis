@@ -178,7 +178,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     if slug in PLUGINS_TO_SKIP_STABLE_TAG:
         return changelog_version
 
-    tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* -").startswith("stable tag")]
+    tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* -\t").startswith("stable tag")]
     if len(tag_lines) > 1:
         return changelog_version
 

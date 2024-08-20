@@ -1345,6 +1345,7 @@ TRANSLATIONS = {
     "One Identity Password Manager is a secure password manager that gives enterprises control over password management, policies, and automated reset functions.": "Wykryto panel One Identity Password Manager.",
     "myLittleBackup panel was detected.": "wykryto panel myLittleBackup.",
     "Oracle Business Intelligence login panel was detected.": "Wykryto panel logowania Oracle Business Intelligence.",
-    'SecurEnvoy login panel was detected.': "Wykryto panel logowania SecurEnvoy.",
+    "SecurEnvoy login panel was detected.": "Wykryto panel logowania SecurEnvoy.",
     "Appsmith user login panel was detected.": "Wykryto panel logowania Appsmith.",
+    "Parse Dashboard login panel was detected.": "Wykryto panel logowania Parse Dashboard.",
 }

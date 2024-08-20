@@ -439,13 +439,14 @@ class Config:
                         "http/vulnerabilities/wordpress/music-store-open-redirect.yaml",
                         "http/cves/2021/CVE-2021-44528.yaml",
                         # Minor information leaks
+                        "http/cves/2017/CVE-2017-5487.yaml",
                         "http/cves/2020/CVE-2020-14179.yaml",
                         "http/cves/2021/CVE-2021-3293.yaml",
+                        "http/cves/2021/CVE-2021-25118.yaml",
+                        "http/cves/2021/CVE-2021-44848.yaml",
                         "http/cves/2024/CVE-2024-1208.yaml",
                         "http/cves/2024/CVE-2024-1210.yaml",
                         "http/cves/2024/CVE-2024-3097.yaml",
-                        "http/cves/2017/CVE-2017-5487.yaml",
-                        "http/cves/2021/CVE-2021-25118.yaml",
                         # Over 50 requests
                         "http/cves/2017/CVE-2017-17562.yaml",
                         "http/cves/2019/CVE-2019-17382.yaml",
@@ -482,9 +483,12 @@ class Config:
                         "javascript/default-logins/ssh-default-logins.yaml",
                         # Mostly Moodle config
                         "http/exposures/configs/behat-config.yaml",
-                        # Catches multiple open redirects
+                        # Catches multiple open redirects, replaced with artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml
                         "http/cves/2018/CVE-2018-11784.yaml",
                         "http/cves/2019/CVE-2019-10098.yaml",
+                        "http/cves/2022/CVE-2022-28923.yaml",
+                        # Too many FPs
+                        "http/cves/2023/CVE-2023-35161.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -539,6 +543,7 @@ class Config:
                         "custom:xss-inside-tag-top-params",
                         "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
+                        "custom:CVE-2024-4836",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
                         # gets fixed, these templates return a FP on phpinfo(). Let's not spam
                         # our recipients with FPs.

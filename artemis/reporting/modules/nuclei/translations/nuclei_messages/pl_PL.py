@@ -1346,4 +1346,5 @@ TRANSLATIONS = {
     "myLittleBackup panel was detected.": "wykryto panel myLittleBackup.",
     "Oracle Business Intelligence login panel was detected.": "Wykryto panel logowania Oracle Business Intelligence.",
     'SecurEnvoy login panel was detected.': "Wykryto panel logowania SecurEnvoy.",
+    "Appsmith user login panel was detected.": "Wykryto panel logowania Appsmith.",
 }

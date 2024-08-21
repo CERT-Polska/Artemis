@@ -22,12 +22,9 @@ BUG_FIX_HINT = " Rekomendujemy poprawienie tego błędu, a także sprawdzenie, c
 
 DATA_HIDE_HINT = " Rekomendujemy, aby takie dane nie były dostępne publicznie."
 
-REFLECTED_XSS_DESCRIPTION = "Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który - kliknięty przez użytkownika - wykona dowolną akcję z jego uprawnieniami."
+REFLECTED_XSS_DESCRIPTION = "Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który, po kliknięciu przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikacja treści)."
 
 DIRECTORY_INDEX_HINT = "Taka konfiguracja może w niektórych przypadkach stworzyć ryzyko wycieku wrażliwych danych. Nawet jeśli w podanych wyżej folderach nie ma wrażliwych danych, zaobserwowana konfiguracja może oznaczać, że serwer wyświetla listingi również innych katalogów. Jeśli nie jest to działanie celowe, to rekomendujemy konfigurację serwera tak, aby listing plików nie był publicznie dostępny."
-
-# This needs to be lowercase and begin with a space as it's part of a sentence
-REFLECTED_XSS_VULNERABILITY_DESCRIPTION = " umożliwiającą atakującemu spreparowanie linku, który, gdy zostanie kliknięty przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikację treści)."
 
 TRANSLATIONS = {
     "WordPress Contact Form 7 before 5.3.2 allows unrestricted file upload and remote code execution because a filename may contain special characters.": "Wtyczka WordPress Contact Form 7 w wersji poniżej 5.3.2 zezwala na nieograniczone umieszczanie plików i zdalne wykonanie kodu ponieważ nazwa pliku może zawierać znaki specjalne."
@@ -299,6 +296,10 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "Revive Adserver before 5.1.0 contains an open redirect vulnerability via the dest, oadest, and ct0 parameters of the lg.php and ck.php delivery scripts. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Revive Adserver w wersji poniżej 5.1.0 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + UPDATE_HINT,
+    "WordPress WebP Converter for Media < 4.0.3 contains a file (passthru.php) which does not validate the src parameter before redirecting the user to it, leading to an open redirect issue.": "Wtyczka WordPress o nazwie WebP Converter for Media w wersji poniżej 4.0.3 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + WORDPRESS_UPDATE_HINT,
+    "In Apache HTTP server 2.4.0 to 2.4.39, Redirects configured with mod_rewrite that were intended to be self-referential might be fooled by encoded newlines and redirect instead to an unexpected URL within the request URL.": "Serwer Apache w wersji 2.4.0 do 2.4.39 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
     "IceWarp Mail Server contains an open redirect via the referer parameter. This can lead to phishing attacks or other unintended redirects.": "Wykryto serwer IceWarp zawierający podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
@@ -574,37 +575,37 @@ TRANSLATIONS = {
     "A local file inclusion vulnerability in Accent Microcomputers offerings could allow remote attackers to retrieve password files.": "Wykryto podatność Local File Inclusion w oprogramowaniu Accent Microcomputers umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "http/exposures/configs/zend-config-file.yaml": "Wykryto plik konfiguracyjny systemu Zend zawierający dane logowania do bazy danych."
     + DATA_HIDE_HINT,
-    "WordPress FlagEm plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress o nazwie FlagEm zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "WordPress FlagEm plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress o nazwie FlagEm zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "WordPress Adaptive Images < 0.6.69 is susceptible to cross-site scripting because the plugin does not sanitize and escape the REQUEST_URI before outputting it back in a page.": "Wtyczka WordPress o nazwie Adaptive Images w wersji poniżej 0.6.69 zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "WordPress Adaptive Images < 0.6.69 is susceptible to cross-site scripting because the plugin does not sanitize and escape the REQUEST_URI before outputting it back in a page.": "Wtyczka WordPress o nazwie Adaptive Images w wersji poniżej 0.6.69 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "Tiki Wiki CMS Groupware 5.2 contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Tiki Wiki CMS Groupware w wersji 5.2 zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "Tiki Wiki CMS Groupware 5.2 contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Tiki Wiki CMS Groupware w wersji 5.2 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "WordPress Slideshow plugin contains multiple cross-site scripting vulnerabilities. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress o nazwie Slideshow zawiera podatności typu Cross-Site Scripting umożliwiające atakującemu spreparowanie linku, który, gdy zostanie kliknięty przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikację treści)."
     + WORDPRESS_UPDATE_HINT,
-    "Qcubed contains a cross-site scripting vulnerability which allows a remote attacker to inject arbitrary JavaScript via the /assets/php/_devtools/installer/step_2.php endpoint and the installation_path parameter.": "Wykryto, że narzędzie Qcubed zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "Qcubed contains a cross-site scripting vulnerability which allows a remote attacker to inject arbitrary JavaScript via the /assets/php/_devtools/installer/step_2.php endpoint and the installation_path parameter.": "Wykryto, że narzędzie Qcubed zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "WordPress Custom Tables 3.4.4 plugin contains a cross-site scripting vulnerability via the key parameter.": "Wtyczka WordPress o nazwie Custom Tables w wersji 3.4.4 zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "WordPress Custom Tables 3.4.4 plugin contains a cross-site scripting vulnerability via the key parameter.": "Wtyczka WordPress o nazwie Custom Tables w wersji 3.4.4 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "Cross-site scripting vulnerability was discovered.": "Wykryto podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "Cross-site scripting vulnerability was discovered.": "Wykryto podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "WordPress NextGEN Gallery 1.9.10 plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie NextGEN Gallery w wersji 1.9.10 zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "WordPress NextGEN Gallery 1.9.10 plugin contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie NextGEN Gallery w wersji 1.9.10 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "Netsweeper 4.0.9 contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Narzędzie Netsweeper w wersji 4.0.9 zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "Netsweeper 4.0.9 contains a cross-site scripting vulnerability. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Narzędzie Netsweeper w wersji 4.0.9 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "WordPress PHPFreeChat 0.2.8 plugin contains a cross-site scripting vulnerability via the url parameter. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie PHPFreeChat w wersji 0.2.8 zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "WordPress PHPFreeChat 0.2.8 plugin contains a cross-site scripting vulnerability via the url parameter. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie PHPFreeChat w wersji 0.2.8 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "WordPress Plugin Finder contains a cross-site scripting vulnerability via the order parameter. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress Plugin Finder zawiera podatność Cross-Site Scripting"
-    + REFLECTED_XSS_VULNERABILITY_DESCRIPTION
+    "WordPress Plugin Finder contains a cross-site scripting vulnerability via the order parameter. An attacker can execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wykryto, że wtyczka WordPress Plugin Finder zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
     "http/exposures/files/core-dump.yaml": "Wykryto plik core dump, mogący zawierać wrażliwe dane." + DATA_HIDE_HINT,
     "http/vulnerabilities/other/erensoft-sqli.yaml": "Wykryto podatność SQL Injection w narzędziu ErenSoft, która może umożliwić atakującemu pobranie dowolnych danych z bazy danych."
@@ -896,10 +897,37 @@ TRANSLATIONS = {
     "Cross-site scripting vulnerability in Telerik.ReportViewer.WebForms.dll in Telerik Reporting for ASP.NET WebForms Report Viewer control before R1 2017 SP2 (11.0.17.406) allows remote attackers to inject arbitrary web script or HTML via the bgColor parameter to Telerik.ReportViewer.axd.": "Moduł Telerik.ReportViewer.WebForms.dll w narzędziu Telerik Reporting for ASP.NET WebForms Report Viewer control w wersji poniżej R1 2017 SP2 (11.0.17.406) zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Nginx is vulnerable to git configuration exposure.": "Wykryto błędną konfigurację serwera nginx umożliwiającą odczyt kodu źródłowego aplikacji.",
+    "Ruby on Rails 6.0.0-6.0.3.1 contains a CRLF issue which allows JavaScript to be injected into the response, resulting in cross-site scripting.": "Ruby on Rails 6.0.0-6.0.3.1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress Plugin WPML Version < 4.6.1  is vulnerable to RXSS via wp_lang parameter.": "Wtyczka WordPress o nazwie WPML w wersji poniżej 4.6.1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Docker Registry Listing enabled.": "Wykryto publicznie dostępny listing kontenerów w systemie Docker Registry."
+    + DATA_HIDE_HINT,
     "Multiple cross-site scripting (XSS) vulnerabilities in SquirrelMail 1.4.2 allow remote attackers to execute arbitrary script and possibly steal authentication information via multiple attack vectors, including the mailbox parameter in compose.php.": "System SquirrelMail w wersji 1.4.2 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    'Multiple directory traversal vulnerabilities in the web server for Motorola SURFBoard cable modem SBV6120E running firmware SBV6X2X-1.0.0.5-SCM-02-SHPC allow remote attackers to read arbitrary files via (1) "//" (multiple leading slash), (2) ../ (dot dot) sequences, and encoded dot dot sequences in a URL request.': "Modem SBV6120E z firmware SBV6X2X-1.0.0.5-SCM-02-SHPC zawiera podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików.",
+    "Parallels H-Sphere 3.0.0 P9 and 3.1 P1 contains multiple cross-site scripting vulnerabilities in login.php in webshell4. An attacker can inject arbitrary web script or HTML via the err, errorcode, and login parameters, thus allowing theft of cookie-based authentication credentials and launch of other attacks.": "Parallels H-Sphere 3.0.0 P9 i 3.1 P1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "The Quttera Web Malware Scanner WordPress plugin before 3.4.2.1 doesn't restrict access to detailed scan logs, which allows a malicious actor to discover local paths and portions of the site's code": "Wtyczka WordPress o nazwie Quttera Web Malware Scanner w wersji poniżej 3.4.2.1 umożliwia atakującemu pobranie dziennika skanowania i poznanie ścieżek i fragmentów kodu aplikacji."
+    + UPDATE_HINT,
     "Odoo is a business suite that has features for many business-critical areas, such as e-commerce, billing, or CRM. Versions before the 16.0 release are vulnerable to CVE-2023-1434 and is caused by an incorrect content type being set on an API endpoint.": "System Odoo w wersji poniżej 16.0 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "http/cves/2023/CVE-2023-6875.yaml": "Wtyczka WordPress o nazwie The POST SMTP Mailer - Email log, Delivery Failure Notifications and Best Mail SMTP for WordPress w wersji do 2.8.7 włącznie zawiera podatność umożliwiającą nieuprawniony dostęp i modyfikację danych."
+    + UPDATE_HINT,
+    "phpinfo() is susceptible to resource exposure in unprotected composer vendor folders via phpfastcache/phpfastcache.": "Wykryto błędną konfigurację narzędzia phpfastcache zawierającą publicznie dostępny plik phpinfo, udostępniający informacje o konfiguracji serwera. "
+    + DATA_HIDE_HINT,
+    "GNU Bash through 4.3 processes trailing strings after function definitions in the values of environment variables, which allows remote attackers to execute arbitrary code via a crafted environment, as demonstrated by vectors involving the ForceCommand feature in OpenSSH sshd, the mod_cgi and mod_cgid modules in the Apache HTTP Server, scripts executed by unspecified DHCP clients, and other situations in which setting the environment occurs across a privilege boundary from Bash execution, aka ShellShock.": "Wykryto powłokę Bash w wersji do 4.3 zawierającą podatność ShellShock, umożliwiającą atakującemu zdalne wykonanie kodu "
+    + UPDATE_HINT,
+    "WordPress White Label CMS plugin before 2.2.9 contains a reflected cross-site scripting vulnerability. It does not sanitize and validate the wlcms[_login_custom_js] parameter before outputting it back in the response while previewing.": "Wtyczka WordPress o nazwie White Label CMS w wersji poniżej 2.2.9 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "The W3 Total Cache WordPress plugin was affected by an Unauthenticated Server Side Request Forgery (SSRF) security vulnerability.": "Wykryto wtyczkę WordPress o nazwie W3 Total Cache w wersji zawierającej podatność Server Side Request Forgery (SSRF), czyli umożliwiającą atakującemu dostęp do zasobów w sieci lokalnej. "
@@ -997,6 +1025,9 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Netdata is exposed.": "Wykryto publiczne dostępne metryki systemu Netdata." + DATA_HIDE_HINT,
     "SPIP 3.1.2 and earlier contains a cross-site scripting vulnerability in valider_xml.php which allows remote attackers to inject arbitrary web script or HTML via the var_url parameter in a valider_xml action.": "SPIP w wersji 3.1.2 i wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Triconsole Datepicker Calendar before 3.77 contains a cross-site scripting vulnerability in calendar_form.php. Attackers can read authentication cookies that are still active, which can be used to perform further attacks such as reading browser history, directory listings, and file contents.": "Triconsole Datepicker Calendar w wersji poniżej 3.77 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Multiple cross-site scripting vulnerabilities in Netsweeper before 3.1.10, 4.0.x before 4.0.9, and 4.1.x before 4.1.2 allow remote attackers to inject arbitrary web script or HTML via the (1) server parameter to remotereporter/load_logfiles.php, (2) customctid parameter to webadmin/policy/category_table_ajax.php, (3) urllist parameter to webadmin/alert/alert.php, (4) QUERY_STRING to webadmin/ajaxfilemanager/ajax_get_file_listing.php, or (5) PATH_INFO to webadmin/policy/policy_table_ajax.php/.": "Netsweeper w wersji poniżej 3.1.10, 4.0.x poniżej 4.0.9 i 4.1.x poniżej 4.1.2 zawiera podatność "
@@ -1259,4 +1290,7 @@ TRANSLATIONS = {
     "AppVeyor configuration page was detected.": "wykryto stronę konfiguracyjną systemu AppVeyor.",
     "An Apache Tomcat instance was detected.": "Wykryto panel Apache Tomcat.",
     "Citrix VPN panel was detected.": "wykryto panel Citrix VPN.",
+    "Parallels H-Sphere login panel was detected.": "Wykryto panel logowania Paralels H-Sphere.",
+    "WebShell4 login panel was detected.": "Wykryto panel logowania WebShell4.",
+    "The Wagtail panel has been detected.": "Wykryto panel Wagtail.",
 }

@@ -54,6 +54,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
+    "hostinger",
     "icon-element",
     "link-manager",
     "mask-form-elementor",
@@ -63,7 +64,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
     "website-monetization-by-magenet",
-    "wp-events-manager",
     "wp-maximum-execution-time-exceeded",
 ]
 
@@ -147,7 +147,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 if line.startswith(slug):
                     line = line[len(slug) :].strip(" :")
                 # Some changelog entries have the format version <version>
-                if "version" in line:
+                # let's take only first 25 characters as the "version" word may occur in a middle of a sentence
+                if "version" in line[:25]:
                     line = line[line.find("version") + len("version") :].strip(" :")
                 # Some changelog entries have the format V <version>
                 if "v " in line:

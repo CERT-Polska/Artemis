@@ -7,10 +7,12 @@ exists() {
 }
 
 if ! exists .env; then
-    echo "Before starting Artemis, create .env file (e.g. by copying env.example) and "
-    echo "configure any settings you want to change."
-    exit 1
+    cp env.example .env
+    ENV_MESSAGE="\e[1mThe .env file has been created. You can access it later to configure any settings you want to change according to https://artemis-scanner.readthedocs.io/en/latest/user-guide/configuration.html .\e[0m"
+else
+    ENV_MESSAGE=""
 fi
+
 
 if [[ $(uname -m) != "arm"* ]]; then
     PROFILE='--profile not-arm'
@@ -56,6 +58,8 @@ if [ $? -eq 0 ]; then
         echo "./scripts/run_docker_compose logs  --tail=0 -f # this will start printing any new logs as they appear"
     fi
 fi
+
+echo -e $ENV_MESSAGE
 
 (
     source .env

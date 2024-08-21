@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ ! -d venv ]
+then
+    python3 -m venv venv
+fi
+
+. venv/bin/activate
+
+pip install PyYAML==6.0.1
+
 cd $(dirname $0)/..
 python3 scripts/create_development_docker_compose.py
 

@@ -26,13 +26,13 @@ To chat about Artemis, join the Discord server:
 
 ## Cooperation and conferences
 <p style="margin-bottom: 0">
-    ![BlackHat](static/images/blackhat.png)
+    <img alt="BlackHat" src="static/images/blackhat.png">
 </p>
 
 Artemis was presented at BlackHat USA 2024 in Las Vegas. For more information about Artemis at BlackHat USA [click here](https://www.blackhat.com/us-24/arsenal/schedule/index.html#artemis-modular-vulnerability-scanner-with-automatic-report-generation-39372).
 
 <p style="margin-bottom: 0">
-    ![TF-CSIRT](static/images/tf_csirt.png)
+    <img alt="BlackHat" src="static/images/tf_csirt.png">
 </p>
 
 The project was also presented at the [71st TF-CSIRT Meeting in Copenhagen](https://tf-csirt.org/tf-csirt/meetings/71st/), [69th TF-CSIRT Meeting in Bucharest](https://tf-csirt.org/tf-csirt/meetings/69th/) and the [CONFidence](https://confidence-conference.org/) conference, among others.

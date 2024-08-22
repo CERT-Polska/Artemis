@@ -25,13 +25,14 @@ To chat about Artemis, join the Discord server:
 [![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
 
 ## Cooperation and conferences
-<div style="margin-bottom: 0">
+<div style="margin-bottom: 5px">
     <img alt="BlackHat" src="static/images/blackhat.png">
 </div>
 
 Artemis was presented at BlackHat USA 2024 in Las Vegas. For more information about Artemis at BlackHat USA [click here](https://www.blackhat.com/us-24/arsenal/schedule/index.html#artemis-modular-vulnerability-scanner-with-automatic-report-generation-39372).
 
-<div style="margin-bottom: 0">
+
+<div style="margin-bottom: 5px">
     <img alt="BlackHat" src="static/images/tf_csirt.png">
 </div>
 

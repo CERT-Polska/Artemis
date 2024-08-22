@@ -48,7 +48,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
-    "button-contact-vr",
     "change-admin-email-setting-without-outbound-email",
     "coming-soon",
     "delete-all-comments-of-website",
@@ -62,6 +61,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
+    "softaculous",
     "subscribe-to-comments",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",

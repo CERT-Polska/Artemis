@@ -1,39 +1,32 @@
-{% if "exposed_to_sql_injection" in data.contains_type %}
-    <li>{% trans %}We identified that the following URLs are exposed to SQL Injection or Time Base SQL Injection:{% endtrans %}
+{% if "sql_injection:core" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are vulnerable to SQL Injection or time-based SQL Injection:{% endtrans %}
         <ul>
             {% for report in data.reports %}
-                {% if report.report_type == "exposed_to_sql_injection" %}
+                {% if report.report_type == "sql_injection:core" %}
                     <li>
                         {{ report.target }}
                         <ul>
                         {% for message in report.additional_data.result %}
-                            {% set url = message.split(': ')[0] %}
-                            {% set statement = message.split(': ')[1] %}
                             <li>
-                                {{ url }}:
-                                {% if statement == "It appears that this url is vulnerable to SQL Injection" %}
+                                {{ message.url }}:
+                                {% if message.code == report.additional_data.statements.sql_injection %}
                                     {% trans trimmed %}
                                         It appears that this url is vulnerable to SQL Injection
-                                {% endtrans %}
-
-                                {% elif statement == "It appears that this url is vulnerable to SQL Time Base Injection" %}
+                                    {% endtrans %}
+{##}
+                                {% elif message.code == report.additional_data.statements.sql_time_base_injection %}
                                     {% trans trimmed %}
                                         It appears that this url is vulnerable to SQL Time Base Injection
-                                {% endtrans %}
+                                    {% endtrans %}
 
-                                {% elif statement == "It appears that this url is vulnerable to SQL Injection through HTTP Headers" %}
+                                {% elif message.code == report.additional_data.statements.headers_sql_injection %}
                                     {% trans trimmed %}
                                         It appears that this url is vulnerable to SQL Injection through HTTP Headers
-                                {% endtrans %}
+                                    {% endtrans %}
 
-                                {% elif statement == "It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers" %}
+                                {% elif message.code == report.additional_data.statements.headers_time_base_sql_injection %}
                                     {% trans trimmed %}
                                         It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers
-                                {% endtrans %}
-
-                                {% elif statement == "Response from server is equal to 500" %}
-                                    {% trans trimmed %}
-                                        Response from server is equal to 500
                                     {% endtrans %}
                                 {% endif %}
                             </li>
@@ -52,18 +45,9 @@
             <p>
                 {% trans trimmed %}Effects of the vulnerability:{% endtrans %}
                 <ul>
-                    <li> {% trans trimmed %}Possibility of leaking personal user data.{% endtrans %}</li>
+                    <li> {% trans trimmed %}Possibility of personal use data leak.{% endtrans %}</li>
                     <li> {% trans trimmed %}Manipulation of data in the database.{% endtrans %}</li>
                     <li> {% trans trimmed %}Possibility of complete control over the database.{% endtrans %}</li>
                 </ul>
             </p>
-            <p>
-                 {% trans trimmed %}We recommend:{% endtrans %}
-                <ul>
-                    <li>{% trans trimmed %}Validation and sanitization of input data.{% endtrans %}</li>
-                    <li>{% trans trimmed %}Using prepared statements and stored procedures.{% endtrans %}</li>
-                    <li>{% trans trimmed %}Limiting database permissions.{% endtrans %}</li>
-                </ul>
-            </p>
-
 {% endif %}

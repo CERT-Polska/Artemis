@@ -614,25 +614,8 @@ class Config:
         class SqlInjectionDetector:
             SQL_INJECTION_TIME_THRESHOLD: Annotated[
                 int,
-                "Seconds to method sleep() or pg_sleep()",
-            ] = get_config("THRESHOLD", default=2, cast=int)
-
-            SQL_INJECTION_SLEEP_PAYLOADS: Annotated[
-                List[str],
-                "List of payloads with sleep() and pg_sleep() functions.",
-            ] = get_config(
-                "SLEEP_PAYLOAD",
-                default=[
-                    f"'||sleep({SQL_INJECTION_TIME_THRESHOLD})||'",
-                    f"'||pg_sleep({SQL_INJECTION_TIME_THRESHOLD})||'",
-                ],
-                cast=list,
-            )
-
-            SQL_INJECTION_ERROR_PAYLOADS: Annotated[
-                List[str],
-                "Payloads to be substituted for parameter values when creating a URL with a payload.",
-            ] = get_config("PAYLOAD", default=["'", '"'], cast=list)
+                "Seconds to sleep using the sleep() or pg_sleep() methods",
+            ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=2, cast=int)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

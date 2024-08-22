@@ -27,12 +27,12 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         url_with_payload = "http://test-apache-with-sql-injection-postgres?id=3"
         current_url = "http://test-apache-with-sql-injection-postgres"
 
-        self.assertTrue(self.karton_class.is_url_with_payload(url_with_payload))
-        self.assertFalse(self.karton_class.is_url_with_payload(current_url))
+        self.assertTrue(self.karton_class.is_url_with_parameters(url_with_payload))
+        self.assertFalse(self.karton_class.is_url_with_parameters(current_url))
 
     def test_are_request_efficient(self) -> None:
-        current_url = "http://test-apache-with-sql-injection-postgres"
-        url_with_sleep_payload = "http://test-apache-with-sql-injection-postgres?id='||pg_sleep(2)||'"
+        current_url = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id=1"
+        url_with_sleep_payload = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id='||pg_sleep(2)||'"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres/headers_vuln.php"
 
         self.assertTrue(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, current_url))
@@ -44,8 +44,8 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         )
 
     def test_contains_error(self) -> None:
-        current_url = "http://test-apache-with-sql-injection-postgres?id=2"
-        url_with_payload = "http://test-apache-with-sql-injection-postgres?id='"
+        current_url = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id=2"
+        url_with_payload = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id='"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres/headers_vuln.php"
 
         self.assertFalse(self.karton_class.contains_error(http_requests.get(current_url)))
@@ -74,12 +74,12 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         current_url = "http://test-apache-with-sql-injection-mysql"
         url_with_payload = "http://test-apache-with-sql-injection-mysql?id=3"
 
-        self.assertTrue(self.karton_class.is_url_with_payload(url_with_payload))
-        self.assertFalse(self.karton_class.is_url_with_payload(current_url))
+        self.assertTrue(self.karton_class.is_url_with_parameters(url_with_payload))
+        self.assertFalse(self.karton_class.is_url_with_parameters(current_url))
 
     def test_are_request_efficient(self) -> None:
-        current_url = "http://test-apache-with-sql-injection-mysql?id=2"
-        url_with_sleep_payload = "http://test-apache-with-sql-injection-mysql?id='||sleep(2)||'"
+        current_url = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id=2"
+        url_with_sleep_payload = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id='||sleep(2)||'"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-mysql/headers_vuln.php"
 
         self.assertTrue(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, current_url))
@@ -91,8 +91,8 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         )
 
     def test_contains_error(self) -> None:
-        current_url = "http://test-apache-with-sql-injection-mysql?id=1"
-        url_with_payload = "http://test-apache-with-sql-injection-mysql?id='"
+        current_url = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id=1"
+        url_with_payload = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id='"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-mysql/headers_vuln.php"
 
         self.assertFalse(self.karton_class.contains_error(http_requests.get(current_url)))

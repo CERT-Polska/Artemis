@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 import json
 import ssl
@@ -73,6 +74,9 @@ def _request(
     **kwargs: Any
 ) -> HTTPResponse:
     def _internal_request() -> HTTPResponse:
+        headers = copy.copy(HEADERS)
+        headers.update(kwargs["headers"]) if "headers" in kwargs else headers
+
         s = requests.Session()
         if urllib.parse.urlparse(url).scheme.lower() == "https":
             s.mount(url, SSLContextAdapter())
@@ -85,7 +89,7 @@ def _request(
             verify=False,
             stream=True,
             timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
-            headers=HEADERS if kwargs.get("headers") is None else kwargs.get("headers"),
+            headers=headers,
         )
 
         # Handling situations where the response is very long, which is not handled by requests timeout

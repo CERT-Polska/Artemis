@@ -33,7 +33,7 @@ class VolumeDevelopStrategy(YamlProcessor):
     @staticmethod
     def create_karton_service_list(data: Any) -> List[str]:
         services = data.get("services", {})
-        karton_services = [name for name in services if name.startswith("karton")]
+        karton_services = [name for name in services if name.startswith("karton") or name == "web"]
 
         return karton_services
 

@@ -5,17 +5,7 @@
         <a href="/index.php?id=3">Article 3</a>
         <a href="/vuln.php">select * from table</a>
         <a href="/not_vuln.php?id=5">Article 5</a>
-        <?php
-            error_reporting(-1);
-            $conn = new mysqli("sql-injection-test-mysql", "root", "root", "information_schema");
-
-            $sql = "
-            SELECT id FROM (SELECT '1' AS id) t WHERE id = '" . $_GET['id'] . "'";
-            $result = $conn->query($sql);
-            if ($result === false) {
-                echo ("Query failed: " . $conn->error);
-            }
-            $conn->close();
-        ?>
+        <a href="/headers_vuln.php">Article 6</a>
+        <a href="/sql_injection.php">Article 7</a>
     </body>
 </html>

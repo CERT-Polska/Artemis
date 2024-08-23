@@ -1,6 +1,7 @@
 import datetime
 import re
 import urllib
+from enum import Enum
 from timeit import default_timer as timer
 from typing import Any, Dict, List
 from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
@@ -17,6 +18,13 @@ from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
 from artemis.sql_injection_data import HEADER_KEYS, SQL_ERROR_MESSAGES, URL_PARAMS
 from artemis.task_utils import get_target_url
+
+
+class Statements(Enum):
+    sql_injection = 1
+    sql_time_base_injection = 2
+    headers_sql_injection = 3
+    headers_time_base_sql_injection = 4
 
 
 class SqlInjectionDetector(ArtemisBase):
@@ -109,11 +117,11 @@ class SqlInjectionDetector(ArtemisBase):
         return headers
 
     @staticmethod
-    def create_status_reason_output(message: Any) -> str:
-        status_reason_output = []
-        for output in message:
-            status_reason_output.append(f"{output.get('url')}: {output.get('statement')}")
-        return str(list(set(status_reason_output)))
+    def create_status_reason(message: Any) -> str:
+        status_reason = []
+        for injection_message in message:
+            status_reason.append(f"{injection_message.get('url')}: {injection_message.get('statement')}")
+        return str(list(set(status_reason)))
 
     def scan(self, urls: List[str], task: Task) -> Dict[str, object]:
         task_result = {
@@ -144,7 +152,7 @@ class SqlInjectionDetector(ArtemisBase):
                                 {
                                     "url": url_with_payload,
                                     "message": "It appears that this url is vulnerable to SQL Injection",
-                                    "code": 1,
+                                    "code": Statements.sql_injection.value,
                                 }
                             )
 
@@ -160,7 +168,7 @@ class SqlInjectionDetector(ArtemisBase):
                                 {
                                     "url": url_with_sleep_payload,
                                     "statement": "It appears that this url is vulnerable to SQL Time Base Injection",
-                                    "code": 2,
+                                    "code": Statements.sql_time_base_injection.value,
                                 }
                             )
 
@@ -176,7 +184,7 @@ class SqlInjectionDetector(ArtemisBase):
                             {
                                 "url": url_with_payload,
                                 "statement": "It appears that this url is vulnerable to SQL Injection",
-                                "code": 1,
+                                "code": Statements.sql_injection.value,
                             }
                         )
 
@@ -198,7 +206,7 @@ class SqlInjectionDetector(ArtemisBase):
                             {
                                 "url": url_with_sleep_payload,
                                 "statement": "It appears that this url is vulnerable to SQL Time Base Injection",
-                                "code": 2,
+                                "code": Statements.sql_time_base_injection.value,
                             }
                         )
 
@@ -211,7 +219,7 @@ class SqlInjectionDetector(ArtemisBase):
                         {
                             "url": current_url,
                             "statement": "It appears that this url is vulnerable to SQL Injection through HTTP Headers",
-                            "code": 3,
+                            "code": Statements.headers_sql_injection.value,
                         }
                     )
 
@@ -224,7 +232,7 @@ class SqlInjectionDetector(ArtemisBase):
                         {
                             "url": current_url,
                             "statement": "It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers",
-                            "code": 4,
+                            "code": Statements.headers_time_base_sql_injection.value,
                         }
                     )
 
@@ -243,7 +251,7 @@ class SqlInjectionDetector(ArtemisBase):
             message = result["message"]
             if message:
                 status = TaskStatus.INTERESTING
-                status_reason = self.create_status_reason_output(message)
+                status_reason = self.create_status_reason(message=message)
             else:
                 status = TaskStatus.OK
                 status_reason = None
@@ -251,13 +259,12 @@ class SqlInjectionDetector(ArtemisBase):
             data = {
                 "result": message,
                 "statements": {
-                    "sql_injection": 1,
-                    "sql_time_base_injection": 2,
-                    "headers_sql_injection": 3,
-                    "headers_time_base_sql_injection": 4,
+                    "sql_injection": Statements.sql_injection.value,
+                    "sql_time_base_injection": Statements.sql_time_base_injection.value,
+                    "headers_sql_injection": Statements.headers_sql_injection.value,
+                    "headers_time_base_sql_injection": Statements.headers_time_base_sql_injection.value,
                 },
             }
-
             self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 
 

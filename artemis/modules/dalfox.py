@@ -1,29 +1,20 @@
 #!/usr/bin/env python3
 import json
-import os
-import random
-import shutil
 import subprocess
 import urllib
 from typing import Any, Dict, List
 
-import more_itertools
 from karton.core import Task
 
-from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
-from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
-from artemis.task_utils import get_target_url
-from artemis.utils import check_output_log_on_error
 from artemis.task_utils import get_target_url
 
 
 class DalFox(ArtemisBase):
     """
-    Runs Nuclei templates on URLs.
+    Runs Dalfox .
     """
 
     identity = "dalfox"
@@ -34,45 +25,63 @@ class DalFox(ArtemisBase):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-    def run(self, current_task):
-        # url = get_target_url(current_task)
-        url = "http://172.18.0.10:80/xss.php?name=annla"
-        try:
-            command = f'dalfox url {url}  --format json > output_{url.replace("://", "_").replace("/", "_")}.json'
-            subprocess.run(command, shell=True, check=True)
-
-            print(
-                f"Skanowanie linka {url} zakończone.")
-        except subprocess.CalledProcessError as e:
-            print(f"Błąd podczas uruchamiania DalFox: {e}")
-
-        self.analyze_results(url)
+    @staticmethod
+    def _strip_query_string(url: str) -> str:
+        url_parsed = urllib.parse.urlparse(url)
+        return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
     @staticmethod
-    def analyze_results(url):
-        # try:
-        with open(f'output_{url.replace("://", "_").replace("/", "_")}.json', 'r') as json_file:
-            results = json.load(json_file)
+    def delete_message_str(vulnerabilities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        for vulnerability in vulnerabilities:
+            del vulnerability["message_id"]
 
+        return vulnerabilities
+
+    @staticmethod
+    def scan(links_file_path: str) -> List[Dict[str, Any]]:
         vulnerabilities = []
-        for result in results:
-            if 'param' in result and 'payload' in result:
-                vulnerability = {
-                    'param': result['param'],
-                    'payload': result['payload']
-                }
-                vulnerabilities.append(vulnerability)
+        try:
+            result = subprocess.run(
+                ["dalfox", "file", links_file_path, "-X", "GET", "--format", "json"], capture_output=True, text=True
+            )
+            vulnerabilities = json.loads(result.stdout)
+        except subprocess.CalledProcessError as e:
+            print(f"Error when DalFox is running: {e}")
 
-        print("--->", vulnerabilities)
+        return vulnerabilities
 
-        with open(f'vulnerabilities_{url.replace("://", "_").replace("/", "_")}.json', 'w') as json_output:
-            json.dump(vulnerabilities, json_output, indent=2)
+    def run(self, current_task: Task) -> None:
+        url = get_target_url(current_task)
+        links = get_links_and_resources_on_same_domain(url)
+        links.append(url)
+        links = list(set(links) | set([self._strip_query_string(link) for link in links]))
 
-        print(
-            f"Podatne parametry i POC zapisane w pliku vulnerabilities_{url.replace('://', '_').replace('/', '_')}.json.")
+        links_file_path = "artemis/modules/data/dalfox/links.txt"
+        with open(links_file_path, "w") as file:
+            for link in links:
+                file.write(link + "\n")
 
-        # except Exception as e:
-        #     print(f"Błąd podczas analizy wyników: {e}")
+        message = self.scan(links_file_path=links_file_path)
+
+        if message:
+            status = TaskStatus.INTERESTING
+            status_reason = str(message)
+        else:
+            status = TaskStatus.OK
+            status_reason = None
+
+        result = []
+        for vulnerability in message:
+            data = {
+                "type": vulnerability.get("type"),
+                "method": vulnerability.get("method"),
+                "parameter": vulnerability.get("parameter"),
+                "payload": vulnerability.get("payload"),
+                "url": vulnerability.get("url"),
+            }
+            result.append(data)
+
+        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data={"result": result})
 
 
 if __name__ == "__main__":

@@ -61,7 +61,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
-    "softaculous",
     "subscribe-to-comments",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",

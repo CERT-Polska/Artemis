@@ -1,0 +1,15 @@
+#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:2
+msgid "We identified that the following URLs contains a XSS vulnerability:"
+msgstr ""
+
+#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:10
+msgid "In the URL"
+msgstr ""
+
+#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:10
+msgid "we identified an xss vulnerability in the parameter:"
+msgstr ""
+
+#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:10
+msgid "in"
+msgstr ""

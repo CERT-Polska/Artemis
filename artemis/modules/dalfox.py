@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+import html
 import json
 import subprocess
 import urllib
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
+from urllib.parse import unquote
 
 from karton.core import Task
 
@@ -14,8 +16,7 @@ from artemis.task_utils import get_target_url
 
 class DalFox(ArtemisBase):
     """
-    Runs Dalfox .
-    """
+    Running the Dalfox tool to scan for XSS vulnerabilities."""
 
     identity = "dalfox"
     filters = [
@@ -31,37 +32,52 @@ class DalFox(ArtemisBase):
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
     @staticmethod
-    def delete_message_str(vulnerabilities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def prepare_message(vulnerabilities: List[Dict[str, Any]]) -> Tuple[List[str], List[Dict[str, Any]]]:
+        message = []
+        result = []
         for vulnerability in vulnerabilities:
-            del vulnerability["message_id"]
+            if vulnerability != {}:
+                if vulnerability["type"] != "G":
+                    data = {
+                        "param": vulnerability.get("param"),
+                        "evidence": html.escape(unquote(vulnerability["evidence"])),
+                        "url": html.escape(unquote(vulnerability["data"])),
+                    }
+                    result.append(data)
+                    message.append(
+                        f"On url: {html.escape(unquote(vulnerability['data']))} we identified an xss vulnerability in "
+                        f"the parameter: {vulnerability.get('param')}. "
+                    )
 
-        return vulnerabilities
+        return message, result
 
-    @staticmethod
-    def scan(links_file_path: str) -> List[Dict[str, Any]]:
+    def scan(self, links_file_path: str) -> List[Dict[str, Any]]:
         vulnerabilities = []
         try:
             result = subprocess.run(
-                ["dalfox", "file", links_file_path, "-X", "GET", "--format", "json"], capture_output=True, text=True
+                ["dalfox", "--debug", "file", links_file_path, "-X", "GET", "--format", "json"],
+                capture_output=True,
+                text=True,
             )
             vulnerabilities = json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            print(f"Error when DalFox is running: {e}")
+            self.log.error(f"Error when DalFox is running: {e}")
 
         return vulnerabilities
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
+
         links = get_links_and_resources_on_same_domain(url)
         links.append(url)
         links = list(set(links) | set([self._strip_query_string(link) for link in links]))
 
         links_file_path = "artemis/modules/data/dalfox/links.txt"
         with open(links_file_path, "w") as file:
-            for link in links:
-                file.write(link + "\n")
+            file.write("\n".join(links))
 
-        message = self.scan(links_file_path=links_file_path)
+        vulnerabilities = self.scan(links_file_path=links_file_path)
+        message, result = self.prepare_message(vulnerabilities)
 
         if message:
             status = TaskStatus.INTERESTING
@@ -69,17 +85,6 @@ class DalFox(ArtemisBase):
         else:
             status = TaskStatus.OK
             status_reason = None
-
-        result = []
-        for vulnerability in message:
-            data = {
-                "type": vulnerability.get("type"),
-                "method": vulnerability.get("method"),
-                "parameter": vulnerability.get("parameter"),
-                "payload": vulnerability.get("payload"),
-                "url": vulnerability.get("url"),
-            }
-            result.append(data)
 
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data={"result": result})
 

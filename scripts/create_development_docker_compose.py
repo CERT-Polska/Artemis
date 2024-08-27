@@ -31,14 +31,14 @@ class WebCommandStrategy(YamlProcessor):
 
 class VolumeDevelopStrategy(YamlProcessor):
     @staticmethod
-    def create_karton_service_list(data: Any) -> List[str]:
+    def create_list_of_services(data: Any) -> List[str]:
         services = data.get("services", {})
         karton_services = [name for name in services if name.startswith("karton") or name == "web"]
 
         return karton_services
 
     def process(self, data: Any) -> Any:
-        services_to_create_volume = self.create_karton_service_list(data)
+        services_to_create_volume = self.create_list_of_services(data)
 
         for service in data["services"]:
             if service in services_to_create_volume and "./:/opt" not in data["services"][service]["volumes"]:

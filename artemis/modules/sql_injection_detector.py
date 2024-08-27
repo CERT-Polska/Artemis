@@ -1,4 +1,5 @@
 import datetime
+import random
 import re
 import urllib
 from enum import Enum
@@ -21,15 +22,15 @@ from artemis.task_utils import get_target_url
 
 
 class Statements(Enum):
-    sql_injection = 1
-    sql_time_base_injection = 2
-    headers_sql_injection = 3
-    headers_time_base_sql_injection = 4
+    sql_injection = "sql_injection"
+    sql_time_based_injection = "sql_time_based_injection"
+    headers_sql_injection = "headers_sql_injection"
+    headers_time_based_sql_injection = "headers_time_based_sql_injection"
 
 
 class SqlInjectionDetector(ArtemisBase):
     """
-    Module for detecting SQL Injection and Base Time SQL Injection vulnerabilities.
+    Module for detecting SQL injection and time-based SQL injection vulnerabilities.
     """
 
     identity = "sql_injection_detector"
@@ -123,6 +124,20 @@ class SqlInjectionDetector(ArtemisBase):
             status_reason.append(f"{injection_message.get('url')}: {injection_message.get('statement')}")
         return str(list(set(status_reason)))
 
+    @staticmethod
+    def create_data(message: Any):
+        message = list({frozenset(item.items()): item for item in message}.values())
+        data = {
+            "result": message,
+            "statements": {
+                "sql_injection": Statements.sql_injection.value,
+                "sql_time_based_injection": Statements.sql_time_based_injection.value,
+                "headers_sql_injection": Statements.headers_sql_injection.value,
+                "headers_time_based_sql_injection": Statements.headers_time_based_sql_injection.value,
+            },
+        }
+        return data
+
     def scan(self, urls: List[str], task: Task) -> Dict[str, object]:
         task_result = {
             "task_host": get_target_url(task),
@@ -151,7 +166,7 @@ class SqlInjectionDetector(ArtemisBase):
                             message.append(
                                 {
                                     "url": url_with_payload,
-                                    "message": "It appears that this url is vulnerable to SQL Injection",
+                                    "message": "It appears that this url is vulnerable to SQL injection",
                                     "code": Statements.sql_injection.value,
                                 }
                             )
@@ -167,8 +182,8 @@ class SqlInjectionDetector(ArtemisBase):
                             message.append(
                                 {
                                     "url": url_with_sleep_payload,
-                                    "statement": "It appears that this url is vulnerable to SQL Time Base Injection",
-                                    "code": Statements.sql_time_base_injection.value,
+                                    "statement": "It appears that this url is vulnerable to time-based SQL injection",
+                                    "code": Statements.sql_time_based_injection.value,
                                 }
                             )
 
@@ -183,7 +198,7 @@ class SqlInjectionDetector(ArtemisBase):
                         message.append(
                             {
                                 "url": url_with_payload,
-                                "statement": "It appears that this url is vulnerable to SQL Injection",
+                                "statement": "It appears that this url is vulnerable to SQL injection",
                                 "code": Statements.sql_injection.value,
                             }
                         )
@@ -205,8 +220,8 @@ class SqlInjectionDetector(ArtemisBase):
                         message.append(
                             {
                                 "url": url_with_sleep_payload,
-                                "statement": "It appears that this url is vulnerable to SQL Time Base Injection",
-                                "code": Statements.sql_time_base_injection.value,
+                                "statement": "It appears that this url is vulnerable to time-based SQL injection",
+                                "code": Statements.sql_time_based_injection.value,
                             }
                         )
 
@@ -218,23 +233,30 @@ class SqlInjectionDetector(ArtemisBase):
                     message.append(
                         {
                             "url": current_url,
-                            "statement": "It appears that this url is vulnerable to SQL Injection through HTTP Headers",
+                            "statement": "It appears that this url is vulnerable to SQL injection through HTTP Headers",
                             "code": Statements.headers_sql_injection.value,
                         }
                     )
 
-            for sleep_payload in sql_injection_sleep_payloads:
-                headers = self.create_headers(sleep_payload)
-                if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
-                    current_url, headers=headers
-                ):
-                    message.append(
-                        {
-                            "url": current_url,
-                            "statement": "It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers",
-                            "code": Statements.headers_time_base_sql_injection.value,
-                        }
-                    )
+                for sleep_payload in sql_injection_sleep_payloads:
+                    flags = []
+                    headers = self.create_headers(sleep_payload)
+                    for _ in range(3):
+                        if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
+                                current_url, headers=headers
+                        ):
+                            flags.append(True)
+                        else:
+                            flags.append(False)
+
+                    if all(flags):
+                        message.append(
+                            {
+                                "url": current_url,
+                                "statement": "It appears that this url is vulnerable to time-based SQL injection through HTTP Headers",
+                                "code": Statements.headers_time_based_sql_injection.value,
+                            }
+                        )
 
         task_result["message"] = message
         return task_result
@@ -247,8 +269,9 @@ class SqlInjectionDetector(ArtemisBase):
             links.append(url)
             links = list(set(links) | set([self._strip_query_string(link) for link in links]))
 
-            result = self.scan(urls=links, task=current_task)
+            result = self.scan(urls=links[:50], task=current_task)
             message = result["message"]
+
             if message:
                 status = TaskStatus.INTERESTING
                 status_reason = self.create_status_reason(message=message)
@@ -256,15 +279,8 @@ class SqlInjectionDetector(ArtemisBase):
                 status = TaskStatus.OK
                 status_reason = None
 
-            data = {
-                "result": message,
-                "statements": {
-                    "sql_injection": Statements.sql_injection.value,
-                    "sql_time_base_injection": Statements.sql_time_base_injection.value,
-                    "headers_sql_injection": Statements.headers_sql_injection.value,
-                    "headers_time_base_sql_injection": Statements.headers_time_base_sql_injection.value,
-                },
-            }
+            data = self.create_data(message=message)
+
             self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 
 

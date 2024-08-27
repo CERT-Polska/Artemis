@@ -10,7 +10,7 @@ from artemis.reporting.utils import get_top_level_target
 
 
 class SqlInjectionDetectorReporter(Reporter):
-    EXPOSED_TO_SQL_INJECTION = ReportType("sql_injection:core")
+    SQL_INJECTION_CORE = ReportType("sql_injection:core")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
@@ -27,7 +27,7 @@ class SqlInjectionDetectorReporter(Reporter):
             Report(
                 top_level_target=get_top_level_target(task_result),
                 target=f"{task_result['payload']['host']}",
-                report_type=SqlInjectionDetectorReporter.EXPOSED_TO_SQL_INJECTION,
+                report_type=SqlInjectionDetectorReporter.SQL_INJECTION_CORE,
                 additional_data=task_result["result"],
                 timestamp=task_result["created_at"],
             )

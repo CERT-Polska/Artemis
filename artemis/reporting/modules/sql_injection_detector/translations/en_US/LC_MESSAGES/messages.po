@@ -1,30 +1,28 @@
 #: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:2
-msgid ""
-"We identified that the following URLs are vulnerable to SQL Injection or "
-"time-based SQL Injection:"
+msgid "We identified that the following URLs are vulnerable to SQL injection:"
 msgstr ""
 
 #: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:13
-msgid "It appears that this url is vulnerable to SQL Injection"
+msgid "It appears that this url is vulnerable to SQL injection"
 msgstr ""
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:18
-msgid "It appears that this url is vulnerable to SQL Time Base Injection"
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:17
+msgid "It appears that this url is vulnerable to time-based SQL injection"
 msgstr ""
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:23
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:22
 msgid ""
-"It appears that this url is vulnerable to SQL Injection through HTTP "
+"It appears that this url is vulnerable to SQL injection through HTTP "
 "Headers"
 msgstr ""
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:28
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:27
 msgid ""
-"It appears that this url is vulnerable to SQL Time Base Injection through"
-" HTTP Headers"
+"It appears that this url is vulnerable to time-based SQL injection "
+"through HTTP Headers"
 msgstr ""
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:40
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:39
 msgid ""
 "These vulnerabilities can lead to serious security breaches, including "
 "user data leaks and potential database manipulation. The vulnerability "
@@ -32,33 +30,30 @@ msgid ""
 "allowing attackers to execute any SQL commands."
 msgstr ""
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:46
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:45
 msgid "Effects of the vulnerability:"
 msgstr ""
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:48
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:47
 msgid "Possibility of personal use data leak."
 msgstr ""
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:49
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:48
 msgid "Manipulation of data in the database."
 msgstr ""
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:50
+#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:49
 msgid "Possibility of complete control over the database."
 msgstr ""
 
-#~ msgid "Response from server is equal to 500"
+#~ msgid "It appears that this URL is vulnerable to SQL injection"
 #~ msgstr ""
 
-#~ msgid "We recommend:"
+#~ msgid "It appears that this URL is vulnerable to time-based SQL injection"
 #~ msgstr ""
 
-#~ msgid "Validation and sanitization of input data."
-#~ msgstr ""
-
-#~ msgid "Using prepared statements and stored procedures."
-#~ msgstr ""
-
-#~ msgid "Limiting database permissions."
+#~ msgid ""
+#~ "It appears that this URL is "
+#~ "vulnerable to SQL injection through HTTP"
+#~ " Headers"
 #~ msgstr ""

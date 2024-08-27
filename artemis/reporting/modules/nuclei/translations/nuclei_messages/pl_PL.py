@@ -901,6 +901,8 @@ TRANSLATIONS = {
     "Ruby on Rails 6.0.0-6.0.3.1 contains a CRLF issue which allows JavaScript to be injected into the response, resulting in cross-site scripting.": "Ruby on Rails 6.0.0-6.0.3.1 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "The Email Subscribers by Icegram Express - Email Marketing, Newsletters, Automation for WordPress & WooCommerce plugin for WordPress is vulnerable to SQL Injection via the 'run' function of the 'IG_ES_Subscribers_Query' class in all versions up to, and including, 5.7.14 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for unauthenticated attackers to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database.": "Wtyczka WordPress o nazwie Email Subscribers by Icegram Express - Email Marketing, Newsletters, Automation for WordPress & WooCommerce w wersji do 5.7.14 włącznie zawiera podatność SQL injection, umożliwiającą atakującemu odczyt dowolnych danych z bazy danych."
+    + WORDPRESS_UPDATE_HINT,
     "Hotel Druid 3.0.2 contains a cross-site scripting vulnerability in multiple pages which allows for arbitrary execution of JavaScript commands.": "Hotel Druid w wersji 3.0.2 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -998,6 +1000,14 @@ TRANSLATIONS = {
     "Web Port 1.19.1 is vulnerable to cross-site scripting via the /log type parameter.": "WebPort w wersji 1.19.1 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "custom:CVE-2024-5932": "Wtyczka WordPress o nazwie GiveWP w wersji do 3.14.1 włącznie zawiera podatność Object Injection, umożliwiającą atakującemu zdalne wykonanie kodu w niektórych sytuacjach."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress GiveWP plugin before 2.17.3 contains a cross-site scripting vulnerability. The plugin does not sanitize and escape the form_id parameter before returning it in the response of an unauthenticated request via the give_checkout_login AJAX action. An attacker can inject arbitrary script in the browser of a user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka WordPress o nazwie GiveWP w wersji poniżej 2.17.3 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Directory traversal vulnerability in the Elegant Themes Divi theme for WordPress allows remote attackers to read arbitrary files via a .. (dot dot) in the img parameter in a revslider_show_image action to wp-admin/admin-ajax.php. NOTE: this vulnerability may be a duplicate of CVE-2014-9734.": "Wykryto, że szablon WordPress o nazwie Elegant Themes Divi zawiera podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku, w tym zawierających dane dostępowe do bazy danych.",
+    "SSH authorized keys file was detected.": "Wykryto plik .ssh/authorized_keys. " + DATA_HIDE_HINT,
     "Magmi 0.7.22 contains a cross-site scripting vulnerability due to insufficient filtration of user-supplied data (prefix) passed to the magmi-git-master/magmi/web/ajax_gettime.php URL.": "Magmi w wersji 0.7.22 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1348,4 +1358,5 @@ TRANSLATIONS = {
     "SecurEnvoy login panel was detected.": "Wykryto panel logowania SecurEnvoy.",
     "Appsmith user login panel was detected.": "Wykryto panel logowania Appsmith.",
     "Parse Dashboard login panel was detected.": "Wykryto panel logowania Parse Dashboard.",
+    "AirOS panel was detected.": "Wykryto panel AirOS.",
 }

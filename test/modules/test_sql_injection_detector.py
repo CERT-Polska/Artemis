@@ -16,14 +16,13 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
             payload={"url": "http://test-apache-with-sql-injection-postgres"},
         )
-
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
 
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertGreater(len(call.kwargs["status_reason"]), 0)
 
-    def test_is_url_with_payload(self) -> None:
+    def test_is_url_with_parameters(self) -> None:
         url_with_payload = "http://test-apache-with-sql-injection-postgres?id=3"
         current_url = "http://test-apache-with-sql-injection-postgres"
 
@@ -54,6 +53,52 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             self.karton_class.contains_error(http_requests.get(url_to_headers_vuln, headers={"User-Agent": "'"}))
         )
 
+    def test_headers_vulnerability(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
+            payload={"url": "http://test-apache-with-sql-injection-postgres/headers_vuln.php"},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+
+        sqli_by_headers_message = "http://test-apache-with-sql-injection-postgres/headers_vuln.php: It appears that this url is vulnerable to SQL Injection through HTTP Headers"
+        time_base_sqli_by_headers_message = "http://test-apache-with-sql-injection-postgres/headers_vuln.php: It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers"
+
+        self.assertTrue(sqli_by_headers_message in call.kwargs["status_reason"])
+        self.assertTrue(time_base_sqli_by_headers_message in call.kwargs["status_reason"])
+
+    def test_sql_injection(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
+            payload={"url": "http://test-apache-with-sql-injection-postgres/sql_injection.php"},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+
+        sqli_message = "http://test-apache-with-sql-injection-postgres/sql_injection.php?html='&i='&id='&ID='&id_base='&ids='&image='&img='&import='&index=': It appears that this url is vulnerable to SQL Injection"
+        time_base_sqli_message = "http://test-apache-with-sql-injection-postgres/sql_injection.php?html='||pg_sleep(2)||'&i='||pg_sleep(2)||'&id='||pg_sleep(2)||'&ID='||pg_sleep(2)||'&id_base='||pg_sleep(2)||'&ids='||pg_sleep(2)||'&image='||pg_sleep(2)||'&img='||pg_sleep(2)||'&import='||pg_sleep(2)||'&index='||pg_sleep(2)||': It appears that this url is vulnerable to SQL Time Base Injection"
+
+        self.assertTrue(sqli_message in call.kwargs["status_reason"])
+        self.assertTrue(time_base_sqli_message in call.kwargs["status_reason"])
+
+    def test_all_messages(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
+            payload={"url": "http://test-apache-with-sql-injection-postgres"},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+
+        sqli_message = "http://test-apache-with-sql-injection-postgres/sql_injection.php?html='&i='&id='&ID='&id_base='&ids='&image='&img='&import='&index=': It appears that this url is vulnerable to SQL Injection"
+        time_base_sqli_message = "http://test-apache-with-sql-injection-postgres/sql_injection.php?html='||pg_sleep(2)||'&i='||pg_sleep(2)||'&id='||pg_sleep(2)||'&ID='||pg_sleep(2)||'&id_base='||pg_sleep(2)||'&ids='||pg_sleep(2)||'&image='||pg_sleep(2)||'&img='||pg_sleep(2)||'&import='||pg_sleep(2)||'&index='||pg_sleep(2)||': It appears that this url is vulnerable to SQL Time Base Injection"
+        sqli_by_headers_message = "http://test-apache-with-sql-injection-postgres/headers_vuln.php: It appears that this url is vulnerable to SQL Injection through HTTP Headers"
+        time_base_sqli_by_headers_message = "http://test-apache-with-sql-injection-postgres/headers_vuln.php: It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers"
+
+        self.assertTrue(sqli_message in call.kwargs["status_reason"])
+        self.assertTrue(time_base_sqli_message in call.kwargs["status_reason"])
+        self.assertTrue(sqli_by_headers_message in call.kwargs["status_reason"])
+        self.assertTrue(time_base_sqli_by_headers_message in call.kwargs["status_reason"])
+
 
 class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
     karton_class = SqlInjectionDetector
@@ -70,7 +115,7 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertGreater(len(call.kwargs["status_reason"]), 0)
 
-    def test_is_url_with_payload(self) -> None:
+    def test_is_url_with_parameters(self) -> None:
         current_url = "http://test-apache-with-sql-injection-mysql"
         url_with_payload = "http://test-apache-with-sql-injection-mysql?id=3"
 
@@ -100,3 +145,51 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertTrue(
             self.karton_class.contains_error(http_requests.get(url_to_headers_vuln, headers={"User-Agent": "'"}))
         )
+
+    def test_headers_vulnerability(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
+            payload={"url": "http://test-apache-with-sql-injection-mysql/headers_vuln.php"},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+
+        sqli_by_headers_message = "http://test-apache-with-sql-injection-mysql/headers_vuln.php: It appears that this url is vulnerable to SQL Injection through HTTP Headers"
+        time_base_sqli_by_headers_message = "http://test-apache-with-sql-injection-mysql/headers_vuln.php: It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers"
+
+        self.assertTrue(sqli_by_headers_message in call.kwargs["status_reason"])
+        self.assertTrue(time_base_sqli_by_headers_message in call.kwargs["status_reason"])
+
+    def test_sql_injection(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
+            payload={"url": "http://test-apache-with-sql-injection-mysql/sql_injection.php"},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+
+        sqli_message = "http://test-apache-with-sql-injection-mysql/sql_injection.php?html='&i='&id='&ID='&id_base='&ids='&image='&img='&import='&index=': It appears that this url is vulnerable to SQL Injection"
+        time_base_sqli_message = "http://test-apache-with-sql-injection-mysql/sql_injection.php?html='||sleep(2)||'&i='||sleep(2)||'&id='||sleep(2)||'&ID='||sleep(2)||'&id_base='||sleep(2)||'&ids='||sleep(2)||'&image='||sleep(2)||'&img='||sleep(2)||'&import='||sleep(2)||'&index='||sleep(2)||': It appears that this url is vulnerable to SQL Time Base Injection"
+
+        self.assertTrue(sqli_message in call.kwargs["status_reason"])
+        self.assertTrue(time_base_sqli_message in call.kwargs["status_reason"])
+
+    def test_all_messages(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
+            payload={"url": "http://test-apache-with-sql-injection-mysql"},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+
+        sqli_message = "http://test-apache-with-sql-injection-mysql/sql_injection.php?html='&i='&id='&ID='&id_base='&ids='&image='&img='&import='&index=': It appears that this url is vulnerable to SQL Injection"
+        time_base_sqli_message = "http://test-apache-with-sql-injection-mysql/sql_injection.php?html='||sleep(2)||'&i='||sleep(2)||'&id='||sleep(2)||'&ID='||sleep(2)||'&id_base='||sleep(2)||'&ids='||sleep(2)||'&image='||sleep(2)||'&img='||sleep(2)||'&import='||sleep(2)||'&index='||sleep(2)||': It appears that this url is vulnerable to SQL Time Base Injection"
+        sqli_by_headers_message = "http://test-apache-with-sql-injection-mysql/headers_vuln.php: It appears that this url is vulnerable to SQL Injection through HTTP Headers"
+        time_base_sqli_by_headers_message = "http://test-apache-with-sql-injection-mysql/headers_vuln.php: It appears that this url is vulnerable to SQL Time Base Injection through HTTP Headers"
+
+        self.assertTrue(sqli_message in call.kwargs["status_reason"])
+        self.assertTrue(time_base_sqli_message in call.kwargs["status_reason"])
+        self.assertTrue(sqli_by_headers_message in call.kwargs["status_reason"])
+        self.assertTrue(time_base_sqli_by_headers_message in call.kwargs["status_reason"])
+        self.assertTrue(False)
+

@@ -1,0 +1,23 @@
+{% if "open_port_smb" in data.contains_type %}
+    <li>{% trans %}The following servers have open SMB ports:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "open_port_smb" %}
+                    <li>
+                        {{ report.target }} ({{ report.additional_data.service }}) {% if report.last_domain %}({% trans %}domain: {% endtrans %}{{ report.last_domain }}){% endif %}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                We do not recommend SMB ports to be publicly available - although they can be set up to require correct username
+                and password to login, an attack is possible when the password leaks or is too simple. When an attacker
+                correctly guesses a password (or takes it from a leak) they can e.g. access or modify files.
+
+                The recommended configuration is to make such services available on an internal network only.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

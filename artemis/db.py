@@ -472,9 +472,15 @@ class DB:
         with self.session() as session:
             return session.query(ReportGenerationTask).filter(ReportGenerationTask.id == id).first()  # type: ignore
 
-    def list_report_generation_tasks(self) -> List[ReportGenerationTask]:
+    def list_report_generation_tasks(self, prefix: Optional[str] = None) -> List[ReportGenerationTask]:
         with self.session() as session:
-            return list(session.query(ReportGenerationTask).order_by(ReportGenerationTask.created_at.desc()))
+            query = session.query(ReportGenerationTask)
+            if prefix:
+                if "%" in prefix:
+                    raise NotImplementedError()
+
+                query = query.filter(ReportGenerationTask.tag.like(prefix + "%"))
+            return list(query.order_by(ReportGenerationTask.created_at.desc()))
 
     def delete_report_generation_task(self, id: int) -> None:
         with self.session() as session:

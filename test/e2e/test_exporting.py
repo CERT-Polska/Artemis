@@ -162,6 +162,27 @@ class ExportingTestCase(BaseE2ETestCase):
 
             time.sleep(1)
 
+        self.assertEqual(len(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()), 1)
+        self.assertEqual(
+            len(requests.get(BACKEND_URL + "api/exports?prefix=", headers={"X-Api-Token": "api-token"}).json()), 1
+        )
+        self.assertEqual(
+            len(
+                requests.get(
+                    BACKEND_URL + "api/exports?prefix=exporting-a", headers={"X-Api-Token": "api-token"}
+                ).json()
+            ),
+            1,
+        )
+        self.assertEqual(
+            len(
+                requests.get(
+                    BACKEND_URL + "api/exports?prefix=exporting-b", headers={"X-Api-Token": "api-token"}
+                ).json()
+            ),
+            0,
+        )
+
         self.assertEqual(
             data[0].keys(),
             {

@@ -154,6 +154,9 @@ class SqlInjectionDetector(ArtemisBase):
 
         # The code below may look complicated and repetitive, but it shows how the scanning logic works.
         for current_url in urls:
+            is_current_url_time_efficient = self.are_requests_time_efficient(current_url)
+            current_url_contains_error = self.contains_error(http_requests.get(current_url))
+
             for param_batch in more_itertools.batched(URL_PARAMS, 30):
                 if self.is_url_with_parameters(current_url):
                     for error_payload in sql_injection_error_payloads:
@@ -161,9 +164,7 @@ class SqlInjectionDetector(ArtemisBase):
                             url=current_url, payload=error_payload, param_batch=param_batch
                         )
 
-                        if not self.contains_error(http_requests.get(current_url)) and self.contains_error(
-                            http_requests.get(url_with_payload)
-                        ):
+                        if not current_url_contains_error and self.contains_error(http_requests.get(url_with_payload)):
                             message.append(
                                 {
                                     "url": url_with_payload,
@@ -177,7 +178,7 @@ class SqlInjectionDetector(ArtemisBase):
                             url=current_url, payload=sleep_payload, param_batch=param_batch
                         )
 
-                        if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
+                        if is_current_url_time_efficient and not self.are_requests_time_efficient(
                             url_with_sleep_payload
                         ):
                             message.append(
@@ -193,9 +194,7 @@ class SqlInjectionDetector(ArtemisBase):
                         url=current_url, param_batch=param_batch, payload=error_payload
                     )
 
-                    if not self.contains_error(http_requests.get(current_url)) and self.contains_error(
-                        http_requests.get(url_with_payload)
-                    ):
+                    if not current_url_contains_error and self.contains_error(http_requests.get(url_with_payload)):
                         message.append(
                             {
                                 "url": url_with_payload,
@@ -210,7 +209,7 @@ class SqlInjectionDetector(ArtemisBase):
                         url=current_url, param_batch=param_batch, payload=sleep_payload
                     )
                     for _ in range(3):
-                        if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
+                        if is_current_url_time_efficient and not self.are_requests_time_efficient(
                             url_with_sleep_payload
                         ):
                             flags.append(True)
@@ -229,7 +228,7 @@ class SqlInjectionDetector(ArtemisBase):
 
             for error_payload in sql_injection_error_payloads:
                 headers = self.create_headers(payload=error_payload)
-                if not self.contains_error(http_requests.get(current_url)) and self.contains_error(
+                if not current_url_contains_error and self.contains_error(
                     http_requests.get(current_url, headers=headers)
                 ):
                     message.append(
@@ -244,7 +243,7 @@ class SqlInjectionDetector(ArtemisBase):
                 flags = []
                 headers = self.create_headers(sleep_payload)
                 for _ in range(3):
-                    if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
+                    if is_current_url_time_efficient and not self.are_requests_time_efficient(
                         current_url, headers=headers
                     ):
                         flags.append(True)

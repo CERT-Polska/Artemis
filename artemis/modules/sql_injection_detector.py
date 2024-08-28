@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
 
 import more_itertools
+import requests
 from karton.core import Task
 
 from artemis import http_requests
@@ -91,10 +92,14 @@ class SqlInjectionDetector(ArtemisBase):
 
     def are_requests_time_efficient(self, url: str, **kwargs: Dict[str, Any]) -> bool:
         start = timer()
-        if "headers" not in kwargs:
-            http_requests.get(url)
-        else:
-            http_requests.get(url, headers=kwargs.get("headers"))
+        try:
+            if "headers" not in kwargs:
+                http_requests.get(url)
+            else:
+                http_requests.get(url, headers=kwargs.get("headers"))
+        except requests.exceptions.ReadTimeout:
+            return False
+
         elapsed_time = datetime.timedelta(seconds=timer() - start).seconds
 
         flag = self.is_response_time_within_threshold(elapsed_time)
@@ -123,7 +128,7 @@ class SqlInjectionDetector(ArtemisBase):
         status_reason = []
         for injection_message in message:
             status_reason.append(f"{injection_message.get('url')}: {injection_message.get('statement')}")
-        return str(list(set(status_reason)))
+        return ', '.join(set(status_reason))
 
     @staticmethod
     def create_data(message: Any) -> Dict[str, List[str] | dict[str, str]]:
@@ -154,7 +159,6 @@ class SqlInjectionDetector(ArtemisBase):
 
         # The code below may look complicated and repetitive, but it shows how the scanning logic works.
         for current_url in urls:
-            is_current_url_time_efficient = self.are_requests_time_efficient(current_url)
             current_url_contains_error = self.contains_error(http_requests.get(current_url))
 
             for param_batch in more_itertools.batched(URL_PARAMS, 30):
@@ -168,7 +172,7 @@ class SqlInjectionDetector(ArtemisBase):
                             message.append(
                                 {
                                     "url": url_with_payload,
-                                    "message": "It appears that this url is vulnerable to SQL injection",
+                                    "message": "It appears that this URL is vulnerable to SQL injection",
                                     "code": Statements.sql_injection.value,
                                 }
                             )
@@ -178,13 +182,14 @@ class SqlInjectionDetector(ArtemisBase):
                             url=current_url, payload=sleep_payload, param_batch=param_batch
                         )
 
-                        if is_current_url_time_efficient and not self.are_requests_time_efficient(
+                        # We explicitely want to re-check whether current URL is still time efficient
+                        if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
                             url_with_sleep_payload
                         ):
                             message.append(
                                 {
                                     "url": url_with_sleep_payload,
-                                    "statement": "It appears that this url is vulnerable to time-based SQL injection",
+                                    "statement": "It appears that this URL is vulnerable to time-based SQL injection",
                                     "code": Statements.sql_time_based_injection.value,
                                 }
                             )
@@ -198,7 +203,7 @@ class SqlInjectionDetector(ArtemisBase):
                         message.append(
                             {
                                 "url": url_with_payload,
-                                "statement": "It appears that this url is vulnerable to SQL injection",
+                                "statement": "It appears that this URL is vulnerable to SQL injection",
                                 "code": Statements.sql_injection.value,
                             }
                         )
@@ -209,7 +214,8 @@ class SqlInjectionDetector(ArtemisBase):
                         url=current_url, param_batch=param_batch, payload=sleep_payload
                     )
                     for _ in range(3):
-                        if is_current_url_time_efficient and not self.are_requests_time_efficient(
+                        # We explicitely want to re-check whether current URL is still time efficient
+                        if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
                             url_with_sleep_payload
                         ):
                             flags.append(True)
@@ -221,7 +227,7 @@ class SqlInjectionDetector(ArtemisBase):
                         message.append(
                             {
                                 "url": url_with_sleep_payload,
-                                "statement": "It appears that this url is vulnerable to time-based SQL injection",
+                                "statement": "It appears that this URL is vulnerable to time-based SQL injection",
                                 "code": Statements.sql_time_based_injection.value,
                             }
                         )
@@ -234,7 +240,7 @@ class SqlInjectionDetector(ArtemisBase):
                     message.append(
                         {
                             "url": current_url,
-                            "statement": "It appears that this url is vulnerable to SQL injection through HTTP Headers",
+                            "statement": "It appears that this URL is vulnerable to SQL injection through HTTP Headers",
                             "code": Statements.headers_sql_injection.value,
                         }
                     )
@@ -243,7 +249,8 @@ class SqlInjectionDetector(ArtemisBase):
                 flags = []
                 headers = self.create_headers(sleep_payload)
                 for _ in range(3):
-                    if is_current_url_time_efficient and not self.are_requests_time_efficient(
+                    # We explicitely want to re-check whether current URL is still time efficient
+                    if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
                         current_url, headers=headers
                     ):
                         flags.append(True)
@@ -255,7 +262,7 @@ class SqlInjectionDetector(ArtemisBase):
                     message.append(
                         {
                             "url": current_url,
-                            "statement": "It appears that this url is vulnerable to time-based SQL injection through HTTP Headers",
+                            "statement": "It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers",
                             "code": Statements.headers_time_based_sql_injection.value,
                         }
                     )

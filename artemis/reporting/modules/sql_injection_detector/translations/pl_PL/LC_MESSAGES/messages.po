@@ -9,8 +9,8 @@ msgstr "Wykryliśmy, że poniższy adres URL jest podatny na atak typu SQL injec
 #: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:17
 msgid "It appears that this URL is vulnerable to time-based SQL injection"
 msgstr ""
-"Wykryliśmy, że poniższy adres URL jest podatny na atak typu time-based SQL "
-"injection"
+"Wykryliśmy, że poniższy adres URL jest podatny na atak typu time-based "
+"SQL injection"
 
 #: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:22
 msgid ""

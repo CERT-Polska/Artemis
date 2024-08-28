@@ -1,5 +1,4 @@
 import datetime
-import random
 import re
 import urllib
 from enum import Enum
@@ -125,8 +124,8 @@ class SqlInjectionDetector(ArtemisBase):
         return str(list(set(status_reason)))
 
     @staticmethod
-    def create_data(message: Any):
-        message = list({frozenset(item.items()): item for item in message}.values())
+    def create_data(message: Any) -> Dict[str, List[str] | dict[str, str]]:
+        message = list(more_itertools.unique_everseen(message))
         data = {
             "result": message,
             "statements": {
@@ -243,7 +242,7 @@ class SqlInjectionDetector(ArtemisBase):
                     headers = self.create_headers(sleep_payload)
                     for _ in range(3):
                         if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
-                                current_url, headers=headers
+                            current_url, headers=headers
                         ):
                             flags.append(True)
                         else:

@@ -144,7 +144,7 @@ class SqlInjectionDetector(ArtemisBase):
         }
         return data
 
-    def scan(self, urls: List[str], task: Task) -> List[str]:
+    def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         sql_injection_sleep_payloads = [
             f"'||sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
             f"'||pg_sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
@@ -171,7 +171,7 @@ class SqlInjectionDetector(ArtemisBase):
                                     "code": Statements.sql_injection.value,
                                 }
                             )
-                            if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                            if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                                 return message
 
                     for sleep_payload in sql_injection_sleep_payloads:
@@ -190,7 +190,7 @@ class SqlInjectionDetector(ArtemisBase):
                                     "code": Statements.sql_time_based_injection.value,
                                 }
                             )
-                            if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                            if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                                 return message
 
                 for error_payload in sql_injection_error_payloads:
@@ -206,7 +206,7 @@ class SqlInjectionDetector(ArtemisBase):
                                 "code": Statements.sql_injection.value,
                             }
                         )
-                        if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                        if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                             return message
 
                 for sleep_payload in sql_injection_sleep_payloads:
@@ -232,7 +232,7 @@ class SqlInjectionDetector(ArtemisBase):
                                 "code": Statements.sql_time_based_injection.value,
                             }
                         )
-                        if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                        if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                             return message
 
             for error_payload in sql_injection_error_payloads:
@@ -247,7 +247,7 @@ class SqlInjectionDetector(ArtemisBase):
                             "code": Statements.headers_sql_injection.value,
                         }
                     )
-                    if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                    if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                         return message
 
             for sleep_payload in sql_injection_sleep_payloads:
@@ -271,7 +271,7 @@ class SqlInjectionDetector(ArtemisBase):
                             "code": Statements.headers_time_based_sql_injection.value,
                         }
                     )
-                    if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                    if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                         return message
 
         return message

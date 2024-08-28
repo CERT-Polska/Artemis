@@ -100,7 +100,7 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "http://test-apache-with-sql-injection-mysql/sql_injection.php?foo='&form='&format='&from='&function='"
             "&g='&gid='&gmt_offset='&go='&group='&group_id='&groups='&h='&hash='&height='&hidden='&history='&host='"
             "&hostname='&html='&i='&id='&ID='&id_base='&ids='&image='&img='&import='&index=': It appears that this "
-            "url is vulnerable to SQL injection"
+            "URL is vulnerable to SQL injection"
         )
         time_base_sqli_message = (
             "http://test-apache-with-sql-injection-mysql/sql_injection.php?foo='||sleep(2)||'&form='||sleep(2)||'&"
@@ -109,7 +109,7 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "sleep(2)||'&h='||sleep(2)||'&hash='||sleep(2)||'&height='||sleep(2)||'&hidden='||sleep(2)||'&history="
             "'||sleep(2)||'&host='||sleep(2)||'&hostname='||sleep(2)||'&html='||sleep(2)||'&i='||sleep(2)||'&id='"
             "||sleep(2)||'&ID='||sleep(2)||'&id_base='||sleep(2)||'&ids='||sleep(2)||'&image='||sleep(2)||'&img='"
-            "||sleep(2)||'&import='||sleep(2)||'&index='||sleep(2)||': It appears that this url is vulnerable to "
+            "||sleep(2)||'&import='||sleep(2)||'&index='||sleep(2)||': It appears that this URL is vulnerable to "
             "time-based SQL injection"
         )
         sqli_by_headers_message = (

@@ -215,6 +215,7 @@ class SqlInjectionDetector(ArtemisBase):
                             flags.append(True)
                         else:
                             flags.append(False)
+                            break
 
                     if all(flags):
                         message.append(
@@ -248,6 +249,7 @@ class SqlInjectionDetector(ArtemisBase):
                             flags.append(True)
                         else:
                             flags.append(False)
+                            break
 
                     if all(flags):
                         message.append(

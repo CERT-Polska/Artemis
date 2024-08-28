@@ -9,7 +9,10 @@ import chardet
 import requests
 
 from artemis.config import Config
-from artemis.utils import throttle_request
+from artemis.utils import build_logger, throttle_request
+
+
+LOGGER = build_logger(__name__)
 
 
 # As our goal in Artemis is to access the sites in order to test their security, let's
@@ -80,6 +83,8 @@ def _request(
         s = requests.Session()
         if urllib.parse.urlparse(url).scheme.lower() == "https":
             s.mount(url, SSLContextAdapter())
+
+        LOGGER.debug("%s %s", method_name, url)
 
         response = getattr(s, method_name)(
             url,

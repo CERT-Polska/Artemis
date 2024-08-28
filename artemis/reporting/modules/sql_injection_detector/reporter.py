@@ -37,7 +37,7 @@ class SqlInjectionDetectorReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_expose_to_sql_injection.jinja2"),
+                os.path.join(os.path.dirname(__file__), "template_sql_injection.jinja2"),
                 priority=8,
             ),
         ]

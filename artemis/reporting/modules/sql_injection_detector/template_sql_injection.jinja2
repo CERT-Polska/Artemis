@@ -11,21 +11,21 @@
                                 {{ message.url }}:
                                 {% if message.code == report.additional_data.statements.sql_injection %}
                                     {% trans trimmed %}
-                                        It appears that this url is vulnerable to SQL injection
+                                        It appears that this URL is vulnerable to SQL injection
                                     {% endtrans %}
                                 {% elif message.code == report.additional_data.statements.sql_time_based_injection %}
                                     {% trans trimmed %}
-                                        It appears that this url is vulnerable to time-based SQL injection
+                                        It appears that this URL is vulnerable to time-based SQL injection
                                     {% endtrans %}
 
                                 {% elif message.code == report.additional_data.statements.headers_sql_injection %}
                                     {% trans trimmed %}
-                                        It appears that this url is vulnerable to SQL injection through HTTP Headers
+                                        It appears that this URL is vulnerable to SQL injection through HTTP Headers
                                     {% endtrans %}
 
                                 {% elif message.code == report.additional_data.statements.headers_time_based_sql_injection %}
                                     {% trans trimmed %}
-                                        It appears that this url is vulnerable to time-based SQL injection through HTTP Headers
+                                        It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers
                                     {% endtrans %}
                                 {% endif %}
                             </li>

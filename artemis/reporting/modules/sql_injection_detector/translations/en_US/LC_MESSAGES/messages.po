@@ -24,8 +24,9 @@ msgstr ""
 
 #: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:35
 msgid ""
-"These vulnerabilities can lead to serious security breaches, including "
-"user data leaks and potential database manipulation. The vulnerability "
-"occurs when dangerous user input is directly injected into SQL queries, "
-"allowing attackers to execute any SQL commands."
+"That means, that an attacker can inject their own commands into the "
+"database query. These vulnerabilities can lead to serious security "
+"breaches, including user data leaks and potential database manipulation. "
+"The vulnerability occurs when dangerous user input is directly injected "
+"into SQL queries, allowing attackers to execute any SQL commands."
 msgstr ""

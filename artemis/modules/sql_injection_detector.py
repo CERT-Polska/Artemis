@@ -1,4 +1,5 @@
 import datetime
+import random
 import re
 import urllib
 from enum import Enum
@@ -16,7 +17,7 @@ from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
-from artemis.sql_injection_data import HEADER_KEYS, SQL_ERROR_MESSAGES, URL_PARAMS
+from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES, URL_PARAMS
 from artemis.task_utils import get_target_url
 
 
@@ -112,8 +113,8 @@ class SqlInjectionDetector(ArtemisBase):
     @staticmethod
     def create_headers(payload: str) -> dict[str, str]:
         headers = {}
-        for key in HEADER_KEYS:
-            headers.update({key: payload})
+        for key, value in HEADERS.items():
+            headers.update({key: value + payload})
         return headers
 
     @staticmethod
@@ -267,6 +268,8 @@ class SqlInjectionDetector(ArtemisBase):
             links = get_links_and_resources_on_same_domain(url)
             links.append(url)
             links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+
+            random.shuffle(links)
 
             result = self.scan(urls=links[:50], task=current_task)
             message = result["message"]

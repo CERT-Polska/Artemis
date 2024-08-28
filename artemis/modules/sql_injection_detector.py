@@ -240,26 +240,26 @@ class SqlInjectionDetector(ArtemisBase):
                         }
                     )
 
-                for sleep_payload in sql_injection_sleep_payloads:
-                    flags = []
-                    headers = self.create_headers(sleep_payload)
-                    for _ in range(3):
-                        if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
-                            current_url, headers=headers
-                        ):
-                            flags.append(True)
-                        else:
-                            flags.append(False)
-                            break
+            for sleep_payload in sql_injection_sleep_payloads:
+                flags = []
+                headers = self.create_headers(sleep_payload)
+                for _ in range(3):
+                    if self.are_requests_time_efficient(current_url) and not self.are_requests_time_efficient(
+                        current_url, headers=headers
+                    ):
+                        flags.append(True)
+                    else:
+                        flags.append(False)
+                        break
 
-                    if all(flags):
-                        message.append(
-                            {
-                                "url": current_url,
-                                "statement": "It appears that this url is vulnerable to time-based SQL injection through HTTP Headers",
-                                "code": Statements.headers_time_based_sql_injection.value,
-                            }
-                        )
+                if all(flags):
+                    message.append(
+                        {
+                            "url": current_url,
+                            "statement": "It appears that this url is vulnerable to time-based SQL injection through HTTP Headers",
+                            "code": Statements.headers_time_based_sql_injection.value,
+                        }
+                    )
 
         task_result["message"] = message
         return task_result

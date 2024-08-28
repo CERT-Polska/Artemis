@@ -4,33 +4,19 @@ msgstr ""
 "Zidentyfikowaliśmy, że następujące adresy URL zawierają podatność SQL "
 "injection:"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:10
-msgid "It appears that this URL is vulnerable to SQL injection"
-msgstr "Wykryliśmy, że poniższy adres URL jest podatny na atak typu SQL injection"
-
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:14
-msgid "It appears that this URL is vulnerable to time-based SQL injection"
-msgstr ""
-"Wykryliśmy, że poniższy adres URL jest podatny na atak typu time-based "
-"SQL injection"
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:13
+msgid "time-based SQL injection"
+msgstr "time-based SQL injection"
 
 #: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:19
-msgid ""
-"It appears that this URL is vulnerable to SQL injection through HTTP "
-"Headers"
-msgstr ""
-"Wykryliśmy, że poniższy adres URL jest podatny na atak SQL injection w "
-"nagłówkach HTTP"
+msgid "SQL injection through HTTP Headers"
+msgstr "SQL injection w nagłówkach HTTP"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:24
-msgid ""
-"It appears that this URL is vulnerable to time-based SQL injection "
-"through HTTP Headers"
-msgstr ""
-"Wykryliśmy, że poniższy adres URL jest podatny na atak time-based SQL "
-"injection przez nagłówki HTTP"
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:25
+msgid "time-based SQL injection through HTTP Headers"
+msgstr "time-based SQL injection w nagłówkach HTTP"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:35
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:36
 msgid ""
 "That means, that an attacker can inject their own commands into the "
 "database query. These vulnerabilities can lead to serious security "

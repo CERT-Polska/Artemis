@@ -5,24 +5,25 @@
                 {% if report.report_type == "sql_injection:core" %}
                     {% for message in report.additional_data.result %}
                         <li>
-                            {{ message.url }}:
+                            {{ message.url }}
                             {% if message.code == report.additional_data.statements.sql_injection %}
-                                {% trans trimmed %}
-                                    It appears that this URL is vulnerable to SQL injection
-                                {% endtrans %}
+                                {# intentionally left blank #}
                             {% elif message.code == report.additional_data.statements.sql_time_based_injection %}
+                                :
                                 {% trans trimmed %}
-                                    It appears that this URL is vulnerable to time-based SQL injection
+                                    time-based SQL injection
                                 {% endtrans %}
 
                             {% elif message.code == report.additional_data.statements.headers_sql_injection %}
+                                :
                                 {% trans trimmed %}
-                                    It appears that this URL is vulnerable to SQL injection through HTTP Headers
+                                    SQL injection through HTTP Headers
                                 {% endtrans %}
 
                             {% elif message.code == report.additional_data.statements.headers_time_based_sql_injection %}
+                                :
                                 {% trans trimmed %}
-                                    It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers
+                                    time-based SQL injection through HTTP Headers
                                 {% endtrans %}
                             {% endif %}
                         </li>

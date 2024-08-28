@@ -1,37 +1,34 @@
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:2
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:2
 msgid "We identified that the following URLs are vulnerable to SQL injection:"
 msgstr "Zidentyfikowaliśmy, że następujące adresy URL są podatne na SQL injection:"
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:13
-#, fuzzy
-msgid "It appears that this url is vulnerable to SQL injection"
-msgstr "Wygląda na to, że ten adres URL jest podatny na atak typu SQL injection"
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:13
+msgid "It appears that this URL is vulnerable to SQL injection"
+msgstr "Wykryliśmy, że poniższy adres URL jest podatny na atak typu SQL injection"
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:17
-#, fuzzy
-msgid "It appears that this url is vulnerable to time-based SQL injection"
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:17
+msgid "It appears that this URL is vulnerable to time-based SQL injection"
 msgstr ""
-"Wygląda na to, że ten adres URL jest podatny na atak typu time-based SQL "
+"Wykryliśmy, że poniższy adres URL jest podatny na atak typu time-based SQL "
 "injection"
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:22
-#, fuzzy
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:22
 msgid ""
-"It appears that this url is vulnerable to SQL injection through HTTP "
+"It appears that this URL is vulnerable to SQL injection through HTTP "
 "Headers"
 msgstr ""
-"Wygląda na to, że ten adres URL jest podatny na atak SQL injection przez "
-"nagłówki HTTP"
+"Wykryliśmy, że poniższy adres URL jest podatny na atak SQL injection w "
+"nagłówkach HTTP"
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:27
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:27
 msgid ""
-"It appears that this url is vulnerable to time-based SQL injection "
+"It appears that this URL is vulnerable to time-based SQL injection "
 "through HTTP Headers"
 msgstr ""
-"Wygląda na to, że ten adres URL jest podatny na atak time-based SQL "
+"Wykryliśmy, że poniższy adres URL jest podatny na atak time-based SQL "
 "injection przez nagłówki HTTP"
 
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:39
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:39
 msgid ""
 "These vulnerabilities can lead to serious security breaches, including "
 "user data leaks and potential database manipulation. The vulnerability "
@@ -43,19 +40,3 @@ msgstr ""
 "Podatność występuje, gdy niebezpieczne dane wejściowe użytkownika są "
 "bezpośrednio wstrzykiwane do zapytań SQL, co umożliwia atakującym "
 "wykonanie dowolnych poleceń SQL."
-
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:45
-msgid "Effects of the vulnerability:"
-msgstr "Skutki podatności:"
-
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:47
-msgid "Possibility of personal use data leak."
-msgstr "Możliwość wycieku danych osobowych użytkowników."
-
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:48
-msgid "Manipulation of data in the database."
-msgstr "Manipulacja danymi w bazie danych."
-
-#: artemis/reporting/modules/sql_injection_detector/template_expose_to_sql_injection.jinja2:49
-msgid "Possibility of complete control over the database."
-msgstr "Możliwość całkowitego przejęcia kontroli nad bazą danych."

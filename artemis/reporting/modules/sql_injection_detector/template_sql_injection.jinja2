@@ -35,18 +35,10 @@
             </li>
             {% endfor %}
         </ul>
-            <p>
-                {% trans trimmed %}
-                    These vulnerabilities can lead to serious security breaches, including user data leaks and potential database manipulation.
-                    The vulnerability occurs when dangerous user input is directly injected into SQL queries, allowing attackers to execute any SQL commands.
-                {% endtrans %}
-            </p>
-            <p>
-                {% trans trimmed %}Effects of the vulnerability:{% endtrans %}
-                <ul>
-                    <li> {% trans trimmed %}Possibility of personal use data leak.{% endtrans %}</li>
-                    <li> {% trans trimmed %}Manipulation of data in the database.{% endtrans %}</li>
-                    <li> {% trans trimmed %}Possibility of complete control over the database.{% endtrans %}</li>
-                </ul>
-            </p>
+        <p>
+            {% trans trimmed %}
+                These vulnerabilities can lead to serious security breaches, including user data leaks and potential database manipulation.
+                The vulnerability occurs when dangerous user input is directly injected into SQL queries, allowing attackers to execute any SQL commands.
+            {% endtrans %}
+        </p>
 {% endif %}

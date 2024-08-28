@@ -148,7 +148,7 @@ def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
 
 
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
-def get_exports(prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]:
+def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]:
     """List all exports. An export is a request to create human-readable messages that may be sent to scanned entities."""
     return [
         ReportGenerationTaskModel(
@@ -163,7 +163,7 @@ def get_exports(prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]
             error=task.error,
             alerts=task.alerts,
         )
-        for task in db.list_report_generation_tasks(prefix=prefix)
+        for task in db.list_report_generation_tasks(tag_prefix=tag_prefix)
     ]
 
 

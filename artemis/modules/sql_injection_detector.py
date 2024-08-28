@@ -128,7 +128,7 @@ class SqlInjectionDetector(ArtemisBase):
         status_reason = []
         for injection_message in message:
             status_reason.append(f"{injection_message.get('url')}: {injection_message.get('statement')}")
-        return ', '.join(set(status_reason))
+        return ", ".join(set(status_reason))
 
     @staticmethod
     def create_data(message: Any) -> Dict[str, List[str] | dict[str, str]]:

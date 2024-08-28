@@ -440,7 +440,9 @@ class Config:
                         "http/cves/2021/CVE-2021-44528.yaml",
                         # Minor information leaks
                         "http/cves/2017/CVE-2017-5487.yaml",
+                        "http/cves/2019/CVE-2019-8449.yaml",
                         "http/cves/2020/CVE-2020-14179.yaml",
+                        "http/cves/2020/CVE-2020-14181.yaml",
                         "http/cves/2021/CVE-2021-3293.yaml",
                         "http/cves/2021/CVE-2021-25118.yaml",
                         "http/cves/2021/CVE-2021-44848.yaml",
@@ -488,6 +490,7 @@ class Config:
                         "http/cves/2019/CVE-2019-10098.yaml",
                         "http/cves/2022/CVE-2022-28923.yaml",
                         # Too many FPs
+                        "http/cves/2023/CVE-2023-35160.yaml",
                         "http/cves/2023/CVE-2023-35161.yaml",
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
                     ]

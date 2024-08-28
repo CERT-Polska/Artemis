@@ -1000,6 +1000,9 @@ TRANSLATIONS = {
     "Web Port 1.19.1 is vulnerable to cross-site scripting via the /log type parameter.": "WebPort w wersji 1.19.1 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Cisco Adaptive Security Appliance (ASA) Software and Cisco Firepower Threat Defense (FTD) Software is vulnerable to local file inclusion due to directory traversal attacks that can read sensitive files on a targeted system because of a lack of proper input validation of URLs in HTTP requests processed by an affected device. An attacker could exploit this vulnerability by sending a crafted HTTP request containing directory traversal character sequences to an affected device. A successful exploit could allow the attacker to view arbitrary files within the web services file system on the targeted device. The web services file system is enabled when the affected device is configured with either WebVPN or AnyConnect features. This vulnerability cannot be used to obtain access to ASA or FTD system files or underlying operating system (OS) files.": "Wykryto oprogramowanie Cisco Adaptive Security Appliance (ASA) lub Cisco Firepower Threat Defense (FTD) zawierające podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "CSZ CMS version 1.3.0 suffers from multiple remote blind SQL injection vulnerabilities.": "CSZ CMS w wersji 1.3.0 i potencjalnie wcześniejszych zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + UPDATE_HINT,
     "custom:CVE-2024-5932": "Wtyczka WordPress o nazwie GiveWP w wersji do 3.14.1 włącznie zawiera podatność Object Injection, umożliwiającą atakującemu zdalne wykonanie kodu w niektórych sytuacjach."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -1359,4 +1362,5 @@ TRANSLATIONS = {
     "Appsmith user login panel was detected.": "Wykryto panel logowania Appsmith.",
     "Parse Dashboard login panel was detected.": "Wykryto panel logowania Parse Dashboard.",
     "AirOS panel was detected.": "Wykryto panel AirOS.",
+    "Detects the presence of the Label Studio Login Page.": "Wykryto panel logowania Label Studio.",
 }

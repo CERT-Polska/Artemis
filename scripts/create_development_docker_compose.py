@@ -49,7 +49,7 @@ class VolumeDevelopStrategy(YamlProcessor):
 class LocalBuildContainersStrategy(YamlProcessor):
     def process(self, data: Any) -> Any:
         for service in data["services"]:
-            if data["services"][service].get("image", "X") == "certpl/artemis:latest":
+            if data["services"][service]["image"] == "certpl/artemis:latest":
                 del data["services"][service]["image"]
                 data["services"][service]["build"] = {"context": ".", "dockerfile": "docker/Dockerfile"}
         return data

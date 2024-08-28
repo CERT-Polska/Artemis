@@ -547,8 +547,7 @@ class Config:
                 default=",".join(
                     [
                         "custom:xss-inside-tag-top-params",
-                        "custom:error-based-sql-injection"
-                        "http/miscellaneous/defaced-website-detect.yaml",
+                        "custom:error-based-sql-injection" "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
                         "custom:CVE-2024-4836",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657

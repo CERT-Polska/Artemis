@@ -1,0 +1,33 @@
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:2
+msgid "We identified that the following URLs are vulnerable to SQL injection:"
+msgstr ""
+"Zidentyfikowaliśmy, że następujące adresy URL zawierają podatność SQL "
+"injection:"
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:13
+msgid "time-based SQL injection"
+msgstr "time-based SQL injection"
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:19
+msgid "SQL injection through HTTP Headers"
+msgstr "SQL injection w nagłówkach HTTP"
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:25
+msgid "time-based SQL injection through HTTP Headers"
+msgstr "time-based SQL injection w nagłówkach HTTP"
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:36
+msgid ""
+"That means, that an attacker can inject their own commands into the "
+"database query. These vulnerabilities can lead to serious security "
+"breaches, including user data leaks and potential database manipulation. "
+"The vulnerability occurs when dangerous user input is directly injected "
+"into SQL queries, allowing attackers to execute any SQL commands."
+msgstr ""
+"Oznacza to, że atakujący może wstrzyknąć swoje własne polecenia do "
+"zapytania wykonywanego w Państwa bazie danych. Te podatności mogą "
+"prowadzić do poważnych naruszeń bezpieczeństwa, w tym wycieku danych "
+"użytkowników i potencjalnej manipulacji bazą danych. Podatność występuje,"
+" gdy niebezpieczne dane wejściowe użytkownika są bezpośrednio "
+"wstrzykiwane do zapytań SQL, co umożliwia atakującym wykonanie dowolnych "
+"poleceń SQL."

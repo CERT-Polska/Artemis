@@ -1,0 +1,24 @@
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:2
+msgid "We identified that the following URLs are vulnerable to SQL injection:"
+msgstr ""
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:13
+msgid "time-based SQL injection"
+msgstr ""
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:19
+msgid "SQL injection through HTTP Headers"
+msgstr ""
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:25
+msgid "time-based SQL injection through HTTP Headers"
+msgstr ""
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:36
+msgid ""
+"That means, that an attacker can inject their own commands into the "
+"database query. These vulnerabilities can lead to serious security "
+"breaches, including user data leaks and potential database manipulation. "
+"The vulnerability occurs when dangerous user input is directly injected "
+"into SQL queries, allowing attackers to execute any SQL commands."
+msgstr ""

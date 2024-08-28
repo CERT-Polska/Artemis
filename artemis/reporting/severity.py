@@ -30,6 +30,7 @@ SEVERITY_MAP = {
     ReportType("exposed_configuration_file"): Severity.HIGH,
     ReportType("exposed_sql_dump"): Severity.HIGH,
     ReportType("exposed_ssh_with_easy_password"): Severity.HIGH,
+    ReportType("sql_injection:core"): Severity.HIGH,
     ReportType("exposed_log_file"): Severity.MEDIUM,
     ReportType("writable_ftp"): Severity.HIGH,
     ReportType("wordpress_outdated_plugin_theme"): Severity.MEDIUM,

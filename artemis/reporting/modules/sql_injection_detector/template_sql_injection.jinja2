@@ -1,0 +1,42 @@
+{% if "sql_injection:core" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are vulnerable to SQL injection:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "sql_injection:core" %}
+                    {% for message in report.additional_data.result %}
+                        <li>
+                            {{ message.url }}
+                            {% if message.code == report.additional_data.statements.sql_injection %}
+                                {# intentionally left blank #}
+                            {% elif message.code == report.additional_data.statements.sql_time_based_injection %}
+                                :
+                                {% trans trimmed %}
+                                    time-based SQL injection
+                                {% endtrans %}
+
+                            {% elif message.code == report.additional_data.statements.headers_sql_injection %}
+                                :
+                                {% trans trimmed %}
+                                    SQL injection through HTTP Headers
+                                {% endtrans %}
+
+                            {% elif message.code == report.additional_data.statements.headers_time_based_sql_injection %}
+                                :
+                                {% trans trimmed %}
+                                    time-based SQL injection through HTTP Headers
+                                {% endtrans %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                That means, that an attacker can inject their own commands into the database query.
+                These vulnerabilities can lead to serious security breaches, including user data leaks and potential database manipulation.
+                The vulnerability occurs when dangerous user input is directly injected into SQL queries, allowing attackers to execute any SQL commands.
+            {% endtrans %}
+        </p>
+{% endif %}

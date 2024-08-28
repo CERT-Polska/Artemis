@@ -1,37 +1,49 @@
 <header>
-    <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="/"><img src="/static/images/logo.png" class="logo"></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="/static/images/logo.png" class="logo light">
+                <img src="/static/images/logo_dark.png" class="logo dark">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav mr-auto">
+            <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/add">Add targets</a>
+                        <a class="nav-link {{ 'active' if request.path == '/add' }}" href="/add">Add targets</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/">View targets</a>
+                        <a class="nav-link {{ 'active' if request.path == '/' }}" href="/">View targets</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/results?task_filter=interesting">View results</a>
+                        <a class="nav-link {{ 'active' if request.path == '/results' }}" href="/results?task_filter=interesting">View raw task results</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/export">Export reports</a>
+                        <a class="nav-link {{ 'active' if request.path == '/export' }}" href="/export">Export reports</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/exports">View exported reports</a>
+                        <a class="nav-link {{ 'active' if request.path == '/exports' }}" href="/exports">View exported reports</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/queue">Task queue</a>
+                        <a class="nav-link {{ 'active' if request.path == '/queue' }}" href="/queue">Task queue</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/restart-crashed-tasks">Restart crashed tasks</a>
+                        <a class="nav-link {{ 'active' if request.path == '/restart-crashed-tasks' }}" href="/restart-crashed-tasks">Restart crashed tasks</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/docs">API</a>
+                        <a class="nav-link {{ 'active' if request.path == '/docs' }}" href="/docs">API</a>
                     </li>
                 </ul>
+            </div>
+            <div class="navbar-nav ms-auto">
+                <li class="nav-item align-items-center d-flex">
+                    <i class="fa-solid fa-sun"></i>
+                    <div class="ms-2 form-check form-switch">
+                        <input class="form-check-input p-2" type="checkbox" role="switch" id="theme-switch" checked onclick="switchTheme()"/>
+                    </div>
+                    <i class="fa-solid fa-moon"></i>
+                </li>
             </div>
         </div>
     </nav>

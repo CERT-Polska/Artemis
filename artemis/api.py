@@ -148,7 +148,7 @@ def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
 
 
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
-def get_exports() -> List[ReportGenerationTaskModel]:
+def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]:
     """List all exports. An export is a request to create human-readable messages that may be sent to scanned entities."""
     return [
         ReportGenerationTaskModel(
@@ -163,7 +163,7 @@ def get_exports() -> List[ReportGenerationTaskModel]:
             error=task.error,
             alerts=task.alerts,
         )
-        for task in db.list_report_generation_tasks()
+        for task in db.list_report_generation_tasks(tag_prefix=tag_prefix)
     ]
 
 
@@ -189,6 +189,7 @@ async def post_export(
     skip_previously_exported: bool = Body(),
     tag: Optional[str] = Body(None),
     comment: Optional[str] = Body(None),
+    custom_template_arguments: Dict[str, Any] = Body({}),
     skip_hooks: bool = Body(False),
 ) -> Dict[str, Any]:
     """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
@@ -196,6 +197,7 @@ async def post_export(
         skip_previously_exported=skip_previously_exported,
         tag=tag,
         comment=comment,
+        custom_template_arguments=custom_template_arguments,
         language=Language(language),
         skip_hooks=skip_hooks,
     )

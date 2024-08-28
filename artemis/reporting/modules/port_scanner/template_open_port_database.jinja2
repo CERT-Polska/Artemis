@@ -12,10 +12,13 @@
         </ul>
         <p>
             {% trans trimmed %}
-                Databases shouldn't be publicly available - an attack is possible when the password
-                leaks (e.g. because of an exposed configuration file such as a backup of <tt>/wp-config.php</tt>).
-                The recommended configuration is to make the database
-                available to the application locally or using an internal network.
+                We do not recommend database ports to be publicly available - although they require correct username
+                and password to login, an attack is possible when the password leaks or is too simple.
+                A password leak may be caused e.g. by an accidentally exposed configuration file such as a backup of
+                <tt>/wp-config.php</tt> or by a local file inclusion vulnerability. Such mistakes are frequent, and lack of publicly exposed
+                database ports makes it significantly harder to perform an attack.
+
+                The recommended configuration is to make the database available to the application locally or using an internal network.
             {% endtrans %}
         </p>
     </li>

@@ -29,5 +29,5 @@ class WordPressScannerTest(ArtemisModuleTestCase):
             )
             self.assertEqual(
                 call.kwargs["data"],
-                {"wp_version": "5.9.3", "wp_plugins": [], "wp_version_insecure": True, "wp_version_old": True},
+                {"wp_version": "5.9.3", "wp_version_insecure": True, "wp_version_old": True},
             )

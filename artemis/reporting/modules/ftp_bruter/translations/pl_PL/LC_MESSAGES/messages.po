@@ -1,0 +1,27 @@
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:2
+msgid ""
+"The following FTP servers allow writing files after logging in with a "
+"simple password:"
+msgstr ""
+"następujące serwery FTP umożliwiają tworzenie plików po zalogowaniu "
+"prostym hasłem:"
+
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:6
+msgid "the following credentials allow login"
+msgstr "następujące dane umożliwiają logowanie"
+
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:10
+msgid "username"
+msgstr "nazwa użytkownika"
+
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:11
+msgid "and"
+msgstr "i"
+
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:12
+msgid "password"
+msgstr "hasło"
+
+#: artemis/reporting/modules/ftp_bruter/template_writable_ftp.jinja2:14
+msgid "empty password"
+msgstr "puste hasło"

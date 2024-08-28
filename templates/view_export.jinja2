@@ -1,0 +1,119 @@
+{% extends "components/base.jinja2" %}
+{% block main %}
+    <h2>Export task detail</h2>
+    <dl>
+        <dt>Created at:</dt><dd>{{ task.created_at }}</dd>
+        <dt>Tag:</dt><dd>{% if task.tag %}{{ task.tag }}{% else %}None{% endif %}</dd>
+        <dt>Comment:</dt><dd>{% if task.comment %}{{ task.comment }}{% else %}None{% endif %}</dd>
+        <dt>Status:</dt><dd>{{ task.status }}</dd>
+
+        {% if task.status == "done" %}
+            <dt>Number of high-severity vulnerabilities:</dt><dd>{{ num_high_severity }}</dd>
+            <dt>Number of medium-severity vulnerabilities:</dt><dd>{{ num_medium_severity }}</dd>
+            <dt>Number of low-severity vulnerabilities:</dt><dd>{{ num_low_severity }}</dd>
+        {% endif %}
+    </dl>
+
+    {% if task.status == "done" %}
+        <a class="btn btn-primary mt-4 mb-4 href="/export/download-zip/{{ task.id }}">Download ZIP</a>
+
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item" role="presentation">
+              <a class="nav-link active" id="browse-messages-link" href="#" data-bs-toggle="tab" data-bs-target="#browse-messages" aria-selected="true">Browse messages</a>
+          </li>
+          <li class="nav-item" role="presentation">
+              <a class="nav-link" id="browse-vulnerabilities-link" href="#" data-bs-toggle="tab" data-bs-target="#browse-vulnerabilities" aria-selected="false">Browse vulnerabilities</a>
+          </li>
+          {% if task.alerts %}
+              <li class="nav-item" role="presentation">
+                  <a class="nav-link" id="alerts-link" href="#" data-bs-toggle="tab" data-bs-target="#alerts" aria-selected="false">Alerts ({{ task.alerts|length }})</a>
+              </li>
+          {% endif %}
+        </ul>
+        <div class="tab-content">
+            <div id="browse-messages" class="tab-pane pt-4 active show" role="tabpanel" aria-labelledby="browse-messages-link">
+                {% if domain_messages %}
+                    {% for domain, message in domain_messages.items() %}
+                        <h3>{{ domain }}</h3>
+                        {{ message|safe }}
+                    {% endfor %}
+                {% else %}
+                    None
+                {% endif %}
+            </div>
+            <div id="browse-vulnerabilities" class="tab-pane pt-4" role="tabpanel" aria-labelledby="browse-vulnerabilities-link">
+                {% if vulnerabilities %}
+                    <table class="table" id="vulnerabilities-table" style="word-break: break-word">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%">Severity</th>
+                                <th style="width: 20%">Type</th>
+                                <th style="width: 20%">Target</th>
+                                <th style="width: 50%">Vulnerability</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vulnerability in vulnerabilities %}
+                                <tr>
+                                    <td>
+                                        <span class="text-{% if vulnerability.severity == "high" %}danger{% elif vulnerability.severity == "medium" %}warning{% else %}info{% endif %}">
+                                            {% if vulnerability.severity == "high" %}1.
+                                            {% elif vulnerability.severity == "medium" %}2.
+                                            {% else %}3.{% endif %}
+
+                                            {{ vulnerability.severity }}
+                                        </span>
+                                    </td>
+                                    <td>{{ vulnerability.report_type }}</td>
+                                    <td>{{ vulnerability.target }}</td>
+                                    <td>
+                                        {{ vulnerability.html|safe }}
+
+                                        <p>
+                                            Found: {{ vulnerability.timestamp }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    None
+                {% endif %}
+            </div>
+            <div id="alerts" class="tab-pane" role="tabpanel" aria-labelledby="alerts-link">
+                {% if task.alerts %}
+                    {% for alert in task.alerts %}
+                        <div class="alert alert-danger mb-4">
+                            {{ alert }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    None
+                {% endif %}
+            </div>
+        </div>
+    {% elif task.status == "failed" %}
+        <pre>{{ task.error }}</pre>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            const table = $("#vulnerabilities-table").DataTable({
+            });
+
+            // Initialize Bootstrap tabs
+            var tabElms = document.querySelectorAll('a[data-bs-toggle="tab"]')
+            tabElms.forEach(function(tabElm) {
+                new bootstrap.Tab(tabElm);
+            });
+
+            // Adjust columns when switching to vulnerabilities tab
+            document.getElementById('browse-vulnerabilities-link').addEventListener('click', function() {
+                table.columns.adjust().draw();
+            });
+        });
+    </script>
+{% endblock %}

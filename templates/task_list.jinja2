@@ -2,15 +2,19 @@
 {% block main %}
     <h1>{{ title }}</h1>
 
-    <h4>Tasks</h4>
+    <h4>Raw task results</h4>
+    <div class="alert alert-info mt-3">
+        {% include "components/generating_reports_hint.jinja2" %}
+    </div>
+
     <p>
         <a
             href="?task_filter=interesting"
-            class="btn {% if task_filter == "interesting" %}btn-primary{% else %}btn-default{% endif %}">
+            class="btn {% if task_filter == "interesting" %}btn-primary{% else %}btn-secondary{% endif %}">
                 All interesting findings
         </a>
         <a
-            href="?" class="btn {% if not task_filter %}btn-primary{% else %}btn-default{% endif %}">
+            href="?" class="btn {% if not task_filter %}btn-primary{% else %}btn-secondary{% endif %}">
                 All tasks
         </a>
     </p>
@@ -26,10 +30,6 @@
             </tr>
         </thead>
     </table>
-
-    <div class="alert alert-info mt-3">
-        {% include "components/generating_reports_hint.jinja2" %}
-    </div>
 {% endblock %}
 
 {% block scripts %}

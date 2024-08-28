@@ -1,3 +1,4 @@
+import json
 import re
 import tempfile
 import time
@@ -67,38 +68,63 @@ class ExportingTestCase(BaseE2ETestCase):
                 content = f.read()
                 self.assertEqual(
                     content,
-                    b"\n".join(
+                    "\n".join(
                         [
-                            b"",
-                            b"",
-                            b"<html>",
-                            b"    <head>",
-                            b'        <meta charset="UTF-8">',
-                            b"    </head>",
-                            b"    <style>",
-                            b"        ul {",
-                            b"            margin-top: 10px;",
-                            b"            margin-bottom: 10px;",
-                            b"        }",
-                            b"    </style>",
-                            b"    <body>",
-                            b"        <ol>",
-                            b"    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
-                            b"                    <li>",
-                            b"                        test-smtp-server.artemis:",
-                            b"",
-                            b"                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
-                            b"                        ",
-                            b"                    </li>",
-                            b"        </ul>",
-                            b"        <p>",
-                            b"            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
-                            b"            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
-                            b"        </p>",
-                            b"    </li>",
-                            b"        </ol>",
-                            b"    </body>",
-                            b"</html>",
+                            "",
+                            "    <html>",
+                            "        <head>",
+                            '            <meta charset="UTF-8">',
+                            "        </head>",
+                            "        <style>",
+                            "            ul {",
+                            "                margin-top: 10px;",
+                            "                margin-bottom: 10px;",
+                            "            }",
+                            "        </style>",
+                            "        <body>",
+                            "",
+                            "        <ol>",
+                            "    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                            "                    <li>",
+                            "                        test-smtp-server.artemis:",
+                            "",
+                            "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            "                        ",
+                            "                    </li>",
+                            "        </ul>",
+                            "        <p>",
+                            "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                            "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                            "        </p>",
+                            "    </li>",
+                            "        </ol>",
+                            "",
+                            "",
+                            "        </body>",
+                            "    </html>",
+                            "",
+                        ]
+                    ).encode("ascii"),
+                )
+
+            with export.open("advanced/output.json", "r") as f:
+                output_data = json.loads(f.read().decode("ascii"))
+                self.assertEqual(
+                    output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
+                    "\n".join(
+                        [
+                            "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                            "<li>",
+                            "                        test-smtp-server.artemis:",
+                            "",
+                            "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            "                        ",
+                            "                    </li>",
+                            "</ul>",
+                            "<p>",
+                            "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                            "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                            "        </p>",
                         ]
                     ),
                 )
@@ -122,7 +148,7 @@ class ExportingTestCase(BaseE2ETestCase):
         self.assertEqual(
             requests.post(
                 BACKEND_URL + "api/export",
-                json={"skip_previously_exported": True, "language": "pl_PL"},
+                json={"skip_previously_exported": True, "language": "pl_PL", "tag": "exporting-api"},
                 headers={"X-Api-Token": "api-token"},
             ).json(),
             {"ok": True},
@@ -135,6 +161,27 @@ class ExportingTestCase(BaseE2ETestCase):
                 break
 
             time.sleep(1)
+
+        self.assertEqual(len(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()), 1)
+        self.assertEqual(
+            len(requests.get(BACKEND_URL + "api/exports?tag_prefix=", headers={"X-Api-Token": "api-token"}).json()), 1
+        )
+        self.assertEqual(
+            len(
+                requests.get(
+                    BACKEND_URL + "api/exports?tag_prefix=exporting-a", headers={"X-Api-Token": "api-token"}
+                ).json()
+            ),
+            1,
+        )
+        self.assertEqual(
+            len(
+                requests.get(
+                    BACKEND_URL + "api/exports?tag_prefix=exporting-b", headers={"X-Api-Token": "api-token"}
+                ).json()
+            ),
+            0,
+        )
 
         self.assertEqual(
             data[0].keys(),
@@ -174,18 +221,18 @@ class ExportingTestCase(BaseE2ETestCase):
                     "\n".join(
                         [
                             "",
+                            "    <html>",
+                            "        <head>",
+                            '            <meta charset="UTF-8">',
+                            "        </head>",
+                            "        <style>",
+                            "            ul {",
+                            "                margin-top: 10px;",
+                            "                margin-bottom: 10px;",
+                            "            }",
+                            "        </style>",
+                            "        <body>",
                             "",
-                            "<html>",
-                            "    <head>",
-                            '        <meta charset="UTF-8">',
-                            "    </head>",
-                            "    <style>",
-                            "        ul {",
-                            "            margin-top: 10px;",
-                            "            margin-bottom: 10px;",
-                            "        }",
-                            "    </style>",
-                            "    <body>",
                             "        <ol>",
                             "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
                             "                    <li>",
@@ -201,8 +248,11 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        </p>",
                             "    </li>",
                             "        </ol>",
-                            "    </body>",
-                            "</html>",
+                            "",
+                            "",
+                            "        </body>",
+                            "    </html>",
+                            "",
                         ]
                     ).encode("utf-8"),
                 )

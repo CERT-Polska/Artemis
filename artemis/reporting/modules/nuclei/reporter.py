@@ -32,7 +32,7 @@ class NucleiReporter(Reporter):
         GROUPS = json.load(f)
 
     @staticmethod
-    def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
+    def get_alerts(all_reports: List[Report], false_positive_threshold: int = 2) -> List[str]:
         result = []
 
         reports_by_target_counter: Counter[str] = collections.Counter()
@@ -156,7 +156,8 @@ class NucleiReporter(Reporter):
                             "description_translated": NucleiReporter._translate_description(
                                 template, description, language
                             ),
-                            "reference": vulnerability["info"]["reference"],
+                            "reference": vulnerability["info"].get("reference", []),
+                            "severity": vulnerability["info"]["severity"],
                             "matched_at": matched_at,
                             "template_name": template,
                             "original_template_name": original_template_name,

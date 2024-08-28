@@ -7,6 +7,7 @@ from typing import List, Optional
 from karton.core import Task
 from publicsuffixlist import PublicSuffixList
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.domains import is_domain
@@ -16,6 +17,7 @@ from artemis.utils import check_output_log_on_error, is_ip_address, throttle_req
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class Classifier(ArtemisBase):
     """
     Collects `type: new` and converts them to `type: HAS_DOMAIN` or `type: HAS_IP`

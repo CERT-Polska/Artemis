@@ -1,5 +1,6 @@
 import json
 from enum import Enum
+from typing import Any
 
 from artemis.config import Config
 from artemis.reporting.base.report_type import ReportType
@@ -13,6 +14,7 @@ class Severity(str, Enum):
 
 SEVERITY_MAP = {
     ReportType("forti_vuln"): Severity.HIGH,
+    ReportType("globalprotect_vuln"): Severity.HIGH,
     ReportType("insecure_wordpress"): Severity.HIGH,
     ReportType("nuclei_vulnerability"): Severity.HIGH,
     ReportType("script_unregistered_domain"): Severity.HIGH,
@@ -30,6 +32,7 @@ SEVERITY_MAP = {
     ReportType("exposed_ssh_with_easy_password"): Severity.HIGH,
     ReportType("sql_injection:core"): Severity.HIGH,
     ReportType("exposed_log_file"): Severity.MEDIUM,
+    ReportType("writable_ftp"): Severity.HIGH,
     ReportType("wordpress_outdated_plugin_theme"): Severity.MEDIUM,
     ReportType("misconfigured_email"): Severity.MEDIUM,
     ReportType("old_drupal"): Severity.MEDIUM,
@@ -47,6 +50,7 @@ SEVERITY_MAP = {
     ReportType("close_domain_expiration_date"): Severity.MEDIUM,
     ReportType("close_domain_expiry_date"): Severity.MEDIUM,
     ReportType("open_port_database"): Severity.LOW,
+    ReportType("open_port_smb"): Severity.LOW,
     ReportType("exposed_php_var_dump"): Severity.LOW,
     ReportType("exposed_phpinfo"): Severity.LOW,
     ReportType("nuclei_exposed_panel"): Severity.LOW,
@@ -71,3 +75,18 @@ if Config.Reporting.ADDITIONAL_SEVERITY_FILE:
         additional = json.load(f)
     for report_type_str, severity in additional.items():
         SEVERITY_MAP[ReportType(report_type_str)] = Severity(severity)
+
+
+def get_severity(report: Any) -> Severity:
+    if report.report_type == ReportType("nuclei_vulnerability") and "severity" in report.additional_data:
+        nuclei_severity_map = {
+            "info": Severity.LOW,
+            "low": Severity.LOW,
+            "medium": Severity.MEDIUM,
+            "high": Severity.HIGH,
+            "critical": Severity.HIGH,
+        }
+
+        return nuclei_severity_map[report.additional_data["severity"]]
+    else:
+        return SEVERITY_MAP[report.report_type]

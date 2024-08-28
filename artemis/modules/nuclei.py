@@ -10,6 +10,7 @@ from typing import Any, Dict, List
 import more_itertools
 from karton.core import Task
 
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
@@ -22,6 +23,7 @@ EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class Nuclei(ArtemisBase):
     """
     Runs Nuclei templates on URLs.
@@ -121,6 +123,21 @@ class Nuclei(ArtemisBase):
         if not targets:
             return []
 
+        if Config.Limits.REQUESTS_PER_SECOND:
+            milliseconds_per_request_initial = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))
+        else:
+            milliseconds_per_request_initial = 0
+
+        milliseconds_per_request_candidates = [
+            milliseconds_per_request_initial,
+            int(
+                max(
+                    1000 * Config.Modules.Nuclei.NUCLEI_SECONDS_PER_REQUEST_ON_RETRY,
+                    milliseconds_per_request_initial * 2,
+                )
+            ),
+        ]
+
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
         else:
@@ -128,45 +145,73 @@ class Nuclei(ArtemisBase):
 
         lines = []
         for template_chunk in more_itertools.chunked(templates, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE):
-            command = [
-                "nuclei",
-                "-disable-update-check",
-                "-etags",
-                "intrusive",
-                "-ni",
-                "-templates",
-                ",".join(template_chunk),
-                "-timeout",
-                str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
-                "-jsonl",
-                "-system-resolvers",
-                "-bulk-size",
-                str(len(targets)),
-                "-headless-bulk-size",
-                str(len(targets)),
-                "-milliseconds-per-request",
-                (
-                    str(int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets)))
-                    if Config.Limits.REQUESTS_PER_SECOND != 0
-                    else str(int(0))
-                ),
-            ] + additional_configuration
+            for milliseconds_per_request in milliseconds_per_request_candidates:
+                self.log.info(
+                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",
+                    len(template_chunk),
+                    len(targets),
+                    milliseconds_per_request,
+                )
+                command = [
+                    "nuclei",
+                    "-disable-update-check",
+                    "-etags",
+                    "intrusive",
+                    "-ni",
+                    "-v",
+                    "-templates",
+                    ",".join(template_chunk),
+                    "-timeout",
+                    str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
+                    "-jsonl",
+                    "-system-resolvers",
+                    "-bulk-size",
+                    str(len(targets)),
+                    "-headless-bulk-size",
+                    str(len(targets)),
+                    "-milliseconds-per-request",
+                    str(milliseconds_per_request),
+                ] + additional_configuration
 
-            # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
-            # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
-            for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
-                command.append("-it")
-                command.append(template)
+                # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
+                # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
+                for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
+                    if template in template_chunk:
+                        command.append("-it")
+                        command.append(template)
 
-            for target in targets:
-                command.append("-target")
-                command.append(target)
+                for target in targets:
+                    command.append("-target")
+                    command.append(target)
 
-            data = check_output_log_on_error(
-                command,
-                self.log,
-            )
-            lines.extend(data.decode("ascii", errors="ignore").split("\n"))
+                self.log.debug("Running command: %s", " ".join(command))
+                call_result = check_output_log_on_error(command, self.log, capture_stderr=True)
+
+                call_result_utf8 = call_result.decode("utf-8", errors="ignore")
+                call_result_utf8_lines = call_result_utf8.split("\n")
+
+                for line in call_result_utf8_lines:
+                    if line.startswith("{"):
+                        self.log.info("Found: %s...", line[:100])
+                        self.log.debug("%s", line)
+                        lines.append(line)
+
+                if "context deadline exceeded" in call_result_utf8:
+                    self.log.info(
+                        "Detected %d occurencies of 'context deadline exceeded'",
+                        call_result_utf8.count("context deadline exceeded"),
+                    )
+                    new_milliseconds_per_request_candidates = [
+                        item for item in milliseconds_per_request_candidates if item > milliseconds_per_request
+                    ]
+                    if len(new_milliseconds_per_request_candidates) > 0:
+                        milliseconds_per_request_candidates = new_milliseconds_per_request_candidates
+                        self.log.info("Retrying with longer timeout")
+                    else:
+                        self.log.info("Can't retry with longer timeout")
+
+                else:
+                    break
 
         findings = []
         for line in lines:

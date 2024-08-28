@@ -4,18 +4,20 @@
     {% endif %}
 {% endmacro %}
 
+{% if "skip_html_and_body_tags" not in data.custom_template_arguments %}
+    <html>
+        <head>
+            <meta charset="UTF-8">
+        </head>
+        <style>
+            ul {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+        </style>
+        <body>
+{% endif %}
 
-<html>
-    <head>
-        <meta charset="UTF-8">
-    </head>
-    <style>
-        ul {
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-    </style>
-    <body>
         {% if custom_header_text is defined %}
             {{ custom_header_text() }}
         {% endif %}

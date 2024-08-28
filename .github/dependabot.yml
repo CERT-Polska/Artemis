@@ -1,13 +1,37 @@
 version: 2
 updates:
+  # Docker updates
+  - package-ecosystem: "docker"
+    directory: "/docker/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "python"
+        versions: ["4.x"]  # Stick to Python 3.x
+
+  # Go modules
+  - package-ecosystem: "gomod"
+    directory: "/docker/"
+    schedule:
+      interval: "weekly"
+
+  # Python packages in root
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "*"  # Allow all packages from requirements.txt
+
+  # Python packages in /docs/
   - package-ecosystem: "pip"
     directory: "/docs/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "*"  # Allow all packages from requirements.txt
+
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

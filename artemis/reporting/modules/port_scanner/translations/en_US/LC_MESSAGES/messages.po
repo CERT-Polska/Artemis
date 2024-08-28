@@ -4,16 +4,21 @@ msgstr ""
 
 #: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:7
 #: artemis/reporting/modules/port_scanner/template_open_port_remote_desktop.jinja2:7
+#: artemis/reporting/modules/port_scanner/template_open_port_smb.jinja2:7
 msgid "domain: "
 msgstr ""
 
 #: artemis/reporting/modules/port_scanner/template_open_port_database.jinja2:14
 msgid ""
-"Databases shouldn't be publicly available - an attack is possible when "
-"the password leaks (e.g. because of an exposed configuration file such as"
-" a backup of <tt>/wp-config.php</tt>). The recommended configuration is "
-"to make the database available to the application locally or using an "
-"internal network."
+"We do not recommend database ports to be publicly available - although "
+"they require correct username and password to login, an attack is "
+"possible when the password leaks or is too simple. A password leak may be"
+" caused e.g. by an accidentally exposed configuration file such as a "
+"backup of <tt>/wp-config.php</tt> or by a local file inclusion "
+"vulnerability. Such mistakes are frequent, and lack of publicly exposed "
+"database ports makes it significantly harder to perform an attack. The "
+"recommended configuration is to make the database available to the "
+"application locally or using an internal network."
 msgstr ""
 
 #: artemis/reporting/modules/port_scanner/template_open_port_remote_desktop.jinja2:2
@@ -29,4 +34,18 @@ msgid ""
 "attack possible. Historically, remote desktop services were frequently "
 "used for ransomware attacks. For remote access, we recommend using a VPN "
 "with two factor authentication."
+msgstr ""
+
+#: artemis/reporting/modules/port_scanner/template_open_port_smb.jinja2:2
+msgid "The following servers have open SMB ports:"
+msgstr ""
+
+#: artemis/reporting/modules/port_scanner/template_open_port_smb.jinja2:14
+msgid ""
+"We do not recommend SMB ports to be publicly available - although they "
+"can be set up to require correct username and password to login, an "
+"attack is possible when the password leaks or is too simple. When an "
+"attacker correctly guesses a password (or takes it from a leak) they can "
+"e.g. access or modify files. The recommended configuration is to make "
+"such services available on an internal network only."
 msgstr ""

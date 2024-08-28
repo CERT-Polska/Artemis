@@ -11,7 +11,6 @@ import requests
 from artemis.config import Config
 from artemis.utils import build_logger, throttle_request
 
-
 LOGGER = build_logger(__name__)
 
 

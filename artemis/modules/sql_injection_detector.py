@@ -17,6 +17,7 @@ from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
+from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES, URL_PARAMS
 from artemis.task_utils import get_target_url
 
@@ -270,6 +271,12 @@ class SqlInjectionDetector(ArtemisBase):
             links = get_links_and_resources_on_same_domain(url)
             links.append(url)
             links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+
+            links = [
+                link
+                for link in links
+                if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
+            ]
 
             random.shuffle(links)
 

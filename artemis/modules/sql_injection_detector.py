@@ -144,12 +144,7 @@ class SqlInjectionDetector(ArtemisBase):
         }
         return data
 
-    def scan(self, urls: List[str], task: Task) -> Dict[str, object]:
-        task_result = {
-            "task_host": get_target_url(task),
-            "status": task.status,
-            "message": [],
-        }
+    def scan(self, urls: List[str], task: Task) -> List[str]:
         sql_injection_sleep_payloads = [
             f"'||sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
             f"'||pg_sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
@@ -176,6 +171,8 @@ class SqlInjectionDetector(ArtemisBase):
                                     "code": Statements.sql_injection.value,
                                 }
                             )
+                            if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                                return message
 
                     for sleep_payload in sql_injection_sleep_payloads:
                         url_with_sleep_payload = self.change_url_params(
@@ -193,6 +190,8 @@ class SqlInjectionDetector(ArtemisBase):
                                     "code": Statements.sql_time_based_injection.value,
                                 }
                             )
+                            if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                                return message
 
                 for error_payload in sql_injection_error_payloads:
                     url_with_payload = self.create_url_with_batch_payload(
@@ -207,6 +206,8 @@ class SqlInjectionDetector(ArtemisBase):
                                 "code": Statements.sql_injection.value,
                             }
                         )
+                        if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                            return message
 
                 for sleep_payload in sql_injection_sleep_payloads:
                     flags = []
@@ -231,6 +232,8 @@ class SqlInjectionDetector(ArtemisBase):
                                 "code": Statements.sql_time_based_injection.value,
                             }
                         )
+                        if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                            return message
 
             for error_payload in sql_injection_error_payloads:
                 headers = self.create_headers(payload=error_payload)
@@ -244,6 +247,8 @@ class SqlInjectionDetector(ArtemisBase):
                             "code": Statements.headers_sql_injection.value,
                         }
                     )
+                    if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                        return message
 
             for sleep_payload in sql_injection_sleep_payloads:
                 flags = []
@@ -266,9 +271,10 @@ class SqlInjectionDetector(ArtemisBase):
                             "code": Statements.headers_time_based_sql_injection.value,
                         }
                     )
+                    if Config.Modules.SqlInjectionDetector.STOP_ON_FIRST_MATCH:
+                        return message
 
-        task_result["message"] = message
-        return task_result
+        return message
 
     def run(self, current_task: Task) -> None:
         if check_connection_to_base_url_and_save_error(self.db, current_task):
@@ -286,8 +292,7 @@ class SqlInjectionDetector(ArtemisBase):
 
             random.shuffle(links)
 
-            result = self.scan(urls=links[:50], task=current_task)
-            message = result["message"]
+            message = self.scan(urls=links[:50], task=current_task)
 
             if message:
                 status = TaskStatus.INTERESTING

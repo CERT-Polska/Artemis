@@ -25,6 +25,8 @@ services:
       # Use only one provider to speed up the tests
       SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback"
 
+      SQL_INJECTION_STOP_ON_FIRST_MATCH: False
+
       POSTMAN_MAIL_FROM: artemis@localhost.com
       POSTMAN_MAIL_TO: artemis@localhost.com
 

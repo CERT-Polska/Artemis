@@ -612,6 +612,10 @@ class Config:
             ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=30, cast=int)
 
         class SqlInjectionDetector:
+            SQL_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to display only the first SQL injection and stop scanning.",
+            ] = get_config("SQL_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
             SQL_INJECTION_TIME_THRESHOLD: Annotated[
                 int,
                 "Seconds to sleep using the sleep() or pg_sleep() methods",

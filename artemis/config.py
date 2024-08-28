@@ -492,6 +492,7 @@ class Config:
                         # Too many FPs
                         "http/cves/2023/CVE-2023-35160.yaml",
                         "http/cves/2023/CVE-2023-35161.yaml",
+                        "http/cves/2023/CVE-2023-35162.yaml",
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
                     ]
                 ),
@@ -607,7 +608,6 @@ class Config:
                         "http/cves/2021/CVE-2021-42566.yaml",
                         "http/cves/2021/CVE-2021-45380.yaml",
                         "http/cves/2023/CVE-2023-35161.yaml",
-                        "http/cves/2023/CVE-2023-35162.yaml",
                         "http/vulnerabilities/ibm/eclipse-help-system-xss.yaml",
                         "http/vulnerabilities/ibm/ibm-infoprint-lfi.yaml",
                         "http/vulnerabilities/other/bullwark-momentum-lfi.yaml",

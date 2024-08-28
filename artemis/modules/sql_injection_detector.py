@@ -279,7 +279,7 @@ class SqlInjectionDetector(ArtemisBase):
             links = list(set(links) | set([self._strip_query_string(link) for link in links]))
 
             links = [
-                link.split('#')[0]
+                link.split("#")[0]
                 for link in links
                 if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
             ]

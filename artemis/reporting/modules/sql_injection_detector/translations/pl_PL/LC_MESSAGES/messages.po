@@ -1,18 +1,20 @@
 #: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:2
 msgid "We identified that the following URLs are vulnerable to SQL injection:"
-msgstr "Zidentyfikowaliśmy, że następujące adresy URL są podatne na SQL injection:"
+msgstr ""
+"Zidentyfikowaliśmy, że następujące adresy URL zawierają podatność SQL "
+"injection:"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:13
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:10
 msgid "It appears that this URL is vulnerable to SQL injection"
 msgstr "Wykryliśmy, że poniższy adres URL jest podatny na atak typu SQL injection"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:17
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:14
 msgid "It appears that this URL is vulnerable to time-based SQL injection"
 msgstr ""
 "Wykryliśmy, że poniższy adres URL jest podatny na atak typu time-based "
 "SQL injection"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:22
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:19
 msgid ""
 "It appears that this URL is vulnerable to SQL injection through HTTP "
 "Headers"
@@ -20,7 +22,7 @@ msgstr ""
 "Wykryliśmy, że poniższy adres URL jest podatny na atak SQL injection w "
 "nagłówkach HTTP"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:27
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:24
 msgid ""
 "It appears that this URL is vulnerable to time-based SQL injection "
 "through HTTP Headers"
@@ -28,7 +30,7 @@ msgstr ""
 "Wykryliśmy, że poniższy adres URL jest podatny na atak time-based SQL "
 "injection przez nagłówki HTTP"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:39
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:35
 msgid ""
 "These vulnerabilities can lead to serious security breaches, including "
 "user data leaks and potential database manipulation. The vulnerability "

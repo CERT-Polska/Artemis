@@ -11,7 +11,7 @@ import more_itertools
 import requests
 from karton.core import Task
 
-from artemis import http_requests
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
@@ -30,6 +30,7 @@ class Statements(Enum):
     headers_time_based_sql_injection = "headers_time_based_sql_injection"
 
 
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class SqlInjectionDetector(ArtemisBase):
     """
     Module for detecting SQL injection and time-based SQL injection vulnerabilities.

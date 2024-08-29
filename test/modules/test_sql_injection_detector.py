@@ -26,15 +26,15 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "image='&img='&import='&index=': It appears that this URL is vulnerable to SQL injection"
         )
         time_base_sqli_message = (
-            "http://test-apache-with-sql-injection-postgres/sql_injection.php?foo='||pg_sleep(2)||'"
-            "&form='||pg_sleep(2)||'&format='||pg_sleep(2)||'&from='||pg_sleep(2)||'&function='||"
-            "pg_sleep(2)||'&g='||pg_sleep(2)||'&gid='||pg_sleep(2)||'&gmt_offset='||pg_sleep(2)||'&"
-            "go='||pg_sleep(2)||'&group='||pg_sleep(2)||'&group_id='||pg_sleep(2)||'&groups='||pg_sleep(2)||'"
-            "&h='||pg_sleep(2)||'&hash='||pg_sleep(2)||'&height='||pg_sleep(2)||'&hidden='||pg_sleep(2)||'"
-            "&history='||pg_sleep(2)||'&host='||pg_sleep(2)||'&hostname='||pg_sleep(2)||'&html='||pg_sleep(2)||"
-            "'&i='||pg_sleep(2)||'&id='||pg_sleep(2)||'&ID='||pg_sleep(2)||'&id_base='||pg_sleep(2)||'&ids='||"
-            "pg_sleep(2)||'&image='||pg_sleep(2)||'&img='||pg_sleep(2)||'&import='||pg_sleep(2)||'&index='||"
-            "pg_sleep(2)||': It appears that this URL is vulnerable to time-based SQL injection"
+            "http://test-apache-with-sql-injection-postgres/sql_injection.php?foo='||pg_sleep(5)||'"
+            "&form='||pg_sleep(5)||'&format='||pg_sleep(5)||'&from='||pg_sleep(5)||'&function='||"
+            "pg_sleep(5)||'&g='||pg_sleep(5)||'&gid='||pg_sleep(5)||'&gmt_offset='||pg_sleep(5)||'&"
+            "go='||pg_sleep(5)||'&group='||pg_sleep(5)||'&group_id='||pg_sleep(5)||'&groups='||pg_sleep(5)||'"
+            "&h='||pg_sleep(5)||'&hash='||pg_sleep(5)||'&height='||pg_sleep(5)||'&hidden='||pg_sleep(5)||'"
+            "&history='||pg_sleep(5)||'&host='||pg_sleep(5)||'&hostname='||pg_sleep(5)||'&html='||pg_sleep(5)||"
+            "'&i='||pg_sleep(5)||'&id='||pg_sleep(5)||'&ID='||pg_sleep(5)||'&id_base='||pg_sleep(5)||'&ids='||"
+            "pg_sleep(5)||'&image='||pg_sleep(5)||'&img='||pg_sleep(5)||'&import='||pg_sleep(5)||'&index='||"
+            "pg_sleep(5)||': It appears that this URL is vulnerable to time-based SQL injection"
         )
         sqli_by_headers_message = (
             "http://test-apache-with-sql-injection-postgres/headers_vuln.php: "
@@ -61,19 +61,19 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
 
     def test_are_request_efficient(self) -> None:
         current_url = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id=1"
-        url_with_sleep_payload = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id='||pg_sleep(2)||'"
+        url_with_sleep_payload = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id='||pg_sleep(5)||'"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres/headers_vuln.php"
 
         self.assertTrue(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, current_url))
         self.assertFalse(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, url_with_sleep_payload))
         self.assertFalse(
             self.karton_class.are_requests_time_efficient(
-                SqlInjectionDetector, url_to_headers_vuln, headers={"User-Agent": "'||pg_sleep(2)||'"}
+                SqlInjectionDetector, url_to_headers_vuln, headers={"User-Agent": "'||pg_sleep(5)||'"}
             )
         )
 
     def test_contains_error(self) -> None:
-        current_url = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id=2"
+        current_url = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id=5"
         url_with_payload = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id='"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres/headers_vuln.php"
 
@@ -103,13 +103,13 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "URL is vulnerable to SQL injection"
         )
         time_base_sqli_message = (
-            "http://test-apache-with-sql-injection-mysql/sql_injection.php?foo='||sleep(2)||'&form='||sleep(2)||'&"
-            "format='||sleep(2)||'&from='||sleep(2)||'&function='||sleep(2)||'&g='||sleep(2)||'&gid='||sleep(2)||'&"
-            "gmt_offset='||sleep(2)||'&go='||sleep(2)||'&group='||sleep(2)||'&group_id='||sleep(2)||'&groups='||"
-            "sleep(2)||'&h='||sleep(2)||'&hash='||sleep(2)||'&height='||sleep(2)||'&hidden='||sleep(2)||'&history="
-            "'||sleep(2)||'&host='||sleep(2)||'&hostname='||sleep(2)||'&html='||sleep(2)||'&i='||sleep(2)||'&id='"
-            "||sleep(2)||'&ID='||sleep(2)||'&id_base='||sleep(2)||'&ids='||sleep(2)||'&image='||sleep(2)||'&img='"
-            "||sleep(2)||'&import='||sleep(2)||'&index='||sleep(2)||': It appears that this URL is vulnerable to "
+            "http://test-apache-with-sql-injection-mysql/sql_injection.php?foo='||sleep(5)||'&form='||sleep(5)||'&"
+            "format='||sleep(5)||'&from='||sleep(5)||'&function='||sleep(5)||'&g='||sleep(5)||'&gid='||sleep(5)||'&"
+            "gmt_offset='||sleep(5)||'&go='||sleep(5)||'&group='||sleep(5)||'&group_id='||sleep(5)||'&groups='||"
+            "sleep(5)||'&h='||sleep(5)||'&hash='||sleep(5)||'&height='||sleep(5)||'&hidden='||sleep(5)||'&history="
+            "'||sleep(5)||'&host='||sleep(5)||'&hostname='||sleep(5)||'&html='||sleep(5)||'&i='||sleep(5)||'&id='"
+            "||sleep(5)||'&ID='||sleep(5)||'&id_base='||sleep(5)||'&ids='||sleep(5)||'&image='||sleep(5)||'&img='"
+            "||sleep(5)||'&import='||sleep(5)||'&index='||sleep(5)||': It appears that this URL is vulnerable to "
             "time-based SQL injection"
         )
         sqli_by_headers_message = (
@@ -137,15 +137,15 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertFalse(self.karton_class.is_url_with_parameters(current_url))
 
     def test_are_request_efficient(self) -> None:
-        current_url = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id=2"
-        url_with_sleep_payload = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id='||sleep(2)||'"
+        current_url = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id=5"
+        url_with_sleep_payload = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id='||sleep(5)||'"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-mysql/headers_vuln.php"
 
         self.assertTrue(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, current_url))
         self.assertFalse(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, url_with_sleep_payload))
         self.assertFalse(
             self.karton_class.are_requests_time_efficient(
-                SqlInjectionDetector, url_to_headers_vuln, headers={"User-Agent": "'||sleep(2)||'"}
+                SqlInjectionDetector, url_to_headers_vuln, headers={"User-Agent": "'||sleep(5)||'"}
             )
         )
 

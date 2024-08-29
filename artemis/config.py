@@ -291,6 +291,11 @@ class Config:
             )
 
         class Nuclei:
+            NUCLEI_INTERACTSH_SERVER: Annotated[
+                str,
+                "Which interactsh server to use. if None, uses the default.",
+            ] = get_config("NUCLEI_INTERACTSH_SERVER", default=None, cast=str)
+
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,
                 "Whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI "

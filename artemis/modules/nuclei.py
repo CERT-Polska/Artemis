@@ -157,7 +157,8 @@ class Nuclei(ArtemisBase):
                     "-disable-update-check",
                     "-etags",
                     "intrusive",
-                    "-ni",
+                    "-itags",
+                    "fuzz,dast",
                     "-v",
                     "-templates",
                     ",".join(template_chunk),
@@ -169,9 +170,14 @@ class Nuclei(ArtemisBase):
                     str(len(targets)),
                     "-headless-bulk-size",
                     str(len(targets)),
-                    "-milliseconds-per-request",
-                    str(milliseconds_per_request),
+                    "-rate-limit",
+                    "1",
+                    "-rate-limit-duration",
+                    str(milliseconds_per_request) + "ms",
                 ] + additional_configuration
+
+                if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
+                    command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER])
 
                 # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
                 # they're marked with as tag such as `fuzz` which prevents them from being executed by default.

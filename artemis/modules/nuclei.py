@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import collections
 import json
 import os
 import random
@@ -16,7 +17,7 @@ from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
-from artemis.task_utils import get_target_url
+from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import check_output_log_on_error
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
@@ -128,6 +129,9 @@ class Nuclei(ArtemisBase):
         else:
             milliseconds_per_request_initial = 0
 
+        if not milliseconds_per_request_initial:
+            milliseconds_per_request_initial = 1  # 0 will make Nuclei wait 1 second
+
         milliseconds_per_request_candidates = [
             milliseconds_per_request_initial,
             int(
@@ -223,7 +227,6 @@ class Nuclei(ArtemisBase):
         for line in lines:
             if line.strip():
                 finding = json.loads(line)
-                assert finding["host"] in targets, f'{finding["host"]} not found in {targets}'
                 findings.append(finding)
         return findings
 
@@ -253,13 +256,31 @@ class Nuclei(ArtemisBase):
             Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS, links
         )
 
+        findings_per_task = collections.defaultdict(list)
+        findings_unmatched = []
+        for finding in findings:
+            found = False
+            for task in tasks:
+                if finding["url"] in [get_target_url(task)] + links_per_task[task.uid]:
+                    findings_per_task[task.uid].append(finding)
+                    found = True
+            if not found:
+                findings_unmatched.append(finding)
+
+        self.log.info("Findings unmatched: %d", repr(findings_unmatched))
+        for finding in findings_unmatched:
+            found = False
+            for task in tasks:
+                if finding["host"].split(":")[0] == get_target_host(task).split(":")[0]:
+                    findings_per_task[task.uid].append(finding)
+                    found = True
+            assert found, "Cannot match finding: %s" % finding
+
         for task in tasks:
             result = []
             messages = []
-            for finding in findings:
-                if finding["host"] not in [get_target_url(task)] + links_per_task[task.uid]:
-                    continue
 
+            for finding in findings_per_task[task.uid]:
                 result.append(finding)
                 messages.append(
                     f"[{finding['info']['severity']}] {finding['host']}: {finding['info'].get('name')} {finding['info'].get('description')}"

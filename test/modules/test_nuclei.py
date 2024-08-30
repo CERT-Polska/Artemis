@@ -11,7 +11,6 @@ class NucleiTest(ArtemisModuleTestCase):
     karton_class = Nuclei  # type: ignore
 
     def test_simple(self) -> None:
-        self.maxDiff = None
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
@@ -31,7 +30,6 @@ class NucleiTest(ArtemisModuleTestCase):
         )
 
     def test_links(self) -> None:
-        self.maxDiff = None
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={

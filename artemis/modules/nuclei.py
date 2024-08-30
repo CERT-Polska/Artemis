@@ -267,14 +267,16 @@ class Nuclei(ArtemisBase):
             if not found:
                 findings_unmatched.append(finding)
 
-        self.log.info("Findings unmatched: %d", repr(findings_unmatched))
-        for finding in findings_unmatched:
-            found = False
-            for task in tasks:
-                if finding["host"].split(":")[0] == get_target_host(task).split(":")[0]:
-                    findings_per_task[task.uid].append(finding)
-                    found = True
-            assert found, "Cannot match finding: %s" % finding
+        if findings_unmatched:
+            self.log.info("Findings unmatched: %s", repr(findings_unmatched))
+
+            for finding in findings_unmatched:
+                found = False
+                for task in tasks:
+                    if finding["host"].split(":")[0] == get_target_host(task).split(":")[0]:
+                        findings_per_task[task.uid].append(finding)
+                        found = True
+                assert found, "Cannot match finding: %s" % finding
 
         for task in tasks:
             result = []

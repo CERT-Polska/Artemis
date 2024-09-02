@@ -158,7 +158,7 @@ class SqlInjectionDetector(ArtemisBase):
         ]
         sql_injection_error_payloads = ["'", '"']
         # Should be correct in all sql contexts: inside and outside strings, even after e.g. PHP addslashes()
-        not_error_payload = '-1'
+        not_error_payload = "-1"
         message = []
 
         # The code below may look complicated and repetitive, but it shows how the scanning logic works.

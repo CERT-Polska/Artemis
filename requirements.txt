@@ -4,7 +4,7 @@ alembic==1.13.2
 anytree==2.12.1
 Babel==2.16.0
 beautifulsoup4==4.12.3
-certifi==2024.7.4
+certifi==2024.8.30
 chardet==5.2.0
 click==8.1.7
 cryptography==43.0.0

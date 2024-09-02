@@ -157,7 +157,8 @@ class SqlInjectionDetector(ArtemisBase):
             f"'||pg_sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
         ]
         sql_injection_error_payloads = ["'", '"']
-        not_error_payload = '@'
+        # Should be correct in all sql contexts: inside and outside strings, even after e.g. PHP addslashes()
+        not_error_payload = '-1'
         message = []
 
         # The code below may look complicated and repetitive, but it shows how the scanning logic works.

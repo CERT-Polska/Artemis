@@ -219,12 +219,14 @@ class ArtemisBase(Karton):
                 self.queue_position = 0
                 self.queue_location_timestamp = time.time()
 
-            for i, queue in list(enumerate(self.backend.get_queue_names(self.identity)))[self.queue_id:]:
+            for i, queue in list(enumerate(self.backend.get_queue_names(self.identity)))[self.queue_id :]:
+                original_queue_position = self.queue_position
                 self.log.debug(f"[taking tasks] Taking tasks from queue {queue} from task {original_queue_position}")
                 if self.lock_target:
                     self.queue_id = i
-                original_queue_position = self.queue_position
-                for i_from_queue_position, item in enumerate(self.backend.redis.lrange(queue, original_queue_position, -1)):
+                for i_from_queue_position, item in enumerate(
+                    self.backend.redis.lrange(queue, original_queue_position, -1)
+                ):
                     i = i_from_queue_position + original_queue_position
 
                     if self.lock_target:
@@ -289,9 +291,9 @@ class ArtemisBase(Karton):
             self.taking_tasks_from_queue_lock.release()
 
         if len(tasks) < num_tasks:
-           self.queue_id = 0
-           self.queue_position = 0
-           self.queue_location_timestamp = time.time()
+            self.queue_id = 0
+            self.queue_position = 0
+            self.queue_location_timestamp = time.time()
         self.log.debug("[taking tasks] Tasks from queue taken")
 
         tasks_not_blocklisted = []

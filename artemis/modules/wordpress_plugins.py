@@ -39,7 +39,13 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "wp-events-manager",
     "zarinpal-woocommerce-payment-gateway",
 ]
-PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup", "backwpup", "yith-woocommerce-catalog-mode", "wppao-sitemap"]
+PLUGINS_TO_SKIP_CHANGELOG = [
+    "wp-members",
+    "wordpress-popup",
+    "backwpup",
+    "yith-woocommerce-catalog-mode",
+    "wppao-sitemap",
+]
 PLUGINS_TO_SKIP_STABLE_TAG = [
     "flowpaper-lite-pdf-flipbook",
     "scheduled-post-trigger",

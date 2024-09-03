@@ -13,6 +13,15 @@ class SqlInjectionDetectorReporter(Reporter):
     SQL_INJECTION_CORE = ReportType("sql_injection:core")
 
     @staticmethod
+    def get_alerts(all_reports: List[Report]) -> List[str]:
+        result = []
+
+        for report in all_reports:
+            if report.report_type == SqlInjectionDetectorReporter.SQL_INJECTION_CORE:
+                result.append(f"As SqlInjectionDetector is a new module, verify whether the problem on {report.target} is indeed a true positive.")
+        return result
+
+    @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         if task_result["headers"]["receiver"] != "sql_injection_detector":
             return []

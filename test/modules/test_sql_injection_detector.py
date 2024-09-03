@@ -77,10 +77,12 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         url_with_payload = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id='"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres/headers_vuln.php"
 
-        self.assertFalse(self.karton_class.contains_error(http_requests.get(current_url)))
-        self.assertTrue(self.karton_class.contains_error(http_requests.get(url_with_payload)))
+        self.assertFalse(self.karton.contains_error(current_url, http_requests.get(current_url)))
+        self.assertTrue(self.karton.contains_error(url_with_payload, http_requests.get(url_with_payload)))
         self.assertTrue(
-            self.karton_class.contains_error(http_requests.get(url_to_headers_vuln, headers={"User-Agent": "'"}))
+            self.karton.contains_error(
+                url_to_headers_vuln, http_requests.get(url_to_headers_vuln, headers={"User-Agent": "'"})
+            )
         )
 
 
@@ -154,8 +156,10 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         url_with_payload = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id='"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-mysql/headers_vuln.php"
 
-        self.assertFalse(self.karton_class.contains_error(http_requests.get(current_url)))
-        self.assertTrue(self.karton_class.contains_error(http_requests.get(url_with_payload)))
+        self.assertFalse(self.karton.contains_error(current_url, http_requests.get(current_url)))
+        self.assertTrue(self.karton.contains_error(url_with_payload, http_requests.get(url_with_payload)))
         self.assertTrue(
-            self.karton_class.contains_error(http_requests.get(url_to_headers_vuln, headers={"User-Agent": "'"}))
+            self.karton.contains_error(
+                url_to_headers_vuln, http_requests.get(url_to_headers_vuln, headers={"User-Agent": "'"})
+            )
         )

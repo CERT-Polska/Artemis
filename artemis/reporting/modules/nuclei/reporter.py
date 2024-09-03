@@ -32,7 +32,7 @@ class NucleiReporter(Reporter):
         GROUPS = json.load(f)
 
     @staticmethod
-    def get_alerts(all_reports: List[Report], false_positive_threshold: int = 2) -> List[str]:
+    def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
         result = []
 
         reports_by_target_counter: Counter[str] = collections.Counter()

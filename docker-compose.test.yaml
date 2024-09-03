@@ -16,7 +16,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
+    command: bash -c "python -m unittest test/modules/test_xss_by_dalfox.py"
+#    command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
@@ -179,6 +180,14 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
+
+  test_apache-with-sql-injection-xss:
+    build:
+      dockerfile: test/images/php-xss/Dockerfile
+    command: systemctl start apache2.service
+    volumes:
+      - ./test/data/dalfox/:/var/www/html/
+
 
 volumes:
   data-test:

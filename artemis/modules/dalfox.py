@@ -67,16 +67,16 @@ class DalFox(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
-
+        self.log.info(url)
         links = get_links_and_resources_on_same_domain(url)
         links.append(url)
         links = list(set(links) | set([self._strip_query_string(link) for link in links]))
 
-        links_file_path = "artemis/modules/data/dalfox/links.txt"
-        with open(links_file_path, "w") as file:
+        path_to_file_with_links = "artemis/modules/data/dalfox/links.txt"
+        with open(path_to_file_with_links, "w") as file:
             file.write("\n".join(links))
 
-        vulnerabilities = self.scan(links_file_path=links_file_path)
+        vulnerabilities = self.scan(links_file_path=path_to_file_with_links)
         message, result = self.prepare_message(vulnerabilities)
 
         if message:

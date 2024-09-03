@@ -174,8 +174,8 @@ class SqlInjectionDetector(ArtemisBase):
                         )
 
                         if not self.contains_error(
-                            current_url, http_requests.get(url_without_payload)
-                        ) and self.contains_error(current_url, http_requests.get(url_with_payload)):
+                            url_without_payload, http_requests.get(url_without_payload)
+                        ) and self.contains_error(url_with_payload, http_requests.get(url_with_payload)):
                             message.append(
                                 {
                                     "url": url_with_payload,
@@ -212,14 +212,13 @@ class SqlInjectionDetector(ArtemisBase):
                     url_with_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=error_payload
                     )
-                    # Here we make use of the fact that even number of ' or " in SQL is correct
                     url_with_no_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=not_error_payload
                     )
 
                     if not self.contains_error(
-                        current_url, http_requests.get(url_with_no_payload)
-                    ) and self.contains_error(current_url, http_requests.get(url_with_payload)):
+                        url_with_no_payload, http_requests.get(url_with_no_payload)
+                    ) and self.contains_error(url_with_payload, http_requests.get(url_with_payload)):
                         message.append(
                             {
                                 "url": url_with_payload,

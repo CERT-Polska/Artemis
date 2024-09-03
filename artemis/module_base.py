@@ -220,6 +220,9 @@ class ArtemisBase(Karton):
                 self.queue_location_timestamp = time.time()
 
             for i, queue in list(enumerate(self.backend.get_queue_names(self.identity)))[self.queue_id :]:
+                if i > self.queue_id:
+                    self.queue_position = 0
+
                 original_queue_position = self.queue_position
                 self.log.debug(f"[taking tasks] Taking tasks from queue {queue} from task {original_queue_position}")
                 if self.lock_target:

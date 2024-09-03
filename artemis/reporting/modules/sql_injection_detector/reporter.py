@@ -18,7 +18,9 @@ class SqlInjectionDetectorReporter(Reporter):
 
         for report in all_reports:
             if report.report_type == SqlInjectionDetectorReporter.SQL_INJECTION_CORE:
-                result.append(f"As SqlInjectionDetector is a new module, verify whether the problem on {report.target} is indeed a true positive.")
+                result.append(
+                    f"As SqlInjectionDetector is a new module, verify whether the problem on {report.target} is indeed a true positive."
+                )
         return result
 
     @staticmethod

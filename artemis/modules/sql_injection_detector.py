@@ -56,6 +56,8 @@ class SqlInjectionDetector(ArtemisBase):
 
     @staticmethod
     def change_sleep_to_0(payload: str) -> str:
+        # This is to replace sleep(5) with sleep(0) so that we inject an empty sleep instead of keeping the variable
+        # empty as keeping it empty may trigger different, faster code paths.
         return payload.replace(f"({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})", "(0)")
 
     @staticmethod

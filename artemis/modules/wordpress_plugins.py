@@ -39,7 +39,7 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "wp-events-manager",
     "zarinpal-woocommerce-payment-gateway",
 ]
-PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup", "backwpup", "yith-woocommerce-catalog-mode"]
+PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup", "backwpup", "yith-woocommerce-catalog-mode", "wppao-sitemap"]
 PLUGINS_TO_SKIP_STABLE_TAG = [
     "flowpaper-lite-pdf-flipbook",
     "scheduled-post-trigger",
@@ -53,15 +53,17 @@ PLUGINS_BAD_VERSION_IN_README = [
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
-    "hostinger",
     "icon-element",
     "link-manager",
+    "mailjet-for-wordpress",
     "mask-form-elementor",
     "official-facebook-pixel",
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
+    "unlimited-elements-for-elementor",
+    "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
 ]

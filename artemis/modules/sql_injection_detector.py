@@ -105,7 +105,7 @@ class SqlInjectionDetector(ArtemisBase):
                 http_requests.get(url)
             else:
                 http_requests.get(url, headers=kwargs.get("headers"))
-        except requests.exceptions.ReadTimeout:
+        except requests.exceptions.Timeout:
             return False
 
         elapsed_time = datetime.timedelta(seconds=timer() - start).seconds

@@ -56,7 +56,7 @@ def add(
     tag: str | None = Body(default=None),
     disabled_modules: Optional[List[str]] = Body(default=None),
     enabled_modules: Optional[List[str]] = Body(default=None),
-    priority: str = Body(default="normal")
+    priority: str = Body(default="normal"),
 ) -> Dict[str, Any]:
     """Add targets to be scanned."""
     if disabled_modules and enabled_modules:

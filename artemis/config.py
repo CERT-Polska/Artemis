@@ -131,7 +131,7 @@ class Config:
 
             Sometimes the task queue is very long and e.g. the first n tasks can't be taken because they concern IPs that
             are already scanned. To make scanning faster, Artemis remembers the position in the task queue for the next
-            QUEUE_LOCATION_MAX_AGE_SECONDS in order not to repeat trying to lock the first task in the queue.
+            QUEUE_LOCATION_MAX_AGE_SECONDS in order not to repeat trying to lock the first tasks in the queue.
             """,
         ] = get_config("QUEUE_LOCATION_MAX_AGE_SECONDS", default=300, cast=int)
 

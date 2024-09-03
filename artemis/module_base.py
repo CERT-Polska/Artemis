@@ -214,12 +214,12 @@ class ArtemisBase(Karton):
             tasks = []
             locks: List[Optional[ResourceLock]] = []
 
-            if queue_location_timestamp < time.time() - queue_location_max_age_seconds:
+            if self.queue_location_timestamp < time.time() - self.queue_location_max_age_seconds:
                 self.queue_id = 0
                 self.queue_position = 0
                 self.queue_location_timestamp = time.time()
 
-            for i, queue in list(enumerate(self.backend.get_queue_names(self.identity)))[queue_id:]:
+            for i, queue in list(enumerate(self.backend.get_queue_names(self.identity)))[self.queue_id:]:
                 self.log.debug(f"[taking tasks] Taking tasks from queue {queue} from task {original_queue_position}")
                 if self.lock_target:
                     self.queue_id = i

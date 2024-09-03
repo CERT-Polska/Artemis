@@ -503,6 +503,7 @@ class Config:
                         "http/cves/2019/CVE-2019-10098.yaml",
                         "http/cves/2022/CVE-2022-28923.yaml",
                         # Too many FPs
+                        "http/cves/2020/CVE-2020-2096.yaml",
                         "http/cves/2023/CVE-2023-35160.yaml",
                         "http/cves/2023/CVE-2023-35161.yaml",
                         "http/cves/2023/CVE-2023-35162.yaml",
@@ -600,7 +601,6 @@ class Config:
                         "http/cves/2019/CVE-2019-10475.yaml",
                         "http/cves/2019/CVE-2019-12461.yaml",
                         "http/cves/2020/CVE-2020-1943.yaml",
-                        "http/cves/2020/CVE-2020-2096.yaml",
                         "http/cves/2020/CVE-2020-2140.yaml",
                         "http/cves/2020/CVE-2020-6171.yaml",
                         "http/cves/2020/CVE-2020-15500.yaml",

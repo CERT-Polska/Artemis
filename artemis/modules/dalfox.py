@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import html
 import json
+import os
+import random
 import subprocess
 import urllib
 from typing import Any, Dict, List, Tuple
@@ -10,6 +12,7 @@ from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
@@ -32,7 +35,7 @@ class DalFox(ArtemisBase):
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
     @staticmethod
-    def prepare_message(vulnerabilities: List[Dict[str, Any]]) -> Tuple[List[str], List[Dict[str, Any]]]:
+    def prepare_output(vulnerabilities: List[Dict[str, Any]]) -> Tuple[List[str], List[Dict[str, Any]]]:
         message = []
         result = []
         for vulnerability in vulnerabilities:
@@ -71,13 +74,20 @@ class DalFox(ArtemisBase):
         links = get_links_and_resources_on_same_domain(url)
         links.append(url)
         links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+        links = [
+            link.split("#")[0]
+            for link in links
+            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
+        ]
 
-        path_to_file_with_links = "artemis/modules/data/dalfox/links.txt"
+        random.shuffle(links)
+
+        path_to_file_with_links = f"{os.getcwd()}/artemis/modules/data/dalfox/links.txt"
         with open(path_to_file_with_links, "w") as file:
             file.write("\n".join(links))
 
         vulnerabilities = self.scan(links_file_path=path_to_file_with_links)
-        message, result = self.prepare_message(vulnerabilities)
+        message, result = self.prepare_output(vulnerabilities)
 
         if message:
             status = TaskStatus.INTERESTING

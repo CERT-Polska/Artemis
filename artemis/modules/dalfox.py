@@ -37,17 +37,17 @@ class DalFox(ArtemisBase):
         result = []
         for vulnerability in vulnerabilities:
             if vulnerability != {}:
-                if vulnerability["type"] != "G":
-                    data = {
-                        "param": vulnerability.get("param"),
-                        "evidence": html.escape(unquote(vulnerability["evidence"])),
-                        "url": html.escape(unquote(vulnerability["data"])),
-                    }
-                    result.append(data)
-                    message.append(
-                        f"On url: {html.escape(unquote(vulnerability['data']))} we identified an xss vulnerability in "
-                        f"the parameter: {vulnerability.get('param')}. "
-                    )
+                data = {
+                    "param": vulnerability.get("param"),
+                    "evidence": html.escape(unquote(vulnerability["evidence"])),
+                    "report_type": vulnerability["type"],
+                    "url": html.escape(unquote(vulnerability["data"])),
+                }
+                result.append(data)
+                message.append(
+                    f"On url: {html.escape(unquote(vulnerability['data']))} we identified an xss vulnerability in "
+                    f"the parameter: {vulnerability.get('param')}. "
+                )
 
         return message, result
 

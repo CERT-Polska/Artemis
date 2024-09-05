@@ -12,8 +12,8 @@ from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.crawling import get_links_and_resources_on_same_domain
-from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.module_base import ArtemisBase
+from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.task_utils import get_target_url
 
 
@@ -25,6 +25,7 @@ class DalFox(ArtemisBase):
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
+    dalfox_vulnerability_types = {"V": "Verify", "R": "Reflected", "G": "Grep"}
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -34,24 +35,36 @@ class DalFox(ArtemisBase):
         url_parsed = urllib.parse.urlparse(url)
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
-    @staticmethod
-    def prepare_output(vulnerabilities: List[Dict[str, Any]]) -> Tuple[List[str], List[Dict[str, Any]]]:
-        message = []
-        result = []
-        for vulnerability in vulnerabilities:
-            if vulnerability != {}:
+    def prepare_output(self, vulnerabilities: List[Dict[str, Any]]) -> Tuple[List[str], List[Dict[str, Any]]]:
+        message: List[Any] = []
+        result: List[Any] = []
+
+        for vulnerability in (vuln for vuln in vulnerabilities if vuln != {}):
+            flag = any(
+                (
+                    (vulnerability.get("param") in result_single_data.values())
+                    and (vulnerability.get("type") in result_single_data.values())
+                    and (vulnerability["data"].split("?")[0] == result_single_data["url"].split("?")[0])
+                )
+                for result_single_data in result
+            )
+
+            if not flag:
                 data = {
                     "param": vulnerability.get("param"),
                     "evidence": html.escape(unquote(vulnerability["evidence"])),
-                    "report_type": vulnerability["type"],
+                    "type": vulnerability.get("type"),
                     "url": html.escape(unquote(vulnerability["data"])),
+                    "type_name": self.dalfox_vulnerability_types.get(vulnerability["type"]),
                 }
                 result.append(data)
                 message.append(
-                    f"On url: {html.escape(unquote(vulnerability['data']))} we identified an xss vulnerability in "
+                    f"On url: {html.escape(unquote(vulnerability['data']))} we identified an xss ("
+                    f"type: {self.dalfox_vulnerability_types.get(vulnerability['type'])}) vulnerability in "
                     f"the parameter: {vulnerability.get('param')}. "
                 )
 
+        result.sort(key=lambda x: x["param"])
         return message, result
 
     def scan(self, links_file_path: str) -> List[Dict[str, Any]]:

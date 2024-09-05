@@ -13,6 +13,7 @@ class DalFoxReporter(Reporter):
     """
     Running a report with data generated using the Dalfox tool, which scans URLs for XSS vulnerabilities.
     """
+
     XSS_VULNERABILITY = ReportType("xss_vulnerability")
 
     @staticmethod

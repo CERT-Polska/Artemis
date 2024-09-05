@@ -6,10 +6,18 @@ msgstr ""
 msgid "In the URL"
 msgstr ""
 
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:10
+#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:11
 msgid "we identified an xss vulnerability in the parameter:"
 msgstr ""
 
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:10
+#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:12
 msgid "in"
+msgstr ""
+
+#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:13
+msgid "Based on the Dalfox documentation, the"
+msgstr ""
+
+#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:13
+msgid "type (Proof of Concept) was detected."
 msgstr ""

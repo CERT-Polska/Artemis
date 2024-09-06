@@ -48,4 +48,3 @@ class DalFoxTestCase(ArtemisModuleTestCase):
             )
 
         self.assertEqual(len(check_duplikate), len(set(check_duplikate)))
-        self.assertTrue(False)

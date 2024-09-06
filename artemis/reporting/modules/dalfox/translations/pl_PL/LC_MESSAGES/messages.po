@@ -12,21 +12,21 @@ msgid ""
 "not properly validate what a user can input or click on."
 msgstr ""
 "Cross-Site Scripting (XSS) to luka w stronach internetowych, która "
-"pozwala osobie atakującej na wprowadzenie złośliwego kodu do strony, którą"
-" odwiedzasz. Może to prowadzić do tego, że strona zachowuje się inaczej "
-"niż zwykle,na przykład wyświetla dziwne komunikaty lub kradnie Twoje "
-"dane, jak hasła czy informacje o logowaniu.Tego typu atak wykorzystuje "
-"fakt, że strona nie sprawdza dokładnie, co użytkownik może wpisać lub "
-"kliknąć."
+"pozwala osobie atakującej na wprowadzenie złośliwego kodu do strony, "
+"którą odwiedzasz. Może to prowadzić do tego, że strona zachowuje się "
+"inaczej niż zwykle,na przykład wyświetla dziwne komunikaty lub kradnie "
+"Twoje dane, jak hasła czy informacje o logowaniu.Tego typu atak "
+"wykorzystuje fakt, że strona nie sprawdza dokładnie, co użytkownik może "
+"wpisać lub kliknąć."
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:18
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:17
 msgid "In the URL"
 msgstr "W URL"
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:19
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:18
 msgid "we identified an XSS vulnerability in the parameter:"
 msgstr "Zidentyfikowaliśmy podatność na XSS w parametrze:"
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:20
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:19
 msgid "in"
 msgstr "w"

@@ -12,14 +12,14 @@ msgid ""
 "not properly validate what a user can input or click on."
 msgstr ""
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:18
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:17
 msgid "In the URL"
 msgstr ""
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:19
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:18
 msgid "we identified an XSS vulnerability in the parameter:"
 msgstr ""
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:20
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:19
 msgid "in"
 msgstr ""

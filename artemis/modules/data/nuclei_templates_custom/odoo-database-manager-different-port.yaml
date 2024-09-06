@@ -1,0 +1,39 @@
+id: odoo-database-manager-different-port
+
+info:
+  name: Odoo - Database Manager Discovery
+  author: kazet
+  severity: low
+  description: Odoo database manager was discovered.
+  classification:
+    cpe: cpe:2.3:a:odoo:odoo:*:*:*:*:*:*:*:*
+  metadata:
+    verified: true
+    max-request: 2
+    vendor: odoo
+    product: odoo
+    shodan-query:
+      - title:"Odoo"
+      - http.title:"odoo"
+      - cpe:"cpe:2.3:a:odoo:odoo"
+    fofa-query: title="odoo"
+    google-query: intitle:"odoo"
+  tags: panel,odoo,backup
+
+http:
+  - method: GET
+    path:
+      - '{{BaseURL}}/web/database/manager'
+      - 'http://{{Host}}:8069/web/database/manager'
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "<title>Odoo</title>"
+          - ".o_database_delete"
+        condition: and
+
+      - type: status
+        status:
+          - 200

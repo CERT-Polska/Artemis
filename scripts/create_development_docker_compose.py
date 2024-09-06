@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, List
 
 import yaml
 
@@ -30,9 +30,18 @@ class WebCommandStrategy(YamlProcessor):
 
 
 class VolumeDevelopStrategy(YamlProcessor):
+    @staticmethod
+    def create_list_of_services(data: Any) -> List[str]:
+        services = data.get("services", {})
+        karton_services = [name for name in services if name.startswith("karton") or name == "web"]
+
+        return karton_services
+
     def process(self, data: Any) -> Any:
+        services_to_create_volume = self.create_list_of_services(data)
+
         for service in data["services"]:
-            if service == "web" and "./:/opt" not in data["services"][service]["volumes"]:
+            if service in services_to_create_volume and "./:/opt" not in data["services"][service]["volumes"]:
                 data["services"][service]["volumes"].append("./:/opt")
         return data
 

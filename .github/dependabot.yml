@@ -11,7 +11,7 @@ updates:
 
   # Go modules
   - package-ecosystem: "gomod"
-    directory: "/"
+    directory: "/docker/"
     schedule:
       interval: "weekly"
 

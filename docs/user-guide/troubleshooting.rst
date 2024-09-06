@@ -6,6 +6,19 @@ Startup issues related to port 5000
 On some configurations (e.g. MacOS using AirPlay Receiver) port 5000 is already used, which will cause Artemis startup issues.
 To change that, replace ``ports: ["5000:5000"]`` with e.g. ``ports: ["7500:5000"]`` in ``docker-compose.yaml``.
 
+Startup issues related to non-x86 architectures
+-----------------------------------------------
+If you are using a non-x86 architecture and see the following message during container build:
+
+.. code-block::
+
+    ------
+    ERROR: Could not find a version that satisfies the requirement nassl<6,>=5.1 (from sslyze) (from versions: 0.13.1, 0.13.2, 0.13.4, 0.13.5, 0.13.6, 0.13.7, 0.14.0, 0.14.1, 0.14.2, 0.15.0, 0.15.1, 0.16.0, 0.16.1, 0.16.2, 0.16.3, 0.17.0, 1.0.1, 1.0.2, 1.0.3)
+
+    ERROR: No matching distribution found for nassl<6,>=5.1
+
+We recommend running Artemis on an x86 machine.
+
 Windows build issues
 --------------------
 If you are using Windows and you see the following message during container build:

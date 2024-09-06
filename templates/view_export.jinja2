@@ -101,12 +101,19 @@
 {% block scripts %}
     <script>
         $(document).ready(function() {
-            const table = $("#vulnerabilities-table").dataTable({
+            const table = $("#vulnerabilities-table").DataTable({
             });
 
-            document.getElementById('browse-vulnerabilities-link').onclick = function() {
+            // Initialize Bootstrap tabs
+            var tabElms = document.querySelectorAll('a[data-bs-toggle="tab"]')
+            tabElms.forEach(function(tabElm) {
+                new bootstrap.Tab(tabElm);
+            });
+
+            // Adjust columns when switching to vulnerabilities tab
+            document.getElementById('browse-vulnerabilities-link').addEventListener('click', function() {
                 table.columns.adjust().draw();
-            }
+            });
         });
     </script>
 {% endblock %}

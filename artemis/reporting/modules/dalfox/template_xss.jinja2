@@ -1,0 +1,26 @@
+{% if "xss" in data.contains_type %}
+    <h4>{% trans trimmed %}We identified that the following URLs contains a XSS vulnerability:{% endtrans %}</h4>
+        <p>
+            {% trans trimmed %}
+                Cross-Site Scripting (XSS) is a vulnerability in websites that allows an attacker to inject malicious
+                code into the page you are visiting. This can cause the page to behave differently than usual, such
+                as displaying strange messages or stealing your data, like passwords or login information. This type
+                of attack exploits the fact that the website does not properly validate what a user can input or click on.
+            {% endtrans %}
+        </p>
+            {% for report in data.reports %}
+                {% if report.report_type == "xss" %}
+                    <ul>
+                        {% for message in report.additional_data.result %}
+                            <li>
+                            <p>
+                                {% trans trimmed %}In the URL{% endtrans %} <em>{{ message.url }}</em>
+                                {% trans trimmed %}we identified an XSS vulnerability in the parameter:{% endtrans %}
+                                <b>{{ message.param }}</b> {% trans trimmed %}in{% endtrans %} {{ message.evidence }}.
+                            </p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+{% endif %}

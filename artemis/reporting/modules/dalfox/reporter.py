@@ -14,14 +14,14 @@ class DalFoxReporter(Reporter):
     Running a report with data generated using the Dalfox tool, which scans URLs for XSS vulnerabilities.
     """
 
-    XSS_VULNERABILITY = ReportType("xss_vulnerability")
+    XSS = ReportType("xss")
 
     @staticmethod
     def get_alerts(all_reports: List[Report]) -> List[str]:
         result = []
 
         for report in all_reports:
-            if report.report_type == DalFoxReporter.XSS_VULNERABILITY:
+            if report.report_type == DalFoxReporter.XSS:
                 result.append(
                     f"As Dalfox is a new module, verify whether the problem on {report.target} is indeed a true positive."
                 )
@@ -42,7 +42,7 @@ class DalFoxReporter(Reporter):
             Report(
                 top_level_target=get_top_level_target(task_result),
                 target=f"{task_result['payload']['host']}",
-                report_type=DalFoxReporter.XSS_VULNERABILITY,
+                report_type=DalFoxReporter.XSS,
                 additional_data=task_result["result"],
                 timestamp=task_result["created_at"],
             )
@@ -52,6 +52,6 @@ class DalFoxReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_xss_vulnerability.jinja2"), priority=3
+                os.path.join(os.path.dirname(__file__), "template_xss.jinja2"), priority=3
             )
         ]

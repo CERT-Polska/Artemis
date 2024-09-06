@@ -1,23 +1,25 @@
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:2
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:2
 msgid "We identified that the following URLs contains a XSS vulnerability:"
 msgstr ""
 
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:10
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:4
+msgid ""
+"Cross-Site Scripting (XSS) is a vulnerability in websites that allows an "
+"attacker to inject malicious code into the page you are visiting. This "
+"can cause the page to behave differently than usual, such as displaying "
+"strange messages or stealing your data, like passwords or login "
+"information. This type of attack exploits the fact that the website does "
+"not properly validate what a user can input or click on."
+msgstr ""
+
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:18
 msgid "In the URL"
 msgstr ""
 
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:11
-msgid "we identified an xss vulnerability in the parameter:"
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:19
+msgid "we identified an XSS vulnerability in the parameter:"
 msgstr ""
 
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:12
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:20
 msgid "in"
-msgstr ""
-
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:13
-msgid "Based on the Dalfox documentation, the"
-msgstr ""
-
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:13
-msgid "type (Proof of Concept) was detected."
 msgstr ""

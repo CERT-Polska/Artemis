@@ -1,23 +1,32 @@
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:2
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:2
 msgid "We identified that the following URLs contains a XSS vulnerability:"
 msgstr "Zidentyfikowaliśmy, że następujące URLe zawierają podatność na XSS:"
 
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:10
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:4
+msgid ""
+"Cross-Site Scripting (XSS) is a vulnerability in websites that allows an "
+"attacker to inject malicious code into the page you are visiting. This "
+"can cause the page to behave differently than usual, such as displaying "
+"strange messages or stealing your data, like passwords or login "
+"information. This type of attack exploits the fact that the website does "
+"not properly validate what a user can input or click on."
+msgstr ""
+"Cross-Site Scripting (XSS) to luka w stronach internetowych, która "
+"pozwala osobie atakującej na wprowadzenie złośliwego kodu do strony, którą"
+" odwiedzasz. Może to prowadzić do tego, że strona zachowuje się inaczej "
+"niż zwykle,na przykład wyświetla dziwne komunikaty lub kradnie Twoje "
+"dane, jak hasła czy informacje o logowaniu.Tego typu atak wykorzystuje "
+"fakt, że strona nie sprawdza dokładnie, co użytkownik może wpisać lub "
+"kliknąć."
+
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:18
 msgid "In the URL"
 msgstr "W URL"
 
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:11
-msgid "we identified an xss vulnerability in the parameter:"
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:19
+msgid "we identified an XSS vulnerability in the parameter:"
 msgstr "Zidentyfikowaliśmy podatność na XSS w parametrze:"
 
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:12
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:20
 msgid "in"
 msgstr "w"
-
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:13
-msgid "Based on the Dalfox documentation, the"
-msgstr "Bazując na dokumentacji Dalfox, został wykryty typ "
-
-#: artemis/reporting/modules/dalfox/template_xss_vulnerability.jinja2:13
-msgid "type (Proof of Concept) was detected."
-msgstr "(Proof of Concept)"

@@ -1,22 +1,21 @@
 <html>
     <body>
-xss
-        <h1>Witaj na stronie!</h1>
+        <h1>Welcome on our site!</h1>
 
-        <!-- Formularz do wprowadzenia danych użytkownika -->
+        <!-- User data entry form -->
         <form method="GET">
-            <label for="username">Podaj swoje imię:</label>
+            <label for="username"> Please enter the username: </label>
             <input type="text" id="username" name="username">
             <input type="submit" value="Wyślij">
         </form>
         <form method="GET">
-            <label for="Password">Podaj hasło:</label>
+            <label for="Password"> Please enter the password:</label>
             <input type="text" id="password" name="password">
-            <input type="submit" value="Wyślij">
+            <input type="submit" value="Send">
         </form>
 
-        <!-- Wyświetlanie wprowadzonego imienia -->
-        <p>Witaj, <?php echo $_GET['username']; ?>!</p>
-        <p>Twoje hasło, <?php echo $_GET['password']; ?>!</p>
+        <!-- Displaying the entered name and password -->
+        <p>Hello!, <?php echo $_GET['username']; ?>!</p>
+        <p>This is your password, <?php echo $_GET['password']; ?>!</p>
     </body>
 </html>

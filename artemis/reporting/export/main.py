@@ -10,7 +10,7 @@ from typing import Dict, Optional
 import bs4
 import termcolor
 import typer
-from jinja2 import BaseLoader, Environment, StrictUndefined, Template
+from jinja2 import BaseLoader, Environment, StrictUndefined, Template, select_autoescape
 
 from artemis.blocklist import load_blocklist
 from artemis.config import Config
@@ -34,7 +34,12 @@ from artemis.reporting.export.translations import install_translations
 from artemis.utils import CONSOLE_LOG_HANDLER
 
 environment = Environment(
-    loader=BaseLoader(), extensions=["jinja2.ext.i18n"], undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True
+    loader=BaseLoader(),
+    extensions=["jinja2.ext.i18n"],
+    undefined=StrictUndefined,
+    trim_blocks=True,
+    lstrip_blocks=True,
+    autoescape=select_autoescape(default=True),
 )
 
 

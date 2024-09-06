@@ -372,9 +372,14 @@ services:
     volumes:
       - "./docker/karton.ini:/etc/karton/karton.ini"
       - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
-      - "./:/opt"
-#      - data-nuclei-templates:/root/nuclei-templates
-#      - data-nuclei-config:/root/.config/nuclei
+
+  karton-sql_injection_detector:
+    <<: *artemis-build-or-image
+    command: "python3 -m artemis.modules.sql_injection_detector"
+    depends_on: [karton-system, karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
 volumes:
   data-nuclei-templates:

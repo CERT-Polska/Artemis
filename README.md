@@ -9,9 +9,6 @@ Artemis is a modular vulnerability scanner. It's the tool that powers CERT PL sc
 [checking various aspects of website security](https://artemis-scanner.readthedocs.io/en/latest/features.html)
 and [building easy-to-read messages ready to be sent to the scanned organizations](https://artemis-scanner.readthedocs.io/en/latest/generating-reports.html).
 
-> [!NOTE]
-> We run free on-line training sessions on how to setup and use Artemis. If you are a national or governmental CSIRT, you can [sign up here](https://cert.pl/artemis-trainings).
-
 ## [Quick Start 🔨](https://artemis-scanner.readthedocs.io/en/latest/quick-start.html) | [Docs 📚](https://artemis-scanner.readthedocs.io/en/latest/)
 
 If you want to use additional modules that weren't included here due to non-BSD-compatible licenses, browse to the [Artemis-modules-extra](https://github.com/CERT-Polska/Artemis-modules-extra) repository.
@@ -23,6 +20,26 @@ If you want to modify/develop Artemis, read **[Development](#development)** firs
 To chat about Artemis, join the Discord server:
 
 [![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
+
+## Cooperation and conferences
+<div style="margin-bottom: 5px">
+    <img alt="BlackHat" src="static/images/blackhat.png">
+</div>
+
+Artemis was presented at BlackHat USA 2024 in Las Vegas. For more information about Artemis at BlackHat USA [click here](https://www.blackhat.com/us-24/arsenal/schedule/index.html#artemis-modular-vulnerability-scanner-with-automatic-report-generation-39372).
+
+<br/>
+
+<div style="margin-bottom: 5px">
+    <img alt="BlackHat" src="static/images/tf_csirt.png">
+</div>
+
+The project was also presented at the [71st TF-CSIRT Meeting in Copenhagen](https://tf-csirt.org/tf-csirt/meetings/71st/), [69th TF-CSIRT Meeting in Bucharest](https://tf-csirt.org/tf-csirt/meetings/69th/) and the [CONFidence](https://confidence-conference.org/) conference, among others.
+
+### Cooperation
+![Google Summer of Code](static/images/gsoc.png)
+
+Artemis development was supported by Google Summer of Code 2024.
 
 ## Features
 For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html).
@@ -49,9 +66,10 @@ The possibility to automatically prepare such reports enabled us to notify entit
 ## Development
 To start a locally modified version of Artemis, run:
 ```commandline
- cp env.example .env  # after doing that, configure the settings by changing the user-agent and any other settings you want to change
  ./scripts/start_dev
 ```
+This script automatically copies the example environment file (env.example) to .env if it doesn't exist. You can then configure the settings in the .env file according to your needs. This includes customizing the user-agent by setting the CUSTOM_USER_AGENT variable, as well as other relevant parameters. For a complete list of configuration variables and their descriptions, please refer to the [Configuration section in the documentation](https://artemis-scanner.readthedocs.io/en/latest/user-guide/configuration.html).
+
 The Artemis image is then built locally (from the code you are developing) not downloaded from Docker Hub.
 For `web`, you will also be able to see the results of code modifications on the page without reloading the entire container.
 

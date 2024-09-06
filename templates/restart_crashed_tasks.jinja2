@@ -6,6 +6,6 @@
     <form method="POST" action="/restart-crashed-tasks">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
-        <input type="submit" value="restart" />
+        <input type="submit" class="btn btn-primary" value="restart" />
     </form>
 {% endblock %}

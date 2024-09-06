@@ -39,7 +39,13 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "wp-events-manager",
     "zarinpal-woocommerce-payment-gateway",
 ]
-PLUGINS_TO_SKIP_CHANGELOG = ["wp-members", "wordpress-popup", "backwpup", "yith-woocommerce-catalog-mode"]
+PLUGINS_TO_SKIP_CHANGELOG = [
+    "wp-members",
+    "wordpress-popup",
+    "backwpup",
+    "yith-woocommerce-catalog-mode",
+    "wppao-sitemap",
+]
 PLUGINS_TO_SKIP_STABLE_TAG = [
     "flowpaper-lite-pdf-flipbook",
     "scheduled-post-trigger",
@@ -48,7 +54,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
-    "button-contact-vr",
     "change-admin-email-setting-without-outbound-email",
     "coming-soon",
     "delete-all-comments-of-website",
@@ -56,14 +61,16 @@ PLUGINS_BAD_VERSION_IN_README = [
     "famethemes-demo-importer",
     "icon-element",
     "link-manager",
+    "mailjet-for-wordpress",
     "mask-form-elementor",
     "official-facebook-pixel",
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
+    "unlimited-elements-for-elementor",
+    "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
-    "wp-events-manager",
     "wp-maximum-execution-time-exceeded",
 ]
 
@@ -147,7 +154,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 if line.startswith(slug):
                     line = line[len(slug) :].strip(" :")
                 # Some changelog entries have the format version <version>
-                if "version" in line:
+                # let's take only first 25 characters as the "version" word may occur in a middle of a sentence
+                if "version" in line[:25]:
                     line = line[line.find("version") + len("version") :].strip(" :")
                 # Some changelog entries have the format V <version>
                 if "v " in line:
@@ -177,7 +185,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
     if slug in PLUGINS_TO_SKIP_STABLE_TAG:
         return changelog_version
 
-    tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* -").startswith("stable tag")]
+    tag_lines = [line for line in readme_content.lower().split("\n") if line.strip("* -\t").startswith("stable tag")]
     if len(tag_lines) > 1:
         return changelog_version
 

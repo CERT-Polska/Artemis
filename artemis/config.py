@@ -124,6 +124,17 @@ class Config:
             "see LOCK_SLEEP_MIN_SECONDS.",
         ] = get_config("LOCK_SLEEP_MAX_SECONDS", default=0.5, cast=float)
 
+        QUEUE_LOCATION_MAX_AGE_SECONDS: Annotated[
+            int,
+            """
+            Requires LOCK_SCANNED_TARGETS to be enabled.
+
+            Sometimes the task queue is very long and e.g. the first N tasks can't be taken because they concern IPs that
+            are already scanned. To make scanning faster, Artemis remembers the position in the task queue for the next
+            QUEUE_LOCATION_MAX_AGE_SECONDS in order not to repeat trying to lock the first tasks in the queue.
+            """,
+        ] = get_config("QUEUE_LOCATION_MAX_AGE_SECONDS", default=300, cast=int)
+
         SCAN_DESTINATION_LOCK_MAX_TRIES: Annotated[
             int,
             """
@@ -239,7 +250,9 @@ class Config:
         MODULES_DISABLED_BY_DEFAULT: Annotated[
             List[str],
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
-        ] = get_config("MODULES_DISABLED_BY_DEFAULT", default="example,humble", cast=decouple.Csv(str, delimiter=","))
+        ] = get_config(
+            "MODULES_DISABLED_BY_DEFAULT", default="example,humble,ssh_bruter", cast=decouple.Csv(str, delimiter=",")
+        )
 
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,
@@ -439,13 +452,16 @@ class Config:
                         "http/vulnerabilities/wordpress/music-store-open-redirect.yaml",
                         "http/cves/2021/CVE-2021-44528.yaml",
                         # Minor information leaks
+                        "http/cves/2017/CVE-2017-5487.yaml",
+                        "http/cves/2019/CVE-2019-8449.yaml",
                         "http/cves/2020/CVE-2020-14179.yaml",
+                        "http/cves/2020/CVE-2020-14181.yaml",
                         "http/cves/2021/CVE-2021-3293.yaml",
+                        "http/cves/2021/CVE-2021-25118.yaml",
+                        "http/cves/2021/CVE-2021-44848.yaml",
                         "http/cves/2024/CVE-2024-1208.yaml",
                         "http/cves/2024/CVE-2024-1210.yaml",
                         "http/cves/2024/CVE-2024-3097.yaml",
-                        "http/cves/2017/CVE-2017-5487.yaml",
-                        "http/cves/2021/CVE-2021-25118.yaml",
                         # Over 50 requests
                         "http/cves/2017/CVE-2017-17562.yaml",
                         "http/cves/2019/CVE-2019-17382.yaml",
@@ -482,6 +498,16 @@ class Config:
                         "javascript/default-logins/ssh-default-logins.yaml",
                         # Mostly Moodle config
                         "http/exposures/configs/behat-config.yaml",
+                        # Catches multiple open redirects, replaced with artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml
+                        "http/cves/2018/CVE-2018-11784.yaml",
+                        "http/cves/2019/CVE-2019-10098.yaml",
+                        "http/cves/2022/CVE-2022-28923.yaml",
+                        # Too many FPs
+                        "http/cves/2020/CVE-2020-2096.yaml",
+                        "http/cves/2023/CVE-2023-35160.yaml",
+                        "http/cves/2023/CVE-2023-35161.yaml",
+                        "http/cves/2023/CVE-2023-35162.yaml",
+                        "http/exposed-panels/fireware-xtm-user-authentication.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -502,6 +528,7 @@ class Config:
                         "http/exposures/files/core-dump.yaml",
                         "http/exposures/files/ds-store-file.yaml",
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
+                        "network/detection/rtsp-detect.yaml",
                         "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mixed-active-content.yaml",
@@ -534,10 +561,10 @@ class Config:
                 default=",".join(
                     [
                         "custom:xss-inside-tag-top-params",
+                        "custom:error-based-sql-injection",
                         "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
-                        # This catches other Open Redirects as well
-                        "http/cves/2018/CVE-2018-11784.yaml",
+                        "custom:CVE-2024-4836",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
                         # gets fixed, these templates return a FP on phpinfo(). Let's not spam
                         # our recipients with FPs.
@@ -546,12 +573,66 @@ class Config:
                         # Until https://github.com/CERT-Polska/Artemis/issues/899 gets fixed, let's review
                         # these manually.
                         "group:sql-injection",
-                        # Sometimes a source of FPs
-                        "http/cves/2023/CVE-2023-35161.yaml",
-                        "http/cves/2020/CVE-2020-2096.yaml",
+                        # Sometimes a source of FPs or true positives with misidentified software name
+                        "http/cves/2005/CVE-2005-4385.yaml",
+                        "http/cves/2007/CVE-2007-0885.yaml",
+                        "http/cves/2008/CVE-2008-2398.yaml",
+                        "http/cves/2009/CVE-2009-1872.yaml",
+                        "http/cves/2010/CVE-2010-2307.yaml",
+                        "http/cves/2010/CVE-2010-4231.yaml",
+                        "http/cves/2012/CVE-2012-4547.yaml",
+                        "http/cves/2012/CVE-2012-4889.yaml",
+                        "http/cves/2014/CVE-2014-2908.yaml",
+                        "http/cves/2014/CVE-2014-9444.yaml",
+                        "http/cves/2015/CVE-2015-8349.yaml",
+                        "http/cves/2016/CVE-2016-7981.yaml",
+                        "http/cves/2016/CVE-2016-8527.yaml",
+                        "http/cves/2017/CVE-2017-12794.yaml",
+                        "http/cves/2018/CVE-2018-8006.yaml",
+                        "http/cves/2018/CVE-2018-11709.yaml",
+                        "http/cves/2018/CVE-2018-12998.yaml",
+                        "http/cves/2018/CVE-2018-13380.yaml",
+                        "http/cves/2018/CVE-2018-14013.yaml",
+                        "http/cves/2018/CVE-2018-18570.yaml",
+                        "http/cves/2019/CVE-2019-10098.yaml",
+                        "http/cves/2019/CVE-2019-3911.yaml",
+                        "http/cves/2019/CVE-2019-7219.yaml",
+                        "http/cves/2019/CVE-2019-7315.yaml",
+                        "http/cves/2019/CVE-2019-10475.yaml",
+                        "http/cves/2019/CVE-2019-12461.yaml",
+                        "http/cves/2020/CVE-2020-1943.yaml",
+                        "http/cves/2020/CVE-2020-2140.yaml",
                         "http/cves/2020/CVE-2020-6171.yaml",
+                        "http/cves/2020/CVE-2020-15500.yaml",
+                        "http/cves/2020/CVE-2020-19282.yaml",
+                        "http/cves/2020/CVE-2020-19283.yaml",
+                        "http/cves/2020/CVE-2020-27982.yaml",
+                        "http/cves/2020/CVE-2020-35774.yaml",
                         "http/cves/2020/CVE-2020-35848.yaml",
-                        "http/exposed-panels/fireware-xtm-user-authentication.yaml",
+                        "http/cves/2021/CVE-2021-24389.yaml",
+                        "http/cves/2021/CVE-2021-26702.yaml",
+                        "http/cves/2021/CVE-2021-26710.yaml",
+                        "http/cves/2021/CVE-2021-26723.yaml",
+                        "http/cves/2021/CVE-2021-29625.yaml",
+                        "http/cves/2021/CVE-2021-30049.yaml",
+                        "http/cves/2021/CVE-2021-30213.yaml",
+                        "http/cves/2021/CVE-2021-40868.yaml",
+                        "http/cves/2021/CVE-2021-41467.yaml",
+                        "http/cves/2021/CVE-2021-42565.yaml",
+                        "http/cves/2021/CVE-2021-42566.yaml",
+                        "http/cves/2021/CVE-2021-45380.yaml",
+                        "http/cves/2023/CVE-2023-35161.yaml",
+                        "http/vulnerabilities/ibm/eclipse-help-system-xss.yaml",
+                        "http/vulnerabilities/ibm/ibm-infoprint-lfi.yaml",
+                        "http/vulnerabilities/other/bullwark-momentum-lfi.yaml",
+                        "http/vulnerabilities/other/discourse-xss.yaml",
+                        "http/vulnerabilities/other/global-domains-xss.yaml",
+                        "http/vulnerabilities/other/java-melody-xss.yaml",
+                        "http/vulnerabilities/other/nginx-merge-slashes-path-traversal.yaml",
+                        "http/vulnerabilities/other/parentlink-xss.yaml",
+                        "http/vulnerabilities/other/processmaker-lfi.yaml",
+                        "http/vulnerabilities/other/sick-beard-xss.yaml",
+                        "http/vulnerabilities/other/wems-manager-xss.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -688,6 +769,20 @@ class Config:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
             ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=30, cast=int)
+
+        class SqlInjectionDetector:
+            SQL_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to display only the first SQL injection and stop scanning.",
+            ] = get_config("SQL_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            SQL_INJECTION_NUM_RETRIES_TIME_BASED: Annotated[
+                int,
+                "How many times to re-check whether long request duration with inject (and short without inject) is indeed a vulnerability or a random fluctuation ",
+            ] = get_config("SQL_INJECTION_NUM_RETRIES_TIME_BASED", default=8, cast=int)
+            SQL_INJECTION_TIME_THRESHOLD: Annotated[
+                int,
+                "Seconds to sleep using the sleep() or pg_sleep() methods",
+            ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=5, cast=int)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

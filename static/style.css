@@ -2,6 +2,20 @@ main.container {
     padding-top: 50px;
 }
 
+header { /* fix for task queue view */
+    background-color: var(--bs-body-bg);
+    z-index: 1;
+    position: relative;
+}
+
+body[data-bs-theme=dark] .logo.light {
+    display: none;
+}
+
+body[data-bs-theme=light] .logo.dark {
+    display: none;
+}
+
 .logo {
     width: 200px;
 }

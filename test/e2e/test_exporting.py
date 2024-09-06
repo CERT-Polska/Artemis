@@ -148,7 +148,7 @@ class ExportingTestCase(BaseE2ETestCase):
         self.assertEqual(
             requests.post(
                 BACKEND_URL + "api/export",
-                json={"skip_previously_exported": True, "language": "pl_PL"},
+                json={"skip_previously_exported": True, "language": "pl_PL", "tag": "exporting-api"},
                 headers={"X-Api-Token": "api-token"},
             ).json(),
             {"ok": True},
@@ -161,6 +161,27 @@ class ExportingTestCase(BaseE2ETestCase):
                 break
 
             time.sleep(1)
+
+        self.assertEqual(len(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()), 1)
+        self.assertEqual(
+            len(requests.get(BACKEND_URL + "api/exports?tag_prefix=", headers={"X-Api-Token": "api-token"}).json()), 1
+        )
+        self.assertEqual(
+            len(
+                requests.get(
+                    BACKEND_URL + "api/exports?tag_prefix=exporting-a", headers={"X-Api-Token": "api-token"}
+                ).json()
+            ),
+            1,
+        )
+        self.assertEqual(
+            len(
+                requests.get(
+                    BACKEND_URL + "api/exports?tag_prefix=exporting-b", headers={"X-Api-Token": "api-token"}
+                ).json()
+            ),
+            0,
+        )
 
         self.assertEqual(
             data[0].keys(),

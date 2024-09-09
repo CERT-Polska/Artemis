@@ -155,6 +155,8 @@ class SqlInjectionDetector(ArtemisBase):
 
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         sql_injection_sleep_payloads = [
+            f"sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})",
+            f"pg_sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})",
             f"'||sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
             f"'||pg_sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
         ]

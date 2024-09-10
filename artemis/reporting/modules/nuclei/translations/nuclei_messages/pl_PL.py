@@ -1379,4 +1379,5 @@ TRANSLATIONS = {
     "Detects the presence of the Label Studio Login Page.": "Wykryto panel logowania Label Studio.",
     "Freshrss panel has been detected.": "Wykryto panel Freshrss.",
     "Nagios current status page was detected.": "Wykryto stronę diagnostyczną systemu Nagios.",
+    'An Adobe Experience Manager login panel was detected.': "Wykryto panel logowania Adobe Experience Manager.",
 }

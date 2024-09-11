@@ -196,10 +196,18 @@ class SqlInjectionDetector(ArtemisBase):
                             url=current_url, payload=sleep_payload, param_batch=param_batch
                         )
 
-                        # We explicitely want to re-check whether current URL is still time efficient
-                        if self.are_requests_time_efficient(
-                            url_with_no_sleep_payload
-                        ) and not self.are_requests_time_efficient(url_with_sleep_payload):
+                        flags = []
+                        for _ in range(Config.Modules.SqlInjectionDetector.SQL_INJECTION_NUM_RETRIES_TIME_BASED):
+                            # We explicitely want to re-check whether current URL is still time efficient
+                            if self.are_requests_time_efficient(
+                                url_with_no_sleep_payload
+                            ) and not self.are_requests_time_efficient(url_with_sleep_payload):
+                                flags.append(True)
+                            else:
+                                flags.append(False)
+                                break
+
+                        if all(flags):
                             message.append(
                                 {
                                     "url": url_with_sleep_payload,

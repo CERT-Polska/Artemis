@@ -997,8 +997,20 @@ TRANSLATIONS = {
     "Zoho manageengine is vulnerable to reflected cross-site scripting. This impacts  Zoho ManageEngine Netflow Analyzer before build 123137, Network Configuration Manager before build 123128, OpManager before build 123148, OpUtils before build 123161, and Firewall Analyzer before build 123147 via the parameter 'operation' to /servlet/com.adventnet.me.opmanager.servlet.FailOverHelperServlet.": "Zoho ManageEngine Netflow Analyzer w wersji poniżej 123137, Network Configuration Manager w wersji poniżej 123128, OpManager w wersji poniżej 123148, OpUtils before build 123161, zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "GitLab CE and EE 13.4 through 13.6.2 is susceptible to Information disclosure via GraphQL. User email is visible. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "System GitLab CE i EE w wersji od 13.4 do 13.6.2 włącznie umożliwia atakującemu nieuprawniony odczyt adresów e-mail użytkowników i innych danych, które nie powinny być publicznie dostępne."
+    + UPDATE_HINT,
+    "The Profile Builder User Profile & User Registration Forms WordPress plugin is vulnerable to cross-site scripting due to insufficient escaping and sanitization of the site_url parameter found in the ~/assets/misc/fallback-page.php file which allows attackers to inject arbitrary web scripts onto a pages that executes whenever a user clicks on a specially crafted link by an attacker. This affects versions up to and including 3.6.1..": "Wtyczka WordPress o nazwie The Profile Builder User Profile & User Registration Forms w wersji do 3.6.1 włącznie zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "An unauthenticated remote attacker can leverage this vulnerability to collect registered GitLab usernames, names, and email addresses.": "System GitLab CE/EE w wersji od 13.0 do 14.6.5, 14.7 do 14.7.4 i 14.8 do 14.8 umożliwia atakującemu odczyt danych o użytkownikach, w tym adresów e-mail.",
+    "Spark WebUI is exposed to external users without any authentication.": "Wykryto, że panel Spark WebUI jest publicznie dostępny bez uwierzytelnienia.",
     "Web Port 1.19.1 is vulnerable to cross-site scripting via the /log type parameter.": "WebPort w wersji 1.19.1 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "http/cves/2018/CVE-2018-20824.yaml": "Zasób WallboardServlet w systemie Jira w wersji poniżej 7.13.1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "http/cves/2021/CVE-2021-39211.yaml": "GLPI w wersji 9.2 i poniżej 9.5.6 umożliwia atakującemu nieuprawniony dostęp do niektórych informacji."
     + UPDATE_HINT,
     "Cisco Adaptive Security Appliance (ASA) Software and Cisco Firepower Threat Defense (FTD) Software is vulnerable to local file inclusion due to directory traversal attacks that can read sensitive files on a targeted system because of a lack of proper input validation of URLs in HTTP requests processed by an affected device. An attacker could exploit this vulnerability by sending a crafted HTTP request containing directory traversal character sequences to an affected device. A successful exploit could allow the attacker to view arbitrary files within the web services file system on the targeted device. The web services file system is enabled when the affected device is configured with either WebVPN or AnyConnect features. This vulnerability cannot be used to obtain access to ASA or FTD system files or underlying operating system (OS) files.": "Wykryto oprogramowanie Cisco Adaptive Security Appliance (ASA) lub Cisco Firepower Threat Defense (FTD) zawierające podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "CSZ CMS version 1.3.0 suffers from multiple remote blind SQL injection vulnerabilities.": "CSZ CMS w wersji 1.3.0 i potencjalnie wcześniejszych zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
@@ -1115,6 +1127,8 @@ TRANSLATIONS = {
     "Opensis-Classic Version 8.0 is affected by cross-site scripting. An unauthenticated user can inject and execute JavaScript code through the link_url parameter in Ajax_url_encode.php.": "Opensis-Classic w wersji 8.0 (i potencjalnie wcześniejszych) zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "This instance of Atlassian JIRA is misconfigured to allow an attacker to sign up (create a new account) just by navigating to the signup page that is accessible at the URL /servicedesk/customer/user/signup. After the attacker has created a new account it's possible for him/her to access the support portal.": "Wykryto instancję systemu Jira umożliwiającą rejestrację dowolnym osobom z zewnątrz.",
+    "HP iLO serial key was detected.": "Wykryto klucz HP iLO." + DATA_HIDE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -1363,4 +1377,7 @@ TRANSLATIONS = {
     "Parse Dashboard login panel was detected.": "Wykryto panel logowania Parse Dashboard.",
     "AirOS panel was detected.": "Wykryto panel AirOS.",
     "Detects the presence of the Label Studio Login Page.": "Wykryto panel logowania Label Studio.",
+    "Freshrss panel has been detected.": "Wykryto panel Freshrss.",
+    "Nagios current status page was detected.": "Wykryto stronę diagnostyczną systemu Nagios.",
+    "An Adobe Experience Manager login panel was detected.": "Wykryto panel logowania Adobe Experience Manager.",
 }

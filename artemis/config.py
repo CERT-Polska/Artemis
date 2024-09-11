@@ -580,6 +580,7 @@ class Config:
                         "http/cves/2009/CVE-2009-1872.yaml",
                         "http/cves/2010/CVE-2010-2307.yaml",
                         "http/cves/2010/CVE-2010-4231.yaml",
+                        "http/cves/2011/CVE-2011-5106.yaml",
                         "http/cves/2012/CVE-2012-4547.yaml",
                         "http/cves/2012/CVE-2012-4889.yaml",
                         "http/cves/2014/CVE-2014-2908.yaml",

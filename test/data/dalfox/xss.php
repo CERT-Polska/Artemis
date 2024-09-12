@@ -6,9 +6,6 @@
         <form method="GET">
             <label for="username"> Please enter the username: </label>
             <input type="text" id="username" name="username">
-            <input type="submit" value="Wyślij">
-        </form>
-        <form method="GET">
             <label for="Password"> Please enter the password:</label>
             <input type="text" id="password" name="password">
             <input type="submit" value="Send">

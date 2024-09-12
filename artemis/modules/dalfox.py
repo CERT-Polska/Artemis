@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import html
 import json
 import os
 import random
@@ -11,6 +10,7 @@ from urllib.parse import unquote
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
@@ -40,6 +40,9 @@ class DalFox(ArtemisBase):
         result: List[Any] = []
 
         for vulnerability in (vuln for vuln in vulnerabilities if vuln != {}):
+            # Vulnerability - data concerning a single XSS vulnerability from the list found by the Dalfox module.
+            # In the loop instruction, I remove duplicates and the empty result that Dalfox generates at the last
+            # position of the results.
             flag = any(
                 (
                     (vulnerability.get("param") in result_single_data.values())
@@ -52,14 +55,14 @@ class DalFox(ArtemisBase):
             if not flag:
                 data = {
                     "param": vulnerability.get("param"),
-                    "evidence": html.escape(unquote(vulnerability["evidence"])),
+                    "evidence": unquote(vulnerability["evidence"]),
                     "type": vulnerability.get("type"),
-                    "url": html.escape(unquote(vulnerability["data"])),
+                    "url": unquote(vulnerability["data"]),
                     "type_name": self.dalfox_vulnerability_types.get(vulnerability["type"]),
                 }
                 result.append(data)
                 message.append(
-                    f"On url: {html.escape(unquote(vulnerability['data']))} we identified an xss ("
+                    f"On url: {unquote(vulnerability['data'])} we identified an XSS ("
                     f"type: {self.dalfox_vulnerability_types.get(vulnerability['type'])}) vulnerability in "
                     f"the parameter: {vulnerability.get('param')}. "
                 )
@@ -67,11 +70,36 @@ class DalFox(ArtemisBase):
         result.sort(key=lambda x: x["param"])
         return message, result
 
-    def scan(self, links_file_path: str) -> List[Dict[str, Any]]:
+    def scan(self, links_file_path: str, targets: List[str]) -> List[Dict[str, Any]]:
         vulnerabilities = []
+
+        if Config.Miscellaneous.CUSTOM_USER_AGENT:
+            additional_configuration = ["--user-agent", Config.Miscellaneous.CUSTOM_USER_AGENT]
+        else:
+            additional_configuration = []
+
+        if Config.Limits.REQUESTS_PER_SECOND:
+            milliseconds_per_request_initial = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))
+        else:
+            milliseconds_per_request_initial = 0
+
         try:
+            command = [
+                "dalfox",
+                "--debug",
+                "--delay",
+                f"{milliseconds_per_request_initial}",
+                "file",
+                links_file_path,
+                "-X",
+                "GET",
+                "--format",
+                "json",
+            ] + additional_configuration
+            self.log.info(f"Running command: {' '.join(command)}")
+
             result = subprocess.run(
-                ["dalfox", "--debug", "file", links_file_path, "-X", "GET", "--format", "json"],
+                command,
                 capture_output=True,
                 text=True,
             )
@@ -99,7 +127,7 @@ class DalFox(ArtemisBase):
         with open(path_to_file_with_links, "w") as file:
             file.write("\n".join(links))
 
-        vulnerabilities = self.scan(links_file_path=path_to_file_with_links)
+        vulnerabilities = self.scan(links_file_path=path_to_file_with_links, targets=links)
         message, result = self.prepare_output(vulnerabilities)
 
         if message:

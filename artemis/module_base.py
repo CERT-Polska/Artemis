@@ -124,7 +124,8 @@ class ArtemisBase(Karton):
         """
         domain = new_task.payload.get("domain")
         if not domain:
-            self.log.info("No domain found in new task payload")
+            self.log.info("No domain found in new task payload - adding it, as it might be an IP task")
+            self.add_task(current_task, new_task)
             return
 
         if self.check_domain_exists(domain):

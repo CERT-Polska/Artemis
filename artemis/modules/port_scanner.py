@@ -197,7 +197,7 @@ class PortScanner(ArtemisBase):
                     },
                 )
 
-                self.add_task_if_domain_exists(current_task, new_task)
+                self.add_task(current_task, new_task)
                 open_ports.append(int(port))
 
                 interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")

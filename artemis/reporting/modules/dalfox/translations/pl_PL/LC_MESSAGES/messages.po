@@ -4,29 +4,22 @@ msgstr "Zidentyfikowaliśmy, że następujące URLe zawierają podatność na XS
 
 #: artemis/reporting/modules/dalfox/template_xss.jinja2:4
 msgid ""
-"Cross-Site Scripting (XSS) is a vulnerability in websites that allows an "
-"attacker to inject malicious code into the page you are visiting. This "
-"can cause the page to behave differently than usual, such as displaying "
-"strange messages or stealing your data, like passwords or login "
-"information. This type of attack exploits the fact that the website does "
-"not properly validate what a user can input or click on."
+"Cross-Site Scripting, which allows an attacker to craft a link that, when"
+" clicked by an administrator, performs any action with their permissions "
+"(such as modifying content)."
 msgstr ""
-"Cross-Site Scripting (XSS) to luka w stronach internetowych, która "
-"pozwala osobie atakującej na wprowadzenie złośliwego kodu do strony, "
-"którą odwiedzasz. Może to prowadzić do tego, że strona zachowuje się "
-"inaczej niż zwykle,na przykład wyświetla dziwne komunikaty lub kradnie "
-"Twoje dane, jak hasła czy informacje o logowaniu.Tego typu atak "
-"wykorzystuje fakt, że strona nie sprawdza dokładnie, co użytkownik może "
-"wpisać lub kliknąć."
+"Cross-Site Scripting umożliwia atakującemu spreparowanie linku, który po "
+"kliknięciu przez administratora wykona dowolną akcję z jego uprawnieniami"
+" (taką jak np. modyfikacja treści)."
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:17
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:15
 msgid "In the URL"
 msgstr "W URL"
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:18
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:16
 msgid "we identified an XSS vulnerability in the parameter:"
 msgstr "Zidentyfikowaliśmy podatność na XSS w parametrze:"
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:19
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:17
 msgid "in"
 msgstr "w"

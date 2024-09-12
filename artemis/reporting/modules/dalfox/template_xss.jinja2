@@ -2,10 +2,8 @@
     <h4>{% trans trimmed %}We identified that the following URLs contains a XSS vulnerability:{% endtrans %}</h4>
         <p>
             {% trans trimmed %}
-                Cross-Site Scripting (XSS) is a vulnerability in websites that allows an attacker to inject malicious
-                code into the page you are visiting. This can cause the page to behave differently than usual, such
-                as displaying strange messages or stealing your data, like passwords or login information. This type
-                of attack exploits the fact that the website does not properly validate what a user can input or click on.
+                Cross-Site Scripting, which allows an attacker to craft a link that, when clicked by an administrator,
+                performs any action with their permissions (such as modifying content).
             {% endtrans %}
         </p>
             {% for report in data.reports %}

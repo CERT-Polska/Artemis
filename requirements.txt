@@ -13,7 +13,7 @@ fastapi==0.114.0
 fastapi-csrf-protect==0.3.4
 freezegun==1.5.1
 h11==0.14.0
-idna==3.8
+idna==3.10
 Jinja2==3.1.4
 karton-core==5.4.0
 git+https://github.com/CERT-Polska/mailgoose@v1.3.4#egg=libmailgoose&subdirectory=scan

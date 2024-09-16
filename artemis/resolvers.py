@@ -1,11 +1,10 @@
 import functools
-from typing import Any, Dict, List, Set
+from typing import Set
 
-import requests
+import dns
+from dns.resolver import Answer
 
 from artemis.retrying_resolver import retry
-
-DOH_SERVER = "https://cloudflare-dns.com/dns-query"
 
 
 class ResolutionException(Exception):
@@ -16,47 +15,36 @@ class NoAnswer(Exception):
     pass
 
 
-def _results_from_answer(domain: str, answer: List[Dict[str, Any]], result_type: int) -> Set[str]:
+def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[str]:
     found_results = set()
-    for entry in answer:
-        if entry["name"] != domain:
+    response = answer.response
+
+    for entry in response.answer:
+        if str(entry.name).rstrip(".") != domain:
             continue
 
-        if entry["type"] == result_type:
-            # If we receive an A record, it has the following format:
-            # {"name":"cert.pl","type":1,"TTL":3600,"data":"[ ip ]"}
-            # If we receive a NS record, it has the following format:
-            # {"name":"cert.pl","type':2,"TTL":1800,"data":"[ domain ]"}
-            # Therefore the result we want is in "data".
-            found_results.add(entry["data"].strip("."))
+        if entry.rdtype == result_type:
+            found_results.add(entry.to_text().split(" ")[-1].rstrip("."))
 
         # CNAME
-        if entry["type"] == 5:
-            # If we receive a CNAME record, it points to another domain, e.g.:
-            # {"name":"ftp.kazet.cc","type":5,"TTL":3600,"data":"kazet.cc."}
-            #
-            # So this is not the IP we want - we want to check *other records*
+        if entry.rdtype == 5:
+            # This is not the IP we want - we want to check *other records*
             # for the IP - so we cut the trailing dot (kazet.cc. -> kazet.cc) and
             # look for this domain in other records.
-            for subentry in answer:
-                if subentry["name"] == entry["data"].rstrip(".") and subentry["type"] == 1:
-                    found_results.add(subentry["data"])
+            for subentry in entry.to_rdataset():
+                if (
+                    subentry.to_text().split(" ")[-1].rstrip(".") == entry.to_text().split(" ")[-1].rstrip(".")
+                    and subentry.rdtype == 1
+                ):
+                    found_results.add(subentry.to_text().rstrip("."))
 
     return found_results
 
 
 def _single_resolution_attempt(domain: str, query_type: str = "A") -> Set[str]:
-    response = requests.get(
-        f"{DOH_SERVER}?name={domain.encode('idna').decode('ascii')}&type={query_type}",
-        headers={"accept": "application/dns-json"},
-    )
-    if not response.ok:
-        raise ResolutionException(f"DOH server invalid response ({response.status_code})")
-
-    result = response.json()
-    dns_rc = result["Status"]  # https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-6
-    if dns_rc == 0:
-        if "Answer" in result:
+    try:
+        answer = dns.resolver.resolve(domain, query_type)
+        if dns.rcode.to_text(answer.response.rcode()) == "NOERROR":
             if query_type == "A":
                 result_type = 1
             elif query_type == "NS":
@@ -64,13 +52,14 @@ def _single_resolution_attempt(domain: str, query_type: str = "A") -> Set[str]:
             else:
                 raise NotImplementedError(f"Don't know how to obtain results for query {query_type}")
 
-            return _results_from_answer(domain, result["Answer"], result_type)
-        else:
-            raise NoAnswer()
-    elif dns_rc == 3:  # NXDomain
+            return _results_from_answer(domain, answer, result_type)
+
+    except dns.resolver.NoAnswer:
+        raise NoAnswer()
+    except dns.resolver.NXDOMAIN:
         return set()
-    else:
-        raise ResolutionException(f"Unexpected DNS status ({dns_rc})")
+    except Exception as e:
+        raise ResolutionException(f"Unexpected DNS status ({e})")
 
 
 @functools.lru_cache(maxsize=8192)

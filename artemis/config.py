@@ -409,6 +409,7 @@ class Config:
                         "http/exposed-panels/pulse-secure-panel.yaml",
                         "http/exposed-panels/pulse-secure-version.yaml",
                         "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
+                        "http/exposed-panels/ivanti-connect-secure-panel.yaml",
                         "http/exposed-panels/softether-vpn-panel.yaml",
                         "http/exposed-panels/cas-login.yaml",
                         "http/exposed-panels/casdoor-login.yaml",

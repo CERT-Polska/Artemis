@@ -122,7 +122,7 @@ class DalFox(ArtemisBase):
         ]
 
         random.shuffle(links)
-        links = links[:50]
+        links = links[:20]
         links.append(url)
 
         _, path_to_file_with_links = tempfile.mkstemp()

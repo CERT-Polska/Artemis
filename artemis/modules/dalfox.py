@@ -80,16 +80,16 @@ class DalFox(ArtemisBase):
             additional_configuration = []
 
         if Config.Limits.REQUESTS_PER_SECOND:
-            milliseconds_per_request_initial = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))
+            milliseconds_per_request = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0)
         else:
-            milliseconds_per_request_initial = 0
+            milliseconds_per_request = 0
 
         try:
             command = [
                 "dalfox",
                 "--debug",
                 "--delay",
-                f"{milliseconds_per_request_initial}",
+                f"{milliseconds_per_request}",
                 "file",
                 links_file_path,
                 "-X",

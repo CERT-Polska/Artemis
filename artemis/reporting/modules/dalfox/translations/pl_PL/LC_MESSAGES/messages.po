@@ -1,25 +1,30 @@
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:2
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:3
 msgid "We identified that the following URLs contains a XSS vulnerability:"
-msgstr "Zidentyfikowaliśmy, że następujące URLe zawierają podatność na XSS:"
+msgstr "Wykryliśmy, że następujące URLe zawierają podatność XSS:"
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:4
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:10
+msgid "we identified an XSS vulnerability in:"
+msgstr "zidentyfikowaliśmy podatność na XSS w:"
+
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:12
+msgid "example:"
+msgstr "przykład:"
+
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:21
 msgid ""
-"Cross-Site Scripting, which allows an attacker to craft a link that, when"
-" clicked by an administrator, performs any action with their permissions "
-"(such as modifying content)."
+"A Cross-Site Scripting vulnerability allows an attacker to craft a link "
+"that, when clicked by an administrator, performs any action with their "
+"permissions (such as modifying content)."
 msgstr ""
-"Cross-Site Scripting umożliwia atakującemu spreparowanie linku, który po "
-"kliknięciu przez administratora wykona dowolną akcję z jego uprawnieniami"
-" (taką jak np. modyfikacja treści)."
+"Podatność Cross-Site Scripting umożliwia atakującemu spreparowanie linku,"
+" który po kliknięciu przez administratora wykona dowolną akcję z jego "
+"uprawnieniami (taką jak np. modyfikacja treści)."
 
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:15
-msgid "In the URL"
-msgstr "W URL"
-
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:16
-msgid "we identified an XSS vulnerability in the parameter:"
-msgstr "Zidentyfikowaliśmy podatność na XSS w parametrze:"
-
-#: artemis/reporting/modules/dalfox/template_xss.jinja2:17
-msgid "in"
-msgstr "w"
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:25
+msgid ""
+"The above examples are automatically generated - contact us if they "
+"aren't sufficient for you to reproduce the vulnerability."
+msgstr ""
+"Powyższe przykłady są generowane automatycznie - prosimy o kontakt, jeśli"
+" nie są dla Państwa wystarczające, aby odtworzyć podatność po Państwa "
+"stronie."

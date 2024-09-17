@@ -1,24 +1,30 @@
 {% if "xss" in data.contains_type %}
-    <h4>{% trans trimmed %}We identified that the following URLs contains a XSS vulnerability:{% endtrans %}</h4>
-        <p>
-            {% trans trimmed %}
-                Cross-Site Scripting, which allows an attacker to craft a link that, when clicked by an administrator,
-                performs any action with their permissions (such as modifying content).
-            {% endtrans %}
-        </p>
+    <li>
+        {% trans trimmed %}We identified that the following URLs contains a XSS vulnerability:{% endtrans %}
+
+        <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "xss" %}
-                    <ul>
-                        {% for message in report.additional_data.result %}
-                            <li>
-                            <p>
-                                {% trans trimmed %}In the URL{% endtrans %} <em>{{ message.url }}</em>
-                                {% trans trimmed %}we identified an XSS vulnerability in the parameter:{% endtrans %}
-                                <b>{{ message.param }}</b> {% trans trimmed %}in{% endtrans %} {{ message.evidence }}.
+                    {% for message in report.additional_data.result %}
+                         <li>
+                            {{ message.url }}: {% trans trimmed %}we identified an XSS vulnerability in:{% endtrans %}
+                                <b>{{ message.param }}</b>
+                                ({% trans trimmed %}example:{% endtrans %} {{ message.evidence }}).
                             </p>
                             </li>
                         {% endfor %}
                     </ul>
                 {% endif %}
             {% endfor %}
+        </ul>
+
+        {% trans trimmed %}
+            A Cross-Site Scripting vulnerability allows an attacker to craft a link that, when clicked by an administrator,
+            performs any action with their permissions (such as modifying content).
+        {% endtrans %}
+        {% trans trimmed %}
+            The above examples are automatically generated - contact us if they aren't sufficient for
+            you to reproduce the vulnerability.
+        {% endtrans %}
+    </li>
 {% endif %}

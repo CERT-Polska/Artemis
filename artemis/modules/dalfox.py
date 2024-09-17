@@ -114,7 +114,6 @@ class DalFox(ArtemisBase):
         url = get_target_url(current_task)
         self.log.info(url)
         links = get_links_and_resources_on_same_domain(url)
-        links.append(url)
         links = list(set(links) | set([self._strip_query_string(link) for link in links]))
         links = [
             link.split("#")[0]
@@ -124,6 +123,7 @@ class DalFox(ArtemisBase):
 
         random.shuffle(links)
         links = links[:50]
+        links.append(url)
 
         _, path_to_file_with_links = tempfile.mkstemp()
         with open(path_to_file_with_links, "w") as file:

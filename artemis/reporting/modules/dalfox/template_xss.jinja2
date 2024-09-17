@@ -1,6 +1,6 @@
 {% if "xss" in data.contains_type %}
     <li>
-        {% trans trimmed %}We identified that the following URLs contains a XSS vulnerability:{% endtrans %}
+        {% trans trimmed %}We identified that the following URLs contains an XSS vulnerability:{% endtrans %}
 
         <ul>
             {% for report in data.reports %}

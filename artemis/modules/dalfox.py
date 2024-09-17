@@ -106,7 +106,7 @@ class DalFox(ArtemisBase):
             )
             vulnerabilities = json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            self.log.error(f"Error when DalFox is running: {e}")
+            self.log.error(f"Error when running DalFox: {e}")
 
         return vulnerabilities
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import tempfile
 import json
 import os
 import random
 import subprocess
+import tempfile
 import urllib
 from typing import Any, Dict, List, Tuple
 from urllib.parse import unquote
@@ -124,7 +124,7 @@ class DalFox(ArtemisBase):
 
         random.shuffle(links)
 
-        path_to_file_with_links = tempfile.mkstemp()
+        _, path_to_file_with_links = tempfile.mkstemp()
         with open(path_to_file_with_links, "w") as file:
             file.write("\n".join(links))
 

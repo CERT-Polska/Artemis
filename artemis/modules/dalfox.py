@@ -135,7 +135,7 @@ class DalFox(ArtemisBase):
 
         if message:
             status = TaskStatus.INTERESTING
-            status_reason = str(message)
+            status_reason = ", ".join(message)
         else:
             status = TaskStatus.OK
             status_reason = None

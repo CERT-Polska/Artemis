@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import tempfile
 import json
 import os
 import random
@@ -62,8 +63,8 @@ class DalFox(ArtemisBase):
                 }
                 result.append(data)
                 message.append(
-                    f"On url: {unquote(vulnerability['data'])} we identified an XSS ("
-                    f"type: {self.dalfox_vulnerability_types.get(vulnerability['type'])}) vulnerability in "
+                    f"On  {unquote(vulnerability['data'])} we identified an XSS vulnerability ("
+                    f"type: {self.dalfox_vulnerability_types.get(vulnerability['type'])}) in "
                     f"the parameter: {vulnerability.get('param')}. "
                 )
 
@@ -123,12 +124,13 @@ class DalFox(ArtemisBase):
 
         random.shuffle(links)
 
-        path_to_file_with_links = f"{os.getcwd()}/artemis/modules/data/dalfox/links.txt"
+        path_to_file_with_links = tempfile.mkstemp()
         with open(path_to_file_with_links, "w") as file:
             file.write("\n".join(links))
 
         vulnerabilities = self.scan(links_file_path=path_to_file_with_links, targets=links)
         message, result = self.prepare_output(vulnerabilities)
+        os.unlink(path_to_file_with_links)
 
         if message:
             status = TaskStatus.INTERESTING

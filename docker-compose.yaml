@@ -40,19 +40,6 @@ services:
     volumes:
       - data-postgres:/var/lib/postgresql/data
 
-  # This is a legacy entry to facillitate migration - MongoDB is not used by Artemis anymore.
-  db:
-    # Even in the most quiet configuration, MongoDB produces a significant amount of logs.
-    # Therefore, mongoDB logs are disabled by default (although they can be enabled).
-    command: ["bash", "-c", "/usr/local/bin/docker-entrypoint.sh mongod --wiredTigerCacheSizeGB 2 --auth --bind_ip_all 2>&1 >/dev/null"]
-    environment:
-     - MONGO_INITDB_ROOT_USERNAME=root
-     - MONGO_INITDB_ROOT_PASSWORD=root
-    image: mongo
-    restart: always
-    volumes:
-     - data-mongodb:/data/db
-
   autoreporter:
     <<: *artemis-build-or-image
     command: "bash -c '/wait-for-it.sh postgres:5432 -- alembic upgrade head && python3 -m artemis.reporting.task_handler'"
@@ -318,8 +305,6 @@ services:
   karton-system:
     command: ["--setup-bucket"]
     depends_on:
-      db:
-        condition: service_started
       redis:
         condition: service_started
       s3mock:
@@ -361,12 +346,18 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-sql_injection_detector:
+    <<: *artemis-build-or-image
+    command: "python3 -m artemis.modules.sql_injection_detector"
+    depends_on: [karton-system, karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+
 volumes:
   data-nuclei-templates:
   data-nuclei-config:
   data-postgres:
   data-redis:
   data-web:
-
-  # This is a legacy entry to facillitate migration - MongoDB is not used by Artemis anymore.
-  data-mongodb:

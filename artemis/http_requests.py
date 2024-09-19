@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 import json
 import ssl
@@ -8,7 +9,9 @@ import chardet
 import requests
 
 from artemis.config import Config
-from artemis.utils import throttle_request
+from artemis.utils import build_logger, throttle_request
+
+LOGGER = build_logger(__name__)
 
 
 # As our goal in Artemis is to access the sites in order to test their security, let's
@@ -70,11 +73,17 @@ def _request(
     data: Optional[Dict[str, str]],
     cookies: Optional[Dict[str, str]],
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
+    **kwargs: Any
 ) -> HTTPResponse:
     def _internal_request() -> HTTPResponse:
+        headers = copy.copy(HEADERS)
+        headers.update(kwargs["headers"]) if "headers" in kwargs else headers
+
         s = requests.Session()
         if urllib.parse.urlparse(url).scheme.lower() == "https":
             s.mount(url, SSLContextAdapter())
+
+        LOGGER.debug("%s %s", method_name, url)
 
         response = getattr(s, method_name)(
             url,
@@ -84,7 +93,7 @@ def _request(
             verify=False,
             stream=True,
             timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
-            headers=HEADERS,
+            headers=headers,
         )
 
         # Handling situations where the response is very long, which is not handled by requests timeout

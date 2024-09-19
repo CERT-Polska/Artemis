@@ -182,6 +182,15 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "lukigruszka",
+      "name": "lukigruszka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10619075?v=4",
+      "profile": "https://github.com/lukigruszka",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

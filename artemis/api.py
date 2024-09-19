@@ -6,6 +6,7 @@ from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
+from karton.core.task import TaskPriority
 from pydantic import BaseModel
 from redis import Redis
 
@@ -55,6 +56,7 @@ def add(
     tag: str | None = Body(default=None),
     disabled_modules: Optional[List[str]] = Body(default=None),
     enabled_modules: Optional[List[str]] = Body(default=None),
+    priority: str = Body(default="normal"),
 ) -> Dict[str, Any]:
     """Add targets to be scanned."""
     if disabled_modules and enabled_modules:
@@ -81,7 +83,7 @@ def add(
     elif not disabled_modules:
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
-    create_tasks(targets, tag, disabled_modules=disabled_modules)
+    create_tasks(targets, tag, disabled_modules=disabled_modules, priority=TaskPriority(priority))
 
     return {"ok": True}
 
@@ -148,7 +150,7 @@ def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
 
 
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
-def get_exports() -> List[ReportGenerationTaskModel]:
+def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]:
     """List all exports. An export is a request to create human-readable messages that may be sent to scanned entities."""
     return [
         ReportGenerationTaskModel(
@@ -163,7 +165,7 @@ def get_exports() -> List[ReportGenerationTaskModel]:
             error=task.error,
             alerts=task.alerts,
         )
-        for task in db.list_report_generation_tasks()
+        for task in db.list_report_generation_tasks(tag_prefix=tag_prefix)
     ]
 
 

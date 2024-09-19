@@ -59,6 +59,15 @@ class ArtemisBase(Karton):
     # resource can use it.
     resource_name_to_lock_before_scanning: Optional[str] = None
 
+    # Enabled only if LOCK_SCANNED_TARGETS is enabled.
+    # Sometimes the task queue is very long and e.g. the first n tasks can't be taken because they concern IPs that
+    # are already scanned. To make scanning faster, Artemis remembers the position in the task queue for the next
+    # QUEUE_LOCATION_MAX_AGE_SECONDS in order not to repeat trying to lock the first tasks in the queue.
+    queue_id: int = 0
+    queue_position: int = 0
+    queue_location_timestamp: float = 0
+    queue_location_max_age_seconds: int = Config.Locking.QUEUE_LOCATION_MAX_AGE_SECONDS
+
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
@@ -250,9 +259,28 @@ class ArtemisBase(Karton):
         try:
             tasks = []
             locks: List[Optional[ResourceLock]] = []
-            for queue in self.backend.get_queue_names(self.identity):
-                self.log.debug(f"[taking tasks] Taking tasks from queue {queue}")
-                for i, item in enumerate(self.backend.redis.lrange(queue, 0, -1)):
+
+            if self.queue_location_timestamp < time.time() - self.queue_location_max_age_seconds:
+                self.queue_id = 0
+                self.queue_position = 0
+                self.queue_location_timestamp = time.time()
+
+            for i, queue in list(enumerate(self.backend.get_queue_names(self.identity)))[self.queue_id :]:
+                if i > self.queue_id:
+                    self.queue_position = 0
+
+                original_queue_position = self.queue_position
+                self.log.debug(f"[taking tasks] Taking tasks from queue {queue} from task {original_queue_position}")
+                if self.lock_target:
+                    self.queue_id = i
+                for i_from_queue_position, item in enumerate(
+                    self.backend.redis.lrange(queue, original_queue_position, -1)
+                ):
+                    i = i_from_queue_position + original_queue_position
+
+                    if self.lock_target:
+                        self.queue_position = i
+
                     task = self.backend.get_task(item)
 
                     if task is None:
@@ -311,6 +339,10 @@ class ArtemisBase(Karton):
         finally:
             self.taking_tasks_from_queue_lock.release()
 
+        if len(tasks) < num_tasks:
+            self.queue_id = 0
+            self.queue_position = 0
+            self.queue_location_timestamp = time.time()
         self.log.debug("[taking tasks] Tasks from queue taken")
 
         tasks_not_blocklisted = []

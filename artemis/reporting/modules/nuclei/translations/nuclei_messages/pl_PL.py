@@ -997,8 +997,12 @@ TRANSLATIONS = {
     "Zoho manageengine is vulnerable to reflected cross-site scripting. This impacts  Zoho ManageEngine Netflow Analyzer before build 123137, Network Configuration Manager before build 123128, OpManager before build 123148, OpUtils before build 123161, and Firewall Analyzer before build 123147 via the parameter 'operation' to /servlet/com.adventnet.me.opmanager.servlet.FailOverHelperServlet.": "Zoho ManageEngine Netflow Analyzer w wersji poniżej 123137, Network Configuration Manager w wersji poniżej 123128, OpManager w wersji poniżej 123148, OpUtils before build 123161, zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    'Wordpress Aspose Cloud eBook Generator is vulnerable to local file inclusion.': "Wykryto wtyczkę WordPress o nazwie Aspose Cloud eBook Generator w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku " +
+    WORDPRESS_UPDATE_HINT,
     "Rstudio Shiny Server prior to 1.5.16 is vulnerable to local file inclusion and source code leakage. This can be exploited by appending an encoded slash to the URL.": "Rstudio Shiny Server w wersji poniżej 1.5.16 umożliwia atakującemu odczyt dowolnych plików z dysku, w tym kodu źródłowego aplikacji."
     + UPDATE_HINT,
+    "WordPress Simple File List before 3.2.8 is vulnerable to local file inclusion via the eeFile parameter in the ~/includes/ee-downloader.php due to missing controls which make it possible for unauthenticated attackers retrieve arbitrary files.": "Wtyczka WordPress o nazwie Simple File List w wersji poniżej 3.2.8 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
     "Detects exposed ProjectSend installation page.": "Wykryto publicznie dostępny panel insalacyjny ProjectSend.",
     "Mozilla Pollbot contains an open redirect vulnerability. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto system Mozilla Pollbot w wersji zawierającej podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
     "GitLab CE and EE 13.4 through 13.6.2 is susceptible to Information disclosure via GraphQL. User email is visible. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "System GitLab CE i EE w wersji od 13.4 do 13.6.2 włącznie umożliwia atakującemu nieuprawniony odczyt adresów e-mail użytkowników i innych danych, które nie powinny być publicznie dostępne."
@@ -1016,7 +1020,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "http/cves/2021/CVE-2021-39211.yaml": "GLPI w wersji 9.2 i poniżej 9.5.6 umożliwia atakującemu nieuprawniony dostęp do niektórych informacji."
     + UPDATE_HINT,
-    "WordPress True Ranker before version 2.2.4 allows sensitive configuration files such as wp-config.php, to be accessed via the src parameter found in the ~/admin/vendor/datatables/examples/resources/examples.php file via local file inclusion.": "Wtyczka WordPress o nazwie True Ranker w wersji poniżej 2.2.4 umożliwia atakującemu odczyt dowolnych plików z dysku." + WORDPRESS_UPDATE_HINT,
+    "WordPress True Ranker before version 2.2.4 allows sensitive configuration files such as wp-config.php, to be accessed via the src parameter found in the ~/admin/vendor/datatables/examples/resources/examples.php file via local file inclusion.": "Wtyczka WordPress o nazwie True Ranker w wersji poniżej 2.2.4 umożliwia atakującemu odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
     "Web Port 1.19.1 is vulnerable to cross-site scripting via the /log type parameter.": "WebPort w wersji 1.19.1 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,

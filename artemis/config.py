@@ -575,6 +575,7 @@ class Config:
                         # these manually.
                         "group:sql-injection",
                         # Sometimes a source of FPs or true positives with misidentified software name
+                        "custom:CVE-2019-18935",
                         "http/cves/2005/CVE-2005-4385.yaml",
                         "http/cves/2007/CVE-2007-0885.yaml",
                         "http/cves/2008/CVE-2008-2398.yaml",

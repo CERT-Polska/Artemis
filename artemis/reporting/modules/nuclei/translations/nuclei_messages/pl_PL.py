@@ -1016,6 +1016,17 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "http/cves/2021/CVE-2021-39211.yaml": "GLPI w wersji 9.2 i poniżej 9.5.6 umożliwia atakującemu nieuprawniony dostęp do niektórych informacji."
     + UPDATE_HINT,
+    "WordPress True Ranker before version 2.2.4 allows sensitive configuration files such as wp-config.php, to be accessed via the src parameter found in the ~/admin/vendor/datatables/examples/resources/examples.php file via local file inclusion.": "Wtyczka WordPress o nazwie True Ranker w wersji poniżej 2.2.4 umożliwia atakującemu odczyt dowolnych plików z dysku." + WORDPRESS_UPDATE_HINT,
+    "Web Port 1.19.1 is vulnerable to cross-site scripting via the /log type parameter.": "WebPort w wersji 1.19.1 i potencjalnie wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Wordpress Zedna eBook download prior to version 1.2 was affected by a filedownload.php local file inclusion vulnerability.": "Wtyczka WordPress o nazwie Zedna eBook download w wersji poniżej 1.2 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Nevma Adaptive Images plugin before 0.6.67 allows remote attackers to retrieve arbitrary files via the $REQUEST['adaptive-images-settings']['source_file'] parameter in adaptive-images-script.php.": "Wtyczka WordPress o nazwie Nevma Adaptive Images w wersji poniżej 0.6.67 umożliwia atakującemu odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
+    "PHP remote file inclusion vulnerability in modules/syntax_highlight.php in the Sniplets 1.1.2 and 1.2.2 plugin for WordPress allows remote attackers to execute arbitrary PHP code via a URL in the libpath parameter.": "Wtyczka WordPress o nazwie Sniplets w wersji 1.1.2 i 1.2.2 zawiera podatność Remote File Inclusion, umożliwiającą atakującemu wykonanie dowolnego kodu na serwerze."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Cisco Adaptive Security Appliance (ASA) Software and Cisco Firepower Threat Defense (FTD) Software is vulnerable to local file inclusion due to directory traversal attacks that can read sensitive files on a targeted system because of a lack of proper input validation of URLs in HTTP requests processed by an affected device. An attacker could exploit this vulnerability by sending a crafted HTTP request containing directory traversal character sequences to an affected device. A successful exploit could allow the attacker to view arbitrary files within the web services file system on the targeted device. The web services file system is enabled when the affected device is configured with either WebVPN or AnyConnect features. This vulnerability cannot be used to obtain access to ASA or FTD system files or underlying operating system (OS) files.": "Wykryto oprogramowanie Cisco Adaptive Security Appliance (ASA) lub Cisco Firepower Threat Defense (FTD) zawierające podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "CSZ CMS version 1.3.0 suffers from multiple remote blind SQL injection vulnerabilities.": "CSZ CMS w wersji 1.3.0 i potencjalnie wcześniejszych zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + UPDATE_HINT,

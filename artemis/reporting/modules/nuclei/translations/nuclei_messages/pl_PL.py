@@ -997,7 +997,11 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    'WordPress Memphis Document Library 3.1.5 is vulnerable to local file inclusion.' : "Wtyczka WordPress o nazwie Memphis Document Library w wersji 3.1.5 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
     "WordPress Javo Spot Premium Theme `wp-config` was discovered via local file inclusion. This file is remotely accessible and its content available for reading.": "Wykryto szablon WordPress o nazwie Javo Spot Premium w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "ordPress Oxygen-Theme has a local file inclusion vulnerability via the 'file' parameter of 'download.php'.": "Wykryto szablon WordPress o nazwie Oxygen w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
     "WordPress Javo Spot Premium Theme is vulnerable to local file inclusion that allows remote unauthenticated attackers access to locally stored file and return their content.": "Wykryto szablon WordPress o nazwie Javo Spot Premium w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,

@@ -994,16 +994,19 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "Zoho manageengine is vulnerable to reflected cross-site scripting. This impacts  Zoho ManageEngine Netflow Analyzer before build 123137, Network Configuration Manager before build 123128, OpManager before build 123148, OpUtils before build 123161, and Firewall Analyzer before build 123147 via the parameter 'operation' to /servlet/com.adventnet.me.opmanager.servlet.FailOverHelperServlet.": "Zoho ManageEngine Netflow Analyzer w wersji poniżej 123137, Network Configuration Manager w wersji poniżej 123128, OpManager w wersji poniżej 123148, OpUtils before build 123161, zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "WordPress Brandfolder allows remote attackers to access arbitrary files that reside on the local and remote server and disclose their content.": "Wykryto wtyczkę WordPress o nazwie Brandfolder w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
-    'Wordpress HB Audio Gallery Lite is vulnerable to local file inclusion.' : "Wykryto wtyczkę WordPress o nazwie HB Audio Gallery Lite w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    "Wordpress HB Audio Gallery Lite is vulnerable to local file inclusion.": "Wykryto wtyczkę WordPress o nazwie HB Audio Gallery Lite w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
     "WordPress ChurcHope Theme <= 2.1 is susceptible to local file inclusion. The vulnerability is caused by improper filtration of user-supplied input passed via the 'file' HTTP GET parameter to the '/lib/downloadlink.php' script, which is publicly accessible.": "Szablon WordPress o nazwie ChurcHope w wersji do 2.1 włącznie zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
-    'WordPress plugin Cherry < 1.2.7 contains an unauthenticated file upload and download vulnerability, allowing attackers to upload and download arbitrary files. This could result in attacker uploading backdoor shell scripts or downloading the wp-config.php file.': "Wtyczka WordPress o nazwie Cherry w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    "WordPress plugin Cherry < 1.2.7 contains an unauthenticated file upload and download vulnerability, allowing attackers to upload and download arbitrary files. This could result in attacker uploading backdoor shell scripts or downloading the wp-config.php file.": "Wtyczka WordPress o nazwie Cherry w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
     "WordPress plugin Cherry < 1.2.7 has a vulnerability which enables an attacker to upload files directly to the server. This could result in attacker uploading backdoor shell scripts or downloading the wp-config.php file.": "Wtyczka WordPress o nazwie Cherry w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."

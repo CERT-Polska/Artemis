@@ -997,8 +997,26 @@ TRANSLATIONS = {
     "Zoho manageengine is vulnerable to reflected cross-site scripting. This impacts  Zoho ManageEngine Netflow Analyzer before build 123137, Network Configuration Manager before build 123128, OpManager before build 123148, OpUtils before build 123161, and Firewall Analyzer before build 123147 via the parameter 'operation' to /servlet/com.adventnet.me.opmanager.servlet.FailOverHelperServlet.": "Zoho ManageEngine Netflow Analyzer w wersji poniżej 123137, Network Configuration Manager w wersji poniżej 123128, OpManager w wersji poniżej 123148, OpUtils before build 123161, zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    'Wordpress Aspose Cloud eBook Generator is vulnerable to local file inclusion.': "Wykryto wtyczkę WordPress o nazwie Aspose Cloud eBook Generator w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku " +
-    WORDPRESS_UPDATE_HINT,
+    "WordPress Brandfolder allows remote attackers to access arbitrary files that reside on the local and remote server and disclose their content.": "Wykryto wtyczkę WordPress o nazwie Brandfolder w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    'Wordpress HB Audio Gallery Lite is vulnerable to local file inclusion.' : "Wykryto wtyczkę WordPress o nazwie HB Audio Gallery Lite w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress ChurcHope Theme <= 2.1 is susceptible to local file inclusion. The vulnerability is caused by improper filtration of user-supplied input passed via the 'file' HTTP GET parameter to the '/lib/downloadlink.php' script, which is publicly accessible.": "Szablon WordPress o nazwie ChurcHope w wersji do 2.1 włącznie zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    'WordPress plugin Cherry < 1.2.7 contains an unauthenticated file upload and download vulnerability, allowing attackers to upload and download arbitrary files. This could result in attacker uploading backdoor shell scripts or downloading the wp-config.php file.': "Wtyczka WordPress o nazwie Cherry w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress plugin Cherry < 1.2.7 has a vulnerability which enables an attacker to upload files directly to the server. This could result in attacker uploading backdoor shell scripts or downloading the wp-config.php file.": "Wtyczka WordPress o nazwie Cherry w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Aspose Words Exporter prior to version 2.0 is vulnerable to local file inclusion.": "Wtyczka WordPress o nazwie Aspose Words Exporter w wersji poniżej 2.0 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Aspose Importer & Exporter version 1.0 is vulnerable to local file inclusion.": "Wtyczka WordPress o nazwie Aspose Importer & Exporter w wersji 1.0 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "Wordpress Aspose Cloud eBook Generator is vulnerable to local file inclusion.": "Wykryto wtyczkę WordPress o nazwie Aspose Cloud eBook Generator w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Aspose PDF Exporter is vulnerable to local file inclusion.": "Wykryto wtyczkę WordPress o nazwie Aspose PDF Exporter w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
     "Rstudio Shiny Server prior to 1.5.16 is vulnerable to local file inclusion and source code leakage. This can be exploited by appending an encoded slash to the URL.": "Rstudio Shiny Server w wersji poniżej 1.5.16 umożliwia atakującemu odczyt dowolnych plików z dysku, w tym kodu źródłowego aplikacji."
     + UPDATE_HINT,
     "WordPress Simple File List before 3.2.8 is vulnerable to local file inclusion via the eeFile parameter in the ~/includes/ee-downloader.php due to missing controls which make it possible for unauthenticated attackers retrieve arbitrary files.": "Wtyczka WordPress o nazwie Simple File List w wersji poniżej 3.2.8 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku."
@@ -1022,9 +1040,6 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "WordPress True Ranker before version 2.2.4 allows sensitive configuration files such as wp-config.php, to be accessed via the src parameter found in the ~/admin/vendor/datatables/examples/resources/examples.php file via local file inclusion.": "Wtyczka WordPress o nazwie True Ranker w wersji poniżej 2.2.4 umożliwia atakującemu odczyt dowolnych plików z dysku."
     + WORDPRESS_UPDATE_HINT,
-    "Web Port 1.19.1 is vulnerable to cross-site scripting via the /log type parameter.": "WebPort w wersji 1.19.1 i potencjalnie wcześniejszych zawiera podatność "
-    + REFLECTED_XSS_DESCRIPTION
-    + UPDATE_HINT,
     "Wordpress Zedna eBook download prior to version 1.2 was affected by a filedownload.php local file inclusion vulnerability.": "Wtyczka WordPress o nazwie Zedna eBook download w wersji poniżej 1.2 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + WORDPRESS_UPDATE_HINT,
     "WordPress Nevma Adaptive Images plugin before 0.6.67 allows remote attackers to retrieve arbitrary files via the $REQUEST['adaptive-images-settings']['source_file'] parameter in adaptive-images-script.php.": "Wtyczka WordPress o nazwie Nevma Adaptive Images w wersji poniżej 0.6.67 umożliwia atakującemu odczyt dowolnych plików z dysku."

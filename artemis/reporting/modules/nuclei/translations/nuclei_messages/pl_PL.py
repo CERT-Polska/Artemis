@@ -997,9 +997,15 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    'WordPress Memphis Document Library 3.1.5 is vulnerable to local file inclusion.' : "Wtyczka WordPress o nazwie Memphis Document Library w wersji 3.1.5 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    "A directory traversal vulnerability in the dp_img_resize function in php/dp-functions.php in the DukaPress plugin before 2.5.4 for WordPress allows remote attackers to read arbitrary files via a .. (dot dot) in the src parameter to lib/dp_image.php.": "Wtyczka WordPress o nazwie DukaPress w wersji poniżej 2.5.4 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
-    'Tinymce Thumbnail Gallery 1.0.7 and before are vulnerable to local file inclusion via download-image.php.': "Tinymce Thumbnail Gallery w wersji 1.0.7 i wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    "WordPress WooCommerce < 1.2.7 is susceptible to file download vulnerabilities. The lack of authorization checks in the handle_downloads() function hooked to admin_init() could allow unauthenticated users to download arbitrary files from the blog using a path traversal payload.": "Wtyczka WordPress o nazwie WooCommerce w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "A directory traversal vulnerability in the file_get_contents function in downloadfiles/download.php in the WP Content Source Control (wp-source-control) plugin 3.0.0 and earlier for WordPress allows remote attackers to read arbitrary files via a .. (dot dot) in the path parameter.": "Wtyczka WordPress o nazwie WP Content Source Control w wersji 3.0.0 i wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Memphis Document Library 3.1.5 is vulnerable to local file inclusion.": "Wtyczka WordPress o nazwie Memphis Document Library w wersji 3.1.5 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "Tinymce Thumbnail Gallery 1.0.7 and before are vulnerable to local file inclusion via download-image.php.": "Tinymce Thumbnail Gallery w wersji 1.0.7 i wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + UPDATE_HINT,
     "WordPress Javo Spot Premium Theme `wp-config` was discovered via local file inclusion. This file is remotely accessible and its content available for reading.": "Wykryto szablon WordPress o nazwie Javo Spot Premium w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,

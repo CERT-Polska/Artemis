@@ -997,6 +997,10 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "WordPress Hide Security Enhancer version 1.3.9.2 or less is susceptible to a local file inclusion vulnerability which could allow malicious visitors to download any file in the installation.": "Wtyczka WordPress o nazwie Hide Security Enhancer w wersji 1.3.9.2 i wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress mTheme-Unus Theme is vulnerable to local file inclusion via css.php.": "Wykryto szablon WordPress o nazwie mTheme-Unus w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + WORDPRESS_UPDATE_HINT,
     "Zoho manageengine is vulnerable to reflected cross-site scripting. This impacts  Zoho ManageEngine Netflow Analyzer before build 123137, Network Configuration Manager before build 123128, OpManager before build 123148, OpUtils before build 123161, and Firewall Analyzer before build 123147 via the parameter 'operation' to /servlet/com.adventnet.me.opmanager.servlet.FailOverHelperServlet.": "Zoho ManageEngine Netflow Analyzer w wersji poniżej 123137, Network Configuration Manager w wersji poniżej 123128, OpManager w wersji poniżej 123148, OpUtils before build 123161, zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,

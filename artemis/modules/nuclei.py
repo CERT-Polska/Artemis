@@ -264,6 +264,7 @@ class Nuclei(ArtemisBase):
                 if finding["url"] in [get_target_url(task)] + links_per_task[task.uid]:
                     findings_per_task[task.uid].append(finding)
                     found = True
+                    break
             if not found:
                 findings_unmatched.append(finding)
 
@@ -276,6 +277,7 @@ class Nuclei(ArtemisBase):
                     if finding["host"].split(":")[0] == get_target_host(task).split(":")[0]:
                         findings_per_task[task.uid].append(finding)
                         found = True
+                        break
                 assert found, "Cannot match finding: %s" % finding
 
         for task in tasks:

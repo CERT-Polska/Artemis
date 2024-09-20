@@ -999,9 +999,11 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     'WordPress Memphis Document Library 3.1.5 is vulnerable to local file inclusion.' : "Wtyczka WordPress o nazwie Memphis Document Library w wersji 3.1.5 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
+    'Tinymce Thumbnail Gallery 1.0.7 and before are vulnerable to local file inclusion via download-image.php.': "Tinymce Thumbnail Gallery w wersji 1.0.7 i wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    + UPDATE_HINT,
     "WordPress Javo Spot Premium Theme `wp-config` was discovered via local file inclusion. This file is remotely accessible and its content available for reading.": "Wykryto szablon WordPress o nazwie Javo Spot Premium w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
-    "ordPress Oxygen-Theme has a local file inclusion vulnerability via the 'file' parameter of 'download.php'.": "Wykryto szablon WordPress o nazwie Oxygen w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
+    "WordPress Oxygen-Theme has a local file inclusion vulnerability via the 'file' parameter of 'download.php'.": "Wykryto szablon WordPress o nazwie Oxygen w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
     "WordPress Javo Spot Premium Theme is vulnerable to local file inclusion that allows remote unauthenticated attackers access to locally stored file and return their content.": "Wykryto szablon WordPress o nazwie Javo Spot Premium w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,

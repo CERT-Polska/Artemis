@@ -306,7 +306,7 @@ class Config:
                 bool,
                 "When retrying due to 'context deadline exceeded', each request will take at least max(2 * SECONDS_PER_REQUEST, "
                 "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY).",
-            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.4, cast=float)
+            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.333, cast=float)
 
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,

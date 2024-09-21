@@ -211,7 +211,7 @@ class Nuclei(ArtemisBase):
                         "Detected %d occurencies of 'context deadline exceeded'",
                         call_result_utf8.count("context deadline exceeded"),
                     )
-                    if i < len(milliseconds_per_request_candidates) - 1:
+                    if i < len(new_milliseconds_per_request_candidates) - 1:
                         self.log.info("Retrying with longer timeout")
                     else:
                         self.log.info("Can't retry with longer timeout")

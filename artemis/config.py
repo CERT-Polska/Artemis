@@ -304,6 +304,11 @@ class Config:
             )
 
         class Nuclei:
+            NUCLEI_INTERACTSH_SERVER: Annotated[
+                str,
+                "Which interactsh server to use. if None, uses the default.",
+            ] = get_config("NUCLEI_INTERACTSH_SERVER", default=None, cast=str)
+
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,
                 "Whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI "
@@ -314,7 +319,7 @@ class Config:
                 bool,
                 "When retrying due to 'context deadline exceeded', each request will take at least max(2 * SECONDS_PER_REQUEST, "
                 "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY).",
-            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.25, cast=float)
+            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.1, cast=float)
 
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,
@@ -531,6 +536,7 @@ class Config:
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
                         "network/detection/rtsp-detect.yaml",
                         "http/miscellaneous/defaced-website-detect.yaml",
+                        "http/misconfiguration/directory-listing-no-host-header.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mixed-active-content.yaml",
                         "http/misconfiguration/mysql-history.yaml",

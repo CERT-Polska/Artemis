@@ -1,6 +1,5 @@
 import hashlib
 import json
-import os
 import shutil
 import tempfile
 import time
@@ -32,7 +31,7 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
 
     try:
         return export(
-            previous_reports_directory=previous_reports_directory,
+            previous_reports_directory=str(previous_reports_directory) if previous_reports_directory else None,
             tag=report_generation_task.tag,
             language=Language(report_generation_task.language),
             custom_template_arguments=report_generation_task.custom_template_arguments or {},  # type: ignore

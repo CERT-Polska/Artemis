@@ -46,11 +46,6 @@ services:
     env_file: .env
     restart: always
     volumes:
-      # Because the options parsing (which will tell us which previous reports directory the
-      # user needs) happens inside the container, we don't know what directory to mount before
-      # starting the container. This solution is far from perfect - feel free to propose a better
-      # one.
-      - /:/host-root/:ro
       - ./output/autoreporter/:/opt/output/autoreporter
       - ./docker/karton.ini:/etc/karton/karton.ini
       - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"

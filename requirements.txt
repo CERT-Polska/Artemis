@@ -24,7 +24,7 @@ minio==7.2.1
 more-itertools==10.5.0
 packaging==24.1
 paramiko==3.5.0
-prometheus-client==0.20.0
+prometheus-client==0.21.0
 psycopg2-binary==2.9.9
 publicsuffixlist==1.0.2.20240907
 pydantic==2.3.0

@@ -997,7 +997,8 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    'settings.php source code was detected via backup files.': "Wykryto kopię zapasową pliku settings.php." + DATA_HIDE_HINT,
+    "settings.php source code was detected via backup files.": "Wykryto kopię zapasową pliku settings.php."
+    + DATA_HIDE_HINT,
     "WordPress Plugin DB Backup 4.5 and possibly prior versions are prone to a local file inclusion vulnerability because they fail to sufficiently sanitize user-supplied input. Exploiting this issue can allow an attacker to obtain sensitive information that could aid in further attacks.": "Wtyczka WordPress o nazwie DB Backup w wersji 4.5 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "
     + WORDPRESS_UPDATE_HINT,
     "A directory traversal vulnerability in the dp_img_resize function in php/dp-functions.php in the DukaPress plugin before 2.5.4 for WordPress allows remote attackers to read arbitrary files via a .. (dot dot) in the src parameter to lib/dp_image.php.": "Wtyczka WordPress o nazwie DukaPress w wersji poniżej 2.5.4 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku "

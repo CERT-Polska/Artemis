@@ -32,9 +32,7 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
 
     try:
         return export(
-            previous_reports_directory=(
-                Path("..") / previous_reports_directory.lstrip(os.sep) if previous_reports_directory else None
-            ),
+            previous_reports_directory=previous_reports_directory,
             tag=report_generation_task.tag,
             language=Language(report_generation_task.language),
             custom_template_arguments=report_generation_task.custom_template_arguments or {},  # type: ignore

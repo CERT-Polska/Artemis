@@ -7,6 +7,7 @@ from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 
 import requests
 from bs4 import BeautifulSoup
+
 from artemis.utils import build_logger
 
 LOGGER = build_logger(__name__)

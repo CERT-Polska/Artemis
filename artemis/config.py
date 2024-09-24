@@ -306,9 +306,10 @@ class Config:
         class Nuclei:
             NUCLEI_TEMPLATE_LISTS: Annotated[
                 str,
-                "Which template lists to use (available: known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
+                "Which template lists to use. Available: known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
                 "critical (having severity=critical), high (having severity=high), medium (having severity=medium), "
-                "log_exposures (http/exposures/logs folder), exposed_panels (http/exposed-panels/ folder).",
+                "log_exposures (http/exposures/logs folder in https://github.com/projectdiscovery/nuclei-templates/), "
+                "exposed_panels (http/exposed-panels/ folder).",
             ] = get_config(
                 "NUCLEI_TEMPLATE_LISTS",
                 default="known_exploited_vulnerabilities,critical,high,log_exposures,exposed_panels",

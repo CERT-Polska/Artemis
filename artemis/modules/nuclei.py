@@ -6,7 +6,7 @@ import random
 import shutil
 import subprocess
 import urllib
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
 import more_itertools
 from karton.core import Task
@@ -50,61 +50,51 @@ class Nuclei(ArtemisBase):
         subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", "/known-exploited-vulnerabilities/"])
         with self.lock:
             subprocess.call(["nuclei", "-update-templates"])
-            self._known_exploited_vulnerability_templates = (
-                check_output_log_on_error(["find", "/known-exploited-vulnerabilities/nuclei/"], self.log)
+
+            template_list_sources: Dict[str, Callable[[], List[str]]] = {
+                "known_exploited_vulnerabilities": lambda: check_output_log_on_error(
+                    ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
+                )
                 .decode("ascii")
-                .split()
-            )
-            self._critical_templates = (
-                check_output_log_on_error(["nuclei", "-s", "critical", "-tl"], self.log).decode("ascii").split()
-            )
-            self._high_templates = (
-                check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log).decode("ascii").split()
-            )
-            self._medium_templates = (
-                check_output_log_on_error(["nuclei", "-s", "medium", "-tl"], self.log).decode("ascii").split()
-            )
-            # These are not high severity, but may lead to significant information leaks and are easy to fix
-            self._log_exposures_templates = [
-                item
-                for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
-                if item.startswith("http/exposures/logs")
-                # we already have a git detection module that filters FPs such as
-                # exposed source code of a repo that is already public
-                and not item.startswith("http/exposures/logs/git-")
-            ]
-            self._exposed_panels_templates = [
-                item
-                for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
-                if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
-            ]
+                .split(),
+                "critical": lambda: check_output_log_on_error(["nuclei", "-s", "critical", "-tl"], self.log)
+                .decode("ascii")
+                .split(),
+                "high": lambda: check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log)
+                .decode("ascii")
+                .split(),
+                "medium": lambda: check_output_log_on_error(["nuclei", "-s", "medium", "-tl"], self.log)
+                .decode("ascii")
+                .split(),
+                # These are not high severity, but may lead to significant information leaks and are easy to fix
+                "log_exposures": lambda: [
+                    item
+                    for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
+                    if item.startswith("http/exposures/logs")
+                    # we already have a git detection module that filters FPs such as
+                    # exposed source code of a repo that is already public
+                    and not item.startswith("http/exposures/logs/git-")
+                ],
+                "exposed_panels": lambda: [
+                    item
+                    for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
+                    if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
+                ],
+            }
 
-            if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
-                if len(self._known_exploited_vulnerability_templates) == 0:
-                    raise RuntimeError(
-                        "Unable to obtain Nuclei known exploited vulnerability templates list from https://github.com/Ostorlab/KEV/"
-                    )
-                if len(self._critical_templates) == 0:
-                    raise RuntimeError("Unable to obtain Nuclei critical-severity templates list")
-                if len(self._high_templates) == 0:
-                    raise RuntimeError("Unable to obtain Nuclei high-severity templates list")
-                if len(self._medium_templates) == 0:
-                    raise RuntimeError("Unable to obtain Nuclei medium-severity templates list")
-                if len(self._log_exposures_templates) == 0:
-                    raise RuntimeError("Unable to obtain Nuclei log exposure templates list")
-                if len(self._exposed_panels_templates) == 0:
-                    raise RuntimeError("Unable to obtain Nuclei exposed panels templates list")
+            self._templates = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
+            for name in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                if name not in template_list_sources:
+                    raise Exception(f"Unknown template list: {name}")
+                template_list = template_list_sources[name]()
 
-            self._templates = [
-                template
-                for template in self._critical_templates
-                + self._high_templates
-                + self._medium_templates
-                + self._exposed_panels_templates
-                + self._log_exposures_templates
-                + self._known_exploited_vulnerability_templates
-                if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
-            ] + Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
+                if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
+                    if len(template_list) == 0:
+                        raise RuntimeError(f"Unable to obtain Nuclei templates for list {name}")
+
+                for template in template_list:
+                    if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
+                        self._templates.append(template)
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))

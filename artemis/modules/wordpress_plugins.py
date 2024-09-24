@@ -69,6 +69,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "subscribe-to-comments",
     "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
+    "woo-tools",
     "wp-maximum-execution-time-exceeded",
 ]
 

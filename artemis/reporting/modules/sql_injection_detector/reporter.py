@@ -41,7 +41,7 @@ class SqlInjectionDetectorReporter(Reporter):
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
-                target=f'{url_parsed.scheme}://{url_parsed.netloc}',
+                target=f"{url_parsed.scheme}://{url_parsed.netloc}",
                 report_type=SqlInjectionDetectorReporter.SQL_INJECTION_CORE,
                 additional_data=task_result["result"],
                 timestamp=task_result["created_at"],

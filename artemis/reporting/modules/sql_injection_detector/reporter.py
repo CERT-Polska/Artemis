@@ -1,7 +1,9 @@
 import os
-from typing import Any, Dict, List
+import urllib.parse
+from typing import Any, Callable, Dict, List
 
 from artemis.reporting.base.language import Language
+from artemis.reporting.base.normal_form import NormalForm, get_domain_normal_form
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
@@ -37,7 +39,7 @@ class SqlInjectionDetectorReporter(Reporter):
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
-                target=task_result['target_string'],
+                target=task_result["result"]["result"]["url"],
                 report_type=SqlInjectionDetectorReporter.SQL_INJECTION_CORE,
                 additional_data=task_result["result"],
                 timestamp=task_result["created_at"],
@@ -52,3 +54,15 @@ class SqlInjectionDetectorReporter(Reporter):
                 priority=8,
             ),
         ]
+
+    @staticmethod
+    def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
+        """See the docstring in the Reporter class."""
+        return {
+            SqlInjectionDetectorReporter.SQL_INJECTION_CORE: lambda report: Reporter.dict_to_tuple(
+                {
+                    "type": report.report_type,
+                    "target": get_domain_normal_form(urllib.parse.urlparse(report.target).hostname or ""),
+                }
+            )
+        }

@@ -997,6 +997,7 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "javascript/cves/2023/CVE-2023-48795.yaml": "Wykryto implementację protokołu SSH podatną na atak Terrapin, umożliwiający wyłączenie niektórych zabezpieczeń protokołu SSH.",
     "settings.php source code was detected via backup files.": "Wykryto kopię zapasową pliku settings.php."
     + DATA_HIDE_HINT,
     "WordPress Plugin DB Backup 4.5 and possibly prior versions are prone to a local file inclusion vulnerability because they fail to sufficiently sanitize user-supplied input. Exploiting this issue can allow an attacker to obtain sensitive information that could aid in further attacks.": "Wtyczka WordPress o nazwie DB Backup w wersji 4.5 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "

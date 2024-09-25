@@ -121,7 +121,7 @@ class SqlInjectionDetector(ArtemisBase):
 
         for message in SQL_ERROR_MESSAGES:
             if m := re.search(message, response.content):
-                self.log.debug("Matched error: %s on %s", m.groups(0), url)
+                self.log.debug("Matched error: %s on %s", message, url)
                 return True
         return False
 

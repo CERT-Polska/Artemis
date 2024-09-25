@@ -36,10 +36,12 @@ class SqlInjectionDetectorReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
+        url_parsed = urllib.parse.urlparse(task_result["result"]["result"][0]["url"])
+
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
-                target=task_result["result"]["result"]["url"],
+                target=f'{url_parsed.scheme}://{url_parsed.netloc}',
                 report_type=SqlInjectionDetectorReporter.SQL_INJECTION_CORE,
                 additional_data=task_result["result"],
                 timestamp=task_result["created_at"],

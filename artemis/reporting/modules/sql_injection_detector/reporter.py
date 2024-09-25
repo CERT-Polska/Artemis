@@ -37,7 +37,7 @@ class SqlInjectionDetectorReporter(Reporter):
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
-                target=f"{task_result['payload']['host']}",
+                target=task_result['target_string'],
                 report_type=SqlInjectionDetectorReporter.SQL_INJECTION_CORE,
                 additional_data=task_result["result"],
                 timestamp=task_result["created_at"],

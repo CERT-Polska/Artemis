@@ -35,16 +35,10 @@ def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[s
                 # for the IP - so we cut the trailing dot (kazet.cc. -> kazet.cc) and
                 # look for this domain in other records.
                 for subentry in response.answer:
-                    if (
-                            str(subentry.name).strip(".") == item
-                            and subentry.rdtype == 1
-                    ):
+                    if str(subentry.name).strip(".") == item and subentry.rdtype == 1:
                         found_results.append(subentry.to_text().split(" ")[-1].rstrip("."))
 
-                    if (
-                            str(subentry.name).strip(".") == item
-                            and subentry.rdtype == 2
-                    ):
+                    if str(subentry.name).strip(".") == item and subentry.rdtype == 2:
                         for rdataset in subentry:
                             found_results.append(rdataset.to_text().rstrip("."))
 

@@ -74,6 +74,7 @@ def lookup(domain: str, query_type: str = "A") -> Set[str]:
     :raise ResolutionException if something fails
     """
     try:
+        domain = domain.lower()
         return retry(_single_resolution_attempt, (domain, query_type), {})  # type: ignore
     except NoAnswer:
         return set()

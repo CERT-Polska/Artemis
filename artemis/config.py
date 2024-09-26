@@ -526,6 +526,8 @@ class Config:
                         "http/cves/2023/CVE-2023-35161.yaml",
                         "http/cves/2023/CVE-2023-35162.yaml",
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
+                        # Popular configuration
+                        "network/default-login/ftp-anonymous-login.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -631,6 +633,7 @@ class Config:
                         "http/cves/2020/CVE-2020-27982.yaml",
                         "http/cves/2020/CVE-2020-35774.yaml",
                         "http/cves/2020/CVE-2020-35848.yaml",
+                        "http/cves/2021/CVE-2021-3654.yaml:",
                         "http/cves/2021/CVE-2021-24288.yaml",
                         "http/cves/2021/CVE-2021-24389.yaml",
                         "http/cves/2021/CVE-2021-24838.yaml",

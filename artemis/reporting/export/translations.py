@@ -15,9 +15,14 @@ class TranslationRaiseException(gettext.GNUTranslations):
     """This class is used instead of GNUTranslations and raises exception when a message is not found,
     so that we don't allow untranslated strings into the messages."""
 
+    messages_allowed_to_be_the_same_after_translation = ["time-based SQL injection"]
+
     def gettext(self, message: str) -> str:
         message_translated = super().gettext(message)
-        if message == message_translated:
+        if (
+            message == message_translated
+            and message not in TranslationRaiseException.messages_allowed_to_be_the_same_after_translation
+        ):
             raise TranslationNotFoundException(f"Unable to translate '{message}'")
         return message_translated
 

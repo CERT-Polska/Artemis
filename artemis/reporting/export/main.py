@@ -43,9 +43,6 @@ environment = Environment(
 )
 
 
-HOST_ROOT_PATH = "/host-root/"
-
-
 def unwrap(html: str) -> str:
     """Uwraps html if it's wrapped in a single tag (e.g. <div>)."""
     html = html.strip()
@@ -147,7 +144,7 @@ def export(
     blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
 
     if previous_reports_directory:
-        previous_reports = load_previous_reports(Path(HOST_ROOT_PATH) / str(previous_reports_directory).lstrip(os.sep))
+        previous_reports = load_previous_reports(previous_reports_directory)
     else:
         previous_reports = []
 

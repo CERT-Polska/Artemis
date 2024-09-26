@@ -16,29 +16,39 @@ class NoAnswer(Exception):
 
 
 def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[str]:
-    found_results = set()
+    found_results = []
     response = answer.response
 
     for entry in response.answer:
         if str(entry.name).rstrip(".") != domain:
             continue
 
-        if entry.rdtype == result_type:
-            found_results.add(entry.to_text().split(" ")[-1].rstrip("."))
+        for item in entry.items:
+            item = str(item).rstrip(".")
 
-        # CNAME
-        if entry.rdtype == 5:
-            # This is not the IP we want - we want to check *other records*
-            # for the IP - so we cut the trailing dot (kazet.cc. -> kazet.cc) and
-            # look for this domain in other records.
-            for subentry in entry.to_rdataset():
-                if (
-                    subentry.to_text().split(" ")[-1].rstrip(".") == entry.to_text().split(" ")[-1].rstrip(".")
-                    and subentry.rdtype == 1
-                ):
-                    found_results.add(subentry.to_text().rstrip("."))
+            if entry.rdtype == result_type:
+                found_results.append(item)
 
-    return found_results
+            # CNAME
+            if entry.rdtype == 5:
+                # This is not the IP we want - we want to check *other records*
+                # for the IP - so we cut the trailing dot (kazet.cc. -> kazet.cc) and
+                # look for this domain in other records.
+                for subentry in response.answer:
+                    if (
+                            str(subentry.name).strip(".") == item
+                            and subentry.rdtype == 1
+                    ):
+                        found_results.append(subentry.to_text().split(" ")[-1].rstrip("."))
+
+                    if (
+                            str(subentry.name).strip(".") == item
+                            and subentry.rdtype == 2
+                    ):
+                        for rdataset in subentry:
+                            found_results.append(rdataset.to_text().rstrip("."))
+
+    return set(found_results)
 
 
 def _single_resolution_attempt(domain: str, query_type: str = "A") -> Set[str]:

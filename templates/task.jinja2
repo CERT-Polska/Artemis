@@ -1,11 +1,18 @@
 {% extends "components/base.jinja2" %}
 {% block main %}
 <div class="bs-component" style="padding-top: 100px">
-  <h3 class="text-center">task {{ task._id }}</h3>
+  <h3 class="text-center">Task results {{ task.id }} (running {{task.task['headers']['receiver']}} on {{ task.target_string }})</h3>
 
   {% if task.status_reason %}
       <div class="alert alert-primary">
           {{ task.status_reason }}
+      </div>
+  {% endif %}
+
+  {% if task.status == 'ERROR' %}
+      <div class="alert alert-warning">
+          <h4>Error</h4>
+          <pre><code>{{ task.result }}</code></pre>
       </div>
   {% endif %}
 

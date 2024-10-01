@@ -997,7 +997,7 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    'HTML Injection in GitHub repository froxlor/froxlor prior to 0.10.38.2.': "Repozytorium froxlor/froxlor w wersji poniźej 0.10.38.2 zawiera podatność "
+    "HTML Injection in GitHub repository froxlor/froxlor prior to 0.10.38.2.": "Repozytorium froxlor/froxlor w wersji poniźej 0.10.38.2 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "WordPress Simple Membership plugin before 4.1.1 contains a reflected cross-site scripting vulnerability. It does not properly sanitize and escape parameters before outputting them back in AJAX actions.": "Wtyczka WordPress o nazwie Simple Membership w wersji poniżej 4.1.1 zawiera podatność "

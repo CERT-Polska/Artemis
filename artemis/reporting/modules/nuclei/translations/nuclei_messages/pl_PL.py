@@ -1023,7 +1023,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "RTSP was detected.": "Wykryto publicznie dostępny serwer RTSP.",
-    "Signing is not required on the remote SMB server. An unauthenticated, remote attacker can exploit this to conduct man-in-the-middle attacks against the SMB server.": "Podpisy wiadomości nie są wymagane na serwerze SMB (SigningRequired: false). Dzięki temu atakujący, który może modyfikować komunikacją z serwerem SMB, może uzyskać nieuprawniony dostęp do zasobu.",
+    "Signing is not required on the remote SMB server. An unauthenticated, remote attacker can exploit this to conduct man-in-the-middle attacks against the SMB server.": "Podpisy wiadomości nie są wymagane na serwerze SMB (SigningRequired: false). Dzięki temu atakujący, który może modyfikować komunikację z serwerem SMB, może uzyskać nieuprawniony dostęp do zasobu.",
     "SSH weak algorithms are outdated cryptographic methods that pose security risks. Identifying and disabling these vulnerable algorithms is crucial for enhancing the overall security of SSH connections.": "Wykryto serwer SSH wspierający słabe/podatne algorytmy kryptograficzne.",
     "javascript/cves/2023/CVE-2023-48795.yaml": "Wykryto implementację protokołu SSH podatną na atak Terrapin, umożliwiający wyłączenie niektórych zabezpieczeń protokołu SSH.",
     "Subrion CMS before 4.1.5.10 has a SQL injection vulnerability in /front/search.php via the $_GET array.": "System Subrion CMS w wersji poniżej 4.1.5.10 zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych.",

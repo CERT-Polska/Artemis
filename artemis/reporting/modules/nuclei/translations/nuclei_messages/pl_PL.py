@@ -997,6 +997,16 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    'HTML Injection in GitHub repository froxlor/froxlor prior to 0.10.38.2.': "Repozytorium froxlor/froxlor w wersji poniźej 0.10.38.2 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress Simple Membership plugin before 4.1.1 contains a reflected cross-site scripting vulnerability. It does not properly sanitize and escape parameters before outputting them back in AJAX actions.": "Wtyczka WordPress o nazwie Simple Membership w wersji poniżej 4.1.1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "The Node.js application runs in development mode, which can expose sensitive information, such as source code and secrets, depending on the application.": "Wykryto aplikację w technologii Node.js działającą w trybie deweloperskim. Aplikacje działające w tym trybie mogą potencjalnie udostępniać wrażliwe informacje takie jak kod źródłowy czy konfiguracja aplikacji.",
+    "The remote LDAP server allows anonymous access": "Wykryto serwer LDAP, który nie wymaga logowania. Rekomendujemy, aby takie zasoby nie były publicznie dostępne.",
+    "Jira before version 7.13.4, from version 8.0.0 before version 8.0.4, and from version 8.1.0 before version 8.1.1, allows remote attackers to access files in the Jira webroot under the META-INF directory via local file inclusion.": "System Jira w wersji poniżej 7.13.4, w wersji od 8.0.0 poniżej 8.0.4 i w wersji od 8.1.0 poniżej 8.1.1 umożliwia atakującemu odczytanie plików z dysku."
+    + UPDATE_HINT,
     "ThinkPHP has a command execution vulnerability because the multi-language function is enabled and the parameter passing of parameter lang is not strictly filtered. Attackers can use this vulnerability to execute commands.": "ThinkPHP zawiera podatnosć umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -1467,4 +1477,5 @@ TRANSLATIONS = {
     "Nagios current status page was detected.": "Wykryto stronę diagnostyczną systemu Nagios.",
     "An Adobe Experience Manager login panel was detected.": "Wykryto panel logowania Adobe Experience Manager.",
     "kiali panel was detected.": "wykryto panel kiali.",
+    "[no description] http/exposed-panels/qBittorrent-panel.yaml": "wykryto panel qBittorrent.",
 }

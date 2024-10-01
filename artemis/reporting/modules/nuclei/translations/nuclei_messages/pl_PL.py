@@ -1010,7 +1010,7 @@ TRANSLATIONS = {
     "ThinkPHP has a command execution vulnerability because the multi-language function is enabled and the parameter passing of parameter lang is not strictly filtered. Attackers can use this vulnerability to execute commands.": "ThinkPHP zawiera podatnosć umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "The WP Fastest Cache WordPress plugin before 1.2.2 does not properly sanitise and escape a parameter before using it in a SQL statement, leading to a SQL injection exploitable by unauthenticated users.": "Wtyczka WordPress o nazwie WP Fastest Cache zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    "The WP Fastest Cache WordPress plugin before 1.2.2 does not properly sanitise and escape a parameter before using it in a SQL statement, leading to a SQL injection exploitable by unauthenticated users.": "Wtyczka WordPress o nazwie WP Fastest Cache w wersji poniżej 1.2.2 zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "The plugin does not validate a parameter passed to the php extract function when loading templates, allowing an unauthenticated attacker to override the template path to read arbitrary files from the hosts file system. This may be escalated to RCE using PHP filter chains.": "Wtyczka WordPress o nazwie Extensive VC Addons for WPBakery w wersji poniżej 1.9.1 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku, a w niektórych sytuajach - zdalne wykonanie kodu. "
     + RCE_EFFECT_DESCRIPTION

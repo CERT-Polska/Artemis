@@ -1,13 +1,8 @@
 import os
 import tempfile
 from pathlib import Path
-<<<<<<< HEAD
-from typing import Any, List, Set
-from unittest.mock import MagicMock, patch
-=======
 from typing import List
 from unittest.mock import MagicMock
->>>>>>> tmp23
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from karton.core import Task

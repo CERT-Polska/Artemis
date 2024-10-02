@@ -6,6 +6,12 @@ directives, e.g. ``SCANNING_PACKETS_PER_SECOND=5``):
 
 .. include:: config-docs.inc
 
+Extra modules
+-------------
+Additionally, you can configure modules from the ``Artemis-modules-extra`` repository (https://github.com/CERT-Polska/Artemis-modules-extra) using
+the configuration variables from https://github.com/CERT-Polska/Artemis-modules-extra/blob/main/extra_modules_config.py. The file to put them
+in (``.env``) and the syntax (``VARIABLE_NAME=VARIABLE_VALUE``) is the same as for the core Artemis configuration.
+
 Blocklist
 ---------
 You may exclude some systems from being scanned or included in the reports. To do that, set the ``BLOCKLIST_FILE`` environment

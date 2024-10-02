@@ -104,8 +104,6 @@ class NucleiReporter(Reporter):
             else:
                 description = "[no description] " + template
 
-            matched_at_parsed = urllib.parse.urlparse(vulnerability["matched-at"])
-
             if template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
                 result.append(
                     Report(
@@ -140,6 +138,8 @@ class NucleiReporter(Reporter):
                     matched_at
                 ):
                     target = matched_at
+
+                matched_at_parsed = urllib.parse.urlparse(vulnerability["matched-at"])
 
                 result.append(
                     Report(

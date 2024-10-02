@@ -994,11 +994,99 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "GeoServer is an open source software server written in Java that allows users to share and edit geospatial data. GeoServer includes support for the OGC Filter expression language and the OGC Common Query Language (CQL) as part of the Web Feature Service (WFS) and Web Map Service (WMS) protocols. CQL is also supported through the Web Coverage Service (WCS) protocol for ImageMosaic coverages. Users are advised to upgrade to either version 2.21.4, or version 2.22.2 to resolve this issue. Users unable to upgrade should disable the PostGIS Datastore *encode functions* setting to mitigate ``strEndsWith``, ``strStartsWith`` and ``PropertyIsLike `` misuse and enable the PostGIS DataStore *preparedStatements* setting to mitigate the ``FeatureId`` misuse.": "GeoServer w wersji poniżej 2.21.4 umożliwia atakującemu wykonywanie dowolnych kwerend."
+    + UPDATE_HINT,
+    "Moodle 3.10 to 3.10.3, 3.9 to 3.9.6, 3.8 to 3.8.8, and earlier unsupported versions contain a cross-site scripting vulnerability via the redirect_uri parameter.": "System Moodle w wersji od 3.10 do 3.10.3, 3.9 do 3.9.6, 3.8 do 3.8.8 i wcześniejszych niewspieranych wersjach zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "HG configuration was detected.": "Wykryto konfigurację systemu Mercurial.",
+    "WordPress Plugin WP Statistics 13.0.7  contains an unauthenticated Time based SQL injection vulnerability. The plugin does not sanitize and escape the id parameter before using it in a SQL statement, leading to an unauthenticated blind SQL injection. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie WP Statistics w wersji 13.0.7 i potencjalnie wcześniejszych zawiera podatność Time-based SQL injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych.",
+    "HTML Injection in GitHub repository froxlor/froxlor prior to 0.10.38.2.": "Repozytorium froxlor/froxlor w wersji poniźej 0.10.38.2 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress Simple Membership plugin before 4.1.1 contains a reflected cross-site scripting vulnerability. It does not properly sanitize and escape parameters before outputting them back in AJAX actions.": "Wtyczka WordPress o nazwie Simple Membership w wersji poniżej 4.1.1 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "The Node.js application runs in development mode, which can expose sensitive information, such as source code and secrets, depending on the application.": "Wykryto aplikację w technologii Node.js działającą w trybie deweloperskim. Aplikacje działające w tym trybie mogą potencjalnie udostępniać wrażliwe informacje takie jak kod źródłowy czy konfiguracja aplikacji.",
+    "The remote LDAP server allows anonymous access": "Wykryto serwer LDAP, który nie wymaga logowania. Rekomendujemy, aby takie zasoby nie były publicznie dostępne.",
+    "Jira before version 7.13.4, from version 8.0.0 before version 8.0.4, and from version 8.1.0 before version 8.1.1, allows remote attackers to access files in the Jira webroot under the META-INF directory via local file inclusion.": "System Jira w wersji poniżej 7.13.4, w wersji od 8.0.0 poniżej 8.0.4 i w wersji od 8.1.0 poniżej 8.1.1 umożliwia atakującemu odczytanie plików z dysku."
+    + UPDATE_HINT,
+    "ThinkPHP has a command execution vulnerability because the multi-language function is enabled and the parameter passing of parameter lang is not strictly filtered. Attackers can use this vulnerability to execute commands.": "ThinkPHP zawiera podatnosć umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "The WP Fastest Cache WordPress plugin before 1.2.2 does not properly sanitise and escape a parameter before using it in a SQL statement, leading to a SQL injection exploitable by unauthenticated users.": "Wtyczka WordPress o nazwie WP Fastest Cache w wersji poniżej 1.2.2 zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "The plugin does not validate a parameter passed to the php extract function when loading templates, allowing an unauthenticated attacker to override the template path to read arbitrary files from the hosts file system. This may be escalated to RCE using PHP filter chains.": "Wtyczka WordPress o nazwie Extensive VC Addons for WPBakery w wersji poniżej 1.9.1 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku, a w niektórych sytuacjach - zdalne wykonanie kodu. "
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "Detects anonymous access to SMB shares on a remote server.": "Wykryto, że dostęp do udziału SMB jest możliwy bez uwierzytelnienia.",
+    "WordPress Elementor Website Builder plugin before 3.1.4 contains a DOM cross-site scripting vulnerability. It does not sanitize or escape user input appended to the DOM via a malicious hash.": "Wtyczka WordPress o nazwie Elementor Website Builder w wersji poniżej 3.1.4 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "CHIYU BF-430, BF-431 and BF-450M TCP/IP Converter devices contain a cross-site scripting vulnerability due to a lack of sanitization of the input on the components man.cgi, if.cgi, dhcpc.cgi, and ppp.cgi.": "Urządzenia CHIYU BF-430, BF-431 i BF-450M TCP/IP Converter zawierają podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "RTSP was detected.": "Wykryto publicznie dostępny serwer RTSP.",
+    "Signing is not required on the remote SMB server. An unauthenticated, remote attacker can exploit this to conduct man-in-the-middle attacks against the SMB server.": "Podpisy wiadomości nie są wymagane na serwerze SMB (SigningRequired: false). Dzięki temu atakujący, który może modyfikować komunikację z serwerem SMB, może uzyskać nieuprawniony dostęp do zasobu.",
+    "SSH weak algorithms are outdated cryptographic methods that pose security risks. Identifying and disabling these vulnerable algorithms is crucial for enhancing the overall security of SSH connections.": "Wykryto serwer SSH wspierający słabe/podatne algorytmy kryptograficzne.",
+    "javascript/cves/2023/CVE-2023-48795.yaml": "Wykryto implementację protokołu SSH podatną na atak Terrapin, umożliwiający wyłączenie niektórych zabezpieczeń protokołu SSH.",
+    "Subrion CMS before 4.1.5.10 has a SQL injection vulnerability in /front/search.php via the $_GET array.": "System Subrion CMS w wersji poniżej 4.1.5.10 zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych.",
+    "settings.php source code was detected via backup files.": "Wykryto kopię zapasową pliku settings.php."
+    + DATA_HIDE_HINT,
+    "WordPress Plugin DB Backup 4.5 and possibly prior versions are prone to a local file inclusion vulnerability because they fail to sufficiently sanitize user-supplied input. Exploiting this issue can allow an attacker to obtain sensitive information that could aid in further attacks.": "Wtyczka WordPress o nazwie DB Backup w wersji 4.5 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "A directory traversal vulnerability in the dp_img_resize function in php/dp-functions.php in the DukaPress plugin before 2.5.4 for WordPress allows remote attackers to read arbitrary files via a .. (dot dot) in the src parameter to lib/dp_image.php.": "Wtyczka WordPress o nazwie DukaPress w wersji poniżej 2.5.4 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress WooCommerce < 1.2.7 is susceptible to file download vulnerabilities. The lack of authorization checks in the handle_downloads() function hooked to admin_init() could allow unauthenticated users to download arbitrary files from the blog using a path traversal payload.": "Wtyczka WordPress o nazwie WooCommerce w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "A directory traversal vulnerability in the file_get_contents function in downloadfiles/download.php in the WP Content Source Control (wp-source-control) plugin 3.0.0 and earlier for WordPress allows remote attackers to read arbitrary files via a .. (dot dot) in the path parameter.": "Wtyczka WordPress o nazwie WP Content Source Control w wersji 3.0.0 i wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Memphis Document Library 3.1.5 is vulnerable to local file inclusion.": "Wtyczka WordPress o nazwie Memphis Document Library w wersji 3.1.5 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "Tinymce Thumbnail Gallery 1.0.7 and before are vulnerable to local file inclusion via download-image.php.": "Tinymce Thumbnail Gallery w wersji 1.0.7 i wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + UPDATE_HINT,
+    "WordPress Javo Spot Premium Theme `wp-config` was discovered via local file inclusion. This file is remotely accessible and its content available for reading.": "Wykryto szablon WordPress o nazwie Javo Spot Premium w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Oxygen-Theme has a local file inclusion vulnerability via the 'file' parameter of 'download.php'.": "Wykryto szablon WordPress o nazwie Oxygen w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Javo Spot Premium Theme is vulnerable to local file inclusion that allows remote unauthenticated attackers access to locally stored file and return their content.": "Wykryto szablon WordPress o nazwie Javo Spot Premium w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Download Shortcode 0.2.3 is prone to a local file inclusion vulnerability because it fails to sufficiently sanitize user-supplied input. Exploiting this issue may allow an attacker to obtain sensitive information that could aid in further attacks. Prior versions may also be affected.": "Wtyczka WordPress o nazwie Download Shortcode w wersji 0.2.3 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Hide Security Enhancer version 1.3.9.2 or less is susceptible to a local file inclusion vulnerability which could allow malicious visitors to download any file in the installation.": "Wtyczka WordPress o nazwie Hide Security Enhancer w wersji 1.3.9.2 i wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress mTheme-Unus Theme is vulnerable to local file inclusion via css.php.": "Wykryto szablon WordPress o nazwie mTheme-Unus w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
     "Zoho manageengine is vulnerable to reflected cross-site scripting. This impacts  Zoho ManageEngine Netflow Analyzer before build 123137, Network Configuration Manager before build 123128, OpManager before build 123148, OpUtils before build 123161, and Firewall Analyzer before build 123147 via the parameter 'operation' to /servlet/com.adventnet.me.opmanager.servlet.FailOverHelperServlet.": "Zoho ManageEngine Netflow Analyzer w wersji poniżej 123137, Network Configuration Manager w wersji poniżej 123128, OpManager w wersji poniżej 123148, OpUtils before build 123161, zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "WordPress Brandfolder allows remote attackers to access arbitrary files that reside on the local and remote server and disclose their content.": "Wykryto wtyczkę WordPress o nazwie Brandfolder w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "Wordpress HB Audio Gallery Lite is vulnerable to local file inclusion.": "Wykryto wtyczkę WordPress o nazwie HB Audio Gallery Lite w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress ChurcHope Theme <= 2.1 is susceptible to local file inclusion. The vulnerability is caused by improper filtration of user-supplied input passed via the 'file' HTTP GET parameter to the '/lib/downloadlink.php' script, which is publicly accessible.": "Szablon WordPress o nazwie ChurcHope w wersji do 2.1 włącznie zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress plugin Cherry < 1.2.7 contains an unauthenticated file upload and download vulnerability, allowing attackers to upload and download arbitrary files. This could result in attacker uploading backdoor shell scripts or downloading the wp-config.php file.": "Wtyczka WordPress o nazwie Cherry w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress plugin Cherry < 1.2.7 has a vulnerability which enables an attacker to upload files directly to the server. This could result in attacker uploading backdoor shell scripts or downloading the wp-config.php file.": "Wtyczka WordPress o nazwie Cherry w wersji poniżej 1.2.7 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Aspose Words Exporter prior to version 2.0 is vulnerable to local file inclusion.": "Wtyczka WordPress o nazwie Aspose Words Exporter w wersji poniżej 2.0 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Aspose Importer & Exporter version 1.0 is vulnerable to local file inclusion.": "Wtyczka WordPress o nazwie Aspose Importer & Exporter w wersji 1.0 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "Wordpress Aspose Cloud eBook Generator is vulnerable to local file inclusion.": "Wykryto wtyczkę WordPress o nazwie Aspose Cloud eBook Generator w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Aspose PDF Exporter is vulnerable to local file inclusion.": "Wykryto wtyczkę WordPress o nazwie Aspose PDF Exporter w wersji zawierającej podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. "
+    + WORDPRESS_UPDATE_HINT,
     "Rstudio Shiny Server prior to 1.5.16 is vulnerable to local file inclusion and source code leakage. This can be exploited by appending an encoded slash to the URL.": "Rstudio Shiny Server w wersji poniżej 1.5.16 umożliwia atakującemu odczyt dowolnych plików z dysku, w tym kodu źródłowego aplikacji."
     + UPDATE_HINT,
+    "WordPress Simple File List before 3.2.8 is vulnerable to local file inclusion via the eeFile parameter in the ~/includes/ee-downloader.php due to missing controls which make it possible for unauthenticated attackers retrieve arbitrary files.": "Wtyczka WordPress o nazwie Simple File List w wersji poniżej 3.2.8 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
     "Detects exposed ProjectSend installation page.": "Wykryto publicznie dostępny panel insalacyjny ProjectSend.",
     "Mozilla Pollbot contains an open redirect vulnerability. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto system Mozilla Pollbot w wersji zawierającej podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
     "GitLab CE and EE 13.4 through 13.6.2 is susceptible to Information disclosure via GraphQL. User email is visible. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "System GitLab CE i EE w wersji od 13.4 do 13.6.2 włącznie umożliwia atakującemu nieuprawniony odczyt adresów e-mail użytkowników i innych danych, które nie powinny być publicznie dostępne."
@@ -1015,6 +1103,15 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "http/cves/2021/CVE-2021-39211.yaml": "GLPI w wersji 9.2 i poniżej 9.5.6 umożliwia atakującemu nieuprawniony dostęp do niektórych informacji."
+    + UPDATE_HINT,
+    "WordPress True Ranker before version 2.2.4 allows sensitive configuration files such as wp-config.php, to be accessed via the src parameter found in the ~/admin/vendor/datatables/examples/resources/examples.php file via local file inclusion.": "Wtyczka WordPress o nazwie True Ranker w wersji poniżej 2.2.4 umożliwia atakującemu odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
+    "Wordpress Zedna eBook download prior to version 1.2 was affected by a filedownload.php local file inclusion vulnerability.": "Wtyczka WordPress o nazwie Zedna eBook download w wersji poniżej 1.2 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Nevma Adaptive Images plugin before 0.6.67 allows remote attackers to retrieve arbitrary files via the $REQUEST['adaptive-images-settings']['source_file'] parameter in adaptive-images-script.php.": "Wtyczka WordPress o nazwie Nevma Adaptive Images w wersji poniżej 0.6.67 umożliwia atakującemu odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
+    "PHP remote file inclusion vulnerability in modules/syntax_highlight.php in the Sniplets 1.1.2 and 1.2.2 plugin for WordPress allows remote attackers to execute arbitrary PHP code via a URL in the libpath parameter.": "Wtyczka WordPress o nazwie Sniplets w wersji 1.1.2 i 1.2.2 zawiera podatność Remote File Inclusion, umożliwiającą atakującemu wykonanie dowolnego kodu na serwerze."
+    + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "Cisco Adaptive Security Appliance (ASA) Software and Cisco Firepower Threat Defense (FTD) Software is vulnerable to local file inclusion due to directory traversal attacks that can read sensitive files on a targeted system because of a lack of proper input validation of URLs in HTTP requests processed by an affected device. An attacker could exploit this vulnerability by sending a crafted HTTP request containing directory traversal character sequences to an affected device. A successful exploit could allow the attacker to view arbitrary files within the web services file system on the targeted device. The web services file system is enabled when the affected device is configured with either WebVPN or AnyConnect features. This vulnerability cannot be used to obtain access to ASA or FTD system files or underlying operating system (OS) files.": "Wykryto oprogramowanie Cisco Adaptive Security Appliance (ASA) lub Cisco Firepower Threat Defense (FTD) zawierające podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "CSZ CMS version 1.3.0 suffers from multiple remote blind SQL injection vulnerabilities.": "CSZ CMS w wersji 1.3.0 i potencjalnie wcześniejszych zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
@@ -1387,4 +1484,6 @@ TRANSLATIONS = {
     "Nagios current status page was detected.": "Wykryto stronę diagnostyczną systemu Nagios.",
     "An Adobe Experience Manager login panel was detected.": "Wykryto panel logowania Adobe Experience Manager.",
     "kiali panel was detected.": "wykryto panel kiali.",
+    "[no description] http/exposed-panels/qBittorrent-panel.yaml": "wykryto panel qBittorrent.",
+    "RabbitMQ Management panel was detected.": "Wykryto panel RabbitMQ Management.",
 }

@@ -304,6 +304,23 @@ class Config:
             )
 
         class Nuclei:
+            NUCLEI_TEMPLATE_LISTS: Annotated[
+                str,
+                "Which template lists to use. Available: known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
+                "critical (having severity=critical), high (having severity=high), medium (having severity=medium), "
+                "log_exposures (http/exposures/logs folder in https://github.com/projectdiscovery/nuclei-templates/), "
+                "exposed_panels (http/exposed-panels/ folder).",
+            ] = get_config(
+                "NUCLEI_TEMPLATE_LISTS",
+                default="known_exploited_vulnerabilities,critical,high,log_exposures,exposed_panels",
+                cast=decouple.Csv(str, delimiter=","),
+            )
+
+            NUCLEI_INTERACTSH_SERVER: Annotated[
+                str,
+                "Which interactsh server to use. if None, uses the default.",
+            ] = get_config("NUCLEI_INTERACTSH_SERVER", default=None, cast=str)
+
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,
                 "Whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI "
@@ -314,7 +331,7 @@ class Config:
                 bool,
                 "When retrying due to 'context deadline exceeded', each request will take at least max(2 * SECONDS_PER_REQUEST, "
                 "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY).",
-            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.25, cast=float)
+            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.1, cast=float)
 
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,
@@ -509,6 +526,8 @@ class Config:
                         "http/cves/2023/CVE-2023-35161.yaml",
                         "http/cves/2023/CVE-2023-35162.yaml",
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
+                        # Popular configuration
+                        "network/default-login/ftp-anonymous-login.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -531,6 +550,7 @@ class Config:
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
                         "network/detection/rtsp-detect.yaml",
                         "http/miscellaneous/defaced-website-detect.yaml",
+                        "http/misconfiguration/directory-listing-no-host-header.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mixed-active-content.yaml",
                         "http/misconfiguration/mysql-history.yaml",
@@ -575,6 +595,7 @@ class Config:
                         # these manually.
                         "group:sql-injection",
                         # Sometimes a source of FPs or true positives with misidentified software name
+                        "custom:CVE-2019-18935",
                         "http/cves/2005/CVE-2005-4385.yaml",
                         "http/cves/2007/CVE-2007-0885.yaml",
                         "http/cves/2008/CVE-2008-2398.yaml",
@@ -612,6 +633,7 @@ class Config:
                         "http/cves/2020/CVE-2020-27982.yaml",
                         "http/cves/2020/CVE-2020-35774.yaml",
                         "http/cves/2020/CVE-2020-35848.yaml",
+                        "http/cves/2021/CVE-2021-3654.yaml:",
                         "http/cves/2021/CVE-2021-24288.yaml",
                         "http/cves/2021/CVE-2021-24389.yaml",
                         "http/cves/2021/CVE-2021-24838.yaml",

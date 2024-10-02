@@ -120,8 +120,8 @@ class SqlInjectionDetector(ArtemisBase):
             return True
 
         for message in SQL_ERROR_MESSAGES:
-            if m := re.search(message, response.content):
-                self.log.debug("Matched error: %s on %s", m.groups(0), url)
+            if re.search(message, response.content):
+                self.log.debug("Matched error: %s on %s", message, url)
                 return True
         return False
 
@@ -140,7 +140,7 @@ class SqlInjectionDetector(ArtemisBase):
         return ", ".join(set(status_reason))
 
     @staticmethod
-    def create_data(message: Any) -> Dict[str, List[str] | dict[str, str]]:
+    def create_data(message: Any) -> Dict[str, List[str] | dict[str, Any]]:
         message = list(more_itertools.unique_everseen(message))
         data = {
             "result": message,
@@ -163,7 +163,7 @@ class SqlInjectionDetector(ArtemisBase):
         sql_injection_error_payloads = ["'", '"']
         # Should be correct in all sql contexts: inside and outside strings, even after e.g. PHP addslashes()
         not_error_payload = "-1"
-        message = []
+        message: List[Dict[str, Any]] = []
 
         # The code below may look complicated and repetitive, but it shows how the scanning logic works.
         for current_url in urls:
@@ -282,6 +282,7 @@ class SqlInjectionDetector(ArtemisBase):
                             "url": current_url,
                             "statement": "It appears that this URL is vulnerable to SQL injection through HTTP Headers",
                             "code": Statements.headers_sql_injection.value,
+                            "headers": headers,
                         }
                     )
                     if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
@@ -308,6 +309,7 @@ class SqlInjectionDetector(ArtemisBase):
                             "url": current_url,
                             "statement": "It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers",
                             "code": Statements.headers_time_based_sql_injection.value,
+                            "headers": headers,
                         }
                     )
                     if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:

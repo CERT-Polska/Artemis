@@ -77,3 +77,17 @@ descriptions of found vulnerabilities, so thay you can notify the administrators
 the vulnerabilities fixed.
 
 To do that, please refer to :ref:`generating-reports`.
+
+Stopping Artemis
+----------------
+To turn off Artemis (without removing the scan results and pending tasks), use:
+
+.. code-block:: console
+
+   ./scripts/run_docker_compose down
+
+To remove all data, use:
+
+.. code-block:: console
+
+   ./scripts/run_docker_compose down --volumes

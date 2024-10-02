@@ -1,9 +1,13 @@
 import os
-import socket
 import tempfile
 from pathlib import Path
+<<<<<<< HEAD
 from typing import Any, List, Set
 from unittest.mock import MagicMock, patch
+=======
+from typing import List
+from unittest.mock import MagicMock
+>>>>>>> tmp23
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from karton.core import Task
@@ -37,28 +41,12 @@ class KartonBackendMockWithRedis(BackendMock):
 
 class ArtemisModuleTestCase(KartonTestCase):
     def setUp(self) -> None:
-        # Unfortunately, in the context of a test that is about to run and a respective module has already been
-        # imported, to mock lookup we need to mock it in modules it has been imported to,
-        # so we need to enumerate the locations it's used in in the list below.
-        def mock_lookup(host: str, *args: Any) -> Set[str]:
-            try:
-                return {socket.gethostbyname(host)}
-            except socket.gaierror:
-                return set()  # Return an empty set if resolution fails
-
-        for item in ["artemis.module_base.lookup", "artemis.modules.port_scanner.lookup"]:
-            self._lookup_mock = patch(item, MagicMock(side_effect=mock_lookup))
-            self._lookup_mock.__enter__()
-
         self.mock_db = MagicMock()
         self.mock_db.get_analysis_by_id.return_value = {}
         self.mock_db.contains_scheduled_task.return_value = False
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=self.mock_db
         )
-
-    def tearDown(self) -> None:
-        self._lookup_mock.__exit__([])  # type: ignore
 
 
 class BaseReportingTest(ArtemisModuleTestCase):

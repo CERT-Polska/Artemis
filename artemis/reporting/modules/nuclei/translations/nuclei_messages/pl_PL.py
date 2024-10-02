@@ -997,6 +997,13 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "GeoServer is an open source software server written in Java that allows users to share and edit geospatial data. GeoServer includes support for the OGC Filter expression language and the OGC Common Query Language (CQL) as part of the Web Feature Service (WFS) and Web Map Service (WMS) protocols. CQL is also supported through the Web Coverage Service (WCS) protocol for ImageMosaic coverages. Users are advised to upgrade to either version 2.21.4, or version 2.22.2 to resolve this issue. Users unable to upgrade should disable the PostGIS Datastore *encode functions* setting to mitigate ``strEndsWith``, ``strStartsWith`` and ``PropertyIsLike `` misuse and enable the PostGIS DataStore *preparedStatements* setting to mitigate the ``FeatureId`` misuse.": "GeoServer w wersji poniżej 2.21.4 umożliwia atakującemu wykonywanie dowolnych komend SQL."
+    + UPDATE_HINT,
+    "Moodle 3.10 to 3.10.3, 3.9 to 3.9.6, 3.8 to 3.8.8, and earlier unsupported versions contain a cross-site scripting vulnerability via the redirect_uri parameter.": "System Moodle w wersji od 3.10 do 3.10.3, 3.9 do 3.9.6, 3.8 do 3.8.8 i wcześniejszych niewspieranych wersjach zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "HG configuration was detected.": "Wykryto konfigurację systemu Mercurial.",
+    "WordPress Plugin WP Statistics 13.0.7  contains an unauthenticated Time based SQL injection vulnerability. The plugin does not sanitize and escape the id parameter before using it in a SQL statement, leading to an unauthenticated blind SQL injection. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie WP Statistics w wersji 13.0.7 i potencjalnie wcześniejszych zawiera podatność Time-based SQL injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych.",
     "HTML Injection in GitHub repository froxlor/froxlor prior to 0.10.38.2.": "Repozytorium froxlor/froxlor w wersji poniźej 0.10.38.2 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1478,4 +1485,5 @@ TRANSLATIONS = {
     "An Adobe Experience Manager login panel was detected.": "Wykryto panel logowania Adobe Experience Manager.",
     "kiali panel was detected.": "wykryto panel kiali.",
     "[no description] http/exposed-panels/qBittorrent-panel.yaml": "wykryto panel qBittorrent.",
+    "RabbitMQ Management panel was detected.": "Wykryto panel RabbitMQ Management.",
 }

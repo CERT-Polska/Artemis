@@ -241,7 +241,7 @@ class Classifier(ArtemisBase):
                 },
             )
 
-            self.add_task(current_task, new_task)
+            self.add_task_if_domain_exists(current_task, new_task)
 
 
 if __name__ == "__main__":

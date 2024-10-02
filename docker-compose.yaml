@@ -94,7 +94,6 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-
   karton-dashboard:
     depends_on: [karton-system, karton-logger]
     env_file: .env
@@ -157,7 +156,6 @@ services:
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
 
   karton-http_service_to_url:
     <<: *artemis-build-or-image

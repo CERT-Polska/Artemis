@@ -1,38 +1,13 @@
+from typing import List
+
 import requests
 from bs4 import BeautifulSoup
 
 from artemis import http_requests
 
 
-class PlaceholderPageAnalyzer:
-    def __init__(self, url, keyword_provider):
-        self.url = url
-        self.keyword_provider = keyword_provider
-
-    def analyze(self):
-        if self.url.startswith(("https://", "http://")):
-            response = http_requests.get(self.url)
-        else:
-            self.url = "http://" + self.url
-            try:
-                response = http_requests.get(self.url)
-            except requests.exceptions.HTTPError:
-                self.url = "https://" + self.url
-                try:
-                    response = http_requests.get(self.url)
-                except requests.RequestException as e:
-                    return False
-        soup = BeautifulSoup(response.text, 'html.parser')
-        page_text = soup.get_text().lower()
-        found_keywords = [keyword for keyword in self.keyword_provider.get_keywords() if keyword in page_text]
-
-        if len(found_keywords) >= 1:
-            return False
-        return True
-
-
 class KeywordProvider:
-    def get_keywords(self):
+    def get_keywords(self) -> List[str]:
         return [
             "trwa konserwacja",
             "dostawcą domeny jest",
@@ -66,16 +41,43 @@ class KeywordProvider:
             "pod tym adresem nie ma jeszcze żadnej strony",
             "jak kupić tę domenę",
             "zapytanie odrzucone przez serwer",
-            "jest utrzymywana na serwerach"
+            "jest utrzymywana na serwerach",
         ]
 
 
+class PlaceholderPageAnalyzer:
+    def __init__(self, url: str, keyword_provider: KeywordProvider) -> None:
+        self.url = url
+        self.keyword_provider = keyword_provider
+
+    def analyze(self) -> bool:
+        if self.url.startswith(("https://", "http://")):
+            response = http_requests.get(self.url)
+        else:
+            self.url = "http://" + self.url
+            try:
+                response = http_requests.get(self.url)
+            except requests.exceptions.HTTPError:
+                self.url = "https://" + self.url
+                try:
+                    response = http_requests.get(self.url)
+                except requests.RequestException:
+                    return False
+        soup = BeautifulSoup(response.text, "html.parser")
+        page_text = soup.get_text().lower()
+        found_keywords = [keyword for keyword in self.keyword_provider.get_keywords() if keyword in page_text]
+
+        if len(found_keywords) >= 1:
+            return False
+        return True
+
+
 class AnalyzerManager:
-    def __init__(self, url):
+    def __init__(self, url: str) -> None:
         self.url = url
         self.keyword_provider = KeywordProvider()
 
-    def run_analysis(self):
+    def run_analysis(self) -> bool:
         analyzer = PlaceholderPageAnalyzer(self.url, self.keyword_provider)
         result = analyzer.analyze()
         return result

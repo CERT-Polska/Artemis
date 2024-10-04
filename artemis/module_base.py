@@ -19,8 +19,8 @@ from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
-from artemis.redis_cache import RedisCache
 from artemis.placeholder_page_analyzer import AnalyzerManager
+from artemis.redis_cache import RedisCache
 from artemis.resolvers import NoAnswer, ResolutionException, lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver

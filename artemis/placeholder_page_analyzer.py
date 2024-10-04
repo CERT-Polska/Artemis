@@ -69,6 +69,7 @@ class PlaceholderPageAnalyzer:
 
         if len(found_keywords) >= 1:
             return False
+
         return True
 
 

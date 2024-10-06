@@ -997,6 +997,8 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "PlaceOS Authentication Service before 1.29.10.0 allows app/controllers/auth/sessions_controller.rb open redirect.": "PlaceOS Authentication Service w wersji poniżej 1.29.10.0 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + UPDATE_HINT,
     "GeoServer is an open source software server written in Java that allows users to share and edit geospatial data. GeoServer includes support for the OGC Filter expression language and the OGC Common Query Language (CQL) as part of the Web Feature Service (WFS) and Web Map Service (WMS) protocols. CQL is also supported through the Web Coverage Service (WCS) protocol for ImageMosaic coverages. Users are advised to upgrade to either version 2.21.4, or version 2.22.2 to resolve this issue. Users unable to upgrade should disable the PostGIS Datastore *encode functions* setting to mitigate ``strEndsWith``, ``strStartsWith`` and ``PropertyIsLike `` misuse and enable the PostGIS DataStore *preparedStatements* setting to mitigate the ``FeatureId`` misuse.": "GeoServer w wersji poniżej 2.21.4 umożliwia atakującemu wykonywanie dowolnych kwerend."
     + UPDATE_HINT,
     "Moodle 3.10 to 3.10.3, 3.9 to 3.9.6, 3.8 to 3.8.8, and earlier unsupported versions contain a cross-site scripting vulnerability via the redirect_uri parameter.": "System Moodle w wersji od 3.10 do 3.10.3, 3.9 do 3.9.6, 3.8 do 3.8.8 i wcześniejszych niewspieranych wersjach zawiera podatność "
@@ -1486,4 +1488,5 @@ TRANSLATIONS = {
     "kiali panel was detected.": "wykryto panel kiali.",
     "[no description] http/exposed-panels/qBittorrent-panel.yaml": "wykryto panel qBittorrent.",
     "RabbitMQ Management panel was detected.": "Wykryto panel RabbitMQ Management.",
+    "Nexus login panel was detected.": "Wykryto panel logowania systemu Nexus.",
 }

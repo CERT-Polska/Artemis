@@ -468,6 +468,7 @@ class Config:
                         "http/cves/2023/CVE-2023-24044.yaml",
                         # Open Redirect in Referer, X-Forwarded-Host or another header making it hard to exploit
                         "http/vulnerabilities/wordpress/music-store-open-redirect.yaml",
+                        "http/cves/2020/CVE-2020-15129.yaml",
                         "http/cves/2021/CVE-2021-44528.yaml",
                         # Minor information leaks
                         "http/cves/2017/CVE-2017-5487.yaml",

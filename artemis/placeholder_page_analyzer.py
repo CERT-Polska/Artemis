@@ -15,13 +15,13 @@ class PlaceholderPageAnalyzer:
         if self.url.startswith(("https://", "http://")):
             try:
                 response = http_requests.get(self.url)
-            except requests.exceptions.HTTPError:
+            except requests.RequestException:
                 return False
         else:
             self.url = "http://" + self.url
             try:
                 response = http_requests.get(self.url)
-            except requests.exceptions.HTTPError:
+            except requests.RequestException:
                 self.url = "https://" + self.url
                 try:
                     response = http_requests.get(self.url)

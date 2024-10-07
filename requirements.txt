@@ -8,7 +8,7 @@ certifi==2024.8.30
 chardet==5.2.0
 click==8.1.7
 cryptography==43.0.1
-dnspython==2.6.1
+dnspython==2.7.0
 fastapi==0.115.0
 fastapi-csrf-protect==0.3.4
 freezegun==1.5.1

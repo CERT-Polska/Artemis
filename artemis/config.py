@@ -702,9 +702,23 @@ class Config:
             PLACEHOLDER_PAGE_HTML_ELEMENTS: Annotated[
                 List[str],
                 "A list of html elements that appear on placeholder pages",
-            ] = get_config("PLACEHOLDER_PAGE_HTML_ELEMENTS", default=[
-                '<meta name="description" content="Strona utrzymywana na serwerach home.pl" />'
-            ], cast=list)
+            ] = get_config(
+                "PLACEHOLDER_PAGE_HTML_ELEMENTS",
+                default=[
+                    '<meta name="description" content="Strona utrzymywana na serwerach home.pl" />',
+                    "<title>Domena newkf.nazwa.pl jest utrzymywana na serwerach nazwa.pl</title>",
+                    """<p style="font-size: 11px; text-align: center;" id="text_5">Strona utrzymywana na serwerach</p>
+         <a href="https://cyberfolks.pl">""",
+                    "<title>Tanie domeny, Tani hosting, Helpdesk, Pomoc zdalna - NetStrefa.pl</title>",
+                    '<title qtlid="74178">Strona w budowie</title>',
+                    '<title qtlid="74178">Site en construction</title>',
+                    '<meta name="description" content="Numer 1 w polskim hostingu. Domeny, serwery, konta e-mail. Jakość potwierdzona certyfikatem ISO 9001:2000" />',
+                    "<title>LOGONET Sp. z o.o. [C]</title>",
+                    "<HTML><HEAD><TITLE>HostedWindows.pl</TITLE>",
+                    '<BR>Witaj w serwisie <A class=link href="http://hostedwindows.pl/"><B>',
+                ],
+                cast=list,
+            )
 
         class PortScanner:
             PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (

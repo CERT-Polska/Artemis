@@ -18,13 +18,13 @@ class PlaceholderPageAnalyzer:
             except requests.RequestException:
                 return False
         else:
-            self.url = "http://" + self.url
+            url = "http://" + self.url
             try:
-                response = http_requests.get(self.url)
+                response = http_requests.get(url)
             except requests.RequestException:
-                self.url = "https://" + self.url
+                url = "https://" + self.url
                 try:
-                    response = http_requests.get(self.url)
+                    response = http_requests.get(url)
                 except requests.RequestException:
                     return False
         return response

@@ -698,6 +698,14 @@ class Config:
                 "NUCLEI_TEMPLATE_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
             ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
 
+        class PlaceholderPagesHtmlElements:
+            PLACEHOLDER_PAGE_HTML_ELEMENTS: Annotated[
+                List[str],
+                "A list of html elements that appear on placeholder pages",
+            ] = get_config("PLACEHOLDER_PAGE_HTML_ELEMENTS", default=[
+                '<meta name="description" content="Strona utrzymywana na serwerach home.pl" />'
+            ], cast=list)
+
         class PortScanner:
             PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (
                 get_config("PORT_SCANNER_PORT_LIST", default="short")

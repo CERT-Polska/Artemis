@@ -4,53 +4,15 @@ import requests
 from bs4 import BeautifulSoup
 
 from artemis import http_requests
-
-
-class KeywordProvider:
-    def get_keywords(self) -> List[str]:
-        return [
-            "trwa konserwacja",
-            "dostawcą domeny jest",
-            "domena utrzymywana",
-            "domen dostępnych w",
-            "automatycznie wygenerowane przez",
-            "w trakcie wykonywania operacji wystąpił błąd",
-            "wróć do bezpieczeństwa",
-            "utrzymywana jest na serwerach",
-            "parametry wspólne serwerów",
-            "forbidden",
-            "checking your browser",
-            "strona w przygotowaniu",
-            "strona w budowie",
-            "strona jest w trakcie aktualizacji",
-            "strona w budowie",
-            "strona jest w trakcie aktualizacji",
-            "strona tymczasowo niedostępna",
-            "strona nie jest dostępna",
-            "błąd 404",
-            "błąd serwera",
-            "przepraszamy za utrudnienia",
-            "strona nie jest dostępna w tej chwili",
-            "trwa konserwacja strony",
-            "serwis jest chwilowo niedostępny",
-            "już wkrótce wracamy",
-            "strona będzie dostępna za chwilę",
-            "zapraszamy do odwiedzenia nas później!",
-            "strona będzie dostępna od",
-            "planujemy powrót na",
-            "pod tym adresem nie ma jeszcze żadnej strony",
-            "jak kupić tę domenę",
-            "zapytanie odrzucone przez serwer",
-            "jest utrzymywana na serwerach",
-        ]
+from artemis.config import Config
 
 
 class PlaceholderPageAnalyzer:
-    def __init__(self, url: str, keyword_provider: KeywordProvider) -> None:
+    def __init__(self, url: str, keyword_provider: List[str]) -> None:
         self.url = url
         self.keyword_provider = keyword_provider
 
-    def analyze(self) -> bool:
+    def check_response(self):
         if self.url.startswith(("https://", "http://")):
             response = http_requests.get(self.url)
         else:
@@ -63,20 +25,30 @@ class PlaceholderPageAnalyzer:
                     response = http_requests.get(self.url)
                 except requests.RequestException:
                     return False
-        soup = BeautifulSoup(response.text, "html.parser")
-        page_text = soup.get_text().lower()
-        found_keywords = [keyword for keyword in self.keyword_provider.get_keywords() if keyword in page_text]
+        return response
 
-        if len(found_keywords) >= 1:
-            return False
+    def analyze(self) -> bool:
+        response = self.check_response()
+        if response:
+            soup = BeautifulSoup(response.text, "html.parser")
+            meta_description = soup.find('meta', attrs={'name': 'description'}).get('content')
 
-        return True
+            if meta_description:
+                expected_meta = 'Strona utrzymywana na serwerach home.pl'
+                actual_meta = str(meta_description)
+
+                if actual_meta.strip() == expected_meta:
+                    return False
+                else:
+                    return True
+            return True
+        return False
 
 
 class AnalyzerManager:
     def __init__(self, url: str) -> None:
         self.url = url
-        self.keyword_provider = KeywordProvider()
+        self.keyword_provider = Config.Modules.PlaceholderPagesHtmlElements.PLACEHOLDER_PAGE_HTML_ELEMENTS
 
     def run_analysis(self) -> bool:
         analyzer = PlaceholderPageAnalyzer(self.url, self.keyword_provider)

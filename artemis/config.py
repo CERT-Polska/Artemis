@@ -716,6 +716,7 @@ class Config:
                     "<title>LOGONET Sp. z o.o. [C]</title>",
                     "<HTML><HEAD><TITLE>HostedWindows.pl</TITLE>",
                     '<BR>Witaj w serwisie <A class=link href="http://hostedwindows.pl/"><B>',
+                    '<title>Cyber_Folks Lepsza szybkość stron i wsparcie bez porównania</title>',
                 ],
                 cast=list,
             )

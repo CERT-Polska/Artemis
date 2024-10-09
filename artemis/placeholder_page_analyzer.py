@@ -27,17 +27,16 @@ class PlaceholderPageAnalyzer:
                     response = http_requests.get(url)
                 except requests.RequestException:
                     return False
+        response.encoding = "utf-8"
         return response
 
     def analyze(self) -> bool:
         response = self.check_response()
-        if not response:
-            return False
-
-        html_content = response.text
-        for keyword in self.keyword_provider:
-            if keyword in html_content:
-                return False
+        if response:
+            html_content = response.content
+            for keyword in self.keyword_provider:
+                if keyword in html_content:
+                    return False
         return True
 
 

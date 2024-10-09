@@ -123,7 +123,7 @@ class SqlInjectionDetector(ArtemisBase):
             if re.search(message, response.content):
                 self.log.debug("Matched error: %s on %s", message, url)
                 return message
-        return False
+        return None
 
     @staticmethod
     def create_headers(payload: str) -> dict[str, str]:
@@ -179,9 +179,10 @@ class SqlInjectionDetector(ArtemisBase):
 
                         error = self.contains_error(url_with_payload, http_requests.get(url_with_payload))
 
-                        if not self.contains_error(
-                            url_without_payload, http_requests.get(url_without_payload)
-                        ) and error:
+                        if (
+                            not self.contains_error(url_without_payload, http_requests.get(url_without_payload))
+                            and error
+                        ):
                             message.append(
                                 {
                                     "url": url_with_payload,
@@ -235,9 +236,7 @@ class SqlInjectionDetector(ArtemisBase):
 
                     error = self.contains_error(url_with_payload, http_requests.get(url_with_payload))
 
-                    if not self.contains_error(
-                        url_with_no_payload, http_requests.get(url_with_no_payload)
-                    ) and error:
+                    if not self.contains_error(url_with_no_payload, http_requests.get(url_with_no_payload)) and error:
                         message.append(
                             {
                                 "url": url_with_payload,
@@ -287,9 +286,10 @@ class SqlInjectionDetector(ArtemisBase):
 
                 error = self.contains_error(current_url, http_requests.get(current_url, headers=headers))
 
-                if not self.contains_error(
-                    current_url, http_requests.get(current_url, headers=headers_no_payload)
-                ) and error:
+                if (
+                    not self.contains_error(current_url, http_requests.get(current_url, headers=headers_no_payload))
+                    and error
+                ):
                     message.append(
                         {
                             "url": current_url,

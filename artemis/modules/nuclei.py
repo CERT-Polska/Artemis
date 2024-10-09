@@ -22,7 +22,7 @@ from artemis.utils import check_output_log_on_error
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
-
+TAGS_TO_INCLUDE = ['fuzz', 'fuzzing', 'dast']
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class Nuclei(ArtemisBase):
@@ -51,25 +51,27 @@ class Nuclei(ArtemisBase):
         with self.lock:
             subprocess.call(["nuclei", "-update-templates"])
 
+            templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
+
             template_list_sources: Dict[str, Callable[[], List[str]]] = {
                 "known_exploited_vulnerabilities": lambda: check_output_log_on_error(
                     ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
                 )
                 .decode("ascii")
                 .split(),
-                "critical": lambda: check_output_log_on_error(["nuclei", "-s", "critical", "-tl"], self.log)
+                "critical": lambda: check_output_log_on_error(["nuclei", "-s", "critical"] + templates_list_command, self.log)
                 .decode("ascii")
                 .split(),
-                "high": lambda: check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log)
+                "high": lambda: check_output_log_on_error(["nuclei", "-s", "high"] + templates_list_command, self.log)
                 .decode("ascii")
                 .split(),
-                "medium": lambda: check_output_log_on_error(["nuclei", "-s", "medium", "-tl"], self.log)
+                "medium": lambda: check_output_log_on_error(["nuclei", "-s", "medium"] + templates_list_command, self.log)
                 .decode("ascii")
                 .split(),
                 # These are not high severity, but may lead to significant information leaks and are easy to fix
                 "log_exposures": lambda: [
                     item
-                    for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
+                    for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log).decode("ascii").split()
                     if item.startswith("http/exposures/logs")
                     # we already have a git detection module that filters FPs such as
                     # exposed source code of a repo that is already public
@@ -77,7 +79,7 @@ class Nuclei(ArtemisBase):
                 ],
                 "exposed_panels": lambda: [
                     item
-                    for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
+                    for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log).decode("ascii").split()
                     if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
                 ],
             }
@@ -152,7 +154,7 @@ class Nuclei(ArtemisBase):
                     "-etags",
                     "intrusive",
                     "-itags",
-                    "fuzz,dast",
+                    ",".join(TAGS_TO_INCLUDE),
                     "-v",
                     "-concurrency",
                     "1",

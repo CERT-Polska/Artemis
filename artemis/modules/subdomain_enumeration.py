@@ -130,7 +130,7 @@ class SubdomainEnumeration(ArtemisBase):
         domain = current_task.get_payload("domain")
         encoded_domain = domain.encode("idna").decode("utf-8")
 
-        if self.redis.get(f"subdomain-enumeration-done-{encoded_domain}"):
+        if self.redis.get(f"subdomain-enumeration-done-{encoded_domain}-{current_task.root_uid}"):
             self.log.info(
                 "SubdomainEnumeration has already been performed for %s. Skipping further enumeration.", domain
             )
@@ -170,7 +170,7 @@ class SubdomainEnumeration(ArtemisBase):
                 for subdomain in valid_subdomains_from_tool:
                     encoded_subdomain = subdomain.encode("idna").decode("utf-8")
                     pipe.setex(
-                        f"subdomain-enumeration-done-{encoded_subdomain}",
+                        f"subdomain-enumeration-done-{encoded_subdomain}-{current_task.root_uid}",
                         Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
                         1,
                     )

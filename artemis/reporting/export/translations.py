@@ -15,15 +15,26 @@ class TranslationRaiseException(gettext.GNUTranslations):
     """This class is used instead of GNUTranslations and raises exception when a message is not found,
     so that we don't allow untranslated strings into the messages."""
 
-    messages_allowed_to_be_the_same_after_translation = ["time-based SQL injection"]
+    class _TranslationAlwaysRaiseException(gettext.GNUTranslations):
+        def gettext(self, message: str) -> str:
+            raise TranslationNotFoundException(f"Unable to translate '{message}'")
+
+        def ngettext(self, *args: Any) -> Any:
+            raise NotImplementedError()
+
+        def pgettext(self, *args: Any) -> Any:
+            raise NotImplementedError()
+
+        def npgettext(self, *args: Any) -> Any:
+            raise NotImplementedError()
+
+    def __init__(self, fp=None):  # type: ignore
+        super().__init__(fp)
+
+        self.add_fallback(self._TranslationAlwaysRaiseException())
 
     def gettext(self, message: str) -> str:
         message_translated = super().gettext(message)
-        if (
-            message == message_translated
-            and message not in TranslationRaiseException.messages_allowed_to_be_the_same_after_translation
-        ):
-            raise TranslationNotFoundException(f"Unable to translate '{message}'")
         return message_translated
 
     def ngettext(self, *args: Any) -> Any:

@@ -535,6 +535,28 @@ class Config:
                 cast=decouple.Csv(str),
             )
 
+            NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE: Annotated[
+                str,
+                "File with a list of Nuclei templates (one per line) to be skipped with NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY "
+                "probability. Use this if you have some templates that never yield results - you don't want to skip them altogether (because "
+                "they may start giving results) but maybe don't run them on all hosts.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE",
+                default="",
+                cast=str,
+            )
+
+            NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY: Annotated[
+                float,
+                "Probability (0...100) of each template from NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY to be skipped. "
+                "Use this if you have some templates that never yield results - you don't want to skip them altogether (because "
+                "they may start giving results) but maybe don't run them on all hosts.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY",
+                default=0,
+                cast=float,
+            )
+
             NUCLEI_ADDITIONAL_TEMPLATES: Annotated[
                 List[str],
                 "A comma-separated list of Nuclei templates to be used besides the standard list. "

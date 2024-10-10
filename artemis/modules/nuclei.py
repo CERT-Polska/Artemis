@@ -110,6 +110,11 @@ class Nuclei(ArtemisBase):
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
+        self._nuclei_templates_to_skip_probabilistically_set = set()
+        if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
+            for line in open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE):
+                self._nuclei_templates_to_skip_probabilistically_set.add(line.strip())
+
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
         random.shuffle(links)
@@ -124,6 +129,33 @@ class Nuclei(ArtemisBase):
     def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
         if not targets:
             return []
+
+        templates_filtered = []
+
+        num_templates_skipped = 0
+        for template in templates:
+            if template not in self._nuclei_templates_to_skip_probabilistically_set:
+                templates_filtered.append(template)
+            elif (
+                template in self._nuclei_templates_to_skip_probabilistically_set
+                and random.uniform(0, 100)
+                >= Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY
+            ):
+                templates_filtered.append(template)
+            else:
+                num_templates_skipped += 1
+
+        self.log.info(
+            "Requested to skip %d templates with probability %f, actually skipped %d",
+            len(self._nuclei_templates_to_skip_probabilistically_set),
+            Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY,
+            num_templates_skipped,
+        )
+        self.log.info(
+            "After probabilistic skipping, executing %d templates out of %d",
+            len(templates_filtered),
+            len(templates),
+        )
 
         if Config.Limits.REQUESTS_PER_SECOND:
             milliseconds_per_request_initial = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))
@@ -149,7 +181,9 @@ class Nuclei(ArtemisBase):
             additional_configuration = []
 
         lines = []
-        for template_chunk in more_itertools.chunked(templates, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE):
+        for template_chunk in more_itertools.chunked(
+            templates_filtered, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE
+        ):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
                     "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",

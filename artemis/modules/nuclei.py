@@ -55,11 +55,11 @@ class Nuclei(ArtemisBase):
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
 
             template_list_sources: Dict[str, Callable[[], List[str]]] = {
-                "known_exploited_vulnerabilities": lambda: check_output_log_on_error(
+                "known_exploited_vulnerabilities": lambda: [x for x in in check_output_log_on_error(
                     ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
                 )
                 .decode("ascii")
-                .split(),
+                .split() if x.endswith('.yaml') or x.endswith('.yml')],
                 "critical": lambda: check_output_log_on_error(
                     ["nuclei", "-s", "critical"] + templates_list_command, self.log
                 )

@@ -55,8 +55,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
-    "change-admin-email-setting-without-outbound-email",
-    "clearfy",
     "coming-soon",
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
@@ -72,6 +70,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
     "woo-tools",
+    "wp-ecommerce-paypal",
     "wp-maximum-execution-time-exceeded",
 ]
 

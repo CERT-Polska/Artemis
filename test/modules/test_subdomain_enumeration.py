@@ -38,4 +38,4 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
 
     def test_get_subdomains_from_gau(self) -> None:
         result = self.karton.get_subdomains_from_gau("cert.pl")
-        self.assertTrue("nomoreransom.cert.pl" in result)
+        self.assertTrue("vortex.cert.pl" in result)

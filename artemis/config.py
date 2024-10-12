@@ -530,6 +530,8 @@ class Config:
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
                         # Popular configuration
                         "network/default-login/ftp-anonymous-login.yaml",
+                        # Will be enabled back after fixing a bug
+                        "http/fuzzing/xff-403-bypass.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

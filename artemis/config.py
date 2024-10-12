@@ -530,7 +530,7 @@ class Config:
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
                         # Popular configuration
                         "network/default-login/ftp-anonymous-login.yaml",
-                        # Will be enabled back after fixing a bug
+                        # Will be enabled back after fixing a bug: https://github.com/projectdiscovery/nuclei-templates/pull/10998
                         "http/fuzzing/xff-403-bypass.yaml",
                     ]
                 ),

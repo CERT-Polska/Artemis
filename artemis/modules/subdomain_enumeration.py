@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from karton.core import Consumer, Task
 from karton.core.config import Config as KartonConfig
+from publicsuffixlist import PublicSuffixList
 
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
@@ -13,6 +14,8 @@ from artemis.db import DB
 from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
+
+PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
 class UnableToObtainSubdomainsException(Exception):
@@ -127,7 +130,21 @@ class SubdomainEnumeration(ArtemisBase):
         )
 
     def run(self, current_task: Task) -> None:
-        domain = current_task.get_payload("domain")
+        domain = current_task.get_payload("domain").lower()
+
+        if (
+            PUBLIC_SUFFIX_LIST.publicsuffix(domain) == domain
+            or domain in Config.PublicSuffixes.ADDITIONAL_PUBLIC_SUFFIXES
+        ):
+            if not Config.PublicSuffixes.ALLOW_SUBDOMAIN_ENUMERATION_IN_PUBLIC_SUFFIXES:
+                message = (
+                    f"{domain} is a public suffix - adding subdomains to the list of "
+                    "scanned targets may result in scanning too much. Quitting."
+                )
+                self.log.warning(message)
+                self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, status_reason=message)
+                return
+
         encoded_domain = domain.encode("idna").decode("utf-8")
 
         if self.redis.get(f"subdomain-enumeration-done-{encoded_domain}-{current_task.root_uid}"):

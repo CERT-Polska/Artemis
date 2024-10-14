@@ -146,11 +146,11 @@ class Config:
         ] = get_config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
 
     class PublicSuffixes:
-        ALLOW_SCANNING_PUBLIC_SUFFIXES: Annotated[
+        ALLOW_SUBDOMAIN_ENUMERATION_IN_PUBLIC_SUFFIXES: Annotated[
             bool,
-            "Whether we will scan a public suffix (e.g. .pl) if it appears on the target list. This may cause very large "
+            "Whether we will enumerate subdomains for a public suffix (e.g. .pl) if it appears on the target list. This may cause very large "
             "number of domains to be scanned.",
-        ] = get_config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
+        ] = get_config("ALLOW_SUBDOMAIN_ENUMERATION_IN_PUBLIC_SUFFIXES", default=False, cast=bool)
 
         ADDITIONAL_PUBLIC_SUFFIXES: Annotated[
             List[str],

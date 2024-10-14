@@ -136,7 +136,7 @@ class SubdomainEnumeration(ArtemisBase):
             PUBLIC_SUFFIX_LIST.publicsuffix(domain) == domain
             or domain in Config.PublicSuffixes.ADDITIONAL_PUBLIC_SUFFIXES
         ):
-            if not Config.PublicSuffixes.ALLOW_SCANNING_PUBLIC_SUFFIXES:
+            if not Config.PublicSuffixes.ALLOW_SUBDOMAIN_ENUMERATION_IN_PUBLIC_SUFFIXES:
                 message = (
                     f"{domain} is a public suffix - adding subdomains to the list of "
                     "scanned targets may result in scanning too much. Quitting."

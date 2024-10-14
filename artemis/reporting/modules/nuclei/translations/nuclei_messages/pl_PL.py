@@ -997,6 +997,10 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "Ricoh default admin credentials were discovered.": "Wykryto urządzenie Ricoh do którego można zalogować się na konto administracyjne domyślnymi danymi.",
+    'A website running via IIS on an old .net framework contains a get request vulnerability. Using the the tilde character "~" in the request, an attacker can locate short names of files and folders not normally visible.': "Strony internetowe korzystające z serwera IIS i starej wersji frameworku .NET zawierają podatność umożliwiającą atakującemu poznanie nazw plików które nie są publicznie dostępne."
+    + UPDATE_HINT,
+    "A vulnerability has been found in TVT DVR TD-2104TS-CL, DVR TD-2108TS-HP, Provision-ISR DVR SH-4050A5-5L(MM) and AVISION DVR AV108T and classified as problematic. This vulnerability affects unknown code of the file /queryDevInfo. The manipulation leads to information disclosure.": "Urządzenia TVT DVR TD-2104TS-CL, DVR TD-2108TS-HP, Provision-ISR DVR SH-4050A5-5L(MM) i AVISION DVR AV108T zawierają podatność umożliwiającą nieuprawniony odczyt niektórych danych.",
     "Headers were tested for remote command injection vulnerabilities.": "Wykryto, że w nagłówku HTTP można umieścić komendy umożliwiające atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "PlaceOS Authentication Service before 1.29.10.0 allows app/controllers/auth/sessions_controller.rb open redirect.": "PlaceOS Authentication Service w wersji poniżej 1.29.10.0 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
@@ -1492,4 +1496,6 @@ TRANSLATIONS = {
     "RabbitMQ Management panel was detected.": "Wykryto panel RabbitMQ Management.",
     "Nexus login panel was detected.": "Wykryto panel logowania systemu Nexus.",
     "Apache Superset login panel was detected.": "Wykryto panel logowania Apache Superset.",
+    "A Progress Kemp LoadMaster panel was detected.": "wykryto panel Progress Kemp LoadMaster.",
+    "EdgeOS login panel was detected.": "Wykryto panel logowania EdgeOS.",
 }

@@ -139,7 +139,7 @@ class NucleiReporter(Reporter):
                 ):
                     target = matched_at
 
-                matched_at_parsed = urllib.parse.urlparse(vulnerability["matched-at"])
+                matched_at_parsed = urllib.parse.urlparse(matched_at)
 
                 result.append(
                     Report(

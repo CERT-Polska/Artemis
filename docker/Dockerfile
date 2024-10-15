@@ -1,6 +1,6 @@
 FROM python:3.12-alpine3.20
 
-RUN rm -rf /usr/local/go && tar -C /usr/local -xzf go1.23.2.linux-amd64.tar.gz
+COPY --from=golang:1.23-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
 
 COPY docker/wait-for-it.sh /wait-for-it.sh

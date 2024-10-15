@@ -997,7 +997,8 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "In the module 'Theme Volty CMS Blog' (tvcmsblog) up to versions 4.0.1 from Theme Volty for PrestaShop, a guest can perform SQL injection in affected versions.": "Moduł systemu PrestaShop o nazwie Theme Volty CMS Blog w wersji do 4.0.1 zawiera podatność SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych." + UPDATE_HINT,
+    "In the module 'Theme Volty CMS Blog' (tvcmsblog) up to versions 4.0.1 from Theme Volty for PrestaShop, a guest can perform SQL injection in affected versions.": "Moduł systemu PrestaShop o nazwie Theme Volty CMS Blog w wersji do 4.0.1 zawiera podatność SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + UPDATE_HINT,
     "Ricoh default admin credentials were discovered.": "Wykryto urządzenie Ricoh do którego można zalogować się na konto administracyjne domyślnymi danymi.",
     'A website running via IIS on an old .net framework contains a get request vulnerability. Using the the tilde character "~" in the request, an attacker can locate short names of files and folders not normally visible.': "Strony internetowe korzystające z serwera IIS i starej wersji frameworku .NET zawierają podatność umożliwiającą atakującemu poznanie nazw plików które nie są publicznie dostępne."
     + UPDATE_HINT,

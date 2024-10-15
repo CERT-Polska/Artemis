@@ -5,16 +5,12 @@ import subprocess
 from typing import List, Optional
 
 from karton.core import Task
-from publicsuffixlist import PublicSuffixList
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import Config
 from artemis.domains import is_domain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error, is_ip_address, throttle_request
-
-PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
@@ -137,6 +133,8 @@ class Classifier(ArtemisBase):
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")
 
+        data = data.lower()
+
         if not Classifier.is_supported(data):
             self.db.save_task_result(
                 task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data
@@ -215,22 +213,6 @@ class Classifier(ArtemisBase):
         else:
             data = Classifier._clean_ipv6_brackets(data)
 
-            if task_type == TaskType.DOMAIN:
-                if (
-                    PUBLIC_SUFFIX_LIST.publicsuffix(sanitized) == sanitized
-                    or sanitized in Config.PublicSuffixes.ADDITIONAL_PUBLIC_SUFFIXES
-                ):
-                    if not Config.PublicSuffixes.ALLOW_SCANNING_PUBLIC_SUFFIXES:
-                        message = (
-                            f"{sanitized} is a public suffix - adding it to the list of "
-                            "scanned targets may result in scanning too much. Quitting."
-                        )
-                        self.log.warning(message)
-                        self.db.save_task_result(
-                            task=current_task, status=TaskStatus.ERROR, status_reason=message, data=task_type
-                        )
-                        return
-
             new_task = Task(
                 {"type": task_type},
                 payload={
@@ -241,7 +223,7 @@ class Classifier(ArtemisBase):
                 },
             )
 
-            self.add_task(current_task, new_task)
+            self.add_task_if_domain_exists(current_task, new_task)
 
 
 if __name__ == "__main__":

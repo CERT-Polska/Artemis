@@ -8,6 +8,10 @@ from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 import requests
 from bs4 import BeautifulSoup
 
+from artemis.utils import build_logger
+
+LOGGER = build_logger(__name__)
+
 
 class ExportingTestCase(BaseE2ETestCase):
     def test_exporting_gui(self) -> None:
@@ -198,6 +202,9 @@ class ExportingTestCase(BaseE2ETestCase):
                 "alerts",
             },
         )
+
+        if data[0]["status"] != "done":
+            LOGGER.error("Invalid status for response: %s", repr(data))
 
         self.assertEqual(
             data[0]["status"],

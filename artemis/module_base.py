@@ -20,7 +20,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.redis_cache import RedisCache
-from artemis.resolvers import lookup
+from artemis.resolvers import NoAnswer, ResolutionException, lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import (
@@ -122,6 +122,52 @@ class ArtemisBase(Karton):
             self.send_task(new_task)
         else:
             self.log.info("Task is not a new task, not adding: %s", new_task)
+
+    def add_task_if_domain_exists(self, current_task: Task, new_task: Task) -> None:
+        """
+        Add a new task if the domain in the task payload exists.
+
+        Args:
+            current_task (Task): The current task being processed.
+            new_task (Task): The new task to potentially add.
+        """
+        domain = new_task.payload.get("domain")
+        if not domain:
+            self.log.info("No domain found in new task payload - adding it, as it might be an IP task")
+            self.add_task(current_task, new_task)
+            return
+
+        if self.check_domain_exists(domain):
+            self.add_task(current_task, new_task)
+        else:
+            self.log.info("Skipping invalid domain: %s", domain)
+
+    def check_domain_exists(self, domain: str) -> bool:
+        """
+        Check if a domain exists by looking up its NS and A records.
+
+        Args:
+            domain (str): The domain to check.
+
+        Returns:
+            bool: True if the domain exists, False otherwise.
+        """
+        try:
+            # Check for NS records
+            try:
+                ns_records = lookup(domain, "NS")
+                if ns_records:
+                    return True
+            except NoAnswer:
+                # No NS records, continue to check A records
+                pass
+
+            # Check for A records
+            a_records = lookup(domain, "A")
+            return len(a_records) > 0  # returns true if found
+
+        except ResolutionException:
+            return False
 
     def loop(self) -> None:
         """

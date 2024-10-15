@@ -43,6 +43,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "wp-members",
     "wordpress-popup",
     "backwpup",
+    "social-pug",
     "yith-woocommerce-catalog-mode",
     "wppao-sitemap",
 ]
@@ -54,23 +55,22 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
-    "change-admin-email-setting-without-outbound-email",
     "coming-soon",
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
     "icon-element",
     "link-manager",
-    "mailjet-for-wordpress",
+    "login-logo",
     "mask-form-elementor",
-    "official-facebook-pixel",
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
     "subscribe-to-comments",
-    "unlimited-elements-for-elementor",
     "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
+    "woo-tools",
+    "wp-ecommerce-paypal",
     "wp-maximum-execution-time-exceeded",
 ]
 

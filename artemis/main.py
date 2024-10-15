@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 
-from artemis import csrf, db_migration
+from artemis import csrf
 from artemis.api import router as router_api
 from artemis.config import Config
 from artemis.db import DB
@@ -20,10 +20,6 @@ app.exception_handler(CsrfProtectError)(csrf.csrf_protect_exception_handler)
 app.exception_handler(404)(error_content_not_found)
 
 db = DB()
-
-# We run it here so that it will get executed even when importing from main,
-# which will happen when running the app via `uvicorn artemis.main:app`
-db_migration.migrate_and_start_thread()
 
 app.include_router(router_front, prefix="")
 app.include_router(router_api, prefix="/api")

@@ -146,11 +146,11 @@ class Config:
         ] = get_config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
 
     class PublicSuffixes:
-        ALLOW_SCANNING_PUBLIC_SUFFIXES: Annotated[
+        ALLOW_SUBDOMAIN_ENUMERATION_IN_PUBLIC_SUFFIXES: Annotated[
             bool,
-            "Whether we will scan a public suffix (e.g. .pl) if it appears on the target list. This may cause very large "
+            "Whether we will enumerate subdomains for a public suffix (e.g. .pl) if it appears on the target list. This may cause very large "
             "number of domains to be scanned.",
-        ] = get_config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
+        ] = get_config("ALLOW_SUBDOMAIN_ENUMERATION_IN_PUBLIC_SUFFIXES", default=False, cast=bool)
 
         ADDITIONAL_PUBLIC_SUFFIXES: Annotated[
             List[str],
@@ -304,6 +304,23 @@ class Config:
             )
 
         class Nuclei:
+            NUCLEI_TEMPLATE_LISTS: Annotated[
+                str,
+                "Which template lists to use. Available: known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
+                "critical (having severity=critical), high (having severity=high), medium (having severity=medium), "
+                "log_exposures (http/exposures/logs folder in https://github.com/projectdiscovery/nuclei-templates/), "
+                "exposed_panels (http/exposed-panels/ folder).",
+            ] = get_config(
+                "NUCLEI_TEMPLATE_LISTS",
+                default="known_exploited_vulnerabilities,critical,high,log_exposures,exposed_panels",
+                cast=decouple.Csv(str, delimiter=","),
+            )
+
+            NUCLEI_INTERACTSH_SERVER: Annotated[
+                str,
+                "Which interactsh server to use. if None, uses the default.",
+            ] = get_config("NUCLEI_INTERACTSH_SERVER", default=None, cast=str)
+
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,
                 "Whether to check that the downloaded Nuclei template list is not empty (may fail e.g. on Github CI "
@@ -314,7 +331,7 @@ class Config:
                 bool,
                 "When retrying due to 'context deadline exceeded', each request will take at least max(2 * SECONDS_PER_REQUEST, "
                 "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY).",
-            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.25, cast=float)
+            ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.1, cast=float)
 
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,
@@ -409,6 +426,8 @@ class Config:
                         "http/exposed-panels/pulse-secure-panel.yaml",
                         "http/exposed-panels/pulse-secure-version.yaml",
                         "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
+                        "http/exposed-panels/openvpn-connect.yaml",
+                        "http/exposed-panels/ivanti-connect-secure-panel.yaml",
                         "http/exposed-panels/softether-vpn-panel.yaml",
                         "http/exposed-panels/cas-login.yaml",
                         "http/exposed-panels/casdoor-login.yaml",
@@ -450,6 +469,7 @@ class Config:
                         "http/cves/2023/CVE-2023-24044.yaml",
                         # Open Redirect in Referer, X-Forwarded-Host or another header making it hard to exploit
                         "http/vulnerabilities/wordpress/music-store-open-redirect.yaml",
+                        "http/cves/2020/CVE-2020-15129.yaml",
                         "http/cves/2021/CVE-2021-44528.yaml",
                         # Minor information leaks
                         "http/cves/2017/CVE-2017-5487.yaml",
@@ -508,9 +528,35 @@ class Config:
                         "http/cves/2023/CVE-2023-35161.yaml",
                         "http/cves/2023/CVE-2023-35162.yaml",
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
+                        # Popular configuration
+                        "network/default-login/ftp-anonymous-login.yaml",
+                        # Will be enabled back after fixing a bug: https://github.com/projectdiscovery/nuclei-templates/pull/10998
+                        "http/fuzzing/xff-403-bypass.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
+            )
+
+            NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE: Annotated[
+                str,
+                "File with a list of Nuclei templates (one per line) to be skipped with NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY "
+                "probability. Use this if you have some templates that never yield results - you don't want to skip them altogether (because "
+                "they may start giving results) but maybe don't run them on all hosts.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE",
+                default="",
+                cast=str,
+            )
+
+            NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY: Annotated[
+                float,
+                "Probability (0...100) of each template from NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY to be skipped. "
+                "Use this if you have some templates that never yield results - you don't want to skip them altogether (because "
+                "they may start giving results) but maybe don't run them on all hosts.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY",
+                default=0,
+                cast=float,
             )
 
             NUCLEI_ADDITIONAL_TEMPLATES: Annotated[
@@ -530,6 +576,7 @@ class Config:
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
                         "network/detection/rtsp-detect.yaml",
                         "http/miscellaneous/defaced-website-detect.yaml",
+                        "http/misconfiguration/directory-listing-no-host-header.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mixed-active-content.yaml",
                         "http/misconfiguration/mysql-history.yaml",
@@ -574,16 +621,19 @@ class Config:
                         # these manually.
                         "group:sql-injection",
                         # Sometimes a source of FPs or true positives with misidentified software name
+                        "custom:CVE-2019-18935",
                         "http/cves/2005/CVE-2005-4385.yaml",
                         "http/cves/2007/CVE-2007-0885.yaml",
                         "http/cves/2008/CVE-2008-2398.yaml",
                         "http/cves/2009/CVE-2009-1872.yaml",
                         "http/cves/2010/CVE-2010-2307.yaml",
                         "http/cves/2010/CVE-2010-4231.yaml",
+                        "http/cves/2011/CVE-2011-5106.yaml",
                         "http/cves/2012/CVE-2012-4547.yaml",
                         "http/cves/2012/CVE-2012-4889.yaml",
                         "http/cves/2014/CVE-2014-2908.yaml",
                         "http/cves/2014/CVE-2014-9444.yaml",
+                        "http/cves/2015/CVE-2015-5354.yaml",
                         "http/cves/2015/CVE-2015-8349.yaml",
                         "http/cves/2016/CVE-2016-7981.yaml",
                         "http/cves/2016/CVE-2016-8527.yaml",
@@ -609,7 +659,10 @@ class Config:
                         "http/cves/2020/CVE-2020-27982.yaml",
                         "http/cves/2020/CVE-2020-35774.yaml",
                         "http/cves/2020/CVE-2020-35848.yaml",
+                        "http/cves/2021/CVE-2021-3654.yaml:",
+                        "http/cves/2021/CVE-2021-24288.yaml",
                         "http/cves/2021/CVE-2021-24389.yaml",
+                        "http/cves/2021/CVE-2021-24838.yaml",
                         "http/cves/2021/CVE-2021-26702.yaml",
                         "http/cves/2021/CVE-2021-26710.yaml",
                         "http/cves/2021/CVE-2021-26723.yaml",
@@ -627,12 +680,14 @@ class Config:
                         "http/vulnerabilities/other/bullwark-momentum-lfi.yaml",
                         "http/vulnerabilities/other/discourse-xss.yaml",
                         "http/vulnerabilities/other/global-domains-xss.yaml",
+                        "http/vulnerabilities/other/homeautomation-v3-openredirect.yaml",
                         "http/vulnerabilities/other/java-melody-xss.yaml",
                         "http/vulnerabilities/other/nginx-merge-slashes-path-traversal.yaml",
                         "http/vulnerabilities/other/parentlink-xss.yaml",
                         "http/vulnerabilities/other/processmaker-lfi.yaml",
                         "http/vulnerabilities/other/sick-beard-xss.yaml",
                         "http/vulnerabilities/other/wems-manager-xss.yaml",
+                        "http/vulnerabilities/wordpress/wp-touch-redirect.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

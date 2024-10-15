@@ -55,13 +55,6 @@ class LocalBuildContainersStrategy(YamlProcessor):
         return data
 
 
-class NoRestartContainerStrategy(YamlProcessor):
-    def process(self, data: Any) -> Any:
-        for service in data["services"]:
-            data["services"][service]["restart"] = "no"
-        return data
-
-
 class FileProcessor:
     def __init__(self, input_file: str, output_file: str) -> None:
         self.docker_compose_data = None
@@ -94,4 +87,6 @@ if __name__ == "__main__":
 
     processor.process_file(LocalBuildContainersStrategy())
 
-    processor.process_file(NoRestartContainerStrategy())
+    # We used to change "restart" to "no". We know, though, that some users use Artemis in development
+    # version for actual scanning. Because the containers restart after a given number of scanning tasks,
+    # that would prevent such users from scanning.

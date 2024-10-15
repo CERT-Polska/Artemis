@@ -113,17 +113,9 @@ class DalFox(ArtemisBase):
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
         self.log.info(url)
-        links = get_links_and_resources_on_same_domain(url)
-        links = list(set(links) | set([self._strip_query_string(link) for link in links]))
-        links = [
-            link.split("#")[0]
-            for link in links
-            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-        ]
 
-        random.shuffle(links)
-        links = links[:20]
-        links.append(url)
+        # TODO: until we don't increase the speed, let's keep only the homepage for dalfox check
+        links = [url]
 
         _, path_to_file_with_links = tempfile.mkstemp()
         with open(path_to_file_with_links, "w") as file:

@@ -520,6 +520,7 @@ github.com/h2non/filetype v1.1.3 h1:FKkx9QbD7HR/zjK1Ia5XiBsq9zdLi5Kf3zGyFTAFkGg=
 github.com/h2non/filetype v1.1.3/go.mod h1:319b3zT68BvV+WRj7cwy856M2ehB3HqNOt6sy1HndBY=
 github.com/hahwul/dalfox/v2 v2.9.2 h1:R8v+erhfwSXW9KKx6PQsHfVMSoWMxqKSofTBtIrBtuw=
 github.com/hahwul/dalfox/v2 v2.9.2/go.mod h1:+Lvy66WFrdb0CCWlHfskk3aIdUM3F1/O0Ql0CRDycAw=
+github.com/hahwul/dalfox/v2 v2.9.3 h1:vrKitTOstlxzZu4VaRgjw3pfRyMnsEViXu9dB/ZHt0c=
 github.com/hahwul/dalfox/v2 v2.9.3/go.mod h1:XivInFAHj3qma8abjrVQhTtPtjzTu8I5rxmYrvj5MsM=
 github.com/hahwul/volt v1.0.5 h1:E5NtaLMpXNEPBzIqtU8sp4ndUrAUvKfM2fkfv5oWFT0=
 github.com/hahwul/volt v1.0.5/go.mod h1:DW/WJZKzf7McvXzpC2qQtokoeaohnMwfdhVK1SF8hq0=

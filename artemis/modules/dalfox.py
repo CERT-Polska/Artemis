@@ -89,8 +89,10 @@ class DalFox(ArtemisBase):
                 f"{milliseconds_per_request}",
                 "file",
                 links_file_path,
-                "-X",
+                "--method",
                 "GET",
+                "--worker",
+                "1",
                 "--format",
                 "json",
             ] + additional_configuration

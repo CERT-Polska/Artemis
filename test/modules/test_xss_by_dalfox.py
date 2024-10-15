@@ -26,5 +26,5 @@ class DalFoxTestCase(ArtemisModuleTestCase):
         unique_values_list = []
         for result_single_data in call.kwargs["data"]["result"]:
             unique_values_list.append((result_single_data.get("param"), result_single_data.get("type")))
-            self.assertEqual(result_single_data.get("url").split("?")[0], "http://test_apache-with-xss/")
+            self.assertEqual(result_single_data.get("url").split("?")[0], "http://test_apache-with-xss")
         self.assertEqual(len(unique_values_list), len(set(unique_values_list)))

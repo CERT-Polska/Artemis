@@ -37,6 +37,7 @@ SEVERITY_MAP = {
     ReportType("misconfigured_email"): Severity.MEDIUM,
     ReportType("old_drupal"): Severity.MEDIUM,
     ReportType("old_joomla"): Severity.MEDIUM,
+    ReportType("xss"): Severity.HIGH,
     # This doesn't mean that a version is insecure, as WordPress maintains a separate list
     # of insecure versions. This just means "turn on the automatic updates"
     ReportType("old_wordpress"): Severity.LOW,

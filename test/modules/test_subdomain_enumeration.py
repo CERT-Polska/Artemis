@@ -37,7 +37,6 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
         result = self.karton.get_subdomains_from_subfinder("cert.pl")
         self.assertTrue("ci.drakvuf.cert.pl" in result)
 
-    @unittest.skip("skipping gau as it doesn't work on CI (IP ban?)")
     def test_get_subdomains_from_gau(self) -> None:
         result = self.karton.get_subdomains_from_gau("cert.pl")
         self.assertTrue("vortex.cert.pl" in result)

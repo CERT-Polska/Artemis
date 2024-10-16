@@ -21,6 +21,7 @@ services:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
       BRUTER_FILE_LIST: full
+      RUNNING_TESTS: "true"
 
       # Use only one provider to speed up the tests
       SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback"

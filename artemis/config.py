@@ -724,6 +724,28 @@ class Config:
                 "NUCLEI_TEMPLATE_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
             ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
 
+        class PlaceholderPageContent:
+            PLACEHOLDER_PAGE_DETECTOR_ENABLE: Annotated[
+                bool,
+                "Enable or disable placeholder pages detector."
+                "A strict string matching will be performed without any parsing or modifications. The string will be "
+                "matched exactly as provided, without applying any transformations or processing. If the page exists "
+                "but the specified string is found within it, the page will not be scanned for vulnerabilities. "
+                "If the page is not marked as a placeholder, a full scan will be performed.",
+            ] = get_config(
+                "PLACEHOLDER_PAGE_DETECTOR_ENABLE",
+                default=False,
+                cast=bool,
+            )
+            PLACEHOLDER_PAGE_CONTENT_FILENAME: Annotated[
+                str,
+                "Path to placeholder page content file.",
+            ] = get_config(
+                "PLACEHOLDER_PAGE_HTML_ELEMENTS",
+                default="/opt/artemis/modules/data/placeholder_page_content.txt",
+                cast=str,
+            )
+
         class PortScanner:
             PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (
                 get_config("PORT_SCANNER_PORT_LIST", default="short")

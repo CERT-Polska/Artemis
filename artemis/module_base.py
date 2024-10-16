@@ -19,6 +19,7 @@ from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
+from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
 from artemis.resolvers import NoAnswer, ResolutionException, lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
@@ -153,6 +154,12 @@ class ArtemisBase(Karton):
             bool: True if the domain exists, False otherwise.
         """
         try:
+            if Config.Modules.PlaceholderPageContent.PLACEHOLDER_PAGE_DETECTOR_ENABLE:
+                manager = PlaceholderPageDetector(domain)
+                result = manager.run_analysis()
+                if not result:
+                    return False
+
             # Check for NS records
             try:
                 ns_records = lookup(domain, "NS")

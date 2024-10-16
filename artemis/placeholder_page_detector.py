@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 import requests
 
@@ -7,9 +7,8 @@ from artemis.config import Config
 
 
 class PlaceholderPageAnalyzer:
-    def __init__(self, url: str, keyword_provider: List[str]) -> None:
+    def __init__(self, url: str) -> None:
         self.url = url
-        self.keyword_provider = keyword_provider
 
     def check_response(self) -> Any:
         if self.url.startswith(("https://", "http://")):
@@ -30,23 +29,25 @@ class PlaceholderPageAnalyzer:
         response.encoding = "utf-8"
         return response
 
-    def analyze(self) -> bool:
+    def is_placeholder(self) -> bool:
         response = self.check_response()
         if response:
             html_content = response.content
-            for keyword in self.keyword_provider:
-                if keyword in html_content:
-                    return False
+            with open(
+                Config.Modules.PlaceholderPageContent.PLACEHOLDER_PAGE_CONTENT_FILENAME, "r", encoding="utf-8"
+            ) as file:
+                for keyword in file:
+                    if keyword.strip() in html_content:
+                        return False
         return True
 
 
-class AnalyzerManager:
+class PlaceholderPageDetector:
     def __init__(self, url: str) -> None:
         self.url = url
-        self.keyword_provider = Config.Modules.PlaceholderPagesHtmlElements.PLACEHOLDER_PAGE_HTML_ELEMENTS
 
     def run_analysis(self) -> bool:
-        analyzer = PlaceholderPageAnalyzer(self.url, self.keyword_provider)
-        result = analyzer.analyze()
+        placeholder_detector = PlaceholderPageAnalyzer(self.url)
+        result = placeholder_detector.is_placeholder()
 
         return result

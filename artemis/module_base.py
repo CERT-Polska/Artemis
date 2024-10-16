@@ -233,7 +233,15 @@ class ArtemisBase(Karton):
         for task in tasks:
             increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
 
-        self.internal_process_multiple(tasks)
+        if len(tasks):
+            time_start = time.time()
+            self.internal_process_multiple(tasks)
+            self.log.info(
+                "Took %.02fs to perform %d tasks by module %s",
+                time.time() - time_start,
+                len(tasks),
+                self.identity,
+            )
 
         for task in tasks:
             increase_analysis_num_finished_tasks(REDIS, task.root_uid)

@@ -158,9 +158,9 @@ class Config:
         ] = get_config("ADDITIONAL_PUBLIC_SUFFIXES", default="", cast=decouple.Csv(str))
 
     class Limits:
-        TASK_TIMEOUT_SECONDS: Annotated[
-            int, "What is the maximum task run time (after which it will get killed)."
-        ] = get_config("TASK_TIMEOUT_SECONDS", default=6 * 3600, cast=int)
+        TASK_TIMEOUT_SECONDS: Annotated[int, "What is the maximum task run time (after which it will get killed)."] = (
+            get_config("TASK_TIMEOUT_SECONDS", default=6 * 3600, cast=int)
+        )
 
         REQUEST_TIMEOUT_SECONDS: Annotated[
             int,
@@ -184,9 +184,9 @@ class Config:
             "API_TOKEN", default=None
         )
 
-        REMOVE_LOGS_AFTER_DAYS: Annotated[
-            int, "After what number of days the logs in karton-logs are removed."
-        ] = get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
+        REMOVE_LOGS_AFTER_DAYS: Annotated[int, "After what number of days the logs in karton-logs are removed."] = (
+            get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
+        )
 
         BLOCKLIST_FILE: Annotated[
             str,
@@ -711,16 +711,19 @@ class Config:
                 default=False,
                 cast=bool,
             )
-            PLACEHOLDER_PAGE_CONTENT_FILENAME: Annotated[str, "Path to placeholder page content file.",] = get_config(
+            PLACEHOLDER_PAGE_CONTENT_FILENAME: Annotated[
+                str,
+                "Path to placeholder page content file.",
+            ] = get_config(
                 "PLACEHOLDER_PAGE_HTML_ELEMENTS",
                 default="/opt/artemis/modules/data/placeholder_page_content.txt",
                 cast=str,
             )
 
         class PortScanner:
-            PORT_SCANNER_PORT_LIST: Annotated[
-                str, "Chosen list of ports to scan (can be 'short' or 'long')"
-            ] = get_config("PORT_SCANNER_PORT_LIST", default="short")
+            PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (
+                get_config("PORT_SCANNER_PORT_LIST", default="short")
+            )
 
             CUSTOM_PORT_SCANNER_PORTS: Annotated[
                 List[int],

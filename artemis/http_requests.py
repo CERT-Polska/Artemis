@@ -1,6 +1,7 @@
 import copy
 import dataclasses
 import json
+import os
 import ssl
 import urllib.parse
 from typing import Any, Dict, Optional
@@ -73,8 +74,15 @@ def _request(
     data: Optional[Dict[str, str]],
     cookies: Optional[Dict[str, str]],
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> HTTPResponse:
+    if "RUNNING_TESTS" in os.environ:
+        # The de facto limit is 2000 according to
+        # https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
+        # so let's check something lower to make sure our modules aren't exceeding the limit e.g.
+        # when batching parameters for SQL injection check.
+        assert len(url) < 1600, f"URL too long, has {len(url)} characters"
+
     def _internal_request() -> HTTPResponse:
         headers = copy.copy(HEADERS)
         headers.update(kwargs["headers"]) if "headers" in kwargs else headers
@@ -123,7 +131,7 @@ def get(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> HTTPResponse:
     return _request("get", url, allow_redirects, data, cookies, **kwargs)
 
@@ -133,6 +141,6 @@ def post(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> HTTPResponse:
     return _request("post", url, allow_redirects, data, cookies, **kwargs)

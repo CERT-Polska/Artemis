@@ -20,21 +20,26 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         (call,) = self.mock_db.save_task_result.call_args_list
 
         sqli_message = (
-            "http://test-apache-with-sql-injection-postgres/sql_injection.php?foo='&form='&format='&"
-            "from='&function='&g='&gid='&gmt_offset='&go='&group='&group_id='&groups='&h='&hash='&"
-            "height='&hidden='&history='&host='&hostname='&html='&i='&id='&ID='&id_base='&ids='&"
-            "image='&img='&import='&index=': It appears that this URL is vulnerable to SQL injection"
+            "http://test-apache-with-sql-injection-postgres/sql_injection.php?error='&event='&excerpt='&export='&f='&"
+            "features='&fid='&field='&field_id='&fields='&file='&file_name='&filename='&files='&filter='&firstname='&"
+            "first_name='&flag='&fname='&folder='&foo='&form='&format='&from='&function='&g='&gid='&gmt_offset='&go='"
+            "&group='&group_id='&groups='&h='&hash='&height='&hidden='&history='&host='&hostname='&html='&i='&id='&ID"
+            "='&id_base='&ids='&image='&img='&import='&index=': It appears that this URL is vulnerable to SQL injection"
         )
         time_base_sqli_message = (
-            "http://test-apache-with-sql-injection-postgres/sql_injection.php?foo='||pg_sleep(5)||'"
-            "&form='||pg_sleep(5)||'&format='||pg_sleep(5)||'&from='||pg_sleep(5)||'&function='||"
-            "pg_sleep(5)||'&g='||pg_sleep(5)||'&gid='||pg_sleep(5)||'&gmt_offset='||pg_sleep(5)||'&"
-            "go='||pg_sleep(5)||'&group='||pg_sleep(5)||'&group_id='||pg_sleep(5)||'&groups='||pg_sleep(5)||'"
-            "&h='||pg_sleep(5)||'&hash='||pg_sleep(5)||'&height='||pg_sleep(5)||'&hidden='||pg_sleep(5)||'"
-            "&history='||pg_sleep(5)||'&host='||pg_sleep(5)||'&hostname='||pg_sleep(5)||'&html='||pg_sleep(5)||"
-            "'&i='||pg_sleep(5)||'&id='||pg_sleep(5)||'&ID='||pg_sleep(5)||'&id_base='||pg_sleep(5)||'&ids='||"
-            "pg_sleep(5)||'&image='||pg_sleep(5)||'&img='||pg_sleep(5)||'&import='||pg_sleep(5)||'&index='||"
-            "pg_sleep(5)||': It appears that this URL is vulnerable to time-based SQL injection"
+            "http://test-apache-with-sql-injection-postgres/sql_injection.php?error='||pg_sleep(5)||'&event='||pg_slee"
+            "p(5)||'&excerpt='||pg_sleep(5)||'&export='||pg_sleep(5)||'&f='||pg_sleep(5)||'&features='||pg_sleep(5)||'"
+            "&fid='||pg_sleep(5)||'&field='||pg_sleep(5)||'&field_id='||pg_sleep(5)||'&fields='||pg_sleep(5)||'&file='|"
+            "|pg_sleep(5)||'&file_name='||pg_sleep(5)||'&filename='||pg_sleep(5)||'&files='||pg_sleep(5)||'&filter='||p"
+            "g_sleep(5)||'&firstname='||pg_sleep(5)||'&first_name='||pg_sleep(5)||'&flag='||pg_sleep(5)||'&fname='||pg"
+            "_sleep(5)||'&folder='||pg_sleep(5)||'&foo='||pg_sleep(5)||'&form='||pg_sleep(5)||'&format='||pg_sleep(5)||"
+            "'&from='||pg_sleep(5)||'&function='||pg_sleep(5)||'&g='||pg_sleep(5)||'&gid='||pg_sleep(5)||'&gmt_offset='"
+            "||pg_sleep(5)||'&go='||pg_sleep(5)||'&group='||pg_sleep(5)||'&group_id='||pg_sleep(5)||'&groups='||pg_sle"
+            "ep(5)||'&h='||pg_sleep(5)||'&hash='||pg_sleep(5)||'&height='||pg_sleep(5)||'&hidden='||pg_sleep(5)||'&his"
+            "tory='||pg_sleep(5)||'&host='||pg_sleep(5)||'&hostname='||pg_sleep(5)||'&html='||pg_sleep(5)||'&i='||pg_s"
+            "leep(5)||'&id='||pg_sleep(5)||'&ID='||pg_sleep(5)||'&id_base='||pg_sleep(5)||'&ids='||pg_sleep(5)||'&imag"
+            "e='||pg_sleep(5)||'&img='||pg_sleep(5)||'&import='||pg_sleep(5)||'&index='||pg_sleep(5)||': It appears th"
+            "at this URL is vulnerable to time-based SQL injection"
         )
         sqli_by_headers_message = (
             "http://test-apache-with-sql-injection-postgres/headers_vuln.php: "
@@ -99,20 +104,25 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         (call,) = self.mock_db.save_task_result.call_args_list
 
         sqli_message = (
-            "http://test-apache-with-sql-injection-mysql/sql_injection.php?foo='&form='&format='&from='&function='"
-            "&g='&gid='&gmt_offset='&go='&group='&group_id='&groups='&h='&hash='&height='&hidden='&history='&host='"
-            "&hostname='&html='&i='&id='&ID='&id_base='&ids='&image='&img='&import='&index=': It appears that this "
-            "URL is vulnerable to SQL injection"
+            "http://test-apache-with-sql-injection-mysql/sql_injection.php?error='&event='&excerpt='&export='&f='&feat"
+            "ures='&fid='&field='&field_id='&fields='&file='&file_name='&filename='&files='&filter='&firstname='&first"
+            "_name='&flag='&fname='&folder='&foo='&form='&format='&from='&function='&g='&gid='&gmt_offset='&go='&group"
+            "='&group_id='&groups='&h='&hash='&height='&hidden='&history='&host='&hostname='&html='&i='&id='&ID='&id_b"
+            "ase='&ids='&image='&img='&import='&index=': It appears that this URL is vulnerable to SQL injection"
         )
         time_base_sqli_message = (
-            "http://test-apache-with-sql-injection-mysql/sql_injection.php?foo='||sleep(5)||'&form='||sleep(5)||'&"
-            "format='||sleep(5)||'&from='||sleep(5)||'&function='||sleep(5)||'&g='||sleep(5)||'&gid='||sleep(5)||'&"
-            "gmt_offset='||sleep(5)||'&go='||sleep(5)||'&group='||sleep(5)||'&group_id='||sleep(5)||'&groups='||"
-            "sleep(5)||'&h='||sleep(5)||'&hash='||sleep(5)||'&height='||sleep(5)||'&hidden='||sleep(5)||'&history="
-            "'||sleep(5)||'&host='||sleep(5)||'&hostname='||sleep(5)||'&html='||sleep(5)||'&i='||sleep(5)||'&id='"
-            "||sleep(5)||'&ID='||sleep(5)||'&id_base='||sleep(5)||'&ids='||sleep(5)||'&image='||sleep(5)||'&img='"
-            "||sleep(5)||'&import='||sleep(5)||'&index='||sleep(5)||': It appears that this URL is vulnerable to "
-            "time-based SQL injection"
+            "http://test-apache-with-sql-injection-mysql/sql_injection.php?error='||sleep(5)||'&event='||sleep(5)||'&e"
+            "xcerpt='||sleep(5)||'&export='||sleep(5)||'&f='||sleep(5)||'&features='||sleep(5)||'&fid='||sleep(5)||'&f"
+            "ield='||sleep(5)||'&field_id='||sleep(5)||'&fields='||sleep(5)||'&file='||sleep(5)||'&file_name='||sleep("
+            "5)||'&filename='||sleep(5)||'&files='||sleep(5)||'&filter='||sleep(5)||'&firstname='||sleep(5)||'&first_n"
+            "ame='||sleep(5)||'&flag='||sleep(5)||'&fname='||sleep(5)||'&folder='||sleep(5)||'&foo='||sleep(5)||'&form"
+            "='||sleep(5)||'&format='||sleep(5)||'&from='||sleep(5)||'&function='||sleep(5)||'&g='||sleep(5)||'&gid='|"
+            "|sleep(5)||'&gmt_offset='||sleep(5)||'&go='||sleep(5)||'&group='||sleep(5)||'&group_id='||sleep(5)||'&gro"
+            "ups='||sleep(5)||'&h='||sleep(5)||'&hash='||sleep(5)||'&height='||sleep(5)||'&hidden='||sleep(5)||'&histo"
+            "ry='||sleep(5)||'&host='||sleep(5)||'&hostname='||sleep(5)||'&html='||sleep(5)||'&i='||sleep(5)||'&id='||"
+            "sleep(5)||'&ID='||sleep(5)||'&id_base='||sleep(5)||'&ids='||sleep(5)||'&image='||sleep(5)||'&img='||sleep"
+            "(5)||'&import='||sleep(5)||'&index='||sleep(5)||': It appears that this URL is vulnerable to time-based S"
+            "QL injection"
         )
         sqli_by_headers_message = (
             "http://test-apache-with-sql-injection-mysql/headers_vuln.php: "

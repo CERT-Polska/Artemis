@@ -74,7 +74,7 @@ def _request(
     data: Optional[Dict[str, str]],
     cookies: Optional[Dict[str, str]],
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> HTTPResponse:
     if "RUNNING_TESTS" in os.environ:
         # The de facto limit is 2000 according to
@@ -131,7 +131,7 @@ def get(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> HTTPResponse:
     return _request("get", url, allow_redirects, data, cookies, **kwargs)
 
@@ -141,6 +141,6 @@ def post(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> HTTPResponse:
     return _request("post", url, allow_redirects, data, cookies, **kwargs)

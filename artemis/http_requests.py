@@ -1,6 +1,7 @@
 import copy
 import dataclasses
 import json
+import os
 import ssl
 import urllib.parse
 from typing import Any, Dict, Optional
@@ -75,6 +76,13 @@ def _request(
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
     **kwargs: Any
 ) -> HTTPResponse:
+    if "RUNNING_TESTS" in os.environ:
+        # The de facto limit is 2000 according to
+        # https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
+        # so let's check something lower to make sure our modules aren't exceeding the limit e.g.
+        # when batching parameters for SQL injection check.
+        assert len(url) < 1
+
     def _internal_request() -> HTTPResponse:
         headers = copy.copy(HEADERS)
         headers.update(kwargs["headers"]) if "headers" in kwargs else headers

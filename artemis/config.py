@@ -450,6 +450,7 @@ class Config:
                         # Mostly meant to be publicly accessible
                         "http/exposed-panels/bigbluebutton-login.yaml",
                         "http/exposed-panels/ilias-panel.yaml",
+                        "http/exposed-panels/librespeed-panel.yaml",
                         "http/exposed-panels/office-webapps-panel.yaml",
                         "http/exposed-panels/onlyoffice-login-panel.yaml",
                         "http/exposed-panels/opensis-panel.yaml",
@@ -479,6 +480,7 @@ class Config:
                         "http/cves/2021/CVE-2021-3293.yaml",
                         "http/cves/2021/CVE-2021-25118.yaml",
                         "http/cves/2021/CVE-2021-44848.yaml",
+                        "http/cves/2023/CVE-2023-4568.yaml",
                         "http/cves/2024/CVE-2024-1208.yaml",
                         "http/cves/2024/CVE-2024-1210.yaml",
                         "http/cves/2024/CVE-2024-3097.yaml",

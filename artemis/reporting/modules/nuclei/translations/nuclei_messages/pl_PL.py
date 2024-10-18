@@ -991,12 +991,23 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Jenkins Dashboard is exposed to external users.": "Panel systemu Jenkins jest dostępny publicznie.",
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "An integer overflow in process_bin_sasl_auth function in Memcached, which is responsible for authentication commands of Memcached binary protocol, can be abused to cause heap overflow and lead to remote code execution.": "Memcached w wersji 1.4.31 i wcześniejszych zawiera podatność umożliwiającą potencjalnie atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The Backup Migration plugin for WordPress is vulnerable to Remote Code Execution in all versions up to, and including, 1.3.7 via the /includes/backup-heart.php file. This is due to an attacker being able to control the values passed to an include, and subsequently leverage that to achieve remote code execution. This makes it possible for unauthenticated threat actors to easily execute code on the server.": "Wtyczka WordPress o nazwie Backup Migration w wersji do 1.3.7 włącznie zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "Versions prior to 1.9.2 have a cross-site scripting (XSS) vulnerability that could be exploited when an authenticated user uploads a crafted image file for their avatar that gets rendered as a HTML file on the website.": "LabelStudio w wersji poniżej 1.9.2 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "enumerate the users on a SMTP server by issuing the VRFY/EXPN commands": "Za pomocą komendy VRFY/EXPN można poznać nazwy użytkowników serwera SMTP.",
     "In the module 'Theme Volty CMS Blog' (tvcmsblog) up to versions 4.0.1 from Theme Volty for PrestaShop, a guest can perform SQL injection in affected versions.": "Moduł systemu PrestaShop o nazwie Theme Volty CMS Blog w wersji do 4.0.1 zawiera podatność SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + UPDATE_HINT,
     "Ricoh default admin credentials were discovered.": "Wykryto urządzenie Ricoh do którego można zalogować się na konto administracyjne domyślnymi danymi.",
@@ -1500,4 +1511,7 @@ TRANSLATIONS = {
     "Apache Superset login panel was detected.": "Wykryto panel logowania Apache Superset.",
     "A Progress Kemp LoadMaster panel was detected.": "wykryto panel Progress Kemp LoadMaster.",
     "EdgeOS login panel was detected.": "Wykryto panel logowania EdgeOS.",
+    "Slurm HPC Dashboard was detected.": "Wykryto panel Slurm HPC.",
+    "http/exposed-panels/gitlab-explore.yaml": "Wykryto system GitLab.",
+    "Micro Focus Enterprise Server Admin panel was detected.": "Wykryto panel Micro Focus Enterprise Server.",
 }

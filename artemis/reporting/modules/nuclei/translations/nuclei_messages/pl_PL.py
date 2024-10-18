@@ -998,7 +998,7 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
-    "An integer overflow in process_bin_sasl_auth function in Memcached, which is responsible for authentication commands of Memcached binary protocol, can be abused to cause heap overflow and lead to remote code execution.": "Memcached w wersji 1.4.31 i potencjalnie wcześniejszych zawiera podatność umożliwiającą potencjalnie atakującemu zdalne wykonanie kodu."
+    "An integer overflow in process_bin_sasl_auth function in Memcached, which is responsible for authentication commands of Memcached binary protocol, can be abused to cause heap overflow and lead to remote code execution.": "Memcached w wersji 1.4.31 i wcześniejszych zawiera podatność umożliwiającą potencjalnie atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "The Backup Migration plugin for WordPress is vulnerable to Remote Code Execution in all versions up to, and including, 1.3.7 via the /includes/backup-heart.php file. This is due to an attacker being able to control the values passed to an include, and subsequently leverage that to achieve remote code execution. This makes it possible for unauthenticated threat actors to easily execute code on the server.": "Wtyczka WordPress o nazwie Backup Migration w wersji do 1.3.7 włącznie zawiera podatność umożliwiającą zdalne wykonanie kodu."

@@ -151,7 +151,9 @@ def export(
     db = DB()
     export_db_connector = DataLoader(db, blocklist, language, tag, silent)
     timestamp = datetime.datetime.now()
-    export_data = build_export_data(previous_reports, tag, export_db_connector, custom_template_arguments, timestamp)
+    export_data = build_export_data(
+        previous_reports, tag, language, export_db_connector, custom_template_arguments, timestamp
+    )
     date_str = timestamp.isoformat()
     output_dir = OUTPUT_LOCATION / str(tag) / date_str
     os.makedirs(output_dir)

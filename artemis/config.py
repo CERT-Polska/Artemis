@@ -714,7 +714,7 @@ class Config:
                 str,
                 "Path to placeholder page content file.",
             ] = get_config(
-                "PLACEHOLDER_PAGE_HTML_ELEMENTS",
+                "PLACEHOLDER_PAGE_CONTENT_FILENAME",
                 default="/opt/artemis/modules/data/placeholder_page_content.txt",
                 cast=str,
             )

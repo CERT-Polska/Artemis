@@ -699,15 +699,14 @@ class Config:
             ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
 
         class PlaceholderPageContent:
-            PLACEHOLDER_PAGE_DETECTOR_ENABLE: Annotated[
+            ENABLE_PLACEHOLDER_PAGE_DETECTOR: Annotated[
                 bool,
-                "Enable or disable placeholder pages detector."
-                "A strict string matching will be performed without any parsing or modifications. The string will be "
-                "matched exactly as provided, without applying any transformations or processing. If the page exists "
-                "but the specified string is found within it, the page will not be scanned for vulnerabilities. "
-                "If the page is not marked as a placeholder, a full scan will be performed.",
+                "Enable or disable placeholder pages detector. Using this feature you may skip vulnerability scanning "
+                "for websites that aren't built yet, but e.g. contain a hosting provider placeholder page. "
+                "If the page exists and the specified string is found within it, the page will not be scanned for "
+                "vulnerabilities. If the page is not marked as a placeholder, a full scan will be performed.",
             ] = get_config(
-                "PLACEHOLDER_PAGE_DETECTOR_ENABLE",
+                "ENABLE_PLACEHOLDER_PAGE_DETECTOR",
                 default=False,
                 cast=bool,
             )

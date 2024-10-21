@@ -154,10 +154,9 @@ class ArtemisBase(Karton):
             bool: True if the domain exists, False otherwise.
         """
         try:
-            if Config.Modules.PlaceholderPageContent.PLACEHOLDER_PAGE_DETECTOR_ENABLE:
-                manager = PlaceholderPageDetector(domain)
-                result = manager.run_analysis()
-                if not result:
+            if Config.Modules.PlaceholderPageContent.ENABLE_PLACEHOLDER_PAGE_DETECTOR:
+                placeholder_page = PlaceholderPageDetector()
+                if placeholder_page.is_placeholder(domain):
                     return False
 
             # Check for NS records

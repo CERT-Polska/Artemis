@@ -1,27 +1,39 @@
-from typing import Any
+from typing import Any, List
 
 import requests
 
 from artemis import http_requests
 from artemis.config import Config
 
+PLACEHOLDER_PAGE_CONTENT_FILENAME = Config.Modules.PlaceholderPageContent.PLACEHOLDER_PAGE_CONTENT_FILENAME
 
-class PlaceholderPageAnalyzer:
-    def __init__(self, url: str) -> None:
-        self.url = url
 
-    def check_response(self) -> Any:
-        if self.url.startswith(("https://", "http://")):
+def read_placeholder_page_content(filename: str = PLACEHOLDER_PAGE_CONTENT_FILENAME) -> List[str]:
+    placeholder_page_content = []
+    with open(filename, "r", encoding="utf-8") as file:
+        for keyword in file:
+            placeholder_page_content.append(keyword)
+
+        return placeholder_page_content
+
+
+class PlaceholderPageDetector:
+    def __init__(self) -> None:
+        self.placeholder_content = read_placeholder_page_content()
+
+    @staticmethod
+    def check_response(domain: str) -> Any:
+        if domain.startswith(("https://", "http://")):
             try:
-                response = http_requests.get(self.url)
+                response = http_requests.get(domain)
             except requests.RequestException:
                 return False
         else:
-            url = "http://" + self.url
+            url = "http://" + domain
             try:
                 response = http_requests.get(url)
             except requests.RequestException:
-                url = "https://" + self.url
+                url = "https://" + domain
                 try:
                     response = http_requests.get(url)
                 except requests.RequestException:
@@ -29,25 +41,11 @@ class PlaceholderPageAnalyzer:
         response.encoding = "utf-8"
         return response
 
-    def is_placeholder(self) -> bool:
-        response = self.check_response()
+    def is_placeholder(self, domain: str) -> bool:
+        response = self.check_response(domain)
         if response:
             html_content = response.content
-            with open(
-                Config.Modules.PlaceholderPageContent.PLACEHOLDER_PAGE_CONTENT_FILENAME, "r", encoding="utf-8"
-            ) as file:
-                for keyword in file:
-                    if keyword.strip() in html_content:
-                        return False
-        return True
-
-
-class PlaceholderPageDetector:
-    def __init__(self, url: str) -> None:
-        self.url = url
-
-    def run_analysis(self) -> bool:
-        placeholder_detector = PlaceholderPageAnalyzer(self.url)
-        result = placeholder_detector.is_placeholder()
-
-        return result
+            for keywords in self.placeholder_content:
+                if keywords.strip() in html_content:
+                    return True
+        return False

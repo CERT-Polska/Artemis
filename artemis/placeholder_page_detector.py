@@ -8,34 +8,28 @@ from artemis.config import Config
 PLACEHOLDER_PAGE_CONTENT_FILENAME = Config.Modules.PlaceholderPageContent.PLACEHOLDER_PAGE_CONTENT_FILENAME
 
 
-placeholder_page_content = []
+PLACEHOLDER_PAGE_CONTENT = []
 with open(PLACEHOLDER_PAGE_CONTENT_FILENAME, "r", encoding="utf-8") as file:
     for keyword in file:
-        placeholder_page_content.append(keyword)
+        PLACEHOLDER_PAGE_CONTENT.append(keyword)
 
 
 class PlaceholderPageDetector:
     def __init__(self) -> None:
-        self.placeholder_content = placeholder_page_content
+        self.placeholder_content = PLACEHOLDER_PAGE_CONTENT
 
     @staticmethod
     def check_response(domain: str) -> Any:
-        if domain.startswith(("https://", "http://")):
-            try:
-                response = http_requests.get(domain)
-            except requests.RequestException:
-                return False
-        else:
-            url = "http://" + domain
+        url = "http://" + domain
+        try:
+            response = http_requests.get(url)
+        except requests.RequestException:
+            url = "https://" + domain
             try:
                 response = http_requests.get(url)
             except requests.RequestException:
-                url = "https://" + domain
-                try:
-                    response = http_requests.get(url)
-                except requests.RequestException:
-                    return False
-        response.encoding = "utf-8"
+                return False
+        # response.encoding = "utf-8"
         return response
 
     def is_placeholder(self, domain: str) -> bool:

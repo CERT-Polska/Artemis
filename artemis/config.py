@@ -712,7 +712,8 @@ class Config:
             )
             PLACEHOLDER_PAGE_CONTENT_FILENAME: Annotated[
                 str,
-                "Path to placeholder page content file.",
+                "Path to placeholder page content file. The file is divided into lines – each line is a string "
+                "containing a different HTML code element to check.",
             ] = get_config(
                 "PLACEHOLDER_PAGE_CONTENT_FILENAME",
                 default="/opt/artemis/modules/data/placeholder_page_content.txt",

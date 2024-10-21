@@ -19,7 +19,7 @@ karton-core==5.5.0
 git+https://github.com/CERT-Polska/mailgoose@v1.3.4#egg=libmailgoose&subdirectory=scan
 liccheck==0.9.2
 Markdown==3.7
-MarkupSafe==2.1.5
+MarkupSafe==3.0.2
 minio==7.2.1
 more-itertools==10.5.0
 packaging==24.1

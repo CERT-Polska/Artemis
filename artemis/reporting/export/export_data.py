@@ -24,7 +24,7 @@ class SingleTopLevelTargetExportData:
 class ExportData:
     timestamp: datetime.datetime
     tag: Optional[str]
-    language: Language
+    language: str
     scanned_top_level_targets: List[str]
     scanned_targets: List[str]
     messages: Dict[str, SingleTopLevelTargetExportData]
@@ -83,7 +83,7 @@ def build_export_data(
     return ExportData(
         timestamp=timestamp,
         tag=tag,
-        language=language,
+        language=language.value,
         scanned_top_level_targets=list(db.scanned_top_level_targets),
         scanned_targets=list(db.scanned_targets),
         messages=message_data,

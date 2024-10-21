@@ -70,7 +70,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
     "woo-tools",
-    "wp-ecommerce-paypal",
     "wp-maximum-execution-time-exceeded",
 ]
 

@@ -39,7 +39,7 @@ requests-mock==1.12.1
 retry==0.9.2
 SQLAlchemy==2.0.35
 semver==3.0.2
-setuptools==75.1.0
+setuptools==75.2.0
 shodan==1.31.0
 six==1.16.0
 termcolor==2.5.0

@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 import requests
 
@@ -8,18 +8,15 @@ from artemis.config import Config
 PLACEHOLDER_PAGE_CONTENT_FILENAME = Config.Modules.PlaceholderPageContent.PLACEHOLDER_PAGE_CONTENT_FILENAME
 
 
-def read_placeholder_page_content(filename: str = PLACEHOLDER_PAGE_CONTENT_FILENAME) -> List[str]:
-    placeholder_page_content = []
-    with open(filename, "r", encoding="utf-8") as file:
-        for keyword in file:
-            placeholder_page_content.append(keyword)
-
-        return placeholder_page_content
+placeholder_page_content = []
+with open(PLACEHOLDER_PAGE_CONTENT_FILENAME, "r", encoding="utf-8") as file:
+    for keyword in file:
+        placeholder_page_content.append(keyword)
 
 
 class PlaceholderPageDetector:
     def __init__(self) -> None:
-        self.placeholder_content = read_placeholder_page_content()
+        self.placeholder_content = placeholder_page_content
 
     @staticmethod
     def check_response(domain: str) -> Any:

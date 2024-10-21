@@ -29,7 +29,6 @@ class PlaceholderPageDetector:
                 response = http_requests.get(url)
             except requests.RequestException:
                 return False
-        # response.encoding = "utf-8"
         return response
 
     def is_placeholder(self, domain: str) -> bool:

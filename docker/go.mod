@@ -10,9 +10,11 @@ require (
 	github.com/projectdiscovery/naabu/v2 v2.3.1
 	github.com/projectdiscovery/nuclei/v3 v3.3.5
 	github.com/projectdiscovery/subfinder/v2 v2.6.6
+	github.com/hahwul/dalfox/v2 v2.9.3
 )
 
 require (
+	github.com/hahwul/volt v1.0.5 // indirect
 	aead.dev/minisign v0.2.0 // indirect
 	code.gitea.io/sdk/gitea v0.17.0 // indirect
 	dario.cat/mergo v1.0.0 // indirect
@@ -350,4 +352,22 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mellium.im/sasl v0.3.1 // indirect
 	moul.io/http2curl v1.0.0 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/chromedp/chromedp v0.10.0 // indirect
+	github.com/chromedp/cdproto v0.0.0-20240801214329-3f85d328b335 // indirect
+	github.com/chromedp/sysutil v1.0.0 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
+	github.com/tylerb/graceful v1.2.15 // indirect
+	github.com/swaggo/swag v1.16.3 // indirect
+	github.com/swaggo/echo-swagger v1.4.1 // indirect
+	github.com/swaggo/files/v2 v2.0.0 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/labstack/echo/v4 v4.12.0 // indirect
+	github.com/labstack/gommon v0.4.2 // indirect
+	github.com/KyleBanks/depth v1.2.1 // indirect
+	github.com/go-openapi/spec v0.20.4 // indirect
+	github.com/go-openapi/jsonreference v0.19.6 // indirect
+	github.com/PuerkitoBio/purell v1.1.1 // indirect
+	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/briandowns/spinner v1.23.1 // indirect
 )

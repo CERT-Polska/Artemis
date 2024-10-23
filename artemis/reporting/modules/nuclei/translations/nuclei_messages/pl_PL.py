@@ -252,6 +252,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Adminer before 4.7.9 is susceptible to server-side request forgery due to exposure of sensitive information in error messages. Users of Adminer versions bundling all drivers, e.g. adminer.php, are affected. An attacker can possibly obtain this information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Narzędzie Adminer w wersji poniżej 4.7.9 zawiera podatność Server-Side Request Forgery. Może to umożliwić atakującemu komunikację z usługami w sieci wewnętrznej, a w niektórych konfiguracjach również uzyskanie nieuprawnionego dostępu do systemu."
     + UPDATE_HINT,
+    "[no description] http/fuzzing/ssrf-via-proxy.yaml": "Wykryto podatność Server-Side Request Forgery. Może ona umożliwić atakującemu komunikację z usługami w sieci wewnętrznej, a w niektórych konfiguracjach również uzyskanie nieuprawnionego dostępu do systemu.",
     "WordPress Fusion Builder plugin before 3.6.2 is susceptible to server-side request forgery. The plugin does not validate a parameter in its forms, which can be used to initiate arbitrary HTTP requests. The data returned is then reflected back in the application's response. An attacker can potentially interact with hosts on the server's local network, bypass firewalls, and access control measures.": "Wtyczka WordPress o nazwie Fusion Builder w wersji poniżej 3.6.2 zawiera podatność Server-Side Request Forgery. Może to umożliwić atakującemu komunikację z usługami w sieci wewnętrznej, a w niektórych konfiguracjach również uzyskanie nieuprawnionego dostępu do systemu."
     + WORDPRESS_UPDATE_HINT,
     "WordPress Metform plugin through 2.1.3 is susceptible to information disclosure due to improper access control in the ~/core/forms/action.php file. An attacker can view all API keys and secrets of integrated third-party APIs such as that of PayPal, Stripe, Mailchimp, Hubspot, HelpScout, reCAPTCHA and many more.": "Wtyczka WordPress o nazwie Metform w wersjach do 2.1.3 umożliwia atakującemu pobranie kluczy API usług takich jak PayPal, Stripe, Mailchimp, Hubspot, HelpScout czy reCAPTCHA."
@@ -628,6 +629,7 @@ TRANSLATIONS = {
     "phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że do systemu phpMyAdmin można zalogować się prostym hasłem. Atakujący może uzyskać dostęp do kont użytkowników czy wrażliwych danych, zmienić dane lub wykonać nieuprawnione operacje.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "netlify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Netlify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Netlify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "Tilda takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Tilda, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Tilda, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "shopify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Shopify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Shopify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "auth.json file is exposed.": "Wykryto plik auth.json, zawierający login i hasło lub inne dane autoryzacyjne. Rekomendujemy, aby takie dane nie były dostępne publicznie.",
     "Django Debug Method is enabled.": "Wykryto framework Django skonfigurowany aby udostępniać informacje diagnostyczne, takie jak konfiguracja systemu czy ścieżki.",
@@ -998,6 +1000,8 @@ TRANSLATIONS = {
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "[no description] http/exposures/logs/action-controller-exception.yaml": "Wykryto dziennik zdarzeń Action Controller.",
+    "Detection of SAP NetWeaver ABAP Webserver /public/info page": "Wykryto stronę z informacjami systemu SAP NetWeaver ABAP Webserver.",
     "An integer overflow in process_bin_sasl_auth function in Memcached, which is responsible for authentication commands of Memcached binary protocol, can be abused to cause heap overflow and lead to remote code execution.": "Memcached w wersji 1.4.31 i wcześniejszych zawiera podatność umożliwiającą potencjalnie atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -1514,4 +1518,5 @@ TRANSLATIONS = {
     "Slurm HPC Dashboard was detected.": "Wykryto panel Slurm HPC.",
     "http/exposed-panels/gitlab-explore.yaml": "Wykryto system GitLab.",
     "Micro Focus Enterprise Server Admin panel was detected.": "Wykryto panel Micro Focus Enterprise Server.",
+    "The presence of SAML-based authentication on GitLab instances. SAML is commonly used for Single Sign-On (SSO) integrations, which allows users to authenticate with GitLab using an external Identity Provider (IdP).": "Wykryto panel GitLab SAML.",
 }

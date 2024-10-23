@@ -151,7 +151,9 @@ def export(
     db = DB()
     export_db_connector = DataLoader(db, blocklist, language, tag, silent)
     timestamp = datetime.datetime.now()
-    export_data = build_export_data(previous_reports, tag, export_db_connector, custom_template_arguments, timestamp)
+    export_data = build_export_data(
+        previous_reports, tag, language, export_db_connector, custom_template_arguments, timestamp
+    )
     date_str = timestamp.isoformat()
     output_dir = OUTPUT_LOCATION / str(tag) / date_str
     os.makedirs(output_dir)
@@ -198,7 +200,7 @@ def export_cli(
         help="Allows you to filter by the tag you provided when adding targets to be scanned. Only vulnerabilities "
         "from targets with this tag will be exported.",
     ),
-    language: Language = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),  # type: ignore
+    language: str = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),  # type: ignore
     custom_template_arguments: Optional[str] = typer.Option(
         "",
         help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "
@@ -222,7 +224,7 @@ def export_cli(
     return export(
         previous_reports_directory=previous_reports_directory,
         tag=tag,
-        language=language,
+        language=Language(language),
         custom_template_arguments=custom_template_arguments_parsed,
         silent=silent,
         verbose=verbose,

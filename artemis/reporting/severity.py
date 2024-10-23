@@ -84,6 +84,7 @@ def get_severity(report: Any) -> Severity:
             "info": Severity.LOW,
             "low": Severity.LOW,
             "medium": Severity.MEDIUM,
+            "unknown": Severity.MEDIUM,
             "high": Severity.HIGH,
             "critical": Severity.HIGH,
         }

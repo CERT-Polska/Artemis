@@ -5,10 +5,11 @@ go 1.22
 toolchain go1.22.3
 
 require (
+	github.com/hahwul/dalfox/v2 v2.9.3
 	github.com/lc/gau/v2 v2.2.3
 	github.com/praetorian-inc/fingerprintx v1.1.14
 	github.com/projectdiscovery/naabu/v2 v2.3.1
-	github.com/projectdiscovery/nuclei/v3 v3.3.4
+	github.com/projectdiscovery/nuclei/v3 v3.3.5
 	github.com/projectdiscovery/subfinder/v2 v2.6.6
 )
 
@@ -156,7 +157,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
-	github.com/hahwul/dalfox/v2 v2.9.3 // indirect
 	github.com/hahwul/volt v1.0.5 // indirect
 	github.com/hako/durafmt v0.0.0-20210316092057-3a2c319c1acd // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -221,6 +221,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.3-0.20240618155329-98d742f6907a // indirect
 	github.com/nwaples/rardecode v1.1.3 // indirect
@@ -323,8 +324,13 @@ require (
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xanzy/go-gitlab v0.107.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
+	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
+	github.com/xdg-go/scram v1.1.2 // indirect
+	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
+	github.com/yassinebenaid/godump v0.10.0 // indirect
 	github.com/yl2chen/cidranger v1.0.2 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	github.com/ysmood/fetchup v0.2.3 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect
 	github.com/ysmood/got v0.34.1 // indirect
@@ -339,6 +345,7 @@ require (
 	github.com/zmap/zcrypto v0.0.0-20240512203510-0fef58d9a9db // indirect
 	github.com/zmap/zgrab2 v0.1.8-0.20230806160807-97ba87c0e706 // indirect
 	go.etcd.io/bbolt v1.3.10 // indirect
+	go.mongodb.org/mongo-driver v1.17.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.25.0 // indirect
 	goftp.io/server/v2 v2.0.1 // indirect

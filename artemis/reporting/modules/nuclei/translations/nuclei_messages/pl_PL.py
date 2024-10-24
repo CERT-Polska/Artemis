@@ -243,6 +243,7 @@ TRANSLATIONS = {
     'A vulnerability exists in Thinfinity VirtualUI in a function located in /lab.html reachable which by default  could allow IFRAME injection via the "vpath" parameter.': "Wykryto, że narzędzie Thinkfinity VirtualUI zawiera podatność umożliwiającą wyświetlenie ramki iframe zawierającej dowolną stronę internetową.",
     "Odoo database manager was discovered.": "Wykryto publicznie dostępny system do zarządzania bazą danych systemu Odoo. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "A Symfony installations 'debug' interface is enabled, allowing the disclosure and possible execution of arbitrary code.": "Wykryto narzędzie Symfony w konfiguracji debug. Udostępnienie narzędzia z tą opcją może prowadzić np. do wycieku kodu aplikacji lub możliwości zdalnego wykonania kodu. Rekomendujemy, aby taka konfiguracja nie była dostępna publicznie."
+    "[no description] http/exposures/logs/microsoft-runtime-error.yaml": "Wykryto stronę błędu oprogramowania Microsoft, dzięki której atakujący może zdobyć informacje na temat systemu.",
     + RCE_EFFECT_DESCRIPTION,
     "Private SSL, SSH, TLS, and JWT keys were detected.": "Wykryto klucze prywatne SSL, SSH, TLS lub JWT."
     + DATA_HIDE_HINT,

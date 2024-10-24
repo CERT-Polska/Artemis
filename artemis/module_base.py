@@ -141,7 +141,7 @@ class ArtemisBase(Karton):
         if self.check_domain_exists(domain):
             self.add_task(current_task, new_task)
         else:
-            self.log.info("Skipping invalid domain: %s", domain)
+            self.log.info("Skipping invalid domain (nonexistent/placeholder): %s", domain)
 
     def check_domain_exists(self, domain: str) -> bool:
         """

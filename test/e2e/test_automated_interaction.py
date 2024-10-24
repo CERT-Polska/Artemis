@@ -3,7 +3,7 @@ from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 
 import requests
 
-from artemis.frontend import get_binds_that_can_be_disabled
+from artemis.karton_utils import get_binds_that_can_be_disabled
 
 
 class AutomatedInteractionTestCase(BaseE2ETestCase):

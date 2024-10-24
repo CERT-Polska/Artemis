@@ -23,7 +23,7 @@ def create_tasks(
             task.priority = priority
         if tag:
             task.add_payload("tag", tag, persistent=True)
-        task.add_payload("disabled_modules", disabled_modules, persistent=True)
+        task.add_payload("disabled_modules", ",".join(disabled_modules), persistent=True)
         db.create_analysis(task)
         db.save_scheduled_task(task)
         db.save_tag(tag)

@@ -80,6 +80,7 @@ class Analysis(Base):  # type: ignore
     target = Column(String, index=True)
     tag = Column(String, index=True)
     stopped = Column(Boolean, index=True)
+    disabled_modules = Column(String, index=True)  # comma-separated
 
     fulltext = Column(
         TSVector(),
@@ -208,6 +209,7 @@ class DB:
             target=analysis_dict["payload"]["data"],
             tag=analysis_dict["payload_persistent"].get("tag", None),
             stopped=False,
+            disabled_modules=analysis_dict["payload_persistent"]["disabled_modules"],
         )
         with self.session() as session:
             session.add(analysis)

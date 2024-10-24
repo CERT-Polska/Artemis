@@ -1,4 +1,4 @@
-FROM python:3.12-alpine3.20
+FROM python:3.13-alpine3.20
 
 COPY --from=golang:1.23-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"

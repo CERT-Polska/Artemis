@@ -244,6 +244,7 @@ TRANSLATIONS = {
     "Odoo database manager was discovered.": "Wykryto publicznie dostępny system do zarządzania bazą danych systemu Odoo. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "A Symfony installations 'debug' interface is enabled, allowing the disclosure and possible execution of arbitrary code.": "Wykryto narzędzie Symfony w konfiguracji debug. Udostępnienie narzędzia z tą opcją może prowadzić np. do wycieku kodu aplikacji lub możliwości zdalnego wykonania kodu. Rekomendujemy, aby taka konfiguracja nie była dostępna publicznie."
     + RCE_EFFECT_DESCRIPTION,
+    "[no description] http/exposures/logs/microsoft-runtime-error.yaml": "Wykryto stronę błędu oprogramowania Microsoft, dzięki której atakujący może zdobyć informacje na temat systemu.",
     "Private SSL, SSH, TLS, and JWT keys were detected.": "Wykryto klucze prywatne SSL, SSH, TLS lub JWT."
     + DATA_HIDE_HINT,
     "WordPress Site Editor through 1.1.1 allows remote attackers to retrieve arbitrary files via the ajax_path parameter to editor/extensions/pagebuilder/includes/ajax_shortcode_pattern.php.": "Wtyczka WordPress o nazwie WordPress Site Editor w wersjach do 1.1.1 zezwala atakującym na pobieranie dowolnych plików z serwera."

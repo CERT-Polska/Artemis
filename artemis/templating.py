@@ -50,13 +50,16 @@ def render_task_table_row(task_result: Dict[str, Any]) -> List[str]:
 def render_analyses_table_row(entry: Dict[str, Any]) -> List[str]:
     backend = KartonBackend(config=KartonConfig())
 
-    enabled_modules = ", ".join(
-        sorted(
-            (set([bind.identity for bind in backend.get_binds()]) - set(entry["disabled_modules"].split(",")))
-            # We don't show modules that can't be disabled
-            & set([bind.identity for bind in get_binds_that_can_be_disabled()])
+    if entry['disabled_modules']:
+        enabled_modules = ", ".join(
+            sorted(
+                (set([bind.identity for bind in backend.get_binds()]) - set(entry["disabled_modules"].split(",")))
+                # We don't show modules that can't be disabled
+                & set([bind.identity for bind in get_binds_that_can_be_disabled()])
+            )
         )
-    )
+    else:
+        enabled_modules =""
 
     return [
         html.escape(entry["created_at"].strftime("%Y-%m-%d %H:%M:%S")) if "created_at" in entry else None,

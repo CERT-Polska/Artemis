@@ -89,6 +89,9 @@ class DalFox(ArtemisBase):
                 "--debug",
                 "--delay",
                 f"{milliseconds_per_request}",
+                "--skip-bav",  # skip Basic Another Vulnerability
+                "--only-poc",  # only Verified PoC https://dalfox.hahwul.com/docs/format-of-poc/
+                "v",
                 "file",
                 links_file_path,
                 "--method",

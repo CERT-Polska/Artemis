@@ -12,7 +12,7 @@ from redis import Redis
 
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
-from artemis.frontend import get_binds_that_can_be_disabled
+from artemis.karton_utils import get_binds_that_can_be_disabled
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
@@ -239,6 +239,7 @@ def get_analyses_table(
                 "tag": entry["tag"],
                 "target": entry["target"],
                 "created_at": entry["created_at"],
+                "disabled_modules": entry["disabled_modules"],
                 "num_pending_tasks": num_pending_tasks,
                 "num_all_tasks": num_all_tasks,
                 "num_finished_tasks": num_finished_tasks,

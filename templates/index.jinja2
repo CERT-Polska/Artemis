@@ -46,6 +46,10 @@
                     "orderable": false
                 }]
             });
+
+            table.on('draw.dt', function () {
+                $('[data-bs-toggle="tooltip"]').tooltip();
+            });
         })
     </script>
 {% endblock %}

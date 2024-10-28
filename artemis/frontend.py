@@ -11,7 +11,7 @@ import requests
 from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
-from karton.core.backend import KartonBackend, KartonBind
+from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority
@@ -22,7 +22,7 @@ from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
-from artemis.karton_utils import restart_crashed_tasks
+from artemis.karton_utils import get_binds_that_can_be_disabled, restart_crashed_tasks
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
@@ -30,8 +30,6 @@ from artemis.templating import templates
 
 router = APIRouter()
 db = DB()
-
-BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
 
 
 def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
@@ -56,20 +54,6 @@ def whitelist_proxy_response_headers(headers: requests.structures.CaseInsensitiv
         ]:
             result[header] = headers[header]
     return result
-
-
-def get_binds_that_can_be_disabled() -> List[KartonBind]:
-    backend = KartonBackend(config=KartonConfig())
-
-    binds = []
-    for bind in backend.get_binds():
-        if bind.identity in BINDS_THAT_CANNOT_BE_DISABLED:
-            # Not allowing to disable as it's a core module
-            continue
-
-        binds.append(bind)
-
-    return binds
 
 
 def error_content_not_found(request: Request, exc: HTTPException) -> Response:

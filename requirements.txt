@@ -32,7 +32,7 @@ PyMySQL==1.1.1
 python-decouple==3.8
 pytz==2024.2
 PyYAML==6.0.2
-redis==5.1.1
+redis==5.2.0
 requests==2.32.3
 requests-cache==1.2.1
 requests-mock==1.12.1

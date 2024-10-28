@@ -15,6 +15,8 @@ class NoAnswer(Exception):
     pass
 
 
+MAX_CNAME_NEST_DEPTH = 5
+
 def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[str]:
     found_results = []
     response = answer.response
@@ -31,16 +33,23 @@ def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[s
 
             # CNAME
             if entry.rdtype == 5:
-                # This is not the IP we want - we want to check *other records*
-                # for the IP - so we cut the trailing dot (kazet.cc. -> kazet.cc) and
-                # look for this domain in other records.
-                for subentry in response.answer:
-                    if str(subentry.name).strip(".") == item and subentry.rdtype == 1:
-                        found_results.append(subentry.to_text().split(" ")[-1].rstrip("."))
+                for _ in range(MAX_CNAME_NEST_DEPTH):
+                    # This is not the IP we want - we want to check *other records*
+                    # for the IP - so we cut the trailing dot (kazet.cc. -> kazet.cc) and
+                    # look for this domain in other records.
+                    for subentry in response.answer:
+                        if str(subentry.name).strip(".") == item and subentry.rdtype == 1:
+                            found_results.append(subentry.to_text().split(" ")[-1].rstrip("."))
+                            break
 
-                    if str(subentry.name).strip(".") == item and subentry.rdtype == 2:
-                        for rdataset in subentry:
-                            found_results.append(rdataset.to_text().rstrip("."))
+                        if str(subentry.name).strip(".") == item and subentry.rdtype == 2:
+                            for rdataset in subentry:
+                                found_results.append(rdataset.to_text().rstrip("."))
+                            break
+
+                        if str(subentry.name).strip(".") == item and subentry.rdtype == 5:
+                            # CNAME refering to another CNAME record (this happens)
+                            item = subentry.to_text().split(" ")[-1].rstrip(".")
 
     return set(found_results)
 
@@ -55,7 +64,6 @@ def _single_resolution_attempt(domain: str, query_type: str = "A") -> Set[str]:
             result_type = 2
         else:
             raise NotImplementedError(f"Don't know how to obtain results for query {query_type}")
-
         return _results_from_answer(domain, answer, result_type)
 
     except dns.resolver.NoAnswer:

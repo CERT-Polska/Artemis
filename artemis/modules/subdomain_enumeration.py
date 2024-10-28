@@ -76,6 +76,15 @@ class SubdomainEnumeration(ArtemisBase):
                     karton._shutdown = True
                     karton.loop()
 
+    def _should_filter_subdomain(self, domain: str) -> bool:
+        """Some subdomain sources return domains in the form of somethingwww.example.com - some text
+        (or even other domains) concatenated with the initial domains. We filter such domains."""
+        items = domain.split(".")
+        for item in items:
+            if item != "www" and item.endswith("www"):
+                return True
+        return False
+
     def get_subdomains_with_retry(
         self,
         func: Callable[[str], Optional[Set[str]]],
@@ -177,6 +186,9 @@ class SubdomainEnumeration(ArtemisBase):
                     continue
                 if not is_subdomain(subdomain, domain):
                     self.log.info("Non-subdomain returned: %s from %s", subdomain, domain)
+                    continue
+                if self._should_filter_subdomain(subdomain):
+                    self.log.info("Subdomain returned that we should filter: %s", subdomain)
                     continue
                 if subdomain in valid_subdomains:
                     continue

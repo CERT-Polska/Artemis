@@ -17,6 +17,7 @@ class NoAnswer(Exception):
 
 MAX_CNAME_NEST_DEPTH = 5
 
+
 def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[str]:
     found_results = []
     response = answer.response

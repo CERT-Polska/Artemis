@@ -198,8 +198,6 @@ class Nuclei(ArtemisBase):
                 command = [
                     "nuclei",
                     "-disable-update-check",
-                    "-etags",
-                    "intrusive",
                     "-itags",
                     ",".join(TAGS_TO_INCLUDE),
                     "-v",

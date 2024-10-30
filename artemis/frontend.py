@@ -386,7 +386,7 @@ async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
     return templates.TemplateResponse(
         "pending_tasks.jinja2",
         {
-            "title": analysis['target'],
+            "title": analysis["target"],
             "request": request,
             "tasks": tasks,
             "num_tasks": len(tasks),

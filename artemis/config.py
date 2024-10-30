@@ -165,7 +165,7 @@ class Config:
         REQUEST_TIMEOUT_SECONDS: Annotated[
             int,
             "Default request timeout (for all protocols).",
-        ] = get_config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
+        ] = get_config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 
         SCANNING_PACKETS_PER_SECOND: Annotated[
             int,

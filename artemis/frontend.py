@@ -14,7 +14,7 @@ from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
-from karton.core.task import TaskPriority
+from karton.core.task import TaskPriority, TaskState
 from starlette.datastructures import Headers
 
 from artemis import csrf
@@ -26,6 +26,7 @@ from artemis.karton_utils import get_binds_that_can_be_disabled, restart_crashed
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
+from artemis.task_utils import get_task_target
 from artemis.templating import templates
 
 router = APIRouter()
@@ -366,6 +367,25 @@ async def post_remove_pending_tasks(
             backend.delete_task(task)
 
     return RedirectResponse("/", status_code=301)
+
+
+@router.get("/analysis/get-pending-tasks/{analysis_id}", include_in_schema=False)
+async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
+    backend = KartonBackend(config=KartonConfig())
+
+    tasks = []
+    for task in backend.get_all_tasks():
+        if task.root_uid == analysis_id:
+            if task.status in [TaskState.SPAWNED, TaskState.STARTED]:
+                tasks.append((task, get_task_target(task)))
+
+    return templates.TemplateResponse(
+        "pending_tasks.jinja2",
+        {
+            "request": request,
+            "tasks": tasks,
+        },
+    )
 
 
 @router.get("/restart-crashed-tasks", include_in_schema=False)

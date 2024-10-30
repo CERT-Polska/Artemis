@@ -2,4 +2,5 @@
 {% if enabled_modules %}
     <a href="#" data-bs-toggle="tooltip" title="{{ enabled_modules }}">Show enabled modules</a> |
 {% endif %}
+<a href="/analysis/get-pending-tasks/{{ entry.id }}">Show pending tasks</a> |
 <a class="text-danger" href="/analysis/remove-pending-tasks/{{ entry.id }}">Remove pending tasks</a>

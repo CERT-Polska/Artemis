@@ -371,6 +371,10 @@ async def post_remove_pending_tasks(
 
 @router.get("/analysis/get-pending-tasks/{analysis_id}", include_in_schema=False)
 async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
+    analysis = db.get_analysis_by_id(analysis_id)
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+
     backend = KartonBackend(config=KartonConfig())
 
     tasks = []
@@ -382,8 +386,10 @@ async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
     return templates.TemplateResponse(
         "pending_tasks.jinja2",
         {
+            "title": analysis['target'],
             "request": request,
             "tasks": tasks,
+            "num_tasks": len(tasks),
         },
     )
 

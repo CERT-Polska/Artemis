@@ -1,6 +1,6 @@
 {% extends "components/base.jinja2" %}
 {% block main %}
-    <h1>{{ title }}: pending tasks</h1>
+    <h1>{{ title }}: pending tasks (count: {{ num_tasks }})</h1>
 
     <table class="table table-hover">
         <thead>
@@ -15,19 +15,25 @@
         <tbody>
             {% for task, target in tasks %}
                 <tr>
-                    {{ task.payload.created_at }}
-                </tr>
-                <tr>
-                    {{ task.payload_persistent.tag }}
-                </tr>
-                <tr>
-                    {{ task.headers.receiver }}
-                </tr>
-                <tr>
-                    <a href="/task/{{ task.uid }}">{{ target }}</a>
-                </tr>
-                <tr>
-                    {{ task.status }}
+                    <td>
+                        {{ task.payload.created_at }}
+                    </td>
+                    <td>
+                        {{ task.payload_persistent.tag }}
+                    </td>
+                    <td>
+                        {{ task.headers.receiver }}
+                    </td>
+                    <td>
+                        {{ target }}
+                    </td>
+                    <td>
+                        {% if task.status.value == "Spawned" %}
+                            Waiting in queue
+                        {% elif task.status.value == "Started" %}
+                            Running
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

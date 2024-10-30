@@ -222,6 +222,10 @@ class ArtemisBase(Karton):
 
     def _single_iteration(self) -> int:
         self.log.debug("single iteration")
+
+        # In case there was a problem and previous locks was not released
+        ResourceLock.release_all_locks(self.log)
+
         if self.resource_name_to_lock_before_scanning:
             self.log.debug(f"locking {self.resource_name_to_lock_before_scanning}")
             resource_lock = ResourceLock(

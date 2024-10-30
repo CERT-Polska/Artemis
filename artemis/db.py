@@ -30,7 +30,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import select, text
 from sqlalchemy.types import TypeDecorator
 
-from artemis.binds import TaskStatus, TaskType
+from artemis.binds import TaskStatus
 from artemis.config import Config
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language

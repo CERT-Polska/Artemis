@@ -13,7 +13,7 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
 
     def test_sql_injection_detector(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HOST.value},
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={"host": "test-apache-with-sql-injection-postgres", "port": 80},
         )
         self.run_task(task)
@@ -96,7 +96,7 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
 
     def test_sql_injection_detector(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HOST.value},
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={"host": "test-apache-with-sql-injection-mysql", "port": 80},
         )
 

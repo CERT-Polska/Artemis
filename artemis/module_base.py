@@ -13,7 +13,9 @@ from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
 from redis import Redis
+from requests.exceptions import RequestException
 
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
@@ -26,6 +28,7 @@ from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import (
     get_target_host,
+    get_target_url,
     increase_analysis_num_finished_tasks,
     increase_analysis_num_in_progress_tasks,
 )
@@ -587,3 +590,46 @@ class ArtemisBase(Karton):
             raise UnknownIPException(f"Unknown IP for host {host}")
 
         return random.choice(ip_addresses)
+
+    def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
+        base_url = get_target_url(task)
+        scan_destination = self._get_scan_destination(task)
+        lock = ResourceLock(f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES)
+
+        try:
+            response = http_requests.get(base_url)
+            if any(
+                [
+                    message in response.content
+                    for message in [
+                        "Cloudflare</title>",
+                        "<hr><center>cloudflare</center>",
+                        "Incapsula incident ID",
+                        "Please wait while your request is being verified...",
+                        "<title>Unauthorized Access</title>",
+                    ]
+                ]
+            ):
+                self.db.save_task_result(
+                    task=task,
+                    status=TaskStatus.ERROR,
+                    status_reason=f"Unable to connect to base URL: {base_url}: WAF detected, task skipped",
+                )
+                self.log.info(
+                    f"Unable to connect to base URL: {base_url}: WAF detected, task skipped, releasing lock for {scan_destination}"
+                )
+                lock.release()
+                return False
+
+            return True
+        except RequestException as e:
+            self.db.save_task_result(
+                task=task,
+                status=TaskStatus.ERROR,
+                status_reason=f"Unable to connect to base URL {base_url}: {repr(e)}, task skipped",
+            )
+            self.log.info(
+                f"Unable to connect to base URL: {base_url}: {repr(e)}, task skipped, releasing lock for {scan_destination}"
+            )
+            lock.release()
+            return False

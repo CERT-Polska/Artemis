@@ -74,7 +74,8 @@ class ResourceLock:
 
     def release(self) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            del LOCKS_TO_SUSTAIN[self.res_name]
+            if self.res_name in LOCKS_TO_SUSTAIN:
+                del LOCKS_TO_SUSTAIN[self.res_name]
         REDIS.delete(self.res_name)
 
     def __enter__(self) -> None:

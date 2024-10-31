@@ -13,21 +13,21 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
 
     def test_sql_injection_detector(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
-            payload={"url": "http://test-apache-with-sql-injection-postgres"},
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={"host": "test-apache-with-sql-injection-postgres", "port": 80},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
 
         sqli_message = (
-            "http://test-apache-with-sql-injection-postgres/sql_injection.php?error='&event='&excerpt='&export='&f='&"
+            "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?error='&event='&excerpt='&export='&f='&"
             "features='&fid='&field='&field_id='&fields='&file='&file_name='&filename='&files='&filter='&firstname='&"
             "first_name='&flag='&fname='&folder='&foo='&form='&format='&from='&function='&g='&gid='&gmt_offset='&go='"
             "&group='&group_id='&groups='&h='&hash='&height='&hidden='&history='&host='&hostname='&html='&i='&id='&ID"
             "='&id_base='&ids='&image='&img='&import='&index=': It appears that this URL is vulnerable to SQL injection"
         )
         time_base_sqli_message = (
-            "http://test-apache-with-sql-injection-postgres/sql_injection.php?error='||pg_sleep(5)||'&event='||pg_slee"
+            "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?error='||pg_sleep(5)||'&event='||pg_slee"
             "p(5)||'&excerpt='||pg_sleep(5)||'&export='||pg_sleep(5)||'&f='||pg_sleep(5)||'&features='||pg_sleep(5)||'"
             "&fid='||pg_sleep(5)||'&field='||pg_sleep(5)||'&field_id='||pg_sleep(5)||'&fields='||pg_sleep(5)||'&file='|"
             "|pg_sleep(5)||'&file_name='||pg_sleep(5)||'&filename='||pg_sleep(5)||'&files='||pg_sleep(5)||'&filter='||p"
@@ -42,11 +42,11 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "at this URL is vulnerable to time-based SQL injection"
         )
         sqli_by_headers_message = (
-            "http://test-apache-with-sql-injection-postgres/headers_vuln.php: "
+            "http://test-apache-with-sql-injection-postgres:80/headers_vuln.php: "
             "It appears that this URL is vulnerable to SQL injection through HTTP Headers"
         )
         time_base_sqli_by_headers_message = (
-            "http://test-apache-with-sql-injection-postgres/headers_vuln.php: "
+            "http://test-apache-with-sql-injection-postgres:80/headers_vuln.php: "
             "It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers"
         )
 
@@ -58,16 +58,18 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertEqual(len(call.kwargs["data"]["result"]), 4)
 
     def test_is_url_with_parameters(self) -> None:
-        url_with_payload = "http://test-apache-with-sql-injection-postgres?id=3"
-        current_url = "http://test-apache-with-sql-injection-postgres"
+        url_with_payload = "http://test-apache-with-sql-injection-postgres:80?id=3"
+        current_url = "http://test-apache-with-sql-injection-postgres:80"
 
         self.assertTrue(self.karton_class.is_url_with_parameters(url_with_payload))
         self.assertFalse(self.karton_class.is_url_with_parameters(current_url))
 
     def test_are_request_efficient(self) -> None:
-        current_url = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id=1"
-        url_with_sleep_payload = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id='||pg_sleep(5)||'"
-        url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres/headers_vuln.php"
+        current_url = "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id=1"
+        url_with_sleep_payload = (
+            "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id='||pg_sleep(5)||'"
+        )
+        url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres:80/headers_vuln.php"
 
         self.assertTrue(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, current_url))
         self.assertFalse(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, url_with_sleep_payload))
@@ -78,9 +80,9 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         )
 
     def test_contains_error(self) -> None:
-        current_url = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id=5"
-        url_with_payload = "http://test-apache-with-sql-injection-postgres/sql_injection.php?id='"
-        url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres/headers_vuln.php"
+        current_url = "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id=5"
+        url_with_payload = "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id='"
+        url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres:80/headers_vuln.php"
 
         self.assertFalse(self.karton.contains_error(current_url, http_requests.get(current_url)))
         self.assertTrue(self.karton.contains_error(url_with_payload, http_requests.get(url_with_payload)))
@@ -96,22 +98,22 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
 
     def test_sql_injection_detector(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
-            payload={"url": "http://test-apache-with-sql-injection-mysql"},
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={"host": "test-apache-with-sql-injection-mysql", "port": 80},
         )
 
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
 
         sqli_message = (
-            "http://test-apache-with-sql-injection-mysql/sql_injection.php?error='&event='&excerpt='&export='&f='&feat"
+            "http://test-apache-with-sql-injection-mysql:80/sql_injection.php?error='&event='&excerpt='&export='&f='&feat"
             "ures='&fid='&field='&field_id='&fields='&file='&file_name='&filename='&files='&filter='&firstname='&first"
             "_name='&flag='&fname='&folder='&foo='&form='&format='&from='&function='&g='&gid='&gmt_offset='&go='&group"
             "='&group_id='&groups='&h='&hash='&height='&hidden='&history='&host='&hostname='&html='&i='&id='&ID='&id_b"
             "ase='&ids='&image='&img='&import='&index=': It appears that this URL is vulnerable to SQL injection"
         )
         time_base_sqli_message = (
-            "http://test-apache-with-sql-injection-mysql/sql_injection.php?error='||sleep(5)||'&event='||sleep(5)||'&e"
+            "http://test-apache-with-sql-injection-mysql:80/sql_injection.php?error='||sleep(5)||'&event='||sleep(5)||'&e"
             "xcerpt='||sleep(5)||'&export='||sleep(5)||'&f='||sleep(5)||'&features='||sleep(5)||'&fid='||sleep(5)||'&f"
             "ield='||sleep(5)||'&field_id='||sleep(5)||'&fields='||sleep(5)||'&file='||sleep(5)||'&file_name='||sleep("
             "5)||'&filename='||sleep(5)||'&files='||sleep(5)||'&filter='||sleep(5)||'&firstname='||sleep(5)||'&first_n"
@@ -125,11 +127,11 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "QL injection"
         )
         sqli_by_headers_message = (
-            "http://test-apache-with-sql-injection-mysql/headers_vuln.php: "
+            "http://test-apache-with-sql-injection-mysql:80/headers_vuln.php: "
             "It appears that this URL is vulnerable to SQL injection through HTTP Headers"
         )
         time_base_sqli_by_headers_message = (
-            "http://test-apache-with-sql-injection-mysql/headers_vuln.php: "
+            "http://test-apache-with-sql-injection-mysql:80/headers_vuln.php: "
             "It appears that this URL is vulnerable to time-based SQL injection "
             "through HTTP Headers"
         )

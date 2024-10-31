@@ -66,7 +66,9 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
 
     def test_are_request_efficient(self) -> None:
         current_url = "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id=1"
-        url_with_sleep_payload = "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id='||pg_sleep(5)||'"
+        url_with_sleep_payload = (
+            "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id='||pg_sleep(5)||'"
+        )
         url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres:80/headers_vuln.php"
 
         self.assertTrue(self.karton_class.are_requests_time_efficient(SqlInjectionDetector, current_url))

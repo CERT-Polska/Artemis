@@ -43,6 +43,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "wp-members",
     "wordpress-popup",
     "backwpup",
+    "social-pug",
     "yith-woocommerce-catalog-mode",
     "wppao-sitemap",
 ]
@@ -54,7 +55,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
-    "change-admin-email-setting-without-outbound-email",
     "coming-soon",
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",

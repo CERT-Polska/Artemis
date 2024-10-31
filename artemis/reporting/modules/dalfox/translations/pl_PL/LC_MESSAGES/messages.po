@@ -1,0 +1,29 @@
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:3
+msgid "We identified that the following URLs contain XSS vulnerabilities:"
+msgstr "Wykryliśmy, że następujące adresy zawierają podatności XSS:"
+
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:10
+msgid "we identified an XSS vulnerability in:"
+msgstr "zidentyfikowaliśmy podatność w:"
+
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:12
+msgid "example:"
+msgstr "przykład:"
+
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:21
+msgid ""
+"A Cross-Site Scripting vulnerability allows an attacker to craft a link "
+"that, when clicked by an administrator, performs any action with their "
+"permissions (such as modifying content)."
+msgstr ""
+"Podatność Cross-Site Scripting umożliwia atakującemu spreparowanie linku,"
+" który po kliknięciu przez administratora wykona dowolną akcję z jego "
+"uprawnieniami (taką jak np. modyfikacja treści)."
+
+#: artemis/reporting/modules/dalfox/template_xss.jinja2:25
+msgid ""
+"The above examples are automatically generated - contact us if they "
+"aren't sufficient for you to reproduce the vulnerability."
+msgstr ""
+"Powyższe przykłady są generowane automatycznie - prosimy o kontakt, jeśli"
+" nie są wystarczające, aby odtworzyć podatność po Państwa stronie."

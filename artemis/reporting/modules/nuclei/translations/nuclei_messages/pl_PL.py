@@ -244,6 +244,7 @@ TRANSLATIONS = {
     "Odoo database manager was discovered.": "Wykryto publicznie dostępny system do zarządzania bazą danych systemu Odoo. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "A Symfony installations 'debug' interface is enabled, allowing the disclosure and possible execution of arbitrary code.": "Wykryto narzędzie Symfony w konfiguracji debug. Udostępnienie narzędzia z tą opcją może prowadzić np. do wycieku kodu aplikacji lub możliwości zdalnego wykonania kodu. Rekomendujemy, aby taka konfiguracja nie była dostępna publicznie."
     + RCE_EFFECT_DESCRIPTION,
+    "[no description] http/exposures/logs/microsoft-runtime-error.yaml": "Wykryto stronę błędu oprogramowania Microsoft, dzięki której atakujący może zdobyć informacje na temat systemu.",
     "Private SSL, SSH, TLS, and JWT keys were detected.": "Wykryto klucze prywatne SSL, SSH, TLS lub JWT."
     + DATA_HIDE_HINT,
     "WordPress Site Editor through 1.1.1 allows remote attackers to retrieve arbitrary files via the ajax_path parameter to editor/extensions/pagebuilder/includes/ajax_shortcode_pattern.php.": "Wtyczka WordPress o nazwie WordPress Site Editor w wersjach do 1.1.1 zezwala atakującym na pobieranie dowolnych plików z serwera."
@@ -252,6 +253,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Adminer before 4.7.9 is susceptible to server-side request forgery due to exposure of sensitive information in error messages. Users of Adminer versions bundling all drivers, e.g. adminer.php, are affected. An attacker can possibly obtain this information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Narzędzie Adminer w wersji poniżej 4.7.9 zawiera podatność Server-Side Request Forgery. Może to umożliwić atakującemu komunikację z usługami w sieci wewnętrznej, a w niektórych konfiguracjach również uzyskanie nieuprawnionego dostępu do systemu."
     + UPDATE_HINT,
+    "[no description] http/fuzzing/ssrf-via-proxy.yaml": "Wykryto podatność Server-Side Request Forgery. Może ona umożliwić atakującemu komunikację z usługami w sieci wewnętrznej, a w niektórych konfiguracjach również uzyskanie nieuprawnionego dostępu do systemu.",
     "WordPress Fusion Builder plugin before 3.6.2 is susceptible to server-side request forgery. The plugin does not validate a parameter in its forms, which can be used to initiate arbitrary HTTP requests. The data returned is then reflected back in the application's response. An attacker can potentially interact with hosts on the server's local network, bypass firewalls, and access control measures.": "Wtyczka WordPress o nazwie Fusion Builder w wersji poniżej 3.6.2 zawiera podatność Server-Side Request Forgery. Może to umożliwić atakującemu komunikację z usługami w sieci wewnętrznej, a w niektórych konfiguracjach również uzyskanie nieuprawnionego dostępu do systemu."
     + WORDPRESS_UPDATE_HINT,
     "WordPress Metform plugin through 2.1.3 is susceptible to information disclosure due to improper access control in the ~/core/forms/action.php file. An attacker can view all API keys and secrets of integrated third-party APIs such as that of PayPal, Stripe, Mailchimp, Hubspot, HelpScout, reCAPTCHA and many more.": "Wtyczka WordPress o nazwie Metform w wersjach do 2.1.3 umożliwia atakującemu pobranie kluczy API usług takich jak PayPal, Stripe, Mailchimp, Hubspot, HelpScout czy reCAPTCHA."
@@ -628,6 +630,7 @@ TRANSLATIONS = {
     "phpMyAdmin contains a default login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że do systemu phpMyAdmin można zalogować się prostym hasłem. Atakujący może uzyskać dostęp do kont użytkowników czy wrażliwych danych, zmienić dane lub wykonać nieuprawnione operacje.",
     "phpMyAdmin panel was detected.": "wykryto panel logowania narzędzia phpMyAdmin.",
     "netlify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Netlify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Netlify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "Tilda takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Tilda, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Tilda, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "shopify takeover was detected.": "Wykryto domenę skonfigurowaną, aby serwować treści z narzędzia Shopify, ale strona docelowa nie istnieje. Atakujący może utworzyć taką stronę w serwisie Shopify, aby serwować swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "auth.json file is exposed.": "Wykryto plik auth.json, zawierający login i hasło lub inne dane autoryzacyjne. Rekomendujemy, aby takie dane nie były dostępne publicznie.",
     "Django Debug Method is enabled.": "Wykryto framework Django skonfigurowany aby udostępniać informacje diagnostyczne, takie jak konfiguracja systemu czy ścieżki.",
@@ -720,7 +723,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The POST SMTP Mailer  Email log, Delivery Failure Notifications and Best Mail SMTP for WordPress plugin for WordPress is vulnerable to unauthorized access of data and modification of data due to a type juggling issue on the connect-app REST endpoint in all versions up to, and including, 2.8.7.": "Wtyczka WordPress o nazwie POST SMTP Mailer  Email log, Delivery Failure Notifications and Best Mail SMTP for WordPress w wersji 2.8.7 i niższych umożliwia atakującemu nieuprawniony dostęp do informacji."
     + WORDPRESS_UPDATE_HINT,
-    "Nova noVNC contains an open redirect vulnerability. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że system Nowa noVNC zawiera podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
+    "Nova noVNC contains an open redirect vulnerability. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto, że system Nova noVNC zawiera podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
     "An issue was discovered in ownCloud owncloud/graphapi 0.2.x before 0.2.1 and 0.3.x before 0.3.1. The graphapi app relies on a third-party GetPhpInfo.php library that provides a URL. When this URL is accessed, it reveals the configuration details of the PHP environment (phpinfo). This information includes all the environment variables of the webserver. In containerized deployments, these environment variables may include sensitive data such as the ownCloud admin password, mail server credentials, and license key. Simply disabling the graphapi app does not eliminate the vulnerability. Additionally, phpinfo exposes various other potentially sensitive configuration details that could be exploited by an attacker to gather information about the system.": "Biblioteka owncloud/graphapi w wersji 0.2.x poniżej 0.2.1 i 0.3.x poniżej 0.3.1 zawiera podatność umożliwiającą odczyt konfiguracji serwera."
     + UPDATE_HINT,
     "An issue was discovered in Joomla! 4.0.0 through 4.2.7. An improper access check allows unauthorized access to webservice endpoints.": "Wykryto podatność w systemie Joomla! w wersji od 4.0.0 do 4.2.7 umożliwiającą atakującemu odczyt wrażliwych informacji na temat użytkowników."
@@ -991,12 +994,35 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Jenkins Dashboard is exposed to external users.": "Panel systemu Jenkins jest dostępny publicznie.",
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "[no description] http/exposures/logs/action-controller-exception.yaml": "Wykryto dziennik zdarzeń Action Controller.",
+    "Detection of SAP NetWeaver ABAP Webserver /public/info page": "Wykryto stronę z informacjami systemu SAP NetWeaver ABAP Webserver.",
+    "An integer overflow in process_bin_sasl_auth function in Memcached, which is responsible for authentication commands of Memcached binary protocol, can be abused to cause heap overflow and lead to remote code execution.": "Memcached w wersji 1.4.31 i wcześniejszych zawiera podatność umożliwiającą potencjalnie atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The Backup Migration plugin for WordPress is vulnerable to Remote Code Execution in all versions up to, and including, 1.3.7 via the /includes/backup-heart.php file. This is due to an attacker being able to control the values passed to an include, and subsequently leverage that to achieve remote code execution. This makes it possible for unauthenticated threat actors to easily execute code on the server.": "Wtyczka WordPress o nazwie Backup Migration w wersji do 1.3.7 włącznie zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "Versions prior to 1.9.2 have a cross-site scripting (XSS) vulnerability that could be exploited when an authenticated user uploads a crafted image file for their avatar that gets rendered as a HTML file on the website.": "LabelStudio w wersji poniżej 1.9.2 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "enumerate the users on a SMTP server by issuing the VRFY/EXPN commands": "Za pomocą komendy VRFY/EXPN można poznać nazwy użytkowników serwera SMTP.",
+    "In the module 'Theme Volty CMS Blog' (tvcmsblog) up to versions 4.0.1 from Theme Volty for PrestaShop, a guest can perform SQL injection in affected versions.": "Moduł systemu PrestaShop o nazwie Theme Volty CMS Blog w wersji do 4.0.1 zawiera podatność SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + UPDATE_HINT,
+    "Ricoh default admin credentials were discovered.": "Wykryto urządzenie Ricoh do którego można zalogować się na konto administracyjne domyślnymi danymi.",
+    'A website running via IIS on an old .net framework contains a get request vulnerability. Using the the tilde character "~" in the request, an attacker can locate short names of files and folders not normally visible.': "Strony internetowe korzystające z serwera IIS i starej wersji frameworku .NET zawierają podatność umożliwiającą atakującemu poznanie nazw plików które nie są publicznie dostępne."
+    + UPDATE_HINT,
+    "A vulnerability has been found in TVT DVR TD-2104TS-CL, DVR TD-2108TS-HP, Provision-ISR DVR SH-4050A5-5L(MM) and AVISION DVR AV108T and classified as problematic. This vulnerability affects unknown code of the file /queryDevInfo. The manipulation leads to information disclosure.": "Urządzenia TVT DVR TD-2104TS-CL, DVR TD-2108TS-HP, Provision-ISR DVR SH-4050A5-5L(MM) i AVISION DVR AV108T zawierają podatność umożliwiającą nieuprawniony odczyt niektórych danych.",
+    "Headers were tested for remote command injection vulnerabilities.": "Wykryto, że w nagłówku HTTP można umieścić komendy umożliwiające atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "PlaceOS Authentication Service before 1.29.10.0 allows app/controllers/auth/sessions_controller.rb open redirect.": "PlaceOS Authentication Service w wersji poniżej 1.29.10.0 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + UPDATE_HINT,
     "GeoServer is an open source software server written in Java that allows users to share and edit geospatial data. GeoServer includes support for the OGC Filter expression language and the OGC Common Query Language (CQL) as part of the Web Feature Service (WFS) and Web Map Service (WMS) protocols. CQL is also supported through the Web Coverage Service (WCS) protocol for ImageMosaic coverages. Users are advised to upgrade to either version 2.21.4, or version 2.22.2 to resolve this issue. Users unable to upgrade should disable the PostGIS Datastore *encode functions* setting to mitigate ``strEndsWith``, ``strStartsWith`` and ``PropertyIsLike `` misuse and enable the PostGIS DataStore *preparedStatements* setting to mitigate the ``FeatureId`` misuse.": "GeoServer w wersji poniżej 2.21.4 umożliwia atakującemu wykonywanie dowolnych kwerend."
     + UPDATE_HINT,
     "Moodle 3.10 to 3.10.3, 3.9 to 3.9.6, 3.8 to 3.8.8, and earlier unsupported versions contain a cross-site scripting vulnerability via the redirect_uri parameter.": "System Moodle w wersji od 3.10 do 3.10.3, 3.9 do 3.9.6, 3.8 do 3.8.8 i wcześniejszych niewspieranych wersjach zawiera podatność "
@@ -1486,4 +1512,12 @@ TRANSLATIONS = {
     "kiali panel was detected.": "wykryto panel kiali.",
     "[no description] http/exposed-panels/qBittorrent-panel.yaml": "wykryto panel qBittorrent.",
     "RabbitMQ Management panel was detected.": "Wykryto panel RabbitMQ Management.",
+    "Nexus login panel was detected.": "Wykryto panel logowania systemu Nexus.",
+    "Apache Superset login panel was detected.": "Wykryto panel logowania Apache Superset.",
+    "A Progress Kemp LoadMaster panel was detected.": "wykryto panel Progress Kemp LoadMaster.",
+    "EdgeOS login panel was detected.": "Wykryto panel logowania EdgeOS.",
+    "Slurm HPC Dashboard was detected.": "Wykryto panel Slurm HPC.",
+    "http/exposed-panels/gitlab-explore.yaml": "Wykryto system GitLab.",
+    "Micro Focus Enterprise Server Admin panel was detected.": "Wykryto panel Micro Focus Enterprise Server.",
+    "The presence of SAML-based authentication on GitLab instances. SAML is commonly used for Single Sign-On (SSO) integrations, which allows users to authenticate with GitLab using an external Identity Provider (IdP).": "Wykryto panel GitLab SAML.",
 }

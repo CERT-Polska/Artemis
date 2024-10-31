@@ -6,4 +6,5 @@ import (
 	"github.com/lc/gau/v2/cmd/gau"
 	"github.com/projectdiscovery/nuclei/v3/cmd/nuclei"
 	"github.com/projectdiscovery/subfinder/v2/cmd/subfinder"
+	"github.com/hahwul/dalfox/v2"
 )

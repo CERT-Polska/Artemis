@@ -94,6 +94,16 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-dalfox:
+    <<: *artemis-build-or-image
+    command: "python3 -m artemis.modules.dalfox"
+    depends_on: [karton-system, karton-logger]
+    env_file: .env
+    restart: always
+    volumes:
+      - "./docker/karton.ini:/etc/karton/karton.ini"
+      - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
+
   karton-dashboard:
     depends_on: [karton-system, karton-logger]
     env_file: .env
@@ -281,6 +291,14 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-sql_injection_detector:
+    <<: *artemis-build-or-image
+    command: "python3 -m artemis.modules.sql_injection_detector"
+    depends_on: [karton-system, karton-logger]
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-ssh_bruter:
     <<: *artemis-build-or-image
     command: "python3 -m artemis.modules.ssh_bruter"
@@ -341,13 +359,6 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-sql_injection_detector:
-    <<: *artemis-build-or-image
-    command: "python3 -m artemis.modules.sql_injection_detector"
-    depends_on: [karton-system, karton-logger]
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
 
 volumes:

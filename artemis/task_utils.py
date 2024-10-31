@@ -83,3 +83,29 @@ def increase_analysis_num_in_progress_tasks(redis: Redis, root_uid: str, by: int
 
 def get_analysis_num_in_progress_tasks(redis: Redis, root_uid: str) -> int:  # type: ignore[type-arg]
     return int(redis.get(ANALYSIS_NUM_IN_PROGRESS_TASKS_KEY_PREFIX + root_uid.encode("ascii")) or 0)
+
+
+def get_task_target(task: Task) -> str:
+    result = None
+    if task.headers["type"] == TaskType.NEW:
+        result = task.payload.get("data", None)
+    elif task.headers["type"] == TaskType.IP:
+        result = task.payload.get("ip", None)
+    elif task.headers["type"] == TaskType.DOMAIN:
+        result = task.payload.get("domain", None)
+    elif task.headers["type"] == TaskType.WEBAPP:
+        result = task.payload.get("url", None)
+    elif task.headers["type"] == TaskType.URL:
+        result = task.payload.get("url", None)
+    elif task.headers["type"] == TaskType.SERVICE:
+        if "host" in task.payload and "port" in task.payload:
+            result = task.payload["host"] + ":" + str(task.payload["port"])
+    elif task.headers["type"] == TaskType.DEVICE:
+        if "host" in task.payload and "port" in task.payload:
+            result = task.payload["host"] + ":" + str(task.payload["port"])
+
+    if not result:
+        result = task.headers["type"] + ": " + task.uid
+
+    assert isinstance(result, str)
+    return result

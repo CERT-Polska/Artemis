@@ -30,10 +30,11 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import select, text
 from sqlalchemy.types import TypeDecorator
 
-from artemis.binds import TaskStatus, TaskType
+from artemis.binds import TaskStatus
 from artemis.config import Config
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
+from artemis.task_utils import get_task_target
 from artemis.utils import build_logger
 
 
@@ -80,6 +81,7 @@ class Analysis(Base):  # type: ignore
     target = Column(String, index=True)
     tag = Column(String, index=True)
     stopped = Column(Boolean, index=True)
+    disabled_modules = Column(String, index=True)  # comma-separated
 
     fulltext = Column(
         TSVector(),
@@ -154,32 +156,6 @@ class PaginatedResults:
     data: List[Dict[str, Any]]
 
 
-def get_task_target(task: Task) -> str:
-    result = None
-    if task.headers["type"] == TaskType.NEW:
-        result = task.payload.get("data", None)
-    elif task.headers["type"] == TaskType.IP:
-        result = task.payload.get("ip", None)
-    elif task.headers["type"] == TaskType.DOMAIN:
-        result = task.payload.get("domain", None)
-    elif task.headers["type"] == TaskType.WEBAPP:
-        result = task.payload.get("url", None)
-    elif task.headers["type"] == TaskType.URL:
-        result = task.payload.get("url", None)
-    elif task.headers["type"] == TaskType.SERVICE:
-        if "host" in task.payload and "port" in task.payload:
-            result = task.payload["host"] + ":" + str(task.payload["port"])
-    elif task.headers["type"] == TaskType.DEVICE:
-        if "host" in task.payload and "port" in task.payload:
-            result = task.payload["host"] + ":" + str(task.payload["port"])
-
-    if not result:
-        result = task.headers["type"] + ": " + task.uid
-
-    assert isinstance(result, str)
-    return result
-
-
 class DB:
     def __init__(self) -> None:
         self.logger = build_logger(__name__)
@@ -208,6 +184,7 @@ class DB:
             target=analysis_dict["payload"]["data"],
             tag=analysis_dict["payload_persistent"].get("tag", None),
             stopped=False,
+            disabled_modules=analysis_dict["payload_persistent"]["disabled_modules"],
         )
         with self.session() as session:
             session.add(analysis)

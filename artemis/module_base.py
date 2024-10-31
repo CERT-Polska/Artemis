@@ -19,6 +19,7 @@ from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
+from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
 from artemis.resolvers import NoAnswer, ResolutionException, lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
@@ -123,24 +124,28 @@ class ArtemisBase(Karton):
         else:
             self.log.info("Task is not a new task, not adding: %s", new_task)
 
-    def add_task_if_domain_exists(self, current_task: Task, new_task: Task) -> None:
+    def add_task_if_domain_exists(self, current_task: Task, new_task: Task) -> bool:
         """
         Add a new task if the domain in the task payload exists.
 
         Args:
             current_task (Task): The current task being processed.
             new_task (Task): The new task to potentially add.
+
+        Returns True if the task was actually added.
         """
         domain = new_task.payload.get("domain")
         if not domain:
             self.log.info("No domain found in new task payload - adding it, as it might be an IP task")
             self.add_task(current_task, new_task)
-            return
+            return True
 
         if self.check_domain_exists(domain):
             self.add_task(current_task, new_task)
+            return True
         else:
-            self.log.info("Skipping invalid domain: %s", domain)
+            self.log.info("Skipping invalid domain (nonexistent/placeholder): %s", domain)
+            return False
 
     def check_domain_exists(self, domain: str) -> bool:
         """
@@ -153,6 +158,11 @@ class ArtemisBase(Karton):
             bool: True if the domain exists, False otherwise.
         """
         try:
+            if Config.Modules.PlaceholderPageContent.ENABLE_PLACEHOLDER_PAGE_DETECTOR:
+                placeholder_page = PlaceholderPageDetector()
+                if placeholder_page.is_placeholder(domain):
+                    return False
+
             # Check for NS records
             try:
                 ns_records = lookup(domain, "NS")
@@ -212,6 +222,10 @@ class ArtemisBase(Karton):
 
     def _single_iteration(self) -> int:
         self.log.debug("single iteration")
+
+        # In case there was a problem and previous locks was not released
+        ResourceLock.release_all_locks(self.log)
+
         if self.resource_name_to_lock_before_scanning:
             self.log.debug(f"locking {self.resource_name_to_lock_before_scanning}")
             resource_lock = ResourceLock(
@@ -233,7 +247,15 @@ class ArtemisBase(Karton):
         for task in tasks:
             increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
 
-        self.internal_process_multiple(tasks)
+        if len(tasks):
+            time_start = time.time()
+            self.internal_process_multiple(tasks)
+            self.log.info(
+                "Took %.02fs to perform %d tasks by module %s",
+                time.time() - time_start,
+                len(tasks),
+                self.identity,
+            )
 
         for task in tasks:
             increase_analysis_num_finished_tasks(REDIS, task.root_uid)

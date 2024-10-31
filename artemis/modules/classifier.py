@@ -5,16 +5,12 @@ import subprocess
 from typing import List, Optional
 
 from karton.core import Task
-from publicsuffixlist import PublicSuffixList
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import Config
 from artemis.domains import is_domain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error, is_ip_address, throttle_request
-
-PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
@@ -137,6 +133,8 @@ class Classifier(ArtemisBase):
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")
 
+        data = data.lower()
+
         if not Classifier.is_supported(data):
             self.db.save_task_result(
                 task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data
@@ -166,7 +164,6 @@ class Classifier(ArtemisBase):
 
         sanitized = self._sanitize(data)
         task_type = self._classify(sanitized)
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": task_type, "data": [sanitized]})
 
         if task_type == TaskType.SERVICE:
             host, port_str = data.rsplit(":", 1)
@@ -186,10 +183,16 @@ class Classifier(ArtemisBase):
                 )
             except subprocess.CalledProcessError:
                 self.log.exception("Unable to fingerprint %s", data)
+                self.db.save_task_result(
+                    task=current_task, status=TaskStatus.ERROR, status_reason="Unable to fingerprint: %s" % data
+                )
                 return
 
             if not output:
                 self.log.exception("Unable to fingerprint %s", data)
+                self.db.save_task_result(
+                    task=current_task, status=TaskStatus.ERROR, status_reason="Unable to fingerprint: %s" % data
+                )
                 return
 
             data = json.loads(output)
@@ -212,24 +215,11 @@ class Classifier(ArtemisBase):
                 },
             )
             self.add_task(current_task, new_task)
+            self.db.save_task_result(
+                task=current_task, status=TaskStatus.OK, data={"type": task_type, "data": [sanitized]}
+            )
         else:
             data = Classifier._clean_ipv6_brackets(data)
-
-            if task_type == TaskType.DOMAIN:
-                if (
-                    PUBLIC_SUFFIX_LIST.publicsuffix(sanitized) == sanitized
-                    or sanitized in Config.PublicSuffixes.ADDITIONAL_PUBLIC_SUFFIXES
-                ):
-                    if not Config.PublicSuffixes.ALLOW_SCANNING_PUBLIC_SUFFIXES:
-                        message = (
-                            f"{sanitized} is a public suffix - adding it to the list of "
-                            "scanned targets may result in scanning too much. Quitting."
-                        )
-                        self.log.warning(message)
-                        self.db.save_task_result(
-                            task=current_task, status=TaskStatus.ERROR, status_reason=message, data=task_type
-                        )
-                        return
 
             new_task = Task(
                 {"type": task_type},
@@ -241,7 +231,16 @@ class Classifier(ArtemisBase):
                 },
             )
 
-            self.add_task_if_domain_exists(current_task, new_task)
+            if self.add_task_if_domain_exists(current_task, new_task):
+                self.db.save_task_result(
+                    task=current_task, status=TaskStatus.OK, data={"type": task_type, "data": [sanitized]}
+                )
+            else:
+                self.db.save_task_result(
+                    task=current_task,
+                    status=TaskStatus.ERROR,
+                    status_reason="Domain doesn't exist or is a placeholder page",
+                )
 
 
 if __name__ == "__main__":

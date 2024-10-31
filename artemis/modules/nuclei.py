@@ -22,6 +22,7 @@ from artemis.utils import check_output_log_on_error
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
+TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
@@ -51,25 +52,37 @@ class Nuclei(ArtemisBase):
         with self.lock:
             subprocess.call(["nuclei", "-update-templates"])
 
+            templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
+
             template_list_sources: Dict[str, Callable[[], List[str]]] = {
-                "known_exploited_vulnerabilities": lambda: check_output_log_on_error(
-                    ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
+                "known_exploited_vulnerabilities": lambda: [
+                    item
+                    for item in check_output_log_on_error(
+                        ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
+                    )
+                    .decode("ascii")
+                    .split()
+                    if item.endswith(".yml") or item.endswith(".yaml")
+                ],
+                "critical": lambda: check_output_log_on_error(
+                    ["nuclei", "-s", "critical"] + templates_list_command, self.log
                 )
                 .decode("ascii")
                 .split(),
-                "critical": lambda: check_output_log_on_error(["nuclei", "-s", "critical", "-tl"], self.log)
+                "high": lambda: check_output_log_on_error(["nuclei", "-s", "high"] + templates_list_command, self.log)
                 .decode("ascii")
                 .split(),
-                "high": lambda: check_output_log_on_error(["nuclei", "-s", "high", "-tl"], self.log)
-                .decode("ascii")
-                .split(),
-                "medium": lambda: check_output_log_on_error(["nuclei", "-s", "medium", "-tl"], self.log)
+                "medium": lambda: check_output_log_on_error(
+                    ["nuclei", "-s", "medium"] + templates_list_command, self.log
+                )
                 .decode("ascii")
                 .split(),
                 # These are not high severity, but may lead to significant information leaks and are easy to fix
                 "log_exposures": lambda: [
                     item
-                    for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
+                    for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
+                    .decode("ascii")
+                    .split()
                     if item.startswith("http/exposures/logs")
                     # we already have a git detection module that filters FPs such as
                     # exposed source code of a repo that is already public
@@ -77,7 +90,9 @@ class Nuclei(ArtemisBase):
                 ],
                 "exposed_panels": lambda: [
                     item
-                    for item in check_output_log_on_error(["nuclei", "-tl"], self.log).decode("ascii").split()
+                    for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
+                    .decode("ascii")
+                    .split()
                     if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
                 ],
             }
@@ -99,6 +114,11 @@ class Nuclei(ArtemisBase):
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
+        self._nuclei_templates_to_skip_probabilistically_set = set()
+        if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
+            for line in open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE):
+                self._nuclei_templates_to_skip_probabilistically_set.add(line.strip())
+
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
         random.shuffle(links)
@@ -113,6 +133,33 @@ class Nuclei(ArtemisBase):
     def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
         if not targets:
             return []
+
+        templates_filtered = []
+
+        num_templates_skipped = 0
+        for template in templates:
+            if template not in self._nuclei_templates_to_skip_probabilistically_set:
+                templates_filtered.append(template)
+            elif (
+                template in self._nuclei_templates_to_skip_probabilistically_set
+                and random.uniform(0, 100)
+                >= Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY
+            ):
+                templates_filtered.append(template)
+            else:
+                num_templates_skipped += 1
+
+        self.log.info(
+            "Requested to skip %d templates with probability %f, actually skipped %d",
+            len(self._nuclei_templates_to_skip_probabilistically_set),
+            Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY,
+            num_templates_skipped,
+        )
+        self.log.info(
+            "After probabilistic skipping, executing %d templates out of %d",
+            len(templates_filtered),
+            len(templates),
+        )
 
         if Config.Limits.REQUESTS_PER_SECOND:
             milliseconds_per_request_initial = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))
@@ -138,7 +185,9 @@ class Nuclei(ArtemisBase):
             additional_configuration = []
 
         lines = []
-        for template_chunk in more_itertools.chunked(templates, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE):
+        for template_chunk in more_itertools.chunked(
+            templates_filtered, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE
+        ):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
                     "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",
@@ -149,25 +198,15 @@ class Nuclei(ArtemisBase):
                 command = [
                     "nuclei",
                     "-disable-update-check",
-                    "-etags",
-                    "intrusive",
                     "-itags",
-                    "fuzz,dast",
+                    ",".join(TAGS_TO_INCLUDE),
                     "-v",
-                    "-concurrency",
-                    "1",
-                    "-headless-concurrency",
-                    "1",
                     "-templates",
                     ",".join(template_chunk),
                     "-timeout",
                     str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
                     "-jsonl",
                     "-system-resolvers",
-                    "-bulk-size",
-                    str(len(targets)),
-                    "-headless-bulk-size",
-                    str(len(targets)),
                     "-rate-limit",
                     "1",
                     "-rate-limit-duration",

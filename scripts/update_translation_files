@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 cd $(dirname $0)/..
 
 LOCALES=`cat artemis/reporting/languages.txt`
@@ -11,7 +13,7 @@ fi
 
 . venv/bin/activate
 
-pip install Babel==2.12.1 Jinja2==3.1.2
+pip install Babel==2.16.0 Jinja2==3.1.4 setuptools==75.1.0
 
 (
     for template_file_name in `find artemis/ | grep \\.jinja2$`

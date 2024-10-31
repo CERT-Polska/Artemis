@@ -21,17 +21,20 @@ class DirectoryIndexReporter(Reporter):
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
-        if not isinstance(task_result["result"], dict):
-            return []
-
         reports = []
         if task_result["headers"]["receiver"] == "bruter":
+            if not isinstance(task_result["result"], dict):
+                return []
+
             for found_url_dict in task_result["result"]["found_urls"]:
                 found_url = FoundURL(**found_url_dict)
 
                 if found_url.has_directory_index:
                     reports.append(DirectoryIndexReporter._build_directory_index_report(task_result, found_url))
         elif task_result["headers"]["receiver"] == "robots":
+            if not isinstance(task_result["result"], dict):
+                return []
+
             for found_url_dict in task_result["result"]["result"]["found_urls"]:
                 found_url = FoundURL(**found_url_dict)
 
@@ -39,6 +42,9 @@ class DirectoryIndexReporter(Reporter):
 
                 reports.append(DirectoryIndexReporter._build_directory_index_report(task_result, found_url))
         elif task_result["headers"]["receiver"] == "directory_index":
+            if not isinstance(task_result["result"], list):
+                return []
+
             for found_url_dict in task_result["result"]:
                 found_url = FoundURL(**found_url_dict)
 

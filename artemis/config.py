@@ -133,7 +133,7 @@ class Config:
             are already scanned. To make scanning faster, Artemis remembers the position in the task queue for the next
             QUEUE_LOCATION_MAX_AGE_SECONDS in order not to repeat trying to lock the first tasks in the queue.
             """,
-        ] = get_config("QUEUE_LOCATION_MAX_AGE_SECONDS", default=300, cast=int)
+        ] = get_config("QUEUE_LOCATION_MAX_AGE_SECONDS", default=900, cast=int)
 
         SCAN_DESTINATION_LOCK_MAX_TRIES: Annotated[
             int,
@@ -146,11 +146,11 @@ class Config:
         ] = get_config("SCAN_DESTINATION_LOCK_MAX_TRIES", default=2, cast=int)
 
     class PublicSuffixes:
-        ALLOW_SCANNING_PUBLIC_SUFFIXES: Annotated[
+        ALLOW_SUBDOMAIN_ENUMERATION_IN_PUBLIC_SUFFIXES: Annotated[
             bool,
-            "Whether we will scan a public suffix (e.g. .pl) if it appears on the target list. This may cause very large "
+            "Whether we will enumerate subdomains for a public suffix (e.g. .pl) if it appears on the target list. This may cause very large "
             "number of domains to be scanned.",
-        ] = get_config("ALLOW_SCANNING_PUBLIC_SUFFIXES", default=False, cast=bool)
+        ] = get_config("ALLOW_SUBDOMAIN_ENUMERATION_IN_PUBLIC_SUFFIXES", default=False, cast=bool)
 
         ADDITIONAL_PUBLIC_SUFFIXES: Annotated[
             List[str],
@@ -165,7 +165,7 @@ class Config:
         REQUEST_TIMEOUT_SECONDS: Annotated[
             int,
             "Default request timeout (for all protocols).",
-        ] = get_config("REQUEST_TIMEOUT_SECONDS", default=10, cast=int)
+        ] = get_config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
 
         SCANNING_PACKETS_PER_SECOND: Annotated[
             int,
@@ -426,6 +426,7 @@ class Config:
                         "http/exposed-panels/pulse-secure-panel.yaml",
                         "http/exposed-panels/pulse-secure-version.yaml",
                         "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
+                        "http/exposed-panels/openvpn-connect.yaml",
                         "http/exposed-panels/ivanti-connect-secure-panel.yaml",
                         "http/exposed-panels/softether-vpn-panel.yaml",
                         "http/exposed-panels/cas-login.yaml",
@@ -449,6 +450,7 @@ class Config:
                         # Mostly meant to be publicly accessible
                         "http/exposed-panels/bigbluebutton-login.yaml",
                         "http/exposed-panels/ilias-panel.yaml",
+                        "http/exposed-panels/librespeed-panel.yaml",
                         "http/exposed-panels/office-webapps-panel.yaml",
                         "http/exposed-panels/onlyoffice-login-panel.yaml",
                         "http/exposed-panels/opensis-panel.yaml",
@@ -468,6 +470,7 @@ class Config:
                         "http/cves/2023/CVE-2023-24044.yaml",
                         # Open Redirect in Referer, X-Forwarded-Host or another header making it hard to exploit
                         "http/vulnerabilities/wordpress/music-store-open-redirect.yaml",
+                        "http/cves/2020/CVE-2020-15129.yaml",
                         "http/cves/2021/CVE-2021-44528.yaml",
                         # Minor information leaks
                         "http/cves/2017/CVE-2017-5487.yaml",
@@ -477,6 +480,7 @@ class Config:
                         "http/cves/2021/CVE-2021-3293.yaml",
                         "http/cves/2021/CVE-2021-25118.yaml",
                         "http/cves/2021/CVE-2021-44848.yaml",
+                        "http/cves/2023/CVE-2023-4568.yaml",
                         "http/cves/2024/CVE-2024-1208.yaml",
                         "http/cves/2024/CVE-2024-1210.yaml",
                         "http/cves/2024/CVE-2024-3097.yaml",
@@ -528,9 +532,33 @@ class Config:
                         "http/exposed-panels/fireware-xtm-user-authentication.yaml",
                         # Popular configuration
                         "network/default-login/ftp-anonymous-login.yaml",
+                        # Will be enabled back after fixing a bug: https://github.com/projectdiscovery/nuclei-templates/pull/10998
+                        "http/fuzzing/xff-403-bypass.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
+            )
+
+            NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE: Annotated[
+                str,
+                "File with a list of Nuclei templates (one per line) to be skipped with NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY "
+                "probability. Use this if you have some templates that never yield results - you don't want to skip them altogether (because "
+                "they may start giving results) but maybe don't run them on all hosts.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE",
+                default="",
+                cast=str,
+            )
+
+            NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY: Annotated[
+                float,
+                "Probability (0...100) of each template from NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY to be skipped. "
+                "Use this if you have some templates that never yield results - you don't want to skip them altogether (because "
+                "they may start giving results) but maybe don't run them on all hosts.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY",
+                default=0,
+                cast=float,
             )
 
             NUCLEI_ADDITIONAL_TEMPLATES: Annotated[
@@ -697,6 +725,28 @@ class Config:
                 "How big are the chunks to split the template list. E.g. if the template list contains 600 templates and "
                 "NUCLEI_TEMPLATE_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
             ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
+
+        class PlaceholderPageContent:
+            ENABLE_PLACEHOLDER_PAGE_DETECTOR: Annotated[
+                bool,
+                "Enable or disable placeholder pages detector. Using this feature you may skip vulnerability scanning "
+                "for websites that aren't built yet, but e.g. contain a hosting provider placeholder page. "
+                "If the page exists and the specified string is found within it, the page will not be scanned for "
+                "vulnerabilities. If the page is not marked as a placeholder, a full scan will be performed.",
+            ] = get_config(
+                "ENABLE_PLACEHOLDER_PAGE_DETECTOR",
+                default=False,
+                cast=bool,
+            )
+            PLACEHOLDER_PAGE_CONTENT_FILENAME: Annotated[
+                str,
+                "Path to placeholder page content file. The file is divided into lines – each line is a string "
+                "containing a different HTML code element to check.",
+            ] = get_config(
+                "PLACEHOLDER_PAGE_CONTENT_FILENAME",
+                default="/opt/artemis/modules/data/placeholder_page_content.txt",
+                cast=str,
+            )
 
         class PortScanner:
             PORT_SCANNER_PORT_LIST: Annotated[str, "Chosen list of ports to scan (can be 'short' or 'long')"] = (

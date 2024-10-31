@@ -11,10 +11,10 @@ import requests
 from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
-from karton.core.backend import KartonBackend, KartonBind
+from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
-from karton.core.task import TaskPriority
+from karton.core.task import TaskPriority, TaskState
 from starlette.datastructures import Headers
 
 from artemis import csrf
@@ -22,16 +22,15 @@ from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
-from artemis.karton_utils import restart_crashed_tasks
+from artemis.karton_utils import get_binds_that_can_be_disabled, restart_crashed_tasks
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
+from artemis.task_utils import get_task_target
 from artemis.templating import templates
 
 router = APIRouter()
 db = DB()
-
-BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
 
 
 def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
@@ -56,20 +55,6 @@ def whitelist_proxy_response_headers(headers: requests.structures.CaseInsensitiv
         ]:
             result[header] = headers[header]
     return result
-
-
-def get_binds_that_can_be_disabled() -> List[KartonBind]:
-    backend = KartonBackend(config=KartonConfig())
-
-    binds = []
-    for bind in backend.get_binds():
-        if bind.identity in BINDS_THAT_CANNOT_BE_DISABLED:
-            # Not allowing to disable as it's a core module
-            continue
-
-        binds.append(bind)
-
-    return binds
 
 
 def error_content_not_found(request: Request, exc: HTTPException) -> Response:
@@ -382,6 +367,31 @@ async def post_remove_pending_tasks(
             backend.delete_task(task)
 
     return RedirectResponse("/", status_code=301)
+
+
+@router.get("/analysis/get-pending-tasks/{analysis_id}", include_in_schema=False)
+async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
+    analysis = db.get_analysis_by_id(analysis_id)
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+
+    backend = KartonBackend(config=KartonConfig())
+
+    tasks = []
+    for task in backend.get_all_tasks():
+        if task.root_uid == analysis_id:
+            if task.status in [TaskState.SPAWNED, TaskState.STARTED]:
+                tasks.append((task, get_task_target(task)))
+
+    return templates.TemplateResponse(
+        "pending_tasks.jinja2",
+        {
+            "title": analysis["target"],
+            "request": request,
+            "tasks": tasks,
+            "num_tasks": len(tasks),
+        },
+    )
 
 
 @router.get("/restart-crashed-tasks", include_in_schema=False)

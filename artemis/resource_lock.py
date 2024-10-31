@@ -1,6 +1,7 @@
 import sys
 import threading
 import time
+from logging import Logger
 from random import uniform
 from typing import Any, Dict, Optional
 from uuid import uuid4
@@ -45,6 +46,12 @@ class ResourceLock:
         self.res_name = res_name
         self.lid = str(uuid4()) + "-" + " ".join(sys.argv)
         self.max_tries = max_tries
+
+    @staticmethod
+    def release_all_locks(logger: Logger) -> None:
+        with LOCKS_TO_SUSTAIN_LOCK:
+            for lock in LOCKS_TO_SUSTAIN:
+                logger.info(f"Releasing lock: {lock} -> {LOCKS_TO_SUSTAIN[lock]}")
 
     def acquire(self) -> None:
         """

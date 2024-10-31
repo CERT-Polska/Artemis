@@ -21,6 +21,7 @@ services:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
       BRUTER_FILE_LIST: full
+      RUNNING_TESTS: "true"
 
       # Use only one provider to speed up the tests
       SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback"
@@ -195,6 +196,14 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
+
+  test_apache-with-xss:
+    build:
+      dockerfile: test/images/php-xss/Dockerfile
+    command: systemctl start apache2.service
+    volumes:
+      - ./test/data/dalfox/:/var/www/html/
+
 
   test-apache-with-sql-injection-postgres:
     build:

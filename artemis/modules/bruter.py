@@ -11,7 +11,6 @@ from karton.core import Task
 from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.models import FoundURL
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
@@ -150,7 +149,7 @@ class Bruter(ArtemisBase):
         )
 
     def run(self, task: Task) -> None:
-        if not check_connection_to_base_url_and_save_error(self.db, task):
+        if not self.check_connection_to_base_url_and_save_error(task):
             return
 
         scan_result = self.scan(task)

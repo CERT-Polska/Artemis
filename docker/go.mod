@@ -6,7 +6,7 @@ toolchain go1.22.3
 
 require (
 	github.com/hahwul/dalfox/v2 v2.9.3
-	github.com/lc/gau/v2 v2.2.3
+	github.com/lc/gau/v2 v2.2.4
 	github.com/praetorian-inc/fingerprintx v1.1.14
 	github.com/projectdiscovery/naabu/v2 v2.3.1
 	github.com/projectdiscovery/nuclei/v3 v3.3.5

@@ -44,6 +44,9 @@ class Report:
     # Whether we already reported that vulnerability earlier
     is_subsequent_reminder: bool = False
 
+    # Whether Artemis considers this report low-confidence
+    is_suspicious: bool = False
+
     # What was the last domain observed when scanning (e.g. when we started with example.com, then proceeded to
     # subdomain1.example.com, then resolved it to an IP and found a vulnerability on this IP, last_domain would be
     # subdomain1.example.com).

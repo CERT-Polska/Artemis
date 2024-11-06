@@ -998,6 +998,16 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "The Redis server running on the remote host is not protected by password authentication. A remote attacker can exploit this to gain unauthorized access to the server.": "Wykryto serwer Redis dostępny bez uwierzytelniania. Rekomendujemy, aby nie był dostępny publicznie.",
+    "http/misconfiguration/springboot/springboot-httptrace.yaml": "Wykryto informację na temat żądań i odpowiedzi HTTP przetwarzanych przez system Spring Boot.",
+    "Multiple fuzzes for /etc/passwd on passed URLs were conducted, leading to multiple instances of local file inclusion vulnerability.": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnego pliku z dysku.",
+    "WordPress LearnPress plugin before 4.1.6 contains a cross-site scripting vulnerability. It does not sanitize and escape the lp-dismiss-notice before outputting it back via the lp_background_single_email AJAX action.": "Wtyczka WordPress o nazwie LearnPress w wersji poniżej 4.1.6 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "An Open Redirect vulnerability in Odoo versions <= 8.0-20160726 and 9.0. This issue allows an attacker to redirect users to untrusted sites via a crafted URL.": "System Odoo w wersji do 8.0-20160726 włącznie i w wersji 9.0 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + UPDATE_HINT,
+    "phpPgAdmin 4.2.1 is vulnerable to local file inclusion in libraries/lib.inc.php when register globals is enabled. Remote attackers can read arbitrary files via a .. (dot dot) in the _language parameter to index.php.": "phpPgAdmin w wersji 4.2.1 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "Keycloak 8.0 and prior contains a cross-site scripting vulnerability. An attacker can execute arbitrary script and thus steal cookie-based authentication credentials and launch other attacks.": "Keycloak w wersji 8.0 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1523,4 +1533,9 @@ TRANSLATIONS = {
     "http/exposed-panels/gitlab-explore.yaml": "Wykryto system GitLab.",
     "Micro Focus Enterprise Server Admin panel was detected.": "Wykryto panel Micro Focus Enterprise Server.",
     "The presence of SAML-based authentication on GitLab instances. SAML is commonly used for Single Sign-On (SSO) integrations, which allows users to authenticate with GitLab using an external Identity Provider (IdP).": "Wykryto panel GitLab SAML.",
+    "Micro Focus Filr login panel was detected.": "Wykryto panel logowania Micro Focus Filr.",
+    "Camunda login panel was detected.": "Wykryto panel logowania systemu Camunda.",
+    "An Authentik search engine was detected.": "Wykryto panel wyszukiwarki Authentik.",
+    'Identifies "Logon Error Message" in the SAP Internet Communication Framework which returns a 404 status code.': "Wykryto stronę systemu SAP.",
+    "RStudio Sign In panel was detected.": "Wykryto panel logowania RStudio.",
 }

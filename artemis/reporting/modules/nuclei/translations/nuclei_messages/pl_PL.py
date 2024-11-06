@@ -1008,6 +1008,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "phpPgAdmin 4.2.1 is vulnerable to local file inclusion in libraries/lib.inc.php when register globals is enabled. Remote attackers can read arbitrary files via a .. (dot dot) in the _language parameter to index.php.": "phpPgAdmin w wersji 4.2.1 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
+    "Hoteldruid v3.0.5 was discovered to contain a SQL injection vulnerability via the n_utente_agg parameter at /hoteldruid/interconnessioni.php.": "Hoteldruid w wersji 3.0.5 i potencjalnie wcześniejszych zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie pełnej zawartości bazy danych.",
     "Keycloak 8.0 and prior contains a cross-site scripting vulnerability. An attacker can execute arbitrary script and thus steal cookie-based authentication credentials and launch other attacks.": "Keycloak w wersji 8.0 i wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,

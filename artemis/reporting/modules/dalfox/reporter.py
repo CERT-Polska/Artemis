@@ -22,6 +22,7 @@ class DalFoxReporter(Reporter):
 
         for report in all_reports:
             if report.report_type == DalFoxReporter.XSS:
+                report.is_suspicious = True
                 result.append(
                     f"As Dalfox is a new module, verify whether the problem on {report.target} is indeed a true positive."
                 )

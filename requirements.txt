@@ -15,7 +15,7 @@ freezegun==1.5.1
 h11==0.14.0
 idna==3.10
 Jinja2==3.1.4
-karton-core==5.5.0
+karton-core==5.5.1
 git+https://github.com/CERT-Polska/mailgoose@v1.3.4#egg=libmailgoose&subdirectory=scan
 liccheck==0.9.2
 Markdown==3.7
@@ -26,7 +26,7 @@ packaging==24.1
 paramiko==3.5.0
 prometheus-client==0.21.0
 psycopg2-binary==2.9.10
-publicsuffixlist==1.0.2.20241026
+publicsuffixlist==1.0.2.20241102
 pydantic==2.3.0
 PyMySQL==1.1.1
 python-decouple==3.8
@@ -39,12 +39,12 @@ requests-mock==1.12.1
 retry==0.9.2
 SQLAlchemy==2.0.36
 semver==3.0.2
-setuptools==75.2.0
+setuptools==75.3.0
 shodan==1.31.0
 six==1.16.0
 termcolor==2.5.0
 timeout-decorator==0.5.0
-tqdm==4.66.5
+tqdm==4.66.6
 typer==0.12.5
 typing-extensions==4.12.2
 urllib3==1.26.18

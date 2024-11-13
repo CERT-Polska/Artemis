@@ -64,6 +64,9 @@ class Report:
     # The severity (added during report post-processing)
     severity: Optional[Severity] = None
 
+    # The normal form (added during report post-processing)
+    normal_form: Optional[NormalForm] = None
+
     # HTML render of the report (added during post-processing)
     html: Optional[str] = None
 

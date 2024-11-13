@@ -22,7 +22,12 @@ class DataLoader:
     """
 
     def __init__(
-        self, db: DB, blocklist: List[BlocklistItem], language: Language, tag: Optional[str], silent: bool = False
+        self,
+        db: DB,
+        blocklist: List[BlocklistItem],
+        language: Language,
+        tag: Optional[str],
+        silent: bool = False,
     ):
         self._db = db
         self._blocklist = blocklist
@@ -80,6 +85,7 @@ class DataLoader:
                 report_to_add.original_task_result_root_uid = result["analysis_id"]
                 report_to_add.original_task_target_string = result["target_string"]
                 report_to_add.severity = get_severity(report_to_add)
+                report_to_add.normal_form = report_to_add.get_normal_form()
                 report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))

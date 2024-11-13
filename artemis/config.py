@@ -420,6 +420,7 @@ class Config:
                         # Generic API docs
                         "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
                         # VPN web portals, SSO and other ones that need to be exposed
+                        "http/exposed-panels/fortinet/fortiweb-panel.yaml",
                         "http/exposed-panels/fortinet/fortios-panel.yaml",
                         "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
                         "http/exposed-panels/checkpoint/ssl-network-extender.yaml",

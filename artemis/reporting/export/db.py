@@ -28,7 +28,6 @@ class DataLoader:
         language: Language,
         tag: Optional[str],
         silent: bool = False,
-        skip_suspicious_reports: bool = False,
     ):
         self._db = db
         self._blocklist = blocklist
@@ -36,7 +35,6 @@ class DataLoader:
         self._tag = tag
         self._data_initialized = False
         self._silent = silent
-        self._skip_suspicious_reports = skip_suspicious_reports
 
     def _initialize_data_if_needed(self) -> None:
         """
@@ -79,12 +77,7 @@ class DataLoader:
             data_for_reporters = result["task"]
             data_for_reporters.update(result)
 
-            reports_to_add = [
-                report
-                for report in reports_from_task_result(data_for_reporters, self._language)
-                if not report.is_suspicious or not self._skip_suspicious_reports
-            ]
-
+            reports_to_add = reports_from_task_result(data_for_reporters, self._language)
             for report_to_add in reports_to_add:
                 report_to_add.tag = result_tag
                 report_to_add.original_karton_name = result["task"]["headers"]["receiver"]

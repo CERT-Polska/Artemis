@@ -38,6 +38,7 @@ def build_export_data(
     db: DataLoader,
     custom_template_arguments_parsed: Dict[str, str],
     timestamp: datetime.datetime,
+    skip_suspicious_reports: bool,
 ) -> ExportData:
     reports = deduplicate_reports(previous_reports, db.reports)
 
@@ -50,6 +51,13 @@ def build_export_data(
     alerts = []
     for reporter in get_all_reporters():
         alerts.extend(reporter.get_alerts(reports))
+
+    for top_level_target in reports_per_top_level_target.keys():
+        reports_per_top_level_target[top_level_target] = [
+            report
+            for report in reports_per_top_level_target[top_level_target]
+            if not report.is_suspicious or not skip_suspicious_reports
+        ]
 
     message_data: Dict[str, SingleTopLevelTargetExportData] = {}
 

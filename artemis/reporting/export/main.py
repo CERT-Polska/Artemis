@@ -150,10 +150,16 @@ def export(
         previous_reports = []
 
     db = DB()
-    export_db_connector = DataLoader(db, blocklist, language, tag, silent, skip_suspicious_reports)
+    export_db_connector = DataLoader(db, blocklist, language, tag, silent)
     timestamp = datetime.datetime.now()
     export_data = build_export_data(
-        previous_reports, tag, language, export_db_connector, custom_template_arguments, timestamp
+        previous_reports,
+        tag,
+        language,
+        export_db_connector,
+        custom_template_arguments,
+        timestamp,
+        skip_suspicious_reports,
     )
     date_str = timestamp.isoformat()
     output_dir = OUTPUT_LOCATION / str(tag) / date_str

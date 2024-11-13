@@ -193,6 +193,7 @@ async def post_export(
     comment: Optional[str] = Body(None),
     custom_template_arguments: Dict[str, Any] = Body({}),
     skip_hooks: bool = Body(False),
+    skip_suspicious_reports: bool = Body(False),
 ) -> Dict[str, Any]:
     """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
     db.create_report_generation_task(
@@ -202,6 +203,7 @@ async def post_export(
         custom_template_arguments=custom_template_arguments,
         language=Language(language),
         skip_hooks=skip_hooks,
+        skip_suspicious_reports=skip_suspicious_reports,
     )
     return {
         "ok": True,

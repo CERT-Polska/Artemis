@@ -22,7 +22,7 @@ class DataLoader:
     """
 
     def __init__(
-        self, db: DB, blocklist: List[BlocklistItem], language: Language, tag: Optional[str], silent: bool = False
+        self, db: DB, blocklist: List[BlocklistItem], language: Language, tag: Optional[str], silent: bool = False, skip_suspicious_reports: bool=False
     ):
         self._db = db
         self._blocklist = blocklist
@@ -30,6 +30,7 @@ class DataLoader:
         self._tag = tag
         self._data_initialized = False
         self._silent = silent
+        self._skip_suspicious_reports = skip_suspicious_reports
 
     def _initialize_data_if_needed(self) -> None:
         """
@@ -74,12 +75,16 @@ class DataLoader:
 
             reports_to_add = reports_from_task_result(data_for_reporters, self._language)
             for report_to_add in reports_to_add:
+                if report_to_add.is_suspicious and self._skip_suspicious_reports:
+                    continue
+
                 report_to_add.tag = result_tag
                 report_to_add.original_karton_name = result["task"]["headers"]["receiver"]
                 report_to_add.original_task_result_id = result["id"]
                 report_to_add.original_task_result_root_uid = result["analysis_id"]
                 report_to_add.original_task_target_string = result["target_string"]
                 report_to_add.severity = get_severity(report_to_add)
+                report_to_add.normal_form = report_to_add.get_normal_form()
                 report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))

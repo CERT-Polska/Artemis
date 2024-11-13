@@ -138,6 +138,7 @@ def export(
     previous_reports_directory: Optional[Path] = None,
     tag: Optional[str] = None,
     skip_hooks: bool = False,
+    skip_suspicious_reports: bool = False,
 ) -> Path:
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
@@ -149,7 +150,7 @@ def export(
         previous_reports = []
 
     db = DB()
-    export_db_connector = DataLoader(db, blocklist, language, tag, silent)
+    export_db_connector = DataLoader(db, blocklist, language, tag, silent, skip_suspicious_reports)
     timestamp = datetime.datetime.now()
     export_data = build_export_data(
         previous_reports, tag, language, export_db_connector, custom_template_arguments, timestamp

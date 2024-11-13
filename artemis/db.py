@@ -135,6 +135,7 @@ class ReportGenerationTask(Base):  # type: ignore
     language = Column(String)
     skip_previously_exported = Column(Boolean)
     skip_hooks = Column(Boolean)
+    skip_suspicious_reports = Column(Boolean)
     custom_template_arguments = Column(JSON)
     output_location = Column(String, nullable=True)
     error = Column(String, nullable=True)
@@ -430,6 +431,7 @@ class DB:
         language: Language,
         skip_previously_exported: bool,
         skip_hooks: bool = False,
+        skip_suspicious_reports: bool=False,
         custom_template_arguments: Dict[str, Any] = {},
     ) -> None:
         with self.session() as session:
@@ -440,6 +442,7 @@ class DB:
                 skip_previously_exported=skip_previously_exported,
                 status=ReportGenerationTaskStatus.PENDING,
                 skip_hooks=skip_hooks,
+                skip_suspicious_reports=skip_suspicious_reports,
                 custom_template_arguments=custom_template_arguments,
             )
             session.add(task)

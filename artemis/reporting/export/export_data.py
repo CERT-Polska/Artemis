@@ -59,7 +59,7 @@ def build_export_data(
             if not report.is_suspicious or not skip_suspicious_reports
         ]
         if len(reports_per_top_level_target[top_level_target]) == 0:
-            del reports_per_top_level_target[top_level_target] 
+            del reports_per_top_level_target[top_level_target]
 
     message_data: Dict[str, SingleTopLevelTargetExportData] = {}
 

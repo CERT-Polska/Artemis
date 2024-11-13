@@ -52,12 +52,14 @@ def build_export_data(
     for reporter in get_all_reporters():
         alerts.extend(reporter.get_alerts(reports))
 
-    for top_level_target in reports_per_top_level_target.keys():
+    for top_level_target in list(reports_per_top_level_target.keys()):
         reports_per_top_level_target[top_level_target] = [
             report
             for report in reports_per_top_level_target[top_level_target]
             if not report.is_suspicious or not skip_suspicious_reports
         ]
+        if len(reports_per_top_level_target[top_level_target]) == 0:
+            del reports_per_top_level_target[top_level_target] 
 
     message_data: Dict[str, SingleTopLevelTargetExportData] = {}
 

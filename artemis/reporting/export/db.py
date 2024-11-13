@@ -82,7 +82,7 @@ class DataLoader:
             reports_to_add = [
                 report
                 for report in reports_from_task_result(data_for_reporters, self._language)
-                if report.is_suspicious or not self._skip_suspicious_reports
+                if not report.is_suspicious or not self._skip_suspicious_reports
             ]
 
             for report_to_add in reports_to_add:

@@ -42,7 +42,7 @@ docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mys
 docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mysql bash -c 'mysql --password=example example < /db.sql'
 
 # Now we are ready to start the tests
-#docker compose -f docker-compose.test.yaml run test
+docker compose -f docker-compose.test.yaml run test
 
 if [ $? -ne 0 ]; then
     exit 1
@@ -72,12 +72,6 @@ docker compose \
     test-e2e
 
 EXIT_CODE=$?
-
-docker compose \
-    -f docker-compose.test.yaml \
-    -f docker-compose.yaml \
-    -f docker-compose.test-e2e.yaml \
-    logs
 
 docker compose \
     -f docker-compose.test.yaml \

@@ -718,6 +718,7 @@ class Config:
                 "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS",
                 default=",".join(
                     [
+                        "http/fuzzing/linux-lfi-fuzzing.yaml",
                         "http/vulnerabilities/generic/top-xss-params.yaml",
                         "http/vulnerabilities/generic/xss-fuzz.yaml",
                         "http/vulnerabilities/generic/basic-xss-prober.yaml",

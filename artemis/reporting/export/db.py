@@ -22,7 +22,13 @@ class DataLoader:
     """
 
     def __init__(
-        self, db: DB, blocklist: List[BlocklistItem], language: Language, tag: Optional[str], silent: bool = False, skip_suspicious_reports: bool=False
+        self,
+        db: DB,
+        blocklist: List[BlocklistItem],
+        language: Language,
+        tag: Optional[str],
+        silent: bool = False,
+        skip_suspicious_reports: bool = False,
     ):
         self._db = db
         self._blocklist = blocklist

@@ -431,7 +431,7 @@ class DB:
         language: Language,
         skip_previously_exported: bool,
         skip_hooks: bool = False,
-        skip_suspicious_reports: bool=False,
+        skip_suspicious_reports: bool = False,
         custom_template_arguments: Dict[str, Any] = {},
     ) -> None:
         with self.session() as session:

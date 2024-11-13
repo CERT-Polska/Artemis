@@ -79,11 +79,13 @@ class DataLoader:
             data_for_reporters = result["task"]
             data_for_reporters.update(result)
 
-            reports_to_add = reports_from_task_result(data_for_reporters, self._language)
-            for report_to_add in reports_to_add:
-                if report_to_add.is_suspicious and self._skip_suspicious_reports:
-                    continue
+            reports_to_add = [
+                report
+                for report in reports_from_task_result(data_for_reporters, self._language)
+                if report.is_suspicious or not self._skip_suspicious_reports
+            ]
 
+            for report_to_add in reports_to_add:
                 report_to_add.tag = result_tag
                 report_to_add.original_karton_name = result["task"]["headers"]["receiver"]
                 report_to_add.original_task_result_id = result["id"]

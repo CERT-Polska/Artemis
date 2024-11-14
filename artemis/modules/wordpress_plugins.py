@@ -67,6 +67,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "pdf-poster",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
+    "sticky-header-effects-for-elementor",
     "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
     "woo-tools",

@@ -47,10 +47,11 @@ msgid "The vulnerability was identified on:"
 msgstr "Podatność wykryto pod poniższymi adresami:"
 
 #: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:28
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:35
 msgid " under "
 msgstr " pod ścieżką "
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:41
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:48
 msgid ""
 "The above links are automatically generated - contact us if they aren't "
 "sufficient for you to reproduce the vulnerability."
@@ -59,7 +60,7 @@ msgstr ""
 " nie są dla Państwa wystarczające, aby odtworzyć podatność po Państwa "
 "stronie."
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:47
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:54
 msgid ""
 "Please contact us if more information is needed - e.g. an address or "
 "command that proves that the vulnerability exists."
@@ -68,6 +69,6 @@ msgstr ""
 "konkretny adres na Państwa stronie, za pomocą którego można potwierdzić, "
 "że podatność istnieje)."
 
-#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:53
+#: artemis/reporting/modules/nuclei/template_nuclei_vulnerability.jinja2:60
 msgid "More information is available on:"
 msgstr "Więcej informacji można uzyskać pod adresami:"

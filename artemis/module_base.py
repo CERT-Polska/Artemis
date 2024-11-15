@@ -607,6 +607,7 @@ class ArtemisBase(Karton):
                         "Incapsula incident ID",
                         "Please wait while your request is being verified...",
                         "<title>Unauthorized Access</title>",
+                        "<title>Attack Detected</title>",
                     ]
                 ]
             ):

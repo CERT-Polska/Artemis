@@ -348,7 +348,7 @@ class SqlInjectionDetector(ArtemisBase):
 
             random.shuffle(links)
 
-            message = self.scan(urls=links[:50], task=current_task)
+            message = self.scan(urls=links[:25], task=current_task)
 
             if message:
                 status = TaskStatus.INTERESTING

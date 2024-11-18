@@ -13,6 +13,7 @@ class Severity(str, Enum):
 
 
 SEVERITY_MAP = {
+    ReportType("vnc_auth"): Severity.HIGH,
     ReportType("forti_vuln"): Severity.HIGH,
     ReportType("globalprotect_vuln"): Severity.HIGH,
     ReportType("insecure_wordpress"): Severity.HIGH,

@@ -262,6 +262,9 @@ class ArtemisBase(Karton):
             requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
         )
 
+        if requests_per_second_overrides:
+            self.log.info("Overriding requests per second to %f", self.requests_per_second_for_current_tasks)
+
         if len(tasks):
             time_start = time.time()
             self.internal_process_multiple(tasks)

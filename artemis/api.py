@@ -56,7 +56,7 @@ def add(
     tag: str | None = Body(default=None),
     disabled_modules: Optional[List[str]] = Body(default=None),
     enabled_modules: Optional[List[str]] = Body(default=None),
-    requests_per_second_override: Optional[int] = Body(default=None),
+    requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
 ) -> Dict[str, Any]:
     """Add targets to be scanned."""
@@ -84,7 +84,13 @@ def add(
     elif not disabled_modules:
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
-    create_tasks(targets, tag, disabled_modules=disabled_modules, priority=TaskPriority(priority), requests_per_second_override=requests_per_second_override)
+    create_tasks(
+        targets,
+        tag,
+        disabled_modules=disabled_modules,
+        priority=TaskPriority(priority),
+        requests_per_second_override=requests_per_second_override,
+    )
 
     return {"ok": True}
 

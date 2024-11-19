@@ -15,7 +15,7 @@ def create_tasks(
     tag: Optional[str] = None,
     disabled_modules: List[str] = [],
     priority: Optional[TaskPriority] = None,
-    requests_per_second_override: Optional[int] = None,
+    requests_per_second_override: Optional[float] = None,
 ) -> None:
     for uri in uris:
         task = Task({"type": TaskType.NEW})

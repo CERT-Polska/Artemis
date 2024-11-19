@@ -99,7 +99,7 @@ class PortScanner(ArtemisBase):
 
         self.log.info(f"scanning {target_ip}")
         naabu = subprocess.Popen(
-            (
+            [
                 "naabu",
                 "-host",
                 target_ip,
@@ -108,8 +108,11 @@ class PortScanner(ArtemisBase):
                 "-silent",
                 "-timeout",
                 str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
-                "-rate",
-                str(self.requests_per_second_for_current_tasks),
+            ]
+            + (
+                ["-rate", str(self.requests_per_second_for_current_tasks)]
+                if self.requests_per_second_for_current_tasks
+                else []
             ),
             stdout=subprocess.PIPE,
         )

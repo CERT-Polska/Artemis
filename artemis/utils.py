@@ -94,12 +94,11 @@ def is_directory_index(content: str) -> bool:
     )
 
 
-def throttle_request(f: Callable[[], Any]) -> Any:
-    request_per_second = Config.Limits.REQUESTS_PER_SECOND
-    if request_per_second == 0:
+def throttle_request(f: Callable[[], Any], requests_per_second: float = Config.Limits.REQUESTS_PER_SECOND) -> Any:
+    if requests_per_second == 0:
         return f()
-    elif request_per_second > 0:
-        average_time_per_request = 1 / request_per_second
+    elif requests_per_second > 0:
+        average_time_per_request = 1 / requests_per_second
         f_start = time.time()
         try:
             return f()

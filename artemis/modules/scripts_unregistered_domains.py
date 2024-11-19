@@ -7,7 +7,7 @@ import validators
 from karton.core import Task
 from publicsuffixlist import PublicSuffixList
 
-from artemis import http_requests, load_risk_class
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
@@ -69,7 +69,7 @@ class ScriptsUnregisteredDomains(ArtemisBase):
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
 
-        content = http_requests.get(url).content
+        content = self.http_get(url).content
 
         soup = bs4.BeautifulSoup(content, "html.parser")
         scripts = soup.find_all("script", src=True)

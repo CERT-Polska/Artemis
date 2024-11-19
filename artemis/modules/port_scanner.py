@@ -13,7 +13,7 @@ from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
 from artemis.task_utils import get_target_host
-from artemis.utils import check_output_log_on_error, throttle_request
+from artemis.utils import check_output_log_on_error
 
 
 def load_ports(file_name: str) -> Set[int]:
@@ -143,7 +143,7 @@ class PortScanner(ArtemisBase):
                     continue
 
             try:
-                output = throttle_request(
+                output = self.throttle_request(
                     lambda: check_output_log_on_error(["fingerprintx", "--json"], self.log, input=line).strip()
                 )
             except subprocess.CalledProcessError:

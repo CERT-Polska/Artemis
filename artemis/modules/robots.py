@@ -5,7 +5,7 @@ from typing import List, Optional, Pattern
 
 from karton.core import Task
 
-from artemis import http_requests, load_risk_class
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.models import FoundURL
@@ -89,7 +89,7 @@ class RobotsScanner(ArtemisBase):
                     path = path.rstrip("$")
 
                     full_url = f"{url}{path}"
-                    content = http_requests.get(full_url).content
+                    content = self.http_get(full_url).content
                     if is_directory_index(content):
                         found_urls.append(
                             FoundURL(
@@ -112,7 +112,7 @@ class RobotsScanner(ArtemisBase):
         return found_urls
 
     def download_robots(self, current_task: Task, url: str) -> RobotsResult:
-        response = http_requests.get(f"{url}/robots.txt", allow_redirects=False)
+        response = self.http_get(f"{url}/robots.txt", allow_redirects=False)
 
         groups = []
         if response.status_code == 200:

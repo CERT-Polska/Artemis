@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Union
 import pytz
 from karton.core import Task
 
-from artemis import http_requests, load_risk_class
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.fallback_api_cache import FallbackAPICache
@@ -65,13 +65,13 @@ class WordPressScanner(ArtemisBase):
 
         # Check for open registration
         registration_url = f"{url}/wp-login.php?action=register"
-        response = http_requests.get(registration_url)
+        response = self.http_get(registration_url)
         if '<form name="registerform" id="registerform"' in response.text:
             found_problems.append(f"registration is open on {registration_url}")
             result["registration_url"] = registration_url
 
         # Check if they are running latest patch version
-        response = http_requests.get(url)
+        response = self.http_get(url)
         wp_version = None
         if match := re.search('<meta name="generator" content="WordPress ([0-9]+\\.[0-9]+\\.[0-9]+)', response.text):
             wp_version = match.group(1)

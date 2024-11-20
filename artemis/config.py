@@ -101,9 +101,8 @@ class Config:
             bool,
             """
             Whether Artemis should strive to make at most one module scan a target at a given time. Therefore
-            when locking is enabled, setting e.g. SCANNING_PACKETS_PER_SECOND to 100 and SECONDS_PER_REQUEST to
-            2 will cause that no IP receives 100 port scanning packets per second and 1 HTTP/MySQL/... request
-            per 2 seconds.
+            when locking is enabled, setting e.g. REQUESTS_PER_SECOND to will cause that no IP receives 2 port
+            scanning packets/HTTP requests/MySQL connections/... per second.
 
             Due to the way this behavior is implemented, we cannot guarantee that a host will never be scanned
             by more than one module.
@@ -166,11 +165,6 @@ class Config:
             int,
             "Default request timeout (for all protocols).",
         ] = get_config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
-
-        SCANNING_PACKETS_PER_SECOND: Annotated[
-            int,
-            "E.g. when set to 100, Artemis will send no more than 100 port scanning packets per seconds per port scanner instance.",
-        ] = get_config("SCANNING_PACKETS_PER_SECOND", default=100, cast=int)
 
         REQUESTS_PER_SECOND: Annotated[
             float,

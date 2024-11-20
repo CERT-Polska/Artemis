@@ -13,7 +13,7 @@ from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
 from artemis.task_utils import get_target_host
-from artemis.utils import check_output_log_on_error, throttle_request
+from artemis.utils import check_output_log_on_error
 
 
 def load_ports(file_name: str) -> Set[int]:
@@ -99,7 +99,7 @@ class PortScanner(ArtemisBase):
 
         self.log.info(f"scanning {target_ip}")
         naabu = subprocess.Popen(
-            (
+            [
                 "naabu",
                 "-host",
                 target_ip,
@@ -108,8 +108,11 @@ class PortScanner(ArtemisBase):
                 "-silent",
                 "-timeout",
                 str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
-                "-rate",
-                str(Config.Limits.SCANNING_PACKETS_PER_SECOND),
+            ]
+            + (
+                ["-rate", str(self.requests_per_second_for_current_tasks)]
+                if self.requests_per_second_for_current_tasks
+                else []
             ),
             stdout=subprocess.PIPE,
         )
@@ -143,7 +146,7 @@ class PortScanner(ArtemisBase):
                     continue
 
             try:
-                output = throttle_request(
+                output = self.throttle_request(
                     lambda: check_output_log_on_error(["fingerprintx", "--json"], self.log, input=line).strip()
                 )
             except subprocess.CalledProcessError:

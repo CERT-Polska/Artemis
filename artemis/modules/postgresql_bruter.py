@@ -10,7 +10,6 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.common_sql_credentials import COMMON_SQL_CREDENTIALS
 from artemis.task_utils import get_target_host
-from artemis.utils import throttle_request
 
 BRUTE_CREDENTIALS = COMMON_SQL_CREDENTIALS + [
     ("postgresql", "postgresql"),
@@ -41,7 +40,7 @@ class PostgreSQLBruter(ArtemisBase):
 
         for username, password in BRUTE_CREDENTIALS:
             try:
-                throttle_request(lambda: psycopg2.connect(host=host, port=port, user=username, password=password))
+                self.throttle_request(lambda: psycopg2.connect(host=host, port=port, user=username, password=password))
                 result.credentials.append((username, password))
             except psycopg2.OperationalError:
                 pass

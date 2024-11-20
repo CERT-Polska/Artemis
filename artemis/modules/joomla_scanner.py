@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Union
 
 from karton.core import Task
 
-from artemis import http_requests, load_risk_class
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.fallback_api_cache import FallbackAPICache
 from artemis.modules.base.base_newer_version_comparer import (
@@ -30,13 +30,13 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
 
         # Check for open registration
         registration_url = f"{url}/index.php?option=com_users&view=registration"
-        response = http_requests.get(registration_url)
+        response = self.http_get(registration_url)
         if "registration.register" in response.text:
             found_problems.append(f"Joomla registration is enabled in {registration_url}")
             result["registration_url"] = registration_url
 
         # Check if they are running latest patch version
-        response = http_requests.get(f"{url}/administrator/manifests/files/joomla.xml")
+        response = self.http_get(f"{url}/administrator/manifests/files/joomla.xml")
         if match := re.search("<version>([0-9]+\\.[0-9]+\\.[0-9]+)</version>", response.text):
             joomla_version = match.group(1)
             result["joomla_version"] = joomla_version

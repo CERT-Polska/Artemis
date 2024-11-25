@@ -20,18 +20,18 @@ def _cleanup_tasks_not_in_queues() -> None:
     keys = backend.redis.keys()
     tasks = set()
     for key in keys:
-        if key.startswith(b"karton.task"):
-            tasks.add(key.split(b":")[1])
+        if key.startswith("karton.task"):
+            tasks.add(key.split(":")[1])
 
     queued_tasks = set()
     for key in keys:
-        if key.startswith(b"karton.queue"):
+        if key.startswith("karton.queue"):
             for task in backend.redis.lrange(key, 0, -1):
                 queued_tasks.add(task)
 
     num_tasks_cleaned_up = 0
     for item in tasks - queued_tasks:
-        key = b"karton.task:" + item
+        key = "karton.task:" + item
         value = backend.redis.get(key)
         if not value:
             continue

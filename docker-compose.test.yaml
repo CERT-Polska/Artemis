@@ -32,7 +32,6 @@ services:
       POSTMAN_MAIL_TO: artemis@localhost.com
 
       REQUESTS_PER_SECOND: 0
-      SCANNING_PACKETS_PER_SECOND: 5
       CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
       NUCLEI_CHECK_TEMPLATE_LIST: False
     env_file: env.test

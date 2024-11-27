@@ -12,7 +12,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
-from artemis.utils import is_ip_address, throttle_request
+from artemis.utils import is_ip_address
 
 BRUTE_CREDENTIALS = [
     ("user", "password"),
@@ -67,7 +67,9 @@ class SSHBruter(ArtemisBase):
                 # Some SSH servers drop connections after a large number of tries in a short
                 # time period. This serves to combat this behavior.
                 time.sleep(Config.Modules.SSHBruter.ADDITIONAL_BRUTE_FORCE_SLEEP_SECONDS)
-                throttle_request(lambda: client.connect(hostname=host, port=port, username=username, password=password))
+                self.throttle_request(
+                    lambda: client.connect(hostname=host, port=port, username=username, password=password)
+                )
                 result.credentials.append((username, password))
                 client.close()
             except (

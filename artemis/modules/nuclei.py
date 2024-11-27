@@ -160,8 +160,10 @@ class Nuclei(ArtemisBase):
             len(templates),
         )
 
-        if Config.Limits.REQUESTS_PER_SECOND:
-            milliseconds_per_request_initial = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))
+        if self.requests_per_second_for_current_tasks:
+            milliseconds_per_request_initial = int(
+                (1 / self.requests_per_second_for_current_tasks) * 1000.0 / len(targets)
+            )
         else:
             milliseconds_per_request_initial = 0
 

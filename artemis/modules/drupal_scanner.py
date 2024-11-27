@@ -3,7 +3,7 @@ from typing import Optional
 import bs4
 from karton.core import Task
 
-from artemis import http_requests, load_risk_class
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.modules.base.base_newer_version_comparer import (
     BaseNewerVersionComparerModule,
@@ -32,7 +32,7 @@ class DrupalScanner(BaseNewerVersionComparerModule):
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
-        response = http_requests.get(url, max_size=DrupalScanner.DOWNLOADED_CONTENT_PREFIX_SIZE)
+        response = self.http_get(url, max_size=DrupalScanner.DOWNLOADED_CONTENT_PREFIX_SIZE)
         soup = bs4.BeautifulSoup(response.content)
 
         version: Optional[str] = None

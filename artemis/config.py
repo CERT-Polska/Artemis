@@ -871,7 +871,7 @@ class Config:
             SQL_INJECTION_NUM_RETRIES_TIME_BASED: Annotated[
                 int,
                 "How many times to re-check whether long request duration with inject (and short without inject) is indeed a vulnerability or a random fluctuation ",
-            ] = get_config("SQL_INJECTION_NUM_RETRIES_TIME_BASED", default=8, cast=int)
+            ] = get_config("SQL_INJECTION_NUM_RETRIES_TIME_BASED", default=10, cast=int)
             SQL_INJECTION_TIME_THRESHOLD: Annotated[
                 int,
                 "Seconds to sleep using the sleep() or pg_sleep() methods",

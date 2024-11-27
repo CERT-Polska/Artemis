@@ -4,6 +4,8 @@ import time
 
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
+from karton.core import Consumer, Task
+from typing import List, Dict, Any
 
 from artemis import utils
 
@@ -45,9 +47,26 @@ def _cleanup_tasks_not_in_queues() -> None:
     logger.info("Tasks cleaned up: %d", num_tasks_cleaned_up)
 
 
+def _cleanup_tasks_in_queues() -> None:
+    old_modules = ["dalfox"]
+
+    for old_module in old_modules:
+        class KartonDummy(Consumer):
+            identity = old_module
+            persistent = False
+            filters: List[Dict[str, Any]] = []
+
+            def process(self, task: Task) -> None:
+                pass
+
+        karton = KartonDummy(config=KartonConfig())
+        karton._shutdown = True
+        karton.loop()
+
+
 def cleanup() -> None:
     _cleanup_tasks_not_in_queues()
-
+    _cleanup_tasks_in_queues()
 
 if __name__ == "__main__":
     while True:

@@ -64,7 +64,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "login-logo",
     "mask-form-elementor",
     "page-or-post-clone",
-    "pdf-poster",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
     "sticky-header-effects-for-elementor",
@@ -157,8 +156,9 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 # let's take only first 25 characters as the "version" word may occur in a middle of a sentence
                 if "version" in line[:25]:
                     line = line[line.find("version") + len("version") :].strip(" :")
-                # Some changelog entries have the format V <version>
-                if "v " in line:
+                # Some changelog entries have the format V <version> - let's match them but with word-boundary matcher
+                # so that we don't match "nov"
+                if re.search(r"\bv ", line):
                     line = line[line.find("v ") + len("v ") :].strip(" :")
                 if line.startswith("v"):
                     line = line[1:]

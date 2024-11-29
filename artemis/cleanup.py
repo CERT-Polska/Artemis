@@ -1,14 +1,14 @@
 import datetime
 import json
 import time
+from typing import Any, Dict, List
 
+from karton.core import Consumer, Task
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
-from karton.core import Consumer, Task
-from typing import List, Dict, Any
 
 from artemis import utils
-from artemis.binds import TaskType, Service
+from artemis.binds import Service, TaskType
 
 logger = utils.build_logger(__name__)
 
@@ -52,6 +52,7 @@ def _cleanup_queues() -> None:
     old_modules = ["dalfox"]
 
     for old_module in old_modules:
+
         class KartonDummy(Consumer):
             identity = old_module
             persistent = False
@@ -60,7 +61,7 @@ def _cleanup_queues() -> None:
             def process(self, task: Task) -> None:
                 pass
 
-            def loop(self):
+            def loop(self) -> None:
                 self.log.info("The service that removes %s tasks from the queue started", self.identity)
                 while True:
                     task = self.backend.consume_routed_task(self.identity)

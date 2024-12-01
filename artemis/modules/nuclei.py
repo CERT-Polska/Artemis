@@ -15,7 +15,6 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
-from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import check_output_log_on_error
@@ -161,8 +160,10 @@ class Nuclei(ArtemisBase):
             len(templates),
         )
 
-        if Config.Limits.REQUESTS_PER_SECOND:
-            milliseconds_per_request_initial = int((1 / Config.Limits.REQUESTS_PER_SECOND) * 1000.0 / len(targets))
+        if self.requests_per_second_for_current_tasks:
+            milliseconds_per_request_initial = int(
+                (1 / self.requests_per_second_for_current_tasks) * 1000.0 / len(targets)
+            )
         else:
             milliseconds_per_request_initial = 0
 
@@ -264,7 +265,7 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
-        tasks = [task for task in tasks if check_connection_to_base_url_and_save_error(self.db, task)]
+        tasks = [task for task in tasks if self.check_connection_to_base_url_and_save_error(task)]
 
         self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
 

@@ -15,6 +15,7 @@ def create_tasks(
     tag: Optional[str] = None,
     disabled_modules: List[str] = [],
     priority: Optional[TaskPriority] = None,
+    requests_per_second_override: Optional[float] = None,
 ) -> None:
     for uri in uris:
         task = Task({"type": TaskType.NEW})
@@ -23,6 +24,8 @@ def create_tasks(
             task.priority = priority
         if tag:
             task.add_payload("tag", tag, persistent=True)
+        if requests_per_second_override:
+            task.add_payload("requests_per_second_override", requests_per_second_override, persistent=True)
         task.add_payload("disabled_modules", ",".join(disabled_modules), persistent=True)
         db.create_analysis(task)
         db.save_scheduled_task(task)

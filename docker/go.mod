@@ -6,9 +6,9 @@ toolchain go1.22.3
 
 require (
 	github.com/hahwul/dalfox/v2 v2.9.3
-	github.com/lc/gau/v2 v2.2.3
+	github.com/lc/gau/v2 v2.2.4
 	github.com/praetorian-inc/fingerprintx v1.1.14
-	github.com/projectdiscovery/naabu/v2 v2.3.1
+	github.com/projectdiscovery/naabu/v2 v2.3.2
 	github.com/projectdiscovery/nuclei/v3 v3.3.5
 	github.com/projectdiscovery/subfinder/v2 v2.6.7
 )
@@ -151,10 +151,10 @@ require (
 	github.com/google/go-github v17.0.0+incompatible // indirect
 	github.com/google/go-github/v30 v30.1.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/gopacket v1.1.19 // indirect
 	github.com/google/pprof v0.0.0-20240227163752-401108e1b7e7 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gopacket/gopacket v1.2.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/hahwul/volt v1.0.5 // indirect
@@ -245,31 +245,31 @@ require (
 	github.com/projectdiscovery/fastdialer v0.2.9 // indirect
 	github.com/projectdiscovery/fasttemplate v0.0.2 // indirect
 	github.com/projectdiscovery/fdmax v0.0.4 // indirect
-	github.com/projectdiscovery/freeport v0.0.6 // indirect
+	github.com/projectdiscovery/freeport v0.0.7 // indirect
 	github.com/projectdiscovery/go-smb2 v0.0.0-20240129202741-052cc450c6cb // indirect
 	github.com/projectdiscovery/goflags v0.1.64 // indirect
-	github.com/projectdiscovery/gologger v1.1.27 // indirect
+	github.com/projectdiscovery/gologger v1.1.28 // indirect
 	github.com/projectdiscovery/gostruct v0.0.2 // indirect
 	github.com/projectdiscovery/gozero v0.0.2 // indirect
-	github.com/projectdiscovery/hmap v0.0.62 // indirect
+	github.com/projectdiscovery/hmap v0.0.64 // indirect
 	github.com/projectdiscovery/httpx v1.6.8 // indirect
 	github.com/projectdiscovery/interactsh v1.2.0 // indirect
-	github.com/projectdiscovery/ipranger v0.0.44 // indirect
+	github.com/projectdiscovery/ipranger v0.0.53 // indirect
 	github.com/projectdiscovery/ldapserver v1.0.2-0.20240219154113-dcc758ebc0cb // indirect
 	github.com/projectdiscovery/machineid v0.0.0-20240226150047-2e2c51e35983 // indirect
 	github.com/projectdiscovery/mapcidr v1.1.34 // indirect
 	github.com/projectdiscovery/n3iwf v0.0.0-20230523120440-b8cd232ff1f5 // indirect
 	github.com/projectdiscovery/networkpolicy v0.0.9 // indirect
-	github.com/projectdiscovery/ratelimit v0.0.56 // indirect
+	github.com/projectdiscovery/ratelimit v0.0.61 // indirect
 	github.com/projectdiscovery/rawhttp v0.1.67 // indirect
 	github.com/projectdiscovery/rdap v0.9.1-0.20221108103045-9865884d1917 // indirect
-	github.com/projectdiscovery/retryabledns v1.0.80 // indirect
-	github.com/projectdiscovery/retryablehttp-go v1.0.82 // indirect
+	github.com/projectdiscovery/retryabledns v1.0.82 // indirect
+	github.com/projectdiscovery/retryablehttp-go v1.0.84 // indirect
 	github.com/projectdiscovery/sarif v0.0.1 // indirect
 	github.com/projectdiscovery/tlsx v1.1.7 // indirect
 	github.com/projectdiscovery/uncover v1.0.9 // indirect
 	github.com/projectdiscovery/useragent v0.0.71 // indirect
-	github.com/projectdiscovery/utils v0.2.15 // indirect
+	github.com/projectdiscovery/utils v0.2.16 // indirect
 	github.com/projectdiscovery/wappalyzergo v0.1.18 // indirect
 	github.com/projectdiscovery/yamldoc-go v1.0.4 // indirect
 	github.com/redis/go-redis/v9 v9.1.0 // indirect

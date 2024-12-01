@@ -6,14 +6,16 @@ import time
 import traceback
 import urllib.parse
 from ipaddress import ip_address
-from typing import List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
 from redis import Redis
+from requests.exceptions import RequestException
 
+from artemis import http_requests
 from artemis.binds import TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
@@ -26,10 +28,11 @@ from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import (
     get_target_host,
+    get_target_url,
     increase_analysis_num_finished_tasks,
     increase_analysis_num_in_progress_tasks,
 )
-from artemis.utils import is_ip_address
+from artemis.utils import is_ip_address, throttle_request
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
@@ -68,6 +71,8 @@ class ArtemisBase(Karton):
     queue_position: int = 0
     queue_location_timestamp: float = 0
     queue_location_max_age_seconds: int = Config.Locking.QUEUE_LOCATION_MAX_AGE_SECONDS
+
+    requests_per_second_for_current_tasks: float = Config.Limits.REQUESTS_PER_SECOND
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
@@ -246,6 +251,19 @@ class ArtemisBase(Karton):
 
         for task in tasks:
             increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
+
+        requests_per_second_overrides = [
+            task.payload_persistent.get("requests_per_second_override")
+            for task in tasks
+            if "requests_per_second_override" in task.payload_persistent
+        ]
+
+        self.requests_per_second_for_current_tasks = min(  # type: ignore
+            requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
+        )
+
+        if requests_per_second_overrides:
+            self.log.info("Overriding requests per second to %f", self.requests_per_second_for_current_tasks)
 
         if len(tasks):
             time_start = time.time()
@@ -577,7 +595,7 @@ class ArtemisBase(Karton):
         # There is a chance that the IP returned here (chosen randomly from a set of IP adresses)
         # would be different from the one chosen for the actual connection - but we hope that over
         # time and across multiple scanner instances the overall load would be approximately similar
-        # to one request per Config.Limits.SECONDS_PER_REQUEST.
+        # to Config.Limits.REQUESTS_PER_SECOND requests per second.
         try:
             ip_addresses = list(lookup(host))
         except Exception as e:
@@ -587,3 +605,58 @@ class ArtemisBase(Karton):
             raise UnknownIPException(f"Unknown IP for host {host}")
 
         return random.choice(ip_addresses)
+
+    def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
+        base_url = get_target_url(task)
+        scan_destination = self._get_scan_destination(task)
+        lock = ResourceLock(f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES)
+
+        try:
+            response = self.http_get(base_url)
+            if any(
+                [
+                    message in response.content
+                    for message in [
+                        "Cloudflare</title>",
+                        "<hr><center>cloudflare</center>",
+                        "Incapsula incident ID",
+                        "Please wait while your request is being verified...",
+                        "<title>Unauthorized Access</title>",
+                        "<title>Attack Detected</title>",
+                    ]
+                ]
+            ):
+                self.db.save_task_result(
+                    task=task,
+                    status=TaskStatus.ERROR,
+                    status_reason=f"Unable to connect to base URL: {base_url}: WAF detected, task skipped",
+                )
+                self.log.info(
+                    f"Unable to connect to base URL: {base_url}: WAF detected, task skipped, releasing lock for {scan_destination}"
+                )
+                lock.release()
+                return False
+
+            return True
+        except RequestException as e:
+            self.db.save_task_result(
+                task=task,
+                status=TaskStatus.ERROR,
+                status_reason=f"Unable to connect to base URL {base_url}: {repr(e)}, task skipped",
+            )
+            self.log.info(
+                f"Unable to connect to base URL: {base_url}: {repr(e)}, task skipped, releasing lock for {scan_destination}"
+            )
+            lock.release()
+            return False
+
+    def http_get(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
+        kwargs["requests_per_second"] = self.requests_per_second_for_current_tasks
+        return http_requests.get(*args, **kwargs)
+
+    def http_post(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
+        kwargs["requests_per_second"] = self.requests_per_second_for_current_tasks
+        return http_requests.post(*args, **kwargs)
+
+    def throttle_request(self, f: Callable[[], Any]) -> Any:
+        return throttle_request(f, requests_per_second=self.requests_per_second_for_current_tasks)

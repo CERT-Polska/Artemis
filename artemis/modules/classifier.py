@@ -10,7 +10,7 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.domains import is_domain
 from artemis.module_base import ArtemisBase
-from artemis.utils import check_output_log_on_error, is_ip_address, throttle_request
+from artemis.utils import check_output_log_on_error, is_ip_address
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
@@ -176,7 +176,7 @@ class Classifier(ArtemisBase):
                 host_type = "ip"
 
             try:
-                output = throttle_request(
+                output = self.throttle_request(
                     lambda: check_output_log_on_error(
                         ["fingerprintx", "--json"], self.log, input=data.encode("ascii")
                     ).strip()

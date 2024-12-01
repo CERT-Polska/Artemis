@@ -998,6 +998,27 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Files on the host computer can be accessed from the Gradio interface": "Interfejs Gradio umożliwia dostęp do plików na komputerze.",
+    "gSOAP 2.8 is vulnerable to local file inclusion.": "gSOAP w wersji 2.8 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt niektórych plików z dysku."
+    + UPDATE_HINT,
+    # The translation is different from the original message as the template doesn't check that it's **not* possible to access the debug env **without** injecting stuff.
+    "Symfony, a popular PHP framework, offers a module called symfony/runtime that allows developers to decouple their PHP applications from the global state. This module enhances the flexibility and maintainability of Symfony-based applications. However, a security vulnerability was discovered in symfony/runtime versions prior to 5.4.46, 6.4.14, and 7.1.7. When the `register_argv_argc` PHP directive is set to `on`, users could manipulate the environment or debug mode used by the kernel when handling requests by crafting a specific query string in the URL. This vulnerability could potentially allow attackers to alter the application's behavior or gain unauthorized access to sensitive information. To address this issue, the Symfony team released patches in versions 5.4.46, 6.4.14, and 7.1.7 of the symfony/runtime module. In these updated versions, the `SymfonyRuntime` class has been modified to ignore the `argv` values for non-SAPI PHP runtimes. This change prevents the manipulation of the kernel's environment or debug mode through the query string, thereby mitigating the security risk. It is highly recommended that developers using Symfony/runtime update their applications to the latest patched versions to ensure the security and integrity of their Symfony-based projects. By applying these updates, developers can protect their applications from potential exploits and maintain a secure environment for their users.": "Wykryto, że po podaniu odpowiednich parametrów w ścieżce jest możliwość uzyskania dostępu do trybu debug frameworku Symfony, w tym potencjalnie do wrażliwych informacji konfiguracyjnych. Może to wynikać z podatności CVE-2024-50340 (występującej w wersji Symfony mniejszej od 5.4.46, w gałęzi 6 - mniejszej niż 6.4.14, a w gałęzi 7 - mniejszej niż 7.1.7) lub z konfiguracji, że tryb debug jest publicznie dostępny.",
+    "Affected versions of Atlassian Jira Limited Server and Data Center are vulnerable to local file inclusion because they allow remote attackers to read particular files via a path traversal vulnerability in the /WEB-INF/web.xml endpoint.": "Wykryto system Atlassian Jira Limited Server and Data Center zawierający podatność Local File Inclusion umożliwiającą atakującemu odczyt niektórych plików z dysku."
+    + UPDATE_HINT,
+    "The Redis server running on the remote host is not protected by password authentication. A remote attacker can exploit this to gain unauthorized access to the server.": "Wykryto serwer Redis dostępny bez uwierzytelniania. Rekomendujemy, aby nie był dostępny publicznie.",
+    "http/misconfiguration/springboot/springboot-httptrace.yaml": "Wykryto informację na temat żądań i odpowiedzi HTTP przetwarzanych przez system Spring Boot.",
+    "Multiple fuzzes for /etc/passwd on passed URLs were conducted, leading to multiple instances of local file inclusion vulnerability.": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnego pliku z dysku.",
+    "WordPress LearnPress plugin before 4.1.6 contains a cross-site scripting vulnerability. It does not sanitize and escape the lp-dismiss-notice before outputting it back via the lp_background_single_email AJAX action.": "Wtyczka WordPress o nazwie LearnPress w wersji poniżej 4.1.6 zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "An Open Redirect vulnerability in Odoo versions <= 8.0-20160726 and 9.0. This issue allows an attacker to redirect users to untrusted sites via a crafted URL.": "System Odoo w wersji do 8.0-20160726 włącznie i w wersji 9.0 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + UPDATE_HINT,
+    "phpPgAdmin 4.2.1 is vulnerable to local file inclusion in libraries/lib.inc.php when register globals is enabled. Remote attackers can read arbitrary files via a .. (dot dot) in the _language parameter to index.php.": "phpPgAdmin w wersji 4.2.1 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Hoteldruid v3.0.5 was discovered to contain a SQL injection vulnerability via the n_utente_agg parameter at /hoteldruid/interconnessioni.php.": "Hoteldruid w wersji 3.0.5 i potencjalnie wcześniejszych zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie pełnej zawartości bazy danych.",
+    "Keycloak 8.0 and prior contains a cross-site scripting vulnerability. An attacker can execute arbitrary script and thus steal cookie-based authentication credentials and launch other attacks.": "Keycloak w wersji 8.0 i wcześniejszych zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
     "Unauthenticated Reflected Cross-Site Scripting (XSS) vulnerability in ThemePunch OHG Essential Grid plugin <= 3.1.0 versions.": "Wtyczka WordPress o nazwie ThemePunch OHG Essential Grid w wersji do 3.1.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -1520,4 +1541,10 @@ TRANSLATIONS = {
     "http/exposed-panels/gitlab-explore.yaml": "Wykryto system GitLab.",
     "Micro Focus Enterprise Server Admin panel was detected.": "Wykryto panel Micro Focus Enterprise Server.",
     "The presence of SAML-based authentication on GitLab instances. SAML is commonly used for Single Sign-On (SSO) integrations, which allows users to authenticate with GitLab using an external Identity Provider (IdP).": "Wykryto panel GitLab SAML.",
+    "Micro Focus Filr login panel was detected.": "Wykryto panel logowania Micro Focus Filr.",
+    "Camunda login panel was detected.": "Wykryto panel logowania systemu Camunda.",
+    "An Authentik search engine was detected.": "Wykryto panel wyszukiwarki Authentik.",
+    'Identifies "Logon Error Message" in the SAP Internet Communication Framework which returns a 404 status code.': "Wykryto stronę systemu SAP.",
+    "RStudio Sign In panel was detected.": "Wykryto panel logowania RStudio.",
+    "Usermin panel was discovered.": "Wykryto panel Usermin.",
 }

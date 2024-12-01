@@ -45,6 +45,7 @@ class NucleiReporter(Reporter):
                     or report.additional_data["original_template_name"]
                     in Config.Modules.Nuclei.NUCLEI_SUSPICIOUS_TEMPLATES
                 ):
+                    report.is_suspicious = True
                     result.append(
                         f"Suspicious template: {report.additional_data['template_name']} in {report.target} "
                         f"(curl_command: {report.additional_data['curl_command']}) - please review whether it's indeed "

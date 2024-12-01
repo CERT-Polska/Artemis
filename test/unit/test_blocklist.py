@@ -21,6 +21,15 @@ class ScanningBlocklistTest(unittest.TestCase):
         self.assertEqual(should_block_scanning(None, "1.1.1.2", "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning(None, "1.1.1.1", "karton-name", [blocklist_item1]), True)
 
+    def test_domain_only_matching(self) -> None:
+        blocklist_item1 = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            domain_only="example.com",
+        )
+        self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), True)
+        self.assertEqual(should_block_scanning("www.example.com", None, "karton-name", [blocklist_item1]), False)
+
     def test_domain_matching(self) -> None:
         blocklist_item1 = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
@@ -108,6 +117,24 @@ class ReportBlocklistTest(unittest.TestCase):
         self.assertEqual(blocklist_reports([report1, report2], [blocklist_item2]), [])
 
     def test_domain_matching(self) -> None:
+        report1 = Report(
+            target="http://example.com/",
+            top_level_target="example.com",
+            report_type=ReportType("exposed_configuration_file"),
+            additional_data={},
+        )
+        report2 = Report(
+            target="http://ftp.example.com/",
+            top_level_target="ftp.example.com",
+            report_type=ReportType("exposed_configuration_file"),
+            additional_data={},
+        )
+        blocklist_item = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            domain_only="example.com",
+        )
+        self.assertEqual(blocklist_reports([report1, report2], [blocklist_item]), [report2])
+
         report1 = Report(
             target="http://example.com/",
             top_level_target="www.example.com",

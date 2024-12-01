@@ -56,6 +56,7 @@ def add(
     tag: str | None = Body(default=None),
     disabled_modules: Optional[List[str]] = Body(default=None),
     enabled_modules: Optional[List[str]] = Body(default=None),
+    requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
 ) -> Dict[str, Any]:
     """Add targets to be scanned."""
@@ -83,7 +84,13 @@ def add(
     elif not disabled_modules:
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
-    create_tasks(targets, tag, disabled_modules=disabled_modules, priority=TaskPriority(priority))
+    create_tasks(
+        targets,
+        tag,
+        disabled_modules=disabled_modules,
+        priority=TaskPriority(priority),
+        requests_per_second_override=requests_per_second_override,
+    )
 
     return {"ok": True}
 
@@ -193,6 +200,7 @@ async def post_export(
     comment: Optional[str] = Body(None),
     custom_template_arguments: Dict[str, Any] = Body({}),
     skip_hooks: bool = Body(False),
+    skip_suspicious_reports: bool = Body(False),
 ) -> Dict[str, Any]:
     """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
     db.create_report_generation_task(
@@ -202,6 +210,7 @@ async def post_export(
         custom_template_arguments=custom_template_arguments,
         language=Language(language),
         skip_hooks=skip_hooks,
+        skip_suspicious_reports=skip_suspicious_reports,
     )
     return {
         "ok": True,

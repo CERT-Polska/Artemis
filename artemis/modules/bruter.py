@@ -8,10 +8,9 @@ from typing import IO, List, Set
 
 from karton.core import Task
 
-from artemis import http_requests, load_risk_class
+from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.karton_utils import check_connection_to_base_url_and_save_error
 from artemis.models import FoundURL
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
@@ -78,7 +77,7 @@ class Bruter(ArtemisBase):
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = base_url + "/" + dummy_random_token
         try:
-            dummy_content = http_requests.get(dummy_url).content
+            dummy_content = self.http_get(dummy_url).content
         except Exception:
             dummy_content = ""
 
@@ -89,7 +88,7 @@ class Bruter(ArtemisBase):
             self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
             try:
                 full_url = base_url + "/" + url
-                results[full_url] = http_requests.get(
+                results[full_url] = self.http_get(
                     full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS
                 )
             except Exception:
@@ -150,7 +149,7 @@ class Bruter(ArtemisBase):
         )
 
     def run(self, task: Task) -> None:
-        if not check_connection_to_base_url_and_save_error(self.db, task):
+        if not self.check_connection_to_base_url_and_save_error(task):
             return
 
         scan_result = self.scan(task)

@@ -5,7 +5,7 @@ from typing import List
 
 from karton.core import Task
 
-from artemis import http_requests, load_risk_class, utils
+from artemis import load_risk_class, utils
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -63,7 +63,7 @@ class WordPressBruter(ArtemisBase):
         usernames = []
 
         try:
-            users = http_requests.get(url + "?rest_route=/wp/v2/users").json()
+            users = self.http_get(url + "?rest_route=/wp/v2/users").json()
             for user_entry in users:
                 usernames.append(user_entry["name"])
         except Exception:
@@ -79,7 +79,7 @@ class WordPressBruter(ArtemisBase):
         credentials = []
         for username in usernames:
             for password in passwords:
-                content = http_requests.post(
+                content = self.http_post(
                     url + "/wp-login.php",
                     data={
                         "log": username,

@@ -22,6 +22,7 @@ http:
         - 'example.com/'
         - 'example.com'
         - '/%5C%5Cexample.com/%252e%252e%252f'
+        - '//example.com/%2f..'
         - '/http%3A%2F%2Fexample.com'
         - '/example.com/'
 

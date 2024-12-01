@@ -74,6 +74,7 @@ def _request(
     data: Optional[Dict[str, str]],
     cookies: Optional[Dict[str, str]],
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
+    requests_per_second: float = Config.Limits.REQUESTS_PER_SECOND,
     **kwargs: Any,
 ) -> HTTPResponse:
     if "RUNNING_TESTS" in os.environ:
@@ -123,7 +124,7 @@ def _request(
             headers=response.headers,
         )
 
-    return throttle_request(_internal_request)  # type: ignore
+    return throttle_request(_internal_request, requests_per_second)  # type: ignore
 
 
 def get(
@@ -131,9 +132,10 @@ def get(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
+    requests_per_second: float = Config.Limits.REQUESTS_PER_SECOND,
     **kwargs: Any,
 ) -> HTTPResponse:
-    return _request("get", url, allow_redirects, data, cookies, **kwargs)
+    return _request("get", url, allow_redirects, data, cookies, requests_per_second=requests_per_second, **kwargs)
 
 
 def post(
@@ -141,6 +143,7 @@ def post(
     allow_redirects: bool = True,
     data: Optional[Dict[str, str]] = None,
     cookies: Optional[Dict[str, str]] = None,
+    requests_per_second: float = Config.Limits.REQUESTS_PER_SECOND,
     **kwargs: Any,
 ) -> HTTPResponse:
-    return _request("post", url, allow_redirects, data, cookies, **kwargs)
+    return _request("post", url, allow_redirects, data, cookies, requests_per_second=requests_per_second, **kwargs)

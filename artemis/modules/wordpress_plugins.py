@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 import requests
 from karton.core import Task
 
-from artemis import http_requests, load_risk_class
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
@@ -66,7 +66,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
-    "subscribe-to-comments",
+    "sticky-header-effects-for-elementor",
     "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
     "woo-tools",
@@ -156,8 +156,9 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 # let's take only first 25 characters as the "version" word may occur in a middle of a sentence
                 if "version" in line[:25]:
                     line = line[line.find("version") + len("version") :].strip(" :")
-                # Some changelog entries have the format V <version>
-                if "v " in line:
+                # Some changelog entries have the format V <version> - let's match them but with word-boundary matcher
+                # so that we don't match "nov"
+                if re.search(r"\bv ", line):
                     line = line[line.find("v ") + len("v ") :].strip(" :")
                 if line.startswith("v"):
                     line = line[1:]
@@ -264,7 +265,7 @@ class WordpressPlugins(ArtemisBase):
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
 
-        response = http_requests.get(url)
+        response = self.http_get(url)
         not_scanning_redirect_message = None
         if response.is_redirect:
             redirect_url = response.url
@@ -331,7 +332,7 @@ class WordpressPlugins(ArtemisBase):
 
             try:
                 if plugin["slug"] in self._readme_file_names:
-                    response = http_requests.get(
+                    response = self.http_get(
                         urllib.parse.urljoin(
                             url,
                             "/wp-content/plugins/"
@@ -344,7 +345,7 @@ class WordpressPlugins(ArtemisBase):
                     )
                 else:
                     for file_name in FILE_NAME_CANDIDATES:
-                        response = http_requests.get(
+                        response = self.http_get(
                             urllib.parse.urljoin(
                                 url, "/wp-content/plugins/" + plugin["slug"] + "/" + file_name + cachebuster
                             ),

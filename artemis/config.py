@@ -422,6 +422,7 @@ class Config:
                         "http/exposed-panels/pulse-secure-version.yaml",
                         "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
                         "http/exposed-panels/openvpn-connect.yaml",
+                        "http/exposed-panels/ivanti-csa-panel.yaml",
                         "http/exposed-panels/ivanti-connect-secure-panel.yaml",
                         "http/exposed-panels/softether-vpn-panel.yaml",
                         "http/exposed-panels/cas-login.yaml",
@@ -531,6 +532,8 @@ class Config:
                         "http/fuzzing/xff-403-bypass.yaml",
                         # Not that severe to spam people
                         "javascript/cves/2023/CVE-2023-48795.yaml",
+                        # We already check for Gitlab
+                        "http/exposed-panels/ghe-encrypt-saml.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

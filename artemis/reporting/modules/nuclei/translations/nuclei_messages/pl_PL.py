@@ -1547,4 +1547,8 @@ TRANSLATIONS = {
     'Identifies "Logon Error Message" in the SAP Internet Communication Framework which returns a 404 status code.': "Wykryto stronę systemu SAP.",
     "RStudio Sign In panel was detected.": "Wykryto panel logowania RStudio.",
     "Usermin panel was discovered.": "Wykryto panel Usermin.",
+    "VMware Workspace ONE UEM Airwatch Self-Service Portal (SSP) login panel was detected.": "Wykryto panel logowania VMware Workspace ONE UEM Airwatch Self-Service Portal (SSP)",
+    "Cyberpanel login panel was detected.": "Wykryto panel logowania systemu Cyberpanel.",
+    "Thruk Monitoring panel was detected.": "Wykryto panel Thruk Monitoring.",
+    "FreeScout panel was discovered.": "Wykryto panel FreeScout.",
 }

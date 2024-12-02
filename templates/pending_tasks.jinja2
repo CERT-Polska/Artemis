@@ -6,6 +6,7 @@
         <thead>
             <tr>
                 <th scope="col">created at</th>
+                <th scope="col">ID</th>
                 <th scope="col">tag</th>
                 <th scope="col">receiver</th>
                 <th scope="col">target</th>
@@ -17,6 +18,9 @@
                 <tr>
                     <td>
                         {{ task.payload.created_at }}
+                    </td>
+                    <td>
+                        {{ task.uid }}
                     </td>
                     <td>
                         {{ task.payload_persistent.tag }}

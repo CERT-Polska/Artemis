@@ -952,8 +952,8 @@ github.com/projectdiscovery/mapcidr v1.1.34 h1:udr83vQ7oz3kEOwlsU6NC6o08leJzSDQt
 github.com/projectdiscovery/mapcidr v1.1.34/go.mod h1:1+1R6OkKSAKtWDXE9RvxXtXPoajXTYX0eiEdkqlhQqQ=
 github.com/projectdiscovery/n3iwf v0.0.0-20230523120440-b8cd232ff1f5 h1:L/e8z8yw1pfT6bg35NiN7yd1XKtJap5Nk6lMwQ0RNi8=
 github.com/projectdiscovery/n3iwf v0.0.0-20230523120440-b8cd232ff1f5/go.mod h1:pGW2ncnTxTxHtP9wzcIJAB+3/NMp6IiuQWd2NK7K+oc=
-github.com/projectdiscovery/naabu/v2 v2.3.2 h1:6XvUyofZrVubHno8Yw5GoH7vBZNBntAmnybzXC16aE4=
-github.com/projectdiscovery/naabu/v2 v2.3.2/go.mod h1:YL/Enq5AxU4uNPiTwrFnZgEoQvejSwjpJkAIMD/CndA=
+github.com/projectdiscovery/naabu/v2 v2.3.3 h1:7UZvXnYZvaXUbBUlp+I+GJqF+EMyPWP4im81YpgV01k=
+github.com/projectdiscovery/naabu/v2 v2.3.3/go.mod h1:7VEutopiUJpvoKGZG7udPN9/6q3DDeegEjQWFGTUjmk=
 github.com/projectdiscovery/networkpolicy v0.0.9 h1:IrlDoYZagNNO8y+7iZeHT8k5izE+nek7TdtvEBwCxqk=
 github.com/projectdiscovery/networkpolicy v0.0.9/go.mod h1:XFJ2Lnv8BE/ziQCFjBHMsH1w6VmkPiQtk+NlBpdMU7M=
 github.com/projectdiscovery/nuclei/v3 v3.3.7 h1:omFXzvSNGZCYN/NMfn0n/yRjLOGWZIW1ttzwSNvprEo=

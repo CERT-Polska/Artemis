@@ -196,14 +196,6 @@ services:
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
 
-  test_apache-with-xss:
-    build:
-      dockerfile: test/images/php-xss/Dockerfile
-    command: systemctl start apache2.service
-    volumes:
-      - ./test/data/dalfox/:/var/www/html/
-
-
   test-apache-with-sql-injection-postgres:
     build:
       dockerfile: test/images/php-postgres/Dockerfile

@@ -392,7 +392,7 @@ class ArtemisBase(Karton):
             if self._is_blocklisted(task):
                 self.log.info("Task %s is blocklisted for module %s", task, self.identity)
                 skip = True
-            elif self.identity in task.payload_persistent.get("disabled_modules", []):
+            elif self.identity in task.payload_persistent.get("disabled_modules", "").split(","):
                 self.log.info("Module %s disabled for task %s", self.identity, task)
                 skip = True
             if skip:

@@ -114,10 +114,7 @@ class SqlInjectionDetector(ArtemisBase):
         return flag
 
     def contains_error(self, url: str, response: HTTPResponse) -> str | None:
-        if response.status_code == 500:
-            self.log.debug("Matched HTTP 500 on %s", url)
-            return "500 error code"
-
+        # 500 error code will not be matched as it's a significant source of FPs
         for message in SQL_ERROR_MESSAGES:
             if re.search(message, response.content):
                 self.log.debug("Matched error: %s on %s", message, url)

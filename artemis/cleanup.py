@@ -24,7 +24,10 @@ def _cleanup_tasks_not_in_queues() -> None:
     tasks = set()
     for key in keys:
         if key.startswith("karton.task"):
-            tasks.add(key.split(":")[1])
+            if ":" in key:
+                tasks.add(key.split(":")[1])
+            else:
+                logger.error("Invalid key: %s", key)
 
     queued_tasks = set()
     for key in keys:

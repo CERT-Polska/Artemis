@@ -38,7 +38,7 @@ class ArtemisMetricsCollector(Collector):
 
         # We count the number of tasks for these kartons separately as each task pending on them tends to produce
         # a large number of tasks for other kartons - so we want to monitor the queue length separately.
-        high_level_kartons = ["port_scanner", "crtsh", "gau"]
+        high_level_kartons = ["port_scanner", "subdomain_enumeration"]
 
         num_tasks_high_level_kartons = 0
         for karton_name in high_level_kartons:

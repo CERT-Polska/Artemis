@@ -9,7 +9,7 @@ chardet==5.2.0
 click==8.1.7
 cryptography==44.0.0
 dnspython==2.7.0
-fastapi==0.115.5
+fastapi==0.115.6
 fastapi-csrf-protect==0.3.7
 freezegun==1.5.1
 h11==0.14.0

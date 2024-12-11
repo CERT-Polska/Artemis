@@ -9,5 +9,5 @@ pozostaje na serwerze nazwa.pl</title>
 jest utrzymywana na serwerach nazwa.pl</title>
 <BR>Witaj w serwisie <A class=link href="http://hostedwindows.pl/"><B>
 <title>Cyber_Folks Lepsza obsługa i wsparcie bez porównania</title>
+<title>Domena utrzymywana jest w cyber_Folks</title>
 <meta name="description" content="Strona utrzymywana na serwerach home.pl" />
-<title>Tanie domeny, Tani hosting, Helpdesk, Pomoc zdalna - NetStrefa.pl</title>

@@ -1551,4 +1551,5 @@ TRANSLATIONS = {
     "Cyberpanel login panel was detected.": "Wykryto panel logowania systemu Cyberpanel.",
     "Thruk Monitoring panel was detected.": "Wykryto panel Thruk Monitoring.",
     "FreeScout panel was discovered.": "Wykryto panel FreeScout.",
+    "Akuiteo products was detected.": "Wykryto panel Akuiteo.",
 }

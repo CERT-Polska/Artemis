@@ -19,7 +19,9 @@ class PortScannerTest(ArtemisModuleTestCase):
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(call.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False, version: N/A)")
-        self.assertEqual(list(call.kwargs["data"].values()), [{"6379": {"service": "redis", "ssl": False}}])
+        self.assertEqual(
+            list(call.kwargs["data"].values()), [{"6379": {"service": "redis", "ssl": False, "version": "N/A"}}]
+        )
 
     def test_multiple(self) -> None:
         # Makes sure that the caching mechanism doesn't prevent returning correct results

@@ -18,7 +18,7 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False)")
+        self.assertEqual(call.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False, version: N/A)")
         self.assertEqual(list(call.kwargs["data"].values()), [{"6379": {"service": "redis", "ssl": False}}])
 
     def test_multiple(self) -> None:
@@ -30,5 +30,5 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.run_task(task)
         self.run_task(task)
         call1, call2 = self.mock_db.save_task_result.call_args_list
-        self.assertEqual(call1.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False)")
-        self.assertEqual(call2.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False)")
+        self.assertEqual(call1.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False, version: N/A)")
+        self.assertEqual(call2.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False, version: N/A)")

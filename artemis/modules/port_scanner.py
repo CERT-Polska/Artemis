@@ -205,7 +205,9 @@ class PortScanner(ArtemisBase):
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
 
-                interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']}, version: {result['version']})")
+                interesting_port_descriptions.append(
+                    f"{port} (service: {result['service']} ssl: {result['ssl']}, version: {result['version']})"
+                )
 
         if len(interesting_port_descriptions):
             status = TaskStatus.INTERESTING

@@ -88,6 +88,7 @@ class PortScanner(ArtemisBase):
     class PortResult:
         service: Service
         ssl: bool
+        version: str
 
     def _scan(self, target_ip: str) -> Dict[str, Dict[str, Any]]:
         # We deduplicate identical tasks, but even if two task are different (e.g. contain
@@ -160,10 +161,11 @@ class PortScanner(ArtemisBase):
             port = int(data["port"])
             ssl = data["tls"]
             service = data["protocol"]
+            version = data.get("version", None) or data.get("metadata", {}).get("fingerprint", None) or "N/A"
             if ssl:
                 service = service.rstrip("s")
 
-            result[str(port)] = self.PortResult(service, ssl).__dict__
+            result[str(port)] = self.PortResult(service, ssl, version).__dict__
 
         self.cache.set(target_ip, json.dumps(result).encode("utf-8"))
         return result
@@ -203,7 +205,9 @@ class PortScanner(ArtemisBase):
                 self.add_task(current_task, new_task)
                 open_ports.append(int(port))
 
-                interesting_port_descriptions.append(f"{port} (service: {result['service']} ssl: {result['ssl']})")
+                interesting_port_descriptions.append(
+                    f"{port} (service: {result['service']} ssl: {result['ssl']}, version: {result['version']})"
+                )
 
         if len(interesting_port_descriptions):
             status = TaskStatus.INTERESTING

@@ -109,7 +109,8 @@ class RemovedDomainExistingVhost(ArtemisBase):
 
                 if (
                     response_for_old_domain.status_code in range(200, 300)
-                    and ratio < Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD
+                    and ratio
+                    < Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD
                 ):
                     self.db.save_task_result(
                         task=current_task,

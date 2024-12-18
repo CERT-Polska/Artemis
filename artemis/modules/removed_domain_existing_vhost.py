@@ -2,6 +2,7 @@ import base64
 import binascii
 import json
 import os
+import time
 from difflib import SequenceMatcher
 from typing import Set
 
@@ -41,6 +42,7 @@ class RemovedDomainExistingVhost(ArtemisBase):
                 ).decode("ascii")
             },
         )
+        time.sleep(Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS)
         if response.status_code == 404:
             return set()
 

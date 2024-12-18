@@ -28,7 +28,7 @@ class RemovedDomainExistingVhost(ArtemisBase):
     filters = [{"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value}]
 
     def _obtain_past_target_ips(self, domain: str) -> Set[str]:
-        data = http_requests.get(
+        response = http_requests.get(
             Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URL + domain,
             headers={
                 "Authorization": "Basic "
@@ -40,7 +40,11 @@ class RemovedDomainExistingVhost(ArtemisBase):
                     ).encode("utf-8")
                 ).decode("ascii")
             },
-        ).content
+        )
+        if response.status_code == 404:
+            return set()
+
+        data = response.content
         result = set()
         for line in data.split("\n"):
             if not line:
@@ -50,6 +54,7 @@ class RemovedDomainExistingVhost(ArtemisBase):
                 item = json.loads(line)
             except json.decoder.JSONDecodeError:
                 self.log.error("Unable to parse response: %s", line)
+                continue
 
             if item["rrtype"] in ["A", "AAAA"]:
                 result.add(item["rrname"])

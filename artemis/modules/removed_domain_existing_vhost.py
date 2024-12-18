@@ -71,7 +71,6 @@ class RemovedDomainExistingVhost(ArtemisBase):
             self.db.save_task_result(task=current_task, status=TaskStatus.OK, status_reason="Domain exists")
             return
 
-
         target_ips = self._obtain_past_target_ips(domain)
         if not target_ips:
             self.db.save_task_result(
@@ -92,7 +91,9 @@ class RemovedDomainExistingVhost(ArtemisBase):
                 ratio = SequenceMatcher(
                     None, response_for_old_domain.content, response_for_other_vhost.content
                 ).quick_ratio()
-                self.log.info(f"Similarity between correct and incorrect domain is {ratio} nd status code is {response_for_old_domain.status_code}")
+                self.log.info(
+                    f"Similarity between correct and incorrect domain is {ratio} nd status code is {response_for_old_domain.status_code}"
+                )
 
                 if (
                     ratio < Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD

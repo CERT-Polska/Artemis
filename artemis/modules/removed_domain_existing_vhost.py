@@ -42,7 +42,9 @@ class RemovedDomainExistingVhost(ArtemisBase):
                 ).decode("ascii")
             },
         )
-        time.sleep(Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS)
+        time.sleep(
+            Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS
+        )
         if response.status_code == 404:
             return set()
 

@@ -819,7 +819,9 @@ class Config:
             REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS: Annotated[
                 str,
                 "How long to sleep between passivedns requests in order not to overload the provider.",
-            ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS", default=10, cast=int)
+            ] = get_config(
+                "REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS", default=10, cast=int
+            )
 
             REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD: Annotated[
                 float,

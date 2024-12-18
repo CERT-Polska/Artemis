@@ -47,7 +47,10 @@ class RemovedDomainExistingVhost(ArtemisBase):
             if not line:
                 continue
 
-            item = json.loads(line)
+            try:
+                item = json.loads(line)
+            except json.decoder.JSONDecodeError:
+                self.log.error("Unable to parse response: %s", line)
 
             if item["rrtype"] in ["A", "AAAA"]:
                 result.add(item["rrname"])

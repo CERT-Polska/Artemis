@@ -27,8 +27,7 @@ class RemovedDomainExistingVhost(ArtemisBase):
     identity = "removed_domain_existing_vhost"
     filters = [{"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value}]
 
-    @staticmethod
-    def _obtain_past_target_ips(domain: str) -> Set[str]:
+    def _obtain_past_target_ips(self, domain: str) -> Set[str]:
         data = http_requests.get(
             Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URL + domain,
             headers={

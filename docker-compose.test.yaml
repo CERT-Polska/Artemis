@@ -16,6 +16,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    entrypoint: ""
     command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
       TEST_REDIS_HOST: test-redis

@@ -12,16 +12,16 @@ docker compose -f docker-compose.test.yaml down --remove-orphans
 docker compose -f docker-compose.test.yaml up -d --build --scale test=0 --scale=test-e2e=0
 
 # Wait for the dependency services to be available
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-joomla-mysql:3306
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-wordpress-mysql:3306
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-bruteable-files:80
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-robots-service:80
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-ftp-server-with-easy-password:21
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-joomla:80
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-smtp-server:25
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-exposed-git:80
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-old-wordpress:80
-docker compose -f docker-compose.test.yaml run test /wait-for-it.sh test-service-with-directory-index:80
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-old-joomla-mysql:3306
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-old-wordpress-mysql:3306
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-service-with-bruteable-files:80
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-robots-service:80
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-ftp-server-with-easy-password:21
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-old-joomla:80
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-smtp-server:25
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-service-with-exposed-git:80
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-old-wordpress:80
+docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-service-with-directory-index:80
 
 # Set up Joomla instance
 docker compose -f docker-compose.test.yaml cp test/data/joomla/configuration.php test-old-joomla:/var/www/html
@@ -68,7 +68,7 @@ docker compose \
     -f docker-compose.test.yaml \
     -f docker-compose.yaml \
     -f docker-compose.test-e2e.yaml \
-    run \
+    run --entrypoint bash \
     test-e2e
 
 EXIT_CODE=$?

@@ -90,6 +90,11 @@ class ClassifierTest(ArtemisModuleTestCase):
                 "CERT.pl",
                 [
                     ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "domain_that_may_not_exist"},
+                        payload={"domain": "cert.pl", "last_domain": "cert.pl"},
+                        payload_persistent={"original_domain": "cert.pl"},
+                    ),
+                    ExpectedTaskData(
                         headers={"origin": "classifier", "type": "domain"},
                         payload={"domain": "cert.pl", "last_domain": "cert.pl"},
                         payload_persistent={"original_domain": "cert.pl"},

@@ -1,0 +1,35 @@
+#: artemis/reporting/modules/removed_domain_existing_vhost/template_removed_domain_existing_vhost.jinja2:3
+msgid "The following servers host domains that don't exist anymore:"
+msgstr ""
+
+#: artemis/reporting/modules/removed_domain_existing_vhost/template_removed_domain_existing_vhost.jinja2:10
+msgid "hosts the following domain:"
+msgstr ""
+
+#: artemis/reporting/modules/removed_domain_existing_vhost/template_removed_domain_existing_vhost.jinja2:17
+msgid ""
+"If the domain has been removed, we also recommend removing the "
+"corresponding virtual host on the web server. Currently, an attacker "
+"could communicate with the server directly and still interact with the "
+"site, even though it's considered removed and may not be updated."
+msgstr ""
+
+#~ msgid ""
+#~ "The following addresses contain WordPress "
+#~ "versions that are no longer supported"
+#~ " and are marked as insecure in "
+#~ "the version list from"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If a site is no longer used, "
+#~ "we recommend shutting it down to "
+#~ "eliminate the risk of exploitation of"
+#~ " known vulnerabilities in older WordPress"
+#~ " versions. Otherwise, we recommend enabling"
+#~ " WordPress core and plugin automatic "
+#~ "updates."
+#~ msgstr ""
+
+#~ msgid "The following addresses contain old WordPress versions:"
+#~ msgstr ""

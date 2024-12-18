@@ -7,16 +7,19 @@ class TaskType(str, Enum):
     # unclassified data (goes to classifier)
     NEW = "new"
 
-    # {domain: lidl.com}
+    # {domain: google.com}
     DOMAIN = "domain"
+
+    # {domain: google.com but without existence filtering enabled}
+    DOMAIN_THAT_MAY_NOT_EXIST = "domain_that_may_not_exist"
 
     # {ip: 8.8.8.8}
     IP = "ip"
 
-    # {service: lidl.com:443}
+    # {service: google.com:443}
     SERVICE = "service"
 
-    # {webapp: having a URL, e.g. https://lidl.com/new/, and a type, e.g. WebApplication.WORDPRESS}
+    # {webapp: having a URL, e.g. https://google.com/new/, and a type, e.g. WebApplication.WORDPRESS}
     WEBAPP = "webapp"
 
     # {URL: just a HTTP URL. Must have content attached to make further operations faster}

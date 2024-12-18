@@ -145,12 +145,29 @@ class ArtemisBase(Karton):
             self.add_task(current_task, new_task)
             return True
 
-        if self.check_domain_exists(domain):
+        if self.check_domain_exists_or_is_placeholder(domain):
             self.add_task(current_task, new_task)
             return True
         else:
             self.log.info("Skipping invalid domain (nonexistent/placeholder): %s", domain)
             return False
+
+    def check_domain_exists_or_is_placeholder(self, domain: str) -> bool:
+        """
+        Check if a domain exists or is a placeholder page.
+
+        Args:
+            domain (str): The domain to check.
+
+        Returns:
+            bool: True if the domain exists and is not a placeholder page, False otherwise.
+        """
+        if Config.Modules.PlaceholderPageContent.ENABLE_PLACEHOLDER_PAGE_DETECTOR:
+            placeholder_page = PlaceholderPageDetector()
+            if placeholder_page.is_placeholder(domain):
+                return False
+
+        return self.check_domain_exists(domain)
 
     def check_domain_exists(self, domain: str) -> bool:
         """
@@ -163,10 +180,6 @@ class ArtemisBase(Karton):
             bool: True if the domain exists, False otherwise.
         """
         try:
-            if Config.Modules.PlaceholderPageContent.ENABLE_PLACEHOLDER_PAGE_DETECTOR:
-                placeholder_page = PlaceholderPageDetector()
-                if placeholder_page.is_placeholder(domain):
-                    return False
 
             # Check for NS records
             try:
@@ -548,7 +561,7 @@ class ArtemisBase(Karton):
             result = task.payload["data"]
         elif task.headers["type"] == TaskType.IP:
             result = task.payload["ip"]
-        elif task.headers["type"] == TaskType.DOMAIN:
+        elif task.headers["type"] == TaskType.DOMAIN or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
             # This is an approximation. Sometimes, when we scan domain, we actually scan the IP the domain
             # resolves to (e.g. in port_scan karton), sometimes the domain itself (e.g. the DNS kartons) or
             # even the MX servers. Therefore this will not map 1:1 to the actual host being scanned.

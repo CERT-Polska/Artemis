@@ -817,10 +817,10 @@ class Config:
             ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_PASSWORD", default=None, cast=str)
 
             REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS: Annotated[
-                str,
+                float,
                 "How long to sleep between passivedns requests in order not to overload the provider.",
             ] = get_config(
-                "REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS", default=10, cast=int
+                "REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS", default=10, cast=float
             )
 
             REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD: Annotated[

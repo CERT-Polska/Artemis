@@ -221,6 +221,20 @@ class Classifier(ArtemisBase):
         else:
             data = Classifier._clean_ipv6_brackets(data)
 
+            if task_type == TaskType.DOMAIN:
+                self.add_task(
+                    current_task,
+                    Task(
+                        {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST},
+                        payload={
+                            task_type.value: sanitized,
+                        },
+                        payload_persistent={
+                            f"original_{task_type.value}": sanitized,
+                        },
+                    ),
+                )
+
             new_task = Task(
                 {"type": task_type},
                 payload={
@@ -230,18 +244,6 @@ class Classifier(ArtemisBase):
                     f"original_{task_type.value}": sanitized,
                 },
             )
-
-            if task_type == TaskType.DOMAIN:
-                new_task = Task(
-                    {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST},
-                    payload={
-                        task_type.value: sanitized,
-                    },
-                    payload_persistent={
-                        f"original_{task_type.value}": sanitized,
-                    },
-                )
-                self.add_task(current_task, new_task)
 
             if self.add_task_if_domain_exists(current_task, new_task):
                 self.db.save_task_result(

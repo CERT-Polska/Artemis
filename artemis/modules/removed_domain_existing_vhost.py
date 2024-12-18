@@ -2,10 +2,10 @@ import base64
 import binascii
 import json
 import os
-import requests
 from difflib import SequenceMatcher
 from typing import Set
 
+import requests
 from karton.core import Task
 from urllib3.util import connection
 

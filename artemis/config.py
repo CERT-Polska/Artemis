@@ -797,6 +797,43 @@ class Config:
                 "Recipient e-mail address, e.g. for open relay testing.",
             ] = get_config("POSTMAN_MAIL_TO", default="to@example.com")
 
+        class RemovedDomainExistingVhost:
+            REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URL: Annotated[
+                str,
+                "The passive DNS url to download old domain IPs from. Currently, the system was tested with circl.lu "
+                "passive DNS.",
+            ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URL", default=None, cast=str)
+
+            REMOVED_DOMAIN_EXISTING_VHOST_REPORT_ONLY_SUBDOMAINS: Annotated[
+                str,
+                "If set to True, 'removed domain but existing vhost' situations will be reported only for subdomains.",
+            ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_REPORT_ONLY_SUBDOMAINS", default=False, cast=bool)
+
+            REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_USERNAME: Annotated[
+                str,
+                "The passive DNS username to be used to download old domain IPs. Currently, the system was tested with circl.lu "
+                "passive DNS.",
+            ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_USERNAME", default=None, cast=str)
+
+            REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_PASSWORD: Annotated[
+                str,
+                "The passive DNS password to be used to download old domain IPs. Currently, the system was tested with circl.lu "
+                "passive DNS.",
+            ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_PASSWORD", default=None, cast=str)
+
+            REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS: Annotated[
+                float,
+                "How long to sleep between passivedns requests in order not to overload the provider.",
+            ] = get_config(
+                "REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS", default=10, cast=float
+            )
+
+            REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD: Annotated[
+                float,
+                "How similar the results for correct and different domain should be to consider that the server "
+                "doesn't host the given domain.",
+            ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD", default=0.5, cast=float)
+
         class Shodan:
             SHODAN_API_KEY: Annotated[
                 str,

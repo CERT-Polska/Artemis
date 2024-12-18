@@ -1,0 +1,24 @@
+{% if "removed_domain_existing_vhost" in data.contains_type %}
+    <li>
+        {% trans trimmed %}
+            The following servers host domains that don't exist anymore:
+        {% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "removed_domain_existing_vhost" %}
+                    <li>
+                        {{ report.additional_data.ip }} {% trans %}hosts the following domain:{% endtrans %} {{ report.target }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                If the domain has been removed, we also recommend removing the corresponding virtual host
+                on the web server. Currently, an attacker could communicate with the server directly and
+                still interact with the site, even though it's considered removed.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

@@ -216,6 +216,14 @@ class SubdomainEnumeration(ArtemisBase):
                     )
                     self.add_task_if_domain_exists(current_task, task)
 
+                    task = Task(
+                        {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST},
+                        payload={
+                            "domain": subdomain,
+                        },
+                    )
+                    self.add_task(current_task, task)
+
             valid_subdomains.update(valid_subdomains_from_tool)
 
         if valid_subdomains:

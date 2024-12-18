@@ -66,6 +66,8 @@ def _cleanup_queues() -> None:
 
             def loop(self) -> None:
                 self.log.info("The service that removes %s tasks from the queue started", self.identity)
+                self.backend.register_bind(self._bind)
+
                 while True:
                     task = self.backend.consume_routed_task(self.identity)
                     if not task:

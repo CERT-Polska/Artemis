@@ -804,6 +804,11 @@ class Config:
                 "passive DNS.",
             ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URL", default=None, cast=str)
 
+            REMOVED_DOMAIN_EXISTING_VHOST_REPORT_ONLY_SUBDOMAINS: Annotated[
+                str,
+                "If set to True, 'removed domain but existing vhost' situations will be reported only for subdomains.",
+            ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_REPORT_ONLY_SUBDOMAINS", default=False, cast=bool)
+
             REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_USERNAME: Annotated[
                 str,
                 "The passive DNS username to be used to download old domain IPs. Currently, the system was tested with circl.lu "

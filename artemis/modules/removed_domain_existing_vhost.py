@@ -48,6 +48,7 @@ class RemovedDomainExistingVhost(ArtemisBase):
         if response.status_code == 404:
             return set()
 
+        self.log.info("Response for %s: status code=%s, first bytes: %s", domain, response.status_code, response.content[:30])
         data = response.content
         result = set()
         for line in data.split("\n"):

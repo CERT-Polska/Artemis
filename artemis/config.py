@@ -532,6 +532,7 @@ class Config:
                         "http/fuzzing/xff-403-bypass.yaml",
                         # Not that severe to spam people
                         "javascript/cves/2023/CVE-2023-48795.yaml",
+                        "http/cves/2024/CVE-2024-43919.yaml",
                         # We already check for Gitlab
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
                     ]

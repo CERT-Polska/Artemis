@@ -30,10 +30,10 @@ class RemovedDomainExistingVhost(ArtemisBase):
     def _obtain_past_target_ips(self, domain: str) -> Set[str]:
         result: Set[str] = set()
         for url in Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URLS:
-            response = http_requests.get(url + domain)
             time.sleep(
                 Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS
             )
+            response = http_requests.get(url + domain)
             if response.status_code == 404:
                 continue
 

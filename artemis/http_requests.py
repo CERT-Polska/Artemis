@@ -89,10 +89,15 @@ def _request(
         headers.update(kwargs["headers"]) if "headers" in kwargs else headers
 
         s = requests.Session()
-        if urllib.parse.urlparse(url).scheme.lower() == "https":
+        url_parsed = urllib.parse.urlparse(url)
+        if url_parsed.scheme.lower() == "https":
             s.mount(url, SSLContextAdapter())
 
-        LOGGER.debug("%s %s", method_name, url)
+        if url_parsed.password:
+            url_parsed.password = '***'
+            LOGGER.debug("%s %s", method_name, urllib.parse.urlunparse(**url_parsed))
+        else:
+            LOGGER.debug("%s %s", method_name, url)
 
         response = getattr(s, method_name)(
             url,

@@ -93,9 +93,12 @@ def _request(
         if url_parsed.scheme.lower() == "https":
             s.mount(url, SSLContextAdapter())
 
-        if url_parsed.password:
-            url_parsed.password = '***'
-            LOGGER.debug("%s %s", method_name, urllib.parse.urlunparse(**url_parsed))
+        if url_parsed.username or url_parsed.password:
+            LOGGER.debug(
+                "%s %s",
+                method_name,
+                urllib.parse.urlunparse(url_parsed._replace(netloc="***:***@" + (url_parsed.hostname or ""))),
+            )
         else:
             LOGGER.debug("%s %s", method_name, url)
 

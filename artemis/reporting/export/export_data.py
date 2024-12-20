@@ -27,6 +27,7 @@ class ExportData:
     language: str
     scanned_top_level_targets: List[str]
     scanned_targets: List[str]
+    ips: Dict[str, List[str]]
     messages: Dict[str, SingleTopLevelTargetExportData]
     alerts: List[str]
 
@@ -96,6 +97,7 @@ def build_export_data(
         language=language.value,
         scanned_top_level_targets=list(db.scanned_top_level_targets),
         scanned_targets=list(db.scanned_targets),
+        ips=db.ips,
         messages=message_data,
         alerts=alerts,
     )

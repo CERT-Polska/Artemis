@@ -1,4 +1,3 @@
-import base64
 import binascii
 import json
 import os
@@ -29,42 +28,31 @@ class RemovedDomainExistingVhost(ArtemisBase):
     filters = [{"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value}]
 
     def _obtain_past_target_ips(self, domain: str) -> Set[str]:
-        response = http_requests.get(
-            Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URL + domain,
-            headers={
-                "Authorization": "Basic "
-                + base64.b64encode(
-                    (
-                        Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_USERNAME
-                        + ":"
-                        + Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_PASSWORD
-                    ).encode("utf-8")
-                ).decode("ascii")
-            },
-        )
-        time.sleep(
-            Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS
-        )
-        if response.status_code == 404:
-            return set()
-
-        self.log.info(
-            "Response for %s: status code=%s, first bytes: %s", domain, response.status_code, response.content[:30]
-        )
-        data = response.content
-        result = set()
-        for line in data.split("\n"):
-            if not line:
+        result: Set[str] = set()
+        for url in Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URLS:
+            time.sleep(
+                Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS
+            )
+            response = http_requests.get(url + domain)
+            if response.status_code == 404:
                 continue
 
-            try:
-                item = json.loads(line)
-            except json.decoder.JSONDecodeError:
-                self.log.error("Unable to parse response: %s", line)
-                continue
+            self.log.info(
+                "Response for %s: status code=%s, first bytes: %s", domain, response.status_code, response.content[:30]
+            )
+            data = response.content
+            for line in data.split("\n"):
+                if not line:
+                    continue
 
-            if item["rrtype"] in ["A", "AAAA"]:
-                result.add(item["rrname"])
+                try:
+                    item = json.loads(line)
+                except json.decoder.JSONDecodeError:
+                    self.log.error("Unable to parse response: %s", line)
+                    continue
+
+                if item["rrtype"] in ["A", "AAAA"]:
+                    result.add(item["rrname"])
 
         return result
 
@@ -136,11 +124,7 @@ class RemovedDomainExistingVhost(ArtemisBase):
 
 
 if __name__ == "__main__":
-    if (
-        Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URL
-        and Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_USERNAME
-        and Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_PASSWORD
-    ):
+    if Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URLS:
         RemovedDomainExistingVhost().loop()
     else:
         no_pdns_config_message_printed_filename = "/.no-pdns-config-message-shown"

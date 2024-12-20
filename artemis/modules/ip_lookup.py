@@ -20,12 +20,12 @@ class IPLookup(ArtemisBase):
         {"type": TaskType.DOMAIN.value},
     ]
 
-    def _process(self, current_task: Task, domain: str) -> Set[str]:
+    def _process(self, current_task: Task, domain: str) -> List[str]:
         found_ips = lookup(domain)
         for found_ip in found_ips:
             new_task = Task({"type": TaskType.NEW}, payload={"data": found_ip})
             self.add_task(current_task, new_task)
-        return found_ips
+        return list(found_ips)
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload(TaskType.DOMAIN)

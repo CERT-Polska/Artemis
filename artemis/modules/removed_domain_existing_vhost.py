@@ -41,7 +41,6 @@ class RemovedDomainExistingVhost(ArtemisBase):
                 "Response for %s: status code=%s, first bytes: %s", domain, response.status_code, response.content[:30]
             )
             data = response.content
-            result = set()
             for line in data.split("\n"):
                 if not line:
                     continue

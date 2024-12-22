@@ -73,7 +73,8 @@ class DataLoader:
                 self._scanned_top_level_targets.add(top_level_target)
 
             if result["task"]["headers"]["receiver"] == "IPLookup":
-                self._ips[result["target_string"]] = list(result.get("result", {}).get("ips", []))
+                if isinstance(result.get("result", {}), dict):
+                    self._ips[result["target_string"]] = list(result["result"].get("ips", []))
 
             self._scanned_targets.add(DataLoader._get_target_host(result["task"]))
 

@@ -6,7 +6,7 @@ Babel==2.16.0
 beautifulsoup4==4.12.3
 certifi==2024.12.14
 chardet==5.2.0
-click==8.1.7
+click==8.1.8
 cryptography==44.0.0
 dnspython==2.7.0
 fastapi==0.115.6

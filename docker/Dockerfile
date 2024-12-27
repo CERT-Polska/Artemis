@@ -21,7 +21,8 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
     cd / && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
-    pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt $ADDITIONAL_REQUIREMENTS && \
+    git clone https://github.com/LuemmelSec/Moodle-Scanner.git /moodle_scanner && \
+    pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt -r /moodle_scanner/requirements.txt $ADDITIONAL_REQUIREMENTS && \
     apk del .build-deps
 
 WORKDIR /opt

@@ -1,11 +1,14 @@
 import datetime
 import json
 import time
+from typing import Any, Dict, List
 
+from karton.core import Consumer, Task
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 
 from artemis import utils
+from artemis.binds import Service, TaskType
 
 logger = utils.build_logger(__name__)
 
@@ -21,7 +24,10 @@ def _cleanup_tasks_not_in_queues() -> None:
     tasks = set()
     for key in keys:
         if key.startswith("karton.task"):
-            tasks.add(key.split(":")[1])
+            if ":" in key:
+                tasks.add(key.split(":")[1])
+            else:
+                logger.error("Invalid key: %s", key)
 
     queued_tasks = set()
     for key in keys:
@@ -45,8 +51,40 @@ def _cleanup_tasks_not_in_queues() -> None:
     logger.info("Tasks cleaned up: %d", num_tasks_cleaned_up)
 
 
+def _cleanup_queues() -> None:
+    old_modules = ["dalfox"]
+
+    for old_module in old_modules:
+
+        class KartonDummy(Consumer):
+            identity = old_module
+            persistent = False
+            filters: List[Dict[str, Any]] = [{"type": TaskType.SERVICE.value, "service": Service.HTTP.value}]
+
+            def process(self, task: Task) -> None:
+                pass
+
+            def loop(self) -> None:
+                self.log.info("The service that removes %s tasks from the queue started", self.identity)
+                self.backend.register_bind(self._bind)
+
+                while True:
+                    task = self.backend.consume_routed_task(self.identity)
+                    if not task:
+                        self.log.info("No task to process")
+                        break
+
+                    self.log.info("Processed task: %s", task.uid)
+                    self.internal_process(task)
+
+        karton = KartonDummy(config=KartonConfig())
+        karton.loop()
+        logger.info("Queue for %s is cleaned up", karton.identity)
+
+
 def cleanup() -> None:
     _cleanup_tasks_not_in_queues()
+    _cleanup_queues()
 
 
 if __name__ == "__main__":

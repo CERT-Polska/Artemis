@@ -47,7 +47,10 @@ def get_csrf_config() -> CsrfSettings:
 def csrf_form_template_response(template_name: str, context: Dict[str, Any], csrf_protect: CsrfProtect) -> Response:
     csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
     context["csrf_token"] = csrf_token
-    context["tag_names"] = db.get_tags()
+    context["tag_names"] = sorted(
+        (tag for tag in db.get_tags() if tag.tag_name is not None), key=lambda tag: tag.tag_name
+    )
+
     response = templates.TemplateResponse(template_name, context)
     csrf_protect.set_csrf_cookie(signed_token, response)
     return response

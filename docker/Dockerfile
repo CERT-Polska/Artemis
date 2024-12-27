@@ -18,7 +18,6 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/lc/gau/v2/cmd/gau && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/hahwul/dalfox/v2 && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
     cd / && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
@@ -32,9 +31,12 @@ COPY "alembic.ini" "alembic.ini"
 COPY "migrations/" "migrations/"
 COPY "static/" "static/"
 COPY "templates/" "templates/"
+COPY "docker/wait-for-dependencies.sh" "/wait-for-dependencies.sh"
 
 # Warmup the cache. That way if the user is in an environment where requests to remote APIs (e.g. providing WordPress
 # version check) fail, the response will be served from an on-disk cache.
 RUN DB_CONN_STR=unused POSTGRES_CONN_STR=unused REDIS_CONN_STR=unused python3 -m artemis.fallback_api_cache
 
+
+ENTRYPOINT ["/wait-for-dependencies.sh"]
 CMD ["bash", "-c", "alembic upgrade head && uvicorn artemis.main:app --host 0.0.0.0 --port 5000"]

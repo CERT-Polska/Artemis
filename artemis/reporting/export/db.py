@@ -48,6 +48,7 @@ class DataLoader:
             return
 
         self._reports = []
+        self._ips = {}
         self._scanned_top_level_targets = set()
         self._scanned_targets = set()
         self._tag_stats: DefaultDict[str, int] = defaultdict(lambda: 0)
@@ -70,6 +71,10 @@ class DataLoader:
 
             if top_level_target:
                 self._scanned_top_level_targets.add(top_level_target)
+
+            if result["task"]["headers"]["receiver"] == "IPLookup":
+                if isinstance(result.get("result", {}), dict):
+                    self._ips[result["target_string"]] = list(result["result"].get("ips", []))
 
             self._scanned_targets.add(DataLoader._get_target_host(result["task"]))
 
@@ -95,6 +100,11 @@ class DataLoader:
     def reports(self) -> List[Report]:
         self._initialize_data_if_needed()
         return self._reports
+
+    @property
+    def ips(self) -> dict[str, List[str]]:
+        self._initialize_data_if_needed()
+        return self._ips
 
     @property
     def scanned_top_level_targets(self) -> Set[str]:

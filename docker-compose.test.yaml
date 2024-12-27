@@ -16,6 +16,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    entrypoint: ""
     command: bash -c "python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
     environment:
       TEST_REDIS_HOST: test-redis
@@ -195,14 +196,6 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
-
-  test_apache-with-xss:
-    build:
-      dockerfile: test/images/php-xss/Dockerfile
-    command: systemctl start apache2.service
-    volumes:
-      - ./test/data/dalfox/:/var/www/html/
-
 
   test-apache-with-sql-injection-postgres:
     build:

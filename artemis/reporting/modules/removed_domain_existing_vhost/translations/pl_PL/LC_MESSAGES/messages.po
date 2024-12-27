@@ -1,0 +1,19 @@
+#: artemis/reporting/modules/removed_domain_existing_vhost/template_removed_domain_existing_vhost.jinja2:3
+msgid "The following servers host domains that don't exist anymore:"
+msgstr "Następujące serwery hostują domeny, które już nie istnieją:"
+
+#: artemis/reporting/modules/removed_domain_existing_vhost/template_removed_domain_existing_vhost.jinja2:10
+msgid "hosts the following domain:"
+msgstr "hostuje następującą domenę:"
+
+#: artemis/reporting/modules/removed_domain_existing_vhost/template_removed_domain_existing_vhost.jinja2:17
+msgid ""
+"If the domain has been removed, we also recommend removing the "
+"corresponding virtual host on the web server. Currently, an attacker "
+"could communicate with the server directly and still interact with the "
+"site, even though it's considered removed."
+msgstr ""
+"Jeśli domena została usunięta, rekomendujemy również usunięcie "
+"odpowiedniej konfiguracji (wirtualnego hosta) na serwerze HTTP. Obecnie, "
+"atakujący może komunikować się bezpośrednio z serwerem i wchodzić w "
+"interakcje ze stroną, pomimo tego, że jest uznawana za usuniętą."

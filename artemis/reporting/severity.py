@@ -64,6 +64,7 @@ SEVERITY_MAP = {
     ReportType("sql_injection"): Severity.HIGH,
     ReportType("wpscan_vulnerability"): Severity.HIGH,
     ReportType("wpscan_interesting_url"): Severity.LOW,
+    ReportType("removed_domain_existing_vhost"): Severity.LOW,
     ReportType("certificate_authority_invalid"): Severity.LOW,
     ReportType("expired_ssl_certificate"): Severity.LOW,
     ReportType("almost_expired_ssl_certificate"): Severity.LOW,

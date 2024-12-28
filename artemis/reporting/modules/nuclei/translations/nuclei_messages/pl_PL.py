@@ -998,6 +998,8 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Detects exposed internal PKI infrastructure including CRL distribution points and OCSP responders": "Wykryto publicznie dostępną infrastrukturę PKI. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
+    "After the initial setup process, some steps of setup.php file are reachable not only by super-administrators but also by unauthenticated users. A malicious actor can pass step checks and potentially change the configuration of Zabbix Frontend.": "Wykryto, że niektóre kroki instalacji systemu Zabbix Frontend są dostępne nie tylko dla administratorów, ale też dla nieuprawnionych użytkowników, co umożliwia atakującemu zmianę konfiguracji systemu. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "A vulnerability in NuPoint Messenger (NPM) of Mitel MiCollab through 9.8.0.33 allows an unauthenticated attacker to conduct a SQL injection attack due to insufficient sanitization of user input. A successful exploit could allow an attacker to access sensitive information and execute arbitrary database and management operations.": "NuPoint Messenger w wersji do 9.8.0.33 włącznie zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + UPDATE_HINT,
     "Files on the host computer can be accessed from the Gradio interface": "Interfejs Gradio umożliwia dostęp do plików na komputerze.",

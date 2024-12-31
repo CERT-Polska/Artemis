@@ -615,6 +615,7 @@ class Config:
                         "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
                         "custom:CVE-2024-4836",
+                        "custom:CVE-2024-35286",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
                         # gets fixed, these templates return a FP on phpinfo(). Let's not spam
                         # our recipients with FPs.

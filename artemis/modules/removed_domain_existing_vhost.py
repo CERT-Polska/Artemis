@@ -34,12 +34,15 @@ class RemovedDomainExistingVhost(ArtemisBase):
                 Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_SLEEP_BETWEEN_REQUESTS_SECONDS
             )
             response = http_requests.get(url + domain)
+            self.log.info(
+                "Response for '%s': status code=%s, first bytes: %s",
+                domain,
+                response.status_code,
+                response.content[:30],
+            )
             if response.status_code == 404:
                 continue
 
-            self.log.info(
-                "Response for %s: status code=%s, first bytes: %s", domain, response.status_code, response.content[:30]
-            )
             data = response.content
             for line in data.split("\n"):
                 if not line:
@@ -57,15 +60,19 @@ class RemovedDomainExistingVhost(ArtemisBase):
         return result
 
     @staticmethod
-    def _request_with_patched_ip(url: str, patch_ip_to: str) -> http_requests.HTTPResponse:
+    def _request_with_patched_ip(url: str, patch_domain: str, patch_ip_to: str) -> http_requests.HTTPResponse:
         def patched_create_connection(address, *args, **kwargs):  # type: ignore
             host, port = address
-            hostname = patch_ip_to
-
-            return _orig_create_connection((hostname, port), *args, **kwargs)  # type: ignore
+            if host == patch_domain:
+                host = patch_ip_to
+            return _orig_create_connection((host, port), *args, **kwargs)  # type: ignore
 
         connection.create_connection = patched_create_connection
-        return http_requests.get(url)
+
+        try:
+            return http_requests.get(url)
+        finally:
+            connection.create_connection = _orig_create_connection
 
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain")
@@ -85,11 +92,37 @@ class RemovedDomainExistingVhost(ArtemisBase):
         for ip in target_ips:
             for proto in ["http", "https"]:
                 try:
-                    response_for_old_domain = self._request_with_patched_ip(proto + "://" + domain, ip)
-                    response_for_other_vhost = self._request_with_patched_ip(proto + "://" + prefix + domain, ip)
+                    response_for_old_domain = self._request_with_patched_ip(proto + "://" + domain, domain, ip)
+                    response_for_other_vhost = self._request_with_patched_ip(
+                        proto + "://" + prefix + domain, prefix + domain, ip
+                    )
                 except requests.exceptions.RequestException:
                     self.log.exception("Unable to download website content")
                     continue
+
+                try:
+                    parent_domain = ".".join(domain.split(".")[1:])
+                    response_for_parent_domain = self._request_with_patched_ip(
+                        proto + "://" + parent_domain, parent_domain, ip
+                    )
+
+                    ratio = SequenceMatcher(
+                        None, response_for_old_domain.content, response_for_parent_domain.content
+                    ).quick_ratio()
+                    if (
+                        ratio
+                        > Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD
+                    ):
+                        self.log.info(
+                            f"Domain {domain} has similar content to parent {parent_domain} (ratio={ratio}), nothing interesting, skipping..."
+                        )
+                        continue
+                    else:
+                        self.log.info(
+                            f"Domain {domain} has not similar content to parent {parent_domain} (ratio={ratio})"
+                        )
+                except requests.exceptions.RequestException:
+                    self.log.exception("Unable to download parent website content")
 
                 ratio = SequenceMatcher(
                     None, response_for_old_domain.content, response_for_other_vhost.content

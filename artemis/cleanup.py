@@ -14,6 +14,7 @@ logger = utils.build_logger(__name__)
 
 DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS = 3
 DELAY_BETWEEN_CLEANUPS__SECONDS = 4 * 3600
+OLD_MODULES = ["dalfox"]
 
 
 def _cleanup_tasks_not_in_queues() -> None:
@@ -45,16 +46,14 @@ def _cleanup_tasks_not_in_queues() -> None:
         task = json.loads(value)
         if datetime.datetime.utcfromtimestamp(task["last_update"]) < datetime.datetime.now() - datetime.timedelta(
             days=DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS
-        ):
+        ) or task.get('headers', {}).get("receiver", "") in OLD_MODULES:
             num_tasks_cleaned_up += 1
             backend.redis.delete(key)
     logger.info("Tasks cleaned up: %d", num_tasks_cleaned_up)
 
 
 def _cleanup_queues() -> None:
-    old_modules = ["dalfox"]
-
-    for old_module in old_modules:
+    for old_module in OLD_MODULES:
 
         class KartonDummy(Consumer):
             identity = old_module

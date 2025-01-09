@@ -708,6 +708,7 @@ class Config:
                         "http/vulnerabilities/other/turbocrm-xss.yaml",
                         "http/vulnerabilities/other/wems-manager-xss.yaml",
                         "http/vulnerabilities/wordpress/wp-touch-redirect.yaml",
+                        "http/fuzzing/iis-shortname.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

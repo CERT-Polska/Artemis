@@ -40,12 +40,13 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "zarinpal-woocommerce-payment-gateway",
 ]
 PLUGINS_TO_SKIP_CHANGELOG = [
-    "wp-members",
-    "wordpress-popup",
     "backwpup",
+    "everest-forms",
     "social-pug",
-    "yith-woocommerce-catalog-mode",
+    "wordpress-popup",
+    "wp-members",
     "wppao-sitemap",
+    "yith-woocommerce-catalog-mode",
 ]
 PLUGINS_TO_SKIP_STABLE_TAG = [
     "flowpaper-lite-pdf-flipbook",

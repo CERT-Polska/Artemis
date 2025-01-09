@@ -44,9 +44,11 @@ def _cleanup_tasks_not_in_queues() -> None:
             continue
 
         task = json.loads(value)
-        if datetime.datetime.utcfromtimestamp(task["last_update"]) < datetime.datetime.now() - datetime.timedelta(
-            days=DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS
-        ) or task.get('headers', {}).get("receiver", "") in OLD_MODULES:
+        if (
+            datetime.datetime.utcfromtimestamp(task["last_update"])
+            < datetime.datetime.now() - datetime.timedelta(days=DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS)
+            or task.get("headers", {}).get("receiver", "") in OLD_MODULES
+        ):
             num_tasks_cleaned_up += 1
             backend.redis.delete(key)
     logger.info("Tasks cleaned up: %d", num_tasks_cleaned_up)

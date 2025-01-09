@@ -76,6 +76,7 @@ def _cleanup_queues() -> None:
 
                     self.log.info("Processed task: %s", task.uid)
                     self.internal_process(task)
+                self.backend.delete_consumer_queues(self.identity)
 
         karton = KartonDummy(config=KartonConfig())
         karton.loop()

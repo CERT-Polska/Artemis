@@ -998,6 +998,7 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Checks for MySQL servers with an empty password for root or anonymous.": "Wykryto serwer MySQL do którego można zalogować się pustym hasłem.",
     "WordPress WooCommerce plugin before 3.1.2 does not have authorisation and CSRF checks in the wpt_admin_update_notice_option AJAX action (available to both unauthenticated and authenticated users), as well as does not validate the callback parameter, allowing unauthenticated attackers to call arbitrary functions with either none or one user controlled argument.": "Wtyczka WordPress o nazwie WooCommerce w wersji poniżej 3.1.2 umożliwia atakującemu nieuprawnione uruchamianie niektórych funkcji w systemie."
     + WORDPRESS_UPDATE_HINT,
     "Primetek Primefaces 5.x is vulnerable to a weak encryption flaw resulting in remote code execution.": "Primetek Primefaces 5.x zawiera podatność umożliwiającą zdalne wykonanie kodu."

@@ -13,7 +13,7 @@ from artemis.binds import Service, TaskType
 logger = utils.build_logger(__name__)
 
 DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS = 3
-DELAY_BETWEEN_CLEANUPS__SECONDS = 24 * 3600
+DELAY_BETWEEN_CLEANUPS__SECONDS = 4 * 3600
 
 
 def _cleanup_tasks_not_in_queues() -> None:

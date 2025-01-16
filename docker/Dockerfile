@@ -22,6 +22,7 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     cd / && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
     git clone https://github.com/LuemmelSec/Moodle-Scanner.git /moodle_scanner && \
+    mkdir -p /moodle_scanner/config && \
     pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt -r /moodle_scanner/requirements.txt $ADDITIONAL_REQUIREMENTS && \
     apk del .build-deps
 

@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 import dataclasses
-import json
-import os
 import subprocess
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from karton.core import Task
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
-
 
 @dataclasses.dataclass
 class MoodleMessage:
@@ -22,7 +18,6 @@ class MoodleMessage:
     @property
     def message(self) -> str:
         return f"{self.category}: {', '.join(self.problems)}"
-
 
 def process_moodle_json(result: Dict[str, Any]) -> List[MoodleMessage]:
     messages: Dict[str, MoodleMessage] = {}
@@ -60,7 +55,6 @@ def process_moodle_json(result: Dict[str, Any]) -> List[MoodleMessage]:
 
     return list(messages.values())
 
-
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class MoodleScanner(ArtemisBase):
     """
@@ -82,20 +76,13 @@ class MoodleScanner(ArtemisBase):
         try:
             # Run moodlescan with error output captured
             process = subprocess.run(
-                [
-                    "python3",
-                    "moodlescan.py",
-                    "-u",
-                    base_url,
-                    "-r",
-                    "-k"
-                ],
+                ["python3", "moodlescan.py", "-u", base_url, "-r", "-k"],
                 cwd="/moodle_scanner",
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
-            
+
             self.log.info(f"Moodlescan stdout: {process.stdout}")
             if process.stderr:
                 self.log.warning(f"Moodlescan stderr: {process.stderr}")
@@ -110,13 +97,10 @@ class MoodleScanner(ArtemisBase):
                 if "Error: Can't connect" in line:
                     self.log.info(f"Connection error: {line}")
                     self.db.save_task_result(
-                        task=current_task,
-                        status=TaskStatus.OK,
-                        status_reason=line,
-                        data={"raw_output": process.stdout}
+                        task=current_task, status=TaskStatus.OK, status_reason=line, data={"raw_output": process.stdout}
                     )
                     return
-                    
+
                 if "server" in line.lower() and ":" in line:
                     server_info = line.split(":", 1)[1].strip()
                 elif "version" in line.lower() and not line.startswith("."):
@@ -132,7 +116,7 @@ class MoodleScanner(ArtemisBase):
                 "server": server_info,
                 "version": version_info,
                 "vulnerabilities": vulnerabilities,
-                "raw_output": process.stdout
+                "raw_output": process.stdout,
             }
 
             # Determine if anything interesting was found
@@ -146,12 +130,7 @@ class MoodleScanner(ArtemisBase):
                 status = TaskStatus.OK
                 status_reason = "Version not found" if version_info == "Version not found" else None
 
-            self.db.save_task_result(
-                task=current_task,
-                status=status,
-                status_reason=status_reason,
-                data=result
-            )
+            self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
         except subprocess.CalledProcessError as e:
             self.log.error(f"Failed to run moodlescan for {base_url}")
@@ -165,7 +144,6 @@ class MoodleScanner(ArtemisBase):
                 data={"stdout": e.stdout, "stderr": e.stderr},
             )
             return
-
 
 if __name__ == "__main__":
     MoodleScanner().loop()

@@ -74,102 +74,97 @@ class MoodleScanner(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        # Backup existing Moodle-Scanner user agents if any
-        subprocess.call(["cp", "/moodle_scanner/config/user_agents.txt", "/moodle_scanner/config/user_agents.txt.bak"])
 
     def run(self, current_task: Task) -> None:
         base_url = get_target_url(current_task)
+        self.log.info(f"Starting moodlescan for {base_url}")
 
         try:
-            data = subprocess.check_output(
+            # Run moodlescan with error output captured
+            process = subprocess.run(
                 [
                     "python3",
-                    "scanner.py",
+                    "moodlescan.py",
                     "-u",
                     base_url,
-                    "--output",
-                    "json",
-                    "-r"
+                    "-r",
+                    "-k"
                 ],
                 cwd="/moodle_scanner",
-                stderr=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                check=True
             )
-        except subprocess.CalledProcessError:
-            self.log.error(f"Failed to run Moodle-Scanner for {base_url}")
+            
+            self.log.info(f"Moodlescan stdout: {process.stdout}")
+            if process.stderr:
+                self.log.warning(f"Moodlescan stderr: {process.stderr}")
+
+            # Parse the output for relevant information
+            output_lines = process.stdout.splitlines()
+            server_info = None
+            version_info = None
+            vulnerabilities = []
+
+            for i, line in enumerate(output_lines):
+                if "Error: Can't connect" in line:
+                    self.log.info(f"Connection error: {line}")
+                    self.db.save_task_result(
+                        task=current_task,
+                        status=TaskStatus.OK,
+                        status_reason=line,
+                        data={"raw_output": process.stdout}
+                    )
+                    return
+                    
+                if "server" in line.lower() and ":" in line:
+                    server_info = line.split(":", 1)[1].strip()
+                elif "version" in line.lower() and not line.startswith("."):
+                    # Look at next line for version info if it's not dots or error
+                    if i + 1 < len(output_lines):
+                        next_line = output_lines[i + 1].strip()
+                        if next_line and not next_line.startswith(".") and "error" not in next_line.lower():
+                            version_info = next_line
+                elif "vulnerability" in line.lower() or "cve" in line.lower():
+                    vulnerabilities.append(line.strip())
+
+            result = {
+                "server": server_info,
+                "version": version_info,
+                "vulnerabilities": vulnerabilities,
+                "raw_output": process.stdout
+            }
+
+            # Determine if anything interesting was found
+            if vulnerabilities:
+                status = TaskStatus.INTERESTING
+                status_reason = f"Found: {', '.join(vulnerabilities)}"
+            elif version_info and version_info != "Version not found":
+                status = TaskStatus.INTERESTING
+                status_reason = f"Found version: {version_info}"
+            else:
+                status = TaskStatus.OK
+                status_reason = "Version not found" if version_info == "Version not found" else None
+
+            self.db.save_task_result(
+                task=current_task,
+                status=status,
+                status_reason=status_reason,
+                data=result
+            )
+
+        except subprocess.CalledProcessError as e:
+            self.log.error(f"Failed to run moodlescan for {base_url}")
+            self.log.error(f"Exit code: {e.returncode}")
+            self.log.error(f"Stdout: {e.stdout}")
+            self.log.error(f"Stderr: {e.stderr}")
             self.db.save_task_result(
                 task=current_task,
                 status=TaskStatus.ERROR,
-                status_reason="Failed to execute Moodle-Scanner",
-                data={},
+                status_reason=f"Failed to execute moodlescan: {e.stderr}",
+                data={"stdout": e.stdout, "stderr": e.stderr},
             )
             return
-
-        # Extract filename from the output
-        output_prefix = "\n Running Moodle-Scanner and saving the report...\n\n Report saved to "
-        decoded_data = data.decode("ascii", errors="ignore")
-        if output_prefix in decoded_data:
-            filename = decoded_data.split(output_prefix)[-1].strip()
-        else:
-            self.log.error(f"Unexpected Moodle-Scanner output format for {base_url}")
-            self.db.save_task_result(
-                task=current_task,
-                status=TaskStatus.ERROR,
-                status_reason="Unexpected Moodle-Scanner output format",
-                data={},
-            )
-            return
-
-        try:
-            with open(filename, "r") as f:
-                data_str = f.read()
-        except FileNotFoundError:
-            self.log.error(f"Report file {filename} not found for {base_url}")
-            self.db.save_task_result(
-                task=current_task,
-                status=TaskStatus.ERROR,
-                status_reason="Report file not found",
-                data={},
-            )
-            return
-
-        # Cleanup
-        os.unlink(filename)
-
-        if data_str.strip():
-            try:
-                result = json.loads(data_str)
-            except json.JSONDecodeError:
-                self.log.error(f"Invalid JSON format in report for {base_url}")
-                self.db.save_task_result(
-                    task=current_task,
-                    status=TaskStatus.ERROR,
-                    status_reason="Invalid JSON format in report",
-                    data={},
-                )
-                return
-        else:
-            result = {}
-
-        # Parse the JSON data
-        messages = process_moodle_json(result)
-
-        if messages:
-            status = TaskStatus.INTERESTING
-            status_reason = ", ".join([message.message for message in messages])
-        else:
-            status = TaskStatus.OK
-            status_reason = None
-
-        self.db.save_task_result(
-            task=current_task,
-            status=status,
-            status_reason=status_reason,
-            data={
-                "original_result": result,
-                "message_data": [dataclasses.asdict(message) for message in messages],
-                "messages": [message.message for message in messages],
-            },
-        )
 
 
 if __name__ == "__main__":

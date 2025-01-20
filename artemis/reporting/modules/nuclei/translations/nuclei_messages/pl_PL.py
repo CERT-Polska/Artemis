@@ -998,7 +998,9 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    'Confluence Server and Data Center is susceptible to an unauthenticated remote code execution vulnerability.': "Wykryto system Confluence Server and Data Center w wersji, która umożliwia atakującemu zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
+    "Confluence Server and Data Center is susceptible to an unauthenticated remote code execution vulnerability.": "Wykryto system Confluence Server and Data Center w wersji, która umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Atlassian Confluence Server allows remote attackers to view restricted resources via local file inclusion in the /s/ endpoint.": "Wykryto system Atlassian Confluence Server w wersji umożliwiającej atakującym nieuprawniony dostęp do zasobów."
     + UPDATE_HINT,
     "Attempts to show all variables on a MySQL server.": "Wykryto, że serwer MySQL umożliwia logowanie prostym hasłem.",

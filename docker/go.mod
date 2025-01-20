@@ -9,7 +9,7 @@ require (
 	github.com/praetorian-inc/fingerprintx v1.1.14
 	github.com/projectdiscovery/naabu/v2 v2.3.3
 	github.com/projectdiscovery/nuclei/v3 v3.3.8
-	github.com/projectdiscovery/subfinder/v2 v2.6.7
+	github.com/projectdiscovery/subfinder/v2 v2.6.8
 )
 
 require (
@@ -233,10 +233,10 @@ require (
 	github.com/projectdiscovery/freeport v0.0.7 // indirect
 	github.com/projectdiscovery/go-smb2 v0.0.0-20240129202741-052cc450c6cb // indirect
 	github.com/projectdiscovery/goflags v0.1.65 // indirect
-	github.com/projectdiscovery/gologger v1.1.38 // indirect
+	github.com/projectdiscovery/gologger v1.1.40 // indirect
 	github.com/projectdiscovery/gostruct v0.0.2 // indirect
 	github.com/projectdiscovery/gozero v0.0.3 // indirect
-	github.com/projectdiscovery/hmap v0.0.73 // indirect
+	github.com/projectdiscovery/hmap v0.0.74 // indirect
 	github.com/projectdiscovery/httpx v1.6.9 // indirect
 	github.com/projectdiscovery/interactsh v1.2.2 // indirect
 	github.com/projectdiscovery/ipranger v0.0.53 // indirect
@@ -245,16 +245,16 @@ require (
 	github.com/projectdiscovery/mapcidr v1.1.34 // indirect
 	github.com/projectdiscovery/n3iwf v0.0.0-20230523120440-b8cd232ff1f5 // indirect
 	github.com/projectdiscovery/networkpolicy v0.0.9 // indirect
-	github.com/projectdiscovery/ratelimit v0.0.67 // indirect
+	github.com/projectdiscovery/ratelimit v0.0.68 // indirect
 	github.com/projectdiscovery/rawhttp v0.1.80 // indirect
 	github.com/projectdiscovery/rdap v0.9.1-0.20221108103045-9865884d1917 // indirect
-	github.com/projectdiscovery/retryabledns v1.0.91 // indirect
-	github.com/projectdiscovery/retryablehttp-go v1.0.93 // indirect
+	github.com/projectdiscovery/retryabledns v1.0.93 // indirect
+	github.com/projectdiscovery/retryablehttp-go v1.0.95 // indirect
 	github.com/projectdiscovery/sarif v0.0.1 // indirect
 	github.com/projectdiscovery/tlsx v1.1.8 // indirect
 	github.com/projectdiscovery/uncover v1.0.9 // indirect
 	github.com/projectdiscovery/useragent v0.0.85 // indirect
-	github.com/projectdiscovery/utils v0.4.4 // indirect
+	github.com/projectdiscovery/utils v0.4.6 // indirect
 	github.com/projectdiscovery/wappalyzergo v0.2.9 // indirect
 	github.com/projectdiscovery/yamldoc-go v1.0.4 // indirect
 	github.com/redis/go-redis/v9 v9.1.0 // indirect

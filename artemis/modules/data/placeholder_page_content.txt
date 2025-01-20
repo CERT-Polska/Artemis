@@ -1,3 +1,4 @@
+<head><title>404 eHost.pl</title>
 <meta name="description" content="Strona pozostała na serwerze home.pl" />
 pozostaje na serwerze nazwa.pl</title>
 <title>Tanie domeny, Tani hosting, Helpdesk, Pomoc zdalna - NetStrefa.pl</title>

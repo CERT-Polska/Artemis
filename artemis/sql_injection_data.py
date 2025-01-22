@@ -1,3 +1,5 @@
+from artemis.config import Config
+
 SQL_ERROR_MESSAGES = [
     "SQL syntax.{0,200}?MySQL",
     "Warning.{0,200}?\\Wmysqli?_",
@@ -599,7 +601,8 @@ HEADERS = {
     "Origin": "origin",
     "Referer": "referer",
     "Upgrade-Insecure-Requests": "upgradeinsecurerequests",
-    "User-Agent": Config.Miscellaneous.CUSTOM_USER_AGENT or "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36 OPR/38.0.2220.41",
+    "User-Agent": Config.Miscellaneous.CUSTOM_USER_AGENT
+    or "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36 OPR/38.0.2220.41",
     "X-Api-Version": "xapiversion",
     "X-CSRF-Token": "xcsrftoken",
     "X-Druid-Comment": "xdruidcomment",

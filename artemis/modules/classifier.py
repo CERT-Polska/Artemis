@@ -13,7 +13,7 @@ from artemis.domains import is_domain
 from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error, is_ip_address
 
-ASN_REGEX = "as[0-9][0-9]*"
+ASN_REGEX = "[aA][sS][0-9][0-9]*"
 
 
 class RIPEAccessException(Exception):
@@ -21,7 +21,7 @@ class RIPEAccessException(Exception):
 
 
 def get_ip_prefixes_for_asn(asn: str) -> List[str]:
-    url = f"https://stat.ripe.net/data/announced-prefixes/data.json?resource={asn}"
+    url = f"https://stat.ripe.net/data/announced-prefixes/data.json?resource={asn.upper()}"
 
     try:
         response = http_requests.get(url)

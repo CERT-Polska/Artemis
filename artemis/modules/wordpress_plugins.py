@@ -53,6 +53,8 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "scheduled-post-trigger",
     "pdf-viewer-for-elementor",
     "userway-accessibility-widget",
+    "wow-carousel-for-divi-lite",
+    "login-as-user",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
@@ -68,8 +70,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
-    "sticky-header-effects-for-elementor",
-    "wc-hide-shipping-methods",
     "website-monetization-by-magenet",
     "woo-tools",
     "wp-graphql",

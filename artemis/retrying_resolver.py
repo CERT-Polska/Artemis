@@ -2,9 +2,13 @@
 # in case later a decision is made to allow full proxying. In case some libraries (e.g. checkdmarc)
 # don't use that resolver now, we also patch dns.resolver.
 
+import socket
 from typing import Any, Callable, Dict, Tuple
 
-from dns import resolver
+import dns
+import dns.rdatatype
+import dns.rdtypes.IN.A
+import dns.resolver
 
 from artemis.config import Config
 from artemis.utils import build_logger
@@ -41,11 +45,27 @@ def retry(function: Callable[..., Any], function_args: Tuple[Any, ...], function
     return result
 
 
-class WrappedResolver(resolver.Resolver):
-    def resolve(self, *args, **kwargs):  # type: ignore
-        return retry(super().resolve, args, kwargs)
+class WrappedResolver(dns.resolver.Resolver):
+    def resolve(self, qname, rdtype=dns.rdatatype.RdataType.A, *args, **kwargs):  # type: ignore
+        if rdtype in ["A", dns.rdatatype.RdataType.A, "AAAA", dns.rdatatype.RdataType.AAAA]:
+            try:
+                qname_str = str(qname).rstrip(".")
+                # First try socket.gethostbyname to lookup from hosts file
+
+                host = socket.gethostbyname(qname_str)
+
+                rdata = dns.rdtypes.IN.A.A(dns.rdataclass.IN, dns.rdatatype.A, host)  # type: ignore
+                rrset = dns.rrset.from_rdata(qname_str, 300, rdata)
+                query = dns.message.make_query(qname_str, dns.rdatatype.A, dns.rdataclass.IN)
+                query.answer.append(rrset)
+
+                return query.answer
+            except socket.gaierror:
+                pass
+
+        return retry(super().resolve, (qname, rdtype) + tuple(args), kwargs)
 
 
 def setup_retrying_resolver() -> None:
-    if resolver.Resolver != WrappedResolver:
-        resolver.Resolver = WrappedResolver  # type: ignore
+    if dns.resolver.Resolver != WrappedResolver:
+        dns.resolver.Resolver = WrappedResolver  # type: ignore

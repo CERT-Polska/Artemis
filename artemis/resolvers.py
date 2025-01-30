@@ -1,4 +1,5 @@
 import functools
+import socket
 from typing import Set
 
 import dns
@@ -82,6 +83,12 @@ def lookup(domain: str, query_type: str = "A") -> Set[str]:
 
     :raise ResolutionException if something fails
     """
+    if query_type == "A":
+        try:
+            # First try socket.gethostbyname to lookup from hosts file
+            return {socket.gethostbyname(domain)}
+        except socket.gaierror:
+            pass
     try:
         domain = domain.lower()
         return retry(_single_resolution_attempt, (domain, query_type), {})  # type: ignore

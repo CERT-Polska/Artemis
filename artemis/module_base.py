@@ -1,5 +1,7 @@
 import datetime
+import fcntl
 import logging
+import os
 import random
 import sys
 import time
@@ -81,6 +83,13 @@ class ArtemisBase(Karton):
         self.setup_logger(Config.Miscellaneous.LOG_LEVEL)
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
+
+        if Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH:
+            with open(Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH, "r") as additional_data_file:
+                with open("/etc/hosts", "a") as hosts_file:
+                    fcntl.flock(hosts_file.fileno(), fcntl.LOCK_EX)
+                    hosts_file.write(additional_data_file.read())
+                    fcntl.flock(hosts_file.fileno(), fcntl.LOCK_UN)
 
         if Config.Miscellaneous.BLOCKLIST_FILE:
             self._blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)

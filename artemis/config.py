@@ -255,6 +255,10 @@ class Config:
             "in SUBDOMAIN_ENUMERATION_TTL_DAYS days. This is the TTL of such markers.",
         ] = get_config("SUBDOMAIN_ENUMERATION_TTL_DAYS", default=10, cast=int)
 
+        ADDITIONAL_HOSTS_FILE_PATH: Annotated[int, "File that will be appended to /etc/hosts"] = get_config(
+            "ADDITIONAL_HOSTS_FILE_PATH", default=None, cast=str
+        )
+
     class Modules:
         class Bruter:
             BRUTER_FILE_LIST: Annotated[

@@ -256,7 +256,7 @@ class Config:
         ] = get_config("SUBDOMAIN_ENUMERATION_TTL_DAYS", default=10, cast=int)
 
         ADDITIONAL_HOSTS_FILE_PATH: Annotated[str, "File that will be appended to /etc/hosts"] = get_config(
-            "ADDITIONAL_HOSTS_FILE_PATH", default='', cast=str
+            "ADDITIONAL_HOSTS_FILE_PATH", default="", cast=str
         )
 
     class Modules:

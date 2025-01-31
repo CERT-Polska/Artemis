@@ -54,7 +54,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "pdf-viewer-for-elementor",
     "userway-accessibility-widget",
     "wow-carousel-for-divi-lite",
-    "login-as-user",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "blocks-animation",
@@ -72,7 +71,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "skyboot-custom-icons-for-elementor",
     "website-monetization-by-magenet",
     "woo-tools",
-    "wp-graphql",
     "wp-maximum-execution-time-exceeded",
 ]
 

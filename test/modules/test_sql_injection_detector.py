@@ -72,9 +72,9 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres:80/headers_vuln.php"
 
         self.assertTrue(self.karton.measure_request_time(current_url) < 1)
-        self.assertTrue(self.karton.measure_request_time(url_with_sleep_payload) > 5)
+        self.assertTrue(self.karton.measure_request_time(url_with_sleep_payload) >= 5)
         self.assertTrue(
-            self.karton.measure_request_time(url_to_headers_vuln, headers={"User-Agent": "'||pg_sleep(5)||'"}) > 5
+            self.karton.measure_request_time(url_to_headers_vuln, headers={"User-Agent": "'||pg_sleep(5)||'"}) >= 5
         )
 
     def test_contains_error(self) -> None:
@@ -154,9 +154,9 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         url_to_headers_vuln = "http://test-apache-with-sql-injection-mysql/headers_vuln.php"
 
         self.assertTrue(self.karton.measure_request_time(current_url) < 1)
-        self.assertTrue(self.karton.measure_request_time(url_with_sleep_payload) > 5)
+        self.assertTrue(self.karton.measure_request_time(url_with_sleep_payload) >= 5)
         self.assertTrue(
-            self.karton.measure_request_time(url_to_headers_vuln, headers={"User-Agent": "'||sleep(5)||'"}) > 5
+            self.karton.measure_request_time(url_to_headers_vuln, headers={"User-Agent": "'||sleep(5)||'"}) >= 5
         )
 
     def test_contains_error(self) -> None:

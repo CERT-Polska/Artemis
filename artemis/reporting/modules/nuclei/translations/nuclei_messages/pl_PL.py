@@ -999,7 +999,8 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "http/cves/2024/CVE-2024-10400.yaml":"Wtyczka WordPress o nazwie Tutor LMS w wersji do 2.7.6 włącznie zawiera podatnosć SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych." + WORDPRESS_UPDATE_HINT,
+    "http/cves/2024/CVE-2024-10400.yaml": "Wtyczka WordPress o nazwie Tutor LMS w wersji do 2.7.6 włącznie zawiera podatnosć SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
     "Confluence Server and Data Center is susceptible to an unauthenticated remote code execution vulnerability.": "Wykryto system Confluence Server and Data Center w wersji, która umożliwia atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -1572,7 +1573,7 @@ TRANSLATIONS = {
     "Thruk Monitoring panel was detected.": "Wykryto panel Thruk Monitoring.",
     "FreeScout panel was discovered.": "Wykryto panel FreeScout.",
     "Akuiteo products was detected.": "Wykryto panel Akuiteo.",
-    'YunoHost Admin panel was discovered.': "Wykryto panel YunoHost Admin.",
+    "YunoHost Admin panel was discovered.": "Wykryto panel YunoHost Admin.",
     "Clockwork Dashboard is exposed.": "Wykryto panel Clockwork Dashboard.",
     "Untangle Administrator is a centralized web-based management console that allows administrators to efficiently configure, monitor, and control various network security and filtering features provided by the Untangle NG Firewall, ensuring robust network protection and policy enforcement.": "Wykryto panel Untangle Administrator.",
     "An Opencast Admin panel was discovered. Opencast is a free and open source solution for automated video capture and distribution at scale.": "Wykryto panel administracyjny Opencast.",

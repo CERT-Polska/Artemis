@@ -91,13 +91,7 @@ class SqlInjectionDetector(ArtemisBase):
         new_url = f"{new_url}" + concatenation + "&".join([f"{key}={value}" for key, value in assignments.items()])
         return unquote(new_url)
 
-    @staticmethod
-    def is_response_time_within_threshold(elapsed_time: float) -> bool:
-        if elapsed_time < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD:
-            return True
-        return False
-
-    def are_requests_time_efficient(self, url: str, **kwargs: Dict[str, Any]) -> bool:
+    def measure_request_time(self, url: str, **kwargs: Dict[str, Any]) -> float:
         start = timer()
         try:
             if "headers" not in kwargs:
@@ -105,13 +99,9 @@ class SqlInjectionDetector(ArtemisBase):
             else:
                 self.http_get(url, headers=kwargs.get("headers"))
         except requests.exceptions.Timeout:
-            return False
+            return Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
 
-        elapsed_time = datetime.timedelta(seconds=timer() - start).seconds
-
-        flag = self.is_response_time_within_threshold(elapsed_time)
-
-        return flag
+        return datetime.timedelta(seconds=timer() - start).seconds
 
     def contains_error(self, url: str, response: HTTPResponse) -> str | None:
         # 500 error code will not be matched as it's a significant source of FPs
@@ -199,9 +189,12 @@ class SqlInjectionDetector(ArtemisBase):
                         flags = []
                         for _ in range(Config.Modules.SqlInjectionDetector.SQL_INJECTION_NUM_RETRIES_TIME_BASED):
                             # We explicitely want to re-check whether current URL is still time efficient
-                            if self.are_requests_time_efficient(
-                                url_with_no_sleep_payload
-                            ) and not self.are_requests_time_efficient(url_with_sleep_payload):
+                            if (
+                                self.measure_request_time(url_with_no_sleep_payload)
+                                < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
+                                and self.measure_request_time(url_with_sleep_payload)
+                                >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
+                            ):
                                 flags.append(True)
                             else:
                                 flags.append(False)
@@ -253,9 +246,12 @@ class SqlInjectionDetector(ArtemisBase):
 
                     for _ in range(Config.Modules.SqlInjectionDetector.SQL_INJECTION_NUM_RETRIES_TIME_BASED):
                         # We explicitely want to re-check whether current URL is still time efficient
-                        if self.are_requests_time_efficient(
-                            url_with_no_sleep_payload
-                        ) and not self.are_requests_time_efficient(url_with_sleep_payload):
+                        if (
+                            self.measure_request_time(url_with_no_sleep_payload)
+                            < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
+                            and self.measure_request_time(url_with_sleep_payload)
+                            >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
+                        ):
                             flags.append(True)
                         else:
                             flags.append(False)
@@ -303,9 +299,12 @@ class SqlInjectionDetector(ArtemisBase):
 
                 for _ in range(Config.Modules.SqlInjectionDetector.SQL_INJECTION_NUM_RETRIES_TIME_BASED):
                     # We explicitely want to re-check whether current URL is still time efficient
-                    if self.are_requests_time_efficient(
-                        current_url, headers=headers_no_sleep_payload
-                    ) and not self.are_requests_time_efficient(current_url, headers=headers):
+                    if (
+                        self.measure_request_time(current_url, headers=headers_no_sleep_payload)
+                        < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
+                        and self.measure_request_time(current_url, headers=headers)
+                        >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
+                    ):
                         flags.append(True)
                     else:
                         flags.append(False)

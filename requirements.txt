@@ -2,14 +2,14 @@ aiofiles==24.1.0
 aiohttp==3.11.11
 alembic==1.14.1
 anytree==2.12.1
-Babel==2.16.0
-beautifulsoup4==4.12.3
-certifi==2024.12.14
+Babel==2.17.0
+beautifulsoup4==4.13.1
+certifi==2025.1.31
 chardet==5.2.0
 click==8.1.8
 cryptography==44.0.0
 dnspython==2.7.0
-fastapi==0.115.7
+fastapi==0.115.8
 fastapi-csrf-protect==1.0.0
 freezegun==1.5.1
 h11==0.14.0
@@ -26,7 +26,7 @@ packaging==24.2
 paramiko==3.5.0
 prometheus-client==0.21.1
 psycopg2-binary==2.9.10
-publicsuffixlist==1.0.2.20250127
+publicsuffixlist==1.0.2.20250202
 pydantic==2.3.0
 PyMySQL==1.1.1
 python-decouple==3.8

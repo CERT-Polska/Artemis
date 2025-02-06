@@ -60,7 +60,7 @@ class WrappedResolver(dns.resolver.Resolver):
                 response = dns.message.make_query(qname_str, dns.rdatatype.A, dns.rdataclass.IN)
                 response.flags |= dns.flags.QR
                 response.answer.append(rrset)
-                answer = dns.resolver.Answer(qname, rdtype, dns.rdataclass.IN, response, "127.0.0.1", "53")
+                answer = dns.resolver.Answer(qname, rdtype, dns.rdataclass.IN, response, "127.0.0.1", 53)
                 answer.rrset = rrset
                 return answer
             except socket.gaierror:

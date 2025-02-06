@@ -6,6 +6,7 @@ import socket
 from typing import Any, Callable, Dict, Tuple
 
 import dns
+import dns.flags
 import dns.rdatatype
 import dns.rdtypes.IN.A
 import dns.resolver
@@ -56,10 +57,12 @@ class WrappedResolver(dns.resolver.Resolver):
 
                 rdata = dns.rdtypes.IN.A.A(dns.rdataclass.IN, dns.rdatatype.A, host)  # type: ignore
                 rrset = dns.rrset.from_rdata(qname_str, 300, rdata)
-                query = dns.message.make_query(qname_str, dns.rdatatype.A, dns.rdataclass.IN)
-                query.answer.append(rrset)
-
-                return query.answer
+                response = dns.message.make_query(qname_str, dns.rdatatype.A, dns.rdataclass.IN)
+                response.flags |= dns.flags.QR
+                response.answer.append(rrset)
+                answer = dns.resolver.Answer(qname, rdtype, dns.rdataclass.IN, response, "127.0.0.1", 53)
+                answer.rrset = rrset
+                return answer
             except socket.gaierror:
                 pass
 

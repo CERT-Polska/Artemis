@@ -2,6 +2,7 @@
 import json
 import os
 import subprocess
+import time
 from dataclasses import dataclass
 from typing import Any, Dict, Set
 
@@ -99,6 +100,7 @@ class PortScanner(ArtemisBase):
             return json.loads(cache)  # type: ignore
 
         self.log.info(f"scanning {target_ip}")
+        time_start = time.time()
         naabu = subprocess.Popen(
             [
                 "naabu",
@@ -107,6 +109,8 @@ class PortScanner(ArtemisBase):
                 "-port",
                 ",".join(map(str, PORTS)),
                 "-silent",
+                "-input-read-timeout",
+                "1s",
                 "-timeout",
                 str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
             ]
@@ -126,12 +130,15 @@ class PortScanner(ArtemisBase):
         if stderr:
             self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
 
+        self.log.info(f"scanning of {target_ip} took {time.time()  - time_start} seconds")
+
         result: Dict[str, Dict[str, Any]] = {}
         if stdout:
             lines = stdout.split(b"\n")
         else:
             lines = []
 
+        time_start = time.time()
         lines = [line for line in lines if line]
 
         for line in lines:
@@ -166,6 +173,8 @@ class PortScanner(ArtemisBase):
                 service = service.rstrip("s")
 
             result[str(port)] = self.PortResult(service, ssl, version).__dict__
+
+        self.log.info(f"fingerprinting of {target_ip} took {time.time()  - time_start} seconds")
 
         self.cache.set(target_ip, json.dumps(result).encode("utf-8"))
         return result

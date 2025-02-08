@@ -56,7 +56,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "wow-carousel-for-divi-lite",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "blocks-animation",
     "cf7-styler-for-divi",
     "coming-soon",
     "delete-all-comments-of-website",

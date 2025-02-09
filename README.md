@@ -1,6 +1,6 @@
 <h1>
     <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="static/images/logo_dark.png">
+         <source media="(prefers-color-scheme: dark)" srcset="static/images/logo_dark.png">
         <img alt="logo" width="400px" src="static/images/logo.png">
     </picture>
 </h1>

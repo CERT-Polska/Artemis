@@ -143,7 +143,7 @@ class Classifier(ArtemisBase):
             start_ip = ipaddress.ip_address(start_ip_str)
             end_ip = ipaddress.ip_address(end_ip_str)
 
-            if ':' in data:
+            if ":" in data:
                 return None  # IPv6 ranges are not supported
 
             cls = ipaddress.IPv4Address

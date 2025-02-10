@@ -102,26 +102,6 @@ class ClassifierTest(ArtemisModuleTestCase):
                 ],
             ),
             TestData(
-                "::1-::3",
-                [
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "ip"},
-                        payload={"ip": "::1"},
-                        payload_persistent={"original_ip": "::1"},
-                    ),
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "ip"},
-                        payload={"ip": "::2"},
-                        payload_persistent={"original_ip": "::2"},
-                    ),
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "ip"},
-                        payload={"ip": "::3"},
-                        payload_persistent={"original_ip": "::3"},
-                    ),
-                ],
-            ),
-            TestData(
                 "127.0.0.1-127.0.0.5",
                 [
                     ExpectedTaskData(

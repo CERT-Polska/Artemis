@@ -153,7 +153,7 @@ class Classifier(ArtemisBase):
             ip = ip.strip()
             mask = mask.strip()
 
-            if not is_ip_address(ip) or not mask.isdigit():
+            if not is_ip_address(ip) or not mask.isdigit() or ":" in ip:
                 return None
 
             return list(map(str, ipaddress.ip_network(data.strip(), strict=False)))

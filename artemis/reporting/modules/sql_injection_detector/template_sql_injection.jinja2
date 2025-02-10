@@ -8,22 +8,29 @@
                             {{ message.url }}
                             {% if message.code == report.additional_data.statements.sql_injection %}
                                 {# intentionally left blank #}
+                                {% trans trimmed %}
+                                    : that means, that an attacker can inject their own commands into the database query.
+                                {% endtrans %}
                             {% elif message.code == report.additional_data.statements.sql_time_based_injection %}
                                 :
                                 {% trans trimmed %}
-                                    time-based SQL injection
+                                    time-based SQL injection: that means, that we have successfully made the database wait a given number of seconds. This
+                                    is dangerous, because an attacker can make the database wait a given number of seconds if a condition is true, e.g. the first character of the password hash is 'a'. This allows
+                                    an attacker to extract secret values letter-by-letter.
                                 {% endtrans %}
 
                             {% elif message.code == report.additional_data.statements.headers_sql_injection %}
                                 :
                                 {% trans trimmed %}
-                                    SQL injection through HTTP Headers
+                                    SQL injection through HTTP Headers: that means, that an attacker can modify the HTTP headers to inject their own commands into the database query.
                                 {% endtrans %}
 
                             {% elif message.code == report.additional_data.statements.headers_time_based_sql_injection %}
                                 :
                                 {% trans trimmed %}
-                                    time-based SQL injection through HTTP Headers
+                                    time-based SQL injection through HTTP Headers: that means, that we have successfully modified the headers to make the database wait a given number of seconds. This
+                                    is dangerous, because an attacker can make the database wait a given number of seconds if a condition is true, e.g. the first character of the password hash is 'a'. This allows
+                                    an attacker to extract secret values letter-by-letter.
                                 {% endtrans %}
                             {% endif %}
                         </li>
@@ -34,7 +41,6 @@
         </ul>
         <p>
             {% trans trimmed %}
-                That means, that an attacker can inject their own commands into the database query.
                 These vulnerabilities can lead to serious security breaches, including user data leaks and potential database manipulation.
                 The vulnerability occurs when dangerous user input is directly injected into SQL queries, allowing attackers to execute any SQL commands.
             {% endtrans %}

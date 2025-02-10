@@ -23,7 +23,7 @@ MarkupSafe==3.0.2
 minio==7.2.1
 more-itertools==10.6.0
 packaging==24.2
-paramiko==3.5.0
+paramiko==3.5.1
 prometheus-client==0.21.1
 psutil==6.1.1
 psycopg2-binary==2.9.10

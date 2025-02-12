@@ -28,19 +28,39 @@
 {% endfor %}</textarea>
         </div>
         <div class="form-group mb-3">
-            <label class="form-label">Enter your tag{% if tag_names %} or select existing one{% endif %}</label>
+            <label class="form-label">Enter your Stag{% if tag_names %} or select existing one{% endif %}</label>
             <input list="object-list" class="form-control" name="tag" autocomplete="off" {% if tag %}value="{{ tag }}"{% endif %}>
             <datalist id="object-list">
                  {% for tag in tag_names %}
                     <option>{{ tag.tag_name }}</option>
                  {% endfor %}
             </datalist>
+        <label>
+            <input type="checkbox" name="schedule_enabled" id="schedule_enabled" value="yes"
+                   onchange="toggleScheduleOptions(this.checked)" />
+            Schedule this scan periodically
+        </label>
+        
+        <div id="schedule-options" style="display: none;">
+            <label for="schedule_interval">Interval (in minutes):</label>
+            <input type="number" name="schedule_interval" id="schedule_interval" min="1" />
+        
+            <label for="schedule_start">Start Time:</label>
+            <input type="datetime-local" name="schedule_start" id="schedule_start" />
+        </div>
+
+        <script>
+            function toggleScheduleOptions(show) {
+                document.getElementById("schedule-options").style.display = show ? "block" : "none";
+            }
+        </script>
 
             <small class="form-text text-muted">
                 You can enter any value here. Tags can be used to group scanned targets - you can use them e.g. when browsing the results or exporting
                 the scanning reports.
             </small>
         </div>
+
         <input type="submit" class="btn btn-primary" value="Start scan">
         <h2 class="mt-4">Advanced settings</h2>
         <div class="form-group mb-3">

@@ -345,11 +345,11 @@ class Nuclei(ArtemisBase):
         findings = self._scan(self._templates, targets)
 
         # That way, if we have 100 links for a webpage, we won't run 100 concurrent scans for that webpage
-        for link_package in itertools.zip_longest(links_per_task.values()):
+        for link_package in itertools.zip_longest(*list(links_per_task.values())):
             findings.extend(
                 self._scan(
                     Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS,
-                    [item for item in link_package if item],  # type: ignore
+                    [item for item in link_package if item],
                 )
             )
 

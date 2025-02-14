@@ -1,10 +1,11 @@
 from datetime import datetime
 import pytz
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import JobLookupError
+from karton.core.task import TaskPriority
 
 from artemis.producer import create_tasks
-from artemis.task_utils import TaskPriority
 
 scheduler = BackgroundScheduler(timezone=pytz.utc)
 scheduler.start()
@@ -54,3 +55,4 @@ def cancel_periodic_scan(job_id):
         print(f"Cancelled periodic scan job '{job_id}'.")
     except JobLookupError:
         print(f"Job '{job_id}' not found. It may have already been cancelled.")
+        

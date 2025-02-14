@@ -160,14 +160,17 @@ class Nuclei(ArtemisBase):
         try:
             requests_per_second_per_host_quantiles = quantiles(requests_per_second_per_host, n=100)
 
+            requests_per_second_per_host_75_percentile = requests_per_second_per_host_quantiles[75 - 1]
             requests_per_second_per_host_95_percentile = requests_per_second_per_host_quantiles[95 - 1]
             requests_per_second_per_host_99_percentile = requests_per_second_per_host_quantiles[99 - 1]
         except StatisticsError:
+            requests_per_second_per_host_75_percentile = None
             requests_per_second_per_host_95_percentile = None
             requests_per_second_per_host_99_percentile = None
 
-        return "Max requests per second for a single host: %d, 95 percentile %s, 99 percentile %s" % (
+        return "Max requests per second for a single host: %d, 75 percentile %s, 95 percentile %s, 99 percentile %s" % (
             max(requests_per_second_per_host),
+            requests_per_second_per_host_75_percentile,
             requests_per_second_per_host_95_percentile,
             requests_per_second_per_host_99_percentile,
         )

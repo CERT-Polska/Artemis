@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import collections
+import itertools
 import json
 import os
 import random
 import shutil
 import subprocess
 import urllib
+from statistics import StatisticsError, quantiles
 from typing import Any, Callable, Dict, List
 
 import more_itertools
@@ -17,7 +19,10 @@ from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host, get_target_url
-from artemis.utils import check_output_log_on_error
+from artemis.utils import (
+    check_output_log_on_error,
+    check_output_log_on_error_with_stderr,
+)
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
@@ -129,6 +134,44 @@ class Nuclei(ArtemisBase):
         url_parsed = urllib.parse.urlparse(url)
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
+    def _get_requests_per_second_statistics(sef, stderr_lines: List[str]) -> str:
+        current_second_host_requests: Dict[str, int] = collections.defaultdict(int)
+        requests_per_second_per_host: List[int] = []
+
+        def _finish_current_second() -> None:
+            nonlocal requests_per_second_per_host
+            nonlocal current_second_host_requests
+
+            requests_per_second_per_host.extend(current_second_host_requests.values())
+            current_second_host_requests = collections.defaultdict(int)
+
+        for line in stderr_lines:
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            if "duration" in data and "requests" in data:  # stats line
+                _finish_current_second()
+            elif "address" in data:  # request info line
+                current_second_host_requests[data["address"].split(":")[0]] += 1
+        _finish_current_second()
+
+        try:
+            requests_per_second_per_host_quantiles = quantiles(requests_per_second_per_host, n=100)
+
+            requests_per_second_per_host_95_percentile = requests_per_second_per_host_quantiles[95 - 1]
+            requests_per_second_per_host_99_percentile = requests_per_second_per_host_quantiles[99 - 1]
+        except StatisticsError:
+            requests_per_second_per_host_95_percentile = None
+            requests_per_second_per_host_99_percentile = None
+
+        return "Max requests per second for a single host: %d, 95 percentile %s, 99 percentile %s" % (
+            max(requests_per_second_per_host),
+            requests_per_second_per_host_95_percentile,
+            requests_per_second_per_host_99_percentile,
+        )
+
     def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
         if not targets:
             return []
@@ -212,6 +255,11 @@ class Nuclei(ArtemisBase):
                     "1",
                     "-rate-limit-duration",
                     str(milliseconds_per_request) + "ms",
+                    "-stats-json",
+                    "-stats-interval",
+                    "1",
+                    "-trace-log",
+                    "/dev/stderr",
                 ] + additional_configuration
 
                 if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
@@ -229,21 +277,28 @@ class Nuclei(ArtemisBase):
                     command.append(target)
 
                 self.log.debug("Running command: %s", " ".join(command))
-                call_result = check_output_log_on_error(command, self.log, capture_stderr=True)
+                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log)
 
-                call_result_utf8 = call_result.decode("utf-8", errors="ignore")
-                call_result_utf8_lines = call_result_utf8.split("\n")
+                stdout_utf8 = stdout.decode("utf-8", errors="ignore")
+                stderr_utf8 = stderr.decode("utf-8", errors="ignore")
 
-                for line in call_result_utf8_lines:
+                stdout_utf8_lines = stdout_utf8.split("\n")
+                stderr_utf8_lines = stderr_utf8.split("\n")
+
+                for line in stdout_utf8_lines:
                     if line.startswith("{"):
                         self.log.info("Found: %s...", line[:100])
                         self.log.debug("%s", line)
                         lines.append(line)
 
-                if "context deadline exceeded" in call_result_utf8:
+                self.log.info(
+                    "Requests per second statistics: %s", self._get_requests_per_second_statistics(stderr_utf8_lines)
+                )
+
+                if "context deadline exceeded" in stdout_utf8 + stderr_utf8:
                     self.log.info(
                         "Detected %d occurencies of 'context deadline exceeded'",
-                        call_result_utf8.count("context deadline exceeded"),
+                        (stdout_utf8 + stderr_utf8).count("context deadline exceeded"),
                     )
                     new_milliseconds_per_request_candidates = [
                         item for item in milliseconds_per_request_candidates if item > milliseconds_per_request
@@ -277,18 +332,23 @@ class Nuclei(ArtemisBase):
             targets.append(get_target_url(task))
 
         links_per_task = {}
-        links = []
         for task in tasks:
             links = self._get_links(get_target_url(task))
             # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
             # of them.
             links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
-            links.extend(links_per_task[task.uid])
 
-        findings = self._scan(self._templates, targets) + self._scan(
-            Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS, links
-        )
+        findings = self._scan(self._templates, targets)
+
+        # That way, if we have 100 links for a webpage, we won't run 100 concurrent scans for that webpage
+        for link_package in itertools.zip_longest(links_per_task.values()):
+            findings.extend(
+                self._scan(
+                    Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS,
+                    [item for item in link_package if item],  # type: ignore
+                )
+            )
 
         findings_per_task = collections.defaultdict(list)
         findings_unmatched = []

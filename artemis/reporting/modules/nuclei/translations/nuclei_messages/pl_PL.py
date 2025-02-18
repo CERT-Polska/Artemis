@@ -999,6 +999,13 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    'A flaw was found in a change made to path normalization in Apache HTTP Server 2.4.49. An attacker could use a path traversal attack to map URLs to files outside the expected document root. If files outside of the document root are not protected by "require all denied" these requests can succeed. Additionally, this flaw could leak the source of interpreted files like CGI scripts. This issue is known to be exploited in the wild. This issue only affects Apache 2.4.49 and not earlier versions.': "Serwer Apache w wersji 2.4.49  (ale nie wcześniejszych) umożliwia w niektórych sytuacjach odczyt plików z dysku."
+    + UPDATE_HINT,
+    "Apache Struts 2.3.x before 2.3.32 and 2.5.x before 2.5.10.1 is susceptible to remote command injection attacks. The Jakarta Multipart parser has incorrect exception handling and error-message generation during file upload attempts, which can allow an attacker to execute arbitrary commands via a crafted Content-Type, Content-Disposition, or Content-Length HTTP header. This was exploited in March 2017 with a Content-Type header containing a #cmd= string.": "Apache Struts 2.3.x w wersji poniżej 2.3.32 i 2.5.x w wersji poniżej 2.5.10.1 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The WP Umbrella: Update Backup Restore & Monitoring plugin for WordPress is vulnerable to Local File Inclusion in all versions up to, and including, 2.17.0 via the 'filename' parameter of the 'umbrella-restore' action. This makes it possible for unauthenticated attackers to include and execute arbitrary files on the server, allowing the execution of any PHP code in those files. This can be used to bypass access controls, obtain sensitive data, or achieve code execution in cases where images and other “safe” file types can be uploaded and included.": "Wtyczka WordPress o nazwie WP Umbrella: Update Backup Restore & Monitoring w wersji do 2.17.0 włącznie zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików na serwerze, a w niektórych sytuacjach zdalne wykonanie kodu."
+    + WORDPRESS_UPDATE_HINT,
     "http/cves/2024/CVE-2024-10400.yaml": "Wtyczka WordPress o nazwie Tutor LMS w wersji do 2.7.6 włącznie zawiera podatnosć SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "Confluence Server and Data Center is susceptible to an unauthenticated remote code execution vulnerability.": "Wykryto system Confluence Server and Data Center w wersji, która umożliwia atakującemu zdalne wykonanie kodu."
@@ -1578,4 +1585,5 @@ TRANSLATIONS = {
     "Untangle Administrator is a centralized web-based management console that allows administrators to efficiently configure, monitor, and control various network security and filtering features provided by the Untangle NG Firewall, ensuring robust network protection and policy enforcement.": "Wykryto panel Untangle Administrator.",
     "An Opencast Admin panel was discovered. Opencast is a free and open source solution for automated video capture and distribution at scale.": "Wykryto panel administracyjny Opencast.",
     "An OpenWebUI panel was detected": "Wykryto panel OpenWebUI.",
+    "Vaultwarden products was detected.": "Wykryto panel Vaultwarden.",
 }

@@ -28,6 +28,7 @@ EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
+
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class Nuclei(ArtemisBase):
     """

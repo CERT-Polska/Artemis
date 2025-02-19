@@ -23,7 +23,6 @@ from artemis.utils import get_host_from_url
 
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
 
-
 SEVERITY_OVERRIDES = {
     "http/exposures/logs/": "medium",
     "http/misconfiguration/server-status.yaml": "medium",

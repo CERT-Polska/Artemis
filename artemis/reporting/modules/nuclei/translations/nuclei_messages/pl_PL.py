@@ -999,6 +999,8 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Pulse Secure Pulse Connect Secure (PCS) 8.2 before 8.2R12.1, 8.3 before 8.3R7.1, and 9.0 before 9.0R3.4 all contain an arbitrary file reading vulnerability that could allow unauthenticated remote attackers to send a specially crafted URI to gain improper access.": "Pulse Secure Pulse Connect Secure (PCS) w wersji 8.2 poniżej 8.2R12.1, 8.3 poniżej 8.3R7.1 i 9.0 poniżej 9.0R3.4 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. Ta podatność może również umożliwić atakującemu dostęp do systemu."
+    + UPDATE_HINT,
     "custom:CVE-2025-24016": "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -1014,6 +1016,9 @@ TRANSLATIONS = {
     'A flaw was found in a change made to path normalization in Apache HTTP Server 2.4.49. An attacker could use a path traversal attack to map URLs to files outside the expected document root. If files outside of the document root are not protected by "require all denied" these requests can succeed. Additionally, this flaw could leak the source of interpreted files like CGI scripts. This issue is known to be exploited in the wild. This issue only affects Apache 2.4.49 and not earlier versions.': "Serwer Apache w wersji 2.4.49  (ale nie wcześniejszych) umożliwia w niektórych sytuacjach odczyt plików z dysku."
     + UPDATE_HINT,
     "Apache Struts 2.3.x before 2.3.32 and 2.5.x before 2.5.10.1 is susceptible to remote command injection attacks. The Jakarta Multipart parser has incorrect exception handling and error-message generation during file upload attempts, which can allow an attacker to execute arbitrary commands via a crafted Content-Type, Content-Disposition, or Content-Length HTTP header. This was exploited in March 2017 with a Content-Type header containing a #cmd= string.": "Apache Struts 2.3.x w wersji poniżej 2.3.32 i 2.5.x w wersji poniżej 2.5.10.1 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Apache Struts2 S2-062 is vulnerable to remote code execution. The fix issued for CVE-2020-17530 (S2-061) was incomplete, meaning some of the tag's attributes could still perform a double evaluation if a developer applied forced OGNL evaluation by using the %{...} syntax.": "Apache Struts2 w wersji S2-062 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "The WP Umbrella: Update Backup Restore & Monitoring plugin for WordPress is vulnerable to Local File Inclusion in all versions up to, and including, 2.17.0 via the 'filename' parameter of the 'umbrella-restore' action. This makes it possible for unauthenticated attackers to include and execute arbitrary files on the server, allowing the execution of any PHP code in those files. This can be used to bypass access controls, obtain sensitive data, or achieve code execution in cases where images and other “safe” file types can be uploaded and included.": "Wtyczka WordPress o nazwie WP Umbrella: Update Backup Restore & Monitoring w wersji do 2.17.0 włącznie zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików na serwerze, a w niektórych sytuacjach zdalne wykonanie kodu."

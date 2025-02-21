@@ -999,6 +999,9 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "custom:CVE-2025-24016": "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Tomcat's credential disclosure leading to Remote Code Execution via WAR upload.": "Wykryto, że dane dostępowe systemu Tomcat są publicznie dostępne, co umożliwia upload pliku WAR a w konsekwencji zdalne wykonanie kodu.",
     "The YARPP Yet Another Related Posts Plugin plugin for WordPress is vulnerable to unauthorized access due to a missing capability check in the ~/includes/yarpp_pro_set_display_types.php file in all versions up to, and including, 5.30.10. This makes it possible for unauthenticated attackers to set display types.": "Wtyczka WordPress o nazwie YARPP Yet Another Related Posts Plugin w wersji do 5.30.10 włącznie umożliwia atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION

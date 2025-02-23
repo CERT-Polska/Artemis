@@ -1004,7 +1004,7 @@ TRANSLATIONS = {
     "custom:CVE-2025-24016": "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
-    "This template detects an unsafe deserialization vulnerability in Wazuh servers.\nThe DistributedAPI deserializes JSON data using as_wazuh_object. If an attacker injects\na malicious object (via __unhandled_exc__), arbitrary Python code execution can be achieved.\nInstead of triggering a shutdown (e.g. via exit), this template uses a non-existent class \n("NotARealClass") to generate a NameError. A NameError in the response indicates that the \npayload reached the vulnerable deserialization function.": "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."
+    'This template detects an unsafe deserialization vulnerability in Wazuh servers.\nThe DistributedAPI deserializes JSON data using as_wazuh_object. If an attacker injects\na malicious object (via __unhandled_exc__), arbitrary Python code execution can be achieved.\nInstead of triggering a shutdown (e.g. via exit), this template uses a non-existent class \n("NotARealClass") to generate a NameError. A NameError in the response indicates that the \npayload reached the vulnerable deserialization function.': "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "Tomcat's credential disclosure leading to Remote Code Execution via WAR upload.": "Wykryto, że dane dostępowe systemu Tomcat są publicznie dostępne, co umożliwia upload pliku WAR a w konsekwencji zdalne wykonanie kodu."

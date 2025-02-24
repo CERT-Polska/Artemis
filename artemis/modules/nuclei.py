@@ -18,6 +18,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
+from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
@@ -126,6 +127,12 @@ class Nuclei(ArtemisBase):
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
         random.shuffle(links)
+
+        links = [
+            link
+            for link in links
+            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
+        ]
 
         links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
         return links

@@ -307,6 +307,7 @@ TRANSLATIONS = {
     "IceWarp Mail Server contains an open redirect via the referer parameter. This can lead to phishing attacks or other unintended redirects.": "Wykryto serwer IceWarp zawierający podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
     "[no description] http/takeovers/tilda-takeover.yaml": "Wykryto domenę kierującą do narzędzia Tilda, ale domena docelowa jest wolna. Atakujący może zarejestrować domenę w narzędziu Tilda, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "AWS Bucket takeover was detected.": "Wykryto domenę kierującą do zasobu AWS S3, który nie istnieje. Atakujący może utworzyć taki zasób, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/misconfiguration/clockwork-dashboard-exposure.yaml": "Wykryto publicznie dostępny panel narzędzia Clockwork. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "[no description] http/vulnerabilities/generic/cache-poisoning-xss.yaml": "Wykryto podatność Cache Poisoning, umożliwiającą atakującemu zmianę treści prezentowanych innym użytkownikom serwisu, w tym umieszczenie tam szkodliwego oprogramowania."
     + BUG_FIX_HINT,
@@ -999,7 +1000,7 @@ TRANSLATIONS = {
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "The detected website is defaced.": "Wykryto, że strona internetowa została zaatakowana i zmieniono jej treść.",
+    "The detected website is defaced.": "Wykryto, że strona internetowa została zaatakowana i zmieniono wyświetlaną na niej treść.",
     "Pulse Secure Pulse Connect Secure (PCS) 8.2 before 8.2R12.1, 8.3 before 8.3R7.1, and 9.0 before 9.0R3.4 all contain an arbitrary file reading vulnerability that could allow unauthenticated remote attackers to send a specially crafted URI to gain improper access.": "Pulse Secure Pulse Connect Secure (PCS) w wersji 8.2 poniżej 8.2R12.1, 8.3 poniżej 8.3R7.1 i 9.0 poniżej 9.0R3.4 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. Ta podatność może również umożliwić atakującemu dostęp do systemu."
     + UPDATE_HINT,
     "custom:CVE-2025-24016": "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."

@@ -52,3 +52,5 @@ urllib3==1.26.18
 uvicorn==0.34.0
 validators==0.34.0
 whoisdomain==1.20240129.1
+APScheduler==3.11.0
+tzlocal==5.3

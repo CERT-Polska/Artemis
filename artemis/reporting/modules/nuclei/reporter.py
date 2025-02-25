@@ -23,6 +23,11 @@ from artemis.utils import get_host_from_url
 
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
 
+SEVERITY_OVERRIDES = {
+    "http/exposures/logs/": "medium",
+    "http/misconfiguration/server-status.yaml": "medium",
+}
+
 
 class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
@@ -142,6 +147,12 @@ class NucleiReporter(Reporter):
 
                 matched_at_parsed = urllib.parse.urlparse(matched_at)
 
+                severity = vulnerability["info"]["severity"]
+
+                for prefix, severity in SEVERITY_OVERRIDES.items():
+                    if original_template_name.startswith(prefix):
+                        severity = severity
+
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -158,7 +169,7 @@ class NucleiReporter(Reporter):
                                 template, description, language
                             ),
                             "reference": vulnerability["info"].get("reference", []),
-                            "severity": vulnerability["info"]["severity"],
+                            "severity": severity,
                             "matched_at": matched_at,
                             "template_name": template,
                             "original_template_name": original_template_name,

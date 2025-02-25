@@ -11,7 +11,7 @@ scheduler = BackgroundScheduler(timezone=pytz.utc)
 scheduler.start()
 
 
-def schedule_periodic_scan(targets, tag, disabled_modules, priority, interval_minutes, start_time):
+def schedule_periodic_scan(targets, tag, disabled_modules, priority, interval_minutes, start_time, end_time):
     """
     Schedule a periodic scan job that runs at a fixed interval.
 
@@ -25,6 +25,8 @@ def schedule_periodic_scan(targets, tag, disabled_modules, priority, interval_mi
     def scan_job():
         # This function will be called every interval.
         print(f"[{datetime.utcnow().isoformat()}] Running periodic scan for tag '{tag}'.")
+        if end_time < datetime.utcnow():
+            cancel_periodic_scan(job_id)
         create_tasks(targets, tag, disabled_modules, priority)
 
     # Create a unique job id using the tag and a timestamp

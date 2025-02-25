@@ -125,8 +125,9 @@ async def post_add(
     tag: Optional[str] = Form(None),
     priority: Optional[str] = Form(None),
     schedule_enabled: Optional[bool] = Form(False),
-    schedule_interval: Optional[int] = Form(None),
+    schedule_interval: Optional[int] = Form(1),
     schedule_start: Optional[str] = Form(None),
+    schedule_end: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
     redirect: bool = Form(True),
     csrf_protect: CsrfProtect = Depends(),
@@ -182,6 +183,7 @@ async def post_add(
     if schedule_enabled and schedule_interval and schedule_start:
         try:     
             start_time = datetime.fromisoformat(schedule_start)
+            end_time = datetime.fromisoformat(schedule_end)
         except:
             raise HTTPException(status_code=400, detail="Invalid start time format")
 
@@ -191,7 +193,8 @@ async def post_add(
             disabled_modules=disabled_modules,
             priority=TaskPriority(priority),
             interval_minutes=schedule_interval,
-            start_time=start_time
+            start_time=start_time,
+            end_time=end_time
         )
 
     else:

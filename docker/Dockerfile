@@ -12,7 +12,7 @@ ARG ADDITIONAL_REQUIREMENTS
 # Whois here is important - if we wouldn't install it, we would default to busybox whois,
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
 RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
-    apk add --no-cache bash libpcap libpq git subversion whois && \
+    apk add --no-cache bash libpcap libpq git subversion whois coreutils && \
     cd /go && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \

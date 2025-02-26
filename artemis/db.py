@@ -102,6 +102,7 @@ class TaskResult(Base):  # type: ignore
     target_string = Column(String, index=True)
     status_reason = Column(String)
     headers_string = Column(String)
+    logs = Column(String)
     task = Column(JSON)
     result = Column(JSON)
 
@@ -175,6 +176,16 @@ class DB:
             analysis = session.query(Analysis).get(analysis_id)
             analysis.stopped = True
             session.add(analysis)
+
+    def save_task_logs(self, task_id: str, logs: bytes) -> None:
+        with self.session() as session:
+            try:
+                task = session.query(TaskResult).get(task_id)
+            except NoResultFound:
+                pass
+
+            task.logs = logs.decode("utf-8", errors="replace")
+            session.add(task)
             session.commit()
 
     def create_analysis(self, analysis: Task) -> None:

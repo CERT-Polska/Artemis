@@ -1003,7 +1003,6 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Galera WebTemplate 1.0 is affected by a directory traversal vulnerability that could reveal information from /etc/passwd and /etc/shadow.": "Galera WebTemplate 1.0 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Selea Targa IP OCR-ANPR camera suffers from an unauthenticated local file inclusion vulnerability because input passed through the Download Archive in Storage page using get_file.php script is not properly verified before being used to download files. This can be exploited to disclose the contents of arbitrary and sensitive files via directory traversal attacks and aid the attacker in disclosing clear-text credentials.": "Wykryto, że kamera Selea Targa IP OCR-ANPR zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku, w tym zawierających dane uwierzytelniające.",
-
     "Allied Telesis AT-GS950/8 until Firmware AT-S107 V.1.1.3 is susceptible to local file inclusion via its web interface.": "Allied Telesis AT-GS950/8 w wersji do AT-S107 V.1.1.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "The detected website is defaced.": "Wykryto, że strona internetowa została zaatakowana i zmieniono wyświetlaną na niej treść.",

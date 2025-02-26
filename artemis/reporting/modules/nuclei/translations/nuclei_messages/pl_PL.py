@@ -997,10 +997,13 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Jenkins Dashboard is exposed to external users.": "Panel systemu Jenkins jest dostępny publicznie.",
+    "Dump password hashes in use within a PostgreSQL database.": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw użytkowników bazy danych i haszy ich haseł.",
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Selea Targa IP OCR-ANPR camera suffers from an unauthenticated local file inclusion vulnerability because input passed through the Download Archive in Storage page using get_file.php script is not properly verified before being used to download files. This can be exploited to disclose the contents of arbitrary and sensitive files via directory traversal attacks and aid the attacker in disclosing clear-text credentials.": "Wykryto, że kamera Selea Targa IP OCR-ANPR zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku, w tym zawierających dane uwierzytelniające.",
+    "Allied Telesis AT-GS950/8 until Firmware AT-S107 V.1.1.3 is susceptible to local file inclusion via its web interface.": "Allied Telesis AT-GS950/8 w wersji do AT-S107 V.1.1.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "The detected website is defaced.": "Wykryto, że strona internetowa została zaatakowana i zmieniono wyświetlaną na niej treść.",
     "Pulse Secure Pulse Connect Secure (PCS) 8.2 before 8.2R12.1, 8.3 before 8.3R7.1, and 9.0 before 9.0R3.4 all contain an arbitrary file reading vulnerability that could allow unauthenticated remote attackers to send a specially crafted URI to gain improper access.": "Pulse Secure Pulse Connect Secure (PCS) w wersji 8.2 poniżej 8.2R12.1, 8.3 poniżej 8.3R7.1 i 9.0 poniżej 9.0R3.4 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. Ta podatność może również umożliwić atakującemu dostęp do systemu."
     + UPDATE_HINT,
@@ -1617,4 +1620,5 @@ TRANSLATIONS = {
     "An OpenWebUI panel was detected": "Wykryto panel OpenWebUI.",
     "Vaultwarden products was detected.": "Wykryto panel Vaultwarden.",
     "Reolink panel was discovered.": "Wykryto panel Reolink",
+    "Reposilite products was detected.": "Wykryto panel systemu Reposilite.",
 }

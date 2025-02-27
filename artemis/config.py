@@ -234,7 +234,7 @@ class Config:
             int,
             "After this number of tasks processed, each scanning module will get restarted. This is to prevent situations "
             "such as slow memory leaks.",
-        ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=200, cast=int)
+        ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=1000, cast=int)
 
         CONTENT_PREFIX_SIZE: Annotated[
             int,
@@ -424,6 +424,7 @@ class Config:
                         "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
                         "http/exposed-panels/pulse-secure-panel.yaml",
                         "http/exposed-panels/pulse-secure-version.yaml",
+                        "http/exposed-panels/cisco/cisco-asa-panel.yaml",
                         "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
                         "http/exposed-panels/openvpn-connect.yaml",
                         "http/exposed-panels/ivanti-csa-panel.yaml",
@@ -743,7 +744,7 @@ class Config:
                 "Maximum number of links to be checked with the templates provided in "
                 "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS (if more are seen, random "
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
-            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=100, cast=int)
+            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=20, cast=int)
 
             NUCLEI_TEMPLATE_CHUNK_SIZE: Annotated[
                 int,

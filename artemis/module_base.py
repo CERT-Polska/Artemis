@@ -22,6 +22,7 @@ from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
+from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
 from artemis.resolvers import NoAnswer, ResolutionException, lookup
@@ -529,16 +530,22 @@ class ArtemisBase(Karton):
         if len(tasks) == 0:
             return
 
+        output_redirector = OutputRedirector()
+
         try:
-            if self.batch_tasks:
-                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
-            else:
-                (task,) = tasks
-                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
+            with output_redirector:
+                if self.batch_tasks:
+                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
+                else:
+                    (task,) = tasks
+                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
         except Exception:
             for task in tasks:
                 self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
+        finally:
+            for task in tasks:
+                self.db.save_task_logs(task.uid, output_redirector.get_output())
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

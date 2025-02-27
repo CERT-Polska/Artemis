@@ -47,6 +47,18 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
                 found_problems.append(f"Joomla version is too old: {joomla_version}")
                 result["joomla_version_is_too_old"] = True
 
+        # Check version via README.txt
+        response_readme = self.http_get(f"{url}/svr/www/htdocs/testing/README.txt")
+        if response_readme.status_code == 200:
+            match_readme = re.search("([0-9]+\\.[0-9]+\\.[0-9]+)", response_readme.text) # Regex for checking version
+            if match_readme:
+                joomla_version_readme = match_readme.group(1)
+                result["joomla_version_readme"] = joomla_version_readme
+                # Check if the version is obsolete
+                if self.is_version_obsolete(joomla_version_readme):
+                    found_problems.append(f"Joomla version (from readme.txt) is too old: {joomla_version_readme}")
+                    result["joomla_version_is_too_old"] = True
+
         if found_problems:
             status = TaskStatus.INTERESTING
             status_reason = "Found problems: " + ", ".join(sorted(found_problems))

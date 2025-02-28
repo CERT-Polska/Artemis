@@ -168,7 +168,7 @@ class PortScanner(ArtemisBase):
                 try:
                     output = self.throttle_request(
                         lambda: check_output_log_on_error(
-                            ["fingerprintx", "--json"], self.log, input=f"{ip}:{port}"
+                            ["fingerprintx", "--json"], self.log, input=f"{ip}:{port_str}".encode("ascii")
                         ).strip()
                     )
                 except subprocess.CalledProcessError:

@@ -108,92 +108,93 @@ class PortScanner(ArtemisBase):
             else:
                 new_target_ips.append(target_ip)
 
-        self.log.info(f"scanning {new_target_ips}")
-        time_start = time.time()
-        naabu = subprocess.Popen(
-            [
-                "naabu",
-                "-host",
-                ",".join(new_target_ips),
-                "-port",
-                ",".join(map(str, PORTS)),
-                "-silent",
-                "-input-read-timeout",
-                "1s",
-                "-timeout",
-                str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
-            ]
-            + (
-                ["-rate", str(int(self.requests_per_second_for_current_tasks))]
-                if int(self.requests_per_second_for_current_tasks)
-                else []
-            ),
-            stdout=subprocess.PIPE,
-        )
-        # We don't use `wait()` because of the following warning in the doc:
-        #
-        # This will deadlock when using stdout=PIPE and/or stderr=PIPE and the child process generates enough
-        # output to a pipe such that it blocks waiting for the OS pipe buffer to accept more data. Use
-        # communicate() to avoid that.
-        stdout, stderr = naabu.communicate()
-        if stderr:
-            self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
+        if new_target_ips:
+            self.log.info(f"scanning {new_target_ips}")
+            time_start = time.time()
+            naabu = subprocess.Popen(
+                [
+                    "naabu",
+                    "-host",
+                    ",".join(new_target_ips),
+                    "-port",
+                    ",".join(map(str, PORTS)),
+                    "-silent",
+                    "-input-read-timeout",
+                    "1s",
+                    "-timeout",
+                    str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
+                ]
+                + (
+                    ["-rate", str(int(self.requests_per_second_for_current_tasks))]
+                    if int(self.requests_per_second_for_current_tasks)
+                    else []
+                ),
+                stdout=subprocess.PIPE,
+            )
+            # We don't use `wait()` because of the following warning in the doc:
+            #
+            # This will deadlock when using stdout=PIPE and/or stderr=PIPE and the child process generates enough
+            # output to a pipe such that it blocks waiting for the OS pipe buffer to accept more data. Use
+            # communicate() to avoid that.
+            stdout, stderr = naabu.communicate()
+            if stderr:
+                self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
 
-        self.log.info(f"scanning of {target_ip} took {time.time()  - time_start} seconds")
+            self.log.info(f"scanning of {target_ip} took {time.time()  - time_start} seconds")
 
-        if stdout:
-            lines = stdout.decode("ascii").split("\n")
-        else:
-            lines = []
+            if stdout:
+                lines = stdout.decode("ascii").split("\n")
+            else:
+                lines = []
 
-        time_start = time.time()
-        lines = [line for line in lines if line]
-        found_ports: Dict[str, List[str]] = collections.defaultdict(list)
+            time_start = time.time()
+            lines = [line for line in lines if line]
+            found_ports: Dict[str, List[str]] = collections.defaultdict(list)
 
-        for line in lines:
-            ip, port_str = line.split(":")
-            found_ports[ip].append(port_str)
+            for line in lines:
+                ip, port_str = line.split(":")
+                found_ports[ip].append(port_str)
 
-        for ip in found_ports.keys():
-            if len(found_ports[ip]) > Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS:
-                self.log.warning(
-                    "We observed more than %s open ports on %s, trimming to most popular ones",
-                    Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS,
-                    ip,
-                )
-                found_ports[ip] = [port_str for port_str in found_ports[ip] if int(port_str) in PORTS_SET_SHORT]
-
-        for ip in found_ports:
-            for port_str in found_ports[ip]:
-                try:
-                    output = self.throttle_request(
-                        lambda: check_output_log_on_error(
-                            ["fingerprintx", "--json"], self.log, input=f"{ip}:{port_str}".encode("ascii")
-                        ).strip()
+            for ip in found_ports.keys():
+                if len(found_ports[ip]) > Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS:
+                    self.log.warning(
+                        "We observed more than %s open ports on %s, trimming to most popular ones",
+                        Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS,
+                        ip,
                     )
-                except subprocess.CalledProcessError:
-                    self.log.exception("Unable to fingerprint %s", line)
-                    continue
+                    found_ports[ip] = [port_str for port_str in found_ports[ip] if int(port_str) in PORTS_SET_SHORT]
 
-                if not output:
-                    continue
+            for ip in found_ports:
+                for port_str in found_ports[ip]:
+                    try:
+                        output = self.throttle_request(
+                            lambda: check_output_log_on_error(
+                                ["fingerprintx", "--json"], self.log, input=f"{ip}:{port_str}".encode("ascii")
+                            ).strip()
+                        )
+                    except subprocess.CalledProcessError:
+                        self.log.exception("Unable to fingerprint %s", line)
+                        continue
 
-                data = json.loads(output)
-                port = int(data["port"])
-                ssl = data["tls"]
-                service = data["protocol"]
-                version = data.get("version", None) or data.get("metadata", {}).get("fingerprint", None) or "N/A"
-                if ssl:
-                    service = service.rstrip("s")
+                    if not output:
+                        continue
 
-                if ip not in result:
-                    result[ip] = {}
-                result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
+                    data = json.loads(output)
+                    port = int(data["port"])
+                    ssl = data["tls"]
+                    service = data["protocol"]
+                    version = data.get("version", None) or data.get("metadata", {}).get("fingerprint", None) or "N/A"
+                    if ssl:
+                        service = service.rstrip("s")
 
-        self.log.info(f"fingerprinting of {new_target_ips} took {time.time()  - time_start} seconds")
+                    if ip not in result:
+                        result[ip] = {}
+                    result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
 
-        for target_ip in new_target_ips:
-            self.cache.set(target_ip, json.dumps(result.get(target_ip, {})).encode("utf-8"))
+            self.log.info(f"fingerprinting of {new_target_ips} took {time.time()  - time_start} seconds")
+
+            for target_ip in new_target_ips:
+                self.cache.set(target_ip, json.dumps(result.get(target_ip, {})).encode("utf-8"))
         return result
 
     def run_multiple(self, tasks: List[Task]) -> None:

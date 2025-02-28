@@ -167,7 +167,9 @@ class PortScanner(ArtemisBase):
             for port_str in found_ports[ip]:
                 try:
                     output = self.throttle_request(
-                        lambda: check_output_log_on_error(["fingerprintx", "--json"], self.log, input=f"{ip}:{port}").strip()
+                        lambda: check_output_log_on_error(
+                            ["fingerprintx", "--json"], self.log, input=f"{ip}:{port}"
+                        ).strip()
                     )
                 except subprocess.CalledProcessError:
                     self.log.exception("Unable to fingerprint %s", line)
@@ -175,7 +177,7 @@ class PortScanner(ArtemisBase):
 
                 if not output:
                     continue
-    
+
                 data = json.loads(output)
                 port = int(data["port"])
                 ssl = data["tls"]

@@ -179,6 +179,13 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-web_tech_identifier:
+    <<: *artemis-build-or-image
+    command: "python3 -m artemis.modules.web_tech_identifier"
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-ip_lookup:
     <<: *artemis-build-or-image
     command: "python3 -m artemis.modules.ip_lookup"

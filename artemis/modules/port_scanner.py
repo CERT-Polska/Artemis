@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import collections
 import json
 import os
 import subprocess
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Set
+from typing import Any, Dict, List, Set
 
 from karton.core import Task
 
@@ -84,6 +85,8 @@ class PortScanner(ArtemisBase):
         {"type": TaskType.IP.value},
         {"type": TaskType.DOMAIN.value},
     ]
+    batch_tasks = True
+    task_max_batch_size = Config.Modules.PortScanner.PORT_SCANNER_MAX_BATCH_SIZE
 
     @dataclass
     class PortResult:
@@ -91,21 +94,27 @@ class PortScanner(ArtemisBase):
         ssl: bool
         version: str
 
-    def _scan(self, target_ip: str) -> Dict[str, Dict[str, Any]]:
-        # We deduplicate identical tasks, but even if two task are different (e.g. contain
-        # different domain names), they may point to the same IP, and therefore scanning both
-        # would be a waste of resources.
-        if cache := self.cache.get(target_ip):
-            self.log.info(f"host {target_ip} in redis cache")
-            return json.loads(cache)  # type: ignore
+    def _scan(self, target_ips: List[str]) -> Dict[str, Dict[str, Dict[str, Any]]]:
+        result: Dict[str, Dict[str, Dict[str, Any]]] = {}
 
-        self.log.info(f"scanning {target_ip}")
+        new_target_ips = []
+        for target_ip in target_ips:
+            # We deduplicate identical tasks, but even if two task are different (e.g. contain
+            # different domain names), they may point to the same IP, and therefore scanning both
+            # would be a waste of resources.
+            if cache := self.cache.get(target_ip):
+                self.log.info(f"host {target_ip} in redis cache")
+                result[target_ip] = json.loads(cache)
+            else:
+                new_target_ips.append(target_ip)
+
+        self.log.info(f"scanning {new_target_ips}")
         time_start = time.time()
         naabu = subprocess.Popen(
             [
                 "naabu",
                 "-host",
-                target_ip,
+                ",".join(new_target_ips),
                 "-port",
                 ",".join(map(str, PORTS)),
                 "-silent",
@@ -132,26 +141,30 @@ class PortScanner(ArtemisBase):
 
         self.log.info(f"scanning of {target_ip} took {time.time()  - time_start} seconds")
 
-        result: Dict[str, Dict[str, Any]] = {}
         if stdout:
-            lines = stdout.split(b"\n")
+            lines = stdout.decode("ascii").split("\n")
         else:
             lines = []
 
         time_start = time.time()
         lines = [line for line in lines if line]
+        found_ports: Dict[str, List[str]] = collections.defaultdict(list)
 
         for line in lines:
-            ip, port_str = line.split(b":")
+            ip, port_str = line.split(":")
+            found_ports[ip].append(port_str)
 
-            if len(lines) > Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS:
+        for ip in found_ports.keys():
+            if len(found_ports[ip]) > Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS:
                 self.log.warning(
                     "We observed more than %s open ports on %s, trimming to most popular ones",
                     Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS,
-                    target_ip,
+                    ip,
                 )
-                if int(port_str) not in PORTS_SET_SHORT:
-                    continue
+                found_ports[ip] = [port_str for port_str in found_ports[ip] if int(port_str) in PORTS_SET_SHORT]
+
+        for line in lines:
+            ip, port_str = line.split(":")
 
             try:
                 output = self.throttle_request(
@@ -172,60 +185,69 @@ class PortScanner(ArtemisBase):
             if ssl:
                 service = service.rstrip("s")
 
-            result[str(port)] = self.PortResult(service, ssl, version).__dict__
+            if ip not in result:
+                result[ip] = {}
+            result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
 
-        self.log.info(f"fingerprinting of {target_ip} took {time.time()  - time_start} seconds")
+        self.log.info(f"fingerprinting of {new_target_ips} took {time.time()  - time_start} seconds")
 
         self.cache.set(target_ip, json.dumps(result).encode("utf-8"))
         return result
 
-    def run(self, current_task: Task) -> None:
-        target = get_target_host(current_task)
-        task_type = current_task.headers["type"]
+    def run_multiple(self, tasks: List[Task]) -> None:
+        hosts_per_task = {}
+        hosts: List[str] = []
 
-        # convert domain to IPs
-        if task_type == TaskType.DOMAIN:
-            hosts = lookup(target)
-        elif task_type == TaskType.IP:
-            hosts = {target}
-        else:
-            raise ValueError("Unknown task type")
+        for task in tasks:
+            target = get_target_host(task)
+            task_type = task.headers["type"]
 
-        all_results = {}
-        open_ports = []
-        interesting_port_descriptions = []
-        for host in hosts:
-            scan_results = self._scan(host)
-            all_results[host] = scan_results
+            # convert domain to IPs
+            if task_type == TaskType.DOMAIN:
+                hosts_per_task[task] = lookup(target)
+            elif task_type == TaskType.IP:
+                hosts_per_task[task] = {target}
+            else:
+                raise ValueError("Unknown task type")
+            hosts.extend(hosts_per_task[task])
 
-            for port, result in all_results[host].items():
-                new_task = Task(
-                    {
-                        "type": TaskType.SERVICE,
-                        "service": Service(result["service"].lower()),
-                    },
-                    payload={
-                        "host": target,
-                        "port": int(port),
-                        "ssl": result["ssl"],
-                    },
-                )
+        scan_results = self._scan(hosts)
 
-                self.add_task(current_task, new_task)
-                open_ports.append(int(port))
+        for task in tasks:
+            all_results = {}
+            open_ports = []
+            interesting_port_descriptions = []
+            for host in hosts_per_task[task]:
+                all_results[host] = scan_results[host]
 
-                interesting_port_descriptions.append(
-                    f"{port} (service: {result['service']} ssl: {result['ssl']}, version: {result['version']})"
-                )
+                for port, result in all_results[host].items():
+                    new_task = Task(
+                        {
+                            "type": TaskType.SERVICE,
+                            "service": Service(result["service"].lower()),
+                        },
+                        payload={
+                            "host": target,
+                            "port": int(port),
+                            "ssl": result["ssl"],
+                        },
+                    )
 
-        if len(interesting_port_descriptions):
-            status = TaskStatus.INTERESTING
-            status_reason = "Found ports: " + ", ".join(sorted(interesting_port_descriptions))
-        else:
-            status = TaskStatus.OK
-            status_reason = None
-        # save raw results
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=all_results)
+                    self.add_task(task, new_task)
+                    open_ports.append(int(port))
+
+                    interesting_port_descriptions.append(
+                        f"{port} (service: {result['service']} ssl: {result['ssl']}, version: {result['version']})"
+                    )
+
+            if len(interesting_port_descriptions):
+                status = TaskStatus.INTERESTING
+                status_reason = "Found ports: " + ", ".join(sorted(interesting_port_descriptions))
+            else:
+                status = TaskStatus.OK
+                status_reason = None
+            # save raw results
+            self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=all_results)
 
 
 if __name__ == "__main__":

@@ -789,6 +789,11 @@ class Config:
                 "Port scanner: milliseconds to wait before timing out",
             ] = get_config("PORT_SCANNER_TIMEOUT_MILLISECONDS", default=5_000, cast=int)
 
+            PORT_SCANNER_MAX_BATCH_SIZE: Annotated[
+                int,
+                "Port scanner: number of scanning tasks performed at once",
+            ] = get_config("PORT_SCANNER_MAX_BATCH_SIZE", default=50, cast=int)
+
             PORT_SCANNER_MAX_NUM_PORTS: Annotated[
                 int,
                 "The number of open ports we consider to be too much and a false positive - if we observe more "

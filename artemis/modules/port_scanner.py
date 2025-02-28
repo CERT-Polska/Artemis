@@ -140,7 +140,7 @@ class PortScanner(ArtemisBase):
             if stderr:
                 self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
 
-            self.log.info(f"scanning of {target_ip} took {time.time()  - time_start} seconds")
+            self.log.info(f"scanning of {new_target_ips} took {time.time()  - time_start} seconds")
 
             if stdout:
                 lines = stdout.decode("ascii").split("\n")

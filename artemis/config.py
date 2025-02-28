@@ -791,7 +791,7 @@ class Config:
 
             PORT_SCANNER_MAX_BATCH_SIZE: Annotated[
                 int,
-                "Port scanner: number of scanning tasks performed at once",
+                "Port scanner: number of hosts scanned by one port_scanner instance",
             ] = get_config("PORT_SCANNER_MAX_BATCH_SIZE", default=20, cast=int)
 
             PORT_SCANNER_MAX_NUM_PORTS: Annotated[

@@ -221,7 +221,7 @@ class PortScanner(ArtemisBase):
             open_ports = []
             interesting_port_descriptions = []
             for host in hosts_per_task[task]:
-                all_results[host] = scan_results[host]
+                all_results[host] = scan_results.get(host, {})
 
                 for port, result in all_results[host].items():
                     new_task = Task(

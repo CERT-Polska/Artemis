@@ -102,7 +102,7 @@ class PortScanner(ArtemisBase):
             # We deduplicate identical tasks, but even if two task are different (e.g. contain
             # different domain names), they may point to the same IP, and therefore scanning both
             # would be a waste of resources.
-            if cache := self.cache.get(target_ip):
+            if cache := self.cache.get(target_ip) is not None:
                 self.log.info(f"host {target_ip} in redis cache")
                 result[target_ip] = json.loads(cache)
             else:

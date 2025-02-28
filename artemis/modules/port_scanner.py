@@ -163,31 +163,30 @@ class PortScanner(ArtemisBase):
                 )
                 found_ports[ip] = [port_str for port_str in found_ports[ip] if int(port_str) in PORTS_SET_SHORT]
 
-        for line in lines:
-            ip, port_str = line.split(":")
+        for ip in found_ports:
+            for port_str in found_ports[ip]:
+                try:
+                    output = self.throttle_request(
+                        lambda: check_output_log_on_error(["fingerprintx", "--json"], self.log, input=f"{ip}:{port}").strip()
+                    )
+                except subprocess.CalledProcessError:
+                    self.log.exception("Unable to fingerprint %s", line)
+                    continue
 
-            try:
-                output = self.throttle_request(
-                    lambda: check_output_log_on_error(["fingerprintx", "--json"], self.log, input=line).strip()
-                )
-            except subprocess.CalledProcessError:
-                self.log.exception("Unable to fingerprint %s", line)
-                continue
+                if not output:
+                    continue
+    
+                data = json.loads(output)
+                port = int(data["port"])
+                ssl = data["tls"]
+                service = data["protocol"]
+                version = data.get("version", None) or data.get("metadata", {}).get("fingerprint", None) or "N/A"
+                if ssl:
+                    service = service.rstrip("s")
 
-            if not output:
-                continue
-
-            data = json.loads(output)
-            port = int(data["port"])
-            ssl = data["tls"]
-            service = data["protocol"]
-            version = data.get("version", None) or data.get("metadata", {}).get("fingerprint", None) or "N/A"
-            if ssl:
-                service = service.rstrip("s")
-
-            if ip not in result:
-                result[ip] = {}
-            result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
+                if ip not in result:
+                    result[ip] = {}
+                result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
 
         self.log.info(f"fingerprinting of {new_target_ips} took {time.time()  - time_start} seconds")
 

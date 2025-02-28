@@ -191,7 +191,8 @@ class PortScanner(ArtemisBase):
 
         self.log.info(f"fingerprinting of {new_target_ips} took {time.time()  - time_start} seconds")
 
-        self.cache.set(target_ip, json.dumps(result).encode("utf-8"))
+        for target_ip in new_target_ips:
+            self.cache.set(target_ip, json.dumps(result.get(target_ip, {})).encode("utf-8"))
         return result
 
     def run_multiple(self, tasks: List[Task]) -> None:

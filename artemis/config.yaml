@@ -1,0 +1,452 @@
+data:
+  postgres_conn_str: "postgresql://postgres:postgres@postgres/artemis"
+  redis_conn_str: "redis://localhost:6379"
+  legacy_mongodb_conn_str: "mongodb://localhost:27017"
+
+  autoarchiver:
+    interval_seconds: 3600
+    min_age_seconds: 6912000  # 80 days
+    pack_size: 20000
+    output_path: "/opt/archived-task-results/"
+
+reporting:
+  max_vuln_age_days: 90
+  separate_institutions: []
+  deduplication_common_http_ports: [80, 443]
+
+  min_days_between_reminders:
+    severity_low: 540  # 18 months
+    severity_medium: 120  # 4 months
+    severity_high: 60  # 2 months
+
+  additional_severity_file: null
+
+locking:
+  lock_scanned_targets: false
+  lock_sleep_min_seconds: 0.1
+  lock_sleep_max_seconds: 0.5
+  queue_location_max_age_seconds: 900
+  scan_destination_lock_max_tries: 2
+
+public_suffixes:
+  allow_subdomain_enumeration: false
+  additional_public_suffixes: []
+
+limits:
+  task_timeout_seconds: 21600  # 6 hours
+  request_timeout_seconds: 5
+  requests_per_second: 0
+
+miscellaneous:
+  api_token: null
+  remove_logs_after_days: 30
+  blocklist_file: null
+  custom_user_agent: ""
+  log_level: "INFO"
+  logging_format: "[%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s"
+  verify_revdns_in_scope: true
+  num_dns_resolver_retries: 3
+  max_num_tasks_to_process: 1000
+  content_prefix_size: 102400
+  modules_disabled_by_default: ["example", "humble", "ssh_bruter"]
+  subdomain_enumeration_ttl_days: 10
+  additional_hosts_file_path: ""
+
+modules:
+  bruter:
+    file_list: "short"
+    false_positive_threshold: 0.1
+    follow_redirects: true
+
+  dns_scanner:
+    zone_transfer_size_reporting_threshold: 2
+
+  ftp_bruter:
+    test_file_name_prefix: "test-"
+
+  humble:
+    headers_to_report: ["Content-Security-Policy", "Strict-Transport-Security", "X-Content-Type-Options"]
+
+  nuclei:
+    template_lists: ["known_exploited_vulnerabilities", "critical", "high", "log_exposures", "exposed_panels"]
+    interactsh_server: null
+    check_template_list: true
+    seconds_per_request_on_retry: 0.1
+    template_groups_file: "/opt/artemis/modules/data/nuclei_template_groups.json"
+    max_batch_size: 10
+    templates_to_skip: [
+      # We have a separate module for that, checking whethet the repository is a copy of a public one
+      "http/exposures/configs/exposed-svn.yaml",
+      "http/exposures/configs/git-config.yaml",
+      "http/exposures/files/svn-wc-db.yaml",
+      # We have a separate module checking for a larger number of directory indexes.
+      "http/exposures/configs/configuration-listing.yaml",
+      "http/misconfiguration/sound4-directory-listing.yaml",
+      # The two following templates caused panic: runtime
+      # error: integer divide by zero in github.com/projectdiscovery/retryabledns
+      "dns/azure-takeover-detection.yaml",
+      "dns/elasticbeantalk-takeover.yaml",
+      # This one caused multiple FPs
+      "http/cves/2021/CVE-2021-43798.yaml",
+      # A significant source of false positives
+      "http/exposed-panels/pagespeed-global-admin.yaml",
+      # Admin panel information disclosure - not a high-severity one.
+      "http/cves/2021/CVE-2021-24917.yaml",
+      # caused multiple FPs: travis configuration file provided by a framework without much interesting information.
+      "http/exposures/files/travis-ci-disclosure.yaml",
+      # caused multiple FPs, and as RockMongo is not maintained anymore, let's skip it
+      "http/vulnerabilities/other/rockmongo-xss.yaml",
+      # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
+      # Feel free to make a different decision.
+      "http/exposed-panels/adobe/aem-sling-login.yaml",
+      "http/exposed-panels/alfresco-detect.yaml",
+      "http/exposed-panels/backpack/backpack-admin-panel.yaml",
+      "http/exposed-panels/bolt-cms-panel.yaml",
+      "http/exposed-panels/concrete5/concrete5-panel.yaml",
+      "http/exposed-panels/contao-login-panel.yaml",
+      "http/exposed-panels/craftcms-admin-panel.yaml",
+      "http/exposed-panels/django-admin-panel.yaml",
+      "http/exposed-panels/dokuwiki-panel.yaml",
+      "http/exposed-panels/drupal-login.yaml",
+      "http/exposed-panels/ez-publish-panel.yaml",
+      "http/exposed-panels/joomla-panel.yaml",
+      "http/exposed-panels/kentico-login.yaml",
+      "http/exposed-panels/liferay-portal.yaml",
+      "http/exposed-panels/magnolia-panel.yaml",
+      "http/exposed-panels/neos-panel.yaml",
+      "http/exposed-panels/netlify-cms.yaml",
+      "http/exposed-panels/strapi-panel.yaml",
+      "http/exposed-panels/tikiwiki-cms.yaml",
+      "http/exposed-panels/typo3-login.yaml",
+      "http/exposed-panels/umbraco-login.yaml",
+      "http/exposed-panels/wordpress-login.yaml",
+      # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
+      # make different decision.
+      "http/exposed-panels/axigen-webmail.yaml",
+      "http/exposed-panels/squirrelmail-login.yaml",
+      "http/exposed-panels/horde-webmail-login.yaml",
+      "http/exposed-panels/horde-login-panel.yaml",
+      "http/exposed-panels/zimbra-web-login.yaml",
+      "http/exposed-panels/zimbra-web-client.yaml",
+      "http/exposed-panels/icewarp-panel-detect.yaml",
+      # These are Tomcat docs, not application docs
+      "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
+      # Generic API docs
+      "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
+      # VPN web portals, SSO and other ones that need to be exposed
+      "http/exposed-panels/fortinet/fortiweb-panel.yaml",
+      "http/exposed-panels/fortinet/fortios-panel.yaml",
+      "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
+      "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
+      "http/exposed-panels/pulse-secure-panel.yaml",
+      "http/exposed-panels/pulse-secure-version.yaml",
+      "http/exposed-panels/cisco/cisco-asa-panel.yaml",
+      "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
+      "http/exposed-panels/openvpn-connect.yaml",
+      "http/exposed-panels/ivanti-csa-panel.yaml",
+      "http/exposed-panels/ivanti-connect-secure-panel.yaml",
+      "http/exposed-panels/softether-vpn-panel.yaml",
+      "http/exposed-panels/cas-login.yaml",
+      "http/exposed-panels/casdoor-login.yaml",
+      "http/exposed-panels/openam-panel.yaml",
+      "http/exposed-panels/sonicwall-sslvpn-panel.yaml",
+      # Too small impact to report
+      "http/exposed-panels/webeditors-check-detect.yaml",
+      # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+      "http/exposed-panels/bitrix-panel.yaml",
+      "http/exposed-panels/dynamicweb-panel.yaml",
+      "http/exposed-panels/jira-detect.yaml",
+      "http/exposed-panels/kanboard-login.yaml",
+      "http/exposed-panels/linshare-panel.yaml",
+      "http/exposed-panels/magento-admin-panel.yaml",
+      "http/exposed-panels/mantisbt-panel.yaml",
+      "http/exposed-panels/mautic-crm-panel.yaml",
+      "http/exposed-panels/opencart-panel.yaml",
+      "http/exposed-panels/osticket-panel.yaml",
+      "http/exposed-panels/redmine-panel.yaml",
+      # Mostly meant to be publicly accessible
+      "http/exposed-panels/bigbluebutton-login.yaml",
+      "http/exposed-panels/ilias-panel.yaml",
+      "http/exposed-panels/librespeed-panel.yaml",
+      "http/exposed-panels/office-webapps-panel.yaml",
+      "http/exposed-panels/onlyoffice-login-panel.yaml",
+      "http/exposed-panels/opensis-panel.yaml",
+      "http/exposed-panels/projectsend-login.yaml",
+      "http/exposed-panels/rocketchat-panel.yaml",
+      # Source of FPs
+      "custom:CVE-2019-1579",
+      "custom:CVE-2024-35286",
+      "custom:xss-inside-tag-top-params.yaml",
+      # Nothing particularily interesting
+      "http/exposures/apis/drupal-jsonapi-user-listing.yaml",
+      "http/miscellaneous/joomla-manifest-file.yaml",
+      "http/exposures/configs/karma-config-js.yaml",
+      "http/cves/2000/CVE-2000-0114.yaml",
+      # From the message: "there is no common path to exploit that has a user impact."
+      "http/cves/2021/CVE-2021-20323.yaml",
+      # This is Open Redirect in Host header, not exploitable in standard conditions. Besides, this is disputed by vendor.
+      "http/cves/2023/CVE-2023-24044.yaml",
+      # Open Redirect in Referer, X-Forwarded-Host or another header making it hard to exploit
+      "http/vulnerabilities/wordpress/music-store-open-redirect.yaml",
+      "http/cves/2020/CVE-2020-15129.yaml",
+      "http/cves/2021/CVE-2021-44528.yaml",
+      # Minor information leaks
+      "http/cves/2017/CVE-2017-5487.yaml",
+      "http/cves/2019/CVE-2019-8449.yaml",
+      "http/cves/2020/CVE-2020-14179.yaml",
+      "http/cves/2020/CVE-2020-14181.yaml",
+      "http/cves/2021/CVE-2021-3293.yaml",
+      "http/cves/2021/CVE-2021-25118.yaml",
+      "http/cves/2021/CVE-2021-44848.yaml",
+      "http/cves/2023/CVE-2023-4568.yaml",
+      "http/cves/2024/CVE-2024-1208.yaml",
+      "http/cves/2024/CVE-2024-1210.yaml",
+      "http/cves/2024/CVE-2024-3097.yaml",
+      # Over 50 requests
+      "http/cves/2017/CVE-2017-17562.yaml",
+      "http/cves/2019/CVE-2019-17382.yaml",
+      "http/cves/2022/CVE-2022-2034.yaml",
+      "http/cves/2023/CVE-2023-24489.yaml",
+      "http/default-logins/apache/tomcat-default-login.yaml",
+      "http/default-logins/oracle/peoplesoft-default-login.yaml",
+      "http/exposed-panels/adminer-panel-detect.yaml",
+      "http/exposures/apis/swagger-api.yaml",
+      "http/exposures/backups/php-backup-files.yaml",
+      "http/exposures/backups/zip-backup-files.yaml",
+      "http/exposures/files/generic-db.yaml",
+      "http/fuzzing/cache-poisoning-fuzz.yaml",
+      "http/fuzzing/header-command-injection.yaml",
+      "http/fuzzing/mdb-database-file.yaml",
+      "http/fuzzing/prestashop-module-fuzz.yaml",
+      "http/fuzzing/waf-fuzz.yaml",
+      "http/fuzzing/wordpress-plugins-detect.yaml",
+      "http/fuzzing/wordpress-themes-detect.yaml",
+      "http/fuzzing/wordpress-weak-credentials.yaml",
+      "http/miscellaneous/defacement-detect.yaml",
+      "http/misconfiguration/aem/aem-default-get-servlet.yaml",
+      "http/misconfiguration/akamai/akamai-s3-cache-poisoning.yaml",
+      "http/misconfiguration/gitlab/gitlab-api-user-enum.yaml",
+      "http/misconfiguration/gitlab/gitlab-user-enum.yaml",
+      "http/misconfiguration/servicenow-widget-misconfig.yaml",
+      "http/technologies/graphql-detect.yaml",
+      "http/technologies/graylog/graylog-api-exposure.yaml",
+      "http/vulnerabilities/apache/shiro/shiro-deserialization-detection.yaml",
+      "http/vulnerabilities/generic/open-redirect-generic.yaml",
+      "http/vulnerabilities/grafana/grafana-file-read.yaml",
+      "http/vulnerabilities/tongda/tongda-auth-bypass.yaml",
+      "http/vulnerabilities/wordpress/wp-xmlrpc-brute-force.yaml",
+      "javascript/default-logins/ssh-default-logins.yaml",
+      # Mostly Moodle config
+      "http/exposures/configs/behat-config.yaml",
+      # Catches multiple open redirects, replaced with artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml
+      "http/cves/2018/CVE-2018-11784.yaml",
+      "http/cves/2019/CVE-2019-10098.yaml",
+      "http/cves/2022/CVE-2022-28923.yaml",
+      # Too many FPs
+      "http/cves/2020/CVE-2020-2096.yaml",
+      "http/cves/2023/CVE-2023-35160.yaml",
+      "http/cves/2023/CVE-2023-35161.yaml",
+      "http/cves/2023/CVE-2023-35162.yaml",
+      "http/exposed-panels/fireware-xtm-user-authentication.yaml",
+      # Popular configuration
+      "network/default-login/ftp-anonymous-login.yaml",
+      # Will be enabled back after fixing a bug: https://github.com/projectdiscovery/nuclei-templates/pull/10998
+      "http/fuzzing/xff-403-bypass.yaml",
+      # Not that severe to spam people
+      "javascript/cves/2023/CVE-2023-48795.yaml",
+      "http/cves/2024/CVE-2024-43919.yaml",
+      # We already check for Gitlab
+      "http/exposed-panels/ghe-encrypt-saml.yaml"
+    ]
+    templates_to_skip_probabilistically_file: ""
+    templates_to_skip_probabilistically_probability: 0
+    additional_templates: [
+      "http/exposures/configs/dompdf-config.yaml",
+      "http/exposures/configs/ftp-credentials-exposure.yaml",
+      "http/exposures/configs/prometheus-metrics.yaml",
+      "http/exposures/files/core-dump.yaml",
+      "http/exposures/files/ds-store-file.yaml",
+      "http/exposures/logs/roundcube-log-disclosure.yaml",
+      "network/detection/rtsp-detect.yaml",
+      "http/miscellaneous/defaced-website-detect.yaml",
+      "http/misconfiguration/directory-listing-no-host-header.yaml",
+      "http/misconfiguration/django-debug-detect.yaml",
+      "http/misconfiguration/mixed-active-content.yaml",
+      "http/misconfiguration/mysql-history.yaml",
+      "http/misconfiguration/elasticsearch.yaml",
+      "http/misconfiguration/proxy/open-proxy-external.yaml",
+      "http/misconfiguration/server-status-localhost.yaml",
+      "http/misconfiguration/server-status.yaml",
+      "http/misconfiguration/shell-history.yaml",
+      "http/misconfiguration/springboot/springboot-auditevents.yaml",
+      "http/misconfiguration/springboot/springboot-dump.yaml",
+      "http/misconfiguration/springboot/springboot-env.yaml",
+      "http/misconfiguration/springboot/springboot-httptrace.yaml",
+      "http/misconfiguration/springboot/springboot-logfile.yaml",
+      "http/misconfiguration/springboot/springboot-threaddump.yaml",
+      "http/misconfiguration/springboot/springboot-trace.yaml",
+      "http/vulnerabilities/generic/basic-xss-prober.yaml",
+      "http/vulnerabilities/generic/xss-fuzz.yaml",              
+    ]
+    suspicious_templates: [
+      "custom:xss-inside-tag-top-params",
+      "custom:error-based-sql-injection",
+      "http/miscellaneous/defaced-website-detect.yaml",
+      "http/misconfiguration/google/insecure-firebase-database.yaml",
+      "custom:CVE-2024-4836",
+      "custom:CVE-2024-35286",
+      # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
+      # gets fixed, these templates return a FP on phpinfo(). Let's not spam
+      # our recipients with FPs.
+      "http/cnvd/2020/CNVD-2020-23735.yaml",
+      "http/vulnerabilities/other/ecshop-sqli.yaml",
+      # Until https://github.com/CERT-Polska/Artemis/issues/899 gets fixed, let's review
+      # these manually.
+      "group:sql-injection",
+      # Sometimes a source of FPs or true positives with misidentified software name
+      "custom:CVE-2019-18935",
+      "http/cves/2005/CVE-2005-4385.yaml",
+      "http/cves/2007/CVE-2007-0885.yaml",
+      "http/cves/2008/CVE-2008-2398.yaml",
+      "http/cves/2009/CVE-2009-1872.yaml",
+      "http/cves/2010/CVE-2010-2307.yaml",
+      "http/cves/2010/CVE-2010-4231.yaml",
+      "http/cves/2011/CVE-2011-5106.yaml",
+      "http/cves/2012/CVE-2012-4547.yaml",
+      "http/cves/2012/CVE-2012-4889.yaml",
+      "http/cves/2014/CVE-2014-2908.yaml",
+      "http/cves/2014/CVE-2014-9444.yaml",
+      "http/cves/2015/CVE-2015-5354.yaml",
+      "http/cves/2015/CVE-2015-8349.yaml",
+      "http/cves/2016/CVE-2016-7981.yaml",
+      "http/cves/2016/CVE-2016-8527.yaml",
+      "http/cves/2017/CVE-2017-12794.yaml",
+      "http/cves/2018/CVE-2018-8006.yaml",
+      "http/cves/2018/CVE-2018-11709.yaml",
+      "http/cves/2018/CVE-2018-12095.yaml",
+      "http/cves/2018/CVE-2018-12998.yaml",
+      "http/cves/2018/CVE-2018-13380.yaml",
+      "http/cves/2018/CVE-2018-14013.yaml",
+      "http/cves/2018/CVE-2018-18570.yaml",
+      "http/cves/2019/CVE-2019-10098.yaml",
+      "http/cves/2019/CVE-2019-3911.yaml",
+      "http/cves/2019/CVE-2019-7219.yaml",
+      "http/cves/2019/CVE-2019-7315.yaml",
+      "http/cves/2019/CVE-2019-7543.yaml",
+      "http/cves/2019/CVE-2019-10475.yaml",
+      "http/cves/2019/CVE-2019-12461.yaml",
+      "http/cves/2019/CVE-2019-13392.yaml",
+      "http/cves/2020/CVE-2020-1943.yaml",
+      "http/cves/2020/CVE-2020-2140.yaml",
+      "http/cves/2020/CVE-2020-6171.yaml",
+      "http/cves/2020/CVE-2020-15500.yaml",
+      "http/cves/2020/CVE-2020-19282.yaml",
+      "http/cves/2020/CVE-2020-19283.yaml",
+      "http/cves/2020/CVE-2020-27982.yaml",
+      "http/cves/2020/CVE-2020-35774.yaml",
+      "http/cves/2020/CVE-2020-35848.yaml",
+      "http/cves/2021/CVE-2021-3654.yaml",
+      "http/cves/2021/CVE-2021-24288.yaml",
+      "http/cves/2021/CVE-2021-24389.yaml",
+      "http/cves/2021/CVE-2021-24838.yaml",
+      "http/cves/2021/CVE-2021-26702.yaml",
+      "http/cves/2021/CVE-2021-26710.yaml",
+      "http/cves/2021/CVE-2021-26723.yaml",
+      "http/cves/2021/CVE-2021-29625.yaml",
+      "http/cves/2021/CVE-2021-30049.yaml",
+      "http/cves/2021/CVE-2021-30213.yaml",
+      "http/cves/2021/CVE-2021-31250.yaml",
+      "http/cves/2021/CVE-2021-38702.yaml",
+      "http/cves/2021/CVE-2021-40868.yaml",
+      "http/cves/2021/CVE-2021-41467.yaml",
+      "http/cves/2021/CVE-2021-42565.yaml",
+      "http/cves/2021/CVE-2021-42566.yaml",
+      "http/cves/2021/CVE-2021-43831.yaml",
+      "http/cves/2021/CVE-2021-45380.yaml",
+      "http/cves/2023/CVE-2023-35161.yaml",
+      "http/cves/2023/CVE-2023-39650.yaml",
+      "http/cves/2023/CVE-2023-43373.yaml",
+      "http/cves/2023/CVE-2023-43374.yaml",
+      "http/cves/2023/CVE-2023-47684.yaml",
+      "http/vulnerabilities/ibm/eclipse-help-system-xss.yaml",
+      "http/vulnerabilities/ibm/ibm-infoprint-lfi.yaml",
+      "http/vulnerabilities/other/bullwark-momentum-lfi.yaml",
+      "http/vulnerabilities/other/discourse-xss.yaml",
+      "http/vulnerabilities/ibm/eclipse-help-system-xss.yaml",
+      "http/vulnerabilities/other/global-domains-xss.yaml",
+      "http/vulnerabilities/other/homeautomation-v3-openredirect.yaml",
+      "http/vulnerabilities/other/magicflow-lfi.yaml",
+      "http/vulnerabilities/other/java-melody-xss.yaml",
+      "http/vulnerabilities/moodle/moodle-filter-jmol-xss.yaml",
+      "http/vulnerabilities/other/nginx-merge-slashes-path-traversal.yaml",
+      "http/vulnerabilities/other/parentlink-xss.yaml",
+      "http/vulnerabilities/other/processmaker-lfi.yaml",
+      "http/vulnerabilities/other/sick-beard-xss.yaml",
+      "http/vulnerabilities/squirrelmail/squirrelmail-add-xss.yaml",
+      "http/vulnerabilities/other/gsoap-lfi.yaml",
+      "http/vulnerabilities/other/turbocrm-xss.yaml",
+      "http/vulnerabilities/other/wems-manager-xss.yaml",
+      "http/vulnerabilities/wordpress/wp-touch-redirect.yaml",
+      "http/fuzzing/iis-shortname.yaml",           
+    ]
+    templates_to_run_on_homepage_links: [
+      "http/fuzzing/linux-lfi-fuzzing.yaml",
+      "http/vulnerabilities/generic/top-xss-params.yaml",
+      "http/vulnerabilities/generic/xss-fuzz.yaml",
+      "http/vulnerabilities/generic/basic-xss-prober.yaml",
+      "http/vulnerabilities/generic/error-based-sql-injection.yaml",
+      "/opt/artemis/modules/data/nuclei_templates_custom/error-based-sql-injection.yaml",
+    ]
+    max_num_links_to_process: 20
+    template_chunk_size: 200
+
+  placeholder_page_content:
+    enable_detector: false
+    content_filename: "/opt/artemis/modules/data/placeholder_page_content.txt"
+
+  port_scanner:
+    port_list: "short"
+    custom_ports: []
+    timeout_milliseconds: 5000
+    max_num_ports: 100
+
+  postman:
+    mail_from: "from@example.com"
+    mail_to: "to@example.com"
+
+  removed_domain_existing_vhost:
+    passivedns_urls: []
+    report_only_subdomains: false
+    passivedns_sleep_between_requests_seconds: 10
+    similarity_threshold: 0.5
+
+  shodan:
+    api_key: ""
+
+  ssh_bruter:
+    additional_brute_force_sleep_seconds: 20
+
+  subdomain_enumeration:
+    retries: 10
+    sleep_time_seconds: 60
+    gau_additional_options: []
+
+  vcs:
+    max_db_size_bytes: 5242880  # 5MB
+
+  wordpress_plugins:
+    skip_version_check_on_less_popular_plugins: false
+
+  wordpress_scanner:
+    version_age_days: 90
+
+  wordpress_bruter:
+    stripped_prefixes: ["www"]
+
+  domain_expiration_scanner:
+    timeframe_days: 30
+
+  sql_injection_detector:
+    stop_on_first_match: true
+    num_retries_time_based: 10
+    time_threshold: 5

@@ -66,7 +66,8 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
                 )  # Regex for checking version
                 if match_readme:
                     joomla_version = match_readme.group(1)
-                    result["joomla_version_readme"] = joomla_version
+                    result["joomla_version_readme"] = True
+                    result["joomla_version"] = joomla_version
 
                     # Check if the version is obsolete
                     if ".".join(

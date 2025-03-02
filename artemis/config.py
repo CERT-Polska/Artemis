@@ -919,6 +919,12 @@ class Config:
                 "Seconds to sleep using the sleep() or pg_sleep() methods",
             ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=5, cast=int)
 
+        class LFIDetector:
+            LFI_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to display only the first LFI and stop scanning.",
+            ] = get_config("LFI_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+
     @staticmethod
     def verify_each_variable_is_annotated() -> None:
         def verify_class(cls: type) -> None:

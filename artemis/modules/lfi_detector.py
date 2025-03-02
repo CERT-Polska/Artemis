@@ -1,5 +1,6 @@
 import random
 import re
+from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse, urlunparse
 
@@ -12,9 +13,9 @@ from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
+from artemis.modules.data.lfi_detector_data import LFI_PARAMS, LFI_PAYLOADS
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.task_utils import get_target_url
-from artemis.modules.data.lfi_detector_data import LFI_PARAMS, LFI_PAYLOADS
 
 
 class LFIFindings(Enum):

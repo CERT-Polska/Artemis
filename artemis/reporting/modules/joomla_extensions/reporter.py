@@ -25,7 +25,7 @@ class JoomlaExtensionsReporter(Reporter):
             return []
 
         result = []
-        for item in task_result["result"].get("outdated_extension", []):
+        for item in task_result["result"].get("outdated_extensions", []):
             result.append(
                 Report(
                     top_level_target=get_top_level_target(task_result),

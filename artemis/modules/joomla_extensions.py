@@ -36,7 +36,7 @@ class JoomlaExtensions(ArtemisBase):
         if self.requests_per_second_for_current_tasks:
             command.extend(["--rate-limit", str(int(self.requests_per_second_for_current_tasks))])
 
-        result = subprocess.check_output(command, cwd='/joomla-scanner').decode("utf-8", errors="ignore")
+        result = subprocess.check_output(command, cwd="/joomla-scanner").decode("utf-8", errors="ignore")
 
         self.log.info("joomla-scanner output: %s", result)
         messages = []
@@ -48,13 +48,16 @@ class JoomlaExtensions(ArtemisBase):
                 for value in data.values():
                     messages.append(
                         f"Found outdated Joomla! extension: {value['matched_extension_name']} version "
-                        f"should be {value['matched_extension_version']} and is {value['identified_version']}")
-                    outdated_extensions.append({
-                        "name": value['matched_extension_name'],
-                        "upstream_version": value['matched_extension_version'],
-                        "version_on_website": value['identified_version'],
-                        "urls": value['urls'],
-                    })
+                        f"should be {value['matched_extension_version']} and is {value['identified_version']}"
+                    )
+                    outdated_extensions.append(
+                        {
+                            "name": value["matched_extension_name"],
+                            "upstream_version": value["matched_extension_version"],
+                            "version_on_website": value["identified_version"],
+                            "urls": value["urls"],
+                        }
+                    )
 
         if messages:
             status = TaskStatus.INTERESTING

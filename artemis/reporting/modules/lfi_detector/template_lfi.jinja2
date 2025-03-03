@@ -1,8 +1,8 @@
-{% if "lfi:core" in data.contains_type %}
+{% if "lfi_vulnerability" in data.contains_type %}
     <li>{% trans %}We identified that the following URLs are vulnerable to Local File Inclusion (LFI):{% endtrans %}
         <ul>
             {% for report in data.reports %}
-                {% if report.report_type == "lfi:core" %}
+                {% if report.report_type == "lfi_vulnerability" %}
                     {% for message in report.additional_data.result %}
                         <li>
                             {{ message.url }}

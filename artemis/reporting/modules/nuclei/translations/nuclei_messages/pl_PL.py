@@ -624,7 +624,9 @@ TRANSLATIONS = {
     "GoIP-1 GSM is vulnerable to local file inclusion because input passed thru the 'content' or 'sidebar' GET parameter in 'frame.html' or 'frame.A100.html' is not properly sanitized before being used to read files. This can be exploited by an unauthenticated attacker to read arbitrary files on the affected system.": "Wykryto, że GoIP-1 GSM zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "Execution After Redirect happens when after emitting a Location header that redirects the user, some other code is executed. This may lead to data leak or application compromise.": "Wykryto podatność Execution After Redirect, czyli sytuację, gdy serwer, pomimo przekierowania użytkownika na inny adres, kontynuuje wykonanie skryptu. Może to doprowadzić do wycieku wrażliwych danych lub uzyskania przez atakującego nieuprawnionego dostępu do aplikacji.",
     "[no description] http/misconfiguration/django-debug-detect.yaml": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
+    "Rails debug mode is enabled.": "Wykryto framework Rails w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "Django debug configuration is enabled, which allows an attacker to obtain system configuration information such as paths or settings.": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
+    "Unauthenticated PostgreSQL Detected.": "Wykryto system PostgreSQL, do którego można zalogować się bez uwierzytelniania.",
     "Laravel with APP_DEBUG set to true is prone to show verbose errors.": "Wykryto system Laravel w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
@@ -997,8 +999,12 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Jenkins Dashboard is exposed to external users.": "Panel systemu Jenkins jest dostępny publicznie.",
+    "This template checks for unauthenticated command execution vulnerability in Netgear DGN devices. Attackers can bypass authentication mechanisms and execute arbitrary commands with root privileges.": "Wykryto urządzenie Netgear DGN umożliwiające atakującemu wykonywanie bez uwierzytelnienia dowolnych poleceń z uprawnieniami administratora."
+    + RCE_EFFECT_DESCRIPTION,
     "Artifactory anonymous repo is exposed.": "Wykryto anonimowe repozytorium systemu Artifactory.",
     "The MKdocs 1.2.2 built-in dev-server allows directory traversal using the port 8000, enabling remote exploitation to obtain sensitive information. Note the vendor has disputed the vulnerability (see references) because the dev server must be used in an unsafe way (namely public) to have this vulnerability exploited.": "Wykryto serwer deweloperski systemu MKdocs w wersji 1.2.2 zawierający podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "Zeit Next.js before 4.2.3 is susceptible to local file inclusion under the /_next request namespace. An attacker can obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Zeit Next.js w wersji poniżej 4.2.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "Dump password hashes in use within a PostgreSQL database.": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw użytkowników bazy danych i haszy ich haseł.",
     "javascript/enumeration/pgsql/pgsql-list-database.yaml": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw baz danych.",
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
@@ -1627,4 +1633,5 @@ TRANSLATIONS = {
     "Vaultwarden products was detected.": "Wykryto panel Vaultwarden.",
     "Reolink panel was discovered.": "Wykryto panel Reolink",
     "Reposilite products was detected.": "Wykryto panel systemu Reposilite.",
+    "PocketBase Login panel was discovered.": "Wykryto panel logowania PocketBase.",
 }

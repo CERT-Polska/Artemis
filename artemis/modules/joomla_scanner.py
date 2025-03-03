@@ -36,16 +36,45 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
             result["registration_url"] = registration_url
 
         # Check if they are running latest patch version
-        response = self.http_get(f"{url}/administrator/manifests/files/joomla.xml")
-        if match := re.search("<version>([0-9]+\\.[0-9]+\\.[0-9]+)</version>", response.text):
-            joomla_version = match.group(1)
-            result["joomla_version"] = joomla_version
-            # Get latest release in repo from GitHub API
-            gh_api_response = FallbackAPICache.Urls.JOOMLA_LATEST_RELEASE.value.get()
+        version_paths = [
+            "administrator/manifests/files/joomla.xml",
+            "api/language/en-GB/install.xml",
+            "api/language/en-GB/langmetadata.xml",
+            "administrator/language/en-GB/install.xml",
+            "administrator/language/en-GB/langmetadata.xml",
+            "language/en-GB/install.xml",
+            "language/en-GB/langmetadata.xml",
+        ]
+        gh_api_response = FallbackAPICache.Urls.JOOMLA_LATEST_RELEASE.value.get()
+        for path in version_paths:
+            response = self.http_get(f"{url}/{path}")
+            if match := re.search("<version>([0-9]+\\.[0-9]+\\.[0-9]+)</version>", response.text):
+                joomla_version = match.group(1)
+                result["joomla_version"] = joomla_version
+                # Get latest release in repo from GitHub API
 
-            if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_obsolete(joomla_version):
-                found_problems.append(f"Joomla version is too old: {joomla_version}")
-                result["joomla_version_is_too_old"] = True
+                if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_obsolete(joomla_version):
+                    found_problems.append(f"Joomla version is too old: {joomla_version}")
+                    result["joomla_version_is_too_old"] = True
+                break
+        else:
+            # Check version via README.txt
+            response_readme = self.http_get(f"{url}/README.txt")
+            if response_readme.status_code == 200:
+                match_readme = re.search(
+                    "Joomla! ([0-9]+\\.[0-9]+) version history", response_readme.text
+                )  # Regex for checking version
+                if match_readme:
+                    joomla_version = match_readme.group(1)
+                    result["joomla_version_readme"] = True
+                    result["joomla_version"] = joomla_version
+
+                    # Check if the version is obsolete
+                    if ".".join(
+                        gh_api_response.json()["tag_name"].split(".")[:2]
+                    ) != joomla_version and self.is_version_obsolete(joomla_version):
+                        found_problems.append(f"Joomla version is too old: {joomla_version}")
+                        result["joomla_version_is_too_old"] = True
 
         if found_problems:
             status = TaskStatus.INTERESTING

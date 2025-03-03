@@ -6,7 +6,7 @@
                     <li>
                         {{ report.target }} - {% trans %}extension{% endtrans %} {{ report.additional_data.name }}
                         {% trans %}in version{% endtrans %} {{ report.additional_data.version_on_website }}
-                        ({% trans %}identified using{% endtrans %} {% for url in report.additional_data.urls %}{{ url }} {% endfor %})
+                        ({% trans %}identified using{% endtrans %} {% for url in report.additional_data.urls %}{{ url }}{% if not loop.last %} {% endif %}{% endfor %})
 
                         {{ report_meta(report) }}
                     </li>

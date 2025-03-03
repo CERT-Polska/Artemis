@@ -217,6 +217,7 @@ class PortScanner(ArtemisBase):
         scan_results = self._scan(hosts)
 
         for task in tasks:
+            target = get_target_host(task)
             all_results = {}
             open_ports = []
             interesting_port_descriptions = []

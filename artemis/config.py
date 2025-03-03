@@ -259,6 +259,11 @@ class Config:
             "ADDITIONAL_HOSTS_FILE_PATH", default="", cast=str
         )
 
+        MAX_URLS_TO_SCAN: Annotated[
+            int,
+            "Maximum number of URLs to scan per target for modules that crawl like lfi_detector, Nuclei, sq_injection_detector, etc.",
+        ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
+
     class Modules:
         class Bruter:
             BRUTER_FILE_LIST: Annotated[

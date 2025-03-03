@@ -1,3 +1,5 @@
+# Copied from GNU General Public License v3.0 (https://github.com/capture0x/LFI-FINDER/blob/main/LICENSE)
+# file https://github.com/capture0x/LFI-FINDER/blob/main/lfi.txt
 /etc/passwd
 ../
 ..\

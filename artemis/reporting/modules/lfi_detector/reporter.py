@@ -12,7 +12,7 @@ from artemis.reporting.utils import get_top_level_target
 
 
 class LFIDetectorReporter(Reporter):
-    LFI_CORE = ReportType("lfi:core")
+    LFI = ReportType("lfi_vulnerability")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
@@ -25,13 +25,13 @@ class LFIDetectorReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
-        url_parsed = urllib.parse.urlparse(task_result["result"]["result"][0]["url"])
+        target_url = task_result["result"]["result"][0]["url"]
 
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
-                target=f"{url_parsed.scheme}://{url_parsed.netloc}",
-                report_type=LFIDetectorReporter.LFI_CORE,
+                target=target_url,
+                report_type=LFIDetectorReporter.LFI,
                 additional_data=task_result["result"],
                 timestamp=task_result["created_at"],
             )
@@ -50,7 +50,7 @@ class LFIDetectorReporter(Reporter):
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """See the docstring in the Reporter class."""
         return {
-            LFIDetectorReporter.LFI_CORE: lambda report: Reporter.dict_to_tuple(
+            LFIDetectorReporter.LFI: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
                     "target": get_domain_normal_form(urllib.parse.urlparse(report.target).hostname or ""),

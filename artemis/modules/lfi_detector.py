@@ -13,8 +13,9 @@ from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
-from artemis.modules.data.lfi_detector_data import LFI_PARAMS, LFI_PAYLOADS
+from artemis.modules.data.lfi_detector_data import LFI_PAYLOADS
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
+from artemis.sql_injection_data import URL_PARAMS
 from artemis.task_utils import get_target_url
 
 
@@ -45,7 +46,7 @@ class LFIDetector(ArtemisBase):
     def is_url_with_parameters(self, url: str) -> bool:
         return bool(re.search(r"/?/*=", url))
 
-    def contains_lfi_indicator(self, response: HTTPResponse) -> Optional[str]:
+    def contains_lfi_indicator(self, original_response: HTTPResponse, response: HTTPResponse) -> Optional[str]:
         """Check if the response contains indicators of LFI."""
         indicators = [
             ("root:x:", "/etc/passwd"),
@@ -54,23 +55,24 @@ class LFIDetector(ArtemisBase):
             ("Windows Registry Editor", "Windows .ini file"),
         ]
         for indicator, description in indicators:
-            if indicator in response.content:
+            if indicator in response.content and indicator not in original_response.content:
                 self.log.debug(f"Matched LFI indicator: {description}")
                 return description
         return None
 
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         """Scan URLs for LFI vulnerabilities."""
-        message: List[Dict[str, Any]] = []
+        messages: List[Dict[str, Any]] = []
 
         for current_url in urls:
-            for param_batch in more_itertools.batched(LFI_PARAMS, 50):  # Example parameters
+            for param_batch in more_itertools.batched(URL_PARAMS, 50):  # Example parameters
                 for payload in LFI_PAYLOADS:
                     url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
                     response = self.http_get(url_with_payload)
+                    original_response = self.http_get(current_url)
 
-                    if indicator := self.contains_lfi_indicator(response):
-                        message.append(
+                    if indicator := self.contains_lfi_indicator(original_response, response):
+                        messages.append(
                             {
                                 "url": url_with_payload,
                                 "headers": {},
@@ -80,9 +82,9 @@ class LFIDetector(ArtemisBase):
                             }
                         )
                         if Config.Modules.LFIDetector.LFI_STOP_ON_FIRST_MATCH:
-                            return message
+                            return messages
 
-        return message
+        return messages
 
     def run(self, current_task: Task) -> None:
         """Run the LFI detection module."""
@@ -101,16 +103,16 @@ class LFIDetector(ArtemisBase):
 
             random.shuffle(links)
 
-            message = self.scan(urls=links[:25], task=current_task)
+            messages = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
 
-            if message:
+            if messages:
                 status = TaskStatus.INTERESTING
-                status_reason = ", ".join([m["statement"] for m in message])
+                status_reason = ", ".join([m["statement"] for m in messages])
             else:
                 status = TaskStatus.OK
                 status_reason = None
 
-            data = {"result": message, "statements": {e.value: e.name for e in LFIFindings}}
+            data = {"result": messages, "statements": {e.value: e.name for e in LFIFindings}}
 
             self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 

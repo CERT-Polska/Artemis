@@ -998,6 +998,8 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "PHP CGI - Argument Injection (CVE-2024-4577) is a critical argument injection flaw in PHP.": "Wykryto PHP CGI zawierające podatność CVE-2024-4577 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
     "Jenkins Dashboard is exposed to external users.": "Panel systemu Jenkins jest dostępny publicznie.",
     "This template checks for unauthenticated command execution vulnerability in Netgear DGN devices. Attackers can bypass authentication mechanisms and execute arbitrary commands with root privileges.": "Wykryto urządzenie Netgear DGN umożliwiające atakującemu wykonywanie bez uwierzytelnienia dowolnych poleceń z uprawnieniami administratora."
     + RCE_EFFECT_DESCRIPTION,

@@ -319,18 +319,21 @@ class ArtemisBase(Karton):
             tasks = []
             locks: List[Optional[ResourceLock]] = []
 
-            if REDIS.get(f"queue_location_timestamp-{self.identity}") < time.time() - self.queue_location_max_age_seconds:
+            if (
+                float(REDIS.get(f"queue_location_timestamp-{self.identity}") or 0)
+                < time.time() - self.queue_location_max_age_seconds
+            ):
                 REDIS.set(f"queue_id-{self.identity}", 0)
                 REDIS.set(f"queue_position-{self.identity}", 0)
                 REDIS.set(f"queue_location_timestamp-{self.identity}", time.time())
 
-            queue_id = REDIS.get(f"queue_id-{self.identity}") or 0
+            queue_id = int(REDIS.get(f"queue_id-{self.identity}") or 0)
 
-            for i, queue in list(enumerate(self.backend.get_queue_names(self.identity)))[queue_id :]:
+            for i, queue in list(enumerate(self.backend.get_queue_names(self.identity)))[queue_id:]:
                 if i > queue_id:
                     REDIS.set(f"queue_position-{self.identity}", 0)
 
-                original_queue_position = REDIS.get(f"queue_position-{self.identity}", 0)
+                original_queue_position = int(REDIS.get(f"queue_position-{self.identity}") or 0)
                 self.log.debug(f"[taking tasks] Taking tasks from queue {queue} from task {original_queue_position}")
                 if self.lock_target:
                     REDIS.set(f"queue_id-{self.identity}", i)

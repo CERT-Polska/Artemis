@@ -50,8 +50,6 @@ class LFIDetector(ArtemisBase):
         """Check if the response contains indicators of LFI."""
         indicators = [
             ("root:x:", "/etc/passwd"),
-            ("[extensions]", "php.ini"),
-            ("<?php", "PHP file"),
             ("Windows Registry Editor", "Windows .ini file"),
         ]
         for indicator, description in indicators:

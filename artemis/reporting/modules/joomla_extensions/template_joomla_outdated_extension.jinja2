@@ -1,0 +1,23 @@
+{% if "joomla_outdated_extension" in data.contains_type %}
+    <li>{% trans %}The following addresses contain sites with Joomla! extensions that are not up-to-date:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "joomla_outdated_extension" %}
+                    <li>
+                        {{ report.target }} - {% trans %}extension{% endtrans %} {{ report.additional_data.name }}
+                        {% trans %}in version{% endtrans %} {{ report.additional_data.version_on_website }}
+                        ({% trans %}identified using{% endtrans %} {% for url in report.additional_data.urls %}{{ url }}{% if not loop.last %} {% endif %}{% endfor %})
+
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                If a site is not used anymore, we recommend shutting it down to avoid the risk of exploitation of
+                known vulnerabilities. If it is used, we recommend updating all Joomla! extensions.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

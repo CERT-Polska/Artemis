@@ -34,6 +34,7 @@ SEVERITY_MAP = {
     ReportType("exposed_log_file"): Severity.MEDIUM,
     ReportType("writable_ftp"): Severity.HIGH,
     ReportType("wordpress_outdated_plugin_theme"): Severity.MEDIUM,
+    ReportType("joomla_outdated_extension"): Severity.MEDIUM,
     ReportType("misconfigured_email"): Severity.MEDIUM,
     ReportType("old_drupal"): Severity.MEDIUM,
     ReportType("old_joomla"): Severity.MEDIUM,

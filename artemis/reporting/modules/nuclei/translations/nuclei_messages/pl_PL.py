@@ -1634,5 +1634,5 @@ TRANSLATIONS = {
     "Reolink panel was discovered.": "Wykryto panel Reolink",
     "Reposilite products was detected.": "Wykryto panel systemu Reposilite.",
     "PocketBase Login panel was discovered.": "Wykryto panel logowania PocketBase.",
-    "AfterLogic WebMail Login panel was detected.":  "Wykryto panel AfterLogic WebMail.",
+    "AfterLogic WebMail Login panel was detected.": "Wykryto panel AfterLogic WebMail.",
 }

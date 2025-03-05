@@ -17,8 +17,9 @@ from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
+from artemis.modules.data.parameters import URL_PARAMS
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
-from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES, URL_PARAMS
+from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url
 
 

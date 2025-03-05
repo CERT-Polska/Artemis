@@ -14,8 +14,8 @@ from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.lfi_detector_data import LFI_PAYLOADS
+from artemis.modules.data.parameters import URL_PARAMS
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
-from artemis.sql_injection_data import URL_PARAMS
 from artemis.task_utils import get_target_url
 
 
@@ -75,7 +75,7 @@ class LFIDetector(ArtemisBase):
                                 "url": url_with_payload,
                                 "headers": {},
                                 "matched_indicator": indicator,
-                                "statement": "It appears that this URL is vulnerable to LFI",
+                                "statement": "It appears that this URL is vulnerable to LFI: " + url_with_payload,
                                 "code": LFIFindings.LFI_VULNERABILITY.value,
                             }
                         )

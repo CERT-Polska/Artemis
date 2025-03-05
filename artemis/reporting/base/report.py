@@ -4,6 +4,7 @@ import urllib.parse
 import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
+from collections import defaultdict
 
 from artemis.domains import is_domain
 from artemis.reporting.severity import Severity
@@ -143,13 +144,35 @@ class Report:
             return report
         return None
 
+    def get_root_domain(self) -> Optional[str]:
+        """
+        Extracts the root domain (wildcard) from the target.
+        For example, a.example.com -> *.example.com.
+        """
+        if self.target_is_url():
+            hostname = urllib.parse.urlparse(self.target).hostname
+        else:
+            hostname = self.target
+
+        if not hostname:
+            return None
+
+        parts = hostname.split('.')
+        if len(parts) > 2:
+            return f'*.{".".join(parts[-2:])}'  # e.g., *.example.com
+        return hostname
+
     def get_normal_form(self) -> NormalForm:
-        """Returns the normal form of the report - if multiple reports have the same normal form,
-        only one of them should be reported. Score (returned by get_score()) determines which one."""
+        """Returns the normal form of the report, considering the root domain (wildcard)."""
+        root_domain = self.get_root_domain()
         for reporter in get_all_reporters():
             normal_form_rules = reporter.get_normal_form_rules()
             if self.report_type in normal_form_rules:
-                return normal_form_rules[self.report_type](self)  # type: ignore
+                normal_form = normal_form_rules[self.report_type](self)  # type: ignore
+                # Modify the normal form to include the root domain
+                if root_domain:
+                    normal_form = (normal_form, ("root_domain", root_domain))
+                return normal_form
         raise NotImplementedError(f"Don't know how to get normal form for {self.report_type}")
 
     def get_score(self) -> List[int]:
@@ -161,12 +184,22 @@ class Report:
 
         Score is a list of ints that should be compared lexicographically (the ints should be compared in a standard way).
         """
-
         for reporter in get_all_reporters():
             scoring_rules = reporter.get_scoring_rules()
             if self.report_type in scoring_rules:
                 return scoring_rules[self.report_type](self)  # type: ignore
         raise NotImplementedError(f"Don't know how to get score for {self.report_type}")
+
+    def get_wildcard_domain(self) -> Optional[str]:
+        """Returns the wildcard domain if the target is a subdomain, otherwise returns None."""
+        domain = self.get_domain()
+        if not domain:
+            return None
+            
+        parts = domain.split('.')
+        if len(parts) > 2:
+            return f"*.{'.'.join(parts[-2:])}"
+        return None
 
     def get_domain(self) -> Optional[str]:
         if is_domain(self.target):
@@ -187,3 +220,30 @@ class Report:
             return self.top_level_target
 
         return None
+
+
+def group_reports_by_root_domain(reports: List[Report]) -> Dict[str, List[Report]]:
+    """
+    Groups reports by their root domain (wildcard).
+    """
+    grouped_reports = defaultdict(list)
+    for report in reports:
+        root_domain = report.get_root_domain()
+        if root_domain:
+            grouped_reports[root_domain].append(report)
+    return grouped_reports
+
+
+def deduplicate_reports(reports: List[Report]) -> List[Report]:
+    """
+    Deduplicates reports by grouping them by root domain and selecting the best report for each group.
+    """
+    grouped_reports = group_reports_by_root_domain(reports)
+    final_reports = []
+
+    for root_domain, report_group in grouped_reports.items():
+        # Select the report with the highest score
+        best_report = max(report_group, key=lambda r: r.get_score())
+        final_reports.append(best_report)
+
+    return final_reports

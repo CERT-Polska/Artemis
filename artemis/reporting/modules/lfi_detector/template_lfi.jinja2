@@ -1,0 +1,27 @@
+{% if "lfi_vulnerability" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are vulnerable to Local File Inclusion (LFI):{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "lfi_vulnerability" %}
+                    {% for message in report.additional_data.result %}
+                        <li>
+                            {{ message.url }}
+                            {% if message.code == report.additional_data.statements.lfi_vulnerability %}
+                                :
+                                {% trans trimmed %}
+                                    This means that an attacker can include local files on the server, potentially exposing sensitive information or executing arbitrary code.
+                                {% endtrans %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                These vulnerabilities can lead to serious security breaches, including unauthorized access to sensitive files, server configuration details, and potential remote code execution.
+                The vulnerability occurs when user input is used to include files without proper validation, allowing attackers to manipulate the file path.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

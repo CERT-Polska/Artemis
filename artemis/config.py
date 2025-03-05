@@ -259,6 +259,11 @@ class Config:
             "ADDITIONAL_HOSTS_FILE_PATH", default="", cast=str
         )
 
+        MAX_URLS_TO_SCAN: Annotated[
+            int,
+            "Maximum number of URLs to scan per target for modules that crawl like lfi_detector, Nuclei, sq_injection_detector, etc.",
+        ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
+
     class Modules:
         class Bruter:
             BRUTER_FILE_LIST: Annotated[
@@ -918,6 +923,12 @@ class Config:
                 int,
                 "Seconds to sleep using the sleep() or pg_sleep() methods",
             ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=5, cast=int)
+
+        class LFIDetector:
+            LFI_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to display only the first LFI and stop scanning.",
+            ] = get_config("LFI_STOP_ON_FIRST_MATCH", default=True, cast=bool)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

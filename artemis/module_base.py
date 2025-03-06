@@ -2,6 +2,7 @@ import datetime
 import fcntl
 import logging
 import random
+import shutil
 import sys
 import time
 import traceback
@@ -246,6 +247,16 @@ class ArtemisBase(Karton):
 
     def _single_iteration(self) -> int:
         self.log.debug("single iteration")
+
+        _, _, free_disk_space = shutil.disk_usage("/")
+        if free_disk_space < 1024 * 1024 * Config.Miscellaneous.STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB:
+            self.log.error(
+                "Stopping scanning as disk space is lower than %s MB (it's %s MB)",
+                Config.Miscellaneous.STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB,
+                free_disk_space / (1024 * 1024),
+            )
+            self._shutdown = True
+            return 0
 
         # In case there was a problem and previous locks was not released
         ResourceLock.release_all_locks(self.log)

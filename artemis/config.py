@@ -182,6 +182,11 @@ class Config:
             get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
         )
 
+        STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB: Annotated[
+            int,
+            "If free disk space on / becomes lower than this value, scanning will stop so that we don't end up being unable to save the results.",
+        ] = get_config("STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB", default=1000)
+
         BLOCKLIST_FILE: Annotated[
             str,
             "A file that determines what should not be scanned or reported",

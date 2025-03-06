@@ -1,8 +1,17 @@
-from unittest.mock import patch, MagicMock
+from test.base import ArtemisModuleTestCase
+from unittest.mock import MagicMock, patch
+
+import dns.exception
+import dns.message
+import dns.query
+import dns.rcode
+import dns.resolver
+import dns.xfr
+import dns.zone
 from karton.core import Task
+
 from artemis.binds import TaskStatus, TaskType
 from artemis.modules.dns_scanner import DnsScanner
-from test.base import ArtemisModuleTestCase
 
 
 class DnsScannerTest(ArtemisModuleTestCase):
@@ -39,7 +48,7 @@ class DnsScannerTest(ArtemisModuleTestCase):
             # Mock SOA and NS responses
             mock_resolve.side_effect = [
                 [MagicMock(mname="nonexistent.ns")],  # SOA response
-                dns.resolver.NXDOMAIN(),  # Simulate nonexistent nameserver
+                dns.resolver.NXDOMAIN("nonexistent.ns"),  # type: ignore # Simulate nonexistent nameserver
             ]
 
             self.run_task(task)

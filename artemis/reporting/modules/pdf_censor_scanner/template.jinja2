@@ -1,0 +1,17 @@
+{% if detected_issues %}
+<p>Censorship Detected in a PDF</p>
+<p><strong>PDF URL:</strong> <a href="{{ target }}">{{ target }}</a></p>
+<p>The following hidden text was found under black redactions:</p>
+
+<ul>
+    {% for page, issues in detected_issues.items() %}
+        <li><strong>Page {{ page }}:</strong>
+            <ul>
+                {% for issue in issues %}
+                    <li><strong>Hidden text:</strong> "{{ issue.text }}"</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
+{% endif %}

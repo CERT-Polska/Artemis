@@ -1000,6 +1000,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "PHP CGI - Argument Injection (CVE-2024-4577) is a critical argument injection flaw in PHP.": "Wykryto PHP CGI zawierające podatność CVE-2024-4577 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
+    "Confluence is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto system Confluence udostępniający instalator. Ta konfiguracja umożliwia atakującemu zmianę ustawień i potencjalnie nieuprawniony dostęp do systemu.",
     "Jenkins Dashboard is exposed to external users.": "Panel systemu Jenkins jest dostępny publicznie.",
     "This template checks for unauthenticated command execution vulnerability in Netgear DGN devices. Attackers can bypass authentication mechanisms and execute arbitrary commands with root privileges.": "Wykryto urządzenie Netgear DGN umożliwiające atakującemu wykonywanie bez uwierzytelnienia dowolnych poleceń z uprawnieniami administratora."
     + RCE_EFFECT_DESCRIPTION,
@@ -1637,4 +1638,5 @@ TRANSLATIONS = {
     "Reposilite products was detected.": "Wykryto panel systemu Reposilite.",
     "PocketBase Login panel was discovered.": "Wykryto panel logowania PocketBase.",
     "AfterLogic WebMail Login panel was detected.": "Wykryto panel AfterLogic WebMail.",
+    "Sensu by Sumo Logic login panel was detected.": "Wykryto panel Sensu by Sumo Logic.",
 }

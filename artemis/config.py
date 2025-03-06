@@ -465,6 +465,7 @@ class Config:
                         # Source of FPs
                         "custom:CVE-2019-1579",
                         "custom:CVE-2024-35286",
+                        "custom:CVE-2022-43939",
                         "custom:xss-inside-tag-top-params.yaml",
                         # Nothing particularily interesting
                         "http/exposures/apis/drupal-jsonapi-user-listing.yaml",

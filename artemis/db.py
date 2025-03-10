@@ -182,7 +182,7 @@ class DB:
             try:
                 task = session.query(TaskResult).get(task_id)
             except NoResultFound:
-                pass
+                return
 
             task.logs = logs.decode("utf-8", errors="replace")
             session.add(task)

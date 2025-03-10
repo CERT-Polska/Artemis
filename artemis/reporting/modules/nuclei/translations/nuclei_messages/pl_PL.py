@@ -998,11 +998,14 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "An issue in issabel-pbx v.4.0.0-6 allows a remote attacker to obtain sensitive information via the modules directory": "Narzędzie issabel-pbx w wersji v.4.0.0-6 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji." + UPDATE_HINT,
+    "Grafana default admin login credentials were detected.": "Wykryto system Grafana, do którego można zalogować się domyślnymi poświadczeniami.",
+    "An issue in issabel-pbx v.4.0.0-6 allows a remote attacker to obtain sensitive information via the modules directory": "Narzędzie issabel-pbx w wersji v.4.0.0-6 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji."
+    + UPDATE_HINT,
     "File read and file write to RCE by deploying a vhost with MBeanFactory/createStandardHost and DiagnosticCommand/jfrStart": "Wykryto system Jolokia zawierający podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "An improper authorization check was identified within ProjectSend version r1605 that allows an attacker to perform sensitive actions such as enabling user registration and auto validation, or adding new entries in the whitelist of allowed extensions for uploaded files. Ultimately, this allows to execute arbitrary PHP code on the server hosting the application.": "ProjectSend w wersji r1605 i potencjalnie wcześniejszych umożliwia atakującemu nieuprawnione wykonywanie działań takich jak rejestracja czy zmiana konfiguracji, co w konsekwencji prowadzi do zdalnego wykonania kodu.",
+    "WordPress WP Courses Plugin < 2.0.29 contains a critical information disclosure which exposes private course videos and materials.": "Wtyczka WordPress o nazwie WP Courses w wersji poniżej 2.0.29 zawiera podatność umożliwiającą dostęp do prywatnych materiałów kursowych.",
     "PHP CGI - Argument Injection (CVE-2024-4577) is a critical argument injection flaw in PHP.": "Wykryto PHP CGI zawierające podatność CVE-2024-4577 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Confluence is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto system Confluence udostępniający instalator. Ta konfiguracja umożliwia atakującemu zmianę ustawień i potencjalnie nieuprawniony dostęp do systemu.",
@@ -1648,4 +1651,6 @@ TRANSLATIONS = {
     "http/exposed-panels/umami-panel.yaml": "Wykryto panel systemu Umami Analytics.",
     "OPNsense panel was detected.": "Wykryto panel OPNSense.",
     "Atlassian Bamboo login panel was detected.": "Wykryto panel Atlassian Bamboo.",
+    "Cisco IOS XE login panel was detected.": "Wykryto panel logowania Cisco IOS XE.",
+    "An Opentwrt admin login page was discovered.": "Wykryto panel logowania OpenWrt.",
 }

@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Dict, List, Optional
 from zipfile import ZipFile
+from datetime import datetime
 
 import requests
 from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
@@ -24,6 +25,7 @@ from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilte
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import get_binds_that_can_be_disabled, restart_crashed_tasks
 from artemis.modules.classifier import Classifier
+from artemis.scheduler import schedule_periodic_scan
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
 from artemis.task_utils import get_task_target
@@ -122,6 +124,10 @@ async def post_add(
     targets: str = Form(),
     tag: Optional[str] = Form(None),
     priority: Optional[str] = Form(None),
+    schedule_enabled: Optional[bool] = Form(False),
+    schedule_interval: Optional[int] = Form(1),
+    schedule_start: Optional[str] = Form(None),
+    schedule_end: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
     redirect: bool = Form(True),
     csrf_protect: CsrfProtect = Depends(),
@@ -174,8 +180,28 @@ async def post_add(
             },
             csrf_protect,
         )
+    if schedule_enabled and schedule_interval and schedule_start:
+        try:     
+            start_time = datetime.fromisoformat(schedule_start)
+            end_time = datetime.fromisoformat(schedule_end)
+        except:
+            raise HTTPException(status_code=400, detail="Invalid start time format")
 
-    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
+        schedule_periodic_scan(
+            targets=total_list,
+            tag=tag,
+            disabled_modules=disabled_modules,
+            priority=TaskPriority(priority),
+            interval_minutes=schedule_interval,
+            start_time=start_time,
+            end_time=end_time
+        )
+
+    else:
+        create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
+
+
+
     if redirect:
         return RedirectResponse("/", status_code=301)
     else:

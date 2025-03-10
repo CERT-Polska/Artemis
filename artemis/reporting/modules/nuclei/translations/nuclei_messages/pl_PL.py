@@ -998,6 +998,7 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "An issue in issabel-pbx v.4.0.0-6 allows a remote attacker to obtain sensitive information via the modules directory": "Narzędzie issabel-pbx w wersji v.4.0.0-6 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji." + UPDATE_HINT,
     "File read and file write to RCE by deploying a vhost with MBeanFactory/createStandardHost and DiagnosticCommand/jfrStart": "Wykryto system Jolokia zawierający podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -1645,4 +1646,6 @@ TRANSLATIONS = {
     "Sensu by Sumo Logic login panel was detected.": "Wykryto panel Sensu by Sumo Logic.",
     "Splunk Enterprise login panel was detected.": "Wykryto panel Splunk Enterprise.",
     "http/exposed-panels/umami-panel.yaml": "Wykryto panel systemu Umami Analytics.",
+    "OPNsense panel was detected.": "Wykryto panel OPNSense.",
+    "Atlassian Bamboo login panel was detected.": "Wykryto panel Atlassian Bamboo.",
 }

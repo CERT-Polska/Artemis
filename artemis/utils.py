@@ -6,7 +6,7 @@ from ipaddress import ip_address
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple
 
-from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
+from whoisdomain import Domain, WhoisQuotaExceeded
 from whoisdomain import query as whois_query
 
 from artemis.config import Config

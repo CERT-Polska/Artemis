@@ -15,6 +15,7 @@ class Severity(str, Enum):
 SEVERITY_MAP = {
     ReportType("forti_vuln"): Severity.HIGH,
     ReportType("globalprotect_vuln"): Severity.HIGH,
+    ReportType("lfi_vulnerability"): Severity.HIGH,
     ReportType("insecure_wordpress"): Severity.HIGH,
     ReportType("nuclei_vulnerability"): Severity.HIGH,
     ReportType("script_unregistered_domain"): Severity.HIGH,
@@ -34,6 +35,7 @@ SEVERITY_MAP = {
     ReportType("exposed_log_file"): Severity.MEDIUM,
     ReportType("writable_ftp"): Severity.HIGH,
     ReportType("wordpress_outdated_plugin_theme"): Severity.MEDIUM,
+    ReportType("joomla_outdated_extension"): Severity.MEDIUM,
     ReportType("misconfigured_email"): Severity.MEDIUM,
     ReportType("old_drupal"): Severity.MEDIUM,
     ReportType("old_joomla"): Severity.MEDIUM,

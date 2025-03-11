@@ -21,6 +21,7 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
     cd / && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
+    git clone https://github.com/CERT-Polska/joomla-scanner.git --branch main /joomla-scanner && \
     pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt $ADDITIONAL_REQUIREMENTS && \
     apk del .build-deps
 

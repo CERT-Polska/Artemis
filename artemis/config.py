@@ -158,7 +158,7 @@ class Config:
 
     class Limits:
         TASK_TIMEOUT_SECONDS: Annotated[int, "What is the maximum task run time (after which it will get killed)."] = (
-            get_config("TASK_TIMEOUT_SECONDS", default=6 * 3600, cast=int)
+            get_config("TASK_TIMEOUT_SECONDS", default=12 * 3600, cast=int)
         )
 
         REQUEST_TIMEOUT_SECONDS: Annotated[
@@ -181,6 +181,11 @@ class Config:
         REMOVE_LOGS_AFTER_DAYS: Annotated[int, "After what number of days the logs in karton-logs are removed."] = (
             get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
         )
+
+        STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB: Annotated[
+            int,
+            "If free disk space on / becomes lower than this value, scanning will stop so that we don't end up being unable to save the results.",
+        ] = get_config("STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB", default=1000)
 
         BLOCKLIST_FILE: Annotated[
             str,
@@ -258,6 +263,11 @@ class Config:
         ADDITIONAL_HOSTS_FILE_PATH: Annotated[str, "File that will be appended to /etc/hosts"] = get_config(
             "ADDITIONAL_HOSTS_FILE_PATH", default="", cast=str
         )
+
+        MAX_URLS_TO_SCAN: Annotated[
+            int,
+            "Maximum number of URLs to scan per target for modules that crawl like lfi_detector, Nuclei, sq_injection_detector, etc.",
+        ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
 
     class Modules:
         class Bruter:
@@ -460,6 +470,7 @@ class Config:
                         # Source of FPs
                         "custom:CVE-2019-1579",
                         "custom:CVE-2024-35286",
+                        "custom:CVE-2022-43939",
                         "custom:xss-inside-tag-top-params.yaml",
                         # Nothing particularily interesting
                         "http/exposures/apis/drupal-jsonapi-user-listing.yaml",
@@ -918,6 +929,12 @@ class Config:
                 int,
                 "Seconds to sleep using the sleep() or pg_sleep() methods",
             ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=5, cast=int)
+
+        class LFIDetector:
+            LFI_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to display only the first LFI and stop scanning.",
+            ] = get_config("LFI_STOP_ON_FIRST_MATCH", default=True, cast=bool)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

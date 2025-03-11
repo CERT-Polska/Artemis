@@ -1,0 +1,20 @@
+#: artemis/reporting/modules/lfi_detector/template_lfi.jinja2:2
+msgid ""
+"We identified that the following URLs are vulnerable to Local File "
+"Inclusion (LFI):"
+msgstr ""
+
+#: artemis/reporting/modules/lfi_detector/template_lfi.jinja2:11
+msgid ""
+"This means that an attacker can include local files on the server, "
+"potentially exposing sensitive information or executing arbitrary code."
+msgstr ""
+
+#: artemis/reporting/modules/lfi_detector/template_lfi.jinja2:21
+msgid ""
+"These vulnerabilities can lead to serious security breaches, including "
+"unauthorized access to sensitive files, server configuration details, and"
+" potential remote code execution. The vulnerability occurs when user "
+"input is used to include files without proper validation, allowing "
+"attackers to manipulate the file path."
+msgstr ""

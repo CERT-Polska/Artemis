@@ -169,7 +169,7 @@ class Config:
         SCAN_SPEED_OVERRIDES_FILE: Annotated[
             Optional[str],
             "A JSON file with a dictionary mapping from IP to scan speed - use if you want to slow down scanning of particular hosts.",
-        ] = get_config("SCAN_SPEED_OVERRIDES_FILE", default='', cast=str)
+        ] = get_config("SCAN_SPEED_OVERRIDES_FILE", default="", cast=str)
 
         REQUESTS_PER_SECOND: Annotated[
             float,

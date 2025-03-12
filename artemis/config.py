@@ -1,5 +1,5 @@
 import os
-from typing import Annotated, Any, List, get_type_hints
+from typing import Annotated, Any, List, Optional, get_type_hints
 
 import decouple
 
@@ -165,6 +165,11 @@ class Config:
             int,
             "Default request timeout (for all protocols).",
         ] = get_config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
+
+        SCAN_SPEED_OVERRIDES_FILE: Annotated[
+            Optional[str],
+            "A JSON file with a dictionary mapping from IP to scan speed - use if you want to slow down scanning of particular hosts.",
+        ] = get_config("SCAN_SPEED_OVERRIDES_FILE", default=None, cast=str)
 
         REQUESTS_PER_SECOND: Annotated[
             float,

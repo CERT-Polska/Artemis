@@ -1,5 +1,6 @@
 import datetime
 import fcntl
+import json
 import logging
 import random
 import shutil
@@ -8,7 +9,7 @@ import time
 import traceback
 import urllib.parse
 from ipaddress import ip_address
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import timeout_decorator
 from karton.core import Karton, Task
@@ -88,6 +89,12 @@ class ArtemisBase(Karton):
                     fcntl.flock(hosts_file.fileno(), fcntl.LOCK_EX)
                     hosts_file.write(additional_data_file.read())
                     fcntl.flock(hosts_file.fileno(), fcntl.LOCK_UN)
+
+        if Config.Limits.SCAN_SPEED_OVERRIDES_FILE:
+            with open(Config.Limits.SCAN_SPEED_OVERRIDES_FILE, "r") as f:
+                self._scan_speed_overrides: Dict[str, float] = json.load(f)
+        else:
+            self._scan_speed_overrides = {}
 
         if Config.Miscellaneous.BLOCKLIST_FILE:
             self._blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
@@ -288,12 +295,17 @@ class ArtemisBase(Karton):
             if "requests_per_second_override" in task.payload_persistent
         ]
 
+        for task in tasks:
+            destination = self._get_scan_destination(task)
+            if destination in self._scan_speed_overrides:
+                requests_per_second_overrides.append(self._scan_speed_overrides[destination])
+
         self.requests_per_second_for_current_tasks = min(  # type: ignore
             requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
         )
 
         if requests_per_second_overrides:
-            self.log.info("Overriding requests per second to %f", self.requests_per_second_for_current_tasks)
+            self.log.info("Setting requests per second to %f", self.requests_per_second_for_current_tasks)
 
         if len(tasks):
             time_start = time.time()

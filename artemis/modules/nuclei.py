@@ -249,6 +249,8 @@ class Nuclei(ArtemisBase):
                     len(targets),
                     milliseconds_per_request,
                 )
+
+                # command for using nuclei templates
                 command = [
                     "nuclei",
                     "-disable-update-check",
@@ -294,6 +296,44 @@ class Nuclei(ArtemisBase):
 
                 stdout_utf8_lines = stdout_utf8.split("\n")
                 stderr_utf8_lines = stderr_utf8.split("\n")
+
+                # command for using nuclei workflows
+                command = [
+                    "nuclei",
+                    "-disable-update-check",
+                    "-v",
+                    "-workflows",
+                    os.path.join(os.path.dirname(__file__), "data/nuclei_workflows_custom/workflows/"),
+                    "-timeout",
+                    str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
+                    "-jsonl",
+                    "-system-resolvers",
+                    "-rate-limit",
+                    "1",
+                    "-rate-limit-duration",
+                    str(milliseconds_per_request) + "ms",
+                    "-stats-json",
+                    "-stats-interval",
+                    "1",
+                    "-trace-log",
+                    "/dev/stderr",
+                ] + additional_configuration
+
+                if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
+                    command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER])
+
+                for target in targets:
+                    command.append("-target")
+                    command.append(target)
+
+                self.log.debug("Running command: %s", " ".join(command))
+                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log)
+
+                stdout_utf8 = stdout.decode("utf-8", errors="ignore")
+                stderr_utf8 = stderr.decode("utf-8", errors="ignore")
+
+                stdout_utf8_lines.extend(stdout_utf8.split("\n"))
+                stderr_utf8_lines.extend(stderr_utf8.split("\n"))
 
                 for line in stdout_utf8_lines:
                     if line.startswith("{"):

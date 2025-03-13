@@ -1,0 +1,21 @@
+id: checking-403
+
+info:
+  name: Detecting 403 Forbidden Target
+  author: Dr4g0n
+  description: |
+    Checks if a target gives a 403 Forbidden response.
+
+
+http:
+  - raw:
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        name: forbidden
+        dsl:
+          - "status_code == 403"
+        condition: and

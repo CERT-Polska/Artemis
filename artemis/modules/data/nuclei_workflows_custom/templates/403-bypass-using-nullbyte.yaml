@@ -20,7 +20,14 @@ http:
       - |
         PUT {{Path}}%00 HTTP/1.1
         Host: {{Hostname}}
+      
+      - |
+        NONEXISTENT {{Path}} HTTP/2
+        Host: {{Hostname}}
 
+      - |
+        NONEXISTENT {{Path}} HTTP/4
+        Host: {{Hostname}}
     matchers:
       - type: dsl
         dsl:

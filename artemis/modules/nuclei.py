@@ -238,7 +238,34 @@ class Nuclei(ArtemisBase):
         else:
             additional_configuration = []
 
+        # base command for nuclei along with targets
+        command = [
+            "nuclei",
+            "-disable-update-check",
+            "-v",
+            "-timeout",
+            str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
+            "-jsonl",
+            "-system-resolvers",
+            "-rate-limit",
+            "1",
+            "-stats-json",
+            "-stats-interval",
+            "1",
+            "-trace-log",
+            "/dev/stderr",
+        ] + additional_configuration
+
+        if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
+            command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER])
+
+        for target in targets:
+            command.append("-target")
+            command.append(target)
+
         lines = []
+        stdout_utf8_lines = []
+        stderr_utf8_lines = []
         for template_chunk in more_itertools.chunked(
             templates_filtered, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE
         ):
@@ -251,89 +278,30 @@ class Nuclei(ArtemisBase):
                 )
 
                 # command for using nuclei templates
-                command = [
-                    "nuclei",
-                    "-disable-update-check",
+                template_command = command + [
                     "-itags",
                     ",".join(TAGS_TO_INCLUDE),
-                    "-v",
                     "-templates",
                     ",".join(template_chunk),
-                    "-timeout",
-                    str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
-                    "-jsonl",
-                    "-system-resolvers",
-                    "-rate-limit",
-                    "1",
                     "-rate-limit-duration",
                     str(milliseconds_per_request) + "ms",
-                    "-stats-json",
-                    "-stats-interval",
-                    "1",
-                    "-trace-log",
-                    "/dev/stderr",
-                ] + additional_configuration
-
-                if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
-                    command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER])
+                ]
 
                 # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
                 # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
                 for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
                     if template in template_chunk:
-                        command.append("-it")
-                        command.append(template)
+                        template_command.append("-it")
+                        template_command.append(template)
 
-                for target in targets:
-                    command.append("-target")
-                    command.append(target)
-
-                self.log.debug("Running command: %s", " ".join(command))
-                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log)
+                self.log.debug("Running command: %s", " ".join(template_command))
+                stdout, stderr = check_output_log_on_error_with_stderr(template_command, self.log)
 
                 stdout_utf8 = stdout.decode("utf-8", errors="ignore")
                 stderr_utf8 = stderr.decode("utf-8", errors="ignore")
 
                 stdout_utf8_lines = stdout_utf8.split("\n")
                 stderr_utf8_lines = stderr_utf8.split("\n")
-
-                # command for using nuclei workflows
-                command = [
-                    "nuclei",
-                    "-disable-update-check",
-                    "-v",
-                    "-workflows",
-                    os.path.join(os.path.dirname(__file__), "data/nuclei_workflows_custom/workflows/"),
-                    "-timeout",
-                    str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
-                    "-jsonl",
-                    "-system-resolvers",
-                    "-rate-limit",
-                    "1",
-                    "-rate-limit-duration",
-                    str(milliseconds_per_request) + "ms",
-                    "-stats-json",
-                    "-stats-interval",
-                    "1",
-                    "-trace-log",
-                    "/dev/stderr",
-                ] + additional_configuration
-
-                if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
-                    command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER])
-
-                for target in targets:
-                    command.append("-target")
-                    command.append(target)
-
-                self.log.debug("Running command: %s", " ".join(command))
-                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log)
-
-                stdout_utf8 = stdout.decode("utf-8", errors="ignore")
-                stderr_utf8 = stderr.decode("utf-8", errors="ignore")
-
-                stdout_utf8_lines.extend(stdout_utf8.split("\n"))
-                stderr_utf8_lines.extend(stderr_utf8.split("\n"))
 
                 for line in stdout_utf8_lines:
                     if line.startswith("{"):
@@ -361,6 +329,51 @@ class Nuclei(ArtemisBase):
 
                 else:
                     break
+
+        for milliseconds_per_request in milliseconds_per_request_candidates:
+            # command for using nuclei workflows
+            workflow_command = command + [
+                "-workflows",
+                os.path.join(os.path.dirname(__file__), "data/nuclei_workflows_custom/workflows/"),
+                "-rate-limit-duration",
+                str(milliseconds_per_request) + "ms",
+            ]
+
+            self.log.debug("Running command: %s", " ".join(workflow_command))
+            stdout, stderr = check_output_log_on_error_with_stderr(workflow_command, self.log)
+
+            stdout_utf8 = stdout.decode("utf-8", errors="ignore")
+            stderr_utf8 = stderr.decode("utf-8", errors="ignore")
+
+            stdout_utf8_lines = stdout_utf8.split("\n")
+            stderr_utf8_lines = stderr_utf8.split("\n")
+
+            for line in stdout_utf8_lines:
+                if line.startswith("{"):
+                    self.log.info("Found: %s...", line[:100])
+                    self.log.debug("%s", line)
+                    lines.append(line)
+
+            self.log.info(
+                "Requests per second statistics: %s", self._get_requests_per_second_statistics(stderr_utf8_lines)
+            )
+
+            if "context deadline exceeded" in stdout_utf8 + stderr_utf8:
+                self.log.info(
+                    "Detected %d occurencies of 'context deadline exceeded'",
+                    (stdout_utf8 + stderr_utf8).count("context deadline exceeded"),
+                )
+                new_milliseconds_per_request_candidates = [
+                    item for item in milliseconds_per_request_candidates if item > milliseconds_per_request
+                ]
+                if len(new_milliseconds_per_request_candidates) > 0:
+                    milliseconds_per_request_candidates = new_milliseconds_per_request_candidates
+                    self.log.info("Retrying with longer timeout")
+                else:
+                    self.log.info("Can't retry with longer timeout")
+
+            else:
+                break
 
         findings = []
         for line in lines:

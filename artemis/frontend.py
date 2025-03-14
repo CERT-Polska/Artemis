@@ -125,7 +125,7 @@ async def post_add(
     tag: Optional[str] = Form(None),
     priority: Optional[str] = Form(None),
     schedule_enabled: Optional[bool] = Form(False),
-    schedule_interval: Optional[int] = Form(1),
+    schedule_interval_minutes: Optional[int] = Form(1),
     schedule_start: Optional[str] = Form(None),
     schedule_end: Optional[str] = Form(None),
     choose_modules_to_enable: Optional[bool] = Form(None),
@@ -180,7 +180,7 @@ async def post_add(
             },
             csrf_protect,
         )
-    if schedule_enabled and schedule_interval and schedule_start:
+    if schedule_enabled and schedule_interval_minutes and schedule_start:
         try:     
             start_time = datetime.fromisoformat(schedule_start)
             end_time = datetime.fromisoformat(schedule_end)
@@ -192,7 +192,7 @@ async def post_add(
             tag=tag,
             disabled_modules=disabled_modules,
             priority=TaskPriority(priority),
-            interval_minutes=schedule_interval,
+            interval_minutes=schedule_interval_minutes,
             start_time=start_time,
             end_time=end_time
         )
@@ -526,3 +526,62 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
             "pretty_printed": json.dumps(task, indent=4, cls=JSONEncoderAdditionalTypes),
         },
     )
+
+@router.get("/scheduled_scans", include_in_schema=False)
+def get_scheduled_scans_page(request: Request, csrf_protect: CsrfProtect = Depends()):
+    from artemis.scheduler import get_scheduled_scans
+    jobs = get_scheduled_scans()
+    return templates.TemplateResponse(
+        "scheduled_scans.jinja2",
+        {"request": request, "jobs": jobs, "csrf_token": request.session.get('csrf_token', '')}
+    )
+
+
+@router.post("/scheduled_scans/cancel", include_in_schema=False)
+@csrf.validate_csrf
+def cancel_scheduled_scan(request: Request, job_id: str = Form(...), csrf_protect: CsrfProtect = Depends()):
+    from artemis.scheduler import cancel_periodic_scan
+    cancel_periodic_scan(job_id)
+    return RedirectResponse("/scheduled_scans", status_code=302)
+
+@router.get("/scheduled_scans/edit/{job_id}", include_in_schema=False)
+def edit_scheduled_scan_form(request: Request, job_id: str, csrf_protect: CsrfProtect = Depends()):
+    return templates.TemplateResponse(
+        "edit_scheduled_scan.jinja2",
+        {"request": request, "job_id": job_id, "csrf_token": request.session.get('csrf_token', '')}
+    )
+
+@router.post("/scheduled_scans/edit/{job_id}", include_in_schema=False)
+@csrf.validate_csrf
+def edit_scheduled_scan(request: Request, job_id: str, 
+                        schedule_interval_minutes: int = Form(...),
+                        schedule_start: str = Form(...),
+                        schedule_end: str = Form(...),
+                        targets: str = Form(...),
+                        tag: Optional[str] = Form(None),
+                        disabled_modules: str = Form(""),
+                        priority: str = Form(...),
+                        csrf_protect: CsrfProtect = Depends()):
+    from datetime import datetime
+    from artemis.scheduler import cancel_periodic_scan, schedule_periodic_scan
+    cancel_periodic_scan(job_id)
+    try:
+        start_time = datetime.fromisoformat(schedule_start)
+        end_time = datetime.fromisoformat(schedule_end)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid date format")
+    
+    total_list = [target.strip() for target in targets.splitlines() if target.strip()]
+    
+    disabled_modules_list = [m.strip() for m in disabled_modules.split(",") if m.strip()]
+
+    schedule_periodic_scan(
+        targets=total_list,
+        tag=tag,
+        disabled_modules=disabled_modules_list,
+        priority=TaskPriority(priority),
+        interval_minutes=schedule_interval_minutes,
+        start_time=start_time,
+        end_time=end_time,
+    )
+    return RedirectResponse("/scheduled_scans", status_code=302)

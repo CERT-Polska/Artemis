@@ -264,8 +264,6 @@ class Nuclei(ArtemisBase):
             command.append(target)
 
         lines = []
-        stdout_utf8_lines = []
-        stderr_utf8_lines = []
         for template_chunk in more_itertools.chunked(
             templates_filtered, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE
         ):

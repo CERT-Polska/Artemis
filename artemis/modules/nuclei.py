@@ -56,7 +56,7 @@ class Nuclei(ArtemisBase):
         subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", "/known-exploited-vulnerabilities/"])
         with self.lock:
             # Cleanup so that no old template files exist
-            subprocess.call(["rm", "-rf", "/root/nuclei-templates"])
+            subprocess.call(["rm", "-rf", "/root/nuclei-templates/*"])
 
             subprocess.call(["nuclei", "-update-templates"])
 

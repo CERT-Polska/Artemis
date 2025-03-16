@@ -3,8 +3,9 @@ import os
 import shutil
 import subprocess
 import threading
+import inspect
 from pathlib import Path
-from typing import Set
+from typing import Set, Dict, List, Tuple
 
 from jinja2 import Environment
 
@@ -62,38 +63,86 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
     It keeps track of all missing translations and returns the original message."""
 
     # Class variable to collect missing translations across all instances
-    missing_translations: Set[str] = set()
+    # Changed from Set[str] to Dict[str, List[Tuple[str, int]]] to store context information
+    missing_translations: Dict[str, List[Tuple[str, int]]] = {}
     # Lock to protect access to missing_translations
     _lock = threading.Lock()
 
+    @classmethod
+    def _add_missing_translation(cls, message: str, filename=None, lineno=None) -> None:
+        """Add a missing translation with context information from the stack."""
+        if filename is None or lineno is None:
+            # Get the current stack
+            stack = inspect.stack()
+            
+            # Find the relevant frame (skip translation machinery frames)
+            # We need to skip frames related to the translation machinery itself
+            frame_info = None
+            for frame in stack[1:]:  # Skip the current frame
+                if not (frame.filename.endswith('translations.py') or 
+                        'gettext' in frame.filename or
+                        'jinja2' in frame.filename):
+                    frame_info = frame
+                    break
+            
+            if frame_info:
+                filename = frame_info.filename
+                lineno = frame_info.lineno
+            else:
+                # If we couldn't find a relevant frame, use generic info
+                filename = "unknown"
+                lineno = 0
+        
+        with cls._lock:
+            if message not in cls.missing_translations:
+                cls.missing_translations[message] = []
+            
+            # Add this location if it's not already recorded
+            location = (filename, lineno)
+            if location not in cls.missing_translations[message]:
+                cls.missing_translations[message].append(location)
+
+    @classmethod
+    def _escape_po_string(cls, s: str) -> str:
+        """Escape a string for use in a PO file."""
+        return s.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+
+    @classmethod
+    def _get_relative_path(cls, path: str) -> str:
+        """Convert an absolute path to a relative path from the project root."""
+        try:
+            # Try to get the project root (this is a simple heuristic)
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            if path.startswith(project_root):
+                return os.path.relpath(path, project_root)
+            return path
+        except Exception:
+            return path
+
     class _TranslationCollector(gettext.GNUTranslations):
         def gettext(self, message: str) -> str:
-            # Record missing translation
-            with TranslationCollectMissingException._lock:
-                TranslationCollectMissingException.missing_translations.add(message)
+            # Record missing translation with context
+            TranslationCollectMissingException._add_missing_translation(message)
             # Return original message
             return message
 
         def ngettext(self, msgid1: str, msgid2: str, n: int) -> str:
-            # Record missing translations
-            with TranslationCollectMissingException._lock:
-                TranslationCollectMissingException.missing_translations.add(msgid1)
-                TranslationCollectMissingException.missing_translations.add(msgid2)
+            # Record missing translations with context
+            TranslationCollectMissingException._add_missing_translation(msgid1)
+            TranslationCollectMissingException._add_missing_translation(msgid2)
             # Return original message based on n
             return msgid1 if n == 1 else msgid2
 
         def pgettext(self, context: str, message: str) -> str:
             # Record missing translation with context
-            with TranslationCollectMissingException._lock:
-                TranslationCollectMissingException.missing_translations.add(message)
+            TranslationCollectMissingException._add_missing_translation(message)
             # Return original message
             return message
 
         def npgettext(self, context: str, msgid1: str, msgid2: str, n: int) -> str:
             # Record missing translations with context
-            with TranslationCollectMissingException._lock:
-                TranslationCollectMissingException.missing_translations.add(msgid1)
-                TranslationCollectMissingException.missing_translations.add(msgid2)
+            TranslationCollectMissingException._add_missing_translation(msgid1)
+            TranslationCollectMissingException._add_missing_translation(msgid2)
             # Return original message based on n
             return msgid1 if n == 1 else msgid2
 
@@ -106,9 +155,8 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
             message_translated = super().gettext(message)
             return message_translated
         except Exception:
-            # Record missing translation
-            with self._lock:
-                TranslationCollectMissingException.missing_translations.add(message)
+            # Record missing translation with context
+            TranslationCollectMissingException._add_missing_translation(message)
             # Return original message
             return message
 
@@ -116,10 +164,9 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
         try:
             return super().ngettext(msgid1, msgid2, n)
         except Exception:
-            # Record missing translations
-            with self._lock:
-                TranslationCollectMissingException.missing_translations.add(msgid1)
-                TranslationCollectMissingException.missing_translations.add(msgid2)
+            # Record missing translations with context
+            TranslationCollectMissingException._add_missing_translation(msgid1)
+            TranslationCollectMissingException._add_missing_translation(msgid2)
             # Return original message based on n
             return msgid1 if n == 1 else msgid2
 
@@ -128,8 +175,7 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
             return super().pgettext(context, message)
         except Exception:
             # Record missing translation with context
-            with self._lock:
-                TranslationCollectMissingException.missing_translations.add(message)
+            TranslationCollectMissingException._add_missing_translation(message)
             # Return original message
             return message
 
@@ -138,9 +184,8 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
             return super().npgettext(context, msgid1, msgid2, n)
         except Exception:
             # Record missing translations with context
-            with self._lock:
-                TranslationCollectMissingException.missing_translations.add(msgid1)
-                TranslationCollectMissingException.missing_translations.add(msgid2)
+            TranslationCollectMissingException._add_missing_translation(msgid1)
+            TranslationCollectMissingException._add_missing_translation(msgid2)
             # Return original message based on n
             return msgid1 if n == 1 else msgid2
 
@@ -148,25 +193,32 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
     def get_missing_translations(cls) -> Set[str]:
         """Returns the set of missing translations."""
         with cls._lock:
-            # Return a copy of the set to avoid concurrent modification issues
-            return set(cls.missing_translations)
+            # Return a copy of the keys to avoid concurrent modification issues
+            return set(cls.missing_translations.keys())
 
     @classmethod
     def clear_missing_translations(cls) -> None:
-        """Clears the set of missing translations."""
+        """Clears the dictionary of missing translations."""
         with cls._lock:
-            cls.missing_translations = set()
+            cls.missing_translations = {}
 
     @classmethod
     def save_missing_translations_to_file(cls, file_path: Path) -> None:
-        """Saves the missing translations to a file in .po format."""
+        """Saves the missing translations to a file in .po format with context information."""
         # Get a thread-safe copy of the missing translations
         with cls._lock:
-            translations_to_save = set(cls.missing_translations)
-            
+            translations_to_save = dict(cls.missing_translations)
+        
         with open(file_path, "w") as f:
-            for message in translations_to_save:
-                f.write(f'msgid "{message}"\nmsgstr ""\n\n')
+            for message, locations in translations_to_save.items():
+                # Write source references
+                for filename, lineno in locations:
+                    rel_filename = cls._get_relative_path(filename)
+                    f.write(f"#: {rel_filename}:{lineno}\n")
+                
+                # Write the message with proper escaping
+                escaped_message = cls._escape_po_string(message)
+                f.write(f'msgid "{escaped_message}"\nmsgstr ""\n\n')
 
 
 def install_translations(

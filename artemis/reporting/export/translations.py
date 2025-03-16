@@ -116,7 +116,7 @@ def install_translations(
     environment: Environment,
     save_translations_to: Path,
     save_compiled_translations_to: Path,
-    strict_mode: bool = True,
+    strict_mode: bool = False,
 ) -> None:
     """Collects all .pot files into one, compiles it and installs to Jinja2 environment. Saves the translations
     (both original and compiled) so that they can be used by downstream tools.
@@ -128,7 +128,7 @@ def install_translations(
         environment: The Jinja2 environment
         save_translations_to: Path to save the translation file
         save_compiled_translations_to: Path to save the compiled translation file
-        strict_mode: If True, raises an exception when a translation is missing; if False, returns the original text
+        strict_mode: If True, raises an exception when a translation is missing; if False (default), returns the original text
     """
     with open(save_translations_to, "w") as all_translations_file:
         for translation_path in Path(__file__).parents[1].glob(f"**/{language.value}/**/*.po"):

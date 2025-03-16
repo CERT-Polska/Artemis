@@ -44,3 +44,25 @@ After modifying the translations, restart Artemis **in developer mode** so that 
 locally and your changes will be included:
 
 ``./scripts/start_dev``
+
+Handling Missing Translations
+------------------------------
+
+By default, Artemis will use the original (English) text when a missing translation is encountered during report export,
+and will collect all missing translations in a file for easy filling.
+
+If you want to ensure that all translations are complete before generating reports, you can use the ``--strict-translations`` 
+flag when running the export command:
+
+``artemis export --strict-translations``
+
+In strict mode, the export will raise an exception on the first missing translation, which was the original behavior.
+
+In the default lenient mode:
+
+1. Missing translations will use the original (English) text instead of raising an exception
+2. A file named ``missing_translations.po`` will be generated in the ``advanced`` directory of the export
+3. This file contains all the missing translations in .po format, ready to be filled in
+
+Once you've filled in the missing translations in the generated file, you can copy them to the appropriate 
+translation files in the Artemis codebase.

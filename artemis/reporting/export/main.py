@@ -73,14 +73,25 @@ def _build_message_template_and_print_path(output_dir: Path, silent: bool) -> Te
     return message_template
 
 
-def _install_translations_and_print_path(language: Language, output_dir: Path, silent: bool) -> None:
+def _install_translations_and_print_path(language: Language, output_dir: Path, silent: bool, strict_mode: bool = False) -> None:
     translations_file_name = output_dir / "advanced" / "translations.po"
     compiled_translations_file_name = output_dir / "advanced" / "compiled_translations.mo"
-    install_translations(language, environment, translations_file_name, compiled_translations_file_name)
+    install_translations(language, environment, translations_file_name, compiled_translations_file_name, strict_mode=strict_mode)
 
     if not silent:
         print(f"Translations written to file: {translations_file_name}")
         print(f"Compiled translations written to file: {compiled_translations_file_name}")
+        
+    # If we're in non-strict mode, save the missing translations to a file
+    if not strict_mode and language != Language.en_US:  # Only for non-English languages
+        from artemis.reporting.export.translations import TranslationCollectMissingException
+        missing_translations = TranslationCollectMissingException.get_missing_translations()
+        if missing_translations:
+            missing_translations_file = output_dir / "advanced" / "missing_translations.po"
+            TranslationCollectMissingException.save_missing_translations_to_file(missing_translations_file)
+            if not silent:
+                print(f"Found {len(missing_translations)} missing translations.")
+                print(f"Missing translations written to file: {missing_translations_file}")
 
 
 def _dump_export_data_and_print_path(export_data: ExportData, output_dir: Path, silent: bool) -> None:
@@ -139,6 +150,7 @@ def export(
     tag: Optional[str] = None,
     skip_hooks: bool = False,
     skip_suspicious_reports: bool = False,
+    strict_translations: bool = False,
 ) -> Path:
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
@@ -166,12 +178,12 @@ def export(
     os.makedirs(output_dir)
     os.makedirs(output_dir / "advanced")
 
-    _install_translations_and_print_path(language, output_dir, silent)
+    message_template = _build_message_template_and_print_path(output_dir, silent)
+    _install_translations_and_print_path(language, output_dir, silent, strict_mode=strict_translations)
 
     if not skip_hooks:
         run_export_hooks(output_dir, export_data, silent)
 
-    message_template = _build_message_template_and_print_path(output_dir, silent)
     _build_messages_and_print_path(message_template, export_data, output_dir, silent)
     _dump_export_data_and_print_path(export_data, output_dir, silent)
 
@@ -223,18 +235,25 @@ def export_cli(
         "--verbose",
         help="Print more information (e.g. whether some types of reports have not been observed for a long time).",
     ),
+    strict_translations: bool = typer.Option(
+        False,
+        "--strict-translations/--lenient-translations",
+        help="If strict, raises an exception on missing translations. If lenient (default), uses the original text and collects missing translations.",
+    ),
 ) -> Path:
     if custom_template_arguments is None:
-        custom_template_arguments_parsed = {}
-    else:
-        custom_template_arguments_parsed = parse_custom_template_arguments(custom_template_arguments)
+        custom_template_arguments = ""
+    
     return export(
-        previous_reports_directory=previous_reports_directory,
-        tag=tag,
         language=Language(language),
-        custom_template_arguments=custom_template_arguments_parsed,
+        custom_template_arguments=parse_custom_template_arguments(custom_template_arguments),
         silent=silent,
         verbose=verbose,
+        previous_reports_directory=previous_reports_directory,
+        tag=tag,
+        skip_hooks=False,
+        skip_suspicious_reports=False,
+        strict_translations=strict_translations,
     )
 
 

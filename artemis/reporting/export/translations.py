@@ -19,14 +19,14 @@ class TranslationRaiseException(gettext.GNUTranslations):
         def gettext(self, message: str) -> str:
             raise TranslationNotFoundException(f"Unable to translate '{message}'")
 
-        def ngettext(self, *args: Any) -> Any:
-            raise NotImplementedError()
+        def ngettext(self, msgid1: str, msgid2: str, n: int) -> str:
+            raise TranslationNotFoundException(f"Unable to translate '{msgid1}' or '{msgid2}'")
 
-        def pgettext(self, *args: Any) -> Any:
-            raise NotImplementedError()
+        def pgettext(self, context: str, message: str) -> str:
+            raise TranslationNotFoundException(f"Unable to translate '{message}' in context '{context}'")
 
-        def npgettext(self, *args: Any) -> Any:
-            raise NotImplementedError()
+        def npgettext(self, context: str, msgid1: str, msgid2: str, n: int) -> str:
+            raise TranslationNotFoundException(f"Unable to translate '{msgid1}' or '{msgid2}' in context '{context}'")
 
     def __init__(self, fp=None):  # type: ignore
         super().__init__(fp)
@@ -37,14 +37,23 @@ class TranslationRaiseException(gettext.GNUTranslations):
         message_translated = super().gettext(message)
         return message_translated
 
-    def ngettext(self, *args: Any) -> Any:
-        raise NotImplementedError()
+    def ngettext(self, msgid1: str, msgid2: str, n: int) -> str:
+        try:
+            return super().ngettext(msgid1, msgid2, n)
+        except AttributeError:
+            raise TranslationNotFoundException(f"Unable to translate '{msgid1}' or '{msgid2}'")
 
-    def pgettext(self, *args: Any) -> Any:
-        raise NotImplementedError()
+    def pgettext(self, context: str, message: str) -> str:
+        try:
+            return super().pgettext(context, message)
+        except AttributeError:
+            raise TranslationNotFoundException(f"Unable to translate '{message}' in context '{context}'")
 
-    def npgettext(self, *args: Any) -> Any:
-        raise NotImplementedError()
+    def npgettext(self, context: str, msgid1: str, msgid2: str, n: int) -> str:
+        try:
+            return super().npgettext(context, msgid1, msgid2, n)
+        except AttributeError:
+            raise TranslationNotFoundException(f"Unable to translate '{msgid1}' or '{msgid2}' in context '{context}'")
 
 
 class TranslationCollectMissingException(gettext.GNUTranslations):
@@ -61,14 +70,25 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
             # Return original message
             return message
 
-        def ngettext(self, *args: Any) -> Any:
-            raise NotImplementedError()
+        def ngettext(self, msgid1: str, msgid2: str, n: int) -> str:
+            # Record missing translations
+            TranslationCollectMissingException.missing_translations.add(msgid1)
+            TranslationCollectMissingException.missing_translations.add(msgid2)
+            # Return original message based on n
+            return msgid1 if n == 1 else msgid2
 
-        def pgettext(self, *args: Any) -> Any:
-            raise NotImplementedError()
+        def pgettext(self, context: str, message: str) -> str:
+            # Record missing translation with context
+            TranslationCollectMissingException.missing_translations.add(message)
+            # Return original message
+            return message
 
-        def npgettext(self, *args: Any) -> Any:
-            raise NotImplementedError()
+        def npgettext(self, context: str, msgid1: str, msgid2: str, n: int) -> str:
+            # Record missing translations with context
+            TranslationCollectMissingException.missing_translations.add(msgid1)
+            TranslationCollectMissingException.missing_translations.add(msgid2)
+            # Return original message based on n
+            return msgid1 if n == 1 else msgid2
 
     def __init__(self, fp=None):  # type: ignore
         super().__init__(fp)
@@ -84,14 +104,34 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
             # Return original message
             return message
 
-    def ngettext(self, *args: Any) -> Any:
-        raise NotImplementedError()
+    def ngettext(self, msgid1: str, msgid2: str, n: int) -> str:
+        try:
+            return super().ngettext(msgid1, msgid2, n)
+        except Exception:
+            # Record missing translations
+            TranslationCollectMissingException.missing_translations.add(msgid1)
+            TranslationCollectMissingException.missing_translations.add(msgid2)
+            # Return original message based on n
+            return msgid1 if n == 1 else msgid2
 
-    def pgettext(self, *args: Any) -> Any:
-        raise NotImplementedError()
+    def pgettext(self, context: str, message: str) -> str:
+        try:
+            return super().pgettext(context, message)
+        except Exception:
+            # Record missing translation with context
+            TranslationCollectMissingException.missing_translations.add(message)
+            # Return original message
+            return message
 
-    def npgettext(self, *args: Any) -> Any:
-        raise NotImplementedError()
+    def npgettext(self, context: str, msgid1: str, msgid2: str, n: int) -> str:
+        try:
+            return super().npgettext(context, msgid1, msgid2, n)
+        except Exception:
+            # Record missing translations with context
+            TranslationCollectMissingException.missing_translations.add(msgid1)
+            TranslationCollectMissingException.missing_translations.add(msgid2)
+            # Return original message based on n
+            return msgid1 if n == 1 else msgid2
 
     @classmethod
     def get_missing_translations(cls) -> Set[str]:

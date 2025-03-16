@@ -46,7 +46,7 @@ class TestExportTranslations(unittest.TestCase):
 
         # Attempt to translate a string that doesn't exist in translations
         with self.assertRaises(TranslationNotFoundException):
-            _ = self.environment.install_gettext_translations(i18n.GettextCallable(lambda x: x))
+            # Don't install translations again, just use the existing environment
             _ = self.environment.gettext("This string doesn't exist in translations")
 
     def test_default_mode_returns_original_text(self) -> None:
@@ -76,6 +76,53 @@ class TestExportTranslations(unittest.TestCase):
         # Check that the missing translation was collected
         missing_translations = TranslationCollectMissingException.get_missing_translations()
         self.assertIn(test_string, missing_translations)
+
+    def test_ngettext_functionality(self) -> None:
+        """Test that ngettext functionality works correctly in both strict and lenient modes."""
+        # Set up a non-English language
+        language = Language["pl_PL"]
+
+        # Test strict mode
+        install_translations(
+            language,
+            self.environment,
+            self.translations_path,
+            self.compiled_translations_path,
+            strict_mode=True
+        )
+
+        # Attempt to translate plural strings that don't exist in translations
+        with self.assertRaises(TranslationNotFoundException):
+            _ = self.environment.ngettext("One item", "Many items", 1)
+
+        # Test lenient mode
+        # Clear any previous missing translations
+        TranslationCollectMissingException.clear_missing_translations()
+
+        install_translations(
+            language,
+            self.environment,
+            self.translations_path,
+            self.compiled_translations_path,
+            strict_mode=False
+        )
+
+        # Translate plural strings that don't exist in translations
+        singular = "One item"
+        plural = "Many items"
+        
+        # Test with n=1 (should return singular form)
+        result_singular = self.environment.ngettext(singular, plural, 1)
+        self.assertEqual(result_singular, singular)
+        
+        # Test with n=2 (should return plural form)
+        result_plural = self.environment.ngettext(singular, plural, 2)
+        self.assertEqual(result_plural, plural)
+        
+        # Check that both missing translations were collected
+        missing_translations = TranslationCollectMissingException.get_missing_translations()
+        self.assertIn(singular, missing_translations)
+        self.assertIn(plural, missing_translations)
 
     def test_save_missing_translations(self) -> None:
         """Test that missing translations are saved to a file."""

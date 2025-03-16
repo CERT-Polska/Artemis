@@ -6,7 +6,7 @@ import threading
 import inspect
 import logging
 from pathlib import Path
-from typing import Set, Dict, List, Tuple
+from typing import Set, Dict, List, Tuple, Optional, BinaryIO
 
 from jinja2 import Environment
 
@@ -33,14 +33,17 @@ class TranslationRaiseException(gettext.GNUTranslations):
         def npgettext(self, context: str, msgid1: str, msgid2: str, n: int) -> str:
             raise TranslationNotFoundException(f"Unable to translate '{msgid1}' or '{msgid2}' in context '{context}'")
 
-    def __init__(self, fp=None):  # type: ignore
+    def __init__(self, fp: Optional[BinaryIO] = None):
         super().__init__(fp)
 
         self.add_fallback(self._TranslationAlwaysRaiseException())
 
     def gettext(self, message: str) -> str:
-        message_translated = super().gettext(message)
-        return message_translated
+        try:
+            message_translated = super().gettext(message)
+            return message_translated
+        except AttributeError:
+            raise TranslationNotFoundException(f"Unable to translate '{message}'")
 
     def ngettext(self, msgid1: str, msgid2: str, n: int) -> str:
         try:
@@ -149,7 +152,7 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
             # Return original message based on n
             return msgid1 if n == 1 else msgid2
 
-    def __init__(self, fp=None):  # type: ignore
+    def __init__(self, fp: Optional[BinaryIO] = None):
         super().__init__(fp)
         self.add_fallback(self._TranslationCollector())
 

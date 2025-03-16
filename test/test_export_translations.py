@@ -1,8 +1,6 @@
-import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 from jinja2 import BaseLoader, Environment, StrictUndefined
 

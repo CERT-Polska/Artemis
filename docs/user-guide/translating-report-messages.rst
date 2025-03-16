@@ -17,7 +17,6 @@ The translations reside in:
   and then put the translations in the respective ``.po`` files. The compilation will happen
   automatically when building the report messages.
 
-
 Adding a new language
 ---------------------
 

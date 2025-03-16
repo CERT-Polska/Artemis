@@ -4,14 +4,17 @@ import shutil
 import subprocess
 import threading
 import inspect
+import logging
 from pathlib import Path
 from typing import Set, Dict, List, Tuple
 
 from jinja2 import Environment
 
 from artemis.reporting.base.language import Language
-from artemis.reporting.exceptions import TranslationNotFoundException
+from artemis.reporting.exceptions import TranslationNotFoundException, PyBabelError
 
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class TranslationRaiseException(gettext.GNUTranslations):
     """This class is used instead of GNUTranslations and raises exception when a message is not found,
@@ -248,19 +251,64 @@ def install_translations(
     os.makedirs(f"{language.value}/LC_MESSAGES", exist_ok=True)
 
     pybabel_compiled_path = f"{language.value}/LC_MESSAGES/messages.mo"
-
-    subprocess.call(
-        [
-            "pybabel",
-            "compile",
-            "-f",
-            "--input",
-            save_translations_to,
-            "--output",
-            pybabel_compiled_path,
-        ],
-        stderr=subprocess.DEVNULL,  # suppress a misleading message where compiled translations will be saved
-    )
+    
+    pybabel_cmd = [
+        "pybabel",
+        "compile",
+        "-f",
+        "--input",
+        str(save_translations_to),
+        "--output",
+        pybabel_compiled_path,
+    ]
+    
+    try:
+        logger.debug(f"Running pybabel command: {' '.join(pybabel_cmd)}")
+        # Use subprocess.run with timeout and capture_output for better error handling
+        result = subprocess.run(
+            pybabel_cmd,
+            capture_output=True,
+            text=True,
+            check=True,  # This will raise CalledProcessError if the command fails
+            timeout=60,  # Add a timeout to prevent hanging
+        )
+        logger.debug(f"pybabel command completed successfully")
+        
+    except subprocess.CalledProcessError as e:
+        error_msg = f"pybabel compilation failed with return code {e.returncode}"
+        logger.error(error_msg)
+        logger.error(f"Command: {e.cmd}")
+        if e.stdout:
+            logger.error(f"Standard output: {e.stdout}")
+        if e.stderr:
+            logger.error(f"Error output: {e.stderr}")
+        raise PyBabelError(
+            message=error_msg,
+            command=e.cmd,
+            returncode=e.returncode,
+            stdout=e.stdout,
+            stderr=e.stderr
+        ) from e
+        
+    except FileNotFoundError:
+        error_msg = "pybabel command not found. Make sure Babel is installed."
+        logger.error(error_msg)
+        raise PyBabelError(message=error_msg, command=pybabel_cmd) from None
+        
+    except subprocess.TimeoutExpired as e:
+        error_msg = f"pybabel command timed out after {e.timeout} seconds"
+        logger.error(error_msg)
+        raise PyBabelError(
+            message=error_msg,
+            command=e.cmd,
+            stdout=e.stdout,
+            stderr=e.stderr
+        ) from e
+        
+    except Exception as e:
+        error_msg = f"Unexpected error running pybabel: {str(e)}"
+        logger.error(error_msg)
+        raise PyBabelError(message=error_msg, command=pybabel_cmd) from e
 
     if language == Language.en_US:  # type: ignore
         # For English we always allow untranslated strings

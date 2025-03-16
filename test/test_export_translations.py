@@ -14,7 +14,7 @@ from artemis.reporting.export.translations import (
 
 
 class TestExportTranslations(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.environment = Environment(
             loader=BaseLoader(),
             extensions=["jinja2.ext.i18n"],
@@ -27,13 +27,13 @@ class TestExportTranslations(unittest.TestCase):
         self.translations_path = self.temp_path / "translations.po"
         self.compiled_translations_path = self.temp_path / "compiled_translations.mo"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.temp_dir.cleanup()
 
-    def test_strict_mode_raises_exception(self):
+    def test_strict_mode_raises_exception(self) -> None:
         """Test that strict mode raises an exception for missing translations."""
         # Set up a non-English language
-        language = Language.pl_PL
+        language = Language["pl_PL"]
 
         # Install translations in strict mode (explicitly set strict_mode=True)
         install_translations(
@@ -48,10 +48,10 @@ class TestExportTranslations(unittest.TestCase):
         with self.assertRaises(TranslationNotFoundException):
             self.environment.gettext("This string doesn't exist in translations")
 
-    def test_default_mode_returns_original_text(self):
+    def test_default_mode_returns_original_text(self) -> None:
         """Test that default (lenient) mode returns the original text for missing translations."""
         # Set up a non-English language
-        language = Language.pl_PL
+        language = Language["pl_PL"]
 
         # Clear any previous missing translations
         TranslationCollectMissingException.clear_missing_translations()
@@ -76,10 +76,10 @@ class TestExportTranslations(unittest.TestCase):
         missing_translations = TranslationCollectMissingException.get_missing_translations()
         self.assertIn(test_string, missing_translations)
 
-    def test_save_missing_translations(self):
+    def test_save_missing_translations(self) -> None:
         """Test that missing translations are saved to a file."""
         # Set up a non-English language
-        language = Language.pl_PL
+        language = Language["pl_PL"]
 
         # Clear any previous missing translations
         TranslationCollectMissingException.clear_missing_translations()

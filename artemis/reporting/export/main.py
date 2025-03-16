@@ -87,7 +87,7 @@ def _install_translations_and_print_path(
         print(f"Compiled translations written to file: {compiled_translations_file_name}")
 
     # If we're in non-strict mode, save the missing translations to a file
-    if not strict_mode and language != Language.en_US:  # Only for non-English languages
+    if not strict_mode and language != Language["en_US"]:  # Only for non-English languages
         from artemis.reporting.export.translations import (
             TranslationCollectMissingException,
         )
@@ -226,7 +226,7 @@ def export_cli(
         help="Allows you to filter by the tag you provided when adding targets to be scanned. Only vulnerabilities "
         "from targets with this tag will be exported.",
     ),
-    language: str = typer.Option(Language.en_US.value, help="Output report language (e.g. pl_PL or en_US)."),  # type: ignore
+    language: str = typer.Option(Language["en_US"].value, help="Output report language (e.g. pl_PL or en_US)."),  # type: ignore
     custom_template_arguments: Optional[str] = typer.Option(
         "",
         help="Custom template arguments in the form of name1=value1,name2=value2,... - the original templates "

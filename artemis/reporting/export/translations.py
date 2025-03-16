@@ -106,7 +106,7 @@ class TranslationCollectMissingException(gettext.GNUTranslations):
     @classmethod
     def save_missing_translations_to_file(cls, file_path: Path) -> None:
         """Saves the missing translations to a file in .po format."""
-        with open(file_path, 'w') as f:
+        with open(file_path, "w") as f:
             for message in cls.missing_translations:
                 f.write(f'msgid "{message}"\nmsgstr ""\n\n')
 

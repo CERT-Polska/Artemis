@@ -46,7 +46,8 @@ class TestExportTranslations(unittest.TestCase):
 
         # Attempt to translate a string that doesn't exist in translations
         with self.assertRaises(TranslationNotFoundException):
-            _ = i18n.gettext("This string doesn't exist in translations")
+            _ = self.environment.install_gettext_translations(i18n.GettextCallable(lambda x: x))
+            _ = self.environment.gettext("This string doesn't exist in translations")
 
     def test_default_mode_returns_original_text(self) -> None:
         """Test that default (lenient) mode returns the original text for missing translations."""
@@ -67,7 +68,7 @@ class TestExportTranslations(unittest.TestCase):
 
         # Translate a string that doesn't exist in translations
         test_string = "This string doesn't exist in translations"
-        result = i18n.gettext(test_string)
+        result = self.environment.gettext(test_string)
 
         # Check that the original string is returned
         self.assertEqual(result, test_string)
@@ -101,7 +102,7 @@ class TestExportTranslations(unittest.TestCase):
         ]
 
         for test_string in test_strings:
-            _ = i18n.gettext(test_string)
+            _ = self.environment.gettext(test_string)
 
         # Save missing translations to a file
         missing_translations_path = self.temp_path / "missing_translations.po"

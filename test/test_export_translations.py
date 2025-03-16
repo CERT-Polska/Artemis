@@ -84,11 +84,7 @@ class TestExportTranslations(unittest.TestCase):
 
         # Test strict mode
         install_translations(
-            language,
-            self.environment,
-            self.translations_path,
-            self.compiled_translations_path,
-            strict_mode=True
+            language, self.environment, self.translations_path, self.compiled_translations_path, strict_mode=True
         )
 
         # Attempt to translate plural strings that don't exist in translations
@@ -100,25 +96,21 @@ class TestExportTranslations(unittest.TestCase):
         TranslationCollectMissingException.clear_missing_translations()
 
         install_translations(
-            language,
-            self.environment,
-            self.translations_path,
-            self.compiled_translations_path,
-            strict_mode=False
+            language, self.environment, self.translations_path, self.compiled_translations_path, strict_mode=False
         )
 
         # Translate plural strings that don't exist in translations
         singular = "One item"
         plural = "Many items"
-        
+
         # Test with n=1 (should return singular form)
         result_singular = self.environment.ngettext(singular, plural, 1)
         self.assertEqual(result_singular, singular)
-        
+
         # Test with n=2 (should return plural form)
         result_plural = self.environment.ngettext(singular, plural, 2)
         self.assertEqual(result_plural, plural)
-        
+
         # Check that both missing translations were collected
         missing_translations = TranslationCollectMissingException.get_missing_translations()
         self.assertIn(singular, missing_translations)

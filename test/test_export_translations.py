@@ -3,12 +3,12 @@ import unittest
 from pathlib import Path
 
 from jinja2 import BaseLoader, Environment, StrictUndefined
+from jinja2.ext import i18n
 
 from artemis.reporting.base.language import Language
 from artemis.reporting.exceptions import TranslationNotFoundException
 from artemis.reporting.export.translations import (
     TranslationCollectMissingException,
-    TranslationRaiseException,
     install_translations,
 )
 
@@ -17,7 +17,7 @@ class TestExportTranslations(unittest.TestCase):
     def setUp(self) -> None:
         self.environment = Environment(
             loader=BaseLoader(),
-            extensions=["jinja2.ext.i18n"],
+            extensions=[i18n.__name__],
             undefined=StrictUndefined,
             trim_blocks=True,
             lstrip_blocks=True,
@@ -46,7 +46,7 @@ class TestExportTranslations(unittest.TestCase):
 
         # Attempt to translate a string that doesn't exist in translations
         with self.assertRaises(TranslationNotFoundException):
-            self.environment.gettext("This string doesn't exist in translations")
+            _ = i18n.gettext("This string doesn't exist in translations")
 
     def test_default_mode_returns_original_text(self) -> None:
         """Test that default (lenient) mode returns the original text for missing translations."""
@@ -67,7 +67,7 @@ class TestExportTranslations(unittest.TestCase):
 
         # Translate a string that doesn't exist in translations
         test_string = "This string doesn't exist in translations"
-        result = self.environment.gettext(test_string)
+        result = i18n.gettext(test_string)
 
         # Check that the original string is returned
         self.assertEqual(result, test_string)
@@ -101,7 +101,7 @@ class TestExportTranslations(unittest.TestCase):
         ]
 
         for test_string in test_strings:
-            self.environment.gettext(test_string)
+            _ = i18n.gettext(test_string)
 
         # Save missing translations to a file
         missing_translations_path = self.temp_path / "missing_translations.po"

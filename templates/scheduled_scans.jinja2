@@ -1,0 +1,34 @@
+{% extends "components/base.jinja2" %}
+{% block main %}
+  <h1>Scheduled Scans</h1>
+  {% if jobs %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Job ID</th>
+          <th>Next Run Time</th>
+          <th>Trigger</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+          <tr>
+            <td>{{ job.job_id }}</td>
+            <td>{{ job.next_run_time }}</td>
+            <td>{{ job.trigger }}</td>
+            <td>
+              <form action="/scheduled_scans/cancel" method="post" style="display:inline;">
+                <input type="hidden" name="job_id" value="{{ job.job_id }}">
+                <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+              </form>
+              <a href="/scheduled_scans/edit/{{ job.job_id }}" class="btn btn-secondary btn-sm">Edit</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No scheduled scans found.</p>
+  {% endif %}
+{% endblock %}

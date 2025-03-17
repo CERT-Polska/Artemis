@@ -517,7 +517,7 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    return templates.TemplateResponse(
+    return templatess.TemplateResponse(
         "task.jinja2",
         {
             "request": request,
@@ -533,7 +533,7 @@ def get_scheduled_scans_page(request: Request, csrf_protect: CsrfProtect = Depen
     jobs = get_scheduled_scans()
     return templates.TemplateResponse(
         "scheduled_scans.jinja2",
-        {"request": request, "jobs": jobs, "csrf_token": request.session.get('csrf_token', '')}
+        {"request": request, "jobs": jobs, "csrf_token": ""}
     )
 
 
@@ -548,7 +548,7 @@ def cancel_scheduled_scan(request: Request, job_id: str = Form(...), csrf_protec
 def edit_scheduled_scan_form(request: Request, job_id: str, csrf_protect: CsrfProtect = Depends()):
     return templates.TemplateResponse(
         "edit_scheduled_scan.jinja2",
-        {"request": request, "job_id": job_id, "csrf_token": request.session.get('csrf_token', '')}
+        {"request": request, "job_id": job_id, "csrf_token": ""}
     )
 
 @router.post("/scheduled_scans/edit/{job_id}", include_in_schema=False)

@@ -43,13 +43,13 @@ class SubdomainEnumeration(ArtemisBase):
         # before we migrate the tasks, let's create binds to make sure the new tasks will hit the queue of this module
         self.backend.register_bind(self._bind)
 
-        self._subdomains_to_brute_force = []
+        subdomains_to_brute_force_set = set()
         base_subdomain_lists_path = os.path.join(os.path.dirname(__file__), "data", "subdomains")
         for file_name in os.listdir(base_subdomain_lists_path):
             for line in open(os.path.join(base_subdomain_lists_path, file_name)):
                 if not line.startswith("#"):
-                    self._subdomains_to_brute_force.append(line.strip())
-        self._subdomains_to_brute_force = list(set(self._subdomains_to_brute_force))
+                    subdomains_to_brute_force_set.add(line.strip())
+        self._subdomains_to_brute_force = list(self._subdomains_to_brute_force)
 
         with self.lock:
             old_modules = ["crtsh", "gau"]
@@ -160,6 +160,7 @@ class SubdomainEnumeration(ArtemisBase):
         ]
 
         subdomains: Set[str] = set()
+        self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
         for subdomain in self._subdomains_to_brute_force:
             lookup_result = throttle_request(
                 lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND

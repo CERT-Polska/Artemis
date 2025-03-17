@@ -10,6 +10,22 @@ class NucleiTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = Nuclei  # type: ignore
 
+    def test_403_bypass_workflow(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-php-403-bypass",
+                "port": 80,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "[high] todo 403 bypass",
+        )
+
     def test_links(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},

@@ -48,7 +48,7 @@ class SubdomainEnumeration(ArtemisBase):
         for file_name in os.listdir(base_subdomain_lists_path):
             for line in open(os.path.join(base_subdomain_lists_path, file_name)):
                 if not line.startswith("#"):
-                    self._subdomains_to_brute_force.append(line)
+                    self._subdomains_to_brute_force.append(line.strip())
 
         with self.lock:
             old_modules = ["crtsh", "gau"]

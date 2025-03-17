@@ -149,8 +149,13 @@ class SubdomainEnumeration(ArtemisBase):
         )
 
     def get_subdomains_by_dns_brute_force(self, domain: str) -> Optional[Set[str]]:
+        # The rationale here is to filter wildcard DNS configurations. If someone has configured their
+        # DNS server to return something for all subdomains, we don't want to produce a large list of subdomains.
+        #
+        # We perform queries for multiple random domains as there might be multiple possible results
+        # for wildcard DNS query.
         results_for_random_subdomain = [
-            tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(5)
+            tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(10)
         ]
 
         subdomains: Set[str] = set()

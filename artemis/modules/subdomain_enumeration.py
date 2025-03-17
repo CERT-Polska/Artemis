@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import binascii
+import os
 import time
 import urllib.parse
 from typing import Any, Callable, Dict, List, Optional, Set
@@ -13,7 +15,8 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
-from artemis.utils import check_output_log_on_error
+from artemis.resolvers import lookup
+from artemis.utils import check_output_log_on_error, throttle_request
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -39,6 +42,13 @@ class SubdomainEnumeration(ArtemisBase):
 
         # before we migrate the tasks, let's create binds to make sure the new tasks will hit the queue of this module
         self.backend.register_bind(self._bind)
+
+        self._subdomains_to_brute_force = []
+        base_subdomain_lists_path = os.path.join(os.path.dirname(__file__), "data", "subdomains")
+        for file_name in os.listdir(base_subdomain_lists_path):
+            for line in open(os.path.join(base_subdomain_lists_path, file_name)):
+                if not line.startswith("#"):
+                    self._subdomains_to_brute_force.append(line)
 
         with self.lock:
             old_modules = ["crtsh", "gau"]
@@ -138,6 +148,22 @@ class SubdomainEnumeration(ArtemisBase):
             input=domain.encode("idna"),
         )
 
+    def get_subdomains_by_dns_brute_force(self, domain: str) -> Optional[Set[str]]:
+        results_for_random_subdomain = [
+            tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(5)
+        ]
+
+        subdomains: Set[str] = set()
+        for subdomain in self._subdomains_to_brute_force:
+            lookup_result = throttle_request(
+                lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
+            )
+
+            if lookup_result and tuple(lookup_result) not in results_for_random_subdomain:
+                subdomains.add(subdomain + "." + domain)
+
+        return subdomains
+
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain").lower()
 
@@ -168,6 +194,7 @@ class SubdomainEnumeration(ArtemisBase):
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
             self.get_subdomains_from_gau,
+            self.get_subdomains_by_dns_brute_force,
         ]
 
         for tool_func in subdomain_tools:

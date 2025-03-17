@@ -873,7 +873,7 @@ class Config:
 
             DNS_QUERIES_PER_SECOND: Annotated[
                 int,
-                "Number of DNS queries per second (as they are easier to handle than e.g. HTTP queries, let's have a separate limit",
+                "Number of DNS queries per second (as they are easier to handle than e.g. HTTP queries, let's have a separate limit)",
             ] = get_config("DNS_QUERIES_PER_SECOND", default=20, cast=int)
 
             SLEEP_TIME_SECONDS: Annotated[

@@ -10,3 +10,4 @@ workflows:
         subtemplates:
           - template: /opt/artemis/modules/data/nuclei_workflows_custom/templates/403-bypass-using-headers.yaml
           - template: /opt/artemis/modules/data/nuclei_workflows_custom/templates/403-bypass-using-nullbyte.yaml
+          - template: /opt/artemis/modules/data/nuclei_workflows_custom/templates/403-bypass-using-nonexistent-methods.yaml

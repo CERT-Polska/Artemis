@@ -5,8 +5,7 @@ info:
   author: Dr4g0n
   severity: medium
   description: |
-    Detects potential 403 Forbidden bypass vulnerabilities by testing various bypass techniques such as adding headers (e.g., X-Forwarded-For, X-Original-URL).
-
+    Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).
 
 http:
   - raw:

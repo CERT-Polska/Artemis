@@ -5,7 +5,7 @@ info:
   author: Dr4g0n
   severity: medium
   description: |
-    Detects potential 403 Forbidden bypass vulnerabilities by using nullbyte and different HTTP methods.
+    Detects potential 403 Forbidden bypass vulnerabilities by using nullbyte.
 
 http:
   - raw:
@@ -21,13 +21,6 @@ http:
         PUT {{Path}}%00 HTTP/1.1
         Host: {{Hostname}}
       
-      - |
-        NONEXISTENT {{Path}} HTTP/2
-        Host: {{Hostname}}
-
-      - |
-        NONEXISTENT {{Path}} HTTP/4
-        Host: {{Hostname}}
     matchers:
       - type: dsl
         dsl:

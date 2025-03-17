@@ -130,7 +130,7 @@ class Nuclei(ArtemisBase):
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
-            self._workflows = [os.path.join(os.path.dirname(__file__), "data/nuclei_workflows_custom/workflows/")]
+            self._workflows = [os.path.join(os.path.dirname(__file__), "data", "nuclei_workflows_custom", "workflows")]
 
         self._nuclei_templates_or_workflows_to_skip_probabilistically_set = set()
         if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
@@ -379,7 +379,7 @@ class Nuclei(ArtemisBase):
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
 
         findings = self._scan(self._templates, ScanUsing.TEMPLATES, targets) + self._scan(
-            self._workflows, ScanUsing.TEMPLATES, targets
+            self._workflows, ScanUsing.WORKFLOWS, targets
         )
 
         # That way, if we have 100 links for a webpage, we won't run 100 concurrent scans for that webpage

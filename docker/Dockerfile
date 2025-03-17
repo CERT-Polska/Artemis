@@ -36,7 +36,7 @@ COPY "docker/wait-for-dependencies.sh" "/wait-for-dependencies.sh"
 
 # Warmup the cache. That way if the user is in an environment where requests to remote APIs (e.g. providing WordPress
 # version check) fail, the response will be served from an on-disk cache.
-#RUN DB_CONN_STR=unused POSTGRES_CONN_STR=unused REDIS_CONN_STR=unused python3 -m artemis.fallback_api_cache
+RUN DB_CONN_STR=unused POSTGRES_CONN_STR=unused REDIS_CONN_STR=unused python3 -m artemis.fallback_api_cache
 
 
 ENTRYPOINT ["/wait-for-dependencies.sh"]

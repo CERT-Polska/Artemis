@@ -871,6 +871,11 @@ class Config:
                 "Number of retries for subdomain enumeration.",
             ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
 
+            DNS_QUERIES_PER_SECOND: Annotated[
+                int,
+                "Number of DNS queries per second (as they are easier to handle than e.g. HTTP queries, let's have a separate limit)",
+            ] = get_config("DNS_QUERIES_PER_SECOND", default=20, cast=int)
+
             SLEEP_TIME_SECONDS: Annotated[
                 int,
                 "Time to sleep between retries for subdomain enumeration in seconds.",

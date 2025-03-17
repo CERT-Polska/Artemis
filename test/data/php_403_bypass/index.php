@@ -5,6 +5,8 @@ if ($_SERVER['HTTP_X_REAL_IP'] != '127.0.0.1') {
     die('Forbidden');
 }
 
+?>
+
 <html>
     <body>
         super secret

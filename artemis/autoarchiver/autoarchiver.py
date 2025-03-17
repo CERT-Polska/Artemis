@@ -48,7 +48,7 @@ def _save_and_delete_items(old_items: List[Dict[str, Any]], path_suffix: str) ->
     LOGGER.info("Deleted %d documents", len(old_items))
 
 
-def archive_tag(tag: str) -> None:
+def archive_tag(tag: str) -> int:
     items = db.get_oldest_task_results_with_tag(
         tag=tag,
         max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
@@ -57,6 +57,7 @@ def archive_tag(tag: str) -> None:
     LOGGER.info("Found %s items with tag %s", len(items), tag)
 
     _save_and_delete_items(items, "_tag_" + tag)
+    return len(items)
 
 
 def archive_old_results() -> None:
@@ -82,8 +83,9 @@ def main() -> None:
         for item in db.list_tag_archive_requests():
             tag = item["tag"]
             LOGGER.info(f"Archiving tag {tag}")
-            archive_tag(tag)
-            db.delete_tag_archive_request(tag)
+            num_items_archived = archive_tag(tag)
+            if num_items_archived == 0:  # maybe more batches
+                db.delete_tag_archive_request(tag)
 
         LOGGER.info("Archiving old results...")
         archive_old_results()

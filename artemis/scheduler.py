@@ -57,4 +57,22 @@ def cancel_periodic_scan(job_id):
         print(f"Cancelled periodic scan job '{job_id}'.")
     except JobLookupError:
         print(f"Job '{job_id}' not found. It may have already been cancelled.")
-        
+    
+
+def get_scheduled_scans():
+    """
+    Return a list of all currently scheduled periodic scans.
+
+    Each item in the list is a dictionary with:
+      - job_id: str
+      - next_run_time: str (ISO format) or None
+      - trigger: str representation of the APScheduler trigger
+    """
+    jobs_list = []
+    for job in scheduler.get_jobs():
+        jobs_list.append({
+            "job_id": job.id,
+            "next_run_time": job.next_run_time.isoformat() if job.next_run_time else None,
+            "trigger": str(job.trigger)
+        })
+    return jobs_list

@@ -23,7 +23,7 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "[high] todo 403 bypass",
+            "[medium] https://experiment.kazet.cc:443: 403 Forbidden Bypass Detection with Headers Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).",
         )
 
     def test_links(self) -> None:

@@ -304,7 +304,7 @@ class Nuclei(ArtemisBase):
                     command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER])
 
                 if scan_using == ScanUsing.TEMPLATES:
-                    # The `-it` flag will include the templates_or_workflows provided in NUCLEI_ADDITIONAL_TEMPLATES even if
+                    # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
                     # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
                     for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
                         if template in chunk:

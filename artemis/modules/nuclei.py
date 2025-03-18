@@ -6,6 +6,7 @@ import os
 import random
 import shutil
 import subprocess
+import time
 import urllib
 from statistics import StatisticsError, quantiles
 from typing import Any, Callable, Dict, List
@@ -56,9 +57,10 @@ class Nuclei(ArtemisBase):
         subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", "/known-exploited-vulnerabilities/"])
         with self.lock:
             # Cleanup so that no old template files exist
-            shutil.rmtree("/root/nuclei-templates/", ignore_errors=True)
-
-            shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
+            template_directory = "/root/nuclei-templates/"
+            if os.path.exists(template_directory) and os.path.getctime(template_directory) < time.time() - 3600:
+                shutil.rmtree(template_directory, ignore_errors=True)
+                shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
 
             subprocess.call(["nuclei", "-update-templates"])
 

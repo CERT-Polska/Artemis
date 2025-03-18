@@ -156,6 +156,12 @@ def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
     return {"ok": True}
 
 
+@router.post("/archive-tag", dependencies=[Depends(verify_api_token)])
+def archive_tag(tag: str) -> Dict[str, bool]:
+    db.create_tag_archive_request(tag)
+    return {"ok": True}
+
+
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
 def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]:
     """List all exports. An export is a request to create human-readable messages that may be sent to scanned entities."""

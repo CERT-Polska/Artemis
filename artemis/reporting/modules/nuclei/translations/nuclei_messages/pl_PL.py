@@ -998,6 +998,12 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Redis service was accessed with easily guessed credentials.": "Wykryto system Redis, do którego udało się zalogować po zgadnięciu hasła. Oznacza to, że atakujący może uzyskać dostęp do danych w systemie i je modyfikować lub usunąć.",
+    "Oracle E-Business Suite 12.2.3 through 12.2.11 is susceptible to remote code execution via the Oracle Web Applications Desktop Integrator product, Upload component. An attacker with HTTP network access can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Oracle E-Business Suite w wersji od 12.2.3 do 12.2.11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "An exposed Android debug bridge was discovered.": "Wykryto publicznie dostępny interfejs Android Debug Bridge. Rekomendujemy, aby takie interfejsy nie były dostępne publicznie.",
+    "http/cves/2020/CVE-2020-9376.yaml": "Wykryto niewspieranie urządzenie D-Link DIR-610 zawierające podatność CVE-2020-9376, umożliwiającą atakującemu nieuprawnione pobieranie wrażliwych informacji i potencjalnie nieuprawniony dostęp.",
     "Grafana default admin login credentials were detected.": "Wykryto system Grafana, do którego można zalogować się domyślnymi poświadczeniami.",
     "An issue in issabel-pbx v.4.0.0-6 allows a remote attacker to obtain sensitive information via the modules directory": "Narzędzie issabel-pbx w wersji v.4.0.0-6 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji."
     + UPDATE_HINT,
@@ -1653,4 +1659,8 @@ TRANSLATIONS = {
     "Atlassian Bamboo login panel was detected.": "Wykryto panel Atlassian Bamboo.",
     "Cisco IOS XE login panel was detected.": "Wykryto panel logowania Cisco IOS XE.",
     "An Opentwrt admin login page was discovered.": "Wykryto panel logowania OpenWrt.",
+    "http/exposed-panels/macos-server-panel.yaml": "Wykryto panel MacOS Server.",
+    "Detects F5 Admin Interfaces.": "Wykryto panel administracyjny F5.",
+    "Gira HomeServer 4 login panel was detected.": "Wykryto panel logowania Gira HomeServer 4.",
+    "Stirling PDF panel was discovered.": "Wykryto panel Stirling PDF.",
 }

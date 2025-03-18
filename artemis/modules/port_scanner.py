@@ -125,7 +125,7 @@ class PortScanner(ArtemisBase):
                     str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
                 ]
                 + (
-                    ["-rate", str(int(self.requests_per_second_for_current_tasks) * len(new_target_ips))]
+                    ["-rate", str(max(1, int(self.requests_per_second_for_current_tasks)) * len(new_target_ips))]
                     if int(self.requests_per_second_for_current_tasks)
                     else []
                 ),

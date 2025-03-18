@@ -158,6 +158,12 @@ class PaginatedResults:
     data: List[Dict[str, Any]]
 
 
+class TagArchiveRequest(Base):  # type: ignore
+    __tablename__ = "tag_archive_request"
+    id = Column(Integer, primary_key=True)
+    tag = Column(String, index=True)
+
+
 class DB:
     def __init__(self) -> None:
         self.logger = build_logger(__name__)
@@ -176,6 +182,7 @@ class DB:
             analysis = session.query(Analysis).get(analysis_id)
             analysis.stopped = True
             session.add(analysis)
+            session.commit()
 
     def save_task_logs(self, task_id: str, logs: bytes) -> None:
         with self.session() as session:
@@ -382,6 +389,17 @@ class DB:
             query = query.filter(TaskResult.tag == tag)
         return self._iter_results(query, batch_size)
 
+    def get_oldest_task_results_with_tag(
+        self, tag: str, max_length: int, batch_size: int = 1000
+    ) -> List[Dict[str, Any]]:
+        query = select(TaskResult).filter(TaskResult.tag == tag).order_by(TaskResult.created_at)  # type: ignore
+        result = []
+        for i, item in enumerate(self._iter_results(query, batch_size)):
+            if i >= max_length:
+                break
+            result.append(self._strip_internal_db_info(dict(item)))
+        return result
+
     def get_oldest_task_results_before(
         self, time_to: datetime.datetime, max_length: int, batch_size: int = 1000
     ) -> List[Dict[str, Any]]:
@@ -550,3 +568,20 @@ class DB:
     def get_tags(self) -> List[Type[Tag]] | Any:
         with self.session() as session:
             return session.query(Tag).all()
+
+    def list_tag_archive_requests(self) -> List[Dict[str, Any]]:
+        with self.session() as session:
+            return [self._strip_internal_db_info(item.__dict__) for item in session.query(TagArchiveRequest).all()]
+
+    def create_tag_archive_request(self, tag: str) -> None:
+        tag_archive_request = TagArchiveRequest(tag=tag)
+        with self.session() as session:
+            session.add(tag_archive_request)
+            session.commit()
+
+    def delete_tag_archive_request(self, tag: str) -> None:
+        with self.session() as session:
+            tag_archive_requests = session.query(TagArchiveRequest).filter(TagArchiveRequest.tag == tag)
+            for tag_archive_request in tag_archive_requests:
+                session.delete(tag_archive_request)
+                session.commit()

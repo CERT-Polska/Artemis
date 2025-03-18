@@ -1,5 +1,5 @@
 import os
-from typing import Annotated, Any, List, get_type_hints
+from typing import Annotated, Any, List, Optional, get_type_hints
 
 import decouple
 
@@ -41,7 +41,7 @@ class Config:
             AUTOARCHIVER_MIN_AGE_SECONDS: Annotated[
                 int, "How old the task results need to be to be archived (in seconds)"
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS", default=80 * 24 * 60 * 60, cast=int
+                "AUTOARCHIVER_MIN_AGE_SECONDS", default=120 * 24 * 60 * 60, cast=int
             )  # 80 days
             AUTOARCHIVER_PACK_SIZE: Annotated[
                 int,
@@ -55,7 +55,7 @@ class Config:
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
-        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=90, cast=int)
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=120, cast=int)
 
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],
@@ -165,6 +165,11 @@ class Config:
             int,
             "Default request timeout (for all protocols).",
         ] = get_config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
+
+        SCAN_SPEED_OVERRIDES_FILE: Annotated[
+            Optional[str],
+            "A JSON file with a dictionary mapping from IP to scan speed - use if you want to slow down scanning of particular hosts.",
+        ] = get_config("SCAN_SPEED_OVERRIDES_FILE", default="", cast=str)
 
         REQUESTS_PER_SECOND: Annotated[
             float,
@@ -865,6 +870,11 @@ class Config:
                 int,
                 "Number of retries for subdomain enumeration.",
             ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
+
+            DNS_QUERIES_PER_SECOND: Annotated[
+                int,
+                "Number of DNS queries per second (as they are easier to handle than e.g. HTTP queries, let's have a separate limit)",
+            ] = get_config("DNS_QUERIES_PER_SECOND", default=20, cast=int)
 
             SLEEP_TIME_SECONDS: Annotated[
                 int,

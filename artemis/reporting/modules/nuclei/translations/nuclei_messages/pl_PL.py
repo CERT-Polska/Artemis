@@ -307,6 +307,7 @@ TRANSLATIONS = {
     "IceWarp Mail Server contains an open redirect via the referer parameter. This can lead to phishing attacks or other unintended redirects.": "Wykryto serwer IceWarp zawierający podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
     "[no description] http/takeovers/tilda-takeover.yaml": "Wykryto domenę kierującą do narzędzia Tilda, ale domena docelowa jest wolna. Atakujący może zarejestrować domenę w narzędziu Tilda, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "tumblr takeover was detected.": "Wykryto domenę kierującą do serwisu Tumblr, ale strona docelowa nie istnieje. Atakujący może utworzyć stronę w serwisie Tumblr, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "AWS Bucket takeover was detected.": "Wykryto domenę kierującą do zasobu AWS S3, który nie istnieje. Atakujący może utworzyć taki zasób, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/misconfiguration/clockwork-dashboard-exposure.yaml": "Wykryto publicznie dostępny panel narzędzia Clockwork. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "[no description] http/vulnerabilities/generic/cache-poisoning-xss.yaml": "Wykryto podatność Cache Poisoning, umożliwiającą atakującemu zmianę treści prezentowanych innym użytkownikom serwisu, w tym umieszczenie tam szkodliwego oprogramowania."
@@ -1004,6 +1005,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "An exposed Android debug bridge was discovered.": "Wykryto publicznie dostępny interfejs Android Debug Bridge. Rekomendujemy, aby takie interfejsy nie były dostępne publicznie.",
     "http/cves/2020/CVE-2020-9376.yaml": "Wykryto niewspieranie urządzenie D-Link DIR-610 zawierające podatność CVE-2020-9376, umożliwiającą atakującemu nieuprawnione pobieranie wrażliwych informacji i potencjalnie nieuprawniony dostęp.",
+    "VSFTPD 2.3.4 contains a backdoor command execution vulnerability.": "VSFTPD w wersji 2.3.4 zawiera szkodliwy kod umożliwiający nieuprawniony dostęp do systemu."
+    + UPDATE_HINT,
     "Grafana default admin login credentials were detected.": "Wykryto system Grafana, do którego można zalogować się domyślnymi poświadczeniami.",
     "An issue in issabel-pbx v.4.0.0-6 allows a remote attacker to obtain sensitive information via the modules directory": "Narzędzie issabel-pbx w wersji v.4.0.0-6 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji."
     + UPDATE_HINT,
@@ -1663,4 +1666,7 @@ TRANSLATIONS = {
     "Detects F5 Admin Interfaces.": "Wykryto panel administracyjny F5.",
     "Gira HomeServer 4 login panel was detected.": "Wykryto panel logowania Gira HomeServer 4.",
     "Stirling PDF panel was discovered.": "Wykryto panel Stirling PDF.",
+    "JFrog login panel was detected.": "Wykryto panel logowania JFrog.",
+    "Oracle Enterprise Manager login panel was detected.": "Wykryto panel logowania Oracle Enterprise Manager.",
+    "Zoraxy products was detected.": "Wykryto system Zoraxy.",
 }

@@ -1,0 +1,13 @@
+id: 403-bypass-workflow
+info:
+  name: 403 Bypass Detection Workflow
+  author: Dr4g0n
+
+workflows:
+  - template: /opt/artemis/modules/data/nuclei_workflows_custom/templates/checking-403-response.yaml
+    matchers:
+      - name: forbidden
+        subtemplates:
+          - template: /opt/artemis/modules/data/nuclei_workflows_custom/templates/403-bypass-using-headers.yaml
+          - template: /opt/artemis/modules/data/nuclei_workflows_custom/templates/403-bypass-using-nullbyte.yaml
+          - template: /opt/artemis/modules/data/nuclei_workflows_custom/templates/403-bypass-using-nonexistent-methods.yaml

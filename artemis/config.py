@@ -762,11 +762,11 @@ class Config:
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
             ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=20, cast=int)
 
-            NUCLEI_TEMPLATE_CHUNK_SIZE: Annotated[
+            NUCLEI_CHUNK_SIZE: Annotated[
                 int,
-                "How big are the chunks to split the template list. E.g. if the template list contains 600 templates and "
-                "NUCLEI_TEMPLATE_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
-            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
+                "How big are the chunks to split the template/workflow list. E.g. if the template list contains 600 templates and "
+                "NUCLEI_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
+            ] = get_config("NUCLEI_CHUNK_SIZE", default=200, cast=int)
 
         class PlaceholderPageContent:
             ENABLE_PLACEHOLDER_PAGE_DETECTOR: Annotated[

@@ -1,5 +1,5 @@
 import ipaddress
-from typing import Optional, List
+from typing import List, Optional
 
 
 def is_ip_address(host: str) -> bool:

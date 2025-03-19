@@ -50,7 +50,13 @@ class ReverseDNSLookup(ArtemisBase):
         actually_triggered_tasks = []
 
         for entry in found_domains:
-            if has_ip_range(current_task):
+            # We do not want to ask for reverse DNS if this IP was found during a domain scan. We don't want to
+            # scan all other domains hosted on a server.
+            if (
+                has_ip_range(current_task)
+                and "original_domain" not in current_task.payload_persistent
+                and "last_domain" not in current_task.payload
+            ):
                 ip_range = get_ip_range(current_task)
                 matches = [ip in ip_range for ip in lookup(entry)]
                 if len(matches) and all(matches):

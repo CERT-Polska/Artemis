@@ -168,7 +168,7 @@ class SubdomainEnumeration(ArtemisBase):
                     lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
                 )
             except ResolutionException:
-                pass
+                continue
 
             if lookup_result and tuple(lookup_result) not in results_for_random_subdomain:
                 subdomains.add(subdomain + "." + domain)

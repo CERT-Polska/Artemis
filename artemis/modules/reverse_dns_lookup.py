@@ -32,10 +32,14 @@ class ReverseDNSLookup(ArtemisBase):
             if not api:
                 continue
 
+            if not api.endswith("/"):
+                api = api + "/"
+
             response = requests.get(api + ip)
             json_data = response.json()
-            self.log.info(f"Got hosts {json_data['hostnames']} from {api}")
-            hosts.extend(json_data["hostnames"])
+            if "hostnames" in json_data:
+                self.log.info(f"Got hosts {json_data['hostnames']} from {api}")
+                hosts.extend(json_data["hostnames"])
 
         # Use the PTR record
         hostname, aliaslist, _ = gethostbyaddr(ip)

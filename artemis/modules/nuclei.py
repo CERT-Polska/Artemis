@@ -13,7 +13,7 @@ from karton.core import Task
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import Config
+from artemis.config import Config, SeverityThreshold
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host, get_target_url
@@ -52,6 +52,10 @@ class Nuclei(ArtemisBase):
             subprocess.call(["nuclei", "-update-templates"])
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
+            
+            # Get the severity levels to include based on the configured threshold
+            severity_levels = SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+            self.log.info(f"Using severity threshold: {Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD.value}, including levels: {severity_levels}")
 
             template_list_sources: Dict[str, Callable[[], List[str]]] = {
                 "known_exploited_vulnerabilities": lambda: [
@@ -63,21 +67,17 @@ class Nuclei(ArtemisBase):
                     .split()
                     if item.endswith(".yml") or item.endswith(".yaml")
                 ],
-                "critical": lambda: check_output_log_on_error(
-                    ["nuclei", "-s", "critical"] + templates_list_command, self.log
-                )
-                .decode("ascii")
-                .split(),
-                "high": lambda: check_output_log_on_error(["nuclei", "-s", "high"] + templates_list_command, self.log)
-                .decode("ascii")
-                .split(),
-                "medium": lambda: check_output_log_on_error(
-                    ["nuclei", "-s", "medium"] + templates_list_command, self.log
-                )
-                .decode("ascii")
-                .split(),
-                # These are not high severity, but may lead to significant information leaks and are easy to fix
-                "log_exposures": lambda: [
+            }
+            
+            # Add severity-based template sources based on the threshold
+            for severity in severity_levels:
+                template_list_sources[severity] = lambda sev=severity: check_output_log_on_error(
+                    ["nuclei", "-s", sev] + templates_list_command, self.log
+                ).decode("ascii").split()
+            
+            # Add non-severity specific sources
+            if "log_exposures" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_list_sources["log_exposures"] = lambda: [
                     item
                     for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
                     .decode("ascii")
@@ -86,20 +86,26 @@ class Nuclei(ArtemisBase):
                     # we already have a git detection module that filters FPs such as
                     # exposed source code of a repo that is already public
                     and not item.startswith("http/exposures/logs/git-")
-                ],
-                "exposed_panels": lambda: [
+                ]
+            
+            if "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_list_sources["exposed_panels"] = lambda: [
                     item
                     for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
                     .decode("ascii")
                     .split()
                     if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
-                ],
-            }
+                ]
 
             self._templates = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
             for name in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 if name not in template_list_sources:
+                    # Skip the severity-based template lists that aren't in the threshold
+                    if name in ["critical", "high", "medium", "low", "info", "unknown"] and name not in severity_levels:
+                        self.log.info(f"Skipping template list '{name}' due to severity threshold filter")
+                        continue
                     raise Exception(f"Unknown template list: {name}")
+                
                 template_list = template_list_sources[name]()
 
                 if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
@@ -185,16 +191,21 @@ class Nuclei(ArtemisBase):
         else:
             additional_configuration = []
 
+        # Get the severity levels for command-line filtering
+        severity_levels = SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+        severity_param = ",".join(severity_levels)
+
         lines = []
         for template_chunk in more_itertools.chunked(
             templates_filtered, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE
         ):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
-                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",
+                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d, with severity levels: %s",
                     len(template_chunk),
                     len(targets),
                     milliseconds_per_request,
+                    severity_param,
                 )
                 command = [
                     "nuclei",
@@ -212,6 +223,8 @@ class Nuclei(ArtemisBase):
                     "1",
                     "-rate-limit-duration",
                     str(milliseconds_per_request) + "ms",
+                    "-s",  # Add severity filter
+                    severity_param,
                 ] + additional_configuration
 
                 if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:

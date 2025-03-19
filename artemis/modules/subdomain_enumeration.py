@@ -15,7 +15,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
-from artemis.resolvers import lookup
+from artemis.resolvers import ResolutionException, lookup
 from artemis.utils import check_output_log_on_error, throttle_request
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
@@ -166,7 +166,7 @@ class SubdomainEnumeration(ArtemisBase):
                 lookup_result = throttle_request(
                     lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
                 )
-            except artemis.resolvers.ResolutionException:
+            except ResolutionException:
                 pass
 
             if lookup_result and tuple(lookup_result) not in results_for_random_subdomain:

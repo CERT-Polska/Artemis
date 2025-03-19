@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from karton.core import Producer, Task
 from karton.core.task import TaskPriority
@@ -16,6 +16,7 @@ def create_tasks(
     disabled_modules: List[str] = [],
     priority: Optional[TaskPriority] = None,
     requests_per_second_override: Optional[float] = None,
+    module_configs: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> None:
     for uri in uris:
         task = Task({"type": TaskType.NEW})
@@ -27,6 +28,11 @@ def create_tasks(
         if requests_per_second_override:
             task.add_payload("requests_per_second_override", requests_per_second_override, persistent=True)
         task.add_payload("disabled_modules", ",".join(disabled_modules), persistent=True)
+        
+        # Add module configurations to task payload
+        if module_configs:
+            task.add_payload("module_configs", module_configs, persistent=True)
+            
         db.create_analysis(task)
         db.save_scheduled_task(task)
         db.save_tag(tag)

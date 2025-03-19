@@ -16,6 +16,8 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config, SeverityThreshold
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.nuclei_configuration import NucleiConfiguration
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import check_output_log_on_error
 
@@ -40,6 +42,11 @@ class Nuclei(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
+
+        # Register the NucleiConfiguration with the registry
+        registry = ConfigurationRegistry()
+        registry.register_configuration(self.identity, NucleiConfiguration)
+        self.log.info(f"Registered NucleiConfiguration for module {self.identity}")
 
         # We clone this repo in __init__ (on karton start) so that it will get periodically
         # re-cloned when the container gets retarted every 𝑛 tasks. The same logic lies behind

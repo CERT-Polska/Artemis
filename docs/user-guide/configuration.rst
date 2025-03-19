@@ -121,6 +121,77 @@ When developing a new module for Artemis, you should:
 
 This approach ensures consistency in how module configurations are handled throughout the system.
 
+Configuration Registry
+---------------------
+
+The ``ConfigurationRegistry`` class provides a centralized registry for module configurations. It is implemented as a singleton, ensuring that there's only one instance of the registry throughout the application.
+
+Basic Usage
+~~~~~~~~~~
+
+.. code-block:: python
+
+    from artemis.modules.base.configuration_registry import ConfigurationRegistry
+    from artemis.modules.base.module_configuration import ModuleConfiguration
+    
+    # Define a custom configuration class
+    class MyModuleConfiguration(ModuleConfiguration):
+        # Custom configuration implementation
+        pass
+    
+    # Get the singleton registry instance
+    registry = ConfigurationRegistry()
+    
+    # Register a configuration class for a module
+    registry.register_configuration("my_module", MyModuleConfiguration)
+    
+    # Get the configuration class for a module
+    config_class = registry.get_configuration_class("my_module")
+    
+    # Create a default configuration instance
+    default_config = registry.create_default_configuration("my_module")
+    
+    # Get all registered modules
+    modules = registry.get_registered_modules()
+
+API Reference
+~~~~~~~~~~~~
+
+Constructor
+^^^^^^^^^^
+
+.. code-block:: python
+
+    ConfigurationRegistry()
+
+Always returns the same singleton instance.
+
+Methods
+^^^^^^^
+
+``register_configuration(module_name: str, config_class: Type[ModuleConfiguration]) -> None``
+  Registers a configuration class for a module.
+
+``get_configuration_class(module_name: str) -> Optional[Type[ModuleConfiguration]]``
+  Gets the configuration class for a module. Returns ``None`` if no configuration is registered.
+
+``create_default_configuration(module_name: str) -> Optional[ModuleConfiguration]``
+  Creates a default configuration instance for a module. Returns ``None`` if no configuration is registered.
+
+``get_registered_modules() -> Dict[str, Type[ModuleConfiguration]]``
+  Gets all registered module configurations as a dictionary mapping module names to configuration classes.
+
+Integration with Module System
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When integrating with the Artemis module system:
+
+1. Register module-specific configuration classes with the registry
+2. Use the registry to create default configurations for modules
+3. Access module configurations through the registry
+
+The registry provides a centralized way to manage module configurations, making it easier to create, retrieve, and manage configurations for different modules in the system.
+
 Blocklist
 ---------
 You may exclude some systems from being scanned or included in the reports. To do that, set the ``BLOCKLIST_FILE`` environment

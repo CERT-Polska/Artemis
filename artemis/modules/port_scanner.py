@@ -7,6 +7,7 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, List, Set
 
+import requests
 from karton.core import Task
 
 from artemis import load_risk_class

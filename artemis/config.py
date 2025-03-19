@@ -804,11 +804,11 @@ class Config:
                 bool,
                 "Besides the scanned ports (configured by PORT_SCANNER_PORT_LIST and CUSTOM_PORT_SCANNER_PORTS), "
                 "add ports from internetdb.shodan.io. "
-                 "By using this source you confirm that you have read carefully the terms and conditions on "
-                 "https://internetdb.shodan.io/ and agree to respect them, in particular in ensuring no conflict "
-                 "with the commercialization clause. For the avoidance of doubt, in any case, you remain solely "
-                 "liable for how you use this source and your compliance with the terms, and NASK is relieved of "
-                 "such liability to the fullest extent possible."
+                "By using this source you confirm that you have read carefully the terms and conditions on "
+                "https://internetdb.shodan.io/ and agree to respect them, in particular in ensuring no conflict "
+                "with the commercialization clause. For the avoidance of doubt, in any case, you remain solely "
+                "liable for how you use this source and your compliance with the terms, and NASK is relieved of "
+                "such liability to the fullest extent possible.",
             ] = get_config("ADD_PORTS_FROM_SHODAN_INTERNETDB", default=False, cast=bool)
 
             PORT_SCANNER_TIMEOUT_MILLISECONDS: Annotated[

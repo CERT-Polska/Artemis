@@ -158,7 +158,7 @@ class PortScanner(ArtemisBase):
             if Config.Modules.PortScanner.ADD_PORTS_FROM_SHODAN_INTERNETDB:
                 for new_target_ip in new_target_ips:
                     data = requests.get("https://internetdb.shodan.io/" + new_target_ip).json()
-                    for port in data['ports']:
+                    for port in data["ports"]:
                         found_ports[new_target_ip].append(str(port))
 
             for ip in found_ports.keys():

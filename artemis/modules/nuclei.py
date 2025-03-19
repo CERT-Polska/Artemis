@@ -40,6 +40,22 @@ class Nuclei(ArtemisBase):
     batch_tasks = True
     task_max_batch_size = Config.Modules.Nuclei.NUCLEI_MAX_BATCH_SIZE
 
+    def get_default_configuration(self) -> NucleiConfiguration:
+        """
+        Get the default configuration for the Nuclei module.
+        
+        Returns:
+            NucleiConfiguration: Default configuration instance with:
+                - enabled: True
+                - severity_threshold: Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
+                - max_templates: None (no limit)
+        """
+        return NucleiConfiguration(
+            enabled=True,
+            severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD,
+            max_templates=None
+        )
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
@@ -146,6 +162,10 @@ class Nuclei(ArtemisBase):
         if not targets:
             return []
 
+        # Apply max_templates limit from configuration if set
+        if self.configuration and self.configuration.max_templates:
+            templates = templates[:self.configuration.max_templates]
+
         templates_filtered = []
 
         num_templates_skipped = 0
@@ -198,9 +218,17 @@ class Nuclei(ArtemisBase):
         else:
             additional_configuration = []
 
-        # Get the severity levels for command-line filtering
-        severity_levels = SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+        # Get severity levels from configuration
+        severity_levels = (
+            self.configuration.get_severity_options() 
+            if self.configuration 
+            else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+        )
         severity_param = ",".join(severity_levels)
+
+        self.log.info("Using severity threshold: %s, including levels: %s", 
+                     self.configuration.severity_threshold.value if self.configuration else "default",
+                     severity_levels)
 
         lines = []
         for template_chunk in more_itertools.chunked(

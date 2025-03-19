@@ -7,11 +7,72 @@ from karton.core import Task
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import SeverityThreshold
 from artemis.modules.nuclei import Nuclei
+from artemis.modules.nuclei_configuration import NucleiConfiguration
 
 
 class NucleiTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = Nuclei  # type: ignore
+
+    def test_get_default_configuration(self) -> None:
+        """Test that get_default_configuration returns expected defaults."""
+        nuclei = Nuclei()
+        config = nuclei.get_default_configuration()
+        
+        self.assertIsInstance(config, NucleiConfiguration)
+        self.assertTrue(config.enabled)
+        self.assertEqual(config.severity_threshold, Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+        self.assertIsNone(config.max_templates)
+        
+    def test_process_task_with_custom_configuration(self) -> None:
+        """Test that process_task correctly uses custom configuration from payload."""
+        custom_config = {
+            "enabled": True,
+            "severity_threshold": SeverityThreshold.CRITICAL_ONLY.value,
+            "max_templates": 10
+        }
+        
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-host",
+                "port": 80,
+                "module_configuration": custom_config
+            },
+        )
+        
+        nuclei = Nuclei()
+        nuclei.process_task(task)
+        
+        # Verify the configuration was set correctly
+        self.assertIsInstance(nuclei.configuration, NucleiConfiguration)
+        self.assertEqual(nuclei.configuration.severity_threshold, SeverityThreshold.CRITICAL_ONLY)
+        self.assertEqual(nuclei.configuration.max_templates, 10)
+
+    def test_process_task_with_invalid_configuration(self) -> None:
+        """Test that process_task falls back to defaults with invalid configuration."""
+        invalid_config = {
+            "enabled": "not a boolean",  # Invalid type
+            "severity_threshold": "invalid_severity",  # Invalid severity
+            "max_templates": -1  # Invalid value
+        }
+        
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-host",
+                "port": 80,
+                "module_configuration": invalid_config
+            },
+        )
+        
+        nuclei = Nuclei()
+        nuclei.process_task(task)
+        
+        # Verify fallback to default configuration
+        self.assertIsInstance(nuclei.configuration, NucleiConfiguration)
+        self.assertEqual(nuclei.configuration.severity_threshold, Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+        self.assertIsNone(nuclei.configuration.max_templates)
 
     def test_links(self) -> None:
         task = Task(

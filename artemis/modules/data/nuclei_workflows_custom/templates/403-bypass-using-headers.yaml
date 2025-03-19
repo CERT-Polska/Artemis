@@ -27,4 +27,5 @@ http:
         dsl:
           - "status_code >= 200"
           - "status_code < 300"
+          - "!contains(body, '<title>Request Rejected</title>')"
         condition: and

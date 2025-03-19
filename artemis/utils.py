@@ -2,7 +2,6 @@ import logging
 import subprocess
 import time
 import urllib.parse
-from ipaddress import ip_address
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple
 
@@ -113,15 +112,6 @@ def get_host_from_url(url: str) -> str:
     host = urllib.parse.urlparse(url).hostname
     assert host is not None
     return host
-
-
-def is_ip_address(host: str) -> bool:
-    try:
-        # if this doesn't throw then we have an IP address
-        ip_address(host)
-        return True
-    except ValueError:
-        return False
 
 
 def read_template(path: str) -> str:

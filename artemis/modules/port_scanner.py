@@ -160,6 +160,7 @@ class PortScanner(ArtemisBase):
                 for new_target_ip in new_target_ips:
                     data = requests.get("https://internetdb.shodan.io/" + new_target_ip).json()
                     for port in data["ports"]:
+                        self.log.info(f"Detected port {port} on {new_target_ip} from Shodan internetdb")
                         found_ports[new_target_ip].append(str(port))
 
             for ip in found_ports.keys():

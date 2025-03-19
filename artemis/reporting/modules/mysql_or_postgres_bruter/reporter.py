@@ -15,7 +15,10 @@ class MySQLBruterReporter(Reporter):
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
-        if task_result["headers"]["receiver"] != "mysql_bruter" and task_result["headers"]["receiver"] != "postgresql_bruter":
+        if (
+            task_result["headers"]["receiver"] != "mysql_bruter"
+            and task_result["headers"]["receiver"] != "postgresql_bruter"
+        ):
             return []
 
         if not task_result["status"] == "INTERESTING":
@@ -33,12 +36,12 @@ class MySQLBruterReporter(Reporter):
         except ResolutionException:
             return []
 
-        if task_result["headers"]["receiver"]  == "mysql_bruter":
+        if task_result["headers"]["receiver"] == "mysql_bruter":
             scheme = "mysql"
-        elif task_result["headers"]["receiver"]  == "postgresql_bruter":
+        elif task_result["headers"]["receiver"] == "postgresql_bruter":
             scheme = "postgresql"
         else:
-            assert(False)
+            assert False
 
         return [
             Report(

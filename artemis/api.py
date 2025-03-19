@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Annotated, Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
@@ -21,6 +22,7 @@ from artemis.task_utils import (
     get_analysis_num_in_progress_tasks,
 )
 from artemis.templating import render_analyses_table_row, render_task_table_row
+from artemis.configuration_registry import ConfigurationRegistry
 
 router = APIRouter()
 db = DB()
@@ -38,6 +40,11 @@ class ReportGenerationTaskModel(BaseModel):
     zip_url: Optional[str]
     error: Optional[str]
     alerts: Any
+
+
+class ModuleConfigurationRequest(BaseModel):
+    module_name: str
+    configuration: Dict[str, Any]
 
 
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
@@ -84,12 +91,20 @@ def add(
     elif not disabled_modules:
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
+    # Get module configurations from Redis
+    module_configs = {}
+    for module_name in identities_that_can_be_disabled:
+        config_data = redis.hget(f"module_config:{module_name}", "config")
+        if config_data:
+            module_configs[module_name] = json.loads(config_data)
+
     create_tasks(
         targets,
         tag,
         disabled_modules=disabled_modules,
         priority=TaskPriority(priority),
         requests_per_second_override=requests_per_second_override,
+        module_configs=module_configs,
     )
 
     return {"ok": True}
@@ -339,3 +354,43 @@ def _get_search_query(request: Request) -> Optional[str]:
         raise NotImplementedError("Regex search is not yet implemented")
 
     return request.query_params["search[value]"]
+
+
+@router.post("/v1/configure_module", dependencies=[Depends(verify_api_token)])
+async def configure_module(request: ModuleConfigurationRequest) -> Dict[str, Any]:
+    """Configure a module with specific settings.
+    
+    The configuration will be stored in the session and applied to subsequent tasks.
+    """
+    try:
+        # Get the module configuration class
+        config_class = ConfigurationRegistry.get_configuration(request.module_name)
+        if not config_class:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No configuration registered for module: {request.module_name}"
+            )
+            
+        # Validate and deserialize the configuration
+        try:
+            config = config_class.deserialize(request.configuration)
+        except ValueError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid configuration: {str(e)}"
+            )
+            
+        # Store in Redis for session persistence
+        redis.hset(
+            f"module_config:{request.module_name}",
+            "config",
+            json.dumps(request.configuration)
+        )
+        
+        return {"status": "success", "message": f"Configuration set for module: {request.module_name}"}
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to configure module: {str(e)}"
+        )

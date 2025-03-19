@@ -724,28 +724,24 @@ class ArtemisBase(Karton):
     def throttle_request(self, f: Callable[[], Any]) -> Any:
         return throttle_request(f, requests_per_second=self.requests_per_second_for_current_tasks)
 
-    def process_task(self, task: Task) -> None:
-        """
-        Process a single task.
-        
-        This method handles loading module-specific configuration from the task payload
-        before processing the task. If no configuration is provided in the payload,
-        the default configuration will be used.
-        
-        Args:
-            task (Task): The task to process
-        """
-        # Load configuration from task payload if present
-        if task.payload.get("module_configuration"):
-            try:
-                self.set_configuration(task.payload["module_configuration"])
-            except (ValueError, KeyError) as e:
-                self.log.warning(f"Failed to load configuration from task payload: {e}")
-                # Fall back to default configuration
+    def process_task(self, current_task: Task) -> None:
+        """Process a task."""
+        try:
+            # Load module configuration from task payload if available
+            module_configs = current_task.get_payload("module_configs", {})
+            if self.identity in module_configs:
+                self.set_configuration(module_configs[self.identity])
+            else:
+                # Use default configuration
                 self._configuration = self.get_default_configuration()
-        else:
-            # Use default configuration if none provided
-            self._configuration = self.get_default_configuration()
-            
-        # Process the task
-        self.process(task)
+
+            if self.batch_tasks:
+                tasks = self.get_tasks_for_batch_processing(current_task)
+                if tasks:
+                    self.run_multiple(tasks)
+            else:
+                self.run(current_task)
+        except Exception as e:
+            self.log.exception(e)
+            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=e)
+            raise

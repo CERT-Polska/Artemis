@@ -6,7 +6,7 @@ import time
 import traceback
 import urllib.parse
 from ipaddress import ip_address
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple, Dict
 
 import timeout_decorator
 from karton.core import Karton, Task
@@ -81,6 +81,7 @@ class ArtemisBase(Karton):
         self.setup_logger(Config.Miscellaneous.LOG_LEVEL)
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
+        self._configuration: Optional[ModuleConfiguration] = None
 
         if Config.Miscellaneous.BLOCKLIST_FILE:
             self._blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
@@ -103,6 +104,43 @@ class ArtemisBase(Karton):
 
         for handler in self.log.handlers:
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
+
+    @property
+    def configuration(self) -> Optional[ModuleConfiguration]:
+        """
+        Get the current module configuration.
+
+        Returns:
+            Optional[ModuleConfiguration]: The current configuration or None if not set
+        """
+        return self._configuration
+
+    def get_default_configuration(self) -> ModuleConfiguration:
+        """
+        Get the default configuration for this module.
+        Override this method in subclasses to provide module-specific configuration.
+
+        Returns:
+            ModuleConfiguration: Default configuration instance
+        """
+        return ModuleConfiguration()
+
+    def set_configuration(self, config_dict: Dict[str, Any]) -> None:
+        """
+        Set the module configuration from a dictionary.
+
+        Args:
+            config_dict (Dict[str, Any]): Configuration dictionary to apply
+        """
+        registry = ConfigurationRegistry()
+        config_class = registry.get_configuration_class(self.identity)
+        
+        if config_class is None:
+            config_class = ModuleConfiguration
+            
+        self._configuration = config_class.deserialize(config_dict)
+        if not self._configuration.validate():
+            raise ValueError(f"Invalid configuration for module {self.identity}")
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
@@ -520,6 +558,18 @@ class ArtemisBase(Karton):
     def process_multiple(self, tasks: List[Task]) -> None:
         if len(tasks) == 0:
             return
+
+        # Load configuration from first task's payload if present
+        if tasks[0].payload.get("module_configuration"):
+            try:
+                self.set_configuration(tasks[0].payload["module_configuration"])
+            except (ValueError, KeyError) as e:
+                self.log.warning(f"Failed to load configuration from task payload: {e}")
+                # Fall back to default configuration
+                self._configuration = self.get_default_configuration()
+        else:
+            # Use default configuration if none provided
+            self._configuration = self.get_default_configuration()
 
         try:
             if self.batch_tasks:

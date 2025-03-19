@@ -73,6 +73,22 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertIsInstance(nuclei.configuration, NucleiConfiguration)
         self.assertEqual(nuclei.configuration.severity_threshold, Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
         self.assertIsNone(nuclei.configuration.max_templates)
+        
+    def test_403_bypass_workflow(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-php-403-bypass",
+                "port": 80,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "[medium] http://test-php-403-bypass:80: 403 Forbidden Bypass Detection with Headers Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).\n",
+        )
 
     def test_links(self) -> None:
         task = Task(

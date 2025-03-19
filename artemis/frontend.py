@@ -143,7 +143,7 @@ async def post_add(
     for task in total_list:
         if not Classifier.is_supported(task):
             validation_messages.append(
-                f"{task} is not supported - Artemis supports domains, IPs or IP ranges. Domains and IPs may also optionally be followed by port number."
+                f"{task} is not supported - Artemis supports domains, IPs or IPv4 ranges. Domains and IPs may also optionally be followed by port number."
             )
 
     for dependency, task_types in [

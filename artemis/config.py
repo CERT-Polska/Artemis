@@ -1,4 +1,5 @@
 import os
+
 from typing import Annotated, Any, List, get_type_hints
 import enum
 
@@ -79,7 +80,7 @@ class Config:
             AUTOARCHIVER_MIN_AGE_SECONDS: Annotated[
                 int, "How old the task results need to be to be archived (in seconds)"
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS", default=80 * 24 * 60 * 60, cast=int
+                "AUTOARCHIVER_MIN_AGE_SECONDS", default=120 * 24 * 60 * 60, cast=int
             )  # 80 days
             AUTOARCHIVER_PACK_SIZE: Annotated[
                 int,
@@ -93,7 +94,7 @@ class Config:
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
-        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=60, cast=int)
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=120, cast=int)
 
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],
@@ -196,13 +197,18 @@ class Config:
 
     class Limits:
         TASK_TIMEOUT_SECONDS: Annotated[int, "What is the maximum task run time (after which it will get killed)."] = (
-            get_config("TASK_TIMEOUT_SECONDS", default=6 * 3600, cast=int)
+            get_config("TASK_TIMEOUT_SECONDS", default=12 * 3600, cast=int)
         )
 
         REQUEST_TIMEOUT_SECONDS: Annotated[
             int,
             "Default request timeout (for all protocols).",
         ] = get_config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
+
+        SCAN_SPEED_OVERRIDES_FILE: Annotated[
+            Optional[str],
+            "A JSON file with a dictionary mapping from IP to scan speed - use if you want to slow down scanning of particular hosts.",
+        ] = get_config("SCAN_SPEED_OVERRIDES_FILE", default="", cast=str)
 
         REQUESTS_PER_SECOND: Annotated[
             float,
@@ -219,6 +225,11 @@ class Config:
         REMOVE_LOGS_AFTER_DAYS: Annotated[int, "After what number of days the logs in karton-logs are removed."] = (
             get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
         )
+
+        STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB: Annotated[
+            int,
+            "If free disk space on / becomes lower than this value, scanning will stop so that we don't end up being unable to save the results.",
+        ] = get_config("STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB", default=1000)
 
         BLOCKLIST_FILE: Annotated[
             str,
@@ -272,7 +283,7 @@ class Config:
             int,
             "After this number of tasks processed, each scanning module will get restarted. This is to prevent situations "
             "such as slow memory leaks.",
-        ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=200, cast=int)
+        ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=1000, cast=int)
 
         CONTENT_PREFIX_SIZE: Annotated[
             int,
@@ -292,6 +303,15 @@ class Config:
             "if we requested crtsh enumeration on example.com and received www.example.com, crtsh enumeration on www.example.com won't happen "
             "in SUBDOMAIN_ENUMERATION_TTL_DAYS days. This is the TTL of such markers.",
         ] = get_config("SUBDOMAIN_ENUMERATION_TTL_DAYS", default=10, cast=int)
+
+        ADDITIONAL_HOSTS_FILE_PATH: Annotated[str, "File that will be appended to /etc/hosts"] = get_config(
+            "ADDITIONAL_HOSTS_FILE_PATH", default="", cast=str
+        )
+
+        MAX_URLS_TO_SCAN: Annotated[
+            int,
+            "Maximum number of URLs to scan per target for modules that crawl like lfi_detector, Nuclei, sq_injection_detector, etc.",
+        ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
 
     class Modules:
         class Bruter:
@@ -472,6 +492,7 @@ class Config:
                         "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
                         "http/exposed-panels/pulse-secure-panel.yaml",
                         "http/exposed-panels/pulse-secure-version.yaml",
+                        "http/exposed-panels/cisco/cisco-asa-panel.yaml",
                         "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
                         "http/exposed-panels/openvpn-connect.yaml",
                         "http/exposed-panels/ivanti-csa-panel.yaml",
@@ -506,6 +527,8 @@ class Config:
                         "http/exposed-panels/rocketchat-panel.yaml",
                         # Source of FPs
                         "custom:CVE-2019-1579",
+                        "custom:CVE-2024-35286",
+                        "custom:CVE-2022-43939",
                         "custom:xss-inside-tag-top-params.yaml",
                         # Nothing particularily interesting
                         "http/exposures/apis/drupal-jsonapi-user-listing.yaml",
@@ -667,6 +690,7 @@ class Config:
                         "http/miscellaneous/defaced-website-detect.yaml",
                         "http/misconfiguration/google/insecure-firebase-database.yaml",
                         "custom:CVE-2024-4836",
+                        "custom:CVE-2024-35286",
                         # Until https://github.com/projectdiscovery/nuclei-templates/issues/8657
                         # gets fixed, these templates return a FP on phpinfo(). Let's not spam
                         # our recipients with FPs.
@@ -759,6 +783,7 @@ class Config:
                         "http/vulnerabilities/other/turbocrm-xss.yaml",
                         "http/vulnerabilities/other/wems-manager-xss.yaml",
                         "http/vulnerabilities/wordpress/wp-touch-redirect.yaml",
+                        "http/fuzzing/iis-shortname.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -788,13 +813,13 @@ class Config:
                 "Maximum number of links to be checked with the templates provided in "
                 "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS (if more are seen, random "
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
-            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=100, cast=int)
+            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=20, cast=int)
 
-            NUCLEI_TEMPLATE_CHUNK_SIZE: Annotated[
+            NUCLEI_CHUNK_SIZE: Annotated[
                 int,
-                "How big are the chunks to split the template list. E.g. if the template list contains 600 templates and "
-                "NUCLEI_TEMPLATE_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
-            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
+                "How big are the chunks to split the template/workflow list. E.g. if the template list contains 600 templates and "
+                "NUCLEI_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
+            ] = get_config("NUCLEI_CHUNK_SIZE", default=200, cast=int)
 
         class PlaceholderPageContent:
             ENABLE_PLACEHOLDER_PAGE_DETECTOR: Annotated[
@@ -828,10 +853,26 @@ class Config:
                 "Custom port list to scan in CSV form (replaces default list).",
             ] = get_config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
 
+            ADD_PORTS_FROM_SHODAN_INTERNETDB: Annotated[
+                bool,
+                "Besides the scanned ports (configured by PORT_SCANNER_PORT_LIST and CUSTOM_PORT_SCANNER_PORTS), "
+                "add ports from internetdb.shodan.io. "
+                "By using this source you confirm that you have read carefully the terms and conditions on "
+                "https://internetdb.shodan.io/ and agree to respect them, in particular in ensuring no conflict "
+                "with the commercialization clause. For the avoidance of doubt, in any case, you remain solely "
+                "liable for how you use this source and your compliance with the terms, and NASK is relieved of "
+                "such liability to the fullest extent possible.",
+            ] = get_config("ADD_PORTS_FROM_SHODAN_INTERNETDB", default=False, cast=bool)
+
             PORT_SCANNER_TIMEOUT_MILLISECONDS: Annotated[
                 int,
                 "Port scanner: milliseconds to wait before timing out",
             ] = get_config("PORT_SCANNER_TIMEOUT_MILLISECONDS", default=5_000, cast=int)
+
+            PORT_SCANNER_MAX_BATCH_SIZE: Annotated[
+                int,
+                "Port scanner: number of hosts scanned by one port_scanner instance",
+            ] = get_config("PORT_SCANNER_MAX_BATCH_SIZE", default=10, cast=int)
 
             PORT_SCANNER_MAX_NUM_PORTS: Annotated[
                 int,
@@ -893,6 +934,11 @@ class Config:
                 int,
                 "Number of retries for subdomain enumeration.",
             ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
+
+            DNS_QUERIES_PER_SECOND: Annotated[
+                int,
+                "Number of DNS queries per second (as they are easier to handle than e.g. HTTP queries, let's have a separate limit)",
+            ] = get_config("DNS_QUERIES_PER_SECOND", default=20, cast=int)
 
             SLEEP_TIME_SECONDS: Annotated[
                 int,
@@ -957,6 +1003,12 @@ class Config:
                 int,
                 "Seconds to sleep using the sleep() or pg_sleep() methods",
             ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=5, cast=int)
+
+        class LFIDetector:
+            LFI_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to display only the first LFI and stop scanning.",
+            ] = get_config("LFI_STOP_ON_FIRST_MATCH", default=True, cast=bool)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

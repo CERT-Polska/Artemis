@@ -40,21 +40,21 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "zarinpal-woocommerce-payment-gateway",
 ]
 PLUGINS_TO_SKIP_CHANGELOG = [
-    "wp-members",
-    "wordpress-popup",
     "backwpup",
+    "everest-forms",
     "social-pug",
-    "yith-woocommerce-catalog-mode",
+    "wordpress-popup",
+    "wp-members",
     "wppao-sitemap",
+    "yith-woocommerce-catalog-mode",
 ]
 PLUGINS_TO_SKIP_STABLE_TAG = [
     "flowpaper-lite-pdf-flipbook",
     "scheduled-post-trigger",
     "pdf-viewer-for-elementor",
-    "userway-accessibility-widget",
+    "wow-carousel-for-divi-lite",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "blocks-animation",
     "cf7-styler-for-divi",
     "coming-soon",
     "delete-all-comments-of-website",
@@ -63,12 +63,10 @@ PLUGINS_BAD_VERSION_IN_README = [
     "icon-element",
     "link-manager",
     "login-logo",
-    "mask-form-elementor",
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
-    "sticky-header-effects-for-elementor",
-    "wc-hide-shipping-methods",
+    "two-factor",
     "website-monetization-by-magenet",
     "woo-tools",
     "wp-maximum-execution-time-exceeded",

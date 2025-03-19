@@ -1,0 +1,29 @@
+#: artemis/reporting/modules/joomla_extensions/template_joomla_outdated_extension.jinja2:2
+msgid ""
+"The following addresses contain sites with Joomla! extensions that are "
+"not up-to-date:"
+msgstr ""
+"Pod poniższymi adresami znajdują się strony z nieaktualnymi "
+"rozszerzeniami Joomla:"
+
+#: artemis/reporting/modules/joomla_extensions/template_joomla_outdated_extension.jinja2:7
+msgid "extension"
+msgstr "rozszerzenie"
+
+#: artemis/reporting/modules/joomla_extensions/template_joomla_outdated_extension.jinja2:8
+msgid "in version"
+msgstr "w wersji"
+
+#: artemis/reporting/modules/joomla_extensions/template_joomla_outdated_extension.jinja2:9
+msgid "identified using"
+msgstr "zidentyfikowane poprzez"
+
+#: artemis/reporting/modules/joomla_extensions/template_joomla_outdated_extension.jinja2:17
+msgid ""
+"If a site is not used anymore, we recommend shutting it down to avoid the"
+" risk of exploitation of known vulnerabilities. If it is used, we "
+"recommend updating all Joomla! extensions."
+msgstr ""
+"Jeśli strona nie jest już używana, rekomendujemy jej wyłączenie, aby "
+"wyeliminować ryzyko ataku przy użyciu znanych podatności. Jeśli zaś jest "
+"używana, rekomendujemy aktualizację używanych rozszerzeń."

@@ -1,4 +1,4 @@
-FROM python:3.12-alpine3.20
+FROM python:3.13-alpine3.20
 
 COPY --from=golang:1.23-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
@@ -12,7 +12,7 @@ ARG ADDITIONAL_REQUIREMENTS
 # Whois here is important - if we wouldn't install it, we would default to busybox whois,
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
 RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
-    apk add --no-cache bash libpcap libpq git subversion whois && \
+    apk add --no-cache bash libpcap libpq git subversion whois coreutils && \
     cd /go && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
@@ -21,6 +21,7 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
     cd / && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
+    git clone https://github.com/CERT-Polska/joomla-scanner.git --branch main /joomla-scanner && \
     pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt $ADDITIONAL_REQUIREMENTS && \
     apk del .build-deps
 

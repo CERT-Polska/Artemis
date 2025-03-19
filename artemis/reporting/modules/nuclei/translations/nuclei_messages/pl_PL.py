@@ -39,7 +39,6 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "QNAP QTS Photo Station External Reference is vulnerable to local file inclusion via an externally controlled reference to a resource vulnerability. If exploited, this could allow an attacker to modify system files. The vulnerability is fixed in the following versions: QTS 5.0.1: Photo Station 6.1.2 and later QTS 5.0.0/4.5.x: Photo Station 6.0.22 and later QTS 4.3.6: Photo Station 5.7.18 and later QTS 4.3.3: Photo Station 5.4.15 and later QTS 4.2.6: Photo Station 5.2.14 and later.": "QNAP QTS Photo Station External Reference zawiera podatność Local File Inclusion, co umożliwia atakującemu modyfikowanie plików systemowych."
-    + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "Joomla! before 3.7.1 contains a SQL injection vulnerability. An attacker can possibly obtain sensitive information from a database, modify data, and execute unauthorized administrative operations in the context of the affected site.": "Joomla! w wersji przed 3.7.1 zawiera podatność SQL Injection. Atakujący może pobrać wrażliwe informacje z bazy danych, zmodyfikować dane i wykonywać dowolne operacje administracyjne na podatnej stronie."
     + UPDATE_HINT,
@@ -126,6 +125,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Symfony profiler was detected.": "Wykryto narzędzie Symfony Profiler. Udostępnienie tego narzędzia może prowadzić np. do wycieku konfiguracji aplikacji (w tym haseł do bazy danych), kodu źródłowego lub innych informacji, które nie powinny być dostępne publicznie. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
     "Flir is vulnerable to local file inclusion.": "Narzędzie Flir zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
+    "IPConfigure Orchid Core VMS 2.0.5 is susceptible to local file inclusion.": "IPConfigure Orchid Core VMS w wersji 2.0.5 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "Redis server without any required authentication was discovered.": "Wykryto serwer Redis dostępny bez uwierzytelniania. Rekomendujemy, aby nie był dostępny publicznie.",
     "Generic J2EE Scan panel was detected. Looks for J2EE specific LFI vulnerabilities; tries to leak the web.xml file.": "Wykryto platformę J2EE zawierającą podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + BUG_FIX_HINT,
@@ -152,6 +152,7 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
     "[no description] PHP Debug bar": "Wykryto narzędzie PHP Debug Bar, które umożliwia pobranie wrażliwych informacji, np. konfiguracji aplikacji. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
+    "The DebugBar integrates easily into projects and can display profiling data from any part of your application.This template detects exposed PHP Debug Bars by looking for known response bodies and the `phpdebugbar-id` in headers.": "Wykryto narzędzie PHP Debug Bar, które umożliwia pobranie wrażliwych informacji, np. konfiguracji aplikacji. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
     "The DebugBar integrates easily in any projects and can display profiling data from any part of your application. It comes built-in with data collectors for standard PHP features and popular projects.": "Wykryto narzędzie PHP Debug Bar, które umożliwia pobranie wrażliwych informacji, np. konfiguracji aplikacji. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
     "The PHP Debug Bar tool was discovered, which allows the attacker to obtain sensitive information, e.g. application configuration.": "Wykryto narzędzie PHP Debug Bar, które umożliwia pobranie wrażliwych informacji, np. konfiguracji aplikacji. Rekomendujemy, aby to narzędzie nie było dostępne publicznie.",
     "The Django settings.py file containing a secret key was discovered. An attacker may use the secret key to bypass many security mechanisms and potentially obtain other sensitive configuration information such as database password) from the settings file.": "Wykryto plik z konfiguracją frameworku Django w którym znajduje się zmienna SECRET_KEY której poznanie umożliwi atakującemu ominięcie niektórych mechanizmów bezpieczeństwa Django. W tym pliku mogą też znajdować się inne wrażliwe dane, takie jak np. hasła do bazy danych."
@@ -306,6 +307,8 @@ TRANSLATIONS = {
     "IceWarp Mail Server contains an open redirect via the referer parameter. This can lead to phishing attacks or other unintended redirects.": "Wykryto serwer IceWarp zawierający podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
     "[no description] http/takeovers/tilda-takeover.yaml": "Wykryto domenę kierującą do narzędzia Tilda, ale domena docelowa jest wolna. Atakujący może zarejestrować domenę w narzędziu Tilda, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "tumblr takeover was detected.": "Wykryto domenę kierującą do serwisu Tumblr, ale strona docelowa nie istnieje. Atakujący może utworzyć stronę w serwisie Tumblr, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "AWS Bucket takeover was detected.": "Wykryto domenę kierującą do zasobu AWS S3, który nie istnieje. Atakujący może utworzyć taki zasób, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/misconfiguration/clockwork-dashboard-exposure.yaml": "Wykryto publicznie dostępny panel narzędzia Clockwork. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "[no description] http/vulnerabilities/generic/cache-poisoning-xss.yaml": "Wykryto podatność Cache Poisoning, umożliwiającą atakującemu zmianę treści prezentowanych innym użytkownikom serwisu, w tym umieszczenie tam szkodliwego oprogramowania."
     + BUG_FIX_HINT,
@@ -622,7 +625,9 @@ TRANSLATIONS = {
     "GoIP-1 GSM is vulnerable to local file inclusion because input passed thru the 'content' or 'sidebar' GET parameter in 'frame.html' or 'frame.A100.html' is not properly sanitized before being used to read files. This can be exploited by an unauthenticated attacker to read arbitrary files on the affected system.": "Wykryto, że GoIP-1 GSM zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "Execution After Redirect happens when after emitting a Location header that redirects the user, some other code is executed. This may lead to data leak or application compromise.": "Wykryto podatność Execution After Redirect, czyli sytuację, gdy serwer, pomimo przekierowania użytkownika na inny adres, kontynuuje wykonanie skryptu. Może to doprowadzić do wycieku wrażliwych danych lub uzyskania przez atakującego nieuprawnionego dostępu do aplikacji.",
     "[no description] http/misconfiguration/django-debug-detect.yaml": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
+    "Rails debug mode is enabled.": "Wykryto framework Rails w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "Django debug configuration is enabled, which allows an attacker to obtain system configuration information such as paths or settings.": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
+    "Unauthenticated PostgreSQL Detected.": "Wykryto system PostgreSQL, do którego można zalogować się bez uwierzytelniania.",
     "Laravel with APP_DEBUG set to true is prone to show verbose errors.": "Wykryto system Laravel w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
@@ -994,14 +999,99 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Redis service was accessed with easily guessed credentials.": "Wykryto system Redis, do którego udało się zalogować po zgadnięciu hasła. Oznacza to, że atakujący może uzyskać dostęp do danych w systemie i je modyfikować lub usunąć.",
+    "Oracle E-Business Suite 12.2.3 through 12.2.11 is susceptible to remote code execution via the Oracle Web Applications Desktop Integrator product, Upload component. An attacker with HTTP network access can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Oracle E-Business Suite w wersji od 12.2.3 do 12.2.11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "An exposed Android debug bridge was discovered.": "Wykryto publicznie dostępny interfejs Android Debug Bridge. Rekomendujemy, aby takie interfejsy nie były dostępne publicznie.",
+    "http/cves/2020/CVE-2020-9376.yaml": "Wykryto niewspieranie urządzenie D-Link DIR-610 zawierające podatność CVE-2020-9376, umożliwiającą atakującemu nieuprawnione pobieranie wrażliwych informacji i potencjalnie nieuprawniony dostęp.",
+    "VSFTPD 2.3.4 contains a backdoor command execution vulnerability.": "VSFTPD w wersji 2.3.4 zawiera szkodliwy kod umożliwiający nieuprawniony dostęp do systemu."
+    + UPDATE_HINT,
+    "Grafana default admin login credentials were detected.": "Wykryto system Grafana, do którego można zalogować się domyślnymi poświadczeniami.",
+    "An issue in issabel-pbx v.4.0.0-6 allows a remote attacker to obtain sensitive information via the modules directory": "Narzędzie issabel-pbx w wersji v.4.0.0-6 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji."
+    + UPDATE_HINT,
+    "File read and file write to RCE by deploying a vhost with MBeanFactory/createStandardHost and DiagnosticCommand/jfrStart": "Wykryto system Jolokia zawierający podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "An improper authorization check was identified within ProjectSend version r1605 that allows an attacker to perform sensitive actions such as enabling user registration and auto validation, or adding new entries in the whitelist of allowed extensions for uploaded files. Ultimately, this allows to execute arbitrary PHP code on the server hosting the application.": "ProjectSend w wersji r1605 i potencjalnie wcześniejszych umożliwia atakującemu nieuprawnione wykonywanie działań takich jak rejestracja czy zmiana konfiguracji, co w konsekwencji prowadzi do zdalnego wykonania kodu.",
+    "WordPress WP Courses Plugin < 2.0.29 contains a critical information disclosure which exposes private course videos and materials.": "Wtyczka WordPress o nazwie WP Courses w wersji poniżej 2.0.29 zawiera podatność umożliwiającą dostęp do prywatnych materiałów kursowych.",
+    "PHP CGI - Argument Injection (CVE-2024-4577) is a critical argument injection flaw in PHP.": "Wykryto PHP CGI zawierające podatność CVE-2024-4577 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Confluence is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto system Confluence udostępniający instalator. Ta konfiguracja umożliwia atakującemu zmianę ustawień i potencjalnie nieuprawniony dostęp do systemu.",
     "Jenkins Dashboard is exposed to external users.": "Panel systemu Jenkins jest dostępny publicznie.",
+    "This template checks for unauthenticated command execution vulnerability in Netgear DGN devices. Attackers can bypass authentication mechanisms and execute arbitrary commands with root privileges.": "Wykryto urządzenie Netgear DGN umożliwiające atakującemu wykonywanie bez uwierzytelnienia dowolnych poleceń z uprawnieniami administratora."
+    + RCE_EFFECT_DESCRIPTION,
+    "Artifactory anonymous repo is exposed.": "Wykryto anonimowe repozytorium systemu Artifactory.",
+    "The MKdocs 1.2.2 built-in dev-server allows directory traversal using the port 8000, enabling remote exploitation to obtain sensitive information. Note the vendor has disputed the vulnerability (see references) because the dev server must be used in an unsafe way (namely public) to have this vulnerability exploited.": "Wykryto serwer deweloperski systemu MKdocs w wersji 1.2.2 zawierający podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "Zeit Next.js before 4.2.3 is susceptible to local file inclusion under the /_next request namespace. An attacker can obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Zeit Next.js w wersji poniżej 4.2.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Dump password hashes in use within a PostgreSQL database.": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw użytkowników bazy danych i haszy ich haseł.",
+    "javascript/enumeration/pgsql/pgsql-list-database.yaml": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw baz danych.",
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Galera WebTemplate 1.0 is affected by a directory traversal vulnerability that could reveal information from /etc/passwd and /etc/shadow.": "Galera WebTemplate 1.0 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "Selea Targa IP OCR-ANPR camera suffers from an unauthenticated local file inclusion vulnerability because input passed through the Download Archive in Storage page using get_file.php script is not properly verified before being used to download files. This can be exploited to disclose the contents of arbitrary and sensitive files via directory traversal attacks and aid the attacker in disclosing clear-text credentials.": "Wykryto, że kamera Selea Targa IP OCR-ANPR zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku, w tym zawierających dane uwierzytelniające.",
+    "Allied Telesis AT-GS950/8 until Firmware AT-S107 V.1.1.3 is susceptible to local file inclusion via its web interface.": "Allied Telesis AT-GS950/8 w wersji do AT-S107 V.1.1.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "The detected website is defaced.": "Wykryto, że strona internetowa została zaatakowana i zmieniono wyświetlaną na niej treść.",
+    "Pulse Secure Pulse Connect Secure (PCS) 8.2 before 8.2R12.1, 8.3 before 8.3R7.1, and 9.0 before 9.0R3.4 all contain an arbitrary file reading vulnerability that could allow unauthenticated remote attackers to send a specially crafted URI to gain improper access.": "Pulse Secure Pulse Connect Secure (PCS) w wersji 8.2 poniżej 8.2R12.1, 8.3 poniżej 8.3R7.1 i 9.0 poniżej 9.0R3.4 zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku. Ta podatność może również umożliwić atakującemu dostęp do systemu."
+    + UPDATE_HINT,
+    "Session Validation attacks in Apache Superset versions up to and including 2.0.1. Installations that have not altered the default configured SECRET_KEY according to installation instructions allow for an attacker to authenticate and access unauthorized resources. This does not affect Superset administrators who have changed the default value for SECRET_KEY config.": "Wykryto system Apache Superset w wersji do 2.0.1 z domyślną wartością zmiennej SECRET_KEY, co umożliwia atakującemu nieuprawniony dostęp do systemu.",
+    "Postgresql has a flaw that allows the attacker to login with empty password.": "Wykryto bazę danych PostgreSQL do której można zalogować się pustym hasłem.",
+    "Postgres service was accessed with easily guessed credentials.": "Wykryto bazę danych PostgreSQL do której można zalogować się prostym loginem/hasłem.",
+    "custom:CVE-2025-24016": "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    'This template detects an unsafe deserialization vulnerability in Wazuh servers.\nThe DistributedAPI deserializes JSON data using as_wazuh_object. If an attacker injects\na malicious object (via __unhandled_exc__), arbitrary Python code execution can be achieved.\nInstead of triggering a shutdown (e.g. via exit), this template uses a non-existent class \n("NotARealClass") to generate a NameError. A NameError in the response indicates that the \npayload reached the vulnerable deserialization function.': "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Tomcat's credential disclosure leading to Remote Code Execution via WAR upload.": "Wykryto, że dane dostępowe systemu Tomcat są publicznie dostępne, co umożliwia upload pliku WAR a w konsekwencji zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "When running Apache Tomcat versions 9.0.0.M1 to 9.0.0, 8.5.0 to 8.5.22, 8.0.0.RC1 to 8.0.46 and 7.0.0 to 7.0.81 with HTTP PUTs enabled (e.g. via setting the readonly initialisation parameter of the Default servlet to false) it was possible to upload a JSP file to the server via a specially crafted request. This JSP could then be requested and any code it contained would be executed by the server.": "Serwer Apache Tomcat w wersji od 9.0.0.M1 do 9.0.0, 8.5.0 do 8.5.22, 8.0.0.RC1 do 8.0.46 i 7.0.0 do 7.0.81 z włączoną metodą HTTP PUT umożliwia upload pliku JSP a w konsekwencji zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The YARPP Yet Another Related Posts Plugin plugin for WordPress is vulnerable to unauthorized access due to a missing capability check in the ~/includes/yarpp_pro_set_display_types.php file in all versions up to, and including, 5.30.10. This makes it possible for unauthenticated attackers to set display types.": "Wtyczka WordPress o nazwie YARPP Yet Another Related Posts Plugin w wersji do 5.30.10 włącznie umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "RCE in Jolokia < 1.7.1 using AccesLogValve": "Narzędzie Jolokia w wersji poniżej 1.7.1 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The WordPress File Upload plugin for WordPress is vulnerable to Path Traversal in all versions up to, and including, 4.24.11 via wfu_file_downloader.php. This makes it possible for unauthenticated attackers to read or delete files outside of the originally intended directory. Successful exploitation requires the targeted WordPress installation to be using PHP 7.4 or earlier.": "Wtyczka WordPress o nazwie File Upload w wersji do 4.24.11 włącznie zawiera podatność umożliwiającą atakującemu w niektórych sytuacjach odczyt i usuwanie dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    'A flaw was found in a change made to path normalization in Apache HTTP Server 2.4.49. An attacker could use a path traversal attack to map URLs to files outside the expected document root. If files outside of the document root are not protected by "require all denied" these requests can succeed. Additionally, this flaw could leak the source of interpreted files like CGI scripts. This issue is known to be exploited in the wild. This issue only affects Apache 2.4.49 and not earlier versions.': "Serwer Apache w wersji 2.4.49  (ale nie wcześniejszych) umożliwia w niektórych sytuacjach odczyt plików z dysku."
+    + UPDATE_HINT,
+    "Apache Struts 2.3.x before 2.3.32 and 2.5.x before 2.5.10.1 is susceptible to remote command injection attacks. The Jakarta Multipart parser has incorrect exception handling and error-message generation during file upload attempts, which can allow an attacker to execute arbitrary commands via a crafted Content-Type, Content-Disposition, or Content-Length HTTP header. This was exploited in March 2017 with a Content-Type header containing a #cmd= string.": "Apache Struts 2.3.x w wersji poniżej 2.3.32 i 2.5.x w wersji poniżej 2.5.10.1 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Apache Struts2 S2-062 is vulnerable to remote code execution. The fix issued for CVE-2020-17530 (S2-061) was incomplete, meaning some of the tag's attributes could still perform a double evaluation if a developer applied forced OGNL evaluation by using the %{...} syntax.": "Apache Struts2 w wersji S2-062 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The WP Umbrella: Update Backup Restore & Monitoring plugin for WordPress is vulnerable to Local File Inclusion in all versions up to, and including, 2.17.0 via the 'filename' parameter of the 'umbrella-restore' action. This makes it possible for unauthenticated attackers to include and execute arbitrary files on the server, allowing the execution of any PHP code in those files. This can be used to bypass access controls, obtain sensitive data, or achieve code execution in cases where images and other “safe” file types can be uploaded and included.": "Wtyczka WordPress o nazwie WP Umbrella: Update Backup Restore & Monitoring w wersji do 2.17.0 włącznie zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików na serwerze, a w niektórych sytuacjach zdalne wykonanie kodu."
+    + WORDPRESS_UPDATE_HINT,
+    "http/cves/2024/CVE-2024-10400.yaml": "Wtyczka WordPress o nazwie Tutor LMS w wersji do 2.7.6 włącznie zawiera podatnosć SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "Confluence Server and Data Center is susceptible to an unauthenticated remote code execution vulnerability.": "Wykryto system Confluence Server and Data Center w wersji, która umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Atlassian Confluence Server allows remote attackers to view restricted resources via local file inclusion in the /s/ endpoint.": "Wykryto system Atlassian Confluence Server w wersji umożliwiającej atakującym nieuprawniony dostęp do zasobów."
+    + UPDATE_HINT,
+    "Attempts to show all variables on a MySQL server.": "Wykryto, że serwer MySQL umożliwia logowanie prostym hasłem.",
+    "Enrollment System Project V1.0, developed by Sourcecodester, has been found to be vulnerable to SQL Injection (SQLI) attacks. This vulnerability allows an attacker to manipulate the SQL queries executed by the application. The system fails to properly validate user-supplied input in the username and password fields during the login process, enabling an attacker to inject malicious SQL code. By exploiting this vulnerability, an attacker can bypass authentication and gain unauthorized access to the system.": "Enrollment System Project V1.0 zawiera podatność SQL Injection umożliwiającą atakującemu nieuprawniony dostęp do systemu.",
+    "Checks for MySQL servers with an empty password for root or anonymous.": "Wykryto serwer MySQL do którego można zalogować się pustym hasłem.",
+    "WordPress WooCommerce plugin before 3.1.2 does not have authorisation and CSRF checks in the wpt_admin_update_notice_option AJAX action (available to both unauthenticated and authenticated users), as well as does not validate the callback parameter, allowing unauthenticated attackers to call arbitrary functions with either none or one user controlled argument.": "Wtyczka WordPress o nazwie WooCommerce w wersji poniżej 3.1.2 umożliwia atakującemu nieuprawnione uruchamianie niektórych funkcji w systemie."
+    + WORDPRESS_UPDATE_HINT,
+    "Primetek Primefaces 5.x is vulnerable to a weak encryption flaw resulting in remote code execution.": "Primetek Primefaces 5.x zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Detects exposed internal PKI infrastructure including CRL distribution points and OCSP responders": "Wykryto publicznie dostępną infrastrukturę PKI. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
+    "After the initial setup process, some steps of setup.php file are reachable not only by super-administrators but also by unauthenticated users. A malicious actor can pass step checks and potentially change the configuration of Zabbix Frontend.": "Wykryto, że niektóre kroki instalacji systemu Zabbix Frontend są dostępne nie tylko dla administratorów, ale też dla nieuprawnionych użytkowników, co umożliwia atakującemu zmianę konfiguracji systemu. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "A vulnerability in NuPoint Messenger (NPM) of Mitel MiCollab through 9.8.0.33 allows an unauthenticated attacker to conduct a SQL injection attack due to insufficient sanitization of user input. A successful exploit could allow an attacker to access sensitive information and execute arbitrary database and management operations.": "NuPoint Messenger w wersji do 9.8.0.33 włącznie zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
     + UPDATE_HINT,
     "Files on the host computer can be accessed from the Gradio interface": "Interfejs Gradio umożliwia dostęp do plików na komputerze.",
     "gSOAP 2.8 is vulnerable to local file inclusion.": "gSOAP w wersji 2.8 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt niektórych plików z dysku."
+    + UPDATE_HINT,
+    "Rubedo CMS through 3.4.0 contains a directory traversal vulnerability in the theme component, allowing unauthenticated attackers to read and execute arbitrary files outside of the service root path, as demonstrated by a /theme/default/img/%2e%2e/..//etc/passwd URI.": "Rubedo CMS w wersji do 3.4.0 włącznie zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt plików z dysku."
     + UPDATE_HINT,
     # The translation is different from the original message as the template doesn't check that it's **not* possible to access the debug env **without** injecting stuff.
     "Symfony, a popular PHP framework, offers a module called symfony/runtime that allows developers to decouple their PHP applications from the global state. This module enhances the flexibility and maintainability of Symfony-based applications. However, a security vulnerability was discovered in symfony/runtime versions prior to 5.4.46, 6.4.14, and 7.1.7. When the `register_argv_argc` PHP directive is set to `on`, users could manipulate the environment or debug mode used by the kernel when handling requests by crafting a specific query string in the URL. This vulnerability could potentially allow attackers to alter the application's behavior or gain unauthorized access to sensitive information. To address this issue, the Symfony team released patches in versions 5.4.46, 6.4.14, and 7.1.7 of the symfony/runtime module. In these updated versions, the `SymfonyRuntime` class has been modified to ignore the `argv` values for non-SAPI PHP runtimes. This change prevents the manipulation of the kernel's environment or debug mode through the query string, thereby mitigating the security risk. It is highly recommended that developers using Symfony/runtime update their applications to the latest patched versions to ensure the security and integrity of their Symfony-based projects. By applying these updates, developers can protect their applications from potential exploits and maintain a secure environment for their users.": "Wykryto, że po podaniu odpowiednich parametrów w ścieżce jest możliwość uzyskania dostępu do trybu debug frameworku Symfony, w tym potencjalnie do wrażliwych informacji konfiguracyjnych. Może to wynikać z podatności CVE-2024-50340 (występującej w wersji Symfony mniejszej od 5.4.46, w gałęzi 6 - mniejszej niż 6.4.14, a w gałęzi 7 - mniejszej niż 7.1.7) lub z konfiguracji, że tryb debug jest publicznie dostępny.",
@@ -1555,4 +1645,28 @@ TRANSLATIONS = {
     "Thruk Monitoring panel was detected.": "Wykryto panel Thruk Monitoring.",
     "FreeScout panel was discovered.": "Wykryto panel FreeScout.",
     "Akuiteo products was detected.": "Wykryto panel Akuiteo.",
+    "YunoHost Admin panel was discovered.": "Wykryto panel YunoHost Admin.",
+    "Clockwork Dashboard is exposed.": "Wykryto panel Clockwork Dashboard.",
+    "Untangle Administrator is a centralized web-based management console that allows administrators to efficiently configure, monitor, and control various network security and filtering features provided by the Untangle NG Firewall, ensuring robust network protection and policy enforcement.": "Wykryto panel Untangle Administrator.",
+    "An Opencast Admin panel was discovered. Opencast is a free and open source solution for automated video capture and distribution at scale.": "Wykryto panel administracyjny Opencast.",
+    "An OpenWebUI panel was detected": "Wykryto panel OpenWebUI.",
+    "Vaultwarden products was detected.": "Wykryto panel Vaultwarden.",
+    "Reolink panel was discovered.": "Wykryto panel Reolink",
+    "Reposilite products was detected.": "Wykryto panel systemu Reposilite.",
+    "PocketBase Login panel was discovered.": "Wykryto panel logowania PocketBase.",
+    "AfterLogic WebMail Login panel was detected.": "Wykryto panel AfterLogic WebMail.",
+    "Sensu by Sumo Logic login panel was detected.": "Wykryto panel Sensu by Sumo Logic.",
+    "Splunk Enterprise login panel was detected.": "Wykryto panel Splunk Enterprise.",
+    "http/exposed-panels/umami-panel.yaml": "Wykryto panel systemu Umami Analytics.",
+    "OPNsense panel was detected.": "Wykryto panel OPNSense.",
+    "Atlassian Bamboo login panel was detected.": "Wykryto panel Atlassian Bamboo.",
+    "Cisco IOS XE login panel was detected.": "Wykryto panel logowania Cisco IOS XE.",
+    "An Opentwrt admin login page was discovered.": "Wykryto panel logowania OpenWrt.",
+    "http/exposed-panels/macos-server-panel.yaml": "Wykryto panel MacOS Server.",
+    "Detects F5 Admin Interfaces.": "Wykryto panel administracyjny F5.",
+    "Gira HomeServer 4 login panel was detected.": "Wykryto panel logowania Gira HomeServer 4.",
+    "Stirling PDF panel was discovered.": "Wykryto panel Stirling PDF.",
+    "JFrog login panel was detected.": "Wykryto panel logowania JFrog.",
+    "Oracle Enterprise Manager login panel was detected.": "Wykryto panel logowania Oracle Enterprise Manager.",
+    "Zoraxy products was detected.": "Wykryto system Zoraxy.",
 }

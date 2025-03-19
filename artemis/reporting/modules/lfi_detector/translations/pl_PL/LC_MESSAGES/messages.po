@@ -1,0 +1,31 @@
+#: artemis/reporting/modules/lfi_detector/template_lfi.jinja2:2
+msgid ""
+"We identified that the following URLs are vulnerable to Local File "
+"Inclusion (LFI):"
+msgstr ""
+"Wykryliśmy, że poniższe adresy zawierają podatność Local File Inclusion "
+"(LFI):"
+
+#: artemis/reporting/modules/lfi_detector/template_lfi.jinja2:11
+msgid ""
+"This means that an attacker can include local files on the server, "
+"potentially exposing sensitive information or executing arbitrary code."
+msgstr ""
+"Oznacza to, że atakujący może odczytywać pliki na serwerze, co może "
+"skutkować wyciekiem informacji które nie powinny być publiczne. Ta "
+"podatność może w niektórych sytuacjach również prowadzić do zdalnego "
+"wykonania kodu."
+
+#: artemis/reporting/modules/lfi_detector/template_lfi.jinja2:21
+msgid ""
+"These vulnerabilities can lead to serious security breaches, including "
+"unauthorized access to sensitive files, server configuration details, and"
+" potential remote code execution. The vulnerability occurs when user "
+"input is used to include files without proper validation, allowing "
+"attackers to manipulate the file path."
+msgstr ""
+"Ta podatność może prowadzić do poważnych ataków, takich jak nieuprawniony"
+" dostęp do plików  danych konfiguracyjnych serwera, a w niektórych "
+"sytuacjach - również zdalne wykonanie kodu. Podatność występuje, gdy dane"
+" od użytkownika są używane jako część ścieżki pliku bez wystarczającej "
+"walidacji, co umożliwia atakującemu manipulację ścieżką."

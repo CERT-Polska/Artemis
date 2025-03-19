@@ -1,3 +1,5 @@
+import faulthandler
+import gc
 import hashlib
 import json
 import shutil
@@ -6,6 +8,8 @@ import time
 import traceback
 from pathlib import Path
 
+import psutil
+
 from artemis import utils
 from artemis.db import DB, ReportGenerationTask, ReportGenerationTaskStatus
 from artemis.reporting.base.language import Language
@@ -13,6 +17,9 @@ from artemis.reporting.export.main import export
 
 db = DB()
 logger = utils.build_logger(__name__)
+
+
+DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS = 1800
 
 
 def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
@@ -44,6 +51,15 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
             shutil.rmtree(previous_reports_directory)
 
 
+def report_mem() -> None:
+    gc.collect()
+    logger.info(
+        "Memory stats: system percentage=%s, process rss=%s MB",
+        psutil.virtual_memory().percent,
+        psutil.Process().memory_info().rss / 1048576,
+    )
+
+
 def main() -> None:
     while True:
         task = db.take_single_report_generation_task()
@@ -56,6 +72,8 @@ def main() -> None:
                 task.language,
                 task.custom_template_arguments,
             )
+            faulthandler.dump_traceback_later(timeout=DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS)
+            report_mem()
             try:
                 output_location = handle_single_task(task)
                 with open(output_location / "advanced" / "output.json") as output_file:
@@ -71,6 +89,8 @@ def main() -> None:
                 db.save_report_generation_task_results(
                     task, ReportGenerationTaskStatus.FAILED, error=traceback.format_exc()
                 )
+            faulthandler.cancel_dump_traceback_later()
+            report_mem()
 
         time.sleep(1)
 

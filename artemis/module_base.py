@@ -33,6 +33,8 @@ from artemis.task_utils import (
     increase_analysis_num_in_progress_tasks,
 )
 from artemis.utils import is_ip_address, throttle_request
+from artemis.modules.base.module_configuration import ModuleConfiguration
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
@@ -81,7 +83,14 @@ class ArtemisBase(Karton):
         self.setup_logger(Config.Miscellaneous.LOG_LEVEL)
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
-        self._configuration: Optional[ModuleConfiguration] = None
+        
+        # Initialize configuration
+        registry = ConfigurationRegistry()
+        config_class = registry.get_configuration_class(self.identity)
+        if config_class:
+            self._configuration = config_class()
+        else:
+            self._configuration = ModuleConfiguration()
 
         if Config.Miscellaneous.BLOCKLIST_FILE:
             self._blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)

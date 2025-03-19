@@ -13,9 +13,20 @@ http:
         GET {{Path}} HTTP/1.1
         Host: {{Hostname}}
 
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
     matchers:
       - type: dsl
         name: forbidden
         dsl:
-          - "status_code == 403"
+          # Perform the same request multiple times to make sure it was not a random 403
+          - "status_code_1 == 403"
+          - "status_code_2 == 403"
+          - "status_code_3 == 403"
         condition: and

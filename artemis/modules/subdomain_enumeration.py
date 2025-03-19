@@ -15,7 +15,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
-from artemis.resolvers import lookup
+from artemis.resolvers import ResolutionException, lookup
 from artemis.task_utils import get_ip_range, has_ip_range
 from artemis.utils import check_output_log_on_error, throttle_request
 
@@ -163,9 +163,12 @@ class SubdomainEnumeration(ArtemisBase):
         subdomains: Set[str] = set()
         self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
         for subdomain in self._subdomains_to_brute_force:
-            lookup_result = throttle_request(
-                lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
-            )
+            try:
+                lookup_result = throttle_request(
+                    lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
+                )
+            except ResolutionException:
+                continue
 
             if lookup_result and tuple(lookup_result) not in results_for_random_subdomain:
                 subdomains.add(subdomain + "." + domain)

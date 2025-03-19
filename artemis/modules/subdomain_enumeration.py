@@ -162,9 +162,12 @@ class SubdomainEnumeration(ArtemisBase):
         subdomains: Set[str] = set()
         self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
         for subdomain in self._subdomains_to_brute_force:
-            lookup_result = throttle_request(
-                lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
-            )
+            try:
+                lookup_result = throttle_request(
+                    lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
+                )
+            except artemis.resolvers.ResolutionException:
+                pass
 
             if lookup_result and tuple(lookup_result) not in results_for_random_subdomain:
                 subdomains.add(subdomain + "." + domain)

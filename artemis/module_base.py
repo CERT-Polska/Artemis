@@ -24,6 +24,7 @@ from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
+from artemis.ip_utils import is_ip_address
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -36,7 +37,7 @@ from artemis.task_utils import (
     increase_analysis_num_finished_tasks,
     increase_analysis_num_in_progress_tasks,
 )
-from artemis.utils import is_ip_address, throttle_request
+from artemis.utils import throttle_request
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 

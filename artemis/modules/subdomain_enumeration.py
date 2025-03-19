@@ -16,6 +16,7 @@ from artemis.db import DB
 from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
+from artemis.task_utils import get_ip_range, has_ip_range
 from artemis.utils import check_output_log_on_error, throttle_request
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
@@ -242,6 +243,14 @@ class SubdomainEnumeration(ArtemisBase):
             # We save the task as soon as we have results from a single tool so that other kartons can do something.
             for subdomain in valid_subdomains_from_tool:
                 if subdomain != domain:  # ensure we are not adding the parent domain again
+                    # If the initial source of the scanning was an IP or an IP range, only scan the subdomains
+                    # that point to the original IP.
+                    if has_ip_range(current_task):
+                        ip_range = get_ip_range(current_task)
+                        matches = [ip in ip_range for ip in lookup(subdomain)]
+                        if not (len(matches) and all(matches)):
+                            continue
+
                     task = Task(
                         {"type": TaskType.DOMAIN},
                         payload={

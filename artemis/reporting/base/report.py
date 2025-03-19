@@ -6,9 +6,10 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from artemis.domains import is_domain
+from artemis.ip_utils import is_ip_address
 from artemis.reporting.severity import Severity
 from artemis.resolvers import ResolutionException, lookup
-from artemis.utils import get_host_from_url, is_ip_address
+from artemis.utils import get_host_from_url
 
 from .normal_form import NormalForm
 from .report_type import ReportType

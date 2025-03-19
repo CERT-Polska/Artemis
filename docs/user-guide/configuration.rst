@@ -12,6 +12,115 @@ Additionally, you can configure modules from the ``Artemis-modules-extra`` repos
 the configuration variables from https://github.com/CERT-Polska/Artemis-modules-extra/blob/main/extra_modules_config.py. The file to put them
 in (``.env``) and the syntax (``VARIABLE_NAME=VARIABLE_VALUE``) is the same as for the core Artemis configuration.
 
+Module Configuration
+-------------------
+
+The ``ModuleConfiguration`` class serves as the base for all module-specific configurations in Artemis. It provides a standardized way to handle module configurations with serialization, deserialization, and validation capabilities.
+
+Basic Usage
+~~~~~~~~~~
+
+.. code-block:: python
+
+    from artemis.modules.base.module_configuration import ModuleConfiguration
+
+    # Create a configuration with default values
+    config = ModuleConfiguration()  # enabled=True by default
+
+    # Create a configuration with custom values
+    config = ModuleConfiguration(enabled=False)
+
+    # Serialize to a dictionary
+    config_dict = config.serialize()
+    # Result: {"enabled": false}
+
+    # Deserialize from a dictionary
+    config = ModuleConfiguration.deserialize({"enabled": False})
+
+    # Validate configuration
+    is_valid = config.validate()
+
+Extending The Base Class
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To create a module-specific configuration, extend the ``ModuleConfiguration`` class:
+
+.. code-block:: python
+
+    from typing import Dict, Any
+    from artemis.modules.base.module_configuration import ModuleConfiguration
+
+    class PortScannerConfiguration(ModuleConfiguration):
+        def __init__(
+            self, 
+            enabled: bool = True,
+            timeout_ms: int = 5000,
+            max_ports: int = 1000
+        ) -> None:
+            super().__init__(enabled=enabled)
+            self.timeout_ms = timeout_ms
+            self.max_ports = max_ports
+        
+        def serialize(self) -> Dict[str, Any]:
+            result = super().serialize()
+            result.update({
+                "timeout_ms": self.timeout_ms,
+                "max_ports": self.max_ports
+            })
+            return result
+        
+        @classmethod
+        def deserialize(cls, config_dict: Dict[str, Any]) -> "PortScannerConfiguration":
+            return cls(
+                enabled=config_dict.get("enabled", True),
+                timeout_ms=config_dict.get("timeout_ms", 5000),
+                max_ports=config_dict.get("max_ports", 1000)
+            )
+        
+        def validate(self) -> bool:
+            base_valid = super().validate()
+            return (
+                base_valid and
+                isinstance(self.timeout_ms, int) and self.timeout_ms > 0 and
+                isinstance(self.max_ports, int) and self.max_ports > 0
+            )
+
+API Reference
+~~~~~~~~~~~~
+
+Constructor
+^^^^^^^^^^
+
+.. code-block:: python
+
+    ModuleConfiguration(enabled: bool = True)
+
+- ``enabled``: Controls whether the module is enabled. Defaults to ``True``.
+
+Methods
+^^^^^^^
+
+``serialize() -> Dict[str, Any]``
+  Serializes the configuration to a dictionary format suitable for storage or transmission.
+
+``deserialize(config_dict: Dict[str, Any]) -> ModuleConfiguration``
+  Class method that creates a new configuration instance from a dictionary.
+
+``validate() -> bool``
+  Validates that the configuration is valid. Returns ``True`` if valid, ``False`` otherwise.
+
+Integration with Module System
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When developing a new module for Artemis, you should:
+
+1. Create a custom configuration class extending ``ModuleConfiguration``
+2. Add module-specific configuration options
+3. Override the ``serialize()``, ``deserialize()``, and ``validate()`` methods
+4. Use the configuration in your module implementation
+
+This approach ensures consistency in how module configurations are handled throughout the system.
+
 Blocklist
 ---------
 You may exclude some systems from being scanned or included in the reports. To do that, set the ``BLOCKLIST_FILE`` environment

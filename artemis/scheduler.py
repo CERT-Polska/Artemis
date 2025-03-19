@@ -1,17 +1,28 @@
 from datetime import datetime
 import pytz
+from typing import Optional, List
+import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import JobLookupError
 from karton.core.task import TaskPriority
 
 from artemis.producer import create_tasks
+from artemis import utils
+
+logging.basicConfig(level=logging.INFO)
 
 scheduler = BackgroundScheduler(timezone=pytz.utc)
 scheduler.start()
 
 
-def schedule_periodic_scan(targets, tag, disabled_modules, priority, interval_minutes, start_time, end_time):
+def schedule_periodic_scan(targets: List[str], 
+                           tag: Optional[str], 
+                           disabled_modules: List[str], 
+                           priority: int, 
+                           interval_minutes: str, 
+                           start_time: str, 
+                           end_time: str) -> None:
     """
     Schedule a periodic scan job that runs at a fixed interval.
 
@@ -22,9 +33,9 @@ def schedule_periodic_scan(targets, tag, disabled_modules, priority, interval_mi
     :param interval_minutes: int - interval (in minutes) between each scan.
     :param start_time: datetime - when the first run should occur (UTC recommended).
     """
-    def scan_job():
+    def scan_job() -> None:
         # This function will be called every interval.
-        print(f"[{datetime.utcnow().isoformat()}] Running periodic scan for tag '{tag}'.")
+        logging.info("Running periodic scan for tag %s", tag)
         if end_time < datetime.utcnow():
             cancel_periodic_scan(job_id)
         create_tasks(targets, tag, disabled_modules, priority)
@@ -43,23 +54,22 @@ def schedule_periodic_scan(targets, tag, disabled_modules, priority, interval_mi
         id=job_id,
         replace_existing=True,
     )
-    print(f"Scheduled periodic scan job '{job_id}' to run every {interval_minutes} minutes starting at {next_run_time}.")
+    logging.info("Scheduled periodic scan job '%d' to run every %d minutes starting at %s. ",
+                job_id, interval_minutes, next_run_time)
 
 
-def cancel_periodic_scan(job_id):
+def cancel_periodic_scan(job_id: int) -> None:
     """
     Cancel a previously scheduled periodic scan.
-
-    :param job_id: str - the id of the job to cancel.
     """
     try:
         scheduler.remove_job(job_id)
-        print(f"Cancelled periodic scan job '{job_id}'.")
+        logging.info("Cancelled periodic scan job %s", job_id)
     except JobLookupError:
-        print(f"Job '{job_id}' not found. It may have already been cancelled.")
+        logging.info("Job %s not found. It may have already been cancelled. ", job_id)
     
 
-def get_scheduled_scans():
+def get_scheduled_scans() -> List[int]:
     """
     Return a list of all currently scheduled periodic scans.
 

@@ -25,7 +25,7 @@ from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilte
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import get_binds_that_can_be_disabled, restart_crashed_tasks
 from artemis.modules.classifier import Classifier
-from artemis.scheduler import schedule_periodic_scan
+from artemis.scheduler import schedule_periodic_scan,cancel_periodic_scan
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
 from artemis.task_utils import get_task_target
@@ -540,7 +540,6 @@ def get_scheduled_scans_page(request: Request, csrf_protect: CsrfProtect = Depen
 @router.post("/scheduled_scans/cancel", include_in_schema=False)
 @csrf.validate_csrf
 def cancel_scheduled_scan(request: Request, job_id: str = Form(...), csrf_protect: CsrfProtect = Depends()):
-    from artemis.scheduler import cancel_periodic_scan
     cancel_periodic_scan(job_id)
     return RedirectResponse("/scheduled_scans", status_code=302)
 
@@ -563,7 +562,6 @@ def edit_scheduled_scan(request: Request, job_id: str,
                         priority: str = Form(...),
                         csrf_protect: CsrfProtect = Depends()):
     from datetime import datetime
-    from artemis.scheduler import cancel_periodic_scan, schedule_periodic_scan
     cancel_periodic_scan(job_id)
     try:
         start_time = datetime.fromisoformat(schedule_start)

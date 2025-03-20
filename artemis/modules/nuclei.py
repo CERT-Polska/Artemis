@@ -361,12 +361,7 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
-        tasks = [task for task in tasks if self.check_connection_to_base_url_and_save_error(task)]
-
         self.log.info(f"running {len(self._templates)} templates and {len(self._workflows)} on {len(tasks)} hosts.")
-
-        if len(tasks) == 0:
-            return
 
         targets = []
         for task in tasks:

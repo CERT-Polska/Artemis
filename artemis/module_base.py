@@ -19,7 +19,7 @@ from redis import Redis
 from requests.exceptions import RequestException
 
 from artemis import http_requests
-from artemis.binds import TaskStatus, TaskType
+from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
@@ -559,6 +559,23 @@ class ArtemisBase(Karton):
 
         output_redirector = OutputRedirector()
 
+        tasks_filtered = []
+        for task in tasks:
+            should_check_connection = False
+            if task.headers["type"] == TaskType.SERVICE and task.headers["service"] == Service.HTTP:
+                should_check_connection = True
+            elif task.headers["type"] == TaskType.WEBAPP:
+                should_check_connection = True
+            elif task.headers["type"] == TaskType.URL:
+                should_check_connection = True
+
+            if not should_check_connection or self.check_connection_to_base_url_and_save_error(task):
+                tasks_filtered.append(task)
+
+        tasks = tasks_filtered
+        if not tasks:
+            return
+
         try:
             with output_redirector:
                 if self.batch_tasks:
@@ -686,6 +703,7 @@ class ArtemisBase(Karton):
                     task=task,
                     status=TaskStatus.ERROR,
                     status_reason=f"Unable to connect to base URL: {base_url}: WAF detected, task skipped",
+                    data={"waf_detected": True},
                 )
                 self.log.info(
                     f"Unable to connect to base URL: {base_url}: WAF detected, task skipped, releasing lock for {scan_destination}"

@@ -73,7 +73,7 @@ class DataLoader:
             if top_level_target:
                 self._scanned_top_level_targets.add(top_level_target)
 
-            if result["result"].get("waf_detected", False):
+            if isinstance(result["result"], dict) and result["result"].get("waf_detected", False):
                 self._hosts_with_waf_detected.add(DataLoader._get_target_host(result["task"]))
 
             if result["task"]["headers"]["receiver"] == "IPLookup":

@@ -569,7 +569,7 @@ class ArtemisBase(Karton):
             elif task.headers["type"] == TaskType.URL:
                 should_check_connection = True
 
-            if self.check_connection_to_base_url_and_save_error(task) or not should_check_connection:
+            if not should_check_connection or self.check_connection_to_base_url_and_save_error(task):
                 tasks_filtered.append(task)
 
         tasks = tasks_filtered

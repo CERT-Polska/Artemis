@@ -999,6 +999,7 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Detects potential 403 Forbidden bypass vulnerabilities by using nonexistent HTTP methods.": "Wykryto, że za pomocą podania niestandardowej metody HTTP można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
     "Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).": "Wykryto, że za pomocą podania dodatkowych nagłówków HTTP, takich jak np. X-Forwarded-For lub X-Original-URL, można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
     "Redis service was accessed with easily guessed credentials.": "Wykryto system Redis, do którego udało się zalogować po zgadnięciu hasła. Oznacza to, że atakujący może uzyskać dostęp do danych w systemie i je modyfikować lub usunąć.",
     "NETGEAR routers R6250 before 1.0.4.6.Beta, R6400 before 1.0.1.18.Beta, R6700 before 1.0.1.14.Beta, R6900, R7000 before 1.0.7.6.Beta, R7100LG before 1.0.0.28.Beta, R7300DST before 1.0.0.46.Beta, R7900 before 1.0.1.8.Beta, R8000 before 1.0.3.26.Beta, D6220, D6400, D7000, and possibly others allow remote attackers to execute arbitrary commands via shell metacharacters in the path info to cgi-bin/.": "Routery NETGEAR R6250 w wersji poniżej 1.0.4.6.Beta, R6400 w wersji poniżej 1.0.1.18.Beta, R6700 w wersji poniżej 1.0.1.14.Beta, R6900, R7000 w wersji poniżej 1.0.7.6.Beta, R7100LG w wersji poniżej 1.0.0.28.Beta, R7300DST w wersji poniżej 1.0.0.46.Beta, R7900 w wersji poniżej 1.0.1.8.Beta, R8000 w wersji poniżej 1.0.3.26.Beta, D6220, D6400, D7000 i potencjalnie inne zawierają podatność umożliwiającą atakującemu zdalne wykonanie kodu."
@@ -1027,6 +1028,7 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION,
     "Artifactory anonymous repo is exposed.": "Wykryto anonimowe repozytorium systemu Artifactory.",
     "The MKdocs 1.2.2 built-in dev-server allows directory traversal using the port 8000, enabling remote exploitation to obtain sensitive information. Note the vendor has disputed the vulnerability (see references) because the dev server must be used in an unsafe way (namely public) to have this vulnerability exploited.": "Wykryto serwer deweloperski systemu MKdocs w wersji 1.2.2 zawierający podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "eQ-3 AG Homematic CCU3 3.43.15 and earlier allows remote attackers to read arbitrary files of the device's filesystem, aka local file inclusion. This vulnerability can be exploited by unauthenticated attackers with access to the web interface.": "Sterownik eQ-3 AG Homematic CCU w wersji 3.43.15 i wcześniejszych zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Zeit Next.js before 4.2.3 is susceptible to local file inclusion under the /_next request namespace. An attacker can obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Zeit Next.js w wersji poniżej 4.2.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "Dump password hashes in use within a PostgreSQL database.": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw użytkowników bazy danych i haszy ich haseł.",
@@ -1674,4 +1676,5 @@ TRANSLATIONS = {
     "Oracle Enterprise Manager login panel was detected.": "Wykryto panel logowania Oracle Enterprise Manager.",
     "Zoraxy products was detected.": "Wykryto system Zoraxy.",
     "A lorex panel was detected.": "Wykryto panel lorex.",
+    "SteVe login panel was detected.": "wykryto panel logowania SteVe.",
 }

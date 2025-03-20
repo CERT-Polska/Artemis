@@ -702,6 +702,7 @@ class ArtemisBase(Karton):
                     task=task,
                     status=TaskStatus.ERROR,
                     status_reason=f"Unable to connect to base URL: {base_url}: WAF detected, task skipped",
+                    data={"waf_detected": True},
                 )
                 self.log.info(
                     f"Unable to connect to base URL: {base_url}: WAF detected, task skipped, releasing lock for {scan_destination}"

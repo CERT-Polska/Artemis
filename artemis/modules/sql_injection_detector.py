@@ -327,33 +327,32 @@ class SqlInjectionDetector(ArtemisBase):
         return message
 
     def run(self, current_task: Task) -> None:
-        if self.check_connection_to_base_url_and_save_error(current_task):
-            url = get_target_url(current_task)
+        url = get_target_url(current_task)
 
-            links = get_links_and_resources_on_same_domain(url)
-            links.append(url)
-            links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+        links = get_links_and_resources_on_same_domain(url)
+        links.append(url)
+        links = list(set(links) | set([self._strip_query_string(link) for link in links]))
 
-            links = [
-                link.split("#")[0]
-                for link in links
-                if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-            ]
+        links = [
+            link.split("#")[0]
+            for link in links
+            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
+        ]
 
-            random.shuffle(links)
+        random.shuffle(links)
 
-            message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
+        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
 
-            if message:
-                status = TaskStatus.INTERESTING
-                status_reason = self.create_status_reason(message=message)
-            else:
-                status = TaskStatus.OK
-                status_reason = None
+        if message:
+            status = TaskStatus.INTERESTING
+            status_reason = self.create_status_reason(message=message)
+        else:
+            status = TaskStatus.OK
+            status_reason = None
 
-            data = self.create_data(message=message)
+        data = self.create_data(message=message)
 
-            self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
+        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@ from redis import Redis
 from requests.exceptions import RequestException
 
 from artemis import http_requests
-from artemis.binds import TaskStatus, TaskType
+from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
@@ -558,6 +558,23 @@ class ArtemisBase(Karton):
             return
 
         output_redirector = OutputRedirector()
+
+        tasks_filtered = []
+        for task in tasks:
+            should_check_connection = False
+            if task.headers["type"] == TaskType.SERVICE and task.headers["service"] == Service.HTTP:
+                should_check_connection = True
+            elif task.headers["type"] == TaskType.WEBAPP:
+                should_check_connection = True
+            elif task.headers["type"] == TaskType.URL:
+                should_check_connection = True
+
+            if self.check_connection_to_base_url_and_save_error(task) or not should_check_connection:
+                tasks_filtered.append(task)
+
+        tasks = tasks_filtered
+        if not tasks:
+            return
 
         try:
             with output_redirector:

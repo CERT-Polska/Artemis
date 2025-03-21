@@ -4,7 +4,7 @@ import re
 import urllib
 from enum import Enum
 from timeit import default_timer as timer
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
 
 import more_itertools
@@ -96,15 +96,18 @@ class SqlInjectionDetector(ArtemisBase):
         start = timer()
         try:
             if "headers" not in kwargs:
-                self.http_get(url)
+                self.forgiving_http_get(url)
             else:
-                self.http_get(url, headers=kwargs.get("headers"))
+                self.forgiving_http_get(url, headers=kwargs.get("headers"))
         except requests.exceptions.Timeout:
             return Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
 
         return datetime.timedelta(seconds=timer() - start).seconds
 
-    def contains_error(self, url: str, response: HTTPResponse) -> str | None:
+    def contains_error(self, url: str, response: Optional[HTTPResponse]) -> str | None:
+        if response is None:
+            return None
+
         # 500 error code will not be matched as it's a significant source of FPs
         for message in SQL_ERROR_MESSAGES:
             if re.search(message, response.content):
@@ -164,9 +167,12 @@ class SqlInjectionDetector(ArtemisBase):
                             url=current_url, payload=not_error_payload, param_batch=param_batch
                         )
 
-                        error = self.contains_error(url_with_payload, self.http_get(url_with_payload))
+                        error = self.contains_error(url_with_payload, self.forgiving_http_get(url_with_payload))
 
-                        if not self.contains_error(url_without_payload, self.http_get(url_without_payload)) and error:
+                        if (
+                            not self.contains_error(url_without_payload, self.forgiving_http_get(url_without_payload))
+                            and error
+                        ):
                             message.append(
                                 {
                                     "url": url_with_payload,
@@ -221,9 +227,12 @@ class SqlInjectionDetector(ArtemisBase):
                         url=current_url, param_batch=param_batch, payload=not_error_payload
                     )
 
-                    error = self.contains_error(url_with_payload, self.http_get(url_with_payload))
+                    error = self.contains_error(url_with_payload, self.forgiving_http_get(url_with_payload))
 
-                    if not self.contains_error(url_with_no_payload, self.http_get(url_with_no_payload)) and error:
+                    if (
+                        not self.contains_error(url_with_no_payload, self.forgiving_http_get(url_with_no_payload))
+                        and error
+                    ):
                         message.append(
                             {
                                 "url": url_with_payload,
@@ -274,10 +283,12 @@ class SqlInjectionDetector(ArtemisBase):
                 headers = self.create_headers(payload=error_payload)
                 headers_no_payload = self.create_headers(payload=not_error_payload)
 
-                error = self.contains_error(current_url, self.http_get(current_url, headers=headers))
+                error = self.contains_error(current_url, self.forgiving_http_get(current_url, headers=headers))
 
                 if (
-                    not self.contains_error(current_url, self.http_get(current_url, headers=headers_no_payload))
+                    not self.contains_error(
+                        current_url, self.forgiving_http_get(current_url, headers=headers_no_payload)
+                    )
                     and error
                 ):
                     message.append(

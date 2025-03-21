@@ -76,6 +76,11 @@ class ArtemisBase(Karton):
 
     requests_per_second_for_current_tasks: float = Config.Limits.REQUESTS_PER_SECOND
 
+    # Sometimes a module needs to make a large number of HTTP requests and a small number of failures is OK.
+    # These two counters control that. To use the feature use self.forgiving_http_get or self.forgiving_http_post
+    _forgiven_http_requests: int = 0
+    _forgiven_http_requests_max: int = 10
+
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
@@ -557,6 +562,7 @@ class ArtemisBase(Karton):
         if len(tasks) == 0:
             return
 
+        self._forgiven_http_requests = 0
         output_redirector = OutputRedirector()
 
         tasks_filtered = []
@@ -725,12 +731,30 @@ class ArtemisBase(Karton):
             return False
 
     def http_get(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
-        kwargs["requests_per_second"] = self.requests_per_second_for_current_tasks
-        return http_requests.get(*args, **kwargs)
+        return self._http_request("get", *args, **kwargs)
 
     def http_post(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
+        return self._http_request("post", *args, **kwargs)
+
+    # Sometimes a module needs to make a large number of HTTP requests and a small number of failures is OK.
+    # These two methods allow to do that.
+    def forgiving_http_get(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
+        return self._forgiving_http_request("get", *args, **kwargs)
+
+    def forgiving_http_post(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
+        return self._forgiving_http_request("post", *args, **kwargs)
+
+    def _forgiving_http_request(self, method: str, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
+        try:
+            return self._http_request(method, *args, **kwargs)
+        except Exception:
+            self._forgiven_http_requests += 1
+            if self._forgiven_http_requests > self._forgiven_http_requests_max:
+                raise
+
+    def _http_request(self, method: str, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
         kwargs["requests_per_second"] = self.requests_per_second_for_current_tasks
-        return http_requests.post(*args, **kwargs)
+        return getattr(http_requests, method)(*args, **kwargs)  # type: ignore
 
     def throttle_request(self, f: Callable[[], Any]) -> Any:
         return throttle_request(f, requests_per_second=self.requests_per_second_for_current_tasks)

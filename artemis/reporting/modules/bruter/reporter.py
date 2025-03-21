@@ -62,7 +62,7 @@ class BruterReporter(Reporter):
                 )
             )
 
-        for found_url_dict in task_result["result"]["found_urls"]:
+        for found_url_dict in task_result["result"].get("found_urls", {}):
             found_url = FoundURL(**found_url_dict)
 
             if is_password_file(found_url):

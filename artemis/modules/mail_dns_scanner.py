@@ -14,6 +14,7 @@ from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
+from artemis.task_utils import has_ip_range
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -109,6 +110,11 @@ class MailDNSScanner(ArtemisBase):
         return result
 
     def run(self, current_task: Task) -> None:
+        # If the task originated from an IP-based one, that means, that we are scanning a domain that came from reverse DNS search.
+        # Misconfigured SPF/DMARC on such domains is not actually related to scanned IP ranges, therefore let's skip it.
+        if has_ip_range(current_task):
+            return
+
         if current_task.get_payload("mail_domain"):
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return

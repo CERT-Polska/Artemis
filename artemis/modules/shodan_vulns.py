@@ -3,7 +3,7 @@ import os
 from time import sleep
 from typing import List
 
-import shodan  # type: ignore
+import shodan
 from karton.core import Task
 from pydantic import BaseModel
 

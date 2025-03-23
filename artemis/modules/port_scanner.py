@@ -7,6 +7,7 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, List, Set
 
+import requests
 from karton.core import Task
 
 from artemis import load_risk_class
@@ -125,7 +126,7 @@ class PortScanner(ArtemisBase):
                     str(Config.Modules.PortScanner.PORT_SCANNER_TIMEOUT_MILLISECONDS),
                 ]
                 + (
-                    ["-rate", str(int(self.requests_per_second_for_current_tasks) * len(new_target_ips))]
+                    ["-rate", str(max(1, int(self.requests_per_second_for_current_tasks)) * len(new_target_ips))]
                     if int(self.requests_per_second_for_current_tasks)
                     else []
                 ),
@@ -154,6 +155,13 @@ class PortScanner(ArtemisBase):
             for line in lines:
                 ip, port_str = line.split(":")
                 found_ports[ip].append(port_str)
+
+            if Config.Modules.PortScanner.ADD_PORTS_FROM_SHODAN_INTERNETDB:
+                for new_target_ip in new_target_ips:
+                    data = requests.get("https://internetdb.shodan.io/" + new_target_ip).json()
+                    for port in data["ports"]:
+                        self.log.info(f"Detected port {port} on {new_target_ip} from Shodan internetdb")
+                        found_ports[new_target_ip].append(str(port))
 
             for ip in found_ports.keys():
                 if len(found_ports[ip]) > Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS:

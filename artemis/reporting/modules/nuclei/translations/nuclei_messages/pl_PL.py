@@ -307,6 +307,7 @@ TRANSLATIONS = {
     "IceWarp Mail Server contains an open redirect via the referer parameter. This can lead to phishing attacks or other unintended redirects.": "Wykryto serwer IceWarp zawierający podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
     "[no description] http/takeovers/tilda-takeover.yaml": "Wykryto domenę kierującą do narzędzia Tilda, ale domena docelowa jest wolna. Atakujący może zarejestrować domenę w narzędziu Tilda, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "tumblr takeover was detected.": "Wykryto domenę kierującą do serwisu Tumblr, ale strona docelowa nie istnieje. Atakujący może utworzyć stronę w serwisie Tumblr, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "AWS Bucket takeover was detected.": "Wykryto domenę kierującą do zasobu AWS S3, który nie istnieje. Atakujący może utworzyć taki zasób, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/misconfiguration/clockwork-dashboard-exposure.yaml": "Wykryto publicznie dostępny panel narzędzia Clockwork. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "[no description] http/vulnerabilities/generic/cache-poisoning-xss.yaml": "Wykryto podatność Cache Poisoning, umożliwiającą atakującemu zmianę treści prezentowanych innym użytkownikom serwisu, w tym umieszczenie tam szkodliwego oprogramowania."
@@ -998,6 +999,19 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Detects potential 403 Forbidden bypass vulnerabilities by using nonexistent HTTP methods.": "Wykryto, że za pomocą podania niestandardowej metody HTTP można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
+    "Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).": "Wykryto, że za pomocą podania dodatkowych nagłówków HTTP, takich jak np. X-Forwarded-For lub X-Original-URL, można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
+    "Redis service was accessed with easily guessed credentials.": "Wykryto system Redis, do którego udało się zalogować po zgadnięciu hasła. Oznacza to, że atakujący może uzyskać dostęp do danych w systemie i je modyfikować lub usunąć.",
+    "NETGEAR routers R6250 before 1.0.4.6.Beta, R6400 before 1.0.1.18.Beta, R6700 before 1.0.1.14.Beta, R6900, R7000 before 1.0.7.6.Beta, R7100LG before 1.0.0.28.Beta, R7300DST before 1.0.0.46.Beta, R7900 before 1.0.1.8.Beta, R8000 before 1.0.3.26.Beta, D6220, D6400, D7000, and possibly others allow remote attackers to execute arbitrary commands via shell metacharacters in the path info to cgi-bin/.": "Routery NETGEAR R6250 w wersji poniżej 1.0.4.6.Beta, R6400 w wersji poniżej 1.0.1.18.Beta, R6700 w wersji poniżej 1.0.1.14.Beta, R6900, R7000 w wersji poniżej 1.0.7.6.Beta, R7100LG w wersji poniżej 1.0.0.28.Beta, R7300DST w wersji poniżej 1.0.0.46.Beta, R7900 w wersji poniżej 1.0.1.8.Beta, R8000 w wersji poniżej 1.0.3.26.Beta, D6220, D6400, D7000 i potencjalnie inne zawierają podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "SuiteCRM is an open-source Customer Relationship Management (CRM) software application. Prior to versions 7.14.4 and 8.6.1, a vulnerability in events response entry point allows for a SQL injection attack. Versions 7.14.4 and 8.6.1 contain a fix for this issue.": "SuiteCRM to otwartoźródłowy system Customer Relationship Management (CRM). W wersji poniżej 7.14.4 (a w gałęzi 8 - 8.6.1) zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie danych z bazy danych.",
+    "Oracle E-Business Suite 12.2.3 through 12.2.11 is susceptible to remote code execution via the Oracle Web Applications Desktop Integrator product, Upload component. An attacker with HTTP network access can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Oracle E-Business Suite w wersji od 12.2.3 do 12.2.11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "An exposed Android debug bridge was discovered.": "Wykryto publicznie dostępny interfejs Android Debug Bridge. Rekomendujemy, aby takie interfejsy nie były dostępne publicznie.",
+    "http/cves/2020/CVE-2020-9376.yaml": "Wykryto niewspieranie urządzenie D-Link DIR-610 zawierające podatność CVE-2020-9376, umożliwiającą atakującemu nieuprawnione pobieranie wrażliwych informacji i potencjalnie nieuprawniony dostęp.",
+    "VSFTPD 2.3.4 contains a backdoor command execution vulnerability.": "VSFTPD w wersji 2.3.4 zawiera szkodliwy kod umożliwiający nieuprawniony dostęp do systemu."
+    + UPDATE_HINT,
     "Grafana default admin login credentials were detected.": "Wykryto system Grafana, do którego można zalogować się domyślnymi poświadczeniami.",
     "An issue in issabel-pbx v.4.0.0-6 allows a remote attacker to obtain sensitive information via the modules directory": "Narzędzie issabel-pbx w wersji v.4.0.0-6 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji."
     + UPDATE_HINT,
@@ -1014,9 +1028,11 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION,
     "Artifactory anonymous repo is exposed.": "Wykryto anonimowe repozytorium systemu Artifactory.",
     "The MKdocs 1.2.2 built-in dev-server allows directory traversal using the port 8000, enabling remote exploitation to obtain sensitive information. Note the vendor has disputed the vulnerability (see references) because the dev server must be used in an unsafe way (namely public) to have this vulnerability exploited.": "Wykryto serwer deweloperski systemu MKdocs w wersji 1.2.2 zawierający podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "eQ-3 AG Homematic CCU3 3.43.15 and earlier allows remote attackers to read arbitrary files of the device's filesystem, aka local file inclusion. This vulnerability can be exploited by unauthenticated attackers with access to the web interface.": "Sterownik eQ-3 AG Homematic CCU w wersji 3.43.15 i wcześniejszych zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Zeit Next.js before 4.2.3 is susceptible to local file inclusion under the /_next request namespace. An attacker can obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Zeit Next.js w wersji poniżej 4.2.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "Dump password hashes in use within a PostgreSQL database.": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw użytkowników bazy danych i haszy ich haseł.",
+    "List users from Postgresql Database.": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw użytkowników bazy danych.",
     "javascript/enumeration/pgsql/pgsql-list-database.yaml": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw baz danych.",
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
@@ -1653,4 +1669,13 @@ TRANSLATIONS = {
     "Atlassian Bamboo login panel was detected.": "Wykryto panel Atlassian Bamboo.",
     "Cisco IOS XE login panel was detected.": "Wykryto panel logowania Cisco IOS XE.",
     "An Opentwrt admin login page was discovered.": "Wykryto panel logowania OpenWrt.",
+    "http/exposed-panels/macos-server-panel.yaml": "Wykryto panel MacOS Server.",
+    "Detects F5 Admin Interfaces.": "Wykryto panel administracyjny F5.",
+    "Gira HomeServer 4 login panel was detected.": "Wykryto panel logowania Gira HomeServer 4.",
+    "Stirling PDF panel was discovered.": "Wykryto panel Stirling PDF.",
+    "JFrog login panel was detected.": "Wykryto panel logowania JFrog.",
+    "Oracle Enterprise Manager login panel was detected.": "Wykryto panel logowania Oracle Enterprise Manager.",
+    "Zoraxy products was detected.": "Wykryto system Zoraxy.",
+    "A lorex panel was detected.": "Wykryto panel lorex.",
+    "SteVe login panel was detected.": "wykryto panel logowania SteVe.",
 }

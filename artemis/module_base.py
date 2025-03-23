@@ -1,5 +1,6 @@
 import datetime
 import fcntl
+import json
 import logging
 import random
 import shutil
@@ -8,7 +9,7 @@ import time
 import traceback
 import urllib.parse
 from ipaddress import ip_address
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import timeout_decorator
 from karton.core import Karton, Task
@@ -18,11 +19,12 @@ from redis import Redis
 from requests.exceptions import RequestException
 
 from artemis import http_requests
-from artemis.binds import TaskStatus, TaskType
+from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
+from artemis.ip_utils import is_ip_address
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -35,7 +37,7 @@ from artemis.task_utils import (
     increase_analysis_num_finished_tasks,
     increase_analysis_num_in_progress_tasks,
 )
-from artemis.utils import is_ip_address, throttle_request
+from artemis.utils import throttle_request
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
@@ -74,6 +76,11 @@ class ArtemisBase(Karton):
 
     requests_per_second_for_current_tasks: float = Config.Limits.REQUESTS_PER_SECOND
 
+    # Sometimes a module needs to make a large number of HTTP requests and a small number of failures is OK.
+    # These two counters control that. To use the feature use self.forgiving_http_get or self.forgiving_http_post
+    _forgiven_http_requests: int = 0
+    _forgiven_http_requests_max: int = 10
+
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
@@ -88,6 +95,12 @@ class ArtemisBase(Karton):
                     fcntl.flock(hosts_file.fileno(), fcntl.LOCK_EX)
                     hosts_file.write(additional_data_file.read())
                     fcntl.flock(hosts_file.fileno(), fcntl.LOCK_UN)
+
+        if Config.Limits.SCAN_SPEED_OVERRIDES_FILE:
+            with open(Config.Limits.SCAN_SPEED_OVERRIDES_FILE, "r") as f:
+                self._scan_speed_overrides: Dict[str, float] = json.load(f)
+        else:
+            self._scan_speed_overrides = {}
 
         if Config.Miscellaneous.BLOCKLIST_FILE:
             self._blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
@@ -288,12 +301,17 @@ class ArtemisBase(Karton):
             if "requests_per_second_override" in task.payload_persistent
         ]
 
+        for task in tasks:
+            destination = self._get_scan_destination(task)
+            if destination in self._scan_speed_overrides:
+                requests_per_second_overrides.append(self._scan_speed_overrides[destination])
+
         self.requests_per_second_for_current_tasks = min(  # type: ignore
             requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
         )
 
         if requests_per_second_overrides:
-            self.log.info("Overriding requests per second to %f", self.requests_per_second_for_current_tasks)
+            self.log.info("Setting requests per second to %f", self.requests_per_second_for_current_tasks)
 
         if len(tasks):
             time_start = time.time()
@@ -544,7 +562,25 @@ class ArtemisBase(Karton):
         if len(tasks) == 0:
             return
 
+        self._forgiven_http_requests = 0
         output_redirector = OutputRedirector()
+
+        tasks_filtered = []
+        for task in tasks:
+            should_check_connection = False
+            if task.headers["type"] == TaskType.SERVICE and task.headers["service"] == Service.HTTP:
+                should_check_connection = True
+            elif task.headers["type"] == TaskType.WEBAPP:
+                should_check_connection = True
+            elif task.headers["type"] == TaskType.URL:
+                should_check_connection = True
+
+            if not should_check_connection or self.check_connection_to_base_url_and_save_error(task):
+                tasks_filtered.append(task)
+
+        tasks = tasks_filtered
+        if not tasks:
+            return
 
         try:
             with output_redirector:
@@ -665,6 +701,7 @@ class ArtemisBase(Karton):
                         "Please wait while your request is being verified...",
                         "<title>Unauthorized Access</title>",
                         "<title>Attack Detected</title>",
+                        "<h1>You have been blocked</h1></html>",
                     ]
                 ]
             ):
@@ -672,6 +709,7 @@ class ArtemisBase(Karton):
                     task=task,
                     status=TaskStatus.ERROR,
                     status_reason=f"Unable to connect to base URL: {base_url}: WAF detected, task skipped",
+                    data={"waf_detected": True},
                 )
                 self.log.info(
                     f"Unable to connect to base URL: {base_url}: WAF detected, task skipped, releasing lock for {scan_destination}"
@@ -693,12 +731,30 @@ class ArtemisBase(Karton):
             return False
 
     def http_get(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
-        kwargs["requests_per_second"] = self.requests_per_second_for_current_tasks
-        return http_requests.get(*args, **kwargs)
+        return self._http_request("get", *args, **kwargs)
 
     def http_post(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
+        return self._http_request("post", *args, **kwargs)
+
+    # Sometimes a module needs to make a large number of HTTP requests and a small number of failures is OK.
+    # These two methods allow to do that.
+    def forgiving_http_get(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
+        return self._forgiving_http_request("get", *args, **kwargs)
+
+    def forgiving_http_post(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
+        return self._forgiving_http_request("post", *args, **kwargs)
+
+    def _forgiving_http_request(self, method: str, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
+        try:
+            return self._http_request(method, *args, **kwargs)
+        except Exception:
+            self._forgiven_http_requests += 1
+            if self._forgiven_http_requests > self._forgiven_http_requests_max:
+                raise
+
+    def _http_request(self, method: str, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
         kwargs["requests_per_second"] = self.requests_per_second_for_current_tasks
-        return http_requests.post(*args, **kwargs)
+        return getattr(http_requests, method)(*args, **kwargs)  # type: ignore
 
     def throttle_request(self, f: Callable[[], Any]) -> Any:
         return throttle_request(f, requests_per_second=self.requests_per_second_for_current_tasks)

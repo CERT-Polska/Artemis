@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import collections
+import enum
 import itertools
 import json
 import os
 import random
 import shutil
 import subprocess
+import time
 import urllib
 from statistics import StatisticsError, quantiles
 from typing import Any, Callable, Dict, List
@@ -28,6 +30,11 @@ from artemis.utils import (
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
+
+
+class ScanUsing(enum.Enum):
+    TEMPLATES = "templates"
+    WORKFLOWS = "workflows"
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
@@ -55,6 +62,12 @@ class Nuclei(ArtemisBase):
 
         subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", "/known-exploited-vulnerabilities/"])
         with self.lock:
+            # Cleanup so that no old template files exist
+            template_directory = "/root/nuclei-templates/"
+            if os.path.exists(template_directory) and os.path.getctime(template_directory) < time.time() - 3600:
+                shutil.rmtree(template_directory, ignore_errors=True)
+                shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
+
             subprocess.call(["nuclei", "-update-templates"])
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
@@ -119,10 +132,12 @@ class Nuclei(ArtemisBase):
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
-        self._nuclei_templates_to_skip_probabilistically_set = set()
+            self._workflows = [os.path.join(os.path.dirname(__file__), "data", "nuclei_workflows_custom", "workflows")]
+
+        self._nuclei_templates_or_workflows_to_skip_probabilistically_set = set()
         if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
             for line in open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE):
-                self._nuclei_templates_to_skip_probabilistically_set.add(line.strip())
+                self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
 
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
@@ -182,35 +197,37 @@ class Nuclei(ArtemisBase):
             requests_per_second_per_host_99_percentile,
         )
 
-    def _scan(self, templates: List[str], targets: List[str]) -> List[Dict[str, Any]]:
+    def _scan(
+        self, templates_or_workflows: List[str], scan_using: ScanUsing, targets: List[str]
+    ) -> List[Dict[str, Any]]:
         if not targets:
             return []
 
-        templates_filtered = []
+        templates_or_workflows_filtered = []
 
-        num_templates_skipped = 0
-        for template in templates:
-            if template not in self._nuclei_templates_to_skip_probabilistically_set:
-                templates_filtered.append(template)
+        num_templates_or_workflows_skipped = 0
+        for template_or_workflow in templates_or_workflows:
+            if template_or_workflow not in self._nuclei_templates_or_workflows_to_skip_probabilistically_set:
+                templates_or_workflows_filtered.append(template_or_workflow)
             elif (
-                template in self._nuclei_templates_to_skip_probabilistically_set
+                template_or_workflow in self._nuclei_templates_or_workflows_to_skip_probabilistically_set
                 and random.uniform(0, 100)
                 >= Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY
             ):
-                templates_filtered.append(template)
+                templates_or_workflows_filtered.append(template_or_workflow)
             else:
-                num_templates_skipped += 1
+                num_templates_or_workflows_skipped += 1
 
         self.log.info(
-            "Requested to skip %d templates with probability %f, actually skipped %d",
-            len(self._nuclei_templates_to_skip_probabilistically_set),
+            "Requested to skip %d templates or workflows with probability %f, actually skipped %d",
+            len(self._nuclei_templates_or_workflows_to_skip_probabilistically_set),
             Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY,
-            num_templates_skipped,
+            num_templates_or_workflows_skipped,
         )
         self.log.info(
-            "After probabilistic skipping, executing %d templates out of %d",
-            len(templates_filtered),
-            len(templates),
+            "After probabilistic skipping, executing %d templates or workflows out of %d",
+            len(templates_or_workflows_filtered),
+            len(templates_or_workflows),
         )
 
         if self.requests_per_second_for_current_tasks:
@@ -239,13 +256,11 @@ class Nuclei(ArtemisBase):
             additional_configuration = []
 
         lines = []
-        for template_chunk in more_itertools.chunked(
-            templates_filtered, Config.Modules.Nuclei.NUCLEI_TEMPLATE_CHUNK_SIZE
-        ):
+        for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
-                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",
-                    len(template_chunk),
+                    "Running batch of %d templates or workflows on %d target(s), milliseconds_per_request=%d",
+                    len(chunk),
                     len(targets),
                     milliseconds_per_request,
                 )
@@ -255,8 +270,6 @@ class Nuclei(ArtemisBase):
                     "-itags",
                     ",".join(TAGS_TO_INCLUDE),
                     "-v",
-                    "-templates",
-                    ",".join(template_chunk),
                     "-timeout",
                     str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
                     "-jsonl",
@@ -272,15 +285,33 @@ class Nuclei(ArtemisBase):
                     "/dev/stderr",
                 ] + additional_configuration
 
+                if scan_using == ScanUsing.TEMPLATES:
+                    command.extend(
+                        [
+                            "-templates",
+                            ",".join(chunk),
+                        ]
+                    )
+                elif scan_using == ScanUsing.WORKFLOWS:
+                    command.extend(
+                        [
+                            "-workflows",
+                            ",".join(chunk),
+                        ]
+                    )
+                else:
+                    assert False
+
                 if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
                     command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER])
 
-                # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
-                # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
-                for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
-                    if template in template_chunk:
-                        command.append("-it")
-                        command.append(template)
+                if scan_using == ScanUsing.TEMPLATES:
+                    # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
+                    # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
+                    for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
+                        if template in chunk:
+                            command.append("-it")
+                            command.append(template)
 
                 for target in targets:
                     command.append("-target")
@@ -330,12 +361,7 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
-        tasks = [task for task in tasks if self.check_connection_to_base_url_and_save_error(task)]
-
-        self.log.info(f"running {len(self._templates)} templates on {len(tasks)} hosts.")
-
-        if len(tasks) == 0:
-            return
+        self.log.info(f"running {len(self._templates)} templates and {len(self._workflows)} on {len(tasks)} hosts.")
 
         targets = []
         for task in tasks:
@@ -349,13 +375,16 @@ class Nuclei(ArtemisBase):
             links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
 
-        findings = self._scan(self._templates, targets)
+        findings = self._scan(self._templates, ScanUsing.TEMPLATES, targets) + self._scan(
+            self._workflows, ScanUsing.WORKFLOWS, targets
+        )
 
         # That way, if we have 100 links for a webpage, we won't run 100 concurrent scans for that webpage
         for link_package in itertools.zip_longest(*list(links_per_task.values())):
             findings.extend(
                 self._scan(
                     Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS,
+                    ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
                 )
             )

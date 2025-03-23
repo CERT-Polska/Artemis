@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import binascii
+import os
 import time
 import urllib.parse
 from typing import Any, Callable, Dict, List, Optional, Set
@@ -13,7 +15,9 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
-from artemis.utils import check_output_log_on_error
+from artemis.resolvers import ResolutionException, lookup
+from artemis.task_utils import get_ip_range, has_ip_range
+from artemis.utils import check_output_log_on_error, throttle_request
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -39,6 +43,14 @@ class SubdomainEnumeration(ArtemisBase):
 
         # before we migrate the tasks, let's create binds to make sure the new tasks will hit the queue of this module
         self.backend.register_bind(self._bind)
+
+        subdomains_to_brute_force_set = set()
+        base_subdomain_lists_path = os.path.join(os.path.dirname(__file__), "data", "subdomains")
+        for file_name in os.listdir(base_subdomain_lists_path):
+            for line in open(os.path.join(base_subdomain_lists_path, file_name)):
+                if not line.startswith("#"):
+                    subdomains_to_brute_force_set.add(line.strip())
+        self._subdomains_to_brute_force = list(subdomains_to_brute_force_set)
 
         with self.lock:
             old_modules = ["crtsh", "gau"]
@@ -138,6 +150,31 @@ class SubdomainEnumeration(ArtemisBase):
             input=domain.encode("idna"),
         )
 
+    def get_subdomains_by_dns_brute_force(self, domain: str) -> Optional[Set[str]]:
+        # The rationale here is to filter wildcard DNS configurations. If someone has configured their
+        # DNS server to return something for all subdomains, we don't want to produce a large list of subdomains.
+        #
+        # We perform queries for multiple random domains as there might be multiple possible results
+        # for wildcard DNS query.
+        results_for_random_subdomain = [
+            tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(10)
+        ]
+
+        subdomains: Set[str] = set()
+        self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
+        for subdomain in self._subdomains_to_brute_force:
+            try:
+                lookup_result = throttle_request(
+                    lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
+                )
+            except ResolutionException:
+                continue
+
+            if lookup_result and tuple(lookup_result) not in results_for_random_subdomain:
+                subdomains.add(subdomain + "." + domain)
+
+        return subdomains
+
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload("domain").lower()
 
@@ -168,6 +205,7 @@ class SubdomainEnumeration(ArtemisBase):
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
             self.get_subdomains_from_gau,
+            self.get_subdomains_by_dns_brute_force,
         ]
 
         for tool_func in subdomain_tools:
@@ -208,6 +246,14 @@ class SubdomainEnumeration(ArtemisBase):
             # We save the task as soon as we have results from a single tool so that other kartons can do something.
             for subdomain in valid_subdomains_from_tool:
                 if subdomain != domain:  # ensure we are not adding the parent domain again
+                    # If the initial source of the scanning was an IP or an IP range, only scan the subdomains
+                    # that point to the original IP.
+                    if has_ip_range(current_task):
+                        ip_range = get_ip_range(current_task)
+                        matches = [ip in ip_range for ip in lookup(subdomain)]
+                        if not (len(matches) and all(matches)):
+                            continue
+
                     task = Task(
                         {"type": TaskType.DOMAIN},
                         payload={

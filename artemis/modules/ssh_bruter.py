@@ -10,9 +10,9 @@ from pydantic import BaseModel
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
+from artemis.ip_utils import is_ip_address
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
-from artemis.utils import is_ip_address
 
 BRUTE_CREDENTIALS = [
     ("user", "password"),

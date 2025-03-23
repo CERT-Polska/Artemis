@@ -1,5 +1,5 @@
 import os
-from typing import Annotated, Any, List, get_type_hints
+from typing import Annotated, Any, List, Optional, get_type_hints
 
 import decouple
 
@@ -41,7 +41,7 @@ class Config:
             AUTOARCHIVER_MIN_AGE_SECONDS: Annotated[
                 int, "How old the task results need to be to be archived (in seconds)"
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS", default=80 * 24 * 60 * 60, cast=int
+                "AUTOARCHIVER_MIN_AGE_SECONDS", default=120 * 24 * 60 * 60, cast=int
             )  # 80 days
             AUTOARCHIVER_PACK_SIZE: Annotated[
                 int,
@@ -55,7 +55,7 @@ class Config:
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
-        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=90, cast=int)
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=120, cast=int)
 
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],
@@ -165,6 +165,11 @@ class Config:
             int,
             "Default request timeout (for all protocols).",
         ] = get_config("REQUEST_TIMEOUT_SECONDS", default=5, cast=int)
+
+        SCAN_SPEED_OVERRIDES_FILE: Annotated[
+            Optional[str],
+            "A JSON file with a dictionary mapping from IP to scan speed - use if you want to slow down scanning of particular hosts.",
+        ] = get_config("SCAN_SPEED_OVERRIDES_FILE", default="", cast=str)
 
         REQUESTS_PER_SECOND: Annotated[
             float,
@@ -471,6 +476,7 @@ class Config:
                         "custom:CVE-2019-1579",
                         "custom:CVE-2024-35286",
                         "custom:CVE-2022-43939",
+                        "custom:CVE-2025-24016",
                         "custom:xss-inside-tag-top-params.yaml",
                         # Nothing particularily interesting
                         "http/exposures/apis/drupal-jsonapi-user-listing.yaml",
@@ -757,11 +763,11 @@ class Config:
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
             ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=20, cast=int)
 
-            NUCLEI_TEMPLATE_CHUNK_SIZE: Annotated[
+            NUCLEI_CHUNK_SIZE: Annotated[
                 int,
-                "How big are the chunks to split the template list. E.g. if the template list contains 600 templates and "
-                "NUCLEI_TEMPLATE_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
-            ] = get_config("NUCLEI_TEMPLATE_CHUNK_SIZE", default=200, cast=int)
+                "How big are the chunks to split the template/workflow list. E.g. if the template list contains 600 templates and "
+                "NUCLEI_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
+            ] = get_config("NUCLEI_CHUNK_SIZE", default=200, cast=int)
 
         class PlaceholderPageContent:
             ENABLE_PLACEHOLDER_PAGE_DETECTOR: Annotated[
@@ -794,6 +800,17 @@ class Config:
                 List[int],
                 "Custom port list to scan in CSV form (replaces default list).",
             ] = get_config("CUSTOM_PORT_SCANNER_PORTS", default="", cast=decouple.Csv(int))
+
+            ADD_PORTS_FROM_SHODAN_INTERNETDB: Annotated[
+                bool,
+                "Besides the scanned ports (configured by PORT_SCANNER_PORT_LIST and CUSTOM_PORT_SCANNER_PORTS), "
+                "add ports from internetdb.shodan.io. "
+                "By using this source you confirm that you have read carefully the terms and conditions on "
+                "https://internetdb.shodan.io/ and agree to respect them, in particular in ensuring no conflict "
+                "with the commercialization clause. For the avoidance of doubt, in any case, you remain solely "
+                "liable for how you use this source and your compliance with the terms, and NASK is relieved of "
+                "such liability to the fullest extent possible.",
+            ] = get_config("ADD_PORTS_FROM_SHODAN_INTERNETDB", default=False, cast=bool)
 
             PORT_SCANNER_TIMEOUT_MILLISECONDS: Annotated[
                 int,
@@ -847,6 +864,17 @@ class Config:
                 "doesn't host the given domain.",
             ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD", default=0.5, cast=float)
 
+        class ReverseDNSLookup:
+            REVERSE_DNS_APIS: Annotated[
+                List[str],
+                "List of URLs (such as e.g. https://internetdb.shodan.io/) that provide a JSON dictionary with 'hostnames' field for an IP. "
+                "By using this source you confirm that you have read carefully the terms and conditions on "
+                "https://internetdb.shodan.io/ and agree to respect them, in particular in ensuring no conflict "
+                "with the commercialization clause. For the avoidance of doubt, in any case, you remain solely "
+                "liable for how you use this source and your compliance with the terms, and NASK is relieved of "
+                "such liability to the fullest extent possible.",
+            ] = get_config("REVERSE_DNS_APIS", default="", cast=decouple.Csv(str))
+
         class Shodan:
             SHODAN_API_KEY: Annotated[
                 str,
@@ -865,6 +893,11 @@ class Config:
                 int,
                 "Number of retries for subdomain enumeration.",
             ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
+
+            DNS_QUERIES_PER_SECOND: Annotated[
+                int,
+                "Number of DNS queries per second (as they are easier to handle than e.g. HTTP queries, let's have a separate limit)",
+            ] = get_config("DNS_QUERIES_PER_SECOND", default=20, cast=int)
 
             SLEEP_TIME_SECONDS: Annotated[
                 int,

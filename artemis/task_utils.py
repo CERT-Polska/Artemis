@@ -121,12 +121,13 @@ def get_ip_range(task: Task) -> List[str]:
     if not has_ip_range(task):
         return []
 
-    if "original_ip" in task.payload_persistent:
-        return [task.payload_persistent["original_ip"]]
-    elif "original_ip_range" in task.payload_persistent:
+    # The ordering here is important - we want to return the full IP range, not a single IP
+    if "original_ip_range" in task.payload_persistent:
         ip_range = to_ip_range(task.payload_persistent["original_ip_range"])
         if not ip_range:
             ip_range = []
         return ip_range
+    elif "original_ip" in task.payload_persistent:
+        return [task.payload_persistent["original_ip"]]
     else:
         assert False

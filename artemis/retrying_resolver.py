@@ -28,7 +28,6 @@ def retry(function: Callable[..., Any], function_args: Tuple[Any, ...], function
             break
         except Exception as e:
             num_exceptions += 1
-            logger.exception("problem when resolving %s, %s", function_args, function_kwargs)
             last_exception = e
 
     flaky = num_exceptions > 0 and num_exceptions < Config.Miscellaneous.NUM_DNS_RESOLVER_RETRIES

@@ -12,6 +12,7 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
+from artemis.task_utils import get_ip_range, has_ip_range
 
 KNOWN_BAD_NAMESERVERS = ["fns1.42.pl", "fns2.42.pl"]
 
@@ -36,6 +37,11 @@ class DnsScanner(ArtemisBase):
         ns_result = [str(ns) for ns in dns.resolver.resolve(zone_name, "NS")]
         nameservers = list(set(soa_result + ns_result))
         result["nameservers"] = nameservers
+
+        # If the task originated from scanning an IP range, that means, that we only want to
+        # check the nameservers that belong to that IP range, not random ones.
+        if has_ip_range(current_task):
+            nameservers = [nameserver for nameserver in nameservers if nameserver in get_ip_range(current_task)]
 
         for nameserver in nameservers:
             if nameserver in KNOWN_BAD_NAMESERVERS:

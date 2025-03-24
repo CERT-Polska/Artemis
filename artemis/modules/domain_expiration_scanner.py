@@ -28,6 +28,11 @@ class DomainExpirationScanner(ArtemisBase):
     timeout_seconds = (24 + 1) * 3600
 
     def run(self, current_task: Task) -> None:
+        # If the task originated from an IP-based one, that means, that we are scanning a domain that came from reverse DNS search.
+        # Close expiry date of sych domains is not actually related to scanned IP ranges, therefore let's skip it.
+        if has_ip_range(current_task):
+            return
+
         domain = current_task.get_payload(TaskType.DOMAIN)
         result: Dict[str, Any] = {}
         status = TaskStatus.OK

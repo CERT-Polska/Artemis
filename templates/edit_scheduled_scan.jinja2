@@ -1,44 +1,121 @@
 {% extends "components/base.jinja2" %}
 {% block main %}
+
+    <script>
+        function setSelectionForAllModules(value) {
+            document.querySelectorAll(".enabled-modules input[type='checkbox']").forEach(
+                function(item) {
+                    if (item.getAttribute("name") != "module_enabled_example") {
+                        item.checked = value;
+                    }
+                }
+            );
+        }
+    </script>
+
   <h1>Edit Scheduled Scan</h1>
   <form action="/scheduled_scans/edit/{{ job_id }}" method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+ {% if validation_message %}
+            <div class="alert alert-danger" role="alert">
+                {{ validation_message }}
+            </div>
+        {% endif %}
 
-    <div class="form-group">
-      <label for="targets">Targets (one per line):</label>
-      <textarea class="form-control" name="targets" id="targets" rows="5"></textarea>
-    </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
-    <div class="form-group">
-      <label for="tag">Tag:</label>
-      <input type="text" class="form-control" name="tag" id="tag" />
-    </div>
+        <div class="form-group mb-3">
+            <label class="form-label">Targets (separated with newlines)</label>
+            <textarea class="form-control" name="targets" rows="10" required>{% for task in tasks %}{{ task }}
+{% endfor %}</textarea>
+        </div>
+        <div class="form-group mb-3">
+            <label class="form-label">Enter your tag{% if tag_names %} or select existing one{% endif %}</label>
+            <input list="object-list" class="form-control" name="tag" autocomplete="off" {% if tag %}value="{{ tag }}"{% endif %}>
+            <datalist id="object-list">
+                 {% for tag in tag_names %}
+                    <option>{{ tag.tag_name }}</option>
+                 {% endfor %}
+            </datalist>
+        <label>
+            Schedule this scan periodically
+        </label>
+        
+        <div id="schedule-options">
+            <label for="schedule_interval">Interval (in minutes):</label>
+            <input type="number" name="schedule_interval" id="schedule_interval" min="1" />
+        
+            <label for="schedule_end">End Time:</label>
+            <input type="datetime-local" name="schedule_end" id="schedule_end" />
+        </div>
 
-    <div class="form-group">
-      <label for="disabled_modules">Disabled Modules (comma-separated):</label>
-      <input type="text" class="form-control" name="disabled_modules" id="disabled_modules" />
-    </div>
+            <small class="form-text text-muted">
+                You can enter any value here. Tags can be used to group scanned targets - you can use them e.g. when browsing the results or exporting
+                the scanning reports.
+            </small>
+        </div>
 
-    <div class="form-group">
-      <label for="priority">Priority:</label>
-      <input type="text" class="form-control" name="priority" id="priority" />
-    </div>
+        <input type="submit" class="btn btn-primary" value="Start scan">
+        <h2 class="mt-4">Advanced settings</h2>
+        <div class="form-group mb-3">
+            <label class="form-label">Priority</label>
+            <select name="priority" class="form-control">
+                {% for possible_priority in priorities %}
+                    <option name="{{ possible_priority.value }}" {% if priority == possible_priority.value %}selected{% endif %}>{{ possible_priority.value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <small class="form-text text-muted">
+                The priority defines how fast the scanning will be performed - tasks with higher priority will be done earlier.
+            </small>
+        </div>
+        <div class="form-group mb-3 enabled-modules">
+            <label class="form-label">Enabled modules</label>
+            (<a href="" onclick="setSelectionForAllModules(true); return false;">select all except example</a> |
+            <a href="" onclick="setSelectionForAllModules(false); return false;">unselect all</a>)
 
-    <div class="form-group">
-      <label for="schedule_interval_minutes">Interval (minutes):</label>
-      <input type="number" class="form-control" name="schedule_interval_minutes" id="schedule_interval_minutes" min="1" value="1" />
-    </div>
+            {% if modules_disabled_by_default %}
+                <div class="alert alert-info">
+                    The following modules are disabled by default: {{ ", ".join(modules_disabled_by_default) }} - select the checkbox to start them.
+                    To change this, update the <tt>MODULES_DISABLED_BY_DEFAULT</tt> setting.
+                    <br/><br/>
+                    If you want to use any module that works with identified services on a given port (not with domains) such as
+                    <tt>bruter</tt>, remember to enable the <tt>port_scanner</tt> module as well.
+                </div>
+            {% endif %}
 
-    <div class="form-group">
-      <label for="schedule_start">Start Time (ISO format):</label>
-      <input type="text" class="form-control" name="schedule_start" id="schedule_start" placeholder="YYYY-MM-DDTHH:MM:SS" />
-    </div>
+            <input type="hidden" name="choose_modules_to_enable" value="1">
 
-    <div class="form-group">
-      <label for="schedule_end">End Time (ISO format):</label>
-      <input type="text" class="form-control" name="schedule_end" id="schedule_end" placeholder="YYYY-MM-DDTHH:MM:SS" />
-    </div>
+            <div class="row m-0">
+                {% for bind in binds %}
+                    <div class="form-check col-md-4">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox" value="" name="module_enabled_{{ bind.identity }}"
+                                {% if disabled_modules %}
+                                    {% if bind.identity not in disabled_modules %}checked{% endif %}
+                                {% else %}
+                                    {% if bind.identity not in modules_disabled_by_default %}checked{% endif %}
+                                {% endif %}>
+                            {{ bind.identity }}<br/>
+                            <span class="small text-muted">{{ bind.info|dedent|render_markdown|safe }}</span>
+                        </label>
+                    </div>
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    {% if loop.index % 3 == 0 %}
+                        </div><div class="row m-0">
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <p class="text-muted">
+                If a new module appears during task processing, it will be <b>enabled</b>.
+            </p>
+
+            <p class="text-muted pb-4">
+                Even if the modules above are disabled, Artemis internal logic or core modules (that are always enabled) may
+                perform domain queries or HTTP requests.
+            </p>
+        </div>
+    </form>
   </form>
 {% endblock %}

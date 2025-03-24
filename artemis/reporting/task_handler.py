@@ -11,6 +11,7 @@ from pathlib import Path
 import psutil
 
 from artemis import utils
+from artemis.config import Config
 from artemis.db import DB, ReportGenerationTask, ReportGenerationTaskStatus
 from artemis.reporting.base.language import Language
 from artemis.reporting.export.main import export

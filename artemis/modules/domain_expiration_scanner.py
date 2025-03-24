@@ -9,8 +9,8 @@ from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
-from artemis.utils import perform_whois_or_sleep
 from artemis.task_utils import has_ip_range
+from artemis.utils import perform_whois_or_sleep
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)

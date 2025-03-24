@@ -19,7 +19,7 @@ db = DB()
 logger = utils.build_logger(__name__)
 
 
-DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS = 1800
+DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS = 300
 
 
 def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
@@ -72,7 +72,8 @@ def main() -> None:
                 task.language,
                 task.custom_template_arguments,
             )
-            faulthandler.dump_traceback_later(timeout=DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS)
+            if Config.Miscellaneous.LOG_LEVEL == "DEBUG":
+                faulthandler.dump_traceback_later(timeout=DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS, repeat=True)
             report_mem()
             try:
                 output_location = handle_single_task(task)
@@ -89,7 +90,8 @@ def main() -> None:
                 db.save_report_generation_task_results(
                     task, ReportGenerationTaskStatus.FAILED, error=traceback.format_exc()
                 )
-            faulthandler.cancel_dump_traceback_later()
+            if Config.Miscellaneous.LOG_LEVEL == "DEBUG":
+                faulthandler.cancel_dump_traceback_later()
             report_mem()
 
         time.sleep(1)

@@ -1,0 +1,21 @@
+{
+    "PHP": {
+        "cookies": {
+            "PHPSESSID": ""
+        },
+        "description": "PHP is a general-purpose scripting language used for web development.",
+        "headers": {
+            "Server": "(?i)php/([\\d.\\-+a-z]+)",
+            "X-Powered-By": "(?i)php/([\\d.\\-+a-z]+)"
+        },
+        "url": "\\.php(?:$|\\?)",
+        "website": "http://php.net"
+    },
+    "Apache HTTP Server": {
+        "description": "Apache is a free and open-source cross-platform web server software.",
+        "headers": {
+            "Server": "(?:Apache(?:/([\\d.]+))?|(?:^|\b)HTTPD)"
+        },
+        "website": "https://httpd.apache.org/"
+    }
+}

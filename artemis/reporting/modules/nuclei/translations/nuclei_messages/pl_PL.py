@@ -1000,7 +1000,9 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "Path Equivalence – ‘file.Name’ (Internal Dot) vulnerability in Apache Tomcat which may lead to Remote Code Execution, information disclosure, or malicious content injection via writable session files.": "Wykryto serwer Apache Tomcat zawierający podatność CVE-2025-24813 umożliwiającą atakującemu zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
+    "Path Equivalence – ‘file.Name’ (Internal Dot) vulnerability in Apache Tomcat which may lead to Remote Code Execution, information disclosure, or malicious content injection via writable session files.": "Wykryto serwer Apache Tomcat zawierający podatność CVE-2025-24813 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Detects potential 403 Forbidden bypass vulnerabilities by using nonexistent HTTP methods.": "Wykryto, że za pomocą podania niestandardowej metody HTTP można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
     "Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).": "Wykryto, że za pomocą podania dodatkowych nagłówków HTTP, takich jak np. X-Forwarded-For lub X-Original-URL, można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
     "Redis service was accessed with easily guessed credentials.": "Wykryto system Redis, do którego udało się zalogować po zgadnięciu hasła. Oznacza to, że atakujący może uzyskać dostęp do danych w systemie i je modyfikować lub usunąć.",

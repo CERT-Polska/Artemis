@@ -677,7 +677,7 @@ class Config:
                         "http/cves/2018/CVE-2018-16836.yaml",
                         "http/cves/2018/CVE-2018-18570.yaml",
                         "http/cves/2019/CVE-2019-10098.yaml",
-                        'http/cves/2019/CVE-2019-18922.yaml',
+                        "http/cves/2019/CVE-2019-18922.yaml",
                         "http/cves/2019/CVE-2019-3911.yaml",
                         "http/cves/2019/CVE-2019-7219.yaml",
                         "http/cves/2019/CVE-2019-7315.yaml",

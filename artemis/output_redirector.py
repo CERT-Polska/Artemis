@@ -17,19 +17,20 @@ class OutputRedirector:
         self._stream_copy: typing.Dict[int, typing.IO[bytes]] = {}
 
     def __enter__(self) -> None:
-        tee = subprocess.Popen(["stdbuf", "-o0", "tee", self._output_collector_file.name], stdin=subprocess.PIPE)
+        self._tee = subprocess.Popen(["stdbuf", "-o0", "tee", self._output_collector_file.name], stdin=subprocess.PIPE)
 
         for stream in self._streams:
             fd = stream.fileno()
             self._stream_copy[fd] = os.fdopen(os.dup(fd), "wb")
             stream.flush()
-            os.dup2(tee.stdin.fileno(), fd)  # type: ignore
+            os.dup2(self._tee.stdin.fileno(), fd)  # type: ignore
 
     def __exit__(self, *args: typing.Any) -> None:
         for stream in self._streams:
             fd = stream.fileno()
             stream.flush()
             os.dup2(self._stream_copy[fd].fileno(), fd)
+        self._tee.kill()
 
     def get_output(self) -> bytes:
         self._output_collector_file.seek(0)

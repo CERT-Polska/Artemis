@@ -382,7 +382,7 @@ class DB:
             return bool(result.rowcount)
 
     def get_task_results_since(
-        self, time_from: datetime.datetime, tag: Optional[str] = None, batch_size: int = 1000
+        self, time_from: datetime.datetime, tag: Optional[str] = None, batch_size: int = 100
     ) -> Generator[Dict[str, Any], None, None]:
         query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
         if tag:
@@ -390,7 +390,7 @@ class DB:
         return self._iter_results(query, batch_size)
 
     def get_oldest_task_results_with_tag(
-        self, tag: str, max_length: int, batch_size: int = 1000
+        self, tag: str, max_length: int, batch_size: int = 100
     ) -> List[Dict[str, Any]]:
         query = select(TaskResult).filter(TaskResult.tag == tag).order_by(TaskResult.created_at)  # type: ignore
         result = []
@@ -401,7 +401,7 @@ class DB:
         return result
 
     def get_oldest_task_results_before(
-        self, time_to: datetime.datetime, max_length: int, batch_size: int = 1000
+        self, time_to: datetime.datetime, max_length: int, batch_size: int = 100
     ) -> List[Dict[str, Any]]:
         query = select(TaskResult).filter(TaskResult.created_at <= time_to).order_by(TaskResult.created_at)  # type: ignore
         result = []

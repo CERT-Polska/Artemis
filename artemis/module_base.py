@@ -191,7 +191,7 @@ class ArtemisBase(Karton):
 
     def check_domain_exists(self, domain: str) -> bool:
         """
-        Check if a domain exists by looking up its NS and A records.
+        Check if a domain exists by looking up its DNS records.
 
         Args:
             domain (str): The domain to check.
@@ -200,19 +200,16 @@ class ArtemisBase(Karton):
             bool: True if the domain exists, False otherwise.
         """
         try:
+            # Don't check NS, as a domain that has only NS is not worth scanning
+            for record_type in ["A", "AAAA", "MX"]:
+                try:
+                    records = lookup(domain, record_type)
+                    if records:
+                        return True
+                except NoAnswer:
+                    pass
 
-            # Check for NS records
-            try:
-                ns_records = lookup(domain, "NS")
-                if ns_records:
-                    return True
-            except NoAnswer:
-                # No NS records, continue to check A records
-                pass
-
-            # Check for A records
-            a_records = lookup(domain, "A")
-            return len(a_records) > 0  # returns true if found
+            return False
 
         except ResolutionException:
             return False

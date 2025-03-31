@@ -28,8 +28,7 @@ def is_php_var_dump(found_url: FoundURL) -> bool:
         return False
 
     if " => " in found_url.content_prefix and (
-        re.search("array \([0-9]*\) {", found_url.content_prefix)
-        or "Array\n" in found_url.content_prefix
+        re.search("array \([0-9]*\) {", found_url.content_prefix) or "Array\n" in found_url.content_prefix
     ):
         return True
     return False

@@ -1003,6 +1003,7 @@ TRANSLATIONS = {
     "Path Equivalence – ‘file.Name’ (Internal Dot) vulnerability in Apache Tomcat which may lead to Remote Code Execution, information disclosure, or malicious content injection via writable session files.": "Wykryto serwer Apache Tomcat zawierający podatność CVE-2025-24813 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Detects potential 403 Forbidden bypass vulnerabilities by using nullbyte.": "Wykryto, że umieszczenie w adresie bajtu o kodzie zerowym umożliwia ominięcie kontroli dostępu do strony (statusu 403 Forbidden).",
     "Detects potential 403 Forbidden bypass vulnerabilities by using nonexistent HTTP methods.": "Wykryto, że za pomocą podania niestandardowej metody HTTP można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
     "Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).": "Wykryto, że za pomocą podania dodatkowych nagłówków HTTP, takich jak np. X-Forwarded-For lub X-Original-URL, można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
     "Redis service was accessed with easily guessed credentials.": "Wykryto system Redis, do którego udało się zalogować po zgadnięciu hasła. Oznacza to, że atakujący może uzyskać dostęp do danych w systemie i je modyfikować lub usunąć.",
@@ -1683,4 +1684,5 @@ TRANSLATIONS = {
     "Zoraxy products was detected.": "Wykryto system Zoraxy.",
     "A lorex panel was detected.": "Wykryto panel lorex.",
     "SteVe login panel was detected.": "wykryto panel logowania SteVe.",
+    "NocoDB Login panel was discovered.": "wykryto panel logowania NocoDB.",
 }

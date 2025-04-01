@@ -1,8 +1,8 @@
 import unittest
-from typing import Dict, Any
+from typing import Any, Dict
 
-from artemis.modules.base.module_configuration import ModuleConfiguration
 from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.base.module_configuration import ModuleConfiguration
 
 
 class TestModuleConfig(ModuleConfiguration):

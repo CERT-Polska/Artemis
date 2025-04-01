@@ -1,4 +1,4 @@
-from typing import Dict, Type, Optional, Any
+from typing import Any, Dict, Optional, Type
 
 from artemis.modules.base.module_configuration import ModuleConfiguration
 

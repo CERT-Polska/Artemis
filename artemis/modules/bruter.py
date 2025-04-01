@@ -4,7 +4,7 @@ import os
 import random
 import string
 from difflib import SequenceMatcher
-from typing import IO, List, Set, Dict, Any
+from typing import IO, Any, Dict, List, Set
 
 from karton.core import Task
 
@@ -13,10 +13,10 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.models import FoundURL
 from artemis.module_base import ArtemisBase
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.base.module_configuration import ModuleConfiguration
 from artemis.task_utils import get_target_url
 from artemis.utils import is_directory_index
-from artemis.modules.base.module_configuration import ModuleConfiguration
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
 
 
 def read_paths_from_file(file: IO[str]) -> List[str]:
@@ -58,26 +58,24 @@ class BruterResult:
 
 class BruterConfiguration(ModuleConfiguration):
     """Configuration for the bruter module."""
-    
+
     def __init__(self, enabled: bool = True, max_attempts: int = 1000) -> None:
         super().__init__(enabled=enabled)
         self.max_attempts = max_attempts
-    
+
     def serialize(self) -> Dict[str, Any]:
         result = super().serialize()
         result["max_attempts"] = self.max_attempts
         return result
-    
+
     @classmethod
     def deserialize(cls, config_dict: Dict[str, Any]) -> "BruterConfiguration":
-        return cls(
-            enabled=config_dict.get("enabled", True),
-            max_attempts=config_dict.get("max_attempts", 1000)
-        )
-    
+        return cls(enabled=config_dict.get("enabled", True), max_attempts=config_dict.get("max_attempts", 1000))
+
     def validate(self) -> bool:
         base_valid = super().validate()
         return base_valid and isinstance(self.max_attempts, int) and self.max_attempts > 0
+
 
 # Register the configuration
 registry = ConfigurationRegistry()

@@ -1,7 +1,6 @@
-import os
-
-from typing import Annotated, Any, List, get_type_hints
 import enum
+import os
+from typing import Annotated, Any, List, get_type_hints
 
 import decouple
 
@@ -26,23 +25,24 @@ if "POSTGRES_CONN_STR" not in os.environ:
 class SeverityThreshold(enum.Enum):
     """
     Enum for Nuclei scanner severity thresholds.
-    
+
     This allows configuration of what severity levels should be included when scanning.
     """
+
     CRITICAL_ONLY = "critical_only"
     HIGH_AND_ABOVE = "high_and_above"
     MEDIUM_AND_ABOVE = "medium_and_above"
     LOW_AND_ABOVE = "low_and_above"
     ALL = "all"
-    
+
     @classmethod
     def get_severity_list(cls, threshold: "SeverityThreshold") -> List[str]:
         """
         Returns a list of severity levels that should be included based on the given threshold.
-        
+
         Args:
             threshold: The severity threshold to filter by
-            
+
         Returns:
             A list of severity levels as strings
         """
@@ -367,7 +367,7 @@ class Config:
                 default="known_exploited_vulnerabilities,critical,high,log_exposures,exposed_panels",
                 cast=decouple.Csv(str, delimiter=","),
             )
-            
+
             NUCLEI_SEVERITY_THRESHOLD: Annotated[
                 SeverityThreshold,
                 "The minimum severity level to include when scanning. Options: "

@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from redis import Redis
 
 from artemis.config import Config
+from artemis.configuration_registry import ConfigurationRegistry
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
 from artemis.modules.classifier import Classifier
@@ -22,7 +23,6 @@ from artemis.task_utils import (
     get_analysis_num_in_progress_tasks,
 )
 from artemis.templating import render_analyses_table_row, render_task_table_row
-from artemis.configuration_registry import ConfigurationRegistry
 
 router = APIRouter()
 db = DB()
@@ -365,7 +365,7 @@ def _get_search_query(request: Request) -> Optional[str]:
 @router.post("/v1/configure_module", dependencies=[Depends(verify_api_token)])
 async def configure_module(request: ModuleConfigurationRequest) -> Dict[str, Any]:
     """Configure a module with specific settings.
-    
+
     The configuration will be stored in the session and applied to subsequent tasks.
     """
     try:
@@ -373,30 +373,19 @@ async def configure_module(request: ModuleConfigurationRequest) -> Dict[str, Any
         config_class = ConfigurationRegistry.get_configuration(request.module_name)
         if not config_class:
             raise HTTPException(
-                status_code=400,
-                detail=f"No configuration registered for module: {request.module_name}"
+                status_code=400, detail=f"No configuration registered for module: {request.module_name}"
             )
-            
+
         # Validate and deserialize the configuration
         try:
             config = config_class.deserialize(request.configuration)
         except ValueError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid configuration: {str(e)}"
-            )
-            
+            raise HTTPException(status_code=400, detail=f"Invalid configuration: {str(e)}")
+
         # Store in Redis for session persistence
-        redis.hset(
-            f"module_config:{request.module_name}",
-            "config",
-            json.dumps(request.configuration)
-        )
-        
+        redis.hset(f"module_config:{request.module_name}", "config", json.dumps(request.configuration))
+
         return {"status": "success", "message": f"Configuration set for module: {request.module_name}"}
-        
+
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to configure module: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to configure module: {str(e)}")

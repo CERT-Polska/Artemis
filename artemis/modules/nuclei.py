@@ -21,8 +21,8 @@ from artemis.config import Config, SeverityThreshold
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
 from artemis.modules.base.configuration_registry import ConfigurationRegistry
-from artemis.modules.nuclei_configuration import NucleiConfiguration
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
+from artemis.modules.nuclei_configuration import NucleiConfiguration
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
@@ -56,7 +56,7 @@ class Nuclei(ArtemisBase):
     def get_default_configuration(self) -> NucleiConfiguration:
         """
         Get the default configuration for the Nuclei module.
-        
+
         Returns:
             NucleiConfiguration: Default configuration instance with:
                 - enabled: True
@@ -64,9 +64,7 @@ class Nuclei(ArtemisBase):
                 - max_templates: None (no limit)
         """
         return NucleiConfiguration(
-            enabled=True,
-            severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD,
-            max_templates=None
+            enabled=True, severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD, max_templates=None
         )
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -94,10 +92,12 @@ class Nuclei(ArtemisBase):
             subprocess.call(["nuclei", "-update-templates"])
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
-            
+
             # Get the severity levels to include based on the configured threshold
             severity_levels = SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
-            self.log.info(f"Using severity threshold: {Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD.value}, including levels: {severity_levels}")
+            self.log.info(
+                f"Using severity threshold: {Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD.value}, including levels: {severity_levels}"
+            )
 
             template_list_sources: Dict[str, Callable[[], List[str]]] = {
                 "known_exploited_vulnerabilities": lambda: [
@@ -110,13 +110,17 @@ class Nuclei(ArtemisBase):
                     if item.endswith(".yml") or item.endswith(".yaml")
                 ],
             }
-            
+
             # Add severity-based template sources based on the threshold
             for severity in severity_levels:
-                template_list_sources[severity] = lambda sev=severity: check_output_log_on_error(
-                    ["nuclei", "-s", sev] + templates_list_command, self.log
-                ).decode("ascii").split()
-            
+                template_list_sources[severity] = (
+                    lambda sev=severity: check_output_log_on_error(
+                        ["nuclei", "-s", sev] + templates_list_command, self.log
+                    )
+                    .decode("ascii")
+                    .split()
+                )
+
             # Add non-severity specific sources
             if "log_exposures" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 template_list_sources["log_exposures"] = lambda: [
@@ -129,7 +133,7 @@ class Nuclei(ArtemisBase):
                     # exposed source code of a repo that is already public
                     and not item.startswith("http/exposures/logs/git-")
                 ]
-            
+
             if "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 template_list_sources["exposed_panels"] = lambda: [
                     item
@@ -147,7 +151,7 @@ class Nuclei(ArtemisBase):
                         self.log.info(f"Skipping template list '{name}' due to severity threshold filter")
                         continue
                     raise Exception(f"Unknown template list: {name}")
-                
+
                 template_list = template_list_sources[name]()
 
                 if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
@@ -234,7 +238,7 @@ class Nuclei(ArtemisBase):
 
         # Apply max_templates limit from configuration if set
         if self.configuration and self.configuration.max_templates:
-            templates = templates[:self.configuration.max_templates]
+            templates = templates[: self.configuration.max_templates]
 
         templates_filtered = []
 
@@ -290,15 +294,17 @@ class Nuclei(ArtemisBase):
 
         # Get severity levels from configuration
         severity_levels = (
-            self.configuration.get_severity_options() 
-            if self.configuration 
+            self.configuration.get_severity_options()
+            if self.configuration
             else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
         )
         severity_param = ",".join(severity_levels)
 
-        self.log.info("Using severity threshold: %s, including levels: %s", 
-                     self.configuration.severity_threshold.value if self.configuration else "default",
-                     severity_levels)
+        self.log.info(
+            "Using severity threshold: %s, including levels: %s",
+            self.configuration.severity_threshold.value if self.configuration else "default",
+            severity_levels,
+        )
 
         lines = []
         for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
@@ -326,13 +332,11 @@ class Nuclei(ArtemisBase):
                     str(milliseconds_per_request) + "ms",
                     "-s",  # Add severity filter
                     severity_param,
-
                     "-stats-json",
                     "-stats-interval",
                     "1",
                     "-trace-log",
                     "/dev/stderr",
-
                 ] + additional_configuration
 
                 if scan_using == ScanUsing.TEMPLATES:

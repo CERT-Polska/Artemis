@@ -52,7 +52,7 @@ To create a module-specific configuration, extend the ``ModuleConfiguration`` cl
 
     class PortScannerConfiguration(ModuleConfiguration):
         def __init__(
-            self, 
+            self,
             enabled: bool = True,
             timeout_ms: int = 5000,
             max_ports: int = 1000
@@ -60,7 +60,7 @@ To create a module-specific configuration, extend the ``ModuleConfiguration`` cl
             super().__init__(enabled=enabled)
             self.timeout_ms = timeout_ms
             self.max_ports = max_ports
-        
+
         def serialize(self) -> Dict[str, Any]:
             result = super().serialize()
             result.update({
@@ -68,7 +68,7 @@ To create a module-specific configuration, extend the ``ModuleConfiguration`` cl
                 "max_ports": self.max_ports
             })
             return result
-        
+
         @classmethod
         def deserialize(cls, config_dict: Dict[str, Any]) -> "PortScannerConfiguration":
             return cls(
@@ -76,7 +76,7 @@ To create a module-specific configuration, extend the ``ModuleConfiguration`` cl
                 timeout_ms=config_dict.get("timeout_ms", 5000),
                 max_ports=config_dict.get("max_ports", 1000)
             )
-        
+
         def validate(self) -> bool:
             base_valid = super().validate()
             return (
@@ -133,24 +133,24 @@ Basic Usage
 
     from artemis.modules.base.configuration_registry import ConfigurationRegistry
     from artemis.modules.base.module_configuration import ModuleConfiguration
-    
+
     # Define a custom configuration class
     class MyModuleConfiguration(ModuleConfiguration):
         # Custom configuration implementation
         pass
-    
+
     # Get the singleton registry instance
     registry = ConfigurationRegistry()
-    
+
     # Register a configuration class for a module
     registry.register_configuration("my_module", MyModuleConfiguration)
-    
+
     # Get the configuration class for a module
     config_class = registry.get_configuration_class("my_module")
-    
+
     # Create a default configuration instance
     default_config = registry.create_default_configuration("my_module")
-    
+
     # Get all registered modules
     modules = registry.get_registered_modules()
 

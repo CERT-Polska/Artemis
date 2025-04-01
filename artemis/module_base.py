@@ -24,6 +24,8 @@ from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.base.module_configuration import ModuleConfiguration
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -37,8 +39,6 @@ from artemis.task_utils import (
     increase_analysis_num_in_progress_tasks,
 )
 from artemis.utils import is_ip_address, throttle_request
-from artemis.modules.base.module_configuration import ModuleConfiguration
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
@@ -84,7 +84,7 @@ class ArtemisBase(Karton):
         self.setup_logger(Config.Miscellaneous.LOG_LEVEL)
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
-        
+
         # Initialize configuration
         registry = ConfigurationRegistry()
         config_class = registry.get_configuration_class(self.identity)
@@ -157,10 +157,10 @@ class ArtemisBase(Karton):
         """
         registry = ConfigurationRegistry()
         config_class = registry.get_configuration_class(self.identity)
-        
+
         if config_class is None:
             config_class = ModuleConfiguration
-            
+
         self._configuration = config_class.deserialize(config_dict)
         if not self._configuration.validate():
             raise ValueError(f"Invalid configuration for module {self.identity}")

@@ -904,6 +904,11 @@ class Config:
                 "Number of retries for subdomain enumeration.",
             ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
 
+            DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS: Annotated[
+                int,
+                "Time limit for DNS brute force in seconds - some of the servers are very slow, so we don't want to wait too long.",
+            ] = get_config("DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS", default=1200, cast=int)
+
             DNS_QUERIES_PER_SECOND: Annotated[
                 int,
                 "Number of DNS queries per second (as they are easier to handle than e.g. HTTP queries, let's have a separate limit)",

@@ -162,6 +162,7 @@ class SubdomainEnumeration(ArtemisBase):
 
         subdomains: Set[str] = set()
         self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
+        time_start = time.time()
         for subdomain in self._subdomains_to_brute_force:
             try:
                 lookup_result = throttle_request(
@@ -172,6 +173,13 @@ class SubdomainEnumeration(ArtemisBase):
 
             if lookup_result and tuple(lookup_result) not in results_for_random_subdomain:
                 subdomains.add(subdomain + "." + domain)
+
+            if time.time() > time_start + Config.Modules.SubdomainEnumeration.DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS:
+                self.log.error(
+                    "Brute-force time limit of %s exceeded, finishing",
+                    Config.Modules.SubdomainEnumeration.DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS,
+                )
+                break
 
         return subdomains
 

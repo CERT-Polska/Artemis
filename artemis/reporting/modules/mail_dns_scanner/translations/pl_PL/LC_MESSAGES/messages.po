@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Aby mechanizm DMARC działał poprawnie na domenie %(top_level_target)s, "
 "rekord musi być skonfigurowany na domenie %(target)s (jeden poziom "
-"poniżej domeny Public Suffix, czyli takiej domeny, gdzie każdy może rejestrować "
-"subdomeny - np. .pl, .eu czy .com.pl).
+"poniżej domeny Public Suffix, czyli takiej domeny, gdzie każdy może "
+"rejestrować subdomeny - np. .pl, .eu czy .com.pl)"
 
 #: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:27
 msgid ""

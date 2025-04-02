@@ -1,0 +1,35 @@
+{% if "bruteforce_login" in data.contains_type %}
+    <li>{% trans %}We detected successful authentication brute-force attacks:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "bruteforce_login" %}
+                    <li>
+                        {{ report.target }}
+                        <ul>
+                            <li>{% trans %}Compromised credentials:{% endtrans %} 
+                                <strong>{{ report.additional_data.credentials[0] }}:{{ report.additional_data.credentials[1] }}</strong></li>
+                            <li>{% trans %}Resolved host:{% endtrans %} 
+                                {{ report.additional_data.resolved_host }}</li>
+                            {% if report.additional_data.indicators %}
+                            <li>{% trans %}Detection evidence:{% endtrans %}
+                                <ul>
+                                    {% for indicator in report.additional_data.indicators %}
+                                    <li>{{ indicator|replace('_',' ')|title }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+            Successful credential brute-force attacks indicate that attackers could gain unauthorized access to administrative interfaces.
+            This exposes the system to potential data breaches, configuration changes, and complete system compromise. The vulnerability
+            exists due to weak password policies.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

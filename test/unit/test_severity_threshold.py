@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 
-from artemis.config import SeverityThreshold
+from artemis.module_configurations.nuclei import SeverityThreshold
 
 
 class TestSeverityThreshold(unittest.TestCase):

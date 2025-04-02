@@ -22,44 +22,6 @@ if "POSTGRES_CONN_STR" not in os.environ:
     )
 
 
-class SeverityThreshold(enum.Enum):
-    """
-    Enum for Nuclei scanner severity thresholds.
-
-    This allows configuration of what severity levels should be included when scanning.
-    """
-
-    CRITICAL_ONLY = "critical_only"
-    HIGH_AND_ABOVE = "high_and_above"
-    MEDIUM_AND_ABOVE = "medium_and_above"
-    LOW_AND_ABOVE = "low_and_above"
-    ALL = "all"
-
-    @classmethod
-    def get_severity_list(cls, threshold: "SeverityThreshold") -> List[str]:
-        """
-        Returns a list of severity levels that should be included based on the given threshold.
-
-        Args:
-            threshold: The severity threshold to filter by
-
-        Returns:
-            A list of severity levels as strings
-        """
-        if threshold == cls.CRITICAL_ONLY:
-            return ["critical"]
-        elif threshold == cls.HIGH_AND_ABOVE:
-            return ["critical", "high"]
-        elif threshold == cls.MEDIUM_AND_ABOVE:
-            return ["critical", "high", "medium"]
-        elif threshold == cls.LOW_AND_ABOVE:
-            return ["critical", "high", "medium", "low"]
-        elif threshold == cls.ALL:
-            return ["critical", "high", "medium", "low", "info", "unknown"]
-        else:
-            raise ValueError(f"Unknown severity threshold: {threshold}")
-
-
 class Config:
     class Data:
         POSTGRES_CONN_STR: Annotated[str, "Connection string to the PostgreSQL database."] = get_config(
@@ -369,7 +331,7 @@ class Config:
             )
 
             NUCLEI_SEVERITY_THRESHOLD: Annotated[
-                SeverityThreshold,
+                "module_configurations.nuclei.SeverityThreshold",
                 "The minimum severity level to include when scanning. Options: "
                 "CRITICAL_ONLY (only critical findings), "
                 "HIGH_AND_ABOVE (critical and high), "
@@ -378,8 +340,8 @@ class Config:
                 "ALL (all severity levels including info and unknown).",
             ] = get_config(
                 "NUCLEI_SEVERITY_THRESHOLD",
-                default=SeverityThreshold.MEDIUM_AND_ABOVE.value,
-                cast=lambda v: SeverityThreshold(v),
+                default="medium_and_above",
+                cast=lambda v: __import__("artemis.module_configurations.nuclei", fromlist=["SeverityThreshold"]).SeverityThreshold(v),
             )
 
             NUCLEI_INTERACTSH_SERVER: Annotated[

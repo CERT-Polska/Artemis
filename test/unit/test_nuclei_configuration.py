@@ -2,7 +2,7 @@
 import unittest
 from typing import Any, Dict
 
-from artemis.config import SeverityThreshold
+from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.modules.nuclei_configuration import NucleiConfiguration
 
 

@@ -17,7 +17,8 @@ from karton.core import Task
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import Config, SeverityThreshold
+from artemis.config import Config
+from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
 from artemis.modules.base.configuration_registry import ConfigurationRegistry

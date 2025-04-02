@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import SeverityThreshold
+from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.modules.nuclei import Nuclei
 from artemis.modules.nuclei_configuration import NucleiConfiguration
 

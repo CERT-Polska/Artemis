@@ -100,6 +100,11 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
+        # Get max_attempts from configuration if available
+        max_attempts = 1000
+        if hasattr(self, 'configuration') and self.configuration:
+            max_attempts = self.configuration.max_attempts
+
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = base_url + "/" + dummy_random_token
@@ -108,11 +113,17 @@ class Bruter(ArtemisBase):
         except Exception:
             dummy_content = ""
 
-        self.log.info(f"bruter scanning {base_url}: {len(FILENAMES_TO_SCAN)} paths to scan")
+        # Limit the paths to scan based on max_attempts
+        filenames_to_scan = list(FILENAMES_TO_SCAN)
+        if len(filenames_to_scan) > max_attempts:
+            filenames_to_scan = filenames_to_scan[:max_attempts]
+            self.log.info(f"bruter scanning {base_url}: limiting to {max_attempts} paths (total available: {len(FILENAMES_TO_SCAN)})")
+        else:
+            self.log.info(f"bruter scanning {base_url}: {len(filenames_to_scan)} paths to scan")
 
         results = {}
-        for i, url in enumerate(FILENAMES_TO_SCAN):
-            self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
+        for i, url in enumerate(filenames_to_scan):
+            self.log.info(f"bruter url {i}/{len(filenames_to_scan)}: {url}")
             try:
                 full_url = base_url + "/" + url
                 results[full_url] = self.http_get(
@@ -151,7 +162,7 @@ class Bruter(ArtemisBase):
                 content_404=dummy_content,
                 too_many_urls_detected=True,
                 found_urls=[],
-                checked_paths=list(FILENAMES_TO_SCAN),
+                checked_paths=list(filenames_to_scan),
             )
 
         for found_url in found_urls:
@@ -172,7 +183,7 @@ class Bruter(ArtemisBase):
             content_404=dummy_content,
             too_many_urls_detected=False,
             found_urls=found_urls,
-            checked_paths=list(FILENAMES_TO_SCAN),
+            checked_paths=list(filenames_to_scan),
         )
 
     def run(self, task: Task) -> None:

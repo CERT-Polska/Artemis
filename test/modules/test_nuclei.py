@@ -138,49 +138,29 @@ class NucleiTest(ArtemisModuleTestCase):
         else:
             self.fail("Nuclei command with -s parameter was not called")
 
-    def test_scan_with_max_templates(self) -> None:
-        """Test that _scan respects max_templates configuration."""
-        nuclei = Nuclei()
-        nuclei.configuration = NucleiConfiguration(
-            severity_threshold=SeverityThreshold.MEDIUM_AND_ABOVE, max_templates=2
-        )
-
-        templates = ["template1.yaml", "template2.yaml", "template3.yaml"]
-        targets = ["http://example.com"]
-
-        with patch("artemis.utils.check_output_log_on_error") as mock_check_output:
-            mock_check_output.return_value = b""  # Mock empty response
-            nuclei._scan(templates, targets)
-
-            # Verify only first 2 templates were used
-            for call_args in mock_check_output.call_args_list:
-                command = call_args[0][0]
-                if "-templates" in command:
-                    templates_idx = command.index("-templates") + 1
-                    used_templates = command[templates_idx].split(",")
-                    self.assertEqual(len(used_templates), 2)
-                    self.assertEqual(used_templates, ["template1.yaml", "template2.yaml"])
-
     def test_scan_with_severity_threshold(self) -> None:
-        """Test that _scan applies severity threshold from configuration."""
+        """Test that _scan respects severity threshold configuration."""
         nuclei = Nuclei()
-        nuclei.configuration = NucleiConfiguration(
-            severity_threshold=SeverityThreshold.HIGH_AND_ABOVE, max_templates=None
-        )
+        nuclei.configuration = NucleiConfiguration(severity_threshold=SeverityThreshold.HIGH_AND_ABOVE)
 
-        templates = ["template1.yaml"]
-        targets = ["http://example.com"]
-
+        # Assuming CommandMatcher.match_command checks the command for severity (-s) options
         with patch("artemis.utils.check_output_log_on_error") as mock_check_output:
             mock_check_output.return_value = b""  # Mock empty response
-            nuclei._scan(templates, targets)
+            nuclei._scan(["template1.yaml"], ScanUsing.TEMPLATES, ["http://example.com"])
 
-            # Verify severity parameter was set correctly
+            # Verify severity threshold was applied
+            found_severity = False
             for call_args in mock_check_output.call_args_list:
                 command = call_args[0][0]
                 if "-s" in command:
                     severity_idx = command.index("-s") + 1
-                    self.assertEqual(command[severity_idx], "critical,high")
+                    severity = command[severity_idx]
+                    if "high" in severity:
+                        found_severity = True
+                    self.assertNotIn("medium", severity)
+                    self.assertNotIn("low", severity)
+
+            self.assertTrue(found_severity, "Command should include high severity filter")
 
     def test_scan_with_no_configuration(self) -> None:
         """Test that _scan uses default configuration when none is provided."""

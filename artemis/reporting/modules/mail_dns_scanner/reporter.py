@@ -30,15 +30,25 @@ class MailDNSScannerReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
-        MessageWithTarget = namedtuple("MessageWithTarget", "message target type")
+        MessageWithTarget = namedtuple("MessageWithTarget", "message target type is_warning")
 
         messages_with_targets = []
         if task_result["result"].get("spf_dmarc_scan_result", {}):
+            # Process SPF errors
             if not task_result["result"].get("spf_dmarc_scan_result", {}).get("spf", {}).get("valid", True):
                 for error in task_result["result"]["spf_dmarc_scan_result"]["spf"]["errors"]:
                     messages_with_targets.append(
-                        MessageWithTarget(message=error, target=task_result["payload"]["domain"], type="SPF")
+                        MessageWithTarget(message=error, target=task_result["payload"]["domain"], type="SPF", is_warning=False)
                     )
+            
+            # Process SPF warnings
+            if task_result["result"]["spf_dmarc_scan_result"].get("spf", {}).get("warnings", []):
+                for warning in task_result["result"]["spf_dmarc_scan_result"]["spf"]["warnings"]:
+                    messages_with_targets.append(
+                        MessageWithTarget(message=warning, target=task_result["payload"]["domain"], type="SPF", is_warning=True)
+                    )
+                    
+            # Process DMARC errors
             if not task_result["result"].get("spf_dmarc_scan_result", {}).get("dmarc", {}).get("valid", True):
                 report_dmarc_problems = True
                 # If the record has not been found, let's report the problem only if we scanned the base domain.
@@ -57,7 +67,30 @@ class MailDNSScannerReporter(Reporter):
                         if not target:
                             target = task_result["result"]["spf_dmarc_scan_result"]["base_domain"]
 
-                        messages_with_targets.append(MessageWithTarget(message=error, target=target, type="DMARC"))
+                        messages_with_targets.append(
+                            MessageWithTarget(message=error, target=target, type="DMARC", is_warning=False)
+                        )
+            
+            # Process DMARC warnings
+            if task_result["result"]["spf_dmarc_scan_result"].get("dmarc", {}).get("warnings", []):
+                report_dmarc_warnings = True
+                # Similar logic as for errors
+                if task_result["result"]["spf_dmarc_scan_result"]["dmarc"].get("record_not_found", False):
+                    if task_result["target_string"] not in [
+                        task_result["result"]["spf_dmarc_scan_result"]["base_domain"],
+                        task_result["payload_persistent"].get("original_domain", None),
+                    ]:
+                        report_dmarc_warnings = False
+                
+                if report_dmarc_warnings:
+                    for warning in task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["warnings"]:
+                        target = task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["location"]
+                        if not target:
+                            target = task_result["result"]["spf_dmarc_scan_result"]["base_domain"]
+                        
+                        messages_with_targets.append(
+                            MessageWithTarget(message=warning, target=target, type="DMARC", is_warning=True)
+                        )
 
         result = []
         for message_with_target in messages_with_targets:
@@ -85,6 +118,7 @@ class MailDNSScannerReporter(Reporter):
                             MailgooseLanguageClass(language.value),
                         ),
                         "is_for_parent_domain": is_for_parent_domain,
+                        "is_warning": message_with_target.is_warning,
                     },
                     timestamp=task_result["created_at"],
                 )

@@ -61,11 +61,9 @@ class Nuclei(ArtemisBase):
         Returns:
             NucleiConfiguration: Default configuration instance with:
                 - severity_threshold: Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
-                - max_templates: None (no limit)
         """
         return NucleiConfiguration(
-            severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD, 
-            max_templates=None
+            severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
         )
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -236,10 +234,6 @@ class Nuclei(ArtemisBase):
     ) -> List[Dict[str, Any]]:
         if not targets:
             return []
-
-        # Apply max_templates limit from configuration if set
-        if self.configuration and self.configuration.max_templates:
-            templates_or_workflows = templates_or_workflows[: self.configuration.max_templates]
 
         templates_or_workflows_filtered = []
 

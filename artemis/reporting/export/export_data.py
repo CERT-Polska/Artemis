@@ -30,6 +30,7 @@ class ExportData:
     ips: Dict[str, List[str]]
     messages: Dict[str, SingleTopLevelTargetExportData]
     alerts: List[str]
+    hosts_with_waf_detected: List[str]
 
 
 def build_export_data(
@@ -100,4 +101,5 @@ def build_export_data(
         ips=db.ips,
         messages=message_data,
         alerts=alerts,
+        hosts_with_waf_detected=list(db.hosts_with_waf_detected),
     )

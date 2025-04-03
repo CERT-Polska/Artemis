@@ -49,6 +49,7 @@ class DataLoader:
 
         self._reports = []
         self._ips = {}
+        self._hosts_with_waf_detected: Set[str] = set()
         self._scanned_top_level_targets = set()
         self._scanned_targets = set()
         self._tag_stats: DefaultDict[str, int] = defaultdict(lambda: 0)
@@ -71,6 +72,9 @@ class DataLoader:
 
             if top_level_target:
                 self._scanned_top_level_targets.add(top_level_target)
+
+            if isinstance(result["result"], dict) and result["result"].get("waf_detected", False):
+                self._hosts_with_waf_detected.add(DataLoader._get_target_host(result["task"]))
 
             if result["task"]["headers"]["receiver"] == "IPLookup":
                 if isinstance(result.get("result", {}), dict):
@@ -110,6 +114,11 @@ class DataLoader:
     def scanned_top_level_targets(self) -> Set[str]:
         self._initialize_data_if_needed()
         return self._scanned_top_level_targets
+
+    @property
+    def hosts_with_waf_detected(self) -> Set[str]:
+        self._initialize_data_if_needed()
+        return self._hosts_with_waf_detected
 
     @property
     def scanned_targets(self) -> Set[str]:

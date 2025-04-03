@@ -628,6 +628,7 @@ TRANSLATIONS = {
     "Rails debug mode is enabled.": "Wykryto framework Rails w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "Django debug configuration is enabled, which allows an attacker to obtain system configuration information such as paths or settings.": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "Unauthenticated PostgreSQL Detected.": "Wykryto system PostgreSQL, do którego można zalogować się bez uwierzytelniania.",
+    "Detect Postgresql Version.": "Wykryto system PostgreSQL, w którym można wykonywać niektóre polecenia bez uwierzytelniania.",
     "Laravel with APP_DEBUG set to true is prone to show verbose errors.": "Wykryto system Laravel w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
@@ -999,7 +1000,16 @@ TRANSLATIONS = {
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Path Equivalence – ‘file.Name’ (Internal Dot) vulnerability in Apache Tomcat which may lead to Remote Code Execution, information disclosure, or malicious content injection via writable session files.": "Wykryto serwer Apache Tomcat zawierający podatność CVE-2025-24813 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Detects potential 403 Forbidden bypass vulnerabilities by using nullbyte.": "Wykryto, że umieszczenie w adresie bajtu o kodzie zerowym umożliwia ominięcie kontroli dostępu do strony (statusu 403 Forbidden).",
+    "Detects potential 403 Forbidden bypass vulnerabilities by using nonexistent HTTP methods.": "Wykryto, że za pomocą podania niestandardowej metody HTTP można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
+    "Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).": "Wykryto, że za pomocą podania dodatkowych nagłówków HTTP, takich jak np. X-Forwarded-For lub X-Original-URL, można ominąć kontrolę dostępu do strony (status 403 Forbidden).",
     "Redis service was accessed with easily guessed credentials.": "Wykryto system Redis, do którego udało się zalogować po zgadnięciu hasła. Oznacza to, że atakujący może uzyskać dostęp do danych w systemie i je modyfikować lub usunąć.",
+    "NETGEAR routers R6250 before 1.0.4.6.Beta, R6400 before 1.0.1.18.Beta, R6700 before 1.0.1.14.Beta, R6900, R7000 before 1.0.7.6.Beta, R7100LG before 1.0.0.28.Beta, R7300DST before 1.0.0.46.Beta, R7900 before 1.0.1.8.Beta, R8000 before 1.0.3.26.Beta, D6220, D6400, D7000, and possibly others allow remote attackers to execute arbitrary commands via shell metacharacters in the path info to cgi-bin/.": "Routery NETGEAR R6250 w wersji poniżej 1.0.4.6.Beta, R6400 w wersji poniżej 1.0.1.18.Beta, R6700 w wersji poniżej 1.0.1.14.Beta, R6900, R7000 w wersji poniżej 1.0.7.6.Beta, R7100LG w wersji poniżej 1.0.0.28.Beta, R7300DST w wersji poniżej 1.0.0.46.Beta, R7900 w wersji poniżej 1.0.1.8.Beta, R8000 w wersji poniżej 1.0.3.26.Beta, D6220, D6400, D7000 i potencjalnie inne zawierają podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "SuiteCRM is an open-source Customer Relationship Management (CRM) software application. Prior to versions 7.14.4 and 8.6.1, a vulnerability in events response entry point allows for a SQL injection attack. Versions 7.14.4 and 8.6.1 contain a fix for this issue.": "SuiteCRM to otwartoźródłowy system Customer Relationship Management (CRM). W wersji poniżej 7.14.4 (a w gałęzi 8 - 8.6.1) zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie danych z bazy danych.",
     "Oracle E-Business Suite 12.2.3 through 12.2.11 is susceptible to remote code execution via the Oracle Web Applications Desktop Integrator product, Upload component. An attacker with HTTP network access can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Oracle E-Business Suite w wersji od 12.2.3 do 12.2.11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -1023,9 +1033,11 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION,
     "Artifactory anonymous repo is exposed.": "Wykryto anonimowe repozytorium systemu Artifactory.",
     "The MKdocs 1.2.2 built-in dev-server allows directory traversal using the port 8000, enabling remote exploitation to obtain sensitive information. Note the vendor has disputed the vulnerability (see references) because the dev server must be used in an unsafe way (namely public) to have this vulnerability exploited.": "Wykryto serwer deweloperski systemu MKdocs w wersji 1.2.2 zawierający podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "eQ-3 AG Homematic CCU3 3.43.15 and earlier allows remote attackers to read arbitrary files of the device's filesystem, aka local file inclusion. This vulnerability can be exploited by unauthenticated attackers with access to the web interface.": "Sterownik eQ-3 AG Homematic CCU w wersji 3.43.15 i wcześniejszych zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Zeit Next.js before 4.2.3 is susceptible to local file inclusion under the /_next request namespace. An attacker can obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Zeit Next.js w wersji poniżej 4.2.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "Dump password hashes in use within a PostgreSQL database.": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw użytkowników bazy danych i haszy ich haseł.",
+    "List users from Postgresql Database.": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw użytkowników bazy danych.",
     "javascript/enumeration/pgsql/pgsql-list-database.yaml": "Wykryto, że po zalogowaniu do bazy danych jest możliwość pobrania nazw baz danych.",
     "Redwood Report2Web 4.3.4.5 and 4.5.3 contains a cross-site scripting vulnerability in the login panel which allows remote attackers to inject JavaScript via the signIn.do urll parameter.": "Redwood Report2Web 4.3.4.5 i 4.5.3 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
@@ -1361,6 +1373,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
     "The polyfill.io CDN was suspected to serve malware.": "Wykryto skrypty udostępniane z domeny polyfill.io, podejrzewanej o udostępnianie szkodliwego oprogramowania.",
+    "The polyfill.io CDN was suspected to serve malware. Note: it's not exploitable anymore": "Wykryto skrypty udostępniane z domeny polyfill.io, podejrzewanej o udostępnianie szkodliwego oprogramowania. Uwaga: ta podatność nie jest już możliwa do wykorzystania - ponieważ jednak domena polyfill.io nie istnieje, rekomendujemy zaprzestanie korzystania ze skryptów tam zamieszczonych.",
     "Magento Server Mass Importer plugin contains multiple cross-site scripting vulnerabilities which allow remote attackers to inject arbitrary web script or HTML via the (1) profile parameter to web/magmi.php or (2) QUERY_STRING to web/magmi_import_run.php.": "Wykryto, że Magento Server Mass Importer zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION,
     "SAP NetWeaver Application Server ABAP, SAP NetWeaver Application Server Java, ABAP Platform, SAP Content Server 7.53 and SAP Web Dispatcher are vulnerable to request smuggling and request concatenation attacks. An unauthenticated attacker can prepend a victim's request with arbitrary data. This way, the attacker can execute functions impersonating the victim or poison intermediary web caches. A successful attack could result in complete compromise of Confidentiality, Integrity and Availability of the system.": "Wykryto oprogramowanie SAP NetWeaver Application Server ABAP, SAP NetWeaver Application Server Java, ABAP Platform, SAP Content Server lub SAP Web Dispatcher w wersji zawierającej podatność HTTP Request Smuggling lub HTTP Request Concatenation, umożliwiającą atakującemu uzyskanie nieuprawnionego dostępu lub zmianę odpowiedzi zwracanych przez serwer innym użytkownikom."
@@ -1669,4 +1682,7 @@ TRANSLATIONS = {
     "JFrog login panel was detected.": "Wykryto panel logowania JFrog.",
     "Oracle Enterprise Manager login panel was detected.": "Wykryto panel logowania Oracle Enterprise Manager.",
     "Zoraxy products was detected.": "Wykryto system Zoraxy.",
+    "A lorex panel was detected.": "Wykryto panel lorex.",
+    "SteVe login panel was detected.": "wykryto panel logowania SteVe.",
+    "NocoDB Login panel was discovered.": "wykryto panel logowania NocoDB.",
 }

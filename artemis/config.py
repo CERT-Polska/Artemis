@@ -491,6 +491,7 @@ class Config:
                         "custom:CVE-2019-1579",
                         "custom:CVE-2024-35286",
                         "custom:CVE-2022-43939",
+                        "custom:CVE-2025-24016",
                         "custom:xss-inside-tag-top-params.yaml",
                         # Nothing particularily interesting
                         "http/exposures/apis/drupal-jsonapi-user-listing.yaml",
@@ -674,24 +675,30 @@ class Config:
                         "http/cves/2012/CVE-2012-4889.yaml",
                         "http/cves/2014/CVE-2014-2908.yaml",
                         "http/cves/2014/CVE-2014-9444.yaml",
+                        "http/cves/2015/CVE-2015-3035.yaml",
                         "http/cves/2015/CVE-2015-5354.yaml",
+                        "http/cves/2018/CVE-2018-6184.yaml",
                         "http/cves/2015/CVE-2015-8349.yaml",
                         "http/cves/2016/CVE-2016-7981.yaml",
                         "http/cves/2016/CVE-2016-8527.yaml",
                         "http/cves/2017/CVE-2017-12794.yaml",
                         "http/cves/2018/CVE-2018-8006.yaml",
+                        "http/cves/2018/CVE-2018-10956.yaml",
                         "http/cves/2018/CVE-2018-11709.yaml",
                         "http/cves/2018/CVE-2018-12095.yaml",
                         "http/cves/2018/CVE-2018-12998.yaml",
                         "http/cves/2018/CVE-2018-13380.yaml",
                         "http/cves/2018/CVE-2018-14013.yaml",
+                        "http/cves/2018/CVE-2018-16836.yaml",
                         "http/cves/2018/CVE-2018-18570.yaml",
                         "http/cves/2019/CVE-2019-10098.yaml",
+                        "http/cves/2019/CVE-2019-18922.yaml",
                         "http/cves/2019/CVE-2019-3911.yaml",
                         "http/cves/2019/CVE-2019-7219.yaml",
                         "http/cves/2019/CVE-2019-7315.yaml",
                         "http/cves/2019/CVE-2019-7543.yaml",
                         "http/cves/2019/CVE-2019-10475.yaml",
+                        "http/cves/2019/CVE-2019-11510.yaml",
                         "http/cves/2019/CVE-2019-12461.yaml",
                         "http/cves/2019/CVE-2019-13392.yaml",
                         "http/cves/2020/CVE-2020-1943.yaml",
@@ -716,7 +723,10 @@ class Config:
                         "http/cves/2021/CVE-2021-31250.yaml",
                         "http/cves/2021/CVE-2021-38702.yaml",
                         "http/cves/2021/CVE-2021-40868.yaml",
+                        "http/cves/2021/CVE-2021-40960.yaml",
+                        "http/cves/2021/CVE-2021-40978.yaml",
                         "http/cves/2021/CVE-2021-41467.yaml",
+                        "http/cves/2021/CVE-2021-41773.yaml",
                         "http/cves/2021/CVE-2021-42565.yaml",
                         "http/cves/2021/CVE-2021-42566.yaml",
                         "http/cves/2021/CVE-2021-43831.yaml",
@@ -726,6 +736,7 @@ class Config:
                         "http/cves/2023/CVE-2023-43373.yaml",
                         "http/cves/2023/CVE-2023-43374.yaml",
                         "http/cves/2023/CVE-2023-47684.yaml",
+                        "http/iot/targa-camera-lfi.yaml",
                         "http/vulnerabilities/ibm/eclipse-help-system-xss.yaml",
                         "http/vulnerabilities/ibm/ibm-infoprint-lfi.yaml",
                         "http/vulnerabilities/other/bullwark-momentum-lfi.yaml",
@@ -878,6 +889,17 @@ class Config:
                 "doesn't host the given domain.",
             ] = get_config("REMOVED_DOMAIN_EXISTING_VHOST_SIMILARITY_THRESHOLD", default=0.5, cast=float)
 
+        class ReverseDNSLookup:
+            REVERSE_DNS_APIS: Annotated[
+                List[str],
+                "List of URLs (such as e.g. https://internetdb.shodan.io/) that provide a JSON dictionary with 'hostnames' field for an IP. "
+                "By using this source you confirm that you have read carefully the terms and conditions on "
+                "https://internetdb.shodan.io/ and agree to respect them, in particular in ensuring no conflict "
+                "with the commercialization clause. For the avoidance of doubt, in any case, you remain solely "
+                "liable for how you use this source and your compliance with the terms, and NASK is relieved of "
+                "such liability to the fullest extent possible.",
+            ] = get_config("REVERSE_DNS_APIS", default="", cast=decouple.Csv(str))
+
         class Shodan:
             SHODAN_API_KEY: Annotated[
                 str,
@@ -896,6 +918,11 @@ class Config:
                 int,
                 "Number of retries for subdomain enumeration.",
             ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
+
+            DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS: Annotated[
+                int,
+                "Time limit for DNS brute force in seconds - some of the servers are very slow, so we don't want to wait too long.",
+            ] = get_config("DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS", default=1200, cast=int)
 
             DNS_QUERIES_PER_SECOND: Annotated[
                 int,

@@ -1,13 +1,13 @@
 import os
 from typing import Any, Dict, List
 
+from artemis.ip_utils import is_ip_address
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
-from artemis.utils import is_ip_address
 
 
 class PortScannerReporter(Reporter):

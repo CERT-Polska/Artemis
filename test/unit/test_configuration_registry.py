@@ -8,8 +8,8 @@ from artemis.modules.base.module_configuration import ModuleConfiguration
 class TestModuleConfig(ModuleConfiguration):
     """Test configuration class for unit tests."""
 
-    def __init__(self, enabled: bool = True, test_option: str = "default") -> None:
-        super().__init__(enabled=enabled)
+    def __init__(self, test_option: str = "default") -> None:
+        super().__init__()
         self.test_option = test_option
 
     def serialize(self) -> Dict[str, Any]:
@@ -19,7 +19,7 @@ class TestModuleConfig(ModuleConfiguration):
 
     @classmethod
     def deserialize(cls, config_dict: Dict[str, Any]) -> "TestModuleConfig":
-        return cls(enabled=config_dict.get("enabled", True), test_option=config_dict.get("test_option", "default"))
+        return cls(test_option=config_dict.get("test_option", "default"))
 
     def validate(self) -> bool:
         base_valid = super().validate()
@@ -94,7 +94,6 @@ class TestConfigurationRegistry(unittest.TestCase):
 
         # Should return an instance of the correct class with default values
         self.assertIsInstance(config, TestModuleConfig)
-        self.assertTrue(config.enabled)
         self.assertEqual(config.test_option, "default")
 
         # Should return None for non-existent module

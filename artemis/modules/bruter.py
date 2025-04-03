@@ -59,8 +59,8 @@ class BruterResult:
 class BruterConfiguration(ModuleConfiguration):
     """Configuration for the bruter module."""
 
-    def __init__(self, enabled: bool = True, max_attempts: int = 1000) -> None:
-        super().__init__(enabled=enabled)
+    def __init__(self, max_attempts: int = 1000) -> None:
+        super().__init__()
         self.max_attempts = max_attempts
 
     def serialize(self) -> Dict[str, Any]:
@@ -70,7 +70,7 @@ class BruterConfiguration(ModuleConfiguration):
 
     @classmethod
     def deserialize(cls, config_dict: Dict[str, Any]) -> "BruterConfiguration":
-        return cls(enabled=config_dict.get("enabled", True), max_attempts=config_dict.get("max_attempts", 1000))
+        return cls(max_attempts=config_dict.get("max_attempts", 1000))
 
     def validate(self) -> bool:
         base_valid = super().validate()
@@ -78,8 +78,7 @@ class BruterConfiguration(ModuleConfiguration):
 
 
 # Register the configuration
-registry = ConfigurationRegistry()
-registry.register_configuration("bruter", BruterConfiguration)
+ConfigurationRegistry().register_configuration("bruter", BruterConfiguration)
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)

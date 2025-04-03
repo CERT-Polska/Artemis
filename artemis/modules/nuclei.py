@@ -60,12 +60,12 @@ class Nuclei(ArtemisBase):
 
         Returns:
             NucleiConfiguration: Default configuration instance with:
-                - enabled: True
                 - severity_threshold: Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
                 - max_templates: None (no limit)
         """
         return NucleiConfiguration(
-            enabled=True, severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD, max_templates=None
+            severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD, 
+            max_templates=None
         )
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -239,9 +239,9 @@ class Nuclei(ArtemisBase):
 
         # Apply max_templates limit from configuration if set
         if self.configuration and self.configuration.max_templates:
-            templates = templates[: self.configuration.max_templates]
+            templates_or_workflows = templates_or_workflows[: self.configuration.max_templates]
 
-        templates_filtered = []
+        templates_or_workflows_filtered = []
 
         num_templates_or_workflows_skipped = 0
         for template_or_workflow in templates_or_workflows:
@@ -312,7 +312,7 @@ class Nuclei(ArtemisBase):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
                     "Running batch of %d templates on %d target(s), milliseconds_per_request=%d, with severity levels: %s",
-                    len(template_chunk),
+                    len(chunk),
                     len(targets),
                     milliseconds_per_request,
                     severity_param,

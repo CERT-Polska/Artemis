@@ -19,14 +19,12 @@ class NucleiTest(ArtemisModuleTestCase):
         config = nuclei.get_default_configuration()
 
         self.assertIsInstance(config, NucleiConfiguration)
-        self.assertTrue(config.enabled)
         self.assertEqual(config.severity_threshold, Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
         self.assertIsNone(config.max_templates)
 
     def test_process_task_with_custom_configuration(self) -> None:
         """Test that process_task correctly uses custom configuration from payload."""
         custom_config = {
-            "enabled": True,
             "severity_threshold": SeverityThreshold.CRITICAL_ONLY.value,
             "max_templates": 10,
         }
@@ -47,7 +45,6 @@ class NucleiTest(ArtemisModuleTestCase):
     def test_process_task_with_invalid_configuration(self) -> None:
         """Test that process_task falls back to defaults with invalid configuration."""
         invalid_config = {
-            "enabled": "not a boolean",  # Invalid type
             "severity_threshold": "invalid_severity",  # Invalid severity
             "max_templates": -1,  # Invalid value
         }
@@ -145,7 +142,7 @@ class NucleiTest(ArtemisModuleTestCase):
         """Test that _scan respects max_templates configuration."""
         nuclei = Nuclei()
         nuclei.configuration = NucleiConfiguration(
-            enabled=True, severity_threshold=SeverityThreshold.MEDIUM_AND_ABOVE, max_templates=2
+            severity_threshold=SeverityThreshold.MEDIUM_AND_ABOVE, max_templates=2
         )
 
         templates = ["template1.yaml", "template2.yaml", "template3.yaml"]
@@ -168,7 +165,7 @@ class NucleiTest(ArtemisModuleTestCase):
         """Test that _scan applies severity threshold from configuration."""
         nuclei = Nuclei()
         nuclei.configuration = NucleiConfiguration(
-            enabled=True, severity_threshold=SeverityThreshold.HIGH_AND_ABOVE, max_templates=None
+            severity_threshold=SeverityThreshold.HIGH_AND_ABOVE, max_templates=None
         )
 
         templates = ["template1.yaml"]
@@ -184,24 +181,6 @@ class NucleiTest(ArtemisModuleTestCase):
                 if "-s" in command:
                     severity_idx = command.index("-s") + 1
                     self.assertEqual(command[severity_idx], "critical,high")
-
-    def test_scan_with_disabled_configuration(self) -> None:
-        """Test that _scan handles disabled configuration correctly."""
-        nuclei = Nuclei()
-        nuclei.configuration = NucleiConfiguration(
-            enabled=False, severity_threshold=SeverityThreshold.MEDIUM_AND_ABOVE, max_templates=None
-        )
-
-        templates = ["template1.yaml"]
-        targets = ["http://example.com"]
-
-        with patch("artemis.utils.check_output_log_on_error") as mock_check_output:
-            mock_check_output.return_value = b""  # Mock empty response
-            results = nuclei._scan(templates, targets)
-
-            # Verify no scan was performed when disabled
-            self.assertEqual(len(results), 0)
-            mock_check_output.assert_not_called()
 
     def test_scan_with_no_configuration(self) -> None:
         """Test that _scan uses default configuration when none is provided."""

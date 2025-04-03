@@ -25,17 +25,14 @@ Basic Usage
     from artemis.modules.base.module_configuration import ModuleConfiguration
 
     # Create a configuration with default values
-    config = ModuleConfiguration()  # enabled=True by default
-
-    # Create a configuration with custom values
-    config = ModuleConfiguration(enabled=False)
+    config = ModuleConfiguration()
 
     # Serialize to a dictionary
     config_dict = config.serialize()
-    # Result: {"enabled": false}
+    # Result: {}
 
     # Deserialize from a dictionary
-    config = ModuleConfiguration.deserialize({"enabled": False})
+    config = ModuleConfiguration.deserialize({})
 
     # Validate configuration
     is_valid = config.validate()
@@ -53,11 +50,10 @@ To create a module-specific configuration, extend the ``ModuleConfiguration`` cl
     class PortScannerConfiguration(ModuleConfiguration):
         def __init__(
             self,
-            enabled: bool = True,
             timeout_ms: int = 5000,
             max_ports: int = 1000
         ) -> None:
-            super().__init__(enabled=enabled)
+            super().__init__()
             self.timeout_ms = timeout_ms
             self.max_ports = max_ports
 
@@ -72,7 +68,6 @@ To create a module-specific configuration, extend the ``ModuleConfiguration`` cl
         @classmethod
         def deserialize(cls, config_dict: Dict[str, Any]) -> "PortScannerConfiguration":
             return cls(
-                enabled=config_dict.get("enabled", True),
                 timeout_ms=config_dict.get("timeout_ms", 5000),
                 max_ports=config_dict.get("max_ports", 1000)
             )
@@ -93,9 +88,7 @@ Constructor
 
 .. code-block:: python
 
-    ModuleConfiguration(enabled: bool = True)
-
-- ``enabled``: Controls whether the module is enabled. Defaults to ``True``.
+    ModuleConfiguration()
 
 Methods
 ^^^^^^^

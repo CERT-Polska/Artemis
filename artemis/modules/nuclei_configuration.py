@@ -13,7 +13,6 @@ class NucleiConfiguration(ModuleConfiguration):
     configuration options.
 
     Attributes:
-        enabled (bool): Whether the Nuclei module is enabled. Defaults to True.
         severity_threshold (SeverityThreshold): The minimum severity level to include
             when scanning. Defaults to MEDIUM_AND_ABOVE.
         max_templates (Optional[int]): The maximum number of templates to use in a scan.
@@ -22,7 +21,6 @@ class NucleiConfiguration(ModuleConfiguration):
 
     def __init__(
         self,
-        enabled: bool = True,
         severity_threshold: SeverityThreshold = SeverityThreshold.MEDIUM_AND_ABOVE,
         max_templates: Optional[int] = None,
     ) -> None:
@@ -30,13 +28,12 @@ class NucleiConfiguration(ModuleConfiguration):
         Initialize a new NucleiConfiguration instance.
 
         Args:
-            enabled (bool, optional): Whether the module is enabled. Defaults to True.
             severity_threshold (SeverityThreshold, optional): The minimum severity level
                 to include when scanning. Defaults to MEDIUM_AND_ABOVE.
             max_templates (Optional[int], optional): The maximum number of templates to
                 use in a scan. Defaults to None (no limit).
         """
-        super().__init__(enabled=enabled)
+        super().__init__()
         self.severity_threshold = severity_threshold
         self.max_templates = max_templates
 
@@ -70,7 +67,6 @@ class NucleiConfiguration(ModuleConfiguration):
             severity_threshold = severity_threshold_value
 
         return cls(
-            enabled=config_dict.get("enabled", True),
             severity_threshold=severity_threshold,
             max_templates=config_dict.get("max_templates"),
         )

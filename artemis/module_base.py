@@ -695,7 +695,7 @@ class ArtemisBase(Karton):
                         "Cloudflare</title>",
                         "<hr><center>cloudflare</center>",
                         "Incapsula incident ID",
-                        "script src=\"/_Incapsula_Resource",
+                        'script src="/_Incapsula_Resource',
                         "Please wait while your request is being verified...",
                         "<title>Unauthorized Access</title>",
                         "<title>Attack Detected</title>",

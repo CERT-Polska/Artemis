@@ -200,16 +200,13 @@ class AdminPanelLoginBruter(ArtemisBase):
                     continue
 
                 indicators = []
-                login_success = False
 
                 new_cookies = session.cookies.get_dict()  # type: ignore
                 if len(new_cookies) > len(original_cookies):
                     indicators.append("session_cookie")
-                    login_success = True
 
                 if any(logout_message.lower() in post_response.text.lower() for logout_message in LOGOUT_MESSAGES):
                     indicators.append("logout_link")
-                    login_success = True
 
                 failure_detected = any(
                     msg.lower() in post_response.text.lower() and msg.lower() not in response.text.lower()

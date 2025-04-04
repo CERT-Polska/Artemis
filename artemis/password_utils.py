@@ -7,7 +7,7 @@ from karton.core import Task
 from artemis import ip_utils, task_utils, utils
 from artemis.config import Config
 
-PASSWORDS = [
+PASSWORDS = {
     "admin",
     "administrator",
     "admin1",
@@ -19,8 +19,60 @@ PASSWORDS = [
     "123456",
     "123456789",
     "qwerty",
-    "zaq123wsx",
-]
+    "zaq12wsx",
+} + {
+    # Top50 passwords from https://cert.pl/hasla/
+    "123456",
+    "qwerty",
+    "12345",
+    "123456789",
+    "zaq12wsx",
+    "1234",
+    "12345678",
+    "polska",
+    "111111",
+    "misiek",
+    "monika",
+    "marcin",
+    "mateusz",
+    "agnieszka",
+    "123qwe",
+    "1234567890",
+    "1qaz2wsx",
+    "1234567",
+    "qwerty123",
+    "qwerty1",
+    "123123",
+    "0000",
+    "bartek",
+    "damian",
+    "michal",
+    "qwe123",
+    "polska1",
+    "password",
+    "karolina",
+    "kacper",
+    "maciek",
+    "samsung",
+    "qwertyuiop",
+    "zxcvbnm",
+    "kasia",
+    "1q2w3e4r",
+    "kochanie",
+    "lol123",
+    "kasia1",
+    "natalia",
+    "myszka",
+    "11111",
+    "1qazxsw2",
+    "lukasz",
+    "mateusz1",
+    "komputer",
+    "666666",
+    "qazwsx",
+    "piotrek",
+    "daniel",
+}
 
 
 def get_passwords(current_task: Task) -> List[str]:

@@ -20,9 +20,6 @@ class WeakAdminCredentialsReporter(Reporter):
         if task_result["status"] != "INTERESTING":
             return []
 
-        import sys
-
-        sys.stderr.write(repr(task_result["result"]) + "\n")
         if not isinstance(task_result.get("result", {}).get("results"), list):
             return []
 

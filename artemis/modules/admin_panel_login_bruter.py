@@ -126,6 +126,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         for path in common_login_paths:
             full_url = urllib.parse.urljoin(base_url, path)
             if self.check_url(full_url):
+                self.log.info("Discovered login path: %s", full_url)
                 found_paths.append(path)
         return found_paths
 
@@ -154,6 +155,9 @@ class AdminPanelLoginBruter(ArtemisBase):
                 inputs = form.find_all("input")
 
                 form_data = {}
+                found_username = False
+                found_password = False
+
                 for input_tag in inputs:
                     input_name = input_tag.get("name")
                     input_value = input_tag.get("value", "")
@@ -165,12 +169,21 @@ class AdminPanelLoginBruter(ArtemisBase):
                             or "log" in input_name.lower()
                         ):
                             form_data[input_name] = username
+                            found_username = True
                         elif "pass" in input_name.lower() or "pwd" in input_name.lower():
                             form_data[input_name] = password
+                            found_password = True
                         else:
                             form_data[input_name] = input_value
 
+                if not found_username or not found_password:
+                    self.log.info("Didn't found username/pwd in form, ignoring...")
+                    continue
+                else:
+                    self.log.info("Found username/pwd in form on %s, proceeding", login_url)
+
                 try:
+                    self.log.info("Post data: %s", form_data)
                     post_response = self.throttle_request(
                         lambda: http_requests.request(
                             "post",
@@ -202,7 +215,6 @@ class AdminPanelLoginBruter(ArtemisBase):
                     msg.lower() in post_response.text.lower() and msg.lower() not in response.text.lower()
                     for msg in COMMON_FAILURE_MESSAGES
                 )
-                self.log.info("indicators: %s failure_detected: %s", indicators, failure_detected)
                 if not failure_detected:
                     indicators.append("no_failure_messages")
                     login_success = True

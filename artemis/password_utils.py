@@ -4,7 +4,7 @@ from typing import List
 
 from karton.core import Task
 
-from artemis import ip_utils, utils
+from artemis import ip_utils, task_utils, utils
 from artemis.config import Config
 
 PASSWORDS = [
@@ -25,7 +25,7 @@ PASSWORDS = [
 
 def get_passwords(current_task: Task) -> List[str]:
     passwords = copy.copy(PASSWORDS)
-    host = utils.get_host_from_url(current_task.get_payload("url"))
+    host = utils.get_host_from_url(task_utils.get_target_url(current_task))
 
     if not ip_utils.is_ip_address(host):
         domain_items = host.split(".")

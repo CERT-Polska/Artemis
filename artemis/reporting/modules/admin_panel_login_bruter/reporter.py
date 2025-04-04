@@ -20,18 +20,21 @@ class WeakAdminCredentialsReporter(Reporter):
         if task_result["status"] != "INTERESTING":
             return []
 
-        if not isinstance(task_result.get("data"), dict) or not isinstance(task_result["data"].get("results"), list):
+        import sys
+
+        sys.stderr.write(repr(task_result["result"]) + "\n")
+        if not isinstance(task_result.get("result", {}).get("results"), list):
             return []
 
         reports = []
-        for result in task_result["data"]["results"]:
+        for result in task_result["result"]["results"]:
             reports.append(
                 Report(
                     top_level_target=get_top_level_target(task_result),
-                    target=result["target"],
+                    target=result["url"],
                     report_type=WeakAdminCredentialsReporter.WEAK_ADMIN_CREDENTIALS,
                     additional_data={
-                        "credentials": result["credentials"],
+                        "credentials": [result["username"], result["password"]],
                     },
                     timestamp=task_result["created_at"],
                 )

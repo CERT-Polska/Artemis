@@ -16,7 +16,7 @@ from artemis.module_base import ArtemisBase
 from artemis.password_utils import get_passwords
 from artemis.task_utils import get_target_url
 
-COMMON_USERNAMES = ["admin", 'root']
+COMMON_USERNAMES = ["admin"]
 
 
 def read_file(file: IO[str]) -> List[str]:

@@ -20,14 +20,14 @@ class PasswordUtilsTest(unittest.TestCase):
             set(passwords),
             set(
                 PASSWORDS
-                + [
+                | {
                     "projectname123",
                     "projectname1",
                     "projectname2023",
                     "projectname2022",
                     "projectname2021",
                     "projectname2020",
-                ]
+                }
             ),
         )
 

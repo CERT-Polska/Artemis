@@ -20,7 +20,7 @@ PASSWORDS = {
     "123456789",
     "qwerty",
     "zaq12wsx",
-} + {
+} | {
     # Top50 passwords from https://cert.pl/hasla/
     "123456",
     "qwerty",

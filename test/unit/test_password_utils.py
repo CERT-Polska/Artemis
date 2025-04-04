@@ -18,15 +18,17 @@ class PasswordUtilsTest(unittest.TestCase):
         )
         self.assertEqual(
             set(passwords),
-            set(PASSWORDS
-            + [
-                "projectname123",
-                "projectname1",
-                "projectname2023",
-                "projectname2022",
-                "projectname2021",
-                "projectname2020",
-            ]),
+            set(
+                PASSWORDS
+                + [
+                    "projectname123",
+                    "projectname1",
+                    "projectname2023",
+                    "projectname2022",
+                    "projectname2021",
+                    "projectname2020",
+                ]
+            ),
         )
 
     def test_getting_passwords_ip(self) -> None:

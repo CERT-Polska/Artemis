@@ -217,6 +217,11 @@ class Config:
             default="[%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
         )
 
+        PASSWORD_BRUTER_ADDITIONAL_PASSWORDS: Annotated[
+            List[str],
+            "Additional passwords (besides the top10 ones) to be used in brute forcing."
+        ] = get_config("PASSWORD_BRUTER_ADDITIONAL_PASSWORDS", default="", cast=decouple.Csv(str))
+
         STRIPPED_PREFIXES: Annotated[
             List[str],
             "Some password bruters extracts the site name to brute-force passwords. For example, if it observes "

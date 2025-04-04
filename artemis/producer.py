@@ -28,6 +28,6 @@ def create_tasks(
             task.add_payload("requests_per_second_override", requests_per_second_override, persistent=True)
         task.add_payload("disabled_modules", ",".join(disabled_modules), persistent=True)
         db.create_analysis(task)
-        db.save_scheduled_task(task)
+        # db.save_scheduled_task(task)
         db.save_tag(tag)
         producer.send_task(task)

@@ -1,0 +1,26 @@
+/index.php
+/admin/login.php
+/admin/index.php
+/login
+/admin_login
+/login/
+/admin_login/
+/admin-console/
+/administration/
+/pma/
+/cms/
+/CMS/
+/panel/
+/adminpanel/
+/backend/
+/phpmyadmin/
+/login.php
+/index.php
+/admin/
+/admin/login/
+/login/
+/user/login/
+/administrator/
+# phppgadmin
+/redirect.php?subject=server&server=:5432:allow
+/

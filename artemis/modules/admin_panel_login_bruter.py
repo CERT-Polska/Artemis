@@ -3,7 +3,7 @@ import logging
 import os
 import random
 import urllib.parse
-from typing import List, Optional
+from typing import IO, List, Optional
 
 import requests
 from bs4 import BeautifulSoup
@@ -18,43 +18,21 @@ from artemis.task_utils import get_target_url
 
 COMMON_USERNAMES = ["admin"]
 
-COMMON_FAILURE_MESSAGES = [
-    "Please enter the correct username and password for a staff account",  # Django
-    "Username of password do not match or you do not have an account yet",  # Joomla
-    "Login failed.",  # PhppgAdmin
-    # Common phrases that occur in failed login attempts - don't put single words here,
-    # as that may lead to false positives
-    "access denied",
-    "not permitted",
-    "not authorized",
-    "not authenticated",
-    "not logged in",
-    "Note that both fields may be case-sensitive.",
-    "Unrecognized username or password. Forgot your password?",
-    "Invalid credentials",
-    "The login is invalid",
-    "not seem to be correct",
-    "Access denied",
-    "Cannot log in",
-    "login details do not seem to be correct",
-    # rate limit
-    "failed login attempts for this account",
-    # pl_PL
-    "Podano błędne dane logowania",
-    "Wprowadź poprawne dane",
-    "Nieprawidłowa nazwa użytkownika lub hasło",
-    "Nazwa użytkownika lub hasło nie jest",
-    "Złe hasło",
-    "niepoprawne hasło",
-    "Błędna nazwa użytkownika",
-]
+
+def read_file(file: IO[str]) -> List[str]:
+    return [line.strip() for line in file if not line.startswith("#")]
 
 
-LOGOUT_MESSAGES = [
-    "logout",
-    "sign out",
-    "wyloguj",
-]
+with open(
+    os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_failure_messages.txt")
+) as f:
+    COMMON_FAILURE_MESSAGES = read_file(f)
+
+with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "logout_messages.txt")) as f:
+    LOGOUT_MESSAGES = read_file(f)
+
+with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_login_paths.txt")) as f:
+    COMMON_LOGIN_PATHS = read_file(f)
 
 
 class AdminPanelLoginBruterResult(BaseModel):
@@ -94,36 +72,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         """
         Discovers common admin login paths by checking predefined URLs.
         """
-        common_login_paths = [
-            "/index.php",
-            "/admin/login.php",
-            "/admin/index.php",
-            "/login",
-            "/admin_login",
-            "/login/",
-            "/admin_login/",
-            "/admin-console/",
-            "/administration/",
-            "/pma/",
-            "/cms/",
-            "/CMS/",
-            "/panel/",
-            "/adminpanel/",
-            "/backend/",
-            "/phpmyadmin/",
-            "/login.php",
-            "/index.php",
-            "/admin/",
-            "/admin/login/",
-            "/login/",
-            "/user/login/",
-            "/administrator/",
-            "/redirect.php?subject=server&server=:5432:allow",  # PhppgAdmin
-            "/",
-        ]
 
         found_paths = []
-        for path in common_login_paths:
+        for path in COMMON_LOGIN_PATHS:
             full_url = urllib.parse.urljoin(base_url, path)
             if self.check_url(full_url):
                 self.log.info("Discovered login path: %s", full_url)

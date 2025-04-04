@@ -12,12 +12,12 @@ from artemis.reporting.utils import get_top_level_target
 from artemis.resolvers import ResolutionException, lookup
 
 
-class BruteforceLoginReporter(Reporter):
-    BRUTEFORCE_LOGIN = ReportType("bruteforce_login")
+class WeakAdminCredentialsReporter(Reporter):
+    WEAK_ADMIN_CREDENTIALS = ReportType("weak_admin_credentials")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
-        if task_result["headers"]["receiver"] != "bruteforce_login":
+        if task_result["headers"]["receiver"] != "admin_panel_login_bruter":
             return []
 
         if task_result["status"] != "INTERESTING":
@@ -28,19 +28,11 @@ class BruteforceLoginReporter(Reporter):
 
         reports = []
         for result in task_result["data"]["results"]:
-            try:
-                url = result["target"]
-                parsed_url = urllib.parse.urlparse(url)
-                ips = list(lookup(parsed_url.hostname)) if parsed_url.hostname else []
-                resolved_host = ips[0] if ips else parsed_url.hostname
-            except (ResolutionException, KeyError, AttributeError):
-                continue
-
             reports.append(
                 Report(
                     top_level_target=get_top_level_target(task_result),
-                    target=url,
-                    report_type=BruteforceLoginReporter.BRUTEFORCE_LOGIN,
+                    target=result['target'],
+                    report_type=BruteforceLoginReporter.WEAK_ADMIN_CREDENTIALS,
                     additional_data={
                         "credentials": result["credentials"],
                         "resolved_host": resolved_host,
@@ -55,19 +47,7 @@ class BruteforceLoginReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                os.path.join(os.path.dirname(__file__), "template_bruteforce_login.jinja2"),
-                priority=5,
+                os.path.join(os.path.dirname(__file__), "template_weak_admin_credentials.jinja2"),
+                priority=10,
             ),
         ]
-
-    @staticmethod
-    def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
-        """See the docstring in the Reporter class."""
-        return {
-            BruteforceLoginReporter.BRUTEFORCE_LOGIN: lambda report: Reporter.dict_to_tuple(
-                {
-                    "type": report.report_type,
-                    "target": get_domain_normal_form(urllib.parse.urlparse(report.target).hostname or ""),
-                }
-            )
-        }

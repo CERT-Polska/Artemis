@@ -32,8 +32,6 @@ class WeakAdminCredentialsReporter(Reporter):
                     report_type=WeakAdminCredentialsReporter.WEAK_ADMIN_CREDENTIALS,
                     additional_data={
                         "credentials": result["credentials"],
-                        "resolved_host": resolved_host,
-                        "indicators": result.get("indicators", []),
                     },
                     timestamp=task_result["created_at"],
                 )

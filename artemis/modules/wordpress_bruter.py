@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-from typing import List
-
 from karton.core import Task
 
-from artemis import ip_utils, load_risk_class, utils
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.password_utils import get_passwords
 

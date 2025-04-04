@@ -4,7 +4,7 @@ from karton.core import Task
 from retry import retry
 
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.modules.wordpress_bruter import PASSWORDS, WordPressBruter
+from artemis.modules.wordpress_bruter import WordPressBruter
 
 
 class WordPressBruterTest(ArtemisModuleTestCase):

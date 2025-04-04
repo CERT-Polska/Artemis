@@ -1,10 +1,16 @@
+import unittest
+
 from freezegun import freeze_time
+from karton.core import Task
+
+from artemis.binds import TaskType, WebApplication
+from artemis.password_utils import PASSWORDS, get_passwords
 
 
 class PasswordUtilsTest(unittest.TestCase):
     @freeze_time("2023-02-21")
     def test_getting_passwords_domain(self) -> None:
-        passwords = self.karton.get_passwords(
+        passwords = get_passwords(
             Task(
                 headers={"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
                 payload={"url": "http://www.projectname.example.com"},
@@ -24,7 +30,7 @@ class PasswordUtilsTest(unittest.TestCase):
         )
 
     def test_getting_passwords_ip(self) -> None:
-        passwords = self.karton.get_passwords(
+        passwords = get_passwords(
             Task(
                 headers={"type": TaskType.WEBAPP, "webapp": WebApplication.WORDPRESS},
                 payload={"url": "http://127.0.0.1"},

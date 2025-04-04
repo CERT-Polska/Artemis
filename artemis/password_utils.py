@@ -76,7 +76,7 @@ PASSWORDS = {
 
 
 def get_passwords(current_task: Task) -> List[str]:
-    passwords = copy.copy(PASSWORDS)
+    passwords = list(PASSWORDS)
     host = utils.get_host_from_url(task_utils.get_target_url(current_task))
 
     if not ip_utils.is_ip_address(host):

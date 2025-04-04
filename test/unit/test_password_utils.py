@@ -17,8 +17,8 @@ class PasswordUtilsTest(unittest.TestCase):
             )
         )
         self.assertEqual(
-            passwords,
-            PASSWORDS
+            set(passwords),
+            set(PASSWORDS
             + [
                 "projectname123",
                 "projectname1",
@@ -26,7 +26,7 @@ class PasswordUtilsTest(unittest.TestCase):
                 "projectname2022",
                 "projectname2021",
                 "projectname2020",
-            ],
+            ]),
         )
 
     def test_getting_passwords_ip(self) -> None:
@@ -36,4 +36,4 @@ class PasswordUtilsTest(unittest.TestCase):
                 payload={"url": "http://127.0.0.1"},
             )
         )
-        self.assertEqual(passwords, PASSWORDS)
+        self.assertEqual(set(passwords), set(PASSWORDS))

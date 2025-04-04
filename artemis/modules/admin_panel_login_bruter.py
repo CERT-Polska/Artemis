@@ -1,4 +1,6 @@
+import binascii
 import logging
+import os
 import random
 import urllib.parse
 from typing import List, Optional
@@ -8,9 +10,8 @@ from bs4 import BeautifulSoup
 from karton.core import Task
 from pydantic import BaseModel
 
-from artemis import load_risk_class
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
@@ -78,7 +79,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.logger = logging.getLogger(__name__)
 
@@ -87,9 +88,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         Checks if the given URL is accessible and returns a 200 status code.
         """
         try:
-            response = self.throttle_request(
-                lambda: requests.get(url, timeout=Config.Modules.AdminPanelLoginBruter.REQUEST_TIMEOUT)
-            )
+            response = http_requests.get(url)
             return response.status_code == 200 if response else False
         except requests.RequestException as e:
             self.logger.debug(f"Error checking URL {url}: {e}")
@@ -144,13 +143,11 @@ class AdminPanelLoginBruter(ArtemisBase):
         session = requests.session()
 
         try:
-            response = self.throttle_request(
-                lambda: session.get(login_url, timeout=Config.Modules.AdminPanelLoginBruter.REQUEST_TIMEOUT)
-            )
+            response = self.throttle_request(lambda: http_requests.request("get", login_url, session=session))
             if not response or response.status_code != 200:
                 return None
 
-            original_cookies = session.cookies.get_dict()
+            original_cookies = session.cookies.get_dict()  # type: ignore
             soup = BeautifulSoup(response.text, "html.parser")
             forms = soup.find_all("form")
 
@@ -164,19 +161,25 @@ class AdminPanelLoginBruter(ArtemisBase):
                     input_name = input_tag.get("name")
                     input_value = input_tag.get("value", "")
                     if input_name:
-                        if "user" in input_name.lower() or "name" in input_name.lower():
+                        if (
+                            "user" in input_name.lower()
+                            or "name" in input_name.lower()
+                            or "usr" in input_name.lower()
+                            or "log" in input_name.lower()
+                        ):
                             form_data[input_name] = username
-                        elif "pass" in input_name.lower():
+                        elif "pass" in input_name.lower() or "pwd" in input_name.lower():
                             form_data[input_name] = password
                         else:
                             form_data[input_name] = input_value
 
                 try:
                     post_response = self.throttle_request(
-                        lambda: session.post(
+                        lambda: http_requests.request(
+                            "post",
                             form_url,
                             data=form_data,
-                            timeout=Config.Modules.AdminPanelLoginBruter.REQUEST_TIMEOUT,
+                            session=session,
                         )
                     )
                 except requests.RequestException as e:
@@ -189,7 +192,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                 indicators = []
                 login_success = False
 
-                new_cookies = session.cookies.get_dict()
+                new_cookies = session.cookies.get_dict()  # type: ignore
                 if len(new_cookies) > len(original_cookies):
                     indicators.append("session_cookie")
                     login_success = True

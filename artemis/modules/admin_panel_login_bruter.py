@@ -25,7 +25,6 @@ COMMON_FAILURE_MESSAGES = [
     "Please enter the correct username and password for a staff account",  # Django
     "Username of password do not match or you do not have an account yet",  # Joomla
     "Login failed.",  # PhppgAdmin
-
     # Common phrases that occur in failed login attempts - don't put single words here,
     # as that may lead to false positives
     "access denied",
@@ -33,7 +32,6 @@ COMMON_FAILURE_MESSAGES = [
     "not authorized",
     "not authenticated",
     "not logged in",
-
     "Note that both fields may be case-sensitive.",
     "Unrecognized username or password. Forgot your password?",
     "Invalid credentials",
@@ -90,9 +88,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         """
         try:
             response = self.throttle_request(
-                lambda: requests.get(
-                    url, timeout=Config.Modules.AdminPanelLoginBruter.REQUEST_TIMEOUT
-                )
+                lambda: requests.get(url, timeout=Config.Modules.AdminPanelLoginBruter.REQUEST_TIMEOUT)
             )
             return response.status_code == 200 if response else False
         except requests.RequestException as e:
@@ -108,18 +104,18 @@ class AdminPanelLoginBruter(ArtemisBase):
             "/admin/login.php",
             "/admin/index.php",
             "/login",
-            '/admin_login",
+            "/admin_login",
             "/login/",
             "/admin_login/",
-            '/admin-console/',
-            '/administration/',
-            '/pma/',
-            '/cms/',
-            '/CMS/',
-            '/panel/',
-            '/adminpanel/',
-            '/backend/',
-            '/phpmyadmin/',
+            "/admin-console/",
+            "/administration/",
+            "/pma/",
+            "/cms/",
+            "/CMS/",
+            "/panel/",
+            "/adminpanel/",
+            "/backend/",
+            "/phpmyadmin/",
             "/login.php",
             "/index.php",
             "/admin/",
@@ -149,9 +145,7 @@ class AdminPanelLoginBruter(ArtemisBase):
 
         try:
             response = self.throttle_request(
-                lambda: session.get(
-                    login_url, timeout=Config.Modules.AdminPanelLoginBruter.REQUEST_TIMEOUT
-                )
+                lambda: session.get(login_url, timeout=Config.Modules.AdminPanelLoginBruter.REQUEST_TIMEOUT)
             )
             if not response or response.status_code != 200:
                 return None
@@ -200,11 +194,14 @@ class AdminPanelLoginBruter(ArtemisBase):
                     indicators.append("session_cookie")
                     login_success = True
 
-                if any(logout_message.lower() in post_response.text.lower() for logout_message in LOGOUT_MESSAGES)
+                if any(logout_message.lower() in post_response.text.lower() for logout_message in LOGOUT_MESSAGES):
                     indicators.append("logout_link")
                     login_success = True
 
-                failure_detected = any(msg.lower() in post_response.text.lower() and msg.lower() not in response.text.lower() for msg in COMMON_FAILURE_MESSAGES)
+                failure_detected = any(
+                    msg.lower() in post_response.text.lower() and msg.lower() not in response.text.lower()
+                    for msg in COMMON_FAILURE_MESSAGES
+                )
                 if not failure_detected:
                     indicators.append("no_failure_messages")
                     login_success = True
@@ -224,9 +221,7 @@ class AdminPanelLoginBruter(ArtemisBase):
 
         return None
 
-    def scan(
-        self, base_url: str, login_paths: List[str]
-    ) -> List[AdminPanelLoginBruterResult]:
+    def scan(self, base_url: str, login_paths: List[str]) -> List[AdminPanelLoginBruterResult]:
         """
         Scans the target URL for vulnerable login paths using common credentials.
         """
@@ -240,8 +235,10 @@ class AdminPanelLoginBruter(ArtemisBase):
                     credential_pairs.add((username, password))
 
             # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
-            #positive.
-            if self.brute_force_login_path(base_url, path, "this-username-should-not-exist", binascii.hexlify(os.urandom(16)).decode("ascii")):
+            # positive.
+            if self.brute_force_login_path(
+                base_url, path, "this-username-should-not-exist", binascii.hexlify(os.urandom(16)).decode("ascii")
+            ):
                 results = []
                 break
 

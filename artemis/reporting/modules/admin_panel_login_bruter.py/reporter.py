@@ -9,7 +9,7 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
-from artemis.resolvers import lookup, ResolutionException
+from artemis.resolvers import ResolutionException, lookup
 
 
 class BruteforceLoginReporter(Reporter):
@@ -23,9 +23,7 @@ class BruteforceLoginReporter(Reporter):
         if task_result["status"] != "INTERESTING":
             return []
 
-        if not isinstance(task_result.get("data"), dict) or not isinstance(
-            task_result["data"].get("results"), list
-        ):
+        if not isinstance(task_result.get("data"), dict) or not isinstance(task_result["data"].get("results"), list):
             return []
 
         reports = []
@@ -66,10 +64,10 @@ class BruteforceLoginReporter(Reporter):
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """See the docstring in the Reporter class."""
         return {
-            BruteforceLoginReporter.BRUTEFORCE_LOGIN: lambda report: Reporter.dict_to_tuple({
-                "type": report.report_type,
-                "target": get_domain_normal_form(
-                    urllib.parse.urlparse(report.target).hostname or ""
-                ),
-            })
+            BruteforceLoginReporter.BRUTEFORCE_LOGIN: lambda report: Reporter.dict_to_tuple(
+                {
+                    "type": report.report_type,
+                    "target": get_domain_normal_form(urllib.parse.urlparse(report.target).hostname or ""),
+                }
+            )
         }

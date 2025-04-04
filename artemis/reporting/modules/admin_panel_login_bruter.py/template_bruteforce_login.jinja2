@@ -6,9 +6,9 @@
                     <li>
                         {{ report.target }}
                         <ul>
-                            <li>{% trans %}Compromised credentials:{% endtrans %} 
+                            <li>{% trans %}Compromised credentials:{% endtrans %}
                                 <strong>{{ report.additional_data.credentials[0] }}:{{ report.additional_data.credentials[1] }}</strong></li>
-                            <li>{% trans %}Resolved host:{% endtrans %} 
+                            <li>{% trans %}Resolved host:{% endtrans %}
                                 {{ report.additional_data.resolved_host }}</li>
                             {% if report.additional_data.indicators %}
                             <li>{% trans %}Detection evidence:{% endtrans %}

@@ -13,14 +13,10 @@ from pydantic import BaseModel
 from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
+from artemis.password_utils import get_passwords
 from artemis.task_utils import get_target_url
 
-COMMON_CREDENTIALS = [
-    ("admin", "admin"),
-    ("admin", "password"),
-    ("admin", "123456"),
-    ("admin", "welcome"),
-]
+COMMON_USERNAMES = ["admin"]
 
 COMMON_FAILURE_MESSAGES = [
     "Please enter the correct username and password for a staff account",  # Django
@@ -99,7 +95,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         Discovers common admin login paths by checking predefined URLs.
         """
         common_login_paths = [
-            "index.php",
+            "/index.php",
             "/admin/login.php",
             "/admin/index.php",
             "/login",
@@ -139,6 +135,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         """
         Attempts to brute-force a login form at the given path using provided credentials.
         """
+        self.log.info("Trying %s:%s on %s/%s", username, password, base_url, login_path.lstrip("/"))
         login_url = urllib.parse.urljoin(base_url, login_path)
         session = requests.session()
 
@@ -205,6 +202,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                     msg.lower() in post_response.text.lower() and msg.lower() not in response.text.lower()
                     for msg in COMMON_FAILURE_MESSAGES
                 )
+                self.log.info("indicators: %s failure_detected: %s", indicators, failure_detected)
                 if not failure_detected:
                     indicators.append("no_failure_messages")
                     login_success = True
@@ -212,6 +210,9 @@ class AdminPanelLoginBruter(ArtemisBase):
                     login_success = False
 
                 if login_success and indicators:
+                    self.log.info(
+                        "successful brute force form_url=%s username=%s password=%s", form_url, username, password
+                    )
                     return AdminPanelLoginBruterResult(
                         url=form_url,
                         username=username,
@@ -224,18 +225,19 @@ class AdminPanelLoginBruter(ArtemisBase):
 
         return None
 
-    def scan(self, base_url: str, login_paths: List[str]) -> List[AdminPanelLoginBruterResult]:
+    def scan(self, task: Task, base_url: str, login_paths: List[str]) -> List[AdminPanelLoginBruterResult]:
         """
         Scans the target URL for vulnerable login paths using common credentials.
         """
         results = []
         credential_pairs = set()
         for path in login_paths:
-            for username, password in COMMON_CREDENTIALS:
-                result = self.brute_force_login_path(base_url, path, username, password)
-                if result:
-                    results.append(result)
-                    credential_pairs.add((username, password))
+            for username in COMMON_USERNAMES:
+                for password in get_passwords(task):
+                    result = self.brute_force_login_path(base_url, path, username, password)
+                    if result:
+                        results.append(result)
+                        credential_pairs.add((username, password))
 
             # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
             # positive.
@@ -257,7 +259,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         login_paths = self.discover_login_paths(url)
         random.shuffle(login_paths)
 
-        results = self.scan(url, login_paths)
+        results = self.scan(current_task, url, login_paths)
 
         if results:
             status = TaskStatus.INTERESTING

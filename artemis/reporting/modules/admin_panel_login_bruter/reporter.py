@@ -1,15 +1,12 @@
 import os
-import urllib.parse
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 
 from artemis.reporting.base.language import Language
-from artemis.reporting.base.normal_form import NormalForm, get_domain_normal_form
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
-from artemis.resolvers import ResolutionException, lookup
 
 
 class WeakAdminCredentialsReporter(Reporter):
@@ -31,8 +28,8 @@ class WeakAdminCredentialsReporter(Reporter):
             reports.append(
                 Report(
                     top_level_target=get_top_level_target(task_result),
-                    target=result['target'],
-                    report_type=BruteforceLoginReporter.WEAK_ADMIN_CREDENTIALS,
+                    target=result["target"],
+                    report_type=WeakAdminCredentialsReporter.WEAK_ADMIN_CREDENTIALS,
                     additional_data={
                         "credentials": result["credentials"],
                         "resolved_host": resolved_host,

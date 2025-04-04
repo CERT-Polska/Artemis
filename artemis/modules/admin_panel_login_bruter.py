@@ -26,27 +26,39 @@ COMMON_FAILURE_MESSAGES = [
     "Username of password do not match or you do not have an account yet",  # Joomla
     "Login failed.",  # PhppgAdmin
 
-    # Common words that occur in failed login attempts
-    "Invalid",
-    "Incorrect",
-    "failed",
-    "error",
-    "wrong",
-    "unauthorized",
-    "unrecognized",
+    # Common phrases that occur in failed login attempts - don't put single words here,
+    # as that may lead to false positives
     "access denied",
-    "not found",
-    "not exist",
-    "not valid",
-    "not match",
-    "not correct",
-    "not allowed",
     "not permitted",
     "not authorized",
     "not authenticated",
     "not logged in",
-    "not registered",
-    "not accessible",
+
+    "Note that both fields may be case-sensitive.",
+    "Unrecognized username or password. Forgot your password?",
+    "Invalid credentials",
+    "The login is invalid",
+    "not seem to be correct",
+    "Access denied",
+    "Cannot log in",
+    "login details do not seem to be correct",
+    # rate limit
+    "failed login attempts for this account",
+    # pl_PL
+    "Podano błędne dane logowania",
+    "Wprowadź poprawne dane",
+    "Nieprawidłowa nazwa użytkownika lub hasło",
+    "Nazwa użytkownika lub hasło nie jest",
+    "Złe hasło",
+    "niepoprawne hasło",
+    "Błędna nazwa użytkownika",
+]
+
+
+LOGOUT_MESSAGES = [
+    "logout",
+    "sign out",
+    "wyloguj",
 ]
 
 
@@ -92,8 +104,22 @@ class AdminPanelLoginBruter(ArtemisBase):
         Discovers common admin login paths by checking predefined URLs.
         """
         common_login_paths = [
+            "index.php",
             "/admin/login.php",
             "/admin/index.php",
+            "/login",
+            '/admin_login",
+            "/login/",
+            "/admin_login/",
+            '/admin-console/',
+            '/administration/',
+            '/pma/',
+            '/cms/',
+            '/CMS/',
+            '/panel/',
+            '/adminpanel/',
+            '/backend/',
+            '/phpmyadmin/',
             "/login.php",
             "/index.php",
             "/admin/",
@@ -174,11 +200,11 @@ class AdminPanelLoginBruter(ArtemisBase):
                     indicators.append("session_cookie")
                     login_success = True
 
-                if "logout" in post_response.text.lower():
+                if any(logout_message.lower() in post_response.text.lower() for logout_message in LOGOUT_MESSAGES)
                     indicators.append("logout_link")
                     login_success = True
 
-                failure_detected = any(msg in post_response.text and msg not in response.text for msg in COMMON_FAILURE_MESSAGES)
+                failure_detected = any(msg.lower() in post_response.text.lower() and msg.lower() not in response.text.lower() for msg in COMMON_FAILURE_MESSAGES)
                 if not failure_detected:
                     indicators.append("no_failure_messages")
                     login_success = True
@@ -205,13 +231,25 @@ class AdminPanelLoginBruter(ArtemisBase):
         Scans the target URL for vulnerable login paths using common credentials.
         """
         results = []
+        credential_pairs = set()
         for path in login_paths:
             for username, password in COMMON_CREDENTIALS:
                 result = self.brute_force_login_path(base_url, path, username, password)
                 if result:
                     results.append(result)
-                    if Config.Modules.AdminPanelLoginBruter.STOP_ON_FIRST_MATCH:
-                        return results
+                    credential_pairs.add((username, password))
+
+            # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
+            #positive.
+            if self.brute_force_login_path(base_url, path, "this-username-should-not-exist", binascii.hexlify(os.urandom(16)).decode("ascii")):
+                results = []
+                break
+
+        if len(credential_pairs) > 1:
+            # More than one successful working credential pair is most probably a FP. We do
+            # accept working credentials on different paths though.
+            results = []
+
         return results
 
     def run(self, current_task: Task) -> None:

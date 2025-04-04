@@ -355,6 +355,27 @@ services:
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+  test-phpmyadmin-easy-password-subdirectory-nginx:
+    image: nginx
+    volumes:
+      - ./test/data/phpmyadmin_subdirectory_proxy/default.conf:/etc/nginx/conf.d/default.conf
+
+  test-phpmyadmin-easy-password-subdirectory:
+    image: phpmyadmin
+    environment:
+      - PMA_ABSOLUTE_URI=http://test-phpmyadmin-easy-password-subdirectory-nginx/phpmyadmin/
+      - PMA_HOST=test-phpmyadmin-easy-password-mysql
+
+  test-phpmyadmin-easy-password:
+    image: phpmyadmin
+    environment:
+      - PMA_HOST=test-phpmyadmin-easy-password-mysql
+
+  test-phpmyadmin-easy-password-mysql:
+    image: mariadb:10.3
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
 
 
 volumes:

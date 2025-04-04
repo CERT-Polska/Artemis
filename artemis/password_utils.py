@@ -21,6 +21,7 @@ PASSWORDS = {
     "zaq12wsx",
 } | set(Config.Miscellaneous.PASSWORD_BRUTER_ADDITIONAL_PASSWORDS)
 
+
 def get_passwords(current_task: Task) -> List[str]:
     passwords = list(PASSWORDS)
     host = utils.get_host_from_url(task_utils.get_target_url(current_task))

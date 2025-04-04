@@ -218,8 +218,7 @@ class Config:
         )
 
         PASSWORD_BRUTER_ADDITIONAL_PASSWORDS: Annotated[
-            List[str],
-            "Additional passwords (besides the top10 ones) to be used in brute forcing."
+            List[str], "Additional passwords (besides the top10 ones) to be used in brute forcing."
         ] = get_config("PASSWORD_BRUTER_ADDITIONAL_PASSWORDS", default="", cast=decouple.Csv(str))
 
         STRIPPED_PREFIXES: Annotated[

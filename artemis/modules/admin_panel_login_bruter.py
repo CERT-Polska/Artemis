@@ -204,7 +204,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                 if result:
                     self.logger.info("Checking whether %s:%s indeed works", username, password)
                     rechecked = True
-                    for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_CHECKS):
+                    for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS):
                         _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
                         # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
                         # positive.

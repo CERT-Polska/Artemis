@@ -288,10 +288,10 @@ class Config:
 
     class Modules:
         class AdminPanelLoginBruter:
-            ADMIN_PANEL_LOGIN_BRUTER_NUM_CHECKS: Annotated[
+            ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS: Annotated[
                 int,
-                "How many times to check whether the good password works, and the bad doesn't",
-            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_CHECKS", default=3, cast=int)
+                "How many times to recheck whether the good password works, and the bad doesn't",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=3, cast=int)
 
         class Bruter:
             BRUTER_FILE_LIST: Annotated[

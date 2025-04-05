@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Annotated, Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
@@ -11,6 +12,7 @@ from pydantic import BaseModel
 from redis import Redis
 
 from artemis.config import Config
+from artemis.configuration_registry import ConfigurationRegistry
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
 from artemis.modules.classifier import Classifier
@@ -40,6 +42,11 @@ class ReportGenerationTaskModel(BaseModel):
     alerts: Any
 
 
+class ModuleConfigurationRequest(BaseModel):
+    module_name: str
+    configuration: Dict[str, Any]
+
+
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
     if not Config.Miscellaneous.API_TOKEN:
         raise HTTPException(
@@ -53,13 +60,18 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
 @router.post("/add", dependencies=[Depends(verify_api_token)])
 def add(
     targets: List[str],
-    tag: str | None = Body(default=None),
+    tag: Optional[str] = Body(default=None),
     disabled_modules: Optional[List[str]] = Body(default=None),
     enabled_modules: Optional[List[str]] = Body(default=None),
     requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
+    module_configs: Optional[Dict[str, Dict[str, Any]]] = Body(default=None),
 ) -> Dict[str, Any]:
-    """Add targets to be scanned."""
+    """Add targets to be scanned.
+    
+    You can provide per-task module configurations through the module_configs parameter.
+    These configurations control runtime behavior (like scan aggressiveness) for each module.
+    """
     if disabled_modules and enabled_modules:
         raise HTTPException(
             status_code=400, detail="It's not possible to set both disabled_modules and enabled_modules."
@@ -84,12 +96,32 @@ def add(
     elif not disabled_modules:
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
+    # Validate module configurations if provided
+    if module_configs:
+        for module_name, config in module_configs.items():
+            config_class = ConfigurationRegistry().get_configuration_class(module_name)
+            if config_class:
+                try:
+                    config_instance = config_class.deserialize(config)
+                    if not config_instance.validate():
+                        raise ValueError(f"Invalid configuration for module {module_name}")
+                except ValueError as e:
+                    raise HTTPException(status_code=400, detail=f"Invalid configuration for {module_name}: {str(e)}")
+    # If no module_configs provided, get configs from Redis as fallback
+    else:
+        module_configs = {}
+        for module_name in identities_that_can_be_disabled:
+            config_data = redis.hget(f"module_config:{module_name}", "config")
+            if config_data:
+                module_configs[module_name] = json.loads(config_data)
+
     create_tasks(
         targets,
         tag,
         disabled_modules=disabled_modules,
         priority=TaskPriority(priority),
         requests_per_second_override=requests_per_second_override,
+        module_configs=module_configs,
     )
 
     return {"ok": True}
@@ -345,3 +377,38 @@ def _get_search_query(request: Request) -> Optional[str]:
         raise NotImplementedError("Regex search is not yet implemented")
 
     return request.query_params["search[value]"]
+
+
+@router.post("/v1/configure_module", dependencies=[Depends(verify_api_token)])
+async def configure_module(request: ModuleConfigurationRequest) -> Dict[str, Any]:
+    """Configure default settings for a module.
+
+    This endpoint sets the default configuration that will be used when no specific
+    configuration is provided in the add() call. The configuration controls runtime
+    behavior of modules (like scan aggressiveness) and is stored in Redis.
+
+    Note: For per-task configuration, use the module_configs parameter in the add() endpoint instead.
+    """
+    try:
+        # Get the module configuration class
+        config_class = ConfigurationRegistry().get_configuration_class(request.module_name)
+        if not config_class:
+            raise HTTPException(
+                status_code=400, detail=f"No configuration registered for module: {request.module_name}"
+            )
+
+        # Validate and deserialize the configuration
+        try:
+            config = config_class.deserialize(request.configuration)
+            if not config.validate():
+                raise ValueError(f"Configuration failed validation")
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid configuration: {str(e)}")
+
+        # Store in Redis for session persistence
+        redis.hset(f"module_config:{request.module_name}", "config", json.dumps(request.configuration))
+
+        return {"status": "success", "message": f"Default configuration set for module: {request.module_name}"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to configure module: {str(e)}")

@@ -26,7 +26,7 @@ class DirectoryIndexReporter(Reporter):
             if not isinstance(task_result["result"], dict):
                 return []
 
-            for found_url_dict in task_result["result"]["found_urls"]:
+            for found_url_dict in task_result["result"].get("found_urls", {}):
                 found_url = FoundURL(**found_url_dict)
 
                 if found_url.has_directory_index:
@@ -35,7 +35,7 @@ class DirectoryIndexReporter(Reporter):
             if not isinstance(task_result["result"], dict):
                 return []
 
-            for found_url_dict in task_result["result"]["result"]["found_urls"]:
+            for found_url_dict in task_result["result"].get("result", {}).get("found_urls", {}):
                 found_url = FoundURL(**found_url_dict)
 
                 assert found_url.has_directory_index

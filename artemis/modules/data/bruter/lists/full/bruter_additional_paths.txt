@@ -5,6 +5,7 @@ backup.tar.gz
 # Nginx merge_slashes path traversal
 ///////../../../etc/passwd
 db.sql
+paybynet.log
 backup.sql
 appsettings.json
 graph

@@ -67,12 +67,13 @@ class HTTPResponse:
             return self.content_bytes.decode(encoding, errors="ignore")
 
 
-def _request(
+def request(
     method_name: str,
     url: str,
-    allow_redirects: bool,
-    data: Optional[Dict[str, str]],
-    cookies: Optional[Dict[str, str]],
+    allow_redirects: bool = True,
+    data: Optional[Dict[str, str]] = None,
+    cookies: Optional[Dict[str, str]] = None,
+    session: Optional[requests.Session] = None,
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
     requests_per_second: float = Config.Limits.REQUESTS_PER_SECOND,
     **kwargs: Any,
@@ -85,13 +86,15 @@ def _request(
         assert len(url) < 1600, f"URL too long, has {len(url)} characters"
 
     def _internal_request() -> HTTPResponse:
+        nonlocal session
         headers = copy.copy(HEADERS)
         headers.update(kwargs["headers"]) if "headers" in kwargs else headers
 
-        s = requests.Session()
+        if not session:
+            session = requests.Session()
         url_parsed = urllib.parse.urlparse(url)
         if url_parsed.scheme.lower() == "https":
-            s.mount(url, SSLContextAdapter())
+            session.mount(url, SSLContextAdapter())
 
         if url_parsed.username or url_parsed.password:
             LOGGER.debug(
@@ -102,7 +105,7 @@ def _request(
         else:
             LOGGER.debug("%s %s", method_name, url)
 
-        response = getattr(s, method_name)(
+        response = getattr(session, method_name)(
             url,
             allow_redirects=allow_redirects,
             data=data,
@@ -143,7 +146,7 @@ def get(
     requests_per_second: float = Config.Limits.REQUESTS_PER_SECOND,
     **kwargs: Any,
 ) -> HTTPResponse:
-    return _request("get", url, allow_redirects, data, cookies, requests_per_second=requests_per_second, **kwargs)
+    return request("get", url, allow_redirects, data, cookies, requests_per_second=requests_per_second, **kwargs)
 
 
 def post(
@@ -154,4 +157,4 @@ def post(
     requests_per_second: float = Config.Limits.REQUESTS_PER_SECOND,
     **kwargs: Any,
 ) -> HTTPResponse:
-    return _request("post", url, allow_redirects, data, cookies, requests_per_second=requests_per_second, **kwargs)
+    return request("post", url, allow_redirects, data, cookies, requests_per_second=requests_per_second, **kwargs)

@@ -1,0 +1,27 @@
+#: artemis/reporting/modules/mysql_or_postgres_bruter/template_exposed_database_with_easy_password.jinja2:2
+msgid ""
+"The following servers expose a database where simple login/password pair "
+"allows login:"
+msgstr ""
+"Na następujących serwerach jest uruchomiona baza danych do której można "
+"zalogować się prostym hasłem:"
+
+#: artemis/reporting/modules/mysql_or_postgres_bruter/template_exposed_database_with_easy_password.jinja2:6
+msgid "the following credentials allow login"
+msgstr "następujące dane umożliwiają logowanie"
+
+#: artemis/reporting/modules/mysql_or_postgres_bruter/template_exposed_database_with_easy_password.jinja2:10
+msgid "username"
+msgstr "nazwa użytkownika"
+
+#: artemis/reporting/modules/mysql_or_postgres_bruter/template_exposed_database_with_easy_password.jinja2:11
+msgid "and"
+msgstr "i"
+
+#: artemis/reporting/modules/mysql_or_postgres_bruter/template_exposed_database_with_easy_password.jinja2:12
+msgid "password"
+msgstr "hasło"
+
+#: artemis/reporting/modules/mysql_or_postgres_bruter/template_exposed_database_with_easy_password.jinja2:14
+msgid "empty password"
+msgstr "puste hasło"

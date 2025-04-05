@@ -16,6 +16,7 @@ SEVERITY_MAP = {
     ReportType("forti_vuln"): Severity.HIGH,
     ReportType("globalprotect_vuln"): Severity.HIGH,
     ReportType("lfi_vulnerability"): Severity.HIGH,
+    ReportType("weak_admin_credentials"): Severity.HIGH,
     ReportType("insecure_wordpress"): Severity.HIGH,
     ReportType("nuclei_vulnerability"): Severity.HIGH,
     ReportType("script_unregistered_domain"): Severity.HIGH,

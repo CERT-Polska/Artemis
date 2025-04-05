@@ -12,6 +12,12 @@
                             {% endif %}
 
                             {{ report.additional_data.message_translated }}
+
+                            {% if report.additional_data.is_for_parent_domain %}
+                                {% with top_level_target=report.top_level_target, target=report.target %}
+                                    <b>{% trans %}For the DMARC mechanism to work properly on {{ top_level_target }}, the record needs to be configured on {{ target }} (one level below the public suffix, i.e. the domain where everybody can register subdomains - e.g. .eu or .co.uk).{% endtrans %}</b>
+                                {% endwith %}
+                            {% endif %}
                         {{ report_meta(report) }}
                     </li>
                 {% endif %}

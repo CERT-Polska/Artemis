@@ -202,8 +202,29 @@ class AdminPanelLoginBruter(ArtemisBase):
             for username, password in itertools.product(COMMON_USERNAMES, get_passwords(task)):
                 login_form_found, result = self.brute_force_login_path(base_url, path, username, password)
                 if result:
-                    results.append(result)
-                    credential_pairs.add((username, password))
+                    self.logger.info("Checking whether %s:%s indeed works", username, password)
+                    rechecked = True
+                    for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_CHECKS):
+                        _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
+                        # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
+                        # positive.
+                        _, result_fake_password = self.brute_force_login_path(
+                            base_url,
+                            path,
+                            "this-username-should-not-exist",
+                            binascii.hexlify(os.urandom(16)).decode("ascii"),
+                        )
+
+                        if not (result_good_password and not result_fake_password):
+                            rechecked = False
+                            break
+
+                    if rechecked:
+                        results.append(result)
+                        credential_pairs.add((username, password))
+                        self.logger.info("rechecked - works!")
+                    else:
+                        self.logger.info("rechecked - doesn't work")
 
                 if not login_form_found:  # not worth trying all other credential pairs
                     break
@@ -212,26 +233,6 @@ class AdminPanelLoginBruter(ArtemisBase):
             # More than one successful working credential pair is most probably a FP. We do
             # accept working credentials on different paths though.
             results = []
-
-        if len(credential_pairs) == 1:
-            username, password = tuple(list(credential_pairs)[0])
-
-            self.logger.info(f"Checking whether %s:%s indeed works", username, password)
-            for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_CHECKS):
-                _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
-                # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
-                # positive.
-                _, result_fake_password = self.brute_force_login_path(
-                    base_url, path, "this-username-should-not-exist", binascii.hexlify(os.urandom(16)).decode("ascii")
-                )
-
-                if not (result_good_password and not result_fake_password):
-                    self.logger.info("checked - doesn't work")
-                    results = []
-                    break
-
-            if results:
-                self.logger.info("checked - works!")
 
         return results
 

@@ -1,9 +1,10 @@
 import binascii
+import itertools
 import logging
 import os
 import random
 import urllib.parse
-from typing import IO, List, Optional
+from typing import IO, List, Optional, Tuple
 
 import requests
 from bs4 import BeautifulSoup
@@ -83,18 +84,19 @@ class AdminPanelLoginBruter(ArtemisBase):
 
     def brute_force_login_path(
         self, base_url: str, login_path: str, username: str, password: str
-    ) -> Optional[AdminPanelLoginBruterResult]:
+    ) -> Tuple[bool, Optional[AdminPanelLoginBruterResult]]:
         """
         Attempts to brute-force a login form at the given path using provided credentials.
         """
         self.log.info("Trying %s:%s on %s/%s", username, password, base_url, login_path.lstrip("/"))
         login_url = urllib.parse.urljoin(base_url, login_path)
         session = requests.session()
+        login_form_found = False
 
         try:
             response = self.throttle_request(lambda: http_requests.request("get", login_url, session=session))
             if not response or response.status_code != 200:
-                return None
+                return (False, None)
 
             original_cookies = session.cookies.get_dict()  # type: ignore
             soup = BeautifulSoup(response.text, "html.parser")
@@ -132,6 +134,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                     continue
                 else:
                     self.log.info("Found username/pwd in form on %s, proceeding", login_url)
+                    login_form_found = True
 
                 try:
                     self.log.info("Post data: %s", form_data)
@@ -173,17 +176,20 @@ class AdminPanelLoginBruter(ArtemisBase):
                     self.log.info(
                         "successful brute force form_url=%s username=%s password=%s", form_url, username, password
                     )
-                    return AdminPanelLoginBruterResult(
-                        url=form_url,
-                        username=username,
-                        password=password,
-                        indicators=indicators,
+                    return (
+                        True,
+                        AdminPanelLoginBruterResult(
+                            url=form_url,
+                            username=username,
+                            password=password,
+                            indicators=indicators,
+                        ),
                     )
 
         except Exception as e:
             self.logger.warning(f"Error during brute force on {login_url}: {e}")
 
-        return None
+        return (login_form_found, None)
 
     def scan(self, task: Task, base_url: str, login_paths: List[str]) -> List[AdminPanelLoginBruterResult]:
         """
@@ -192,18 +198,22 @@ class AdminPanelLoginBruter(ArtemisBase):
         results = []
         credential_pairs = set()
         for path in login_paths:
-            for username in COMMON_USERNAMES:
-                for password in get_passwords(task):
-                    result = self.brute_force_login_path(base_url, path, username, password)
-                    if result:
-                        results.append(result)
-                        credential_pairs.add((username, password))
+            for username, password in itertools.product(COMMON_USERNAMES, get_passwords(task)):
+                login_form_found, result = self.brute_force_login_path(base_url, path, username, password)
+                if result:
+                    results.append(result)
+                    credential_pairs.add((username, password))
+
+                if not login_form_found:  # not worth trying all other credential pairs
+                    break
 
             # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
             # positive.
-            if self.brute_force_login_path(
+            _, result_fake_password = self.brute_force_login_path(
                 base_url, path, "this-username-should-not-exist", binascii.hexlify(os.urandom(16)).decode("ascii")
-            ):
+            )
+
+            if result_fake_password:
                 results = []
                 break
 

@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.password_utils import get_passwords
 from artemis.task_utils import get_target_url
@@ -207,20 +208,30 @@ class AdminPanelLoginBruter(ArtemisBase):
                 if not login_form_found:  # not worth trying all other credential pairs
                     break
 
-            # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
-            # positive.
-            _, result_fake_password = self.brute_force_login_path(
-                base_url, path, "this-username-should-not-exist", binascii.hexlify(os.urandom(16)).decode("ascii")
-            )
-
-            if result_fake_password:
-                results = []
-                break
-
         if len(credential_pairs) > 1:
             # More than one successful working credential pair is most probably a FP. We do
             # accept working credentials on different paths though.
             results = []
+
+        if len(credential_pairs) == 1:
+            username, password = tuple(list(credential_pairs)[0])
+
+            self.logger.info(f"Checking whether %s:%s indeed works", username, password)
+            for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_CHECKS):
+                _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
+                # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
+                # positive.
+                _, result_fake_password = self.brute_force_login_path(
+                    base_url, path, "this-username-should-not-exist", binascii.hexlify(os.urandom(16)).decode("ascii")
+                )
+
+                if not (result_good_password and not result_fake_password):
+                    self.logger.info("checked - doesn't work")
+                    results = []
+                    break
+
+            if results:
+                self.logger.info("checked - works!")
 
         return results
 

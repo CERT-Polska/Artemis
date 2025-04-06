@@ -287,6 +287,12 @@ class Config:
         ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
 
     class Modules:
+        class AdminPanelLoginBruter:
+            ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS: Annotated[
+                int,
+                "How many times to recheck whether the good password works, and the bad doesn't",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=3, cast=int)
+
         class Bruter:
             BRUTER_FILE_LIST: Annotated[
                 str,

@@ -208,14 +208,14 @@ class AdminPanelLoginBruter(ArtemisBase):
                         _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
                         # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
                         # positive.
-                        _, result_fake_password = self.brute_force_login_path(
+                        has_login_form_fake_password, result_fake_password = self.brute_force_login_path(
                             base_url,
                             path,
                             "this-username-should-not-exist",
                             binascii.hexlify(os.urandom(16)).decode("ascii"),
                         )
 
-                        if not (result_good_password and not result_fake_password):
+                        if not (result_good_password and has_login_form_fake_password and not result_fake_password):
                             rechecked = False
                             break
 

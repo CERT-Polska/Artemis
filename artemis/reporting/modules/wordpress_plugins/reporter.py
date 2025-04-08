@@ -84,7 +84,7 @@ class WordpressPluginsReporter(Reporter):
             else:
                 logger.info(f"{slug} version {version} developed outside WordPress repo")
 
-        for item in task_result["result"]["outdated"]:
+        for item in task_result["result"].get("outdated", []):
             additional_data = {
                 "type": item["type"],
                 "slug": item["slug"],

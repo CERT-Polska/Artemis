@@ -997,6 +997,12 @@ TRANSLATIONS = {
     "SysAid 20.3.64 b14 contains a cross-site scripting vulnerability via the /KeepAlive.jsp?stamp= URI.": "SysAid w wersji 20.3.64 b14 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Read and list the files within the PostgreSQL database,": "Wykryto bazę danych PostgreSQL umożliwiającą atakującemu odczyt i listowanie plików.",
+    'A vulnerability in the TP-Link WR840N v6 router with firmware version 0.9.1 4.16 and earlier permits unauthorized individuals to bypass the authentication of some interfaces under the /cgi directory.When adding Referer- http-//tplinkwifi.net to the the request, it will be recognized as passing the authentication.': "Router TP-Link WR840N v6 z firmware w wersji 0.9.1 4.16 i wcześniejszych umożliwia atakującemu omijanie autoryzacji i nieuprawniony dostęp do niektórych interfejsów.",
+    'Next.js contains a critical middleware bypass vulnerability affecting versions 11.1.4 through 15.2.2.\nThe vulnerability allows attackers to bypass middleware security controls by sending a specially crafted\n\'x-middleware-subrequest\' header, which can lead to authorization bypass and other security control circumvention.': "Next.js w wersji od 11.1.4 do 15.2.2 zawiera podatność umożliwiającą atakującemu omijanie niektórych mechanizmów kontroli dostępu.",
+    "Discourse is an open source platform for community discussion. This vulnerability only impacts Discourse instances configured to use `FileStore--LocalStore` which means uploads and backups are stored locally on disk. If an attacker knows the name of the Discourse backup file, the attacker can trick nginx into sending the Discourse backup file with a well crafted request.": "Wykryto system Discourse w wersji umożliwiającej atakującemu pobranie pliku kopii zapasowej, jeśli zna jej nazwę.",
+    "Identifies Drupal sites with the elfinder library installed, which could be vulnerable to unrestricted file upload through the connector.php file.When this component is detected, the site may be vulnerable to remote code execution attacks via PHP file uploads.This template only detects the presence of the vulnerable component and does not perform any exploitation.": "Wykryto publicznie dostępne komponenty biblioteki elfinder w systemie Drupal, mogące potencjalnie umożliwiać atakującemu umieszczenie plików na serwerze a w konsekwencji zdalne wykonanie kodu. Rekomendujemy, aby te komponenty nie były dostępne publicznie.",
+    "CrushFTP prior to 10.5.1 is vulnerable to Improperly Controlled Modification of Dynamically-Determined Object Attributes.": "CrushFTP w wersji 10.5.1 umożliwia atakującemu zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION,
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1685,4 +1691,6 @@ TRANSLATIONS = {
     "A lorex panel was detected.": "Wykryto panel lorex.",
     "SteVe login panel was detected.": "wykryto panel logowania SteVe.",
     "NocoDB Login panel was discovered.": "wykryto panel logowania NocoDB.",
+    "osTicket installer panel was detected.": "wykryto panel instalacyjny systemu osTicket.",
+    "Citrix NetScaler is an application delivery controller that improves the delivery speed and quality of applications to an end user.": "wykryto panel Citrix NetScaler.",
 }

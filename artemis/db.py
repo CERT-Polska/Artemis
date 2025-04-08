@@ -191,6 +191,9 @@ class DB:
             except NoResultFound:
                 return
 
+            if not task:
+                return
+
             task.logs = logs.decode("utf-8", errors="replace")
             session.add(task)
             session.commit()

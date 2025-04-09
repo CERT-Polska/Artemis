@@ -31,5 +31,5 @@ Site en construction</title>
 <title>Web Server's Default Page</title>
 <tr><td>Welcome to the home of <b>
 var f = $('<frame />').attr('src', '//newkf.nazwa.pl/index,' + d);
-Visit <a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&utm_campaign=spkaczorow.pl" target="_blank" rel="noopener noreferrer">cloudflare.com</a> for more information
+Visit <a href="https://www.cloudflare.com/5xx-error-landing
 ...więcej niż <span class="orange-text">hosting</span><span class="orange-text" id="bottom-dot">_</span>

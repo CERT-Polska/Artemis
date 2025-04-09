@@ -22,7 +22,7 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-php-easy-admin-password/index.php")
+        self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-php-easy-admin-password:80/index.php")
         self.assertEqual(call.kwargs["data"]["results"][0]["username"], "admin")
         self.assertEqual(call.kwargs["data"]["results"][0]["password"], "admin")
         self.assertEqual(call.kwargs["data"]["results"][0]["indicators"], ["logout_link", "no_failure_messages"])

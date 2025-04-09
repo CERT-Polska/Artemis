@@ -52,7 +52,6 @@ class ArtemisBase(Karton):
     """
     Artemis base module. Provides helpers (such as e.g. cache) for all modules.
     """
-    domains = []
 
     task_poll_interval_seconds = 10
     batch_tasks = False
@@ -144,12 +143,7 @@ class ArtemisBase(Karton):
         elif "last_domain" in current_task.payload:
             new_task.payload["last_domain"] = current_task.payload["last_domain"]
 
-        if new_task.payload_persistent.get("original_ip") and (new_task.payload_persistent.get("original_ip") not in self.domains):
-            self.domains.append(new_task.payload_persistent.get("original_ip"))
-            self.log.info("Task is a new task, adding: %s", new_task)
-            self.send_task(new_task)
-        if new_task.payload_persistent.get("original_domain") and (new_task.payload_persistent.get("original_domain") not in self.domains):
-            self.domains.append(new_task.payload_persistent.get("original_domain"))
+        if self.db.save_scheduled_task(new_task):
             self.log.info("Task is a new task, adding: %s", new_task)
             self.send_task(new_task)
         else:

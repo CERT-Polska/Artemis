@@ -340,7 +340,7 @@ class Config:
                 "ALL (all severity levels including info and unknown).",
             ] = get_config(
                 "NUCLEI_SEVERITY_THRESHOLD",
-                default="medium_and_above",
+                default="high_and_above",
                 cast=lambda v: __import__("artemis.module_configurations.nuclei", fromlist=["SeverityThreshold"]).SeverityThreshold(v),
             )
 

@@ -606,19 +606,7 @@ class ArtemisBase(Karton):
         if len(tasks) == 0:
             return
 
-        # Load configuration from first task's payload if present
-        if tasks[0].payload.get("module_configuration"):
-            try:
-                self.set_configuration(tasks[0].payload["module_configuration"])
-            except (ValueError, KeyError) as e:
-                self.log.warning(f"Failed to load configuration from task payload: {e}")
-                # Fall back to default configuration
-                self._configuration = self.get_default_configuration()
-        else:
-            # Use default configuration if none provided
-            self._configuration = self.get_default_configuration()
         self._forgiven_http_requests = 0
-        output_redirector = OutputRedirector()
 
         tasks_filtered = []
         for task in tasks:
@@ -637,20 +625,58 @@ class ArtemisBase(Karton):
         if not tasks:
             return
 
-        try:
-            with output_redirector:
-                if self.batch_tasks:
-                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
-                else:
-                    (task,) = tasks
-                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
-        except Exception:
-            for task in tasks:
-                self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
-            raise
-        finally:
-            for task in tasks:
-                self.db.save_task_logs(task.uid, output_redirector.get_output())
+        # Group tasks by their configuration
+        grouped_tasks: Dict[str, List[Task]] = {}
+        
+        for task in tasks:
+            config_dict = None
+            if task.payload.get("module_configuration"):
+                config_dict = task.payload["module_configuration"]
+            
+            # Use JSON string of config as key for grouping
+            config_key = json.dumps(config_dict) if config_dict else "default"
+            
+            if config_key not in grouped_tasks:
+                grouped_tasks[config_key] = []
+                
+            grouped_tasks[config_key].append(task)
+        
+        # Process each group with its configuration
+        for config_key, task_group in grouped_tasks.items():
+            self.log.info(f"Processing group of {len(task_group)} tasks with configuration key: {config_key}")
+            
+            # Set configuration for this batch
+            if config_key != "default":
+                try:
+                    self.set_configuration(json.loads(config_key))
+                except (ValueError, json.JSONDecodeError) as e:
+                    self.log.warning(f"Failed to load configuration from task payload: {e}")
+                    # Fall back to default configuration
+                    self._configuration = self.get_default_configuration()
+            else:
+                # Use default configuration if none provided
+                self._configuration = self.get_default_configuration()
+            
+            # Create a fresh output redirector for each batch
+            output_redirector = OutputRedirector()
+            
+            try:
+                with output_redirector:
+                    if self.batch_tasks:
+                        timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(task_group))()
+                    else:
+                        for task in task_group:
+                            # Create a new function that captures the task value correctly
+                            def run_single_task(t=task):
+                                return self.run(t)
+                            timeout_decorator.timeout(self.timeout_seconds)(run_single_task)()
+            except Exception:
+                for task in task_group:
+                    self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
+                raise
+            finally:
+                for task in task_group:
+                    self.db.save_task_logs(task.uid, output_redirector.get_output())
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

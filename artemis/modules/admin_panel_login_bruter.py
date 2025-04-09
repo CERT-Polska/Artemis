@@ -1,6 +1,5 @@
 import binascii
 import itertools
-import logging
 import os
 import random
 import urllib.parse
@@ -55,10 +54,6 @@ class AdminPanelLoginBruter(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.logger = logging.getLogger(__name__)
-
     def check_url(self, url: str) -> bool:
         """
         Checks if the given URL is accessible and returns a 200 status code.
@@ -67,7 +62,7 @@ class AdminPanelLoginBruter(ArtemisBase):
             response = http_requests.get(url)
             return response.status_code == 200 if response else False
         except requests.RequestException as e:
-            self.logger.debug(f"Error checking URL {url}: {e}")
+            self.log.debug(f"Error checking URL {url}: {e}")
             return False
 
     def discover_login_paths(self, base_url: str) -> List[str]:
@@ -148,7 +143,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                         )
                     )
                 except requests.RequestException as e:
-                    self.logger.debug(f"Error submitting to {form_url}: {e}")
+                    self.log.debug(f"Error submitting to {form_url}: {e}")
                     continue
 
                 if not post_response:
@@ -188,7 +183,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                     )
 
         except Exception as e:
-            self.logger.warning(f"Error during brute force on {login_url}: {e}")
+            self.log.warning(f"Error during brute force on {login_url}: {e}")
 
         return (login_form_found, None)
 
@@ -202,7 +197,7 @@ class AdminPanelLoginBruter(ArtemisBase):
             for username, password in itertools.product(COMMON_USERNAMES, get_passwords(task)):
                 login_form_found, result = self.brute_force_login_path(base_url, path, username, password)
                 if result:
-                    self.logger.info("Checking whether %s:%s indeed works", username, password)
+                    self.log.info("Checking whether %s:%s indeed works", username, password)
                     rechecked = True
                     for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS):
                         _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
@@ -222,9 +217,9 @@ class AdminPanelLoginBruter(ArtemisBase):
                     if rechecked:
                         results.append(result)
                         credential_pairs.add((username, password))
-                        self.logger.info("rechecked - works!")
+                        self.log.info("rechecked - works!")
                     else:
-                        self.logger.info("rechecked - doesn't work")
+                        self.log.info("rechecked - doesn't work")
 
                 if not login_form_found:  # not worth trying all other credential pairs
                     break

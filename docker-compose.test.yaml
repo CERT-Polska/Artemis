@@ -83,7 +83,7 @@ services:
     image: php:8.0-apache
     volumes:
       - ./test/data/php_easy_admin_password/:/var/www/html/
-  
+
   test-php-403-bypass:
     image: php:8.0-apache
     volumes:

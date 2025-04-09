@@ -55,7 +55,7 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "wow-carousel-for-divi-lite",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "cf7-styler-for-divi",
+    "colibri-page-builder",
     "coming-soon",
     "delete-all-comments-of-website",
     "disable-remove-google-fonts",
@@ -66,10 +66,10 @@ PLUGINS_BAD_VERSION_IN_README = [
     "page-or-post-clone",
     "rafflepress",
     "skyboot-custom-icons-for-elementor",
-    "two-factor",
     "website-monetization-by-magenet",
     "woo-tools",
     "wp-maximum-execution-time-exceeded",
+    "yellow-pencil-visual-theme-customizer",
 ]
 
 

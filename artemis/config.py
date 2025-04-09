@@ -217,6 +217,18 @@ class Config:
             default="[%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
         )
 
+        PASSWORD_BRUTER_ADDITIONAL_PASSWORDS: Annotated[
+            List[str], "Additional passwords (besides the top10 ones) to be used in brute forcing."
+        ] = get_config("PASSWORD_BRUTER_ADDITIONAL_PASSWORDS", default="", cast=decouple.Csv(str))
+
+        STRIPPED_PREFIXES: Annotated[
+            List[str],
+            "Some password bruters extracts the site name to brute-force passwords. For example, if it observes "
+            "projectname.example.com it will bruteforce projectname123, projectname2023, ... "
+            "This list describes what domain prefixes to strip (e.g. www) so that we bruteforce projectname123, not "
+            "www123, when testing www.projectname.example.com.",
+        ] = get_config("STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str))
+
         VERIFY_REVDNS_IN_SCOPE: Annotated[
             bool,
             """
@@ -275,6 +287,12 @@ class Config:
         ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
 
     class Modules:
+        class AdminPanelLoginBruter:
+            ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS: Annotated[
+                int,
+                "How many times to recheck whether the good password works, and the bad doesn't",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=5, cast=int)
+
         class Bruter:
             BRUTER_FILE_LIST: Annotated[
                 str,
@@ -904,6 +922,11 @@ class Config:
                 "Number of retries for subdomain enumeration.",
             ] = get_config("SUBDOMAIN_ENUMERATION_RETRIES", default=10, cast=int)
 
+            DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS: Annotated[
+                int,
+                "Time limit for DNS brute force in seconds - some of the servers are very slow, so we don't want to wait too long.",
+            ] = get_config("DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS", default=1200, cast=int)
+
             DNS_QUERIES_PER_SECOND: Annotated[
                 int,
                 "Number of DNS queries per second (as they are easier to handle than e.g. HTTP queries, let's have a separate limit)",
@@ -944,15 +967,6 @@ class Config:
                 'threshold because WordPress maintains a separate list of insecure versions, so "old" doesn\'t '
                 'mean "insecure" here.',
             ] = get_config("WORDPRESS_VERSION_AGE_DAYS", default=90, cast=int)
-
-        class WordPressBruter:
-            WORDPRESS_BRUTER_STRIPPED_PREFIXES: Annotated[
-                List[str],
-                "Wordpress_bruter extracts the site name to brute-force passwords. For example, if it observes "
-                "projectname.example.com it will bruteforce projectname123, projectname2023, ... "
-                "This list describes what domain prefixes to strip (e.g. www) so that we bruteforce projectname123, not "
-                "www123, when testing www.projectname.example.com.",
-            ] = get_config("WORDPRESS_BRUTER_STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str))
 
         class DomainExpirationScanner:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[

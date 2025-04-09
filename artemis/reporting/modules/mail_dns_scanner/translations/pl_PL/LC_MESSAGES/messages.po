@@ -11,7 +11,20 @@ msgstr ""
 msgid "Problem with the %(type)s mechanism:"
 msgstr "Problem z mechanizmem %(type)s:"
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:21
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:18
+#, python-format
+msgid ""
+"For the DMARC mechanism to work properly on %(top_level_target)s, the "
+"record needs to be configured on %(target)s (one level below the public "
+"suffix, i.e. the domain where everybody can register subdomains - e.g. "
+".eu or .co.uk)."
+msgstr ""
+"Aby mechanizm DMARC działał poprawnie w domenie %(top_level_target)s, "
+"rekord musi być skonfigurowany w domenie %(target)s (jeden poziom poniżej"
+" domeny Public Suffix, czyli takiej domeny, gdzie każdy może rejestrować "
+"subdomeny - np. .pl, .eu czy .com.pl)"
+
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:27
 msgid ""
 "These mechanisms greatly increase the chance that the recipient server "
 "will reject a spoofed message."
@@ -26,7 +39,7 @@ msgstr ""
 "wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-"
 "wiadomosci</a>."
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:22
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:28
 msgid ""
 "Even if a domain is not used to send e-mails, SPF and DMARC records are "
 "needed to reduce the possibility to spoof e-mails."

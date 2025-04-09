@@ -67,7 +67,6 @@ class MailDNSScannerReporter(Reporter):
             # doesn't have e-mail configured properly (e.g. example.com lacks DMARC). In such cases, we need
             # to report this to the parent domain.
             if is_subdomain(top_level_target, message_with_target.target, allow_equal=False):
-                top_level_target = message_with_target.target
                 is_for_parent_domain = True
             else:
                 is_for_parent_domain = False

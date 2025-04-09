@@ -1,29 +1,10 @@
 #!/usr/bin/env python3
-import copy
-import datetime
-from typing import List
-
 from karton.core import Task
 
-from artemis import ip_utils, load_risk_class, utils
+from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
-from artemis.config import Config
 from artemis.module_base import ArtemisBase
-
-PASSWORDS = [
-    "admin",
-    "administrator",
-    "admin1",
-    "wordpress",
-    "password",
-    "haslo",
-    "1234",
-    "12345",
-    "123456",
-    "123456789",
-    "qwerty",
-    "zaq123wsx",
-]
+from artemis.password_utils import get_passwords
 
 MAX_USERNAMES_TO_CHECK = 3
 
@@ -38,24 +19,6 @@ class WordPressBruter(ArtemisBase):
     filters = [
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},
     ]
-
-    def get_passwords(self, current_task: Task) -> List[str]:
-        passwords = copy.copy(PASSWORDS)
-        host = utils.get_host_from_url(current_task.get_payload("url"))
-
-        if not ip_utils.is_ip_address(host):
-            domain_items = host.split(".")
-            while domain_items and domain_items[0] in Config.Modules.WordPressBruter.WORDPRESS_BRUTER_STRIPPED_PREFIXES:
-                domain_items = domain_items[1:]
-
-            if domain_items:
-                site_name = domain_items[0]
-
-                passwords.append(site_name + "123")
-                passwords.append(site_name + "1")
-                for year_relative in [0, -1, -2, -3]:
-                    passwords.append(site_name + str(datetime.datetime.now().year + year_relative))
-        return passwords
 
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
@@ -72,7 +35,7 @@ class WordPressBruter(ArtemisBase):
         usernames += ["admin", "administrator", "wordpress"]
         usernames = usernames[:MAX_USERNAMES_TO_CHECK]
 
-        passwords = self.get_passwords(current_task)
+        passwords = get_passwords(current_task)
 
         self.log.info("Brute-forcing %s with usernames=%s passwords=%s", url, usernames, passwords)
 

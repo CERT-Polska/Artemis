@@ -1,0 +1,21 @@
+#: artemis/reporting/modules/admin_panel_login_bruter/template_weak_admin_credentials.jinja2:2
+msgid ""
+"We detected that the followng username and password pairs allowed "
+"successful login:"
+msgstr "Wykryliśmy, że poniższe dane umożliwiają udane logowanie:"
+
+#: artemis/reporting/modules/admin_panel_login_bruter/template_weak_admin_credentials.jinja2:7
+msgid "credentials:"
+msgstr "dane uwierzytelniające:"
+
+#: artemis/reporting/modules/admin_panel_login_bruter/template_weak_admin_credentials.jinja2:13
+msgid ""
+"Successful credential brute-force attack indicates that attackers could "
+"gain unauthorized access to administrative interfaces using an easy to "
+"guess username/password pair. This exposes the system to potential data "
+"breaches, configuration changes, and complete system compromise."
+msgstr ""
+"Udane logowanie za pomocą ataku brute force oznacza, że atakujący może "
+"uzyskać nieuprawniony dostęp do systemu używając łatwego do zgadnięcia "
+"loginu i hasła. Umożliwia to pobranie danych, zmianę konfiguracji i pełne"
+" przejęcie kontroli nad systemem."

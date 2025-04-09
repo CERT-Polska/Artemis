@@ -12,26 +12,23 @@ class TestNucleiConfiguration(unittest.TestCase):
     def test_init_with_default_values(self) -> None:
         """Test initialization with default values."""
         config = NucleiConfiguration()
-        self.assertTrue(config.enabled)
         self.assertEqual(config.severity_threshold, SeverityThreshold.MEDIUM_AND_ABOVE)
 
     def test_init_with_custom_values(self) -> None:
         """Test initialization with custom values."""
         config = NucleiConfiguration(
-            enabled=False, severity_threshold=SeverityThreshold.HIGH_AND_ABOVE
+            severity_threshold=SeverityThreshold.HIGH_AND_ABOVE
         )
-        self.assertFalse(config.enabled)
         self.assertEqual(config.severity_threshold, SeverityThreshold.HIGH_AND_ABOVE)
 
     def test_serialize(self) -> None:
         """Test serialization to dictionary."""
         config = NucleiConfiguration(
-            enabled=False, severity_threshold=SeverityThreshold.LOW_AND_ABOVE
+            severity_threshold=SeverityThreshold.LOW_AND_ABOVE
         )
         serialized = config.serialize()
 
         self.assertIsInstance(serialized, dict)
-        self.assertFalse(serialized["enabled"])
         self.assertEqual(serialized["severity_threshold"], "low_and_above")
 
     def test_serialize_with_defaults(self) -> None:
@@ -39,27 +36,23 @@ class TestNucleiConfiguration(unittest.TestCase):
         config = NucleiConfiguration()
         serialized = config.serialize()
 
-        self.assertTrue(serialized["enabled"])
         self.assertEqual(serialized["severity_threshold"], "medium_and_above")
 
     def test_deserialize(self) -> None:
         """Test deserialization from dictionary."""
-        config_dict: Dict[str, Any] = {"enabled": False, "severity_threshold": "high_and_above"}
+        config_dict: Dict[str, Any] = {"severity_threshold": "high_and_above"}
         config = NucleiConfiguration.deserialize(config_dict)
 
         self.assertIsInstance(config, NucleiConfiguration)
-        self.assertFalse(config.enabled)
         self.assertEqual(config.severity_threshold, SeverityThreshold.HIGH_AND_ABOVE)
 
     def test_deserialize_with_enum_value(self) -> None:
         """Test deserialization with an actual enum value instead of string."""
         config_dict: Dict[str, Any] = {
-            "enabled": True,
             "severity_threshold": SeverityThreshold.CRITICAL_ONLY,
         }
         config = NucleiConfiguration.deserialize(config_dict)
 
-        self.assertTrue(config.enabled)
         self.assertEqual(config.severity_threshold, SeverityThreshold.CRITICAL_ONLY)
 
     def test_deserialize_with_missing_values(self) -> None:
@@ -67,12 +60,11 @@ class TestNucleiConfiguration(unittest.TestCase):
         config_dict: Dict[str, Any] = {}
         config = NucleiConfiguration.deserialize(config_dict)
 
-        self.assertTrue(config.enabled)
         self.assertEqual(config.severity_threshold, SeverityThreshold.MEDIUM_AND_ABOVE)
 
     def test_validate_valid_config(self) -> None:
         """Test validation with valid configuration."""
-        config = NucleiConfiguration(enabled=True, severity_threshold=SeverityThreshold.ALL)
+        config = NucleiConfiguration(severity_threshold=SeverityThreshold.ALL)
         self.assertTrue(config.validate())
 
     def test_validate_invalid_severity(self) -> None:

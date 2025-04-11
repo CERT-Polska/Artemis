@@ -124,8 +124,6 @@ def _build_messages_and_print_path(
             message_data["custom_template_arguments"]["skip_html_and_body_tags"] = True  # type: ignore
             message_data["custom_template_arguments"]["skip_header_and_footer_text"] = True  # type: ignore
             report.html = unwrap(message_template.render({"data": message_data}))
-            if 
-            report.html_full_poc = unwrap(message_template.render({"data": message_data}))
 
     if not silent:
         print()

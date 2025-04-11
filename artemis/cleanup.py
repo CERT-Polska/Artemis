@@ -56,6 +56,7 @@ def _cleanup_tasks_not_in_queues() -> None:
 
 def _cleanup_queues() -> None:
     for old_module in OLD_MODULES:
+
         class KartonDummy(Consumer):
             identity = old_module
 

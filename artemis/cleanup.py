@@ -56,32 +56,16 @@ def _cleanup_tasks_not_in_queues() -> None:
 
 def _cleanup_queues() -> None:
     for old_module in OLD_MODULES:
-
         class KartonDummy(Consumer):
             identity = old_module
-            persistent = False
-            filters: List[Dict[str, Any]] = [{"type": TaskType.SERVICE.value, "service": Service.HTTP.value}]
 
-            def process(self, task: Task) -> None:
+            def process(self, *args, **kwargs):  # type: ignore
                 pass
 
-            def loop(self) -> None:
-                self.log.info("The service that removes %s tasks from the queue started", self.identity)
-                self.backend.register_bind(self._bind)
-
-                while True:
-                    task = self.backend.consume_routed_task(self.identity)
-                    if not task:
-                        self.log.info("No task to process")
-                        break
-
-                    self.log.info("Processed task: %s", task.uid)
-                    self.internal_process(task)
-                self.backend.delete_consumer_queues(self.identity)
-
         karton = KartonDummy(config=KartonConfig())
-        karton.loop()
-        logger.info("Queue for %s is cleaned up", karton.identity)
+        karton.backend.unregister_bind(old_module)
+        karton.backend.delete_consumer_queues(old_module)
+        logger.info("Queue for %s is cleaned up", old_module)
 
 
 def cleanup() -> None:

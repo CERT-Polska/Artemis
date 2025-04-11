@@ -2,6 +2,7 @@ import datetime
 import json
 import time
 
+from karton.core import Consumer
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 

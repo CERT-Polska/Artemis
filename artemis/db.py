@@ -362,28 +362,6 @@ class DB:
             session.delete(task_result)
             session.commit()
 
-    def save_scheduled_task(self, task: Task) -> bool:
-        """
-        Saves a scheduled task and returns True if it didn't exist in the database.
-
-        The purpose of this method is deduplication - making sure identical tasks aren't run twice.
-        """
-        created_task = {
-            "task_id": task.uid,
-            "analysis_id": task.root_uid,
-            # PostgreSQL limits the length of string if it's an indexed column
-            "deduplication_data": hashlib.sha256(self._get_task_deduplication_data(task).encode("utf-8")).hexdigest(),
-            "deduplication_data_original": self._get_task_deduplication_data(task),
-        }
-
-        statement = postgres_insert(ScheduledTask).values([created_task])
-
-        statement = statement.on_conflict_do_nothing()
-        with self.session() as session:
-            result = session.execute(statement)
-            session.commit()
-            return bool(result.rowcount)
-
     def get_task_results_since(
         self, time_from: datetime.datetime, tag: Optional[str] = None, batch_size: int = 100
     ) -> Generator[Dict[str, Any], None, None]:

@@ -1,14 +1,12 @@
 import datetime
 import json
 import time
-from typing import Any, Dict, List
 
-from karton.core import Consumer, Task
+from karton.core import Consumer
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 
 from artemis import utils
-from artemis.binds import Service, TaskType
 
 logger = utils.build_logger(__name__)
 
@@ -59,29 +57,14 @@ def _cleanup_queues() -> None:
 
         class KartonDummy(Consumer):
             identity = old_module
-            persistent = False
-            filters: List[Dict[str, Any]] = [{"type": TaskType.SERVICE.value, "service": Service.HTTP.value}]
 
-            def process(self, task: Task) -> None:
+            def process(self, *args, **kwargs):  # type: ignore
                 pass
 
-            def loop(self) -> None:
-                self.log.info("The service that removes %s tasks from the queue started", self.identity)
-                self.backend.register_bind(self._bind)
-
-                while True:
-                    task = self.backend.consume_routed_task(self.identity)
-                    if not task:
-                        self.log.info("No task to process")
-                        break
-
-                    self.log.info("Processed task: %s", task.uid)
-                    self.internal_process(task)
-                self.backend.delete_consumer_queues(self.identity)
-
         karton = KartonDummy(config=KartonConfig())
-        karton.loop()
-        logger.info("Queue for %s is cleaned up", karton.identity)
+        karton.backend.unregister_bind(old_module)
+        karton.backend.delete_consumer_queues(old_module)
+        logger.info("Queue for %s is cleaned up", old_module)
 
 
 def cleanup() -> None:

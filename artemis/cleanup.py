@@ -1,14 +1,11 @@
 import datetime
 import json
 import time
-from typing import Any, Dict, List
 
-from karton.core import Consumer, Task
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 
 from artemis import utils
-from artemis.binds import Service, TaskType
 
 logger = utils.build_logger(__name__)
 

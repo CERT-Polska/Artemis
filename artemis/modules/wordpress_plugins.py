@@ -55,6 +55,7 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "wow-carousel-for-divi-lite",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
+    "blog2social",
     "colibri-page-builder",
     "coming-soon",
     "delete-all-comments-of-website",

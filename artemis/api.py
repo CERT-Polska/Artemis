@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Annotated, Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
@@ -11,6 +12,7 @@ from pydantic import BaseModel
 from redis import Redis
 
 from artemis.config import Config
+from artemis.configuration_registry import ConfigurationRegistry
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
 from artemis.modules.classifier import Classifier
@@ -53,13 +55,18 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
 @router.post("/add", dependencies=[Depends(verify_api_token)])
 def add(
     targets: List[str],
-    tag: str | None = Body(default=None),
+    tag: Optional[str] = Body(default=None),
     disabled_modules: Optional[List[str]] = Body(default=None),
     enabled_modules: Optional[List[str]] = Body(default=None),
     requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
+    module_configs: Optional[Dict[str, Dict[str, Any]]] = Body(default=None),
 ) -> Dict[str, Any]:
-    """Add targets to be scanned."""
+    """Add targets to be scanned.
+    
+    You can provide per-task module configurations through the module_configs parameter.
+    These configurations control runtime behavior (like scan aggressiveness) for each module.
+    """
     if disabled_modules and enabled_modules:
         raise HTTPException(
             status_code=400, detail="It's not possible to set both disabled_modules and enabled_modules."
@@ -84,12 +91,27 @@ def add(
     elif not disabled_modules:
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
+    # Validate module configurations if provided
+    if module_configs:
+        for module_name, config in module_configs.items():
+            config_class = ConfigurationRegistry().get_configuration_class(module_name)
+            if config_class:
+                try:
+                    config_instance = config_class.deserialize(config)
+                    if not config_instance.validate():
+                        raise ValueError(f"Invalid configuration for module {module_name}")
+                except ValueError as e:
+                    raise HTTPException(status_code=400, detail=f"Invalid configuration for {module_name}: {str(e)}")
+    else:
+        module_configs = {}
+
     create_tasks(
         targets,
         tag,
         disabled_modules=disabled_modules,
         priority=TaskPriority(priority),
         requests_per_second_override=requests_per_second_override,
+        module_configs=module_configs,
     )
 
     return {"ok": True}

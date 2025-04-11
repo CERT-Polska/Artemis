@@ -24,6 +24,8 @@ from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.base.module_configuration import ModuleConfiguration
 from artemis.ip_utils import is_ip_address
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
@@ -89,6 +91,14 @@ class ArtemisBase(Karton):
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
 
+        # Initialize configuration
+        registry = ConfigurationRegistry()
+        config_class = registry.get_configuration_class(self.identity)
+        if config_class:
+            self._configuration = config_class()
+        else:
+            self._configuration = ModuleConfiguration()
+
         if Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH:
             with open(Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH, "r") as additional_data_file:
                 with open("/etc/hosts", "a") as hosts_file:
@@ -123,6 +133,43 @@ class ArtemisBase(Karton):
 
         for handler in self.log.handlers:
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
+
+    @property
+    def configuration(self) -> Optional[ModuleConfiguration]:
+        """
+        Get the current module configuration.
+
+        Returns:
+            Optional[ModuleConfiguration]: The current configuration or None if not set
+        """
+        return self._configuration
+
+    def get_default_configuration(self) -> ModuleConfiguration:
+        """
+        Get the default configuration for this module.
+        Override this method in subclasses to provide module-specific configuration.
+
+        Returns:
+            ModuleConfiguration: Default configuration instance
+        """
+        return ModuleConfiguration()
+
+    def set_configuration(self, config_dict: Dict[str, Any]) -> None:
+        """
+        Set the module configuration from a dictionary.
+
+        Args:
+            config_dict (Dict[str, Any]): Configuration dictionary to apply
+        """
+        registry = ConfigurationRegistry()
+        config_class = registry.get_configuration_class(self.identity)
+
+        if config_class is None:
+            config_class = ModuleConfiguration
+
+        self._configuration = config_class.deserialize(config_dict)
+        if not self._configuration.validate():
+            raise ValueError(f"Invalid configuration for module {self.identity}")
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
@@ -560,7 +607,6 @@ class ArtemisBase(Karton):
             return
 
         self._forgiven_http_requests = 0
-        output_redirector = OutputRedirector()
 
         tasks_filtered = []
         for task in tasks:
@@ -579,20 +625,58 @@ class ArtemisBase(Karton):
         if not tasks:
             return
 
-        try:
-            with output_redirector:
-                if self.batch_tasks:
-                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
-                else:
-                    (task,) = tasks
-                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
-        except Exception:
-            for task in tasks:
-                self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
-            raise
-        finally:
-            for task in tasks:
-                self.db.save_task_logs(task.uid, output_redirector.get_output())
+        # Group tasks by their configuration
+        grouped_tasks: Dict[str, List[Task]] = {}
+        
+        for task in tasks:
+            config_dict = None
+            if task.payload.get("module_configuration"):
+                config_dict = task.payload["module_configuration"]
+            
+            # Use JSON string of config as key for grouping
+            config_key = json.dumps(config_dict) if config_dict else "default"
+            
+            if config_key not in grouped_tasks:
+                grouped_tasks[config_key] = []
+                
+            grouped_tasks[config_key].append(task)
+        
+        # Process each group with its configuration
+        for config_key, task_group in grouped_tasks.items():
+            self.log.info(f"Processing group of {len(task_group)} tasks with configuration key: {config_key}")
+            
+            # Set configuration for this batch
+            if config_key != "default":
+                try:
+                    self.set_configuration(json.loads(config_key))
+                except (ValueError, json.JSONDecodeError) as e:
+                    self.log.warning(f"Failed to load configuration from task payload: {e}")
+                    # Fall back to default configuration
+                    self._configuration = self.get_default_configuration()
+            else:
+                # Use default configuration if none provided
+                self._configuration = self.get_default_configuration()
+            
+            # Create a fresh output redirector for each batch
+            output_redirector = OutputRedirector()
+            
+            try:
+                with output_redirector:
+                    if self.batch_tasks:
+                        timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(task_group))()
+                    else:
+                        for task in task_group:
+                            # Create a new function that captures the task value correctly
+                            def run_single_task(t=task):
+                                return self.run(t)
+                            timeout_decorator.timeout(self.timeout_seconds)(run_single_task)()
+            except Exception:
+                for task in task_group:
+                    self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
+                raise
+            finally:
+                for task in task_group:
+                    self.db.save_task_logs(task.uid, output_redirector.get_output())
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:
@@ -756,3 +840,25 @@ class ArtemisBase(Karton):
 
     def throttle_request(self, f: Callable[[], Any]) -> Any:
         return throttle_request(f, requests_per_second=self.requests_per_second_for_current_tasks)
+
+    def process_task(self, current_task: Task) -> None:
+        """Process a task."""
+        try:
+            # Load module configuration from task payload if available
+            module_configs = current_task.get_payload("module_configs", {})
+            if self.identity in module_configs:
+                self.set_configuration(module_configs[self.identity])
+            else:
+                # Use default configuration
+                self._configuration = self.get_default_configuration()
+
+            if self.batch_tasks:
+                tasks = self.get_tasks_for_batch_processing(current_task)
+                if tasks:
+                    self.run_multiple(tasks)
+            else:
+                self.run(current_task)
+        except Exception as e:
+            self.log.exception(e)
+            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=e)
+            raise

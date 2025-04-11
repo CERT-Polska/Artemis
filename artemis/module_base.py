@@ -143,7 +143,13 @@ class ArtemisBase(Karton):
         elif "last_domain" in current_task.payload:
             new_task.payload["last_domain"] = current_task.payload["last_domain"]
 
-        if self.db.save_scheduled_task(new_task):
+        if "identity" not in current_task.payload_persistent:
+            current_task.payload_persistent["identity"] = []
+        if "identity" not in new_task.payload_persistent:
+            new_task.payload_persistent["identity"] = []
+
+        if self.identity not in current_task.payload_persistent["identity"]:
+            new_task.payload_persistent["identity"].append(self.identity)
             self.log.info("Task is a new task, adding: %s", new_task)
             self.send_task(new_task)
         else:

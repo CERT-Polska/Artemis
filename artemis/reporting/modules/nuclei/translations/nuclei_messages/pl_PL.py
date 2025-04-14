@@ -1697,5 +1697,5 @@ TRANSLATIONS = {
     "NocoDB Login panel was discovered.": "wykryto panel logowania NocoDB.",
     "osTicket installer panel was detected.": "wykryto panel instalacyjny systemu osTicket.",
     "Citrix NetScaler is an application delivery controller that improves the delivery speed and quality of applications to an end user.": "wykryto panel Citrix NetScaler.",
-    'AudioCodes login panel was detected.': 'wykryto panel logowania AudioCodes.',
+    "AudioCodes login panel was detected.": "wykryto panel logowania AudioCodes.",
 }

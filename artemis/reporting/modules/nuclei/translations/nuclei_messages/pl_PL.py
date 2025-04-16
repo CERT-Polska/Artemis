@@ -998,6 +998,7 @@ TRANSLATIONS = {
     "SysAid 20.3.64 b14 contains a cross-site scripting vulnerability via the /KeepAlive.jsp?stamp= URI.": "SysAid w wersji 20.3.64 b14 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Ivanti Endpoint Manager Mobile (EPMM), formerly MobileIron Core, through 11.10 allows remote attackers to obtain PII, add an administrative account, and change the configuration because of an authentication bypass, as exploited in the wild in July 2023. A patch is available.": "Ivanti Endpoint Manager Mobile (EPMM, dawniej: MobileIron Core) w wersji do 11.10 włącznie umożliwia atakującemu pobranie wrażliwych danych i nieuprawnione uzyskanie dostępu administracyjnego. Uwaga: podatność była aktywnie wykorzystywana.",
     "Read and list the files within the PostgreSQL database,": "Wykryto bazę danych PostgreSQL umożliwiającą atakującemu odczyt i listowanie plików.",
     "A vulnerability in the TP-Link WR840N v6 router with firmware version 0.9.1 4.16 and earlier permits unauthorized individuals to bypass the authentication of some interfaces under the /cgi directory.When adding Referer- http-//tplinkwifi.net to the the request, it will be recognized as passing the authentication.": "Router TP-Link WR840N v6 z firmware w wersji 0.9.1 4.16 i wcześniejszych umożliwia atakującemu omijanie autoryzacji i nieuprawniony dostęp do niektórych interfejsów.",
     "Next.js contains a critical middleware bypass vulnerability affecting versions 11.1.4 through 15.2.2.\nThe vulnerability allows attackers to bypass middleware security controls by sending a specially crafted\n'x-middleware-subrequest' header, which can lead to authorization bypass and other security control circumvention.": "Next.js w wersji od 11.1.4 do 15.2.2 zawiera podatność umożliwiającą atakującemu omijanie niektórych mechanizmów kontroli dostępu.",
@@ -1696,4 +1697,5 @@ TRANSLATIONS = {
     "NocoDB Login panel was discovered.": "wykryto panel logowania NocoDB.",
     "osTicket installer panel was detected.": "wykryto panel instalacyjny systemu osTicket.",
     "Citrix NetScaler is an application delivery controller that improves the delivery speed and quality of applications to an end user.": "wykryto panel Citrix NetScaler.",
+    "AudioCodes login panel was detected.": "wykryto panel logowania AudioCodes.",
 }

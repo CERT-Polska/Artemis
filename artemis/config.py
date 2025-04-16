@@ -1,5 +1,6 @@
+import enum
 import os
-from typing import Annotated, Any, List, Optional, get_type_hints
+from typing import Annotated, Any, List, get_type_hints
 
 import decouple
 
@@ -345,6 +346,20 @@ class Config:
                 "NUCLEI_TEMPLATE_LISTS",
                 default="known_exploited_vulnerabilities,critical,high,log_exposures,exposed_panels",
                 cast=decouple.Csv(str, delimiter=","),
+            )
+
+            NUCLEI_SEVERITY_THRESHOLD: Annotated[
+                "module_configurations.nuclei.SeverityThreshold",
+                "The minimum severity level to include when scanning. Options: "
+                "CRITICAL_ONLY (only critical findings), "
+                "HIGH_AND_ABOVE (critical and high), "
+                "MEDIUM_AND_ABOVE (critical, high, and medium), "
+                "LOW_AND_ABOVE (critical, high, medium, and low), "
+                "ALL (all severity levels including info and unknown).",
+            ] = get_config(
+                "NUCLEI_SEVERITY_THRESHOLD",
+                default="high_and_above",
+                cast=lambda v: __import__("artemis.module_configurations.nuclei", fromlist=["SeverityThreshold"]).SeverityThreshold(v),
             )
 
             NUCLEI_INTERACTSH_SERVER: Annotated[

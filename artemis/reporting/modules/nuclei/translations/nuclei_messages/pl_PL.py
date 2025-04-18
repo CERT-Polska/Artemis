@@ -1698,4 +1698,10 @@ TRANSLATIONS = {
     "osTicket installer panel was detected.": "wykryto panel instalacyjny systemu osTicket.",
     "Citrix NetScaler is an application delivery controller that improves the delivery speed and quality of applications to an end user.": "wykryto panel Citrix NetScaler.",
     "AudioCodes login panel was detected.": "wykryto panel logowania AudioCodes.",
+    "Dependency Track login panel was discovered.": "Wykryto panel logowania Dependency Track.",
+    "Oracle E-Business Suite login panel was detected.": "Wykryto panel logowania Oracle E-Business Suite.",
+    "Dataiku panel was detected.": "Wykryto panel logowania Daitaku.",
+    "Yopass panel was detected.": "Wykryto panel logowania Yopass.",
+    "Poste.io login panel was detected.": "Wykryto panel logowania Poste.io.",
+    "Speedtest panel was discovered": "Wykryto panel logowania Speedtest.",
 }

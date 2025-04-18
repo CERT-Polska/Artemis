@@ -1704,4 +1704,6 @@ TRANSLATIONS = {
     "Yopass panel was detected.": "Wykryto panel logowania Yopass.",
     "Poste.io login panel was detected.": "Wykryto panel logowania Poste.io.",
     "Speedtest panel was discovered": "Wykryto panel logowania Speedtest.",
+    "Cerebro login panel was detected.": "Wykryto panel logowania Cerebro.",
+    "RSA Self-Service login panel was detected.": "Wykryto panel logowania RSA Self-Service.",
 }

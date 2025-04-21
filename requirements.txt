@@ -3,7 +3,7 @@ aiohttp==3.11.18
 alembic==1.15.2
 anytree==2.13.0
 Babel==2.17.0
-beautifulsoup4==4.13.3
+beautifulsoup4==4.13.4
 certifi==2025.1.31
 chardet==5.2.0
 click==8.1.8

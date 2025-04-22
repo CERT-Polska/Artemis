@@ -184,6 +184,9 @@ class SubdomainEnumeration(ArtemisBase):
         return subdomains
 
     def run(self, current_task: Task) -> None:
+        if current_task.headers.get("origin", "") == self.identity:
+            return
+
         domain = current_task.get_payload("domain").lower()
 
         if (

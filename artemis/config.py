@@ -267,7 +267,9 @@ class Config:
             List[str],
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config(
-            "MODULES_DISABLED_BY_DEFAULT", default="example,humble,ssh_bruter", cast=decouple.Csv(str, delimiter=",")
+            "MODULES_DISABLED_BY_DEFAULT",
+            default="admin_panel_login_bruter,example,humble,ssh_bruter",
+            cast=decouple.Csv(str, delimiter=","),
         )
 
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[

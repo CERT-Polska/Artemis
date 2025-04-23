@@ -591,8 +591,9 @@ class ArtemisBase(Karton):
                 self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
             raise
         finally:
-            for task in tasks:
-                self.db.save_task_logs(task.uid, output_redirector.get_output())
+            if Config.Data.SAVE_LOGS_IN_DATABASE:
+                for task in tasks:
+                    self.db.save_task_logs(task.uid, output_redirector.get_output())
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

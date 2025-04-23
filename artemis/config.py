@@ -28,6 +28,13 @@ class Config:
         )
         REDIS_CONN_STR: Annotated[str, "Connection string to Redis."] = get_config("REDIS_CONN_STR")
 
+        SAVE_LOGS_IN_DATABASE: Annotated[
+            bool,
+            """
+            Whether Artemis should save task logs in the database to be viewed in the UI. Turn it off to save space in the databaee.
+            """,
+        ] = get_config("SAVE_LOGS_IN_DATABASE", default=True, cast=bool)
+
         LEGACY_MONGODB_CONN_STR: Annotated[
             str,
             "Connection string to the MongoDB database. MongoDB is not used anymore - it is present here to seamlessly "

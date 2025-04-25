@@ -159,9 +159,12 @@ class PortScanner(ArtemisBase):
             if Config.Modules.PortScanner.ADD_PORTS_FROM_SHODAN_INTERNETDB:
                 for new_target_ip in new_target_ips:
                     data = requests.get("https://internetdb.shodan.io/" + new_target_ip).json()
-                    for port in data["ports"]:
-                        self.log.info(f"Detected port {port} on {new_target_ip} from Shodan internetdb")
-                        found_ports[new_target_ip].append(str(port))
+                    if "ports" in data:
+                        for port in data["ports"]:
+                            self.log.info(f"Detected port {port} on {new_target_ip} from Shodan internetdb")
+                            found_ports[new_target_ip].append(str(port))
+                    else:
+                        self.log.error(f"No 'ports' key in {data}")
 
             for ip in found_ports.keys():
                 if len(found_ports[ip]) > Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS:

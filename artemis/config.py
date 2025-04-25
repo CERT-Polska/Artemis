@@ -29,6 +29,13 @@ class Config:
         )
         REDIS_CONN_STR: Annotated[str, "Connection string to Redis."] = get_config("REDIS_CONN_STR")
 
+        SAVE_LOGS_IN_DATABASE: Annotated[
+            bool,
+            """
+            Whether Artemis should save task logs in the database to be viewed in the UI. Turn it off to save space in the databaee.
+            """,
+        ] = get_config("SAVE_LOGS_IN_DATABASE", default=True, cast=bool)
+
         LEGACY_MONGODB_CONN_STR: Annotated[
             str,
             "Connection string to the MongoDB database. MongoDB is not used anymore - it is present here to seamlessly "
@@ -218,6 +225,18 @@ class Config:
             default="[%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
         )
 
+        PASSWORD_BRUTER_ADDITIONAL_PASSWORDS: Annotated[
+            List[str], "Additional passwords (besides the top10 ones) to be used in brute forcing."
+        ] = get_config("PASSWORD_BRUTER_ADDITIONAL_PASSWORDS", default="", cast=decouple.Csv(str))
+
+        STRIPPED_PREFIXES: Annotated[
+            List[str],
+            "Some password bruters extracts the site name to brute-force passwords. For example, if it observes "
+            "projectname.example.com it will bruteforce projectname123, projectname2023, ... "
+            "This list describes what domain prefixes to strip (e.g. www) so that we bruteforce projectname123, not "
+            "www123, when testing www.projectname.example.com.",
+        ] = get_config("STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str))
+
         VERIFY_REVDNS_IN_SCOPE: Annotated[
             bool,
             """
@@ -256,7 +275,9 @@ class Config:
             List[str],
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config(
-            "MODULES_DISABLED_BY_DEFAULT", default="example,humble,ssh_bruter", cast=decouple.Csv(str, delimiter=",")
+            "MODULES_DISABLED_BY_DEFAULT",
+            default="admin_panel_login_bruter,example,humble,ssh_bruter",
+            cast=decouple.Csv(str, delimiter=","),
         )
 
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
@@ -276,6 +297,12 @@ class Config:
         ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
 
     class Modules:
+        class AdminPanelLoginBruter:
+            ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS: Annotated[
+                int,
+                "How many times to recheck whether the good password works, and the bad doesn't",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=5, cast=int)
+
         class Bruter:
             BRUTER_FILE_LIST: Annotated[
                 str,
@@ -964,15 +991,6 @@ class Config:
                 'threshold because WordPress maintains a separate list of insecure versions, so "old" doesn\'t '
                 'mean "insecure" here.',
             ] = get_config("WORDPRESS_VERSION_AGE_DAYS", default=90, cast=int)
-
-        class WordPressBruter:
-            WORDPRESS_BRUTER_STRIPPED_PREFIXES: Annotated[
-                List[str],
-                "Wordpress_bruter extracts the site name to brute-force passwords. For example, if it observes "
-                "projectname.example.com it will bruteforce projectname123, projectname2023, ... "
-                "This list describes what domain prefixes to strip (e.g. www) so that we bruteforce projectname123, not "
-                "www123, when testing www.projectname.example.com.",
-            ] = get_config("WORDPRESS_BRUTER_STRIPPED_PREFIXES", default="www", cast=decouple.Csv(str))
 
         class DomainExpirationScanner:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[

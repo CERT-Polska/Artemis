@@ -676,6 +676,20 @@ class ArtemisBase(Karton):
                 raise
             finally:
                 for task in task_group:
+        try:
+            with output_redirector:
+                if self.batch_tasks:
+                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
+                else:
+                    (task,) = tasks
+                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
+        except Exception:
+            for task in tasks:
+                self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
+            raise
+        finally:
+            if Config.Data.SAVE_LOGS_IN_DATABASE:
+                for task in tasks:
                     self.db.save_task_logs(task.uid, output_redirector.get_output())
 
     def _log_tasks(self, tasks: List[Task]) -> None:

@@ -629,6 +629,7 @@ TRANSLATIONS = {
     "Django debug configuration is enabled, which allows an attacker to obtain system configuration information such as paths or settings.": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "Unauthenticated PostgreSQL Detected.": "Wykryto system PostgreSQL, do którego można zalogować się bez uwierzytelniania.",
     "Detect Postgresql Version.": "Wykryto system PostgreSQL, w którym można wykonywać niektóre polecenia bez uwierzytelniania.",
+    "postgres is the default database you will connect to before you have created any other databases.": "Wykryto system PostgreSQL, w którym można wykonywać niektóre polecenia bez uwierzytelniania.",
     "Laravel with APP_DEBUG set to true is prone to show verbose errors.": "Wykryto system Laravel w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
     "DOMPDF Configuration page was detected, which contains paths, library versions and other potentially sensitive information": "Wykryto stronę konfiguracyjną DOMPDF, która zawiera ścieżki, wersje zainstalowanego oprogramowania i inne potencjalnie wrażliwe informacje.",
     "This check detects if there are any active content loaded over HTTP instead of HTTPS.": "Wykryto, że zasoby takie jak skrypty są ładowane za pomocą nieszyfrowanego połączenia. Może to umożliwić atakującemu ich podmianę, a w konsekwencji zmianę wyglądu lub zachowania strony.",
@@ -997,6 +998,16 @@ TRANSLATIONS = {
     "SysAid 20.3.64 b14 contains a cross-site scripting vulnerability via the /KeepAlive.jsp?stamp= URI.": "SysAid w wersji 20.3.64 b14 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Detects unauthenticated access to Prometheus Time Series Collection and Processing Server by checking for specific elements in the response from the `/graph` endpoint.": "Wykryto serwer Prometheus, który został skonfigurowany tak, że niektóre dane są dostępne bez uwierzytelnienia.",
+    "Ivanti Endpoint Manager Mobile (EPMM), formerly MobileIron Core, through 11.10 allows remote attackers to obtain PII, add an administrative account, and change the configuration because of an authentication bypass, as exploited in the wild in July 2023. A patch is available.": "Ivanti Endpoint Manager Mobile (EPMM, dawniej: MobileIron Core) w wersji do 11.10 włącznie umożliwia atakującemu pobranie wrażliwych danych i nieuprawnione uzyskanie dostępu administracyjnego. Uwaga: podatność była aktywnie wykorzystywana.",
+    "Read and list the files within the PostgreSQL database,": "Wykryto bazę danych PostgreSQL umożliwiającą atakującemu odczyt i listowanie plików.",
+    "A vulnerability in the TP-Link WR840N v6 router with firmware version 0.9.1 4.16 and earlier permits unauthorized individuals to bypass the authentication of some interfaces under the /cgi directory.When adding Referer- http-//tplinkwifi.net to the the request, it will be recognized as passing the authentication.": "Router TP-Link WR840N v6 z firmware w wersji 0.9.1 4.16 i wcześniejszych umożliwia atakującemu omijanie autoryzacji i nieuprawniony dostęp do niektórych interfejsów.",
+    "Next.js contains a critical middleware bypass vulnerability affecting versions 11.1.4 through 15.2.2.\nThe vulnerability allows attackers to bypass middleware security controls by sending a specially crafted\n'x-middleware-subrequest' header, which can lead to authorization bypass and other security control circumvention.": "Next.js w wersji od 11.1.4 do 15.2.2 zawiera podatność umożliwiającą atakującemu omijanie niektórych mechanizmów kontroli dostępu.",
+    "Discourse is an open source platform for community discussion. This vulnerability only impacts Discourse instances configured to use `FileStore--LocalStore` which means uploads and backups are stored locally on disk. If an attacker knows the name of the Discourse backup file, the attacker can trick nginx into sending the Discourse backup file with a well crafted request.": "Wykryto system Discourse w wersji umożliwiającej atakującemu pobranie pliku kopii zapasowej, jeśli zna jej nazwę.",
+    "Identifies Drupal sites with the elfinder library installed, which could be vulnerable to unrestricted file upload through the connector.php file.When this component is detected, the site may be vulnerable to remote code execution attacks via PHP file uploads.This template only detects the presence of the vulnerable component and does not perform any exploitation.": "Wykryto publicznie dostępne komponenty biblioteki elfinder w systemie Drupal, mogące potencjalnie umożliwiać atakującemu umieszczenie plików na serwerze a w konsekwencji zdalne wykonanie kodu. Rekomendujemy, aby te komponenty nie były dostępne publicznie.",
+    "CrushFTP prior to 10.5.1 is vulnerable to Improperly Controlled Modification of Dynamically-Determined Object Attributes.": "CrushFTP w wersji 10.5.1 umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "The The Download Manager plugin for WordPress is vulnerable to arbitrary shortcode execution in all versions up to, and including, 3.3.03. This is due to the software allowing users to execute an action that does not properly validate a value before running do_shortcode. This makes it possible for unauthenticated attackers to execute arbitrary shortcodes.": "Wtyczka WordPress o nazwie The Download Manager w wersji do 3.3.03 włącznie zawiera podatność umożliwiającą uruchamianie niektórych funkcji wymagających wyższych uprawnień.",
     "A reflected XSS issue was identified in the LTI module of Moodle. The vulnerability exists due to insufficient sanitization of user-supplied data in the LTI module. A remote attacker can trick the victim to follow a specially crafted link and execute arbitrary HTML and script code in user's browser in context of vulnerable website to steal potentially sensitive information, change appearance of the web page, can perform phishing and drive-by-download attacks.": "Wykryto, że moduł LTI systemu Moodle zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1685,4 +1696,15 @@ TRANSLATIONS = {
     "A lorex panel was detected.": "Wykryto panel lorex.",
     "SteVe login panel was detected.": "wykryto panel logowania SteVe.",
     "NocoDB Login panel was discovered.": "wykryto panel logowania NocoDB.",
+    "osTicket installer panel was detected.": "wykryto panel instalacyjny systemu osTicket.",
+    "Citrix NetScaler is an application delivery controller that improves the delivery speed and quality of applications to an end user.": "wykryto panel Citrix NetScaler.",
+    "AudioCodes login panel was detected.": "wykryto panel logowania AudioCodes.",
+    "Dependency Track login panel was discovered.": "Wykryto panel logowania Dependency Track.",
+    "Oracle E-Business Suite login panel was detected.": "Wykryto panel logowania Oracle E-Business Suite.",
+    "Dataiku panel was detected.": "Wykryto panel logowania Daitaku.",
+    "Yopass panel was detected.": "Wykryto panel logowania Yopass.",
+    "Poste.io login panel was detected.": "Wykryto panel logowania Poste.io.",
+    "Speedtest panel was discovered": "Wykryto panel logowania Speedtest.",
+    "Cerebro login panel was detected.": "Wykryto panel logowania Cerebro.",
+    "RSA Self-Service login panel was detected.": "Wykryto panel logowania RSA Self-Service.",
 }

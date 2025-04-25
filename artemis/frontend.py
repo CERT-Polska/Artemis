@@ -28,6 +28,7 @@ from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
 from artemis.task_utils import get_task_target
 from artemis.templating import templates
+from artemis.config_registry import ConfigurationRegistry
 
 router = APIRouter()
 db = DB()
@@ -127,12 +128,37 @@ async def post_add(
     csrf_protect: CsrfProtect = Depends(),
 ) -> Response:
     disabled_modules = []
+    module_configs = {}
+
+    # Process form data
+    form_data = await request.form()
+    
+    # Handle module configurations
+    module_names = form_data.getlist("module_name[]")
+    module_configs_json = form_data.getlist("module_config[]")
+    
+    for name, config_json in zip(module_names, module_configs_json):
+        if name and config_json.strip():
+            try:
+                config = json.loads(config_json)
+                # Validate configuration using registry
+                config_class = ConfigurationRegistry().get_configuration_class(name)
+                if config_class:
+                    try:
+                        config_instance = config_class.deserialize(config)
+                        if not config_instance.validate():
+                            validation_messages.append(f"Invalid configuration for module {name}")
+                        else:
+                            module_configs[name] = config
+                    except ValueError as e:
+                        validation_messages.append(f"Invalid configuration for {name}: {str(e)}")
+            except json.JSONDecodeError:
+                validation_messages.append(f"Invalid JSON for module {name}")
 
     if choose_modules_to_enable:
-        async with request.form() as form:
-            for bind in get_binds_that_can_be_disabled():
-                if f"module_enabled_{bind.identity}" not in form:
-                    disabled_modules.append(bind.identity)
+        for bind in get_binds_that_can_be_disabled():
+            if f"module_enabled_{bind.identity}" not in form_data:
+                disabled_modules.append(bind.identity)
 
     total_list: List[str] = []
     if targets:
@@ -175,7 +201,7 @@ async def post_add(
             csrf_protect,
         )
 
-    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
+    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority), module_configs=module_configs)
     if redirect:
         return RedirectResponse("/", status_code=301)
     else:

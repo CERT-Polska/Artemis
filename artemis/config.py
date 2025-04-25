@@ -1,6 +1,7 @@
 import enum
 import os
 from typing import Annotated, Any, List, get_type_hints, Optional, Dict
+from artemis import module_configurations
 
 import decouple
 
@@ -358,7 +359,7 @@ class Config:
             )
 
             NUCLEI_SEVERITY_THRESHOLD: Annotated[
-                "module_configurations.nuclei.SeverityThreshold",
+                module_configurations.nuclei.SeverityThreshold,
                 "The minimum severity level to include when scanning. Options: "
                 "CRITICAL_ONLY (only critical findings), "
                 "HIGH_AND_ABOVE (critical and high), "
@@ -368,7 +369,7 @@ class Config:
             ] = get_config(
                 "NUCLEI_SEVERITY_THRESHOLD",
                 default="high_and_above",
-                cast=lambda v: __import__("artemis.module_configurations.nuclei", fromlist=["SeverityThreshold"]).SeverityThreshold(v),
+                cast=lambda v: module_configurations.nuclei.SeverityThreshold(v),
             )
 
             NUCLEI_INTERACTSH_SERVER: Annotated[

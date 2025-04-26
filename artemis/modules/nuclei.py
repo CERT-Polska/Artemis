@@ -76,7 +76,7 @@ class Nuclei(ArtemisBase):
         # re-cloned when the container gets retarted every 𝑛 tasks. The same logic lies behind
         # updating the Nuclei templates in __init__.
         if os.path.exists("/known-exploited-vulnerabilities/"):
-            shutil.rmtree("/known-exploited-vulnerabilities/")
+            shutil.rmtree("/known-exploited-vulnerabilities/", ignore_errors=True)
 
         subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", "/known-exploited-vulnerabilities/"])
         with self.lock:

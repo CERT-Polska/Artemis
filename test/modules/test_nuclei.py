@@ -5,7 +5,7 @@ from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_configurations.nuclei import SeverityThreshold
-from artemis.modules.nuclei import Nuclei
+from artemis.modules.nuclei import Nuclei, ScanUsing
 from artemis.modules.nuclei_configuration import NucleiConfiguration
 
 
@@ -34,7 +34,9 @@ class NucleiTest(ArtemisModuleTestCase):
             payload={"host": "test-host", "port": 80, "module_configuration": custom_config},
         )
 
-        nuclei = Nuclei()
+        # Use the karton instance provided by the base test class
+        nuclei = self.karton
+        # Ensure process_task uses the mock backend (indirectly via self.karton)
         nuclei.process_task(task)
 
         # Verify the configuration was set correctly
@@ -54,7 +56,9 @@ class NucleiTest(ArtemisModuleTestCase):
             payload={"host": "test-host", "port": 80, "module_configuration": invalid_config},
         )
 
-        nuclei = Nuclei()
+        # Use the karton instance provided by the base test class
+        nuclei = self.karton
+        # Ensure process_task uses the mock backend (indirectly via self.karton)
         nuclei.process_task(task)
 
         # Verify fallback to default configuration
@@ -103,9 +107,10 @@ class NucleiTest(ArtemisModuleTestCase):
         # Mock the check_output_log_on_error function to avoid actual command execution
         mock_check_output.return_value = b""
 
-        # We expect the run command to include only critical severity
-        nuclei = Nuclei()
-        nuclei._scan(["test_template"], ["http://example.com"])
+        # Use the karton instance provided by the base test class
+        nuclei = self.karton
+        # Call _scan on the karton instance
+        nuclei._scan(["test_template"], ScanUsing.TEMPLATES, ["http://example.com"])
 
         # Check that nuclei command was called with the correct severity parameter
         for call_args in mock_check_output.call_args_list:
@@ -124,9 +129,10 @@ class NucleiTest(ArtemisModuleTestCase):
         # Mock the check_output_log_on_error function to avoid actual command execution
         mock_check_output.return_value = b""
 
-        # We expect the run command to include critical and high severity
-        nuclei = Nuclei()
-        nuclei._scan(["test_template"], ["http://example.com"])
+        # Use the karton instance provided by the base test class
+        nuclei = self.karton
+        # Call _scan on the karton instance
+        nuclei._scan(["test_template"], ScanUsing.TEMPLATES, ["http://example.com"])
 
         # Check that nuclei command was called with the correct severity parameter
         for call_args in mock_check_output.call_args_list:
@@ -140,12 +146,14 @@ class NucleiTest(ArtemisModuleTestCase):
 
     def test_scan_with_severity_threshold(self) -> None:
         """Test that _scan respects severity threshold configuration."""
-        nuclei = Nuclei()
+        # Use the karton instance provided by the base test class
+        nuclei = self.karton
         nuclei.configuration = NucleiConfiguration(severity_threshold=SeverityThreshold.HIGH_AND_ABOVE)
 
         # Assuming CommandMatcher.match_command checks the command for severity (-s) options
         with patch("artemis.utils.check_output_log_on_error") as mock_check_output:
             mock_check_output.return_value = b""  # Mock empty response
+            # Call _scan on the karton instance
             nuclei._scan(["template1.yaml"], ScanUsing.TEMPLATES, ["http://example.com"])
 
             # Verify severity threshold was applied
@@ -164,7 +172,8 @@ class NucleiTest(ArtemisModuleTestCase):
 
     def test_scan_with_no_configuration(self) -> None:
         """Test that _scan uses default configuration when none is provided."""
-        nuclei = Nuclei()
+        # Use the karton instance provided by the base test class
+        nuclei = self.karton
         nuclei.configuration = None
 
         templates = ["template1.yaml"]
@@ -172,7 +181,8 @@ class NucleiTest(ArtemisModuleTestCase):
 
         with patch("artemis.utils.check_output_log_on_error") as mock_check_output:
             mock_check_output.return_value = b""  # Mock empty response
-            nuclei._scan(templates, targets)
+            # Call _scan on the karton instance
+            nuclei._scan(templates, ScanUsing.TEMPLATES, targets)
 
             # Verify default severity threshold was used
             for call_args in mock_check_output.call_args_list:

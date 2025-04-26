@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Type, TypeVar
 
 T = TypeVar("T", bound="ModuleConfiguration")
 

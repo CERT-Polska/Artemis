@@ -16,16 +16,12 @@ class TestNucleiConfiguration(unittest.TestCase):
 
     def test_init_with_custom_values(self) -> None:
         """Test initialization with custom values."""
-        config = NucleiConfiguration(
-            severity_threshold=SeverityThreshold.HIGH_AND_ABOVE
-        )
+        config = NucleiConfiguration(severity_threshold=SeverityThreshold.HIGH_AND_ABOVE)
         self.assertEqual(config.severity_threshold, SeverityThreshold.HIGH_AND_ABOVE)
 
     def test_serialize(self) -> None:
         """Test serialization to dictionary."""
-        config = NucleiConfiguration(
-            severity_threshold=SeverityThreshold.LOW_AND_ABOVE
-        )
+        config = NucleiConfiguration(severity_threshold=SeverityThreshold.LOW_AND_ABOVE)
         serialized = config.serialize()
 
         self.assertIsInstance(serialized, dict)

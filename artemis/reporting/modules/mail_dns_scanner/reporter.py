@@ -38,16 +38,20 @@ class MailDNSScannerReporter(Reporter):
             if not task_result["result"].get("spf_dmarc_scan_result", {}).get("spf", {}).get("valid", True):
                 for error in task_result["result"]["spf_dmarc_scan_result"]["spf"]["errors"]:
                     messages_with_targets.append(
-                        MessageWithTarget(message=error, target=task_result["payload"]["domain"], type="SPF", is_warning=False)
+                        MessageWithTarget(
+                            message=error, target=task_result["payload"]["domain"], type="SPF", is_warning=False
+                        )
                     )
-            
+
             # Process SPF warnings
             if task_result["result"]["spf_dmarc_scan_result"].get("spf", {}).get("warnings", []):
                 for warning in task_result["result"]["spf_dmarc_scan_result"]["spf"]["warnings"]:
                     messages_with_targets.append(
-                        MessageWithTarget(message=warning, target=task_result["payload"]["domain"], type="SPF", is_warning=True)
+                        MessageWithTarget(
+                            message=warning, target=task_result["payload"]["domain"], type="SPF", is_warning=True
+                        )
                     )
-                    
+
             # Process DMARC errors
             if not task_result["result"].get("spf_dmarc_scan_result", {}).get("dmarc", {}).get("valid", True):
                 report_dmarc_problems = True
@@ -70,7 +74,7 @@ class MailDNSScannerReporter(Reporter):
                         messages_with_targets.append(
                             MessageWithTarget(message=error, target=target, type="DMARC", is_warning=False)
                         )
-            
+
             # Process DMARC warnings
             if task_result["result"]["spf_dmarc_scan_result"].get("dmarc", {}).get("warnings", []):
                 report_dmarc_warnings = True
@@ -81,13 +85,13 @@ class MailDNSScannerReporter(Reporter):
                         task_result["payload_persistent"].get("original_domain", None),
                     ]:
                         report_dmarc_warnings = False
-                
+
                 if report_dmarc_warnings:
                     for warning in task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["warnings"]:
                         target = task_result["result"]["spf_dmarc_scan_result"]["dmarc"]["location"]
                         if not target:
                             target = task_result["result"]["spf_dmarc_scan_result"]["base_domain"]
-                        
+
                         messages_with_targets.append(
                             MessageWithTarget(message=warning, target=target, type="DMARC", is_warning=True)
                         )

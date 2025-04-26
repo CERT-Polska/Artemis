@@ -115,7 +115,9 @@ class Bruter(ArtemisBase):
         filenames_to_scan = list(FILENAMES_TO_SCAN)
         if len(filenames_to_scan) > max_attempts:
             filenames_to_scan = filenames_to_scan[:max_attempts]
-            self.log.info(f"bruter scanning {base_url}: limiting to {max_attempts} paths (total available: {len(FILENAMES_TO_SCAN)})")
+            self.log.info(
+                f"bruter scanning {base_url}: limiting to {max_attempts} paths (total available: {len(FILENAMES_TO_SCAN)})"
+            )
         else:
             self.log.info(f"bruter scanning {base_url}: {len(filenames_to_scan)} paths to scan")
 

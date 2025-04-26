@@ -18,9 +18,9 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
+from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.modules.base.configuration_registry import ConfigurationRegistry
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.modules.nuclei_configuration import NucleiConfiguration
@@ -62,9 +62,7 @@ class Nuclei(ArtemisBase):
             NucleiConfiguration: Default configuration instance with:
                 - severity_threshold: Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
         """
-        return NucleiConfiguration(
-            severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
-        )
+        return NucleiConfiguration(severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)

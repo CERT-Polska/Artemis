@@ -1,5 +1,5 @@
-from typing import Any, Dict, List, Optional
 import logging
+from typing import Any, Dict, List, Optional
 
 from karton.core import Producer, Task
 from karton.core.task import TaskPriority

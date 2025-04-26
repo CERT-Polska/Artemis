@@ -37,4 +37,4 @@ class SeverityThreshold(enum.Enum):
         elif threshold == cls.ALL:
             return ["critical", "high", "medium", "low", "info", "unknown"]
         else:
-            raise ValueError(f"Unknown severity threshold: {threshold}") 
+            raise ValueError(f"Unknown severity threshold: {threshold}")

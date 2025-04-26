@@ -24,9 +24,9 @@ from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
+from artemis.ip_utils import is_ip_address
 from artemis.modules.base.configuration_registry import ConfigurationRegistry
 from artemis.modules.base.module_configuration import ModuleConfiguration
-from artemis.ip_utils import is_ip_address
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -627,24 +627,24 @@ class ArtemisBase(Karton):
 
         # Group tasks by their configuration
         grouped_tasks: Dict[str, List[Task]] = {}
-        
+
         for task in tasks:
             config_dict = None
             if task.payload.get("module_configuration"):
                 config_dict = task.payload["module_configuration"]
-            
+
             # Use JSON string of config as key for grouping
             config_key = json.dumps(config_dict) if config_dict else "default"
-            
+
             if config_key not in grouped_tasks:
                 grouped_tasks[config_key] = []
-                
+
             grouped_tasks[config_key].append(task)
-        
+
         # Process each group with its configuration
         for config_key, task_group in grouped_tasks.items():
             self.log.info(f"Processing group of {len(task_group)} tasks with configuration key: {config_key}")
-            
+
             # Set configuration for this batch
             if config_key != "default":
                 try:
@@ -656,10 +656,10 @@ class ArtemisBase(Karton):
             else:
                 # Use default configuration if none provided
                 self._configuration = self.get_default_configuration()
-            
+
             # Create a fresh output redirector for each batch
             output_redirector = OutputRedirector()
-            
+
             try:
                 with output_redirector:
                     if self.batch_tasks:
@@ -669,6 +669,7 @@ class ArtemisBase(Karton):
                             # Create a new function that captures the task value correctly
                             def run_single_task(t=task):
                                 return self.run(t)
+
                             timeout_decorator.timeout(self.timeout_seconds)(run_single_task)()
             except Exception:
                 for task in task_group:

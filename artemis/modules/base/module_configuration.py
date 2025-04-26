@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Dict, Type, TypeVar, cast
+from typing import Any, Dict
 
 T = TypeVar("T", bound="ModuleConfiguration")
 
@@ -9,7 +9,7 @@ class ModuleConfiguration:
 
     This class provides a standardized interface for module configurations with
     serialization, deserialization, and validation capabilities.
-    
+
     Note: Module enabling/disabling is handled separately through the API's
     disabled_modules parameter, not through this configuration class.
     """

@@ -23,12 +23,12 @@ from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import get_binds_that_can_be_disabled, restart_crashed_tasks
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
 from artemis.task_utils import get_task_target
 from artemis.templating import templates
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
 
 router = APIRouter()
 db = DB()
@@ -132,11 +132,11 @@ async def post_add(
 
     # Process form data
     form_data = await request.form()
-    
+
     # Handle module configurations
     module_names = form_data.getlist("module_name[]")
     module_configs_json = form_data.getlist("module_config[]")
-    
+
     validation_messages: List[str] = []
 
     for name, config_json in zip(module_names, module_configs_json):

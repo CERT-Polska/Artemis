@@ -15,8 +15,8 @@ class NucleiTest(ArtemisModuleTestCase):
 
     def test_get_default_configuration(self) -> None:
         """Test that get_default_configuration returns expected defaults."""
-        nuclei = Nuclei()
-        config = nuclei.get_default_configuration()
+        # Use the module instance created by the base class setUp with the mock backend
+        config = self.karton.get_default_configuration()
 
         self.assertIsInstance(config, NucleiConfiguration)
         self.assertEqual(config.severity_threshold, Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)

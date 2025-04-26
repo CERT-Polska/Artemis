@@ -100,10 +100,8 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
-        # Get max_attempts from configuration if available
-        max_attempts = 1000
-        if hasattr(self, 'configuration') and self.configuration:
-            max_attempts = self.configuration.max_attempts
+        # Use getattr to provide a default value for max_attempts if it's missing
+        max_attempts = getattr(self.configuration, "max_attempts", 1)
 
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))

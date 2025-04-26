@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.modules.base.module_configuration import ModuleConfiguration

@@ -580,7 +580,7 @@ class ArtemisBase(Karton):
             exc_info = sys.exc_info()
             exception_str = traceback.format_exception(*exc_info)
 
-            for _ in tasks_filtered:
+            for task in tasks_filtered:
                 self.backend.increment_metrics(KartonMetrics.TASK_CRASHED, self.identity)
             self.log.exception(
                 "Failed to process %s tasks - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered])
@@ -675,22 +675,11 @@ class ArtemisBase(Karton):
                     self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
                 raise
             finally:
+                # This finally block ALWAYS executes
                 for task in task_group:
-        try:
-            with output_redirector:
-                if self.batch_tasks:
-                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
-                else:
-                    (task,) = tasks
-                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
-        except Exception:
-            for task in tasks:
-                self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
-            raise
-        finally:
-            if Config.Data.SAVE_LOGS_IN_DATABASE:
-                for task in tasks:
-                    self.db.save_task_logs(task.uid, output_redirector.get_output())
+                    # Only save logs here (if enabled)
+                    if Config.Data.SAVE_LOGS_IN_DATABASE:
+                        self.db.save_task_logs(task.uid, output_redirector.get_output())
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

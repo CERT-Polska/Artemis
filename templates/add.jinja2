@@ -59,7 +59,7 @@
         <div class="form-group mb-3">
             <label class="form-label">Module Configurations</label>
             <div id="moduleConfigs">
-                <div class="module-config mb-3 p-3 border rounded">
+                <div class="module-config mb-3 p-3 border rounded" data-id="initial">
                     <div class="row">
                         <div class="col-md-4">
                             <label class="form-label small">Module</label>
@@ -70,8 +70,11 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-8 module-options-container mt-2 mt-md-0">
+                        <div class="col-md-7 module-options-container mt-2 mt-md-0">
                             <small class="text-muted options-placeholder">Select a module to see its configuration options.</small>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end justify-content-end">
+                             <button type="button" class="btn btn-danger btn-sm remove-module-config" onclick="removeModuleConfig(this)">Remove</button>
                         </div>
                     </div>
                 </div>
@@ -268,9 +271,30 @@
         });
     }
 
+    function removeModuleConfig(buttonElement) {
+        const configDiv = buttonElement.closest('.module-config');
+        // Prevent removing the very last configuration block if desired (optional)
+        // const container = document.getElementById('moduleConfigs');
+        // if (container.querySelectorAll('.module-config').length > 1) {
+        //    configDiv.remove();
+        // } else {
+        //    alert('Cannot remove the last configuration block.');
+        // }
+        // For now, allow removing any block
+        configDiv.remove();
+    }
+
     function addModuleConfig() {
         const configsContainer = document.getElementById('moduleConfigs');
         const templateNode = configsContainer.querySelector('.module-config'); // Get the first one as template
+
+        // Ensure we have a template node to clone
+        if (!templateNode) {
+            console.error('Cannot add module config: No template node found.');
+            // Optionally, create one from scratch if needed
+            return;
+        }
+
         const newConfigDiv = templateNode.cloneNode(true);
 
         // Assign a unique ID for targeting later if needed
@@ -284,6 +308,11 @@
         // Re-attach event listener to the new select element
         const newSelect = newConfigDiv.querySelector('.module-name');
         attachChangeListener(newSelect); // Use the new function
+
+        // Ensure the remove button listener works on the clone (if it wasn't attached globally)
+        // The onclick attribute handles this, but if using addEventListener, re-attach here:
+        // const removeButton = newConfigDiv.querySelector('.remove-module-config');
+        // removeButton.addEventListener('click', () => removeModuleConfig(newConfigDiv));
 
         configsContainer.appendChild(newConfigDiv);
     }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.modules.base.module_configuration import ModuleConfiguration
@@ -15,11 +15,13 @@ class NucleiConfiguration(ModuleConfiguration):
     Attributes:
         severity_threshold (SeverityThreshold): The minimum severity level to include
             when scanning. Defaults to MEDIUM_AND_ABOVE.
+        max_templates (Optional[int]): The maximum number of templates to use. Defaults to None.
     """
 
     def __init__(
         self,
         severity_threshold: SeverityThreshold = SeverityThreshold.MEDIUM_AND_ABOVE,
+        max_templates: int = None,
     ) -> None:
         """
         Initialize a new NucleiConfiguration instance.
@@ -27,9 +29,11 @@ class NucleiConfiguration(ModuleConfiguration):
         Args:
             severity_threshold (SeverityThreshold, optional): The minimum severity level
                 to include when scanning. Defaults to MEDIUM_AND_ABOVE.
+            max_templates (Optional[int], optional): The maximum number of templates to use. Defaults to None.
         """
         super().__init__()
         self.severity_threshold = severity_threshold
+        self.max_templates = max_templates
 
     def serialize(self) -> Dict[str, Any]:
         """
@@ -40,6 +44,8 @@ class NucleiConfiguration(ModuleConfiguration):
         """
         result = super().serialize()
         result.update({"severity_threshold": self.severity_threshold.value})
+        if self.max_templates is not None:
+            result["max_templates"] = self.max_templates
         return result
 
     @classmethod
@@ -59,9 +65,11 @@ class NucleiConfiguration(ModuleConfiguration):
             severity_threshold = SeverityThreshold(severity_threshold_value)
         else:
             severity_threshold = severity_threshold_value
+        max_templates = config_dict.get("max_templates")
 
         return cls(
             severity_threshold=severity_threshold,
+            max_templates=max_templates,
         )
 
     def validate(self) -> bool:
@@ -76,7 +84,12 @@ class NucleiConfiguration(ModuleConfiguration):
         # Check if severity_threshold is a valid SeverityThreshold enum value
         severity_valid = isinstance(self.severity_threshold, SeverityThreshold)
 
-        return base_valid and severity_valid
+        # Check if max_templates is a valid integer and greater than 0
+        max_templates_valid = (
+            self.max_templates is None or (isinstance(self.max_templates, int) and self.max_templates > 0)
+        )
+
+        return base_valid and severity_valid and max_templates_valid
 
     def get_severity_options(self) -> List[str]:
         """

@@ -169,6 +169,10 @@ class Nuclei(ArtemisBase):
             for line in open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE):
                 self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
 
+    def get_tasks_for_batch_processing(self, current_task):
+        """Stub for batch processing compatibility. Returns a list with the current task only."""
+        return [current_task]
+
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
         random.shuffle(links)

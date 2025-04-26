@@ -144,6 +144,10 @@ class ArtemisBase(Karton):
         """
         return self._configuration
 
+    @configuration.setter
+    def configuration(self, value: Optional[ModuleConfiguration]) -> None:
+        self._configuration = value
+
     def get_default_configuration(self) -> ModuleConfiguration:
         """
         Get the default configuration for this module.

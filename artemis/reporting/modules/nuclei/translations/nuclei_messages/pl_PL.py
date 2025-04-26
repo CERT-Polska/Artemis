@@ -998,6 +998,16 @@ TRANSLATIONS = {
     "SysAid 20.3.64 b14 contains a cross-site scripting vulnerability via the /KeepAlive.jsp?stamp= URI.": "SysAid w wersji 20.3.64 b14 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "The Kubio AI Page Builder plugin for WordPress is vulnerable to Local File Inclusion in all versions up to, and including, 2.5.1 via thekubio_hybrid_theme_load_template function. This makes it possible for unauthenticated attackers to include and execute arbitrary files on the server, allowing the execution of any PHP code in those files. This can be used to bypass access controls, obtain sensitive data, or achieve code execution in cases where images and other “safe” file types can be uploaded and included.": "Wtyczka WordPress o nazwie Kubio AI Page Builder w wersji do 2.5.1 włącznie zawiera podatność Local File Inclusion, umożliwiającą atakującemu nieuprawniony odczyt plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
+    'A vulnerability in the TP-Link Archer C20 router with firmware version V6.6_230412 and earlier permits unauthorized individuals to bypass authentication on interfaces under the /cgi directory. When adding a Referer header with value "http://tplinkwifi.net" to requests, the router will recognize the request as passing authentication, allowing access to protected administration interfaces.': "Router TP-Link Archer C20 z firmware w wersji V6.6_230412 i wcześniejszych pozwala nieuprawnionym użytkownikom na ominięcie uwierzytelnienia i dostęp do interfejsu administracyjnego."
+    + UPDATE_HINT,
+    "Gitblit 1.9.3 is vulnerable to local file inclusion via /resources//../ (e.g., followed by a WEB-INF or META-INF pathname).": "Gitblit w wersji 1.9.3 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "vBulletin versions 3.6.0 through 4.2.3 are vulnerable to an SQL injection vulnerability in the vBulletin core forumrunner addon. The vulnerability allows an attacker to execute arbitrary SQL queries and potentially access sensitive information from the database.": "vBulletin w wersji od 3.6.0 do 4.2.3 włącznie zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie dowolnych danych z bazy danych."
+    + UPDATE_HINT,
+    "custom:CVE-2023-35082": "Wykryto urządzenie Ivanti Endpoint Manager Mobile (EPMM) zawierające podatność CVE-2023-35082 umożliwiającą atakującemu nieuprawniony dostęp do części funkcjonalności urządzenia.",
+    "The WordPress Easy WP SMTP Plugin has its log folder remotely accessible and its content available for access.": "Wykryto wtyczkę WordPress o nazwie Easy WP SMTP w wersji dającej atakującemu możliwość pobrania dziennika zdarzeń bez uprawnień.",
     "Detects unauthenticated access to Prometheus Time Series Collection and Processing Server by checking for specific elements in the response from the `/graph` endpoint.": "Wykryto serwer Prometheus, który został skonfigurowany tak, że niektóre dane są dostępne bez uwierzytelnienia.",
     "Ivanti Endpoint Manager Mobile (EPMM), formerly MobileIron Core, through 11.10 allows remote attackers to obtain PII, add an administrative account, and change the configuration because of an authentication bypass, as exploited in the wild in July 2023. A patch is available.": "Ivanti Endpoint Manager Mobile (EPMM, dawniej: MobileIron Core) w wersji do 11.10 włącznie umożliwia atakującemu pobranie wrażliwych danych i nieuprawnione uzyskanie dostępu administracyjnego. Uwaga: podatność była aktywnie wykorzystywana.",
     "Read and list the files within the PostgreSQL database,": "Wykryto bazę danych PostgreSQL umożliwiającą atakującemu odczyt i listowanie plików.",
@@ -1707,4 +1717,6 @@ TRANSLATIONS = {
     "Speedtest panel was discovered": "Wykryto panel logowania Speedtest.",
     "Cerebro login panel was detected.": "Wykryto panel logowania Cerebro.",
     "RSA Self-Service login panel was detected.": "Wykryto panel logowania RSA Self-Service.",
+    "Oracle E-Business Suite login panel was detected.": "Wykryto panel logowania Oracle E-Business Suite.",
+    "Tenable Nessus panel was detected.": "Wykryto panel Tenable Nessus.",
 }

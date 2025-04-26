@@ -127,7 +127,7 @@ async def post_add(
     redirect: bool = Form(True),
     csrf_protect: CsrfProtect = Depends(),
 ) -> Response:
-    disabled_modules = []
+    disabled_modules: List[str] = []
     module_configs = {}
 
     # Process form data
@@ -137,6 +137,8 @@ async def post_add(
     module_names = form_data.getlist("module_name[]")
     module_configs_json = form_data.getlist("module_config[]")
     
+    validation_messages: List[str] = []
+
     for name, config_json in zip(module_names, module_configs_json):
         if name and config_json.strip():
             try:
@@ -165,7 +167,6 @@ async def post_add(
         targets = targets.strip()
         total_list += (x.strip() for x in targets.split("\n"))
 
-    validation_messages = []
     for task in total_list:
         if not Classifier.is_supported(task):
             validation_messages.append(

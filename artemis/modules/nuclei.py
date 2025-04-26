@@ -82,9 +82,13 @@ class Nuclei(ArtemisBase):
         with self.lock:
             # Cleanup so that no old template files exist
             template_directory = "/root/nuclei-templates/"
-            if os.path.exists(template_directory) and os.path.getctime(template_directory) < time.time() - 3600:
-                shutil.rmtree(template_directory, ignore_errors=True)
-                shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
+            if os.path.exists(template_directory):
+                try:
+                    if os.path.getctime(template_directory) < time.time() - 3600:
+                        shutil.rmtree(template_directory, ignore_errors=True)
+                        shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
+                except FileNotFoundError:
+                    pass
 
             subprocess.call(["nuclei", "-update-templates"])
 

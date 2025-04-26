@@ -85,8 +85,8 @@ class NucleiConfiguration(ModuleConfiguration):
         severity_valid = isinstance(self.severity_threshold, SeverityThreshold)
 
         # Check if max_templates is a valid integer and greater than 0
-        max_templates_valid = (
-            self.max_templates is None or (isinstance(self.max_templates, int) and self.max_templates > 0)
+        max_templates_valid = self.max_templates is None or (
+            isinstance(self.max_templates, int) and self.max_templates > 0
         )
 
         return base_valid and severity_valid and max_templates_valid

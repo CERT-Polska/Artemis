@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from redis import Redis
 
 from artemis.config import Config
-from artemis.configuration_registry import ConfigurationRegistry
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
 from artemis.modules.classifier import Classifier

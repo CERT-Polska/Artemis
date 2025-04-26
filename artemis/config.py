@@ -1,6 +1,6 @@
 import enum
 import os
-from typing import Annotated, Any, List, Optional
+from typing import Annotated, Any, List, Optional, get_type_hints
 from artemis import module_configurations
 
 import decouple

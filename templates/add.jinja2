@@ -59,14 +59,21 @@
         <div class="form-group mb-3">
             <label class="form-label">Module Configurations</label>
             <div id="moduleConfigs">
-                <div class="module-config mb-3">
-                    <select class="form-control module-name" name="module_name[]">
-                        <option value="">Select Module</option>
-                        {% for bind in binds %}
-                        <option value="{{ bind.identity }}">{{ bind.identity }}</option>
-                        {% endfor %}
-                    </select>
-                    <textarea class="form-control mt-2 module-config-json" name="module_config[]" rows="3" placeholder="Configuration JSON"></textarea>
+                <div class="module-config mb-3 p-3 border rounded">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label small">Module</label>
+                            <select class="form-control form-control-sm module-name" name="module_name_selector">
+                                <option value="">-- Select Module --</option>
+                                {% for bind in binds %}
+                                <option value="{{ bind.identity }}">{{ bind.identity }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-8 module-options-container mt-2 mt-md-0">
+                            <small class="text-muted options-placeholder">Select a module to see its configuration options.</small>
+                        </div>
+                    </div>
                 </div>
             </div>
             <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="addModuleConfig()">Add Another Module Config</button>
@@ -121,11 +128,296 @@
     </form>
 
     <script>
-    function addModuleConfig() {
-        const configDiv = document.querySelector('.module-config').cloneNode(true);
-        configDiv.querySelector('.module-name').value = '';
-        configDiv.querySelector('.module-config-json').value = '';
-        document.getElementById('moduleConfigs').appendChild(configDiv);
+    // Assume moduleSchemas is passed from backend, e.g., via a <script> tag
+    // const moduleSchemas = {{ module_schemas_json | safe }};
+    // Example schema structure:
+    const moduleSchemas = {
+      "nuclei": {
+        "parameters": {
+          "severity_threshold": {
+            "label": "Severity Threshold",
+            "type": "enum",
+            "values": ["critical_only", "high_and_above", "medium_and_above", "low_and_above", "all"],
+            "default": "medium_and_above",
+            "help_text": "Minimum severity level to report."
+          }
+          // Add other nuclei params here if they exist
+        }
+      },
+      "another_module": {
+          "parameters": {
+              "api_key": { "label": "API Key", "type": "string", "default": "", "help_text": "Your API key."},
+              "enable_feature": { "label": "Enable Feature X", "type": "boolean", "default": false }
+          }
+      }
+      // Add schemas for other modules
+    }; // This should be loaded from backend ideally
+
+    function renderModuleOptions(moduleName, containerElement) {
+        containerElement.innerHTML = ''; // Clear previous options/placeholder
+
+        const schema = moduleSchemas[moduleName];
+        if (!schema || !schema.parameters || Object.keys(schema.parameters).length === 0) {
+             containerElement.innerHTML = '<small class="text-muted">No configuration options available for this module.</small>';
+            return;
+        }
+
+        Object.entries(schema.parameters).forEach(([paramName, paramDetails], index) => {
+            const inputId = `module-config-${moduleName}-${paramName}-${containerElement.closest('.module-config').dataset.id || 0}`; // Unique ID
+
+            const formGroup = document.createElement('div');
+            // Minimal margin, fields will be inline or wrap based on screen size
+            formGroup.className = 'mb-2';
+
+            const label = document.createElement('label');
+            label.className = 'form-label small fw-bold'; // Bold label
+            label.textContent = paramDetails.label || paramName;
+            label.htmlFor = inputId;
+            formGroup.appendChild(label);
+
+            let inputElement;
+            let inputWrapper = document.createElement('div'); // Wrapper for input + help text
+
+            if (paramDetails.type === 'enum' && paramDetails.values) {
+                inputElement = document.createElement('select');
+                inputElement.className = 'form-select form-select-sm'; // Use form-select for Bootstrap styling
+                inputElement.name = `module_config[${moduleName}][${paramName}]`;
+                inputElement.id = inputId;
+                paramDetails.values.forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    // Simple text for now, could use labels from schema if provided
+                    option.textContent = value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    if (value === paramDetails.default) {
+                        option.selected = true;
+                    }
+                    inputElement.appendChild(option);
+                });
+             } else if (paramDetails.type === 'boolean') {
+                 // Using Bootstrap 5 switch style
+                inputWrapper = document.createElement('div');
+                inputWrapper.className = 'form-check form-switch';
+
+                inputElement = document.createElement('input');
+                inputElement.type = 'checkbox';
+                inputElement.className = 'form-check-input';
+                inputElement.name = `module_config[${moduleName}][${paramName}]`;
+                inputElement.id = inputId;
+                inputElement.checked = paramDetails.default === true || String(paramDetails.default).toLowerCase() === 'true';
+                inputElement.value = 'true'; // Set value for submission when checked
+
+                // Hidden input for false value when unchecked
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = `module_config[${moduleName}][${paramName}]`;
+                hiddenInput.value = 'false';
+                formGroup.appendChild(hiddenInput); // Add hidden input before the checkbox wrapper
+
+                const switchLabel = document.createElement('label');
+                switchLabel.className = 'form-check-label small'; // Keep label small
+                switchLabel.htmlFor = inputId;
+                // Label text can be next to the switch or use the main label above
+                // switchLabel.textContent = paramDetails.label || paramName;
+                // formGroup.removeChild(label); // Remove the top label if using switch label
+
+                inputWrapper.appendChild(inputElement);
+                inputWrapper.appendChild(switchLabel); // Label for the switch
+
+            } else { // Default to text/number input
+                inputElement = document.createElement('input');
+                inputElement.type = paramDetails.type === 'number' ? 'number' : 'text';
+                inputElement.className = 'form-control form-control-sm';
+                inputElement.name = `module_config[${moduleName}][${paramName}]`;
+                inputElement.id = inputId;
+                inputElement.value = paramDetails.default !== undefined ? paramDetails.default : '';
+                if (paramDetails.placeholder) {
+                    inputElement.placeholder = paramDetails.placeholder;
+                }
+                // Add step="any" for floats if needed, or min/max for numbers
+                if(paramDetails.type === 'number') {
+                    inputElement.step = paramDetails.step || 'any';
+                    if(paramDetails.min !== undefined) inputElement.min = paramDetails.min;
+                    if(paramDetails.max !== undefined) inputElement.max = paramDetails.max;
+                }
+            }
+
+            // Append the actual input element (or switch wrapper) to the wrapper div
+            if (paramDetails.type !== 'boolean') {
+                inputWrapper.appendChild(inputElement);
+            } else {
+                 // For boolean, inputWrapper is the switch div already containing the input and label
+                 formGroup.appendChild(inputWrapper);
+            }
+
+            // Append wrapper (containing input and help text) to form group
+            if (paramDetails.type !== 'boolean') {
+               formGroup.appendChild(inputWrapper); // Append the wrapper containing the input
+            }
+
+
+            // Add help text if available
+            if (paramDetails.help_text) {
+                const helpText = document.createElement('small');
+                helpText.className = 'form-text text-muted d-block'; // Make it block to appear below
+                helpText.textContent = paramDetails.help_text;
+                inputWrapper.appendChild(helpText); // Append help text inside the wrapper
+            }
+
+
+            containerElement.appendChild(formGroup);
+        });
     }
+
+    function addModuleConfig() {
+        const configsContainer = document.getElementById('moduleConfigs');
+        const templateNode = configsContainer.querySelector('.module-config'); // Get the first one as template
+        const newConfigDiv = templateNode.cloneNode(true);
+
+        // Assign a unique ID for targeting later if needed
+        newConfigDiv.dataset.id = Date.now(); // Simple unique ID
+
+        // Reset fields in the cloned node
+        newConfigDiv.querySelector('.module-name').value = '';
+        const optionsContainer = newConfigDiv.querySelector('.module-options-container');
+        optionsContainer.innerHTML = '<small class="text-muted options-placeholder">Select a module to see its configuration options.</small>'; // Reset placeholder
+
+        // Re-attach event listener to the new select element
+        const newSelect = newConfigDiv.querySelector('.module-name');
+        attachChangeListener(newSelect); // Use the new function
+
+        configsContainer.appendChild(newConfigDiv);
+    }
+
+    // Function to attach the change listener
+    function attachChangeListener(selectElement) {
+         selectElement.addEventListener('change', (event) => {
+            const selectedModule = event.target.value;
+            // Find the closest options container within the same module-config block
+            const optionsContainer = event.target.closest('.module-config').querySelector('.module-options-container');
+            if (selectedModule) {
+                renderModuleOptions(selectedModule, optionsContainer);
+            } else {
+                optionsContainer.innerHTML = '<small class="text-muted options-placeholder">Select a module to see its configuration options.</small>'; // Reset placeholder
+            }
+        });
+    }
+
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Attach listener to the initial select element(s)
+         document.querySelectorAll('.module-name').forEach(attachChangeListener);
+
+        const form = document.querySelector('form[action="/add"]');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent default submission
+
+                const moduleConfigs = {};
+                let formIsValid = true;
+                let validationErrors = []; // Collect all errors
+
+                document.querySelectorAll('#moduleConfigs .module-config').forEach((configDiv, index) => {
+                    const moduleNameSelect = configDiv.querySelector('.module-name');
+                    const moduleName = moduleNameSelect.value;
+                    const optionsContainer = configDiv.querySelector('.module-options-container');
+
+                     // Reset previous error states (optional, can be done here or in renderModuleOptions)
+                    moduleNameSelect.classList.remove('is-invalid');
+                    optionsContainer.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                    optionsContainer.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+
+                    if (moduleName) { // Only process if a module is selected
+                        moduleConfigs[moduleName] = {}; // Initialize config for this module
+
+                        // Find all inputs/selects within this module's options container
+                        optionsContainer.querySelectorAll('input[name^="module_config["], select[name^="module_config["]').forEach(inputElement => {
+                            const match = inputElement.name.match(/\[([^\]]+)\]\[([^\]]+)\]$/);
+                            if (match) {
+                                const paramName = match[2];
+                                let value = inputElement.value;
+
+                                // Handle checkboxes (booleans) specifically
+                                if (inputElement.type === 'checkbox') {
+                                    // Find the corresponding hidden input to see if the checkbox was submitted
+                                    const hiddenInput = configDiv.querySelector(`input[type="hidden"][name="${inputElement.name}"]`);
+                                    value = inputElement.checked; // boolean true if checked, false if not
+                                    // If hidden input exists and checkbox not checked, value should be false
+                                    // If checkbox is checked, its 'true' value overrides hidden 'false'
+                                } else if (inputElement.type === 'number') {
+                                    value = inputElement.value === '' ? null : Number(inputElement.value); // Convert to number or null
+                                } else {
+                                    // Handle empty strings for non-required fields if needed
+                                    // value = inputElement.value;
+                                }
+
+                                moduleConfigs[moduleName][paramName] = value;
+
+                                // Add validation logic here based on schema if needed
+                                // Example: Check required fields, number ranges, etc.
+                                // if (schema.parameters[paramName].required && !value) {
+                                //    formIsValid = false;
+                                //    validationErrors.push(`Missing required value for ${paramName} in module ${moduleName}`);
+                                //    inputElement.classList.add('is-invalid');
+                                // }
+                            }
+                        });
+                    } else {
+                        // Check if any options were entered without selecting a module
+                        const hasInputs = optionsContainer.querySelectorAll('input, select').length > 0;
+                        // This condition is less likely now as options only appear after selection,
+                        // but could happen if JS fails or structure changes.
+                        if (hasInputs && optionsContainer.textContent.trim() !== '' && !optionsContainer.querySelector('.options-placeholder')) {
+                            // If options are somehow visible without a module selected
+                           formIsValid = false;
+                           validationErrors.push(`Module not selected for configuration block #${index + 1}.`);
+                           moduleNameSelect.classList.add('is-invalid');
+                           const errorDiv = document.createElement('div');
+                           errorDiv.className = 'invalid-feedback';
+                           errorDiv.textContent = 'Please select a module or remove this block.';
+                           // Append error near the select dropdown
+                           moduleNameSelect.parentNode.appendChild(errorDiv);
+                        }
+                         // If no module is selected and no options are shown, it's fine, just ignore the block.
+                    }
+
+                }); // End loop through module config blocks
+
+                if (!formIsValid) {
+                    // Display a general error message or handle inline errors
+                    console.error("Form validation failed:", validationErrors);
+                    alert("Please fix the errors in the module configurations:\n- " + validationErrors.join("\n- "));
+                    return; // Stop submission
+                }
+
+                // Remove existing hidden input if it exists
+                const existingHiddenInput = form.querySelector('input[name="module_configurations"]');
+                if (existingHiddenInput) {
+                    existingHiddenInput.remove();
+                }
+
+                // Add collected configs as a hidden input ONLY if there are any
+                if (Object.keys(moduleConfigs).length > 0) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'module_configurations';
+                    hiddenInput.value = JSON.stringify(moduleConfigs);
+                    form.appendChild(hiddenInput);
+                }
+
+                // Disable the original module selectors and dynamic inputs before submitting
+                 document.querySelectorAll('.module-name, .module-options-container input, .module-options-container select').forEach(el => {
+                     // Check if the element is already part of the main form submission
+                     // (i.e., not the ones we are replacing with the JSON blob)
+                     if (el.name && el.name !== 'module_configurations') {
+                         el.disabled = true; // Disabling prevents them from being submitted individually
+                     }
+                 });
+
+                // Submit the form programmatically
+                form.submit();
+            });
+        }
+    });
     </script>
 {% endblock %}

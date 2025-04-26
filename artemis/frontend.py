@@ -28,7 +28,7 @@ from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
 from artemis.task_utils import get_task_target
 from artemis.templating import templates
-from artemis.config_registry import ConfigurationRegistry
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
 
 router = APIRouter()
 db = DB()

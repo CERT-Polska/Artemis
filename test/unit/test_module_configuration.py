@@ -5,11 +5,6 @@ from artemis.modules.base.module_configuration import ModuleConfiguration
 
 
 class TestModuleConfiguration(unittest.TestCase):
-    def test_init_with_default_values(self) -> None:
-        """Test initialization with default values."""
-        config = ModuleConfiguration()
-        # Base class has no attributes to test after removing enabled
-
     def test_serialize(self) -> None:
         """Test serialization to dictionary."""
         config = ModuleConfiguration()

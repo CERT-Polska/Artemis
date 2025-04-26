@@ -1,6 +1,7 @@
-from typing import Dict, Any
 import json
 import requests
+
+from artemis.binds import Service
 from test.e2e.base import BaseE2ETestCase, BACKEND_URL
 from bs4 import BeautifulSoup
 from artemis.binds import TaskType

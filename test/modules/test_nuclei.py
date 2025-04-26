@@ -1,5 +1,5 @@
 from test.base import ArtemisModuleTestCase
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from karton.core import Task
 
@@ -13,6 +13,26 @@ from artemis.modules.nuclei_configuration import NucleiConfiguration
 class NucleiTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = Nuclei  # type: ignore
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Patch HTTP requests
+        cls.http_get_patcher = patch("artemis.http_requests.get", return_value=MagicMock(status_code=200, text="OK"))
+        cls.mock_http_get = cls.http_get_patcher.start()
+        # Patch file existence
+        cls.exists_patcher = patch("os.path.exists", return_value=True)
+        cls.mock_exists = cls.exists_patcher.start()
+        # Patch open for template files (simulate file exists and can be read)
+        cls.open_patcher = patch("builtins.open", new_callable=MagicMock)
+        cls.mock_open = cls.open_patcher.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cls.http_get_patcher.stop()
+        cls.exists_patcher.stop()
+        cls.open_patcher.stop()
 
     def test_get_default_configuration(self) -> None:
         """Test that get_default_configuration returns expected defaults."""

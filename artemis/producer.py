@@ -34,7 +34,7 @@ def create_tasks(
         # Add module configurations to task payload and log
         if module_configs:
             logger.info(f"Adding module configurations for task {uri}: {module_configs}")
-            task.add_payload("module_configs", module_configs, persistent=True)
+            task.add_payload("module_configuration", module_configs, persistent=True)
         else:
             logger.debug(f"No module configurations provided for task {uri}")
 

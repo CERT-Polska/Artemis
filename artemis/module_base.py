@@ -853,7 +853,7 @@ class ArtemisBase(Karton):
         """Process a task."""
         try:
             # Load module configuration from task payload if available
-            module_configs = current_task.get_payload("module_configs", {})
+            module_configs = current_task.get_payload("module_configuration", {})
             if self.identity in module_configs:
                 self.set_configuration(module_configs[self.identity])
             else:

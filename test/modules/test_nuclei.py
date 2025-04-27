@@ -131,7 +131,7 @@ class NucleiTest(ArtemisModuleTestCase):
         # Use the karton instance provided by the base test class
         nuclei = self.karton
         # Call _scan on the karton instance
-        nuclei._scan(["test_template"], ScanUsing.TEMPLATES, ["http://example.com"])
+        nuclei._scan(["artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml"], ScanUsing.TEMPLATES, ["http://example.com"])
 
         # Check that nuclei command was called with the correct severity parameter
         for call_args in mock_check_output.call_args_list:
@@ -153,7 +153,7 @@ class NucleiTest(ArtemisModuleTestCase):
         # Use the karton instance provided by the base test class
         nuclei = self.karton
         # Call _scan on the karton instance
-        nuclei._scan(["test_template"], ScanUsing.TEMPLATES, ["http://example.com"])
+        nuclei._scan(["artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml"], ScanUsing.TEMPLATES, ["http://example.com"])
 
         # Check that nuclei command was called with the correct severity parameter
         for call_args in mock_check_output.call_args_list:
@@ -175,7 +175,7 @@ class NucleiTest(ArtemisModuleTestCase):
         with patch("artemis.utils.check_output_log_on_error") as mock_check_output:
             mock_check_output.return_value = b""  # Mock empty response
             # Call _scan on the karton instance
-            nuclei._scan(["template1.yaml"], ScanUsing.TEMPLATES, ["http://example.com"])
+            nuclei._scan(["artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml"], ScanUsing.TEMPLATES, ["http://example.com"])
 
             # Verify severity threshold was applied
             found_severity = False
@@ -197,7 +197,7 @@ class NucleiTest(ArtemisModuleTestCase):
         nuclei = self.karton
         nuclei.configuration = None
 
-        templates = ["template1.yaml"]
+        templates = ["artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml"]
         targets = ["http://example.com"]
 
         with patch("artemis.utils.check_output_log_on_error") as mock_check_output:

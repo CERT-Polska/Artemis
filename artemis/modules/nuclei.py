@@ -268,6 +268,10 @@ class Nuclei(ArtemisBase):
             len(templates_or_workflows),
         )
 
+        if not templates_or_workflows_filtered:
+            self.log.info("No templates or workflows left after filtering, skipping scan.")
+            return []
+
         if self.requests_per_second_for_current_tasks:
             milliseconds_per_request_initial = int(
                 (1 / self.requests_per_second_for_current_tasks) * 1000.0 / len(targets)

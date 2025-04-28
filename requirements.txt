@@ -12,7 +12,7 @@ dnspython==2.7.0
 fastapi==0.115.12
 fastapi-csrf-protect==1.0.2
 freezegun==1.5.1
-h11==0.14.0
+h11==0.16.0
 idna==3.10
 Jinja2==3.1.6
 karton-core==5.6.1

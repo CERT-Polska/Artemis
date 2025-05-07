@@ -20,7 +20,10 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
+from artemis.module_configurations.nuclei import SeverityThreshold
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
+from artemis.modules.nuclei_configuration import NucleiConfiguration
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
@@ -51,26 +54,51 @@ class Nuclei(ArtemisBase):
     batch_tasks = True
     task_max_batch_size = Config.Modules.Nuclei.NUCLEI_MAX_BATCH_SIZE
 
+    def get_default_configuration(self) -> NucleiConfiguration:
+        """
+        Get the default configuration for the Nuclei module.
+
+        Returns:
+            NucleiConfiguration: Default configuration instance with:
+                - severity_threshold: Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
+        """
+        return NucleiConfiguration(severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
+
+        # Register the NucleiConfiguration with the registry
+        registry = ConfigurationRegistry()
+        registry.register_configuration(self.identity, NucleiConfiguration)
+        self.log.info(f"Registered NucleiConfiguration for module {self.identity}")
 
         # We clone this repo in __init__ (on karton start) so that it will get periodically
         # re-cloned when the container gets retarted every 𝑛 tasks. The same logic lies behind
         # updating the Nuclei templates in __init__.
         if os.path.exists("/known-exploited-vulnerabilities/"):
-            shutil.rmtree("/known-exploited-vulnerabilities/")
+            shutil.rmtree("/known-exploited-vulnerabilities/", ignore_errors=True)
 
         subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", "/known-exploited-vulnerabilities/"])
         with self.lock:
             # Cleanup so that no old template files exist
             template_directory = "/root/nuclei-templates/"
-            if os.path.exists(template_directory) and os.path.getctime(template_directory) < time.time() - 3600:
-                shutil.rmtree(template_directory, ignore_errors=True)
-                shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
+            if os.path.exists(template_directory):
+                try:
+                    if os.path.getctime(template_directory) < time.time() - 3600:
+                        shutil.rmtree(template_directory, ignore_errors=True)
+                        shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
+                except FileNotFoundError:
+                    pass
 
             subprocess.call(["nuclei", "-update-templates"])
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
+
+            # Get the severity levels to include based on the configured threshold
+            severity_levels = SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+            self.log.info(
+                f"Using severity threshold: {Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD.value}, including levels: {severity_levels}"
+            )
 
             template_list_sources: Dict[str, Callable[[], List[str]]] = {
                 "known_exploited_vulnerabilities": lambda: [
@@ -82,21 +110,21 @@ class Nuclei(ArtemisBase):
                     .split()
                     if item.endswith(".yml") or item.endswith(".yaml")
                 ],
-                "critical": lambda: check_output_log_on_error(
-                    ["nuclei", "-s", "critical"] + templates_list_command, self.log
+            }
+
+            # Add severity-based template sources based on the threshold
+            for severity in severity_levels:
+                template_list_sources[severity] = (
+                    lambda sev=severity: check_output_log_on_error(
+                        ["nuclei", "-s", sev] + templates_list_command, self.log
+                    )
+                    .decode("ascii")
+                    .split()
                 )
-                .decode("ascii")
-                .split(),
-                "high": lambda: check_output_log_on_error(["nuclei", "-s", "high"] + templates_list_command, self.log)
-                .decode("ascii")
-                .split(),
-                "medium": lambda: check_output_log_on_error(
-                    ["nuclei", "-s", "medium"] + templates_list_command, self.log
-                )
-                .decode("ascii")
-                .split(),
-                # These are not high severity, but may lead to significant information leaks and are easy to fix
-                "log_exposures": lambda: [
+
+            # Add non-severity specific sources
+            if "log_exposures" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_list_sources["log_exposures"] = lambda: [
                     item
                     for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
                     .decode("ascii")
@@ -105,20 +133,26 @@ class Nuclei(ArtemisBase):
                     # we already have a git detection module that filters FPs such as
                     # exposed source code of a repo that is already public
                     and not item.startswith("http/exposures/logs/git-")
-                ],
-                "exposed_panels": lambda: [
+                ]
+
+            if "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_list_sources["exposed_panels"] = lambda: [
                     item
                     for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
                     .decode("ascii")
                     .split()
                     if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
-                ],
-            }
+                ]
 
             self._templates = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
             for name in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 if name not in template_list_sources:
+                    # Skip the severity-based template lists that aren't in the threshold
+                    if name in ["critical", "high", "medium", "low", "info", "unknown"] and name not in severity_levels:
+                        self.log.info(f"Skipping template list '{name}' due to severity threshold filter")
+                        continue
                     raise Exception(f"Unknown template list: {name}")
+
                 template_list = template_list_sources[name]()
 
                 if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
@@ -138,6 +172,10 @@ class Nuclei(ArtemisBase):
         if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
             for line in open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE):
                 self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
+
+    def get_tasks_for_batch_processing(self, current_task):
+        """Stub for batch processing compatibility. Returns a list with the current task only."""
+        return [current_task]
 
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
@@ -230,6 +268,10 @@ class Nuclei(ArtemisBase):
             len(templates_or_workflows),
         )
 
+        if not templates_or_workflows_filtered:
+            self.log.info("No templates or workflows left after filtering, skipping scan.")
+            return []
+
         if self.requests_per_second_for_current_tasks:
             milliseconds_per_request_initial = int(
                 (1 / self.requests_per_second_for_current_tasks) * 1000.0 / len(targets)
@@ -255,14 +297,29 @@ class Nuclei(ArtemisBase):
         else:
             additional_configuration = []
 
+        # Get severity levels from configuration
+        severity_levels = (
+            self.configuration.get_severity_options()
+            if self.configuration
+            else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+        )
+        severity_param = ",".join(severity_levels)
+
+        self.log.info(
+            "Using severity threshold: %s, including levels: %s",
+            self.configuration.severity_threshold.value if self.configuration else "default",
+            severity_levels,
+        )
+
         lines = []
         for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
-                    "Running batch of %d templates or workflows on %d target(s), milliseconds_per_request=%d",
+                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d, with severity levels: %s",
                     len(chunk),
                     len(targets),
                     milliseconds_per_request,
+                    severity_param,
                 )
                 command = [
                     "nuclei",
@@ -278,6 +335,8 @@ class Nuclei(ArtemisBase):
                     "1",
                     "-rate-limit-duration",
                     str(milliseconds_per_request) + "ms",
+                    "-s",  # Add severity filter
+                    severity_param,
                     "-stats-json",
                     "-stats-interval",
                     "1",

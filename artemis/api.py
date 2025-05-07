@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Annotated, Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
@@ -13,6 +14,7 @@ from redis import Redis
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
@@ -40,6 +42,11 @@ class ReportGenerationTaskModel(BaseModel):
     alerts: Any
 
 
+class ModuleConfigurationRequest(BaseModel):
+    module_name: str
+    configuration: Dict[str, Any]
+
+
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
     if not Config.Miscellaneous.API_TOKEN:
         raise HTTPException(
@@ -53,13 +60,18 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
 @router.post("/add", dependencies=[Depends(verify_api_token)])
 def add(
     targets: List[str],
-    tag: str | None = Body(default=None),
+    tag: Optional[str] = Body(default=None),
     disabled_modules: Optional[List[str]] = Body(default=None),
     enabled_modules: Optional[List[str]] = Body(default=None),
     requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
+    module_configs: Optional[Dict[str, Dict[str, Any]]] = Body(default=None),
 ) -> Dict[str, Any]:
-    """Add targets to be scanned."""
+    """Add targets to be scanned.
+
+    You can provide per-task module configurations through the module_configs parameter.
+    These configurations control runtime behavior (like scan aggressiveness) for each module.
+    """
     if disabled_modules and enabled_modules:
         raise HTTPException(
             status_code=400, detail="It's not possible to set both disabled_modules and enabled_modules."
@@ -84,12 +96,27 @@ def add(
     elif not disabled_modules:
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
+    # Validate module configurations if provided
+    if module_configs:
+        for module_name, config in module_configs.items():
+            config_class = ConfigurationRegistry().get_configuration_class(module_name)
+            if config_class:
+                try:
+                    config_instance = config_class.deserialize(config)
+                    if not config_instance.validate():
+                        raise ValueError(f"Invalid configuration for module {module_name}")
+                except ValueError as e:
+                    raise HTTPException(status_code=400, detail=f"Invalid configuration for {module_name}: {str(e)}")
+    else:
+        module_configs = {}
+
     create_tasks(
         targets,
         tag,
         disabled_modules=disabled_modules,
         priority=TaskPriority(priority),
         requests_per_second_override=requests_per_second_override,
+        module_configs=module_configs,
     )
 
     return {"ok": True}
@@ -308,6 +335,60 @@ def get_task_results_table(
         "recordsFiltered": result.records_count_filtered,
         "data": [render_task_table_row(task) for task in result.data],
     }
+
+
+@router.post("/v1/configure_module", dependencies=[Depends(verify_api_token)])
+async def configure_module(request: ModuleConfigurationRequest) -> Dict[str, str]:
+    """Configure settings for a specific module.
+
+    This endpoint allows you to configure module settings before running tasks.
+    The configuration will be stored in the session and applied to subsequent tasks.
+
+    Example:
+        ```
+        {
+            "module_name": "nuclei",
+            "configuration": {
+                "enabled": true,
+                "severity_threshold": "high_and_above",
+                "max_templates": 100
+            }
+        }
+        ```
+
+    Args:
+        request: The module configuration request containing module name and configuration
+
+    Returns:
+        A dictionary with status and message confirming the configuration was set
+
+    Raises:
+        HTTPException:
+            - 400: If module name is invalid or configuration is incorrect
+            - 401: If API token is invalid
+            - 500: For server errors
+    """
+    try:
+        config_class = ConfigurationRegistry().get_configuration_class(request.module_name)
+        if not config_class:
+            raise HTTPException(status_code=400, detail=f"Invalid module name: {request.module_name}")
+
+        try:
+            config_instance = config_class.deserialize(request.configuration)
+            if not config_instance.validate():
+                raise ValueError(f"Invalid configuration for module {request.module_name}")
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid configuration for {request.module_name}: {str(e)}")
+
+        # Store configuration in session
+        redis.set(
+            f"module_config:{request.module_name}", json.dumps(request.configuration), ex=3600  # Expire after 1 hour
+        )
+
+        return {"status": "success", "message": f"Configuration set for module: {request.module_name}"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error configuring module: {str(e)}")
 
 
 def _get_ordering(request: Request, column_names: List[Optional[str]]) -> List[ColumnOrdering]:

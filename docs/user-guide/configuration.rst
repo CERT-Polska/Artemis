@@ -12,6 +12,179 @@ Additionally, you can configure modules from the ``Artemis-modules-extra`` repos
 the configuration variables from https://github.com/CERT-Polska/Artemis-modules-extra/blob/main/extra_modules_config.py. The file to put them
 in (``.env``) and the syntax (``VARIABLE_NAME=VARIABLE_VALUE``) is the same as for the core Artemis configuration.
 
+Module Configuration
+-------------------
+
+The ``ModuleConfiguration`` class serves as the base for all module-specific configurations in Artemis. It provides a standardized way to handle module configurations with serialization, deserialization, and validation capabilities.
+
+Basic Usage
+~~~~~~~~~~
+
+.. code-block:: python
+
+    from artemis.modules.base.module_configuration import ModuleConfiguration
+
+    # Create a configuration with default values
+    config = ModuleConfiguration()
+
+    # Serialize to a dictionary
+    config_dict = config.serialize()
+    # Result: {}
+
+    # Deserialize from a dictionary
+    config = ModuleConfiguration.deserialize({})
+
+    # Validate configuration
+    is_valid = config.validate()
+
+Extending The Base Class
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To create a module-specific configuration, extend the ``ModuleConfiguration`` class:
+
+.. code-block:: python
+
+    from typing import Dict, Any
+    from artemis.modules.base.module_configuration import ModuleConfiguration
+
+    class PortScannerConfiguration(ModuleConfiguration):
+        def __init__(
+            self,
+            timeout_ms: int = 5000,
+            max_ports: int = 1000
+        ) -> None:
+            super().__init__()
+            self.timeout_ms = timeout_ms
+            self.max_ports = max_ports
+
+        def serialize(self) -> Dict[str, Any]:
+            result = super().serialize()
+            result.update({
+                "timeout_ms": self.timeout_ms,
+                "max_ports": self.max_ports
+            })
+            return result
+
+        @classmethod
+        def deserialize(cls, config_dict: Dict[str, Any]) -> "PortScannerConfiguration":
+            return cls(
+                timeout_ms=config_dict.get("timeout_ms", 5000),
+                max_ports=config_dict.get("max_ports", 1000)
+            )
+
+        def validate(self) -> bool:
+            base_valid = super().validate()
+            return (
+                base_valid and
+                isinstance(self.timeout_ms, int) and self.timeout_ms > 0 and
+                isinstance(self.max_ports, int) and self.max_ports > 0
+            )
+
+API Reference
+~~~~~~~~~~~~
+
+Constructor
+^^^^^^^^^^
+
+.. code-block:: python
+
+    ModuleConfiguration()
+
+Methods
+^^^^^^^
+
+``serialize() -> Dict[str, Any]``
+  Serializes the configuration to a dictionary format suitable for storage or transmission.
+
+``deserialize(config_dict: Dict[str, Any]) -> ModuleConfiguration``
+  Class method that creates a new configuration instance from a dictionary.
+
+``validate() -> bool``
+  Validates that the configuration is valid. Returns ``True`` if valid, ``False`` otherwise.
+
+Integration with Module System
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When developing a new module for Artemis, you should:
+
+1. Create a custom configuration class extending ``ModuleConfiguration``
+2. Add module-specific configuration options
+3. Override the ``serialize()``, ``deserialize()``, and ``validate()`` methods
+4. Use the configuration in your module implementation
+
+This approach ensures consistency in how module configurations are handled throughout the system.
+
+Configuration Registry
+---------------------
+
+The ``ConfigurationRegistry`` class provides a centralized registry for module configurations. It is implemented as a singleton, ensuring that there's only one instance of the registry throughout the application.
+
+Basic Usage
+~~~~~~~~~~
+
+.. code-block:: python
+
+    from artemis.modules.base.configuration_registry import ConfigurationRegistry
+    from artemis.modules.base.module_configuration import ModuleConfiguration
+
+    # Define a custom configuration class
+    class MyModuleConfiguration(ModuleConfiguration):
+        # Custom configuration implementation
+        pass
+
+    # Get the singleton registry instance
+    registry = ConfigurationRegistry()
+
+    # Register a configuration class for a module
+    registry.register_configuration("my_module", MyModuleConfiguration)
+
+    # Get the configuration class for a module
+    config_class = registry.get_configuration_class("my_module")
+
+    # Create a default configuration instance
+    default_config = registry.create_default_configuration("my_module")
+
+    # Get all registered modules
+    modules = registry.get_registered_modules()
+
+API Reference
+~~~~~~~~~~~~
+
+Constructor
+^^^^^^^^^^
+
+.. code-block:: python
+
+    ConfigurationRegistry()
+
+Always returns the same singleton instance.
+
+Methods
+^^^^^^^
+
+``register_configuration(module_name: str, config_class: Type[ModuleConfiguration]) -> None``
+  Registers a configuration class for a module.
+
+``get_configuration_class(module_name: str) -> Optional[Type[ModuleConfiguration]]``
+  Gets the configuration class for a module. Returns ``None`` if no configuration is registered.
+
+``create_default_configuration(module_name: str) -> Optional[ModuleConfiguration]``
+  Creates a default configuration instance for a module. Returns ``None`` if no configuration is registered.
+
+``get_registered_modules() -> Dict[str, Type[ModuleConfiguration]]``
+  Gets all registered module configurations as a dictionary mapping module names to configuration classes.
+
+Integration with Module System
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When integrating with the Artemis module system:
+
+1. Register module-specific configuration classes with the registry
+2. Use the registry to create default configurations for modules
+3. Access module configurations through the registry
+
+The registry provides a centralized way to manage module configurations, making it easier to create, retrieve, and manage configurations for different modules in the system.
+
 Blocklist
 ---------
 You may exclude some systems from being scanned or included in the reports. To do that, set the ``BLOCKLIST_FILE`` environment

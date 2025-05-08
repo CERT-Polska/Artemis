@@ -34,6 +34,9 @@ class Report:
     # === All following variables are provided automatically, you don't have to provide them when creating a Report
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
+    # Saving the value of target_is_ip_address() metthod as property so that it gets included in JSON dump
+    target_is_ip_address__as_property: Optional[bool] = None
+
     # IP address of the target - used later to deduplicate identical vulnerabilities on a domain and on an IP of the
     # domain.
     target_ip: Optional[str] = None

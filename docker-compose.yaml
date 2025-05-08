@@ -304,7 +304,7 @@ services:
 
   karton-system:
     entrypoint: ["/wait-for-dependencies.sh"]
-    command: ["karton-system", "--setup-bucket"]
+    command: ["karton-system", "--setup-bucket", "--gc-interval", "86400"]
     env_file: .env
     image: "certpl/karton-system:v5.3.3"
     volumes:

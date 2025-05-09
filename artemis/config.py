@@ -629,6 +629,7 @@ class Config:
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
                         "network/detection/rtsp-detect.yaml",
                         "http/miscellaneous/defaced-website-detect.yaml",
+                        "http/miscellaneous/http-trace.yaml",
                         "http/misconfiguration/directory-listing-no-host-header.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mixed-active-content.yaml",

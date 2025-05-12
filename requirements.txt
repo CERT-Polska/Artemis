@@ -27,7 +27,7 @@ paramiko==3.5.1
 prometheus-client==0.21.1
 psutil==7.0.0
 psycopg2-binary==2.9.10
-publicsuffixlist==1.0.2.20250503
+publicsuffixlist==1.0.2.20250509
 pydantic==2.10.6
 PyMySQL==1.1.1
 python-decouple==3.8

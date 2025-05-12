@@ -36,7 +36,7 @@ class DrupalScanner(BaseNewerVersionComparerModule):
         soup = bs4.BeautifulSoup(response.content)
 
         version: Optional[str] = None
-        for script in soup.findAll("script"):
+        for script in soup.find_all("script"):
             if "/core/misc/drupal.js?v=" in script.get("src", ""):
                 version = script["src"].split("=")[1]
 

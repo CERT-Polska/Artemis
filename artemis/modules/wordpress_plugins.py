@@ -41,7 +41,7 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
 ]
 PLUGINS_TO_SKIP_CHANGELOG = [
     "backwpup",
-    'boldgrid-easy-seo',
+    "boldgrid-easy-seo",
     "booking",
     "everest-forms",
     "social-pug",

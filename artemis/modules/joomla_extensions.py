@@ -44,7 +44,11 @@ class JoomlaExtensions(ArtemisBase):
 
         for line in result.split("\n"):
             if line.startswith("{"):
-                data = json.loads(line.replace("'", '"'))
+                try:
+                    data = json.loads(line.replace("'", '"'))
+                except json.JSONDecodeError:
+                    raise Exception("Unable to decode scanner output line: " + line)
+
                 for value in data.values():
                     messages.append(
                         f"Found outdated Joomla! extension: {value['matched_extension_name']} version "

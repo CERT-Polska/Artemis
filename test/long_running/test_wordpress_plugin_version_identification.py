@@ -20,6 +20,9 @@ with open("/opt/artemis/modules/data/wordpress_plugin_readme_file_names.txt", "r
 
 LOGGER = build_logger(__name__)
 
+# As of 2025-05-15, the plugin doesn't have a readme to obtain version from
+PLUGINS_TO_SKIP_TESTING = ["leadconnector"]
+
 
 class WordpressPluginIdentificationTestCase(unittest.TestCase):
     num_plugins = 1500
@@ -44,6 +47,8 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
             )
             page += 1
         plugins = plugins[: self.num_plugins]
+
+        plugins = [plugin for plugin in plugins if not plugin["slug"] in PLUGINS_TO_SKIP_TESTING]
 
         good = set()
         bad = set()

@@ -998,6 +998,10 @@ TRANSLATIONS = {
     "SysAid 20.3.64 b14 contains a cross-site scripting vulnerability via the /KeepAlive.jsp?stamp= URI.": "SysAid w wersji 20.3.64 b14 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "The command injection vulnerability in the “setCookie” parameter in Zyxel NAS326 firmware versions before V5.21(AAZF.17)C0 and NAS542 firmware versions before V5.21(ABAG.14)C0 could allow an unauthenticated attacker to execute some operating system (OS) commands by sending a crafted HTTP POST request.": "Zyxel NAS326 z firmware w wersji wcześniejszej niż V5.21(AAZF.17)C0 i NAS542 z firmware w wersji wcześniejszej niż V5.21(ABAG.14)C0 umożliwia atakującemu wykonywanie dowolnych poleceń systemowych."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Next.js is vulnerable to Cache Poisoning using X-Middleware-Prefetch.": "Wykryto system Next.js w wersji zawierającej podatność Cache Poisoning, umożliwiającą zablokowanie dostępu do systemu.",
     "http/misconfiguration/installer/strapi-admin-installer.yaml": "Wykryto instalator systemu Strapi - jego obecność umożliwia atakującemu wprowadzenie zmian w konfiguracji systemu.",
     "DevDojo Voyager contains default credentials when run with dummy data. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto system DevDojo Voyager, w którym jest możliwe logowanie domyślnymi danymi dostępowymi. Umożliwia to atakującemu dostęp do kont użytkoników, a w konsekwencji dostęp do wrażliwych informacji czy modyfikację danych.",
     "A response-header CRLF injection vulnerability in the Proxmox Virtual Environment (PVE) and Proxmox Mail Gateway (PMG) web interface allows a remote attacker to set cookies for a victim's browser that are longer than the server expects, causing a client-side DoS. This affects Chromium-based browsers because they allow injection of response headers with %0d. This is fixed in pve-http-server 4.1-3.": "Wykryto oprogramowanie Proxmox Virtual Environment (PVE) lub Proxmox Mail Gateway (PMG) zawierające podatność umożliwiającą zablokowanie ofierze dostępu do systemu.",
@@ -1731,4 +1735,10 @@ TRANSLATIONS = {
     "Tenable Nessus panel was detected.": "Wykryto panel Tenable Nessus.",
     "Detects the presence of Cisco Web UI login panels": "Wykryto panel logowania Cisco Web UI.",
     "Beszel products was detected.": "Wykryto panel Beszel.",
+    "An OpenVas Admin login panel was detected.": "Wykryto panel administracyjny OpenVas.",
+    "Bonobo Git Server login panel was detected.": "Wykryto panel logowania Bonobo Git Server.",
+    "Cockpit Project products was detected.": "Wykryto panel produktu Cockpit Project.",
+    "http/exposed-panels/loxone-web-panel.yaml": "Wykryto panel Loxone WebInterface.",
+    "http/exposed-panels/pairdrop-panel.yaml": "Wykryto panel Pair Drop.",
+    "SolarWinds Orion login panel was detected.": "Wykryto panel SolarWinds Orion.",
 }

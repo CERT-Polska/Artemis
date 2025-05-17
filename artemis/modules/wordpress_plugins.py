@@ -62,6 +62,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
     "gallery-block-lightbox",
+    "gallery-by-supsystic",
     "icon-element",
     "link-manager",
     "login-logo",

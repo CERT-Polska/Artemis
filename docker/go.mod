@@ -8,7 +8,7 @@ require (
 	github.com/lc/gau/v2 v2.2.4
 	github.com/praetorian-inc/fingerprintx v1.1.15
 	github.com/projectdiscovery/naabu/v2 v2.3.3
-	github.com/projectdiscovery/nuclei/v3 v3.4.3
+	github.com/projectdiscovery/nuclei/v3 v3.4.4
 	github.com/projectdiscovery/subfinder/v2 v2.7.1
 )
 
@@ -253,7 +253,7 @@ require (
 	github.com/projectdiscovery/machineid v0.0.0-20240226150047-2e2c51e35983 // indirect
 	github.com/projectdiscovery/mapcidr v1.1.34 // indirect
 	github.com/projectdiscovery/n3iwf v0.0.0-20230523120440-b8cd232ff1f5 // indirect
-	github.com/projectdiscovery/networkpolicy v0.1.13 // indirect
+	github.com/projectdiscovery/networkpolicy v0.1.14 // indirect
 	github.com/projectdiscovery/ratelimit v0.0.80 // indirect
 	github.com/projectdiscovery/rawhttp v0.1.90 // indirect
 	github.com/projectdiscovery/rdap v0.9.1-0.20221108103045-9865884d1917 // indirect
@@ -263,8 +263,8 @@ require (
 	github.com/projectdiscovery/tlsx v1.1.9 // indirect
 	github.com/projectdiscovery/uncover v1.0.10 // indirect
 	github.com/projectdiscovery/useragent v0.0.100 // indirect
-	github.com/projectdiscovery/utils v0.4.18 // indirect
-	github.com/projectdiscovery/wappalyzergo v0.2.27 // indirect
+	github.com/projectdiscovery/utils v0.4.19 // indirect
+	github.com/projectdiscovery/wappalyzergo v0.2.28 // indirect
 	github.com/projectdiscovery/yamldoc-go v1.0.6 // indirect
 	github.com/redis/go-redis/v9 v9.1.0 // indirect
 	github.com/refraction-networking/utls v1.7.0 // indirect

@@ -132,6 +132,43 @@ class ClassifierTest(ArtemisModuleTestCase):
                 ],
             ),
             TestData(
+                "127.0.0.0/255.255.255.252",
+                [
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.0"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.0",
+                            "original_ip_range": "127.0.0.0/255.255.255.252",
+                        },
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.1"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.1",
+                            "original_ip_range": "127.0.0.0/255.255.255.252",
+                        },
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.2"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.2",
+                            "original_ip_range": "127.0.0.0/255.255.255.252",
+                        },
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.3"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.3",
+                            "original_ip_range": "127.0.0.0/255.255.255.252",
+                        },
+                    ),
+                ],
+            ),
+            TestData(
                 "127.0.0.0/30",
                 [
                     ExpectedTaskData(

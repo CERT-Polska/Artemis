@@ -31,10 +31,12 @@ def to_ip_range(data: str) -> Optional[List[str]]:
     if "/" in data:
         ip, mask = data.split("/", 1)
         ip = ip.strip()
-        mask = mask.strip()
 
-        if not is_ip_address(ip) or not mask.isdigit() or ":" in ip:
+        if not is_ip_address(ip) or ":" in ip:
             return None
 
-        return list(map(str, ipaddress.ip_network(data.strip(), strict=False)))
+        try:
+            return list(map(str, ipaddress.ip_network(data.strip(), strict=False)))
+        except ValueError:
+            return None
     return None

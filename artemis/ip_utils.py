@@ -37,6 +37,6 @@ def to_ip_range(data: str) -> Optional[List[str]]:
 
         try:
             return list(map(str, ipaddress.ip_network(data.strip(), strict=False)))
-        except ValueError;
+        except ValueError:
             return None
     return None

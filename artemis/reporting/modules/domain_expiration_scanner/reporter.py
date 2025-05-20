@@ -28,6 +28,11 @@ class DomainExpirationScannerReporter(Reporter):
         expiration_date_from_result = data["expiration_date"]
         if isinstance(expiration_date_from_result, str):
             expiration_date_from_result = datetime.datetime.fromisoformat(expiration_date_from_result)
+
+        if expiration_date_from_result <= datetime.datetime.now():
+            # No sense to report it now
+            return []
+
         expiration_date = expiration_date_from_result.strftime("%d-%m-%Y")
 
         return [

@@ -153,6 +153,9 @@ Huge thanks to the following people that contributed to Artemis development, esp
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/virgo-o"><img src="https://avatars.githubusercontent.com/u/138708600?v=4?s=100" width="100px;" alt="Juraj Virgovič"/><br /><sub><b>Juraj Virgovič</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=virgo-o" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/emmanuel-ferdman"><img src="https://avatars.githubusercontent.com/u/35470921?v=4?s=100" width="100px;" alt="Emmanuel Ferdman"/><br /><sub><b>Emmanuel Ferdman</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=emmanuel-ferdman" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ap74062"><img src="https://avatars.githubusercontent.com/u/120046603?v=4?s=100" width="100px;" alt="ap74062"/><br /><sub><b>ap74062</b></sub></a><br /><a href="https://github.com/CERT-Polska/Artemis/commits?author=ap74062" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 

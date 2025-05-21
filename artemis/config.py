@@ -275,7 +275,7 @@ class Config:
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config(
             "MODULES_DISABLED_BY_DEFAULT",
-            default="example,humble,ssh_bruter",
+            default="admin_panel_login_bruter,example,humble,ssh_bruter",
             cast=decouple.Csv(str, delimiter=","),
         )
 
@@ -300,7 +300,7 @@ class Config:
             ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS: Annotated[
                 int,
                 "How many times to recheck whether the good password works, and the bad doesn't",
-            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=5, cast=int)
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=10, cast=int)
 
         class Bruter:
             BRUTER_FILE_LIST: Annotated[

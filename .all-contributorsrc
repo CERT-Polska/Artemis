@@ -200,6 +200,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "virgo-o",
+      "name": "Juraj Virgovič",
+      "avatar_url": "https://avatars.githubusercontent.com/u/138708600?v=4",
+      "profile": "https://github.com/virgo-o",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "emmanuel-ferdman",
+      "name": "Emmanuel Ferdman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35470921?v=4",
+      "profile": "https://github.com/emmanuel-ferdman",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ap74062",
+      "name": "ap74062",
+      "avatar_url": "https://avatars.githubusercontent.com/u/120046603?v=4",
+      "profile": "https://github.com/ap74062",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

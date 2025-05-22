@@ -4,7 +4,7 @@ import os
 import random
 import string
 from difflib import SequenceMatcher
-from typing import IO, Any, Dict, List, Set
+from typing import IO, List, Set
 
 from karton.core import Task
 
@@ -13,8 +13,6 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.models import FoundURL
 from artemis.module_base import ArtemisBase
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
-from artemis.modules.base.module_configuration import ModuleConfiguration
 from artemis.task_utils import get_target_url
 from artemis.utils import is_directory_index
 
@@ -56,31 +54,6 @@ class BruterResult:
     checked_paths: List[str]
 
 
-class BruterConfiguration(ModuleConfiguration):
-    """Configuration for the bruter module."""
-
-    def __init__(self, max_attempts: int = 1000) -> None:
-        super().__init__()
-        self.max_attempts = max_attempts
-
-    def serialize(self) -> Dict[str, Any]:
-        result = super().serialize()
-        result["max_attempts"] = self.max_attempts
-        return result
-
-    @classmethod
-    def deserialize(cls, config_dict: Dict[str, Any]) -> "BruterConfiguration":
-        return cls(max_attempts=config_dict.get("max_attempts", 1000))
-
-    def validate(self) -> bool:
-        base_valid = super().validate()
-        return base_valid and isinstance(self.max_attempts, int) and self.max_attempts > 0
-
-
-# Register the configuration
-ConfigurationRegistry().register_configuration("bruter", BruterConfiguration)
-
-
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class Bruter(ArtemisBase):
     """
@@ -100,9 +73,6 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
 
-        # Use getattr to provide a default value for max_attempts if it's missing
-        max_attempts = getattr(self.configuration, "max_attempts", 1)
-
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = base_url + "/" + dummy_random_token
@@ -111,19 +81,11 @@ class Bruter(ArtemisBase):
         except Exception:
             dummy_content = ""
 
-        # Limit the paths to scan based on max_attempts
-        filenames_to_scan = list(FILENAMES_TO_SCAN)
-        if len(filenames_to_scan) > max_attempts:
-            filenames_to_scan = filenames_to_scan[:max_attempts]
-            self.log.info(
-                f"bruter scanning {base_url}: limiting to {max_attempts} paths (total available: {len(FILENAMES_TO_SCAN)})"
-            )
-        else:
-            self.log.info(f"bruter scanning {base_url}: {len(filenames_to_scan)} paths to scan")
+        self.log.info(f"bruter scanning {base_url}: {len(FILENAMES_TO_SCAN)} paths to scan")
 
         results = {}
-        for i, url in enumerate(filenames_to_scan):
-            self.log.info(f"bruter url {i}/{len(filenames_to_scan)}: {url}")
+        for i, url in enumerate(FILENAMES_TO_SCAN):
+            self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
             try:
                 full_url = base_url + "/" + url
                 results[full_url] = self.http_get(
@@ -162,7 +124,7 @@ class Bruter(ArtemisBase):
                 content_404=dummy_content,
                 too_many_urls_detected=True,
                 found_urls=[],
-                checked_paths=list(filenames_to_scan),
+                checked_paths=list(FILENAMES_TO_SCAN),
             )
 
         for found_url in found_urls:
@@ -183,7 +145,7 @@ class Bruter(ArtemisBase):
             content_404=dummy_content,
             too_many_urls_detected=False,
             found_urls=found_urls,
-            checked_paths=list(filenames_to_scan),
+            checked_paths=list(FILENAMES_TO_SCAN),
         )
 
     def run(self, task: Task) -> None:

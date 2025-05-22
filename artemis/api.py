@@ -42,11 +42,6 @@ class ReportGenerationTaskModel(BaseModel):
     alerts: Any
 
 
-class ModuleConfigurationRequest(BaseModel):
-    module_name: str
-    configuration: Dict[str, Any]
-
-
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
     if not Config.Miscellaneous.API_TOKEN:
         raise HTTPException(

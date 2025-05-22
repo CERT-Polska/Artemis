@@ -1,4 +1,5 @@
 from test.base import ArtemisModuleTestCase
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 from karton.core import Task
@@ -14,8 +15,15 @@ class NucleiTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = Nuclei  # type: ignore
 
+    http_get_patcher = None
+    mock_http_get = None
+    exists_patcher = None
+    mock_exists = None
+    open_patcher = None
+    mock_open = None
+
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         super().setUpClass()
         # Patch HTTP requests
         cls.http_get_patcher = patch("artemis.http_requests.get", return_value=MagicMock(status_code=200, text="OK"))
@@ -28,11 +36,11 @@ class NucleiTest(ArtemisModuleTestCase):
         cls.mock_open = cls.open_patcher.start()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         super().tearDownClass()
-        cls.http_get_patcher.stop()
-        cls.exists_patcher.stop()
-        cls.open_patcher.stop()
+        cls.http_get_patcher.stop()  # type: ignore
+        cls.exists_patcher.stop()  # type: ignore
+        cls.open_patcher.stop()  # type: ignore
 
     def test_get_default_configuration(self) -> None:
         """Test that get_default_configuration returns expected defaults."""
@@ -123,7 +131,7 @@ class NucleiTest(ArtemisModuleTestCase):
 
     @patch("artemis.config.Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD", SeverityThreshold.CRITICAL_ONLY)
     @patch("artemis.utils.check_output_log_on_error")
-    def test_severity_threshold_critical_only(self, mock_check_output) -> None:
+    def test_severity_threshold_critical_only(self, mock_check_output: Any) -> None:
         """Test that only critical severity templates are included when threshold is CRITICAL_ONLY."""
         # Mock the check_output_log_on_error function to avoid actual command execution
         mock_check_output.return_value = b""
@@ -149,7 +157,7 @@ class NucleiTest(ArtemisModuleTestCase):
 
     @patch("artemis.config.Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD", SeverityThreshold.HIGH_AND_ABOVE)
     @patch("artemis.utils.check_output_log_on_error")
-    def test_severity_threshold_high_and_above(self, mock_check_output) -> None:
+    def test_severity_threshold_high_and_above(self, mock_check_output: Any) -> None:
         """Test that critical and high severity templates are included when threshold is HIGH_AND_ABOVE."""
         # Mock the check_output_log_on_error function to avoid actual command execution
         mock_check_output.return_value = b""

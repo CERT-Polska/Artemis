@@ -14,19 +14,19 @@ class NucleiConfiguration(ModuleConfiguration):
 
     Attributes:
         severity_threshold (SeverityThreshold): The minimum severity level to include
-            when scanning. Defaults to MEDIUM_AND_ABOVE.
+            when scanning. Defaults to HIGH_AND_ABOVE.
     """
 
     def __init__(
         self,
-        severity_threshold: SeverityThreshold = SeverityThreshold.MEDIUM_AND_ABOVE,
+        severity_threshold: SeverityThreshold = SeverityThreshold.HIGH_AND_ABOVE,
     ) -> None:
         """
         Initialize a new NucleiConfiguration instance.
 
         Args:
             severity_threshold (SeverityThreshold, optional): The minimum severity level
-                to include when scanning. Defaults to MEDIUM_AND_ABOVE.
+                to include when scanning. Defaults to HIGH_AND_ABOVE.
         """
         super().__init__()
         self.severity_threshold = severity_threshold
@@ -54,7 +54,7 @@ class NucleiConfiguration(ModuleConfiguration):
             NucleiConfiguration: An instance of the configuration.
         """
         # Get the severity threshold, converting from string to enum if needed
-        severity_threshold_value = config_dict.get("severity_threshold", SeverityThreshold.MEDIUM_AND_ABOVE.value)
+        severity_threshold_value = config_dict.get("severity_threshold", SeverityThreshold.HIGH_AND_ABOVE.value)
         if isinstance(severity_threshold_value, str):
             severity_threshold = SeverityThreshold(severity_threshold_value)
         else:

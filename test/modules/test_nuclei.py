@@ -49,13 +49,11 @@ class NucleiTest(ArtemisModuleTestCase):
 
         self.assertIsInstance(config, NucleiConfiguration)
         self.assertEqual(config.severity_threshold, Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
-        self.assertIsNone(config.max_templates)
 
     def test_process_task_with_custom_configuration(self) -> None:
         """Test that process_task correctly uses custom configuration from payload."""
         custom_config = {
             "severity_threshold": SeverityThreshold.CRITICAL_ONLY.value,
-            "max_templates": 10,
         }
 
         task = Task(
@@ -71,13 +69,11 @@ class NucleiTest(ArtemisModuleTestCase):
         # Verify the configuration was set correctly
         self.assertIsInstance(nuclei.configuration, NucleiConfiguration)
         self.assertEqual(nuclei.configuration.severity_threshold, SeverityThreshold.CRITICAL_ONLY)
-        self.assertEqual(nuclei.configuration.max_templates, 10)
 
     def test_process_task_with_invalid_configuration(self) -> None:
         """Test that process_task falls back to defaults with invalid configuration."""
         invalid_config = {
             "severity_threshold": "invalid_severity",  # Invalid severity
-            "max_templates": -1,  # Invalid value
         }
 
         task = Task(
@@ -93,7 +89,6 @@ class NucleiTest(ArtemisModuleTestCase):
         # Verify fallback to default configuration
         self.assertIsInstance(nuclei.configuration, NucleiConfiguration)
         self.assertEqual(nuclei.configuration.severity_threshold, Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
-        self.assertIsNone(nuclei.configuration.max_templates)
 
     def test_403_bypass_workflow(self) -> None:
         task = Task(

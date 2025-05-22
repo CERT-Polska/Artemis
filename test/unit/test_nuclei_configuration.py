@@ -56,7 +56,7 @@ class TestNucleiConfiguration(unittest.TestCase):
         config_dict: Dict[str, Any] = {}
         config = NucleiConfiguration.deserialize(config_dict)
 
-        self.assertEqual(config.severity_threshold, SeverityThreshold.MEDIUM_AND_ABOVE)
+        self.assertEqual(config.severity_threshold, SeverityThreshold.HIGH_AND_ABOVE)
 
     def test_validate_valid_config(self) -> None:
         """Test validation with valid configuration."""

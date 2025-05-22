@@ -15,11 +15,11 @@ class ConfigurationRegistry:
     _instance = None
 
     # Private constructor
-    def __new__(cls):
+    def __new__(cls) -> "ConfigurationRegistry":
         """Create a singleton instance if one doesn't exist."""
         if cls._instance is None:
             cls._instance = super(ConfigurationRegistry, cls).__new__(cls)
-            cls._instance._config_classes: Dict[str, Type[ModuleConfiguration]] = {}
+            cls._instance._config_classes = {}
         return cls._instance
 
     def register_configuration(self, module_name: str, config_class: Type[ModuleConfiguration]) -> None:

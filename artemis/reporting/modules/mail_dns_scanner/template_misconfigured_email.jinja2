@@ -28,14 +28,14 @@
             {{ _("Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.") }}
         </p>
     </li>
-    
+
     {% set has_warnings = false %}
     {% for report in data.reports %}
         {% if report.report_type == "misconfigured_email" and report.additional_data.is_warning %}
             {% set has_warnings = true %}
         {% endif %}
     {% endfor %}
-    
+
     {% if has_warnings %}
     <li>{% trans %}The following domains have warnings related to their e-mail sender verification mechanisms:{% endtrans %}
         <ul>

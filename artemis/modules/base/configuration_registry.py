@@ -14,7 +14,7 @@ class ConfigurationRegistry:
     # Singleton instance
     _instance = None
 
-    _config_classes = {}
+    _config_classes: Dict[str, Type[ModuleConfiguration]] = {}
 
     # Private constructor
     def __new__(cls) -> "ConfigurationRegistry":

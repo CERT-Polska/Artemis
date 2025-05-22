@@ -337,60 +337,6 @@ def get_task_results_table(
     }
 
 
-@router.post("/v1/configure_module", dependencies=[Depends(verify_api_token)])
-async def configure_module(request: ModuleConfigurationRequest) -> Dict[str, str]:
-    """Configure settings for a specific module.
-
-    This endpoint allows you to configure module settings before running tasks.
-    The configuration will be stored in the session and applied to subsequent tasks.
-
-    Example:
-        ```
-        {
-            "module_name": "nuclei",
-            "configuration": {
-                "enabled": true,
-                "severity_threshold": "high_and_above",
-                "max_templates": 100
-            }
-        }
-        ```
-
-    Args:
-        request: The module configuration request containing module name and configuration
-
-    Returns:
-        A dictionary with status and message confirming the configuration was set
-
-    Raises:
-        HTTPException:
-            - 400: If module name is invalid or configuration is incorrect
-            - 401: If API token is invalid
-            - 500: For server errors
-    """
-    try:
-        config_class = ConfigurationRegistry().get_configuration_class(request.module_name)
-        if not config_class:
-            raise HTTPException(status_code=400, detail=f"Invalid module name: {request.module_name}")
-
-        try:
-            config_instance = config_class.deserialize(request.configuration)
-            if not config_instance.validate():
-                raise ValueError(f"Invalid configuration for module {request.module_name}")
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=f"Invalid configuration for {request.module_name}: {str(e)}")
-
-        # Store configuration in session
-        redis.set(
-            f"module_config:{request.module_name}", json.dumps(request.configuration), ex=3600  # Expire after 1 hour
-        )
-
-        return {"status": "success", "message": f"Configuration set for module: {request.module_name}"}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error configuring module: {str(e)}")
-
-
 def _get_ordering(request: Request, column_names: List[Optional[str]]) -> List[ColumnOrdering]:
     ordering = []
 

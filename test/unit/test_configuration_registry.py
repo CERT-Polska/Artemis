@@ -94,7 +94,7 @@ class TestConfigurationRegistry(unittest.TestCase):
 
         # Should return an instance of the correct class with default values
         self.assertIsInstance(config, TestModuleConfig)
-        self.assertEqual(config.test_option, "default")
+        self.assertEqual(config.test_option, "default")  # type: ignore
 
         # Should return None for non-existent module
         self.assertIsNone(registry.create_default_configuration("non_existent_module"))

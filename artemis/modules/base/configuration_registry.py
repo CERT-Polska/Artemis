@@ -14,6 +14,8 @@ class ConfigurationRegistry:
     # Singleton instance
     _instance = None
 
+    _config_classes = {}
+
     # Private constructor
     def __new__(cls) -> "ConfigurationRegistry":
         """Create a singleton instance if one doesn't exist."""

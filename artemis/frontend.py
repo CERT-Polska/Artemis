@@ -23,7 +23,6 @@ from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import get_binds_that_can_be_disabled, restart_crashed_tasks
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
@@ -127,46 +126,20 @@ async def post_add(
     redirect: bool = Form(True),
     csrf_protect: CsrfProtect = Depends(),
 ) -> Response:
-    disabled_modules: List[str] = []
-    module_configs = {}
-
-    # Process form data
-    form_data = await request.form()
-
-    # Handle module configurations
-    module_names = form_data.getlist("module_name[]")
-    module_configs_json = form_data.getlist("module_config[]")
-
-    validation_messages: List[str] = []
-
-    for name, config_json in zip(module_names, module_configs_json):
-        if name and config_json.strip():
-            try:
-                config = json.loads(config_json)
-                # Validate configuration using registry
-                config_class = ConfigurationRegistry().get_configuration_class(name)
-                if config_class:
-                    try:
-                        config_instance = config_class.deserialize(config)
-                        if not config_instance.validate():
-                            validation_messages.append(f"Invalid configuration for module {name}")
-                        else:
-                            module_configs[name] = config
-                    except ValueError as e:
-                        validation_messages.append(f"Invalid configuration for {name}: {str(e)}")
-            except json.JSONDecodeError:
-                validation_messages.append(f"Invalid JSON for module {name}")
+    disabled_modules = []
 
     if choose_modules_to_enable:
-        for bind in get_binds_that_can_be_disabled():
-            if f"module_enabled_{bind.identity}" not in form_data:
-                disabled_modules.append(bind.identity)
+        async with request.form() as form:
+            for bind in get_binds_that_can_be_disabled():
+                if f"module_enabled_{bind.identity}" not in form:
+                    disabled_modules.append(bind.identity)
 
     total_list: List[str] = []
     if targets:
         targets = targets.strip()
         total_list += (x.strip() for x in targets.split("\n"))
 
+    validation_messages = []
     for task in total_list:
         if not Classifier.is_supported(task):
             validation_messages.append(
@@ -202,7 +175,7 @@ async def post_add(
             csrf_protect,
         )
 
-    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority), module_configs=module_configs)
+    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:
         return RedirectResponse("/", status_code=301)
     else:

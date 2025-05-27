@@ -89,6 +89,7 @@ class DataLoader:
             reports_to_add = reports_from_task_result(data_for_reporters, self._language)
             for report_to_add in reports_to_add:
                 report_to_add.tag = result_tag
+                report_to_add.target_is_ip_address__as_property = report_to_add.target_is_ip_address()
                 report_to_add.original_karton_name = result["task"]["headers"]["receiver"]
                 report_to_add.original_task_result_id = result["id"]
                 report_to_add.original_task_result_root_uid = result["analysis_id"]

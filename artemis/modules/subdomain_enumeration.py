@@ -156,8 +156,10 @@ class SubdomainEnumeration(ArtemisBase):
         #
         # We perform queries for multiple random domains as there might be multiple possible results
         # for wildcard DNS query.
+        #
+        # The number here (100) is not a mistake - we observed that there might be a large number of possible results.
         results_for_random_subdomain = [
-            tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(10)
+            tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(100)
         ]
 
         subdomains: Set[str] = set()
@@ -184,6 +186,9 @@ class SubdomainEnumeration(ArtemisBase):
         return subdomains
 
     def run(self, current_task: Task) -> None:
+        if current_task.headers.get("origin", "") == self.identity:
+            return
+
         domain = current_task.get_payload("domain").lower()
 
         if (

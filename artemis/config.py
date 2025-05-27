@@ -28,6 +28,13 @@ class Config:
         )
         REDIS_CONN_STR: Annotated[str, "Connection string to Redis."] = get_config("REDIS_CONN_STR")
 
+        SAVE_LOGS_IN_DATABASE: Annotated[
+            bool,
+            """
+            Whether Artemis should save task logs in the database to be viewed in the UI. Turn it off to save space in the databaee.
+            """,
+        ] = get_config("SAVE_LOGS_IN_DATABASE", default=True, cast=bool)
+
         LEGACY_MONGODB_CONN_STR: Annotated[
             str,
             "Connection string to the MongoDB database. MongoDB is not used anymore - it is present here to seamlessly "
@@ -267,7 +274,9 @@ class Config:
             List[str],
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config(
-            "MODULES_DISABLED_BY_DEFAULT", default="example,humble,ssh_bruter", cast=decouple.Csv(str, delimiter=",")
+            "MODULES_DISABLED_BY_DEFAULT",
+            default="admin_panel_login_bruter,example,humble,ssh_bruter,moodle_scanner",
+            cast=decouple.Csv(str, delimiter=","),
         )
 
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
@@ -287,6 +296,12 @@ class Config:
         ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
 
     class Modules:
+        class AdminPanelLoginBruter:
+            ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS: Annotated[
+                int,
+                "How many times to recheck whether the good password works, and the bad doesn't",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=10, cast=int)
+
         class Bruter:
             BRUTER_FILE_LIST: Annotated[
                 str,
@@ -614,6 +629,7 @@ class Config:
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
                         "network/detection/rtsp-detect.yaml",
                         "http/miscellaneous/defaced-website-detect.yaml",
+                        "http/miscellaneous/http-trace.yaml",
                         "http/misconfiguration/directory-listing-no-host-header.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mixed-active-content.yaml",
@@ -733,6 +749,7 @@ class Config:
                         "http/cves/2023/CVE-2023-43373.yaml",
                         "http/cves/2023/CVE-2023-43374.yaml",
                         "http/cves/2023/CVE-2023-47684.yaml",
+                        "http/cves/2025/CVE-2025-24813.yaml",
                         "http/iot/targa-camera-lfi.yaml",
                         "http/vulnerabilities/ibm/eclipse-help-system-xss.yaml",
                         "http/vulnerabilities/ibm/ibm-infoprint-lfi.yaml",

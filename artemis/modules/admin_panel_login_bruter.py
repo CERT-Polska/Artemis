@@ -1,6 +1,5 @@
 import binascii
 import itertools
-import logging
 import os
 import random
 import urllib.parse
@@ -13,6 +12,7 @@ from pydantic import BaseModel
 
 from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.password_utils import get_passwords
 from artemis.task_utils import get_target_url
@@ -54,10 +54,6 @@ class AdminPanelLoginBruter(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.logger = logging.getLogger(__name__)
-
     def check_url(self, url: str) -> bool:
         """
         Checks if the given URL is accessible and returns a 200 status code.
@@ -66,7 +62,7 @@ class AdminPanelLoginBruter(ArtemisBase):
             response = http_requests.get(url)
             return response.status_code == 200 if response else False
         except requests.RequestException as e:
-            self.logger.debug(f"Error checking URL {url}: {e}")
+            self.log.debug(f"Error checking URL {url}: {e}")
             return False
 
     def discover_login_paths(self, base_url: str) -> List[str]:
@@ -147,7 +143,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                         )
                     )
                 except requests.RequestException as e:
-                    self.logger.debug(f"Error submitting to {form_url}: {e}")
+                    self.log.debug(f"Error submitting to {form_url}: {e}")
                     continue
 
                 if not post_response:
@@ -187,7 +183,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                     )
 
         except Exception as e:
-            self.logger.warning(f"Error during brute force on {login_url}: {e}")
+            self.log.warning(f"Error during brute force on {login_url}: {e}")
 
         return (login_form_found, None)
 
@@ -201,21 +197,32 @@ class AdminPanelLoginBruter(ArtemisBase):
             for username, password in itertools.product(COMMON_USERNAMES, get_passwords(task)):
                 login_form_found, result = self.brute_force_login_path(base_url, path, username, password)
                 if result:
-                    results.append(result)
-                    credential_pairs.add((username, password))
+                    self.log.info("Checking whether %s:%s indeed works", username, password)
+                    rechecked = True
+                    for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS):
+                        _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
+                        # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
+                        # positive.
+                        has_login_form_fake_password, result_fake_password = self.brute_force_login_path(
+                            base_url,
+                            path,
+                            "this-username-should-not-exist",
+                            binascii.hexlify(os.urandom(16)).decode("ascii"),
+                        )
+
+                        if not (result_good_password and has_login_form_fake_password and not result_fake_password):
+                            rechecked = False
+                            break
+
+                    if rechecked:
+                        results.append(result)
+                        credential_pairs.add((username, password))
+                        self.log.info("rechecked - works!")
+                    else:
+                        self.log.info("rechecked - doesn't work")
 
                 if not login_form_found:  # not worth trying all other credential pairs
                     break
-
-            # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
-            # positive.
-            _, result_fake_password = self.brute_force_login_path(
-                base_url, path, "this-username-should-not-exist", binascii.hexlify(os.urandom(16)).decode("ascii")
-            )
-
-            if result_fake_password:
-                results = []
-                break
 
         if len(credential_pairs) > 1:
             # More than one successful working credential pair is most probably a FP. We do

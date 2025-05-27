@@ -13,6 +13,7 @@ class Severity(str, Enum):
 
 
 SEVERITY_MAP = {
+    ReportType("xss_scanner"): Severity.HIGH,
     ReportType("forti_vuln"): Severity.HIGH,
     ReportType("globalprotect_vuln"): Severity.HIGH,
     ReportType("lfi_vulnerability"): Severity.HIGH,
@@ -40,7 +41,7 @@ SEVERITY_MAP = {
     ReportType("misconfigured_email"): Severity.MEDIUM,
     ReportType("old_drupal"): Severity.MEDIUM,
     ReportType("old_joomla"): Severity.MEDIUM,
-    ReportType("xss"): Severity.HIGH,
+    ReportType("xss_vulnerability"): Severity.HIGH,
     ReportType("moodle_vulnerability_found"): Severity.HIGH,
     ReportType("obsolete_moodle_version_found"): Severity.MEDIUM,
     # This doesn't mean that a version is insecure, as WordPress maintains a separate list

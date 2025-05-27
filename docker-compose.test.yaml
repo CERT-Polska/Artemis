@@ -79,6 +79,11 @@ services:
       - ./test/data/robots/default.conf:/etc/nginx/conf.d/default.conf
       - ./test/data/robots/:/usr/share/nginx/html/
 
+  test-php-easy-admin-password:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_easy_admin_password/:/var/www/html/
+
   test-php-403-bypass:
     image: php:8.0-apache
     volumes:

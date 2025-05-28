@@ -155,6 +155,7 @@ class Classifier(ArtemisBase):
                         payload_persistent={
                             f"original_{TaskType.IP.value}": ip,
                             "original_ip_range": data,
+                            "original_target": data,
                         },
                     ),
                 )
@@ -185,6 +186,7 @@ class Classifier(ArtemisBase):
                             payload_persistent={
                                 f"original_{TaskType.IP.value}": ip,
                                 "original_ip_range": prefix,
+                                "original_target": data,
                             },
                         ),
                     )
@@ -243,6 +245,7 @@ class Classifier(ArtemisBase):
                 payload={"host": host, "port": port, "ssl": ssl, **({"last_domain": host} if is_domain(host) else {})},
                 payload_persistent={
                     f"original_{host_type}": host,
+                    "original_target": data,
                 },
             )
             self.add_task(current_task, new_task)
@@ -262,6 +265,7 @@ class Classifier(ArtemisBase):
                         },
                         payload_persistent={
                             f"original_{task_type.value}": sanitized,
+                            "original_target": data,
                         },
                     ),
                 )
@@ -273,6 +277,7 @@ class Classifier(ArtemisBase):
                 },
                 payload_persistent={
                     f"original_{task_type.value}": sanitized,
+                    "original_target": data,
                 },
             )
 

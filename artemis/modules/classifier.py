@@ -245,7 +245,7 @@ class Classifier(ArtemisBase):
                 payload={"host": host, "port": port, "ssl": ssl, **({"last_domain": host} if is_domain(host) else {})},
                 payload_persistent={
                     f"original_{host_type}": host,
-                    "original_target": data,
+                    "original_target": f"{host}:{port_str}",
                 },
             )
             self.add_task(current_task, new_task)

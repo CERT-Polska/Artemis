@@ -134,6 +134,8 @@ class Classifier(ArtemisBase):
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")
 
+        original_target = data
+
         data = data.lower()
 
         if not Classifier.is_supported(data):
@@ -155,7 +157,7 @@ class Classifier(ArtemisBase):
                         payload_persistent={
                             f"original_{TaskType.IP.value}": ip,
                             "original_ip_range": data,
-                            "original_target": data,
+                            "original_target": original_target,
                         },
                     ),
                 )
@@ -186,7 +188,7 @@ class Classifier(ArtemisBase):
                             payload_persistent={
                                 f"original_{TaskType.IP.value}": ip,
                                 "original_ip_range": prefix,
-                                "original_target": data,
+                                "original_target": original_target,
                             },
                         ),
                     )
@@ -245,7 +247,7 @@ class Classifier(ArtemisBase):
                 payload={"host": host, "port": port, "ssl": ssl, **({"last_domain": host} if is_domain(host) else {})},
                 payload_persistent={
                     f"original_{host_type}": host,
-                    "original_target": f"{host}:{port_str}",
+                    "original_target": original_target,
                 },
             )
             self.add_task(current_task, new_task)
@@ -265,7 +267,7 @@ class Classifier(ArtemisBase):
                         },
                         payload_persistent={
                             f"original_{task_type.value}": sanitized,
-                            "original_target": data,
+                            "original_target": original_target,
                         },
                     ),
                 )
@@ -277,7 +279,7 @@ class Classifier(ArtemisBase):
                 },
                 payload_persistent={
                     f"original_{task_type.value}": sanitized,
-                    "original_target": data,
+                    "original_target": original_target,
                 },
             )
 

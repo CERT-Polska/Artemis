@@ -67,7 +67,7 @@ class ClassifierTest(ArtemisModuleTestCase):
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "service", "service": "http"},
                         payload={"host": cert_ip, "port": 80, "ssl": False},
-                        payload_persistent={"original_ip": cert_ip, "original_target": "{cert_ip}:80"},
+                        payload_persistent={"original_ip": cert_ip, "original_target": f"{cert_ip}:80"},
                     ),
                 ],
             ),

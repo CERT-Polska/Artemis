@@ -18,7 +18,7 @@ def create_tasks(
     disabled_modules: List[str] = [],
     priority: Optional[TaskPriority] = None,
     requests_per_second_override: Optional[float] = None,
-    module_configurations: Optional[Dict[str, Dict[str, Any]]] = None,
+    module_runtime_configurations: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> None:
     for uri in uris:
         task = Task({"type": TaskType.NEW})
@@ -32,9 +32,9 @@ def create_tasks(
         task.add_payload("disabled_modules", ",".join(disabled_modules), persistent=True)
 
         # Add module configurations to task payload and log
-        if module_configurations:
-            logger.info(f"Adding module configurations for task {uri}: {module_configurations}")
-            task.add_payload("module_configurations", module_configurations, persistent=True)
+        if module_runtime_configurations:
+            logger.info(f"Adding module configurations for task {uri}: {module_runtime_configurations}")
+            task.add_payload("module_runtime_configurations", module_runtime_configurations, persistent=True)
         else:
             logger.debug(f"No module configurations provided for task {uri}")
 

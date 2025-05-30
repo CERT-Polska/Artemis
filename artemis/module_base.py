@@ -637,8 +637,8 @@ class ArtemisBase(Karton):
 
         for task in tasks:
             config_dict = None
-            if task.payload.get("module_configurations"):
-                config_dict = task.payload["module_configurations"].get(self.identity, None)
+            if task.payload.get("module_runtime_configurations"):
+                config_dict = task.payload["module_runtime_configurations"].get(self.identity, None)
 
             # Use JSON string of config as key for grouping
             config_key = json.dumps(config_dict) if config_dict else "default"

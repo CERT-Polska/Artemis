@@ -61,11 +61,11 @@ def add(
     enabled_modules: Optional[List[str]] = Body(default=None),
     requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
-    module_configurations: Optional[Dict[str, Dict[str, Any]]] = Body(default=None),
+    module_runtime_configurations: Optional[Dict[str, Dict[str, Any]]] = Body(default=None),
 ) -> Dict[str, Any]:
     """Add targets to be scanned.
 
-    You can provide per-task module configurations through the module_configurations parameter.
+    You can provide per-task module configurations through the module_runtime_configurations parameter.
     These configurations control runtime behavior (like scan aggressiveness) for each module.
     """
     if disabled_modules and enabled_modules:
@@ -93,8 +93,8 @@ def add(
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
     # Validate module configurations if provided
-    if module_configurations:
-        for module_name, config in module_configurations.items():
+    if module_runtime_configurations:
+        for module_name, config in module_runtime_configurations.items():
             config_class = RuntimeConfigurationRegistry().get_configuration_class(module_name)
             if config_class:
                 try:
@@ -104,7 +104,7 @@ def add(
                 except ValueError as e:
                     raise HTTPException(status_code=400, detail=f"Invalid configuration for {module_name}: {str(e)}")
     else:
-        module_configurations = {}
+        module_runtime_configurations = {}
 
     create_tasks(
         targets,
@@ -112,7 +112,7 @@ def add(
         disabled_modules=disabled_modules,
         priority=TaskPriority(priority),
         requests_per_second_override=requests_per_second_override,
-        module_configurations=module_configurations,
+        module_runtime_configurations=module_runtime_configurations,
     )
 
     return {"ok": True}

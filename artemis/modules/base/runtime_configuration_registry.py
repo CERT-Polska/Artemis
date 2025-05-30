@@ -3,7 +3,7 @@ from typing import Dict, Optional, Type
 from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
 
 
-class ConfigurationRegistry:
+class RuntimeConfigurationRegistry:
     """
     Singleton registry for managing module configurations in Artemis.
 
@@ -17,10 +17,10 @@ class ConfigurationRegistry:
     _config_classes: Dict[str, Type[ModuleRuntimeConfiguration]] = {}
 
     # Private constructor
-    def __new__(cls) -> "ConfigurationRegistry":
+    def __new__(cls) -> "RuntimeConfigurationRegistry":
         """Create a singleton instance if one doesn't exist."""
         if cls._instance is None:
-            cls._instance = super(ConfigurationRegistry, cls).__new__(cls)
+            cls._instance = super(RuntimeConfigurationRegistry, cls).__new__(cls)
             cls._instance._config_classes = {}
         return cls._instance
 

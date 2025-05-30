@@ -14,7 +14,7 @@ from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.base.runtime_configuration_registry import RuntimeConfigurationRegistry
 from artemis.modules.runtime_configuration.mail_dns_scanner_configuration import (
     MailDNSScannerConfiguration,
 )
@@ -43,7 +43,7 @@ class MailDNSScanner(ArtemisBase):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        registry = ConfigurationRegistry()
+        registry = RuntimeConfigurationRegistry()
         registry.register_configuration(self.identity, MailDNSScannerConfiguration)
         self.log.info(f"Registered MailDNSScannerConfiguration for module {self.identity}")
 
@@ -135,6 +135,10 @@ class MailDNSScanner(ArtemisBase):
 
         domain = current_task.get_payload(TaskType.DOMAIN)
         result = self.scan(current_task, domain)
+
+        if not self.configuration.report_warnings:
+            result.spf_dmarc_scan_result.dmarc.warnings = []
+            result.spf_dmarc_scan_result.spf.warnings = []
 
         status_reasons: List[str] = []
         if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.spf:

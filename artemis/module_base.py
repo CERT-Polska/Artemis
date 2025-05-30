@@ -25,8 +25,8 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.ip_utils import is_ip_address
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
-from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
+from artemis.modules.base.runtime_configuration_registry import RuntimeConfigurationRegistry
+from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -92,7 +92,7 @@ class ArtemisBase(Karton):
         self.redis = REDIS
 
         # Initialize configuration
-        registry = ConfigurationRegistry()
+        registry = RuntimeConfigurationRegistry()
         config_class = registry.get_configuration_class(self.identity)
         if config_class:
             self._configuration = config_class()
@@ -165,7 +165,7 @@ class ArtemisBase(Karton):
         Args:
             config_dict (Dict[str, Any]): Configuration dictionary to apply
         """
-        registry = ConfigurationRegistry()
+        registry = RuntimeConfigurationRegistry()
         config_class = registry.get_configuration_class(self.identity)
 
         if config_class is None:

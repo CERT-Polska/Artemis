@@ -21,7 +21,7 @@ from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
 from artemis.module_configurations.nuclei import SeverityThreshold
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.base.runtime_configuration_registry import RuntimeConfigurationRegistry
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.modules.nuclei_configuration import NucleiConfiguration
 from artemis.task_utils import get_target_host, get_target_url
@@ -68,7 +68,7 @@ class Nuclei(ArtemisBase):
         super().__init__(*args, **kwargs)
 
         # Register the NucleiConfiguration with the registry
-        registry = ConfigurationRegistry()
+        registry = RuntimeConfigurationRegistry()
         registry.register_configuration(self.identity, NucleiConfiguration)
         self.log.info(f"Registered NucleiConfiguration for module {self.identity}")
 

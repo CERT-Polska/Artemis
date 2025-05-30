@@ -13,7 +13,7 @@ from redis import Redis
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.base.runtime_configuration_registry import RuntimeConfigurationRegistry
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
@@ -93,7 +93,7 @@ def add(
     # Validate module configurations if provided
     if module_configs:
         for module_name, config in module_configs.items():
-            config_class = ConfigurationRegistry().get_configuration_class(module_name)
+            config_class = RuntimeConfigurationRegistry().get_configuration_class(module_name)
             if config_class:
                 try:
                     config_instance = config_class.deserialize(config)

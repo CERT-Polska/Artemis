@@ -25,7 +25,7 @@ from artemis.modules.base.runtime_configuration_registry import (
     RuntimeConfigurationRegistry,
 )
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
-from artemis.modules.nuclei_configuration import NucleiConfiguration
+from artemis.modules.runtime_configuration.nuclei_configuration import NucleiConfiguration
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
@@ -68,11 +68,6 @@ class Nuclei(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-
-        # Register the NucleiConfiguration with the registry
-        registry = RuntimeConfigurationRegistry()
-        registry.register_configuration(self.identity, NucleiConfiguration)
-        self.log.info(f"Registered NucleiConfiguration for module {self.identity}")
 
         # We clone this repo in __init__ (on karton start) so that it will get periodically
         # re-cloned when the container gets retarted every 𝑛 tasks. The same logic lies behind
@@ -491,6 +486,9 @@ class Nuclei(ArtemisBase):
                 status = TaskStatus.OK
                 status_reason = None
             self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=result)
+
+
+RuntimeConfigurationRegistry().register_configuration(Nuclei.identity, NucleiConfiguration)
 
 
 if __name__ == "__main__":

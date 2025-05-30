@@ -13,6 +13,7 @@ from redis import Redis
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
+from artemis.module_utils import try_to_import_all_modules
 from artemis.modules.base.runtime_configuration_registry import (
     RuntimeConfigurationRegistry,
 )
@@ -28,6 +29,7 @@ from artemis.templating import render_analyses_table_row, render_task_table_row
 router = APIRouter()
 db = DB()
 redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
+try_to_import_all_modules()  # so that the module runtime configurations get registered
 
 
 class ReportGenerationTaskModel(BaseModel):
@@ -103,6 +105,8 @@ def add(
                         raise ValueError(f"Invalid configuration for module {module_name}")
                 except ValueError as e:
                     raise HTTPException(status_code=400, detail=f"Invalid configuration for {module_name}: {str(e)}")
+            else:
+                raise HTTPException(status_code=400, detail=f"No runtime configuration class for {module_name}")
     else:
         module_runtime_configurations = {}
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import dataclasses
 import os
-from typing import Any, List, Optional
+from typing import List, Optional
 
 import dns.name
 import dns.resolver
@@ -41,13 +41,6 @@ class MailDNSScanner(ArtemisBase):
 
     def get_default_configuration(self) -> MailDNSScannerConfiguration:
         return MailDNSScannerConfiguration()
-
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-
-        registry = RuntimeConfigurationRegistry()
-        registry.register_configuration(self.identity, MailDNSScannerConfiguration)
-        self.log.info(f"Registered MailDNSScannerConfiguration for module {self.identity}")
 
     def scan(self, current_task: Task, domain: str) -> MailDNSScannerResult:
         result = MailDNSScannerResult()
@@ -162,6 +155,9 @@ class MailDNSScanner(ArtemisBase):
         self.db.save_task_result(
             task=current_task, status=status, status_reason=status_reason, data=dataclasses.asdict(result)
         )
+
+
+RuntimeConfigurationRegistry().register_configuration(MailDNSScanner.identity, MailDNSScannerConfiguration)
 
 
 if __name__ == "__main__":

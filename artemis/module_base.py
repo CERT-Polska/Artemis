@@ -637,8 +637,8 @@ class ArtemisBase(Karton):
 
         for task in tasks:
             config_dict = None
-            if task.payload.get("module_runtime_configurations"):
-                config_dict = task.payload["module_runtime_configurations"].get(self.identity, None)
+            if task.payload_persistent.get("module_runtime_configurations"):
+                config_dict = task.payload_persistent["module_runtime_configurations"].get(self.identity, None)
 
             # Use JSON string of config as key for grouping
             config_key = json.dumps(config_dict) if config_dict else "default"
@@ -650,7 +650,7 @@ class ArtemisBase(Karton):
 
         # Process each group with its configuration
         for config_key, task_group in grouped_tasks.items():
-            self.log.info(f"Processing group of {len(task_group)} tasks with configuration key: {config_key}")
+            self.log.info(f"Processing group of {len(task_group)} tasks with configuration: {config_key}")
 
             # Set configuration for this batch
             if config_key != "default":

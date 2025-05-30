@@ -19,7 +19,7 @@ class MailDNSScannerConfiguration(ModuleRuntimeConfiguration):
 
     @classmethod
     def deserialize(cls, config_dict: Dict[str, Any]) -> "MailDNSScannerConfiguration":
-        if set(config_dict.keys()) - {"severity_threshold"}:
+        if set(config_dict.keys()) - {"report_warnings"}:
             raise KeyError(f"Unexpected keys in {config_dict}")
 
         report_warnings = config_dict.get("report_warnings", False)

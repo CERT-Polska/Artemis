@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Type
 
-from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
+from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 
 
 class RuntimeConfigurationRegistry:

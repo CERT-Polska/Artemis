@@ -25,8 +25,10 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.ip_utils import is_ip_address
-from artemis.modules.base.runtime_configuration_registry import RuntimeConfigurationRegistry
 from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
+from artemis.modules.base.runtime_configuration_registry import (
+    RuntimeConfigurationRegistry,
+)
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -146,7 +148,8 @@ class ArtemisBase(Karton):
 
     @configuration.setter
     def configuration(self, value: Optional[ModuleRuntimeConfiguration]) -> None:
-        self._configuration = value
+        if value:
+            self._configuration = value
 
     def get_default_configuration(self) -> ModuleRuntimeConfiguration:
         """
@@ -670,11 +673,7 @@ class ArtemisBase(Karton):
                         timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(task_group))()
                     else:
                         for task in task_group:
-                            # Create a new function that captures the task value correctly
-                            def run_single_task(t=task):
-                                return self.run(t)
-
-                            timeout_decorator.timeout(self.timeout_seconds)(run_single_task)()
+                            timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
             except Exception:
                 for task in task_group:
                     self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
@@ -848,25 +847,3 @@ class ArtemisBase(Karton):
 
     def throttle_request(self, f: Callable[[], Any]) -> Any:
         return throttle_request(f, requests_per_second=self.requests_per_second_for_current_tasks)
-
-    def process_task(self, current_task: Task) -> None:
-        """Process a task."""
-        try:
-            # Load module configuration from task payload if available
-            module_config_payload = current_task.get_payload("module_configuration", None)
-            if module_config_payload and self.identity in module_config_payload:
-                self.set_configuration(module_config_payload[self.identity])
-            else:
-                # Use default configuration
-                self._configuration = self.get_default_configuration()
-
-            if self.batch_tasks:
-                tasks = self.get_tasks_for_batch_processing(current_task)
-                if tasks:
-                    self.run_multiple(tasks)
-            else:
-                self.run(current_task)
-        except Exception as e:
-            self.log.exception(e)
-            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, data=e)
-            raise

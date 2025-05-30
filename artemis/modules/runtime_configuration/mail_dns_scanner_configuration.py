@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from typing import Any, Dict
 
-from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
+from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 
 
 class MailDNSScannerConfiguration(ModuleRuntimeConfiguration):

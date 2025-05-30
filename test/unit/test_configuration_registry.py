@@ -1,11 +1,13 @@
 import unittest
 from typing import Any, Dict
 
-from artemis.modules.base.configuration_registry import ConfigurationRegistry
-from artemis.modules.base.module_configuration import ModuleConfiguration
+from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
+from artemis.modules.base.runtime_configuration_registry import (
+    RuntimeConfigurationRegistry,
+)
 
 
-class TestModuleConfig(ModuleConfiguration):
+class TestModuleConfig(ModuleRuntimeConfiguration):
     """Test configuration class for unit tests."""
 
     def __init__(self, test_option: str = "default") -> None:
@@ -26,17 +28,17 @@ class TestModuleConfig(ModuleConfiguration):
         return base_valid and isinstance(self.test_option, str)
 
 
-class AnotherTestConfig(ModuleConfiguration):
+class AnotherTestConfig(ModuleRuntimeConfiguration):
     """Another test configuration class for unit tests."""
 
     pass
 
 
-class TestConfigurationRegistry(unittest.TestCase):
+class TestRuntimeConfigurationRegistry(unittest.TestCase):
     def test_singleton_behavior(self) -> None:
-        """Test that ConfigurationRegistry behaves as a singleton."""
-        registry1 = ConfigurationRegistry()
-        registry2 = ConfigurationRegistry()
+        """Test that RuntimeConfigurationRegistry behaves as a singleton."""
+        registry1 = RuntimeConfigurationRegistry()
+        registry2 = RuntimeConfigurationRegistry()
 
         # The same instance should be returned
         self.assertIs(registry1, registry2)
@@ -49,7 +51,7 @@ class TestConfigurationRegistry(unittest.TestCase):
 
     def test_register_configuration(self) -> None:
         """Test registering a configuration class."""
-        registry = ConfigurationRegistry()
+        registry = RuntimeConfigurationRegistry()
 
         # Clear any existing registrations from other tests
         registry._config_classes = {}
@@ -62,7 +64,7 @@ class TestConfigurationRegistry(unittest.TestCase):
 
     def test_get_configuration_class(self) -> None:
         """Test getting a configuration class."""
-        registry = ConfigurationRegistry()
+        registry = RuntimeConfigurationRegistry()
 
         # Clear any existing registrations from other tests
         registry._config_classes = {}
@@ -81,7 +83,7 @@ class TestConfigurationRegistry(unittest.TestCase):
 
     def test_create_default_configuration(self) -> None:
         """Test creating a default configuration."""
-        registry = ConfigurationRegistry()
+        registry = RuntimeConfigurationRegistry()
 
         # Clear any existing registrations from other tests
         registry._config_classes = {}
@@ -101,7 +103,7 @@ class TestConfigurationRegistry(unittest.TestCase):
 
     def test_get_registered_modules(self) -> None:
         """Test getting all registered modules."""
-        registry = ConfigurationRegistry()
+        registry = RuntimeConfigurationRegistry()
 
         # Clear any existing registrations from other tests
         registry._config_classes = {}

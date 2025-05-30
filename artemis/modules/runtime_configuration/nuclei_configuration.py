@@ -2,7 +2,7 @@
 from typing import Any, Dict, List
 
 from artemis.module_configurations.nuclei import SeverityThreshold
-from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
+from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 
 
 class NucleiConfiguration(ModuleRuntimeConfiguration):

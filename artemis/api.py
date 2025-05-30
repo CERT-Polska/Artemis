@@ -13,7 +13,9 @@ from redis import Redis
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
-from artemis.modules.base.runtime_configuration_registry import RuntimeConfigurationRegistry
+from artemis.modules.base.runtime_configuration_registry import (
+    RuntimeConfigurationRegistry,
+)
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language

@@ -111,6 +111,8 @@ def _build_messages_and_print_path(
         else:
             top_level_target_shortened = top_level_target
 
+        top_level_target_shortened = top_level_target_shortened.replace("/", "_")
+
         with open(output_messages_directory_name / (top_level_target_shortened + ".html"), "w") as f:
             f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))
 

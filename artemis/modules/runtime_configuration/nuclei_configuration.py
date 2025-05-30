@@ -53,6 +53,9 @@ class NucleiConfiguration(ModuleRuntimeConfiguration):
         Returns:
             NucleiConfiguration: An instance of the configuration.
         """
+        if set(config_dict.keys()) - {"severity_threshold"}:
+            raise KeyError(f"Unexpected keys in {config_dict}")
+
         # Get the severity threshold, converting from string to enum if needed
         severity_threshold_value = config_dict.get("severity_threshold", SeverityThreshold.HIGH_AND_ABOVE.value)
         if isinstance(severity_threshold_value, str):

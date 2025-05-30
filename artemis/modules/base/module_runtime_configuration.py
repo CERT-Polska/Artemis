@@ -1,11 +1,11 @@
 from typing import Any, Dict, Type, TypeVar
 
-T = TypeVar("T", bound="ModuleConfiguration")
+T = TypeVar("T", bound="ModuleRuntimeConfiguration")
 
 
-class ModuleConfiguration:
+class ModuleRuntimeConfiguration:
     """
-    Base class for all module-specific configurations in Artemis.
+    Base class for all module-specific runtime configurations in Artemis.
 
     This class provides a standardized interface for module configurations with
     serialization, deserialization, and validation capabilities.
@@ -16,7 +16,7 @@ class ModuleConfiguration:
 
     def __init__(self) -> None:
         """
-        Initialize a new ModuleConfiguration instance.
+        Initialize a new ModuleRuntimeConfiguration instance.
         """
         pass
 

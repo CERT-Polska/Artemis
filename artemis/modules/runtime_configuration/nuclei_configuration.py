@@ -2,14 +2,14 @@
 from typing import Any, Dict, List
 
 from artemis.module_configurations.nuclei import SeverityThreshold
-from artemis.modules.base.module_configuration import ModuleConfiguration
+from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
 
 
-class NucleiConfiguration(ModuleConfiguration):
+class NucleiConfiguration(ModuleRuntimeConfiguration):
     """
     Configuration for the Nuclei vulnerability scanner.
 
-    This class extends the base ModuleConfiguration to add Nuclei-specific
+    This class extends the base ModuleRuntimeConfiguration to add Nuclei-specific
     configuration options.
 
     Attributes:

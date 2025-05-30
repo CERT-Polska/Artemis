@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from typing import Any, Dict
 
-from artemis.modules.base.module_configuration import ModuleConfiguration
+from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
 
 
-class MailDNSScannerConfiguration(ModuleConfiguration):
+class MailDNSScannerConfiguration(ModuleRuntimeConfiguration):
     def __init__(
         self,
         report_warnings: bool = False,

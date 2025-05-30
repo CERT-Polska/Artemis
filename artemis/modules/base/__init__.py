@@ -1,4 +1,4 @@
 from artemis.modules.base.configuration_registry import ConfigurationRegistry
-from artemis.modules.base.module_configuration import ModuleConfiguration
+from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
 
-__all__ = ["ModuleConfiguration", "ConfigurationRegistry"]
+__all__ = ["ModuleRuntimeConfiguration", "ConfigurationRegistry"]

@@ -26,7 +26,7 @@ from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.ip_utils import is_ip_address
 from artemis.modules.base.configuration_registry import ConfigurationRegistry
-from artemis.modules.base.module_configuration import ModuleConfiguration
+from artemis.modules.base.module_configuration import ModuleRuntimeConfiguration
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -97,7 +97,7 @@ class ArtemisBase(Karton):
         if config_class:
             self._configuration = config_class()
         else:
-            self._configuration = ModuleConfiguration()
+            self._configuration = ModuleRuntimeConfiguration()
 
         if Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH:
             with open(Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH, "r") as additional_data_file:
@@ -135,28 +135,28 @@ class ArtemisBase(Karton):
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
 
     @property
-    def configuration(self) -> Optional[ModuleConfiguration]:
+    def configuration(self) -> Optional[ModuleRuntimeConfiguration]:
         """
         Get the current module configuration.
 
         Returns:
-            Optional[ModuleConfiguration]: The current configuration or None if not set
+            Optional[ModuleRuntimeConfiguration]: The current configuration or None if not set
         """
         return self._configuration
 
     @configuration.setter
-    def configuration(self, value: Optional[ModuleConfiguration]) -> None:
+    def configuration(self, value: Optional[ModuleRuntimeConfiguration]) -> None:
         self._configuration = value
 
-    def get_default_configuration(self) -> ModuleConfiguration:
+    def get_default_configuration(self) -> ModuleRuntimeConfiguration:
         """
         Get the default configuration for this module.
         Override this method in subclasses to provide module-specific configuration.
 
         Returns:
-            ModuleConfiguration: Default configuration instance
+            ModuleRuntimeConfiguration: Default configuration instance
         """
-        return ModuleConfiguration()
+        return ModuleRuntimeConfiguration()
 
     def set_configuration(self, config_dict: Dict[str, Any]) -> None:
         """
@@ -169,7 +169,7 @@ class ArtemisBase(Karton):
         config_class = registry.get_configuration_class(self.identity)
 
         if config_class is None:
-            config_class = ModuleConfiguration
+            config_class = ModuleRuntimeConfiguration
 
         self._configuration = config_class.deserialize(config_dict)
         if not self._configuration.validate():

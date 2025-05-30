@@ -8,7 +8,9 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.modules.nuclei import Nuclei, ScanUsing
-from artemis.modules.nuclei_configuration import NucleiConfiguration
+from artemis.modules.runtime_configuration.nuclei_configuration import (
+    NucleiConfiguration,
+)
 
 
 class NucleiTest(ArtemisModuleTestCase):

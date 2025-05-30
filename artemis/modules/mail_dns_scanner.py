@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import dataclasses
 import os
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import dns.name
 import dns.resolver
@@ -14,6 +14,10 @@ from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
+from artemis.modules.base.configuration_registry import ConfigurationRegistry
+from artemis.modules.runtime_configuration.mail_dns_scanner_configuration import (
+    MailDNSScannerConfiguration,
+)
 from artemis.task_utils import has_ip_range
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
@@ -32,6 +36,16 @@ class MailDNSScanner(ArtemisBase):
 
     identity = "mail_dns_scanner"
     filters = [{"type": TaskType.DOMAIN.value}]
+
+    def get_default_configuration(self) -> MailDNSScannerConfiguration:
+        return MailDNSScannerConfiguration()
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+
+        registry = ConfigurationRegistry()
+        registry.register_configuration(self.identity, MailDNSScannerConfiguration)
+        self.log.info(f"Registered MailDNSScannerConfiguration for module {self.identity}")
 
     def scan(self, current_task: Task, domain: str) -> MailDNSScannerResult:
         result = MailDNSScannerResult()

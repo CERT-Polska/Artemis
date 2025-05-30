@@ -3,7 +3,9 @@ import unittest
 from typing import Any, Dict
 
 from artemis.module_configurations.nuclei import SeverityThreshold
-from artemis.modules.nuclei_configuration import NucleiConfiguration
+from artemis.modules.runtime_configuration.nuclei_configuration import (
+    NucleiConfiguration,
+)
 
 
 class TestNucleiConfiguration(unittest.TestCase):

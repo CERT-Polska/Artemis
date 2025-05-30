@@ -140,9 +140,9 @@ class MailDNSScanner(ArtemisBase):
 
         if not self.configuration.report_warnings:  # type: ignore
             if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.spf:
-                result.spf_dmarc_scan_result.dmarc.warnings = []
-            if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.dmarc:
                 result.spf_dmarc_scan_result.spf.warnings = []
+            if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.dmarc:
+                result.spf_dmarc_scan_result.dmarc.warnings = []
 
         status_reasons: List[str] = []
         if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.spf:

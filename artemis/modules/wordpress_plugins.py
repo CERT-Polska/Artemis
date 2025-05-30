@@ -44,6 +44,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "boldgrid-easy-seo",
     "booking",
     "everest-forms",
+    "permalink-manager",
     "social-pug",
     "wordpress-popup",
     "wp-members",
@@ -58,7 +59,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
-    "delete-all-comments-of-website",
     "disable-remove-google-fonts",
     "famethemes-demo-importer",
     "gallery-block-lightbox",
@@ -68,6 +68,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "login-logo",
     "page-or-post-clone",
     "perfect-woocommerce-brands",
+    "persian-elementor",
     "rafflepress",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",

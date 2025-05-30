@@ -25,7 +25,9 @@ from artemis.modules.base.runtime_configuration_registry import (
     RuntimeConfigurationRegistry,
 )
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
-from artemis.modules.runtime_configuration.nuclei_configuration import NucleiConfiguration
+from artemis.modules.runtime_configuration.nuclei_configuration import (
+    NucleiConfiguration,
+)
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,

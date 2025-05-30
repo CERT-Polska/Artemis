@@ -6,10 +6,10 @@ from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.module_configurations.nuclei import SeverityThreshold
 from artemis.modules.nuclei import Nuclei, ScanUsing
 from artemis.modules.runtime_configuration.nuclei_configuration import (
     NucleiConfiguration,
+    SeverityThreshold,
 )
 
 

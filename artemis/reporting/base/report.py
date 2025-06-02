@@ -74,6 +74,9 @@ class Report:
     # HTML render of the report (added during post-processing)
     html: Optional[str] = None
 
+    # If the caller decided to skip full PoCs in the HTML, this field will contain full PoCs
+    html_full_poc: Optional[str] = None
+
     def __post_init__(self) -> None:
         # Sanity check - at this moment, only URLs and domains are supported
         assert self.target_is_url() or self.target_is_domain()

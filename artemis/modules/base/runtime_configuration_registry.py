@@ -5,7 +5,7 @@ from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfi
 
 class RuntimeConfigurationRegistry:
     """
-    Singleton registry for managing module configurations in Artemis.
+    Singleton registry for managing module runtime configurations in Artemis.
 
     This class maintains a mapping between module names and their
     configuration classes, allowing for centralized configuration management.

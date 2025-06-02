@@ -4,6 +4,12 @@
             {% for report in data.reports %}
                 {% if report.report_type == "misconfigured_email" %}
                     <li>
+                        {% if report.additional_data.is_warning %}
+                            {{ _("Warning:") }}
+                        {% else %}
+                            {{ _("Error:") }}
+                        {% endif %}
+
                         {{ report.target }}:
                             {% if "SPF" not in report.additional_data.message_translated and "DMARC" not in report.additional_data.message_translated %}
                                 {% with type=report.additional_data.type %}
@@ -11,11 +17,6 @@
                                 {% endwith %}
                             {% endif %}
 
-                            {% if report.additional_data.is_warning %}
-                                {{ _("Warning:") }}
-                            {% else %}
-                                {{ _("Error:") }}
-                            {% endif %}
                             {{ report.additional_data.message_translated }}
 
                             {% if report.additional_data.is_for_parent_domain %}

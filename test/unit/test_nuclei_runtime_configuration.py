@@ -34,15 +34,15 @@ class TestNucleiConfiguration(unittest.TestCase):
         config = NucleiConfiguration()
         serialized = config.serialize()
 
-        self.assertEqual(serialized["severity_threshold"], "medium_and_above")
+        self.assertEqual(serialized["severity_threshold"], "high_and_above")
 
     def test_deserialize(self) -> None:
         """Test deserialization from dictionary."""
-        config_dict: Dict[str, Any] = {"severity_threshold": "high_and_above"}
+        config_dict: Dict[str, Any] = {"severity_threshold": "low_and_above"}
         config = NucleiConfiguration.deserialize(config_dict)
 
         self.assertIsInstance(config, NucleiConfiguration)
-        self.assertEqual(config.severity_threshold, SeverityThreshold.HIGH_AND_ABOVE)
+        self.assertEqual(config.severity_threshold, SeverityThreshold.LOW_AND_ABOVE)
 
     def test_deserialize_with_enum_value(self) -> None:
         """Test deserialization with an actual enum value instead of string."""

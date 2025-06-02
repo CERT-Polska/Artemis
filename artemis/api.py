@@ -103,7 +103,7 @@ def add(
                     config_instance = config_class.deserialize(config)
                     if not config_instance.validate():
                         raise ValueError(f"Invalid configuration for module {module_name}")
-                except ValueError as e:
+                except Exception as e:
                     raise HTTPException(status_code=400, detail=f"Invalid configuration for {module_name}: {str(e)}")
             else:
                 raise HTTPException(status_code=400, detail=f"No runtime configuration class for {module_name}")

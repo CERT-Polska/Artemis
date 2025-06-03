@@ -290,7 +290,7 @@ class Nuclei(ArtemisBase):
         for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
-                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",
+                    "Running batch of %d templates or workflows on %d target(s), milliseconds_per_request=%d",
                     len(chunk),
                     len(targets),
                     milliseconds_per_request,

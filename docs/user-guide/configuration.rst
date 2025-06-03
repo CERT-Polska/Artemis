@@ -12,27 +12,65 @@ Additionally, you can configure modules from the ``Artemis-modules-extra`` repos
 the configuration variables from https://github.com/CERT-Polska/Artemis-modules-extra/blob/main/extra_modules_config.py. The file to put them
 in (``.env``) and the syntax (``VARIABLE_NAME=VARIABLE_VALUE``) is the same as for the core Artemis configuration.
 
-Module Configuration
+Blocklist
+---------
+You may exclude some systems from being scanned or included in the reports. To do that, set the ``BLOCKLIST_FILE`` environment
+variable to a path to a blocklist file (it needs to be placed in the ``./shared`` directory which is mounted to all scanning containers
+as ``/shared``).
+
+The blocklist file is a ``yaml`` file with the following syntax:
+
+.. code-block:: yaml
+
+    - mode: 'block_scanning_and_reporting' (to block both scanning and reporting) or
+        'block_reporting_only' (if you want the scanning to be performed but want the
+        issues to be skipped from automatic e-mail reports)
+      domain_and_subdomains: null or the domain to be filtered (this will also filter its
+         subdomains)
+      subdomains: null or a domain - this setting will filter out only subdomains of this domain,
+         but not the domain itself
+      ip_range: null or the ip range to be filtered (to filter a single ip address,
+        use the xxx.xxx.xxx.xxx/32 syntax)
+      until: null or a date (YYYY-MM-DD) until which the filter will be active
+      karton_name: null or the name of a scanning module
+
+      report_target_should_contain: null or the string that must occur in the target for
+        the report to be blocklisted - this parameter can be used only when 'mode' is set
+        to 'block_reporting_only'.
+      report_type: null (which will block all reports) or a string containing
+         the type of reports that will be blocked (e.g. "misconfigured_email") - this
+         parameter can be used only when 'mode' is 'block_reporting_only'.
+
+There may be multiple entries in a blocklist file, each with syntax described above.
+
+Advanced: Karton configuration
+-------------------------------
+
+Artemis is based on the Karton framework (https://github.com/CERT-Polska/karton). Please refer to the
+`Karton documentation <https://karton-core.readthedocs.io/en/latest/getting_started.html#configuration>`_ for more information.
+
+Module Runtime Configuration
 -------------------
 
-The ``ModuleConfiguration`` class serves as the base for all module-specific configurations in Artemis. It provides a standardized way to handle module configurations with serialization, deserialization, and validation capabilities.
+The ``ModuleRuntimeConfiguration`` class serves as the base for all module-specific runtime configurations (that can be changed on a per-task basis)
+in Artemis. It provides a standardized way to handle module configurations with serialization, deserialization, and validation capabilities.
 
 Basic Usage
 ~~~~~~~~~~
 
 .. code-block:: python
 
-    from artemis.modules.base.module_configuration import ModuleConfiguration
+    from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 
     # Create a configuration with default values
-    config = ModuleConfiguration()
+    config = ModuleRuntimeConfiguration()
 
     # Serialize to a dictionary
     config_dict = config.serialize()
     # Result: {}
 
     # Deserialize from a dictionary
-    config = ModuleConfiguration.deserialize({})
+    config = ModuleRuntimeConfiguration.deserialize({})
 
     # Validate configuration
     is_valid = config.validate()
@@ -40,14 +78,14 @@ Basic Usage
 Extending The Base Class
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-To create a module-specific configuration, extend the ``ModuleConfiguration`` class:
+To create a module-specific configuration, extend the ``ModuleRuntimeConfiguration`` class:
 
 .. code-block:: python
 
     from typing import Dict, Any
-    from artemis.modules.base.module_configuration import ModuleConfiguration
+    from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 
-    class PortScannerConfiguration(ModuleConfiguration):
+    class PortScannerConfiguration(ModuleRuntimeConfiguration):
         def __init__(
             self,
             timeout_ms: int = 5000,
@@ -88,7 +126,7 @@ Constructor
 
 .. code-block:: python
 
-    ModuleConfiguration()
+    ModuleRuntimeConfiguration()
 
 Methods
 ^^^^^^^
@@ -107,33 +145,33 @@ Integration with Module System
 
 When developing a new module for Artemis, you should:
 
-1. Create a custom configuration class extending ``ModuleConfiguration``
+1. Create a custom configuration class extending ``ModuleRuntimeConfiguration``
 2. Add module-specific configuration options
 3. Override the ``serialize()``, ``deserialize()``, and ``validate()`` methods
 4. Use the configuration in your module implementation
 
-This approach ensures consistency in how module configurations are handled throughout the system.
+This approach ensures consistency in how module runtime configurations are handled throughout the system.
 
-Configuration Registry
+Runtime Configuration Registry
 ---------------------
 
-The ``ConfigurationRegistry`` class provides a centralized registry for module configurations. It is implemented as a singleton, ensuring that there's only one instance of the registry throughout the application.
+The ``Runtime ConfigurationRegistry`` class provides a centralized registry for module runtime configurations. It is implemented as a singleton, ensuring that there's only one instance of the registry throughout the application.
 
 Basic Usage
 ~~~~~~~~~~
 
 .. code-block:: python
 
-    from artemis.modules.base.configuration_registry import ConfigurationRegistry
-    from artemis.modules.base.module_configuration import ModuleConfiguration
+    from artemis.modules.base.runtime_configuration_registry import RuntimeConfigurationRegistry
+    from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 
     # Define a custom configuration class
-    class MyModuleConfiguration(ModuleConfiguration):
+    class MyModuleConfiguration(ModuleRuntimeConfiguration):
         # Custom configuration implementation
         pass
 
     # Get the singleton registry instance
-    registry = ConfigurationRegistry()
+    registry = RuntimeConfigurationRegistry()
 
     # Register a configuration class for a module
     registry.register_configuration("my_module", MyModuleConfiguration)
@@ -155,7 +193,7 @@ Constructor
 
 .. code-block:: python
 
-    ConfigurationRegistry()
+    RuntimeConfigurationRegistry()
 
 Always returns the same singleton instance.
 
@@ -184,40 +222,3 @@ When integrating with the Artemis module system:
 3. Access module configurations through the registry
 
 The registry provides a centralized way to manage module configurations, making it easier to create, retrieve, and manage configurations for different modules in the system.
-
-Blocklist
----------
-You may exclude some systems from being scanned or included in the reports. To do that, set the ``BLOCKLIST_FILE`` environment
-variable to a path to a blocklist file (it needs to be placed in the ``./shared`` directory which is mounted to all scanning containers
-as ``/shared``).
-
-The blocklist file is a ``yaml`` file with the following syntax:
-
-.. code-block:: yaml
-
-    - mode: 'block_scanning_and_reporting' (to block both scanning and reporting) or
-        'block_reporting_only' (if you want the scanning to be performed but want the
-        issues to be skipped from automatic e-mail reports)
-      domain_and_subdomains: null or the domain to be filtered (this will also filter its
-         subdomains)
-      subdomains: null or a domain - this setting will filter out only subdomains of this domain,
-         but not the domain itself
-      ip_range: null or the ip range to be filtered (to filter a single ip address,
-        use the xxx.xxx.xxx.xxx/32 syntax)
-      until: null or a date (YYYY-MM-DD) until which the filter will be active
-      karton_name: null or the name of a scanning module
-
-      report_target_should_contain: null or the string that must occur in the target for
-        the report to be blocklisted - this parameter can be used only when 'mode' is set
-        to 'block_reporting_only'.
-      report_type: null (which will block all reports) or a string containing
-         the type of reports that will be blocked (e.g. "misconfigured_email") - this
-         parameter can be used only when 'mode' is 'block_reporting_only'.
-
-There may be multiple entries in a blocklist file, each with syntax described above.
-
-Advanced: Karton configuration
--------------------------------
-
-Artemis is based on the Karton framework (https://github.com/CERT-Polska/karton). Please refer to the
-`Karton documentation <https://karton-core.readthedocs.io/en/latest/getting_started.html#configuration>`_ for more information.

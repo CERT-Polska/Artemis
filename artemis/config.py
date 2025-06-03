@@ -350,8 +350,8 @@ class Config:
         class Nuclei:
             NUCLEI_TEMPLATE_LISTS: Annotated[
                 str,
-                "Which template lists to use besides the ones defined by NUCLEI_SEVERITY_THRESHOLD. Available:
-                known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
+                "Which template lists to use besides the ones defined by NUCLEI_SEVERITY_THRESHOLD. Available: "
+                "known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
                 "log_exposures (http/exposures/logs folder in https://github.com/projectdiscovery/nuclei-templates/), "
                 "exposed_panels (http/exposed-panels/ folder).",
             ] = get_config(

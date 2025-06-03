@@ -33,9 +33,7 @@ class NucleiTest(ArtemisModuleTestCase):
                 "host": "test-php-xss-but-not-on-homepage",
                 "port": 80,
             },
-            payload_persistent={
-                "module_runtime_configurations": {"nuclei": {"severity_threshold": "critical_only"}}
-            },
+            payload_persistent={"module_runtime_configurations": {"nuclei": {"severity_threshold": "critical_only"}}},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list

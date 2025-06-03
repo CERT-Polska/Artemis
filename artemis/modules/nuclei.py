@@ -114,9 +114,7 @@ class Nuclei(ArtemisBase):
             # Add severity-based template sources based on the threshold
             for severity in severity_levels:
                 template_list_sources[severity] = (
-                    lambda sev=severity: check_output_log_on_error(
-                        ["nuclei", "-s", sev] + templates_list_command, self.log
-                    )
+                    lambda: check_output_log_on_error(["nuclei", "-s", severity] + templates_list_command, self.log)
                     .decode("ascii")
                     .split()
                 )
@@ -171,10 +169,6 @@ class Nuclei(ArtemisBase):
         if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
             for line in open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE):
                 self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
-
-    def get_tasks_for_batch_processing(self, current_task):
-        """Stub for batch processing compatibility. Returns a list with the current task only."""
-        return [current_task]
 
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
@@ -298,7 +292,7 @@ class Nuclei(ArtemisBase):
 
         # Get severity levels from configuration
         severity_levels = (
-            self.configuration.get_severity_options()
+            self.configuration.get_severity_options()  # type: ignore
             if self.configuration
             else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
         )
@@ -306,7 +300,7 @@ class Nuclei(ArtemisBase):
 
         self.log.info(
             "Using severity threshold: %s, including levels: %s",
-            self.configuration.severity_threshold.value if self.configuration else "default",
+            self.configuration.severity_threshold.value if self.configuration else "default",  # type: ignore
             severity_levels,
         )
 

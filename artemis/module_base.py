@@ -679,9 +679,7 @@ class ArtemisBase(Karton):
                     self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
                 raise
             finally:
-                # This finally block ALWAYS executes
                 for task in task_group:
-                    # Only save logs here (if enabled)
                     if Config.Data.SAVE_LOGS_IN_DATABASE:
                         self.db.save_task_logs(task.uid, output_redirector.get_output())
 

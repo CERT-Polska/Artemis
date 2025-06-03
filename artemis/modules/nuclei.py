@@ -89,17 +89,11 @@ class Nuclei(ArtemisBase):
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
 
-            # Get the severity levels to include based on the configured threshold
-            severity_levels = SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
-            self.log.info(
-                f"Using severity threshold: {Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD.value}, including levels: {severity_levels}"
-            )
-
             template_list_sources: Dict[str, Callable[[], List[str]]] = {
             }
 
             # Add severity-based template sources based on the threshold
-            for severity in severity_levels:
+            for severity in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):
                 template_list_sources[severity] = (
                     lambda: check_output_log_on_error(["nuclei", "-s", severity] + templates_list_command, self.log)
                     .decode("ascii")
@@ -141,7 +135,7 @@ class Nuclei(ArtemisBase):
 
             self._templates = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
 
-            self._template_lists = template_list_sources.keys()
+            self._template_lists = {}
 
             for name in template_list_sources.keys():
                 template_list = template_list_sources[name]()
@@ -152,10 +146,10 @@ class Nuclei(ArtemisBase):
 
                 for template in template_list:
                     if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
-                        self._templates.append(template)
+                        self._template_lists[name].append(template)
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
-                self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
+                self._template_lists['custom'].append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
 
             self._workflows = [os.path.join(os.path.dirname(__file__), "data", "nuclei_workflows_custom", "workflows")]
 
@@ -394,6 +388,21 @@ class Nuclei(ArtemisBase):
     def run_multiple(self, tasks: List[Task]) -> None:
         self.log.info(f"running {len(self._templates)} templates and {len(self._workflows)} on {len(tasks)} hosts.")
 
+        templates = []
+
+        severity_levels = (
+            self.configuration.get_severity_options()  # type: ignore
+            if self.configuration
+            else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+        )
+
+        for template_list in self._template_lists.keys():
+            if template_list in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):
+                if template_list in severity_levels:
+                    templates.extend(self._template_lists[template_list])
+            else:
+                templates.extend(self._template_lists[template_list])
+
         targets = []
         for task in tasks:
             targets.append(get_target_url(task))
@@ -406,7 +415,7 @@ class Nuclei(ArtemisBase):
             links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
 
-        findings = self._scan(self._templates, ScanUsing.TEMPLATES, targets) + self._scan(
+        findings = self._scan(templates, ScanUsing.TEMPLATES, targets) + self._scan(
             self._workflows, ScanUsing.WORKFLOWS, targets
         )
 

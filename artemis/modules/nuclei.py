@@ -276,8 +276,6 @@ class Nuclei(ArtemisBase):
         else:
             additional_configuration = []
 
-        self.log.info("Using template lists %s for scanning", self._template_lists)
-
         lines = []
         for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
             for milliseconds_per_request in milliseconds_per_request_candidates:
@@ -391,6 +389,8 @@ class Nuclei(ArtemisBase):
             if self.configuration
             else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
         )
+
+        self.log.info("Using severity levels %s for scanning", severity_levels)
 
         for template_list in self._template_lists.keys():
             if template_list in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):

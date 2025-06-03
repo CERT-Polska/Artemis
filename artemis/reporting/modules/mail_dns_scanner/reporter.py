@@ -87,7 +87,7 @@ class MailDNSScannerReporter(Reporter):
                     )
 
         result = []
-        for message_with_target in messages_with_targets:
+        for message_with_target in sorted(messages_with_targets, key=lambda item: 1 if item.is_warning else 0):
             top_level_target = get_top_level_target(task_result)
 
             # Sometimes we scan a domain (e.g. something.example.com) and we get a report that parent domain

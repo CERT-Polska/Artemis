@@ -37,7 +37,7 @@ class NucleiTest(ArtemisModuleTestCase):
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
-        # Should find nothing if the severity threshold is set to critical, as the template is not critical-seveirt
+        # Should find nothing if the severity threshold is set to critical, as the template is not critical-severity
         self.assertEqual(call.kwargs["status"], TaskStatus.OK)
 
     def test_links(self) -> None:

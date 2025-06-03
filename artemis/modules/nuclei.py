@@ -96,15 +96,6 @@ class Nuclei(ArtemisBase):
             )
 
             template_list_sources: Dict[str, Callable[[], List[str]]] = {
-                "known_exploited_vulnerabilities": lambda: [
-                    item
-                    for item in check_output_log_on_error(
-                        ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
-                    )
-                    .decode("ascii")
-                    .split()
-                    if item.endswith(".yml") or item.endswith(".yaml")
-                ],
             }
 
             # Add severity-based template sources based on the threshold
@@ -116,6 +107,17 @@ class Nuclei(ArtemisBase):
                 )
 
             # Add non-severity specific sources
+            if "known_exploited_vulnerabilities" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_list_sources["known_exploited_vulnerabilities"] = lambda: [
+                    item
+                    for item in check_output_log_on_error(
+                        ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
+                    )
+                    .decode("ascii")
+                    .split()
+                    if item.endswith(".yml") or item.endswith(".yaml")
+                ]
+
             if "log_exposures" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 template_list_sources["log_exposures"] = lambda: [
                     item
@@ -138,14 +140,10 @@ class Nuclei(ArtemisBase):
                 ]
 
             self._templates = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
-            for name in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
-                if name not in template_list_sources:
-                    # Skip the severity-based template lists that aren't in the threshold
-                    if name in ["critical", "high", "medium", "low", "info", "unknown"] and name not in severity_levels:
-                        self.log.info(f"Skipping template list '{name}' due to severity threshold filter")
-                        continue
-                    raise Exception(f"Unknown template list: {name}")
 
+            self._template_lists = template_list_sources.keys()
+
+            for name in template_list_sources.keys():
                 template_list = template_list_sources[name]()
 
                 if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
@@ -286,29 +284,16 @@ class Nuclei(ArtemisBase):
         else:
             additional_configuration = []
 
-        # Get severity levels from configuration
-        severity_levels = (
-            self.configuration.get_severity_options()  # type: ignore
-            if self.configuration
-            else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
-        )
-        severity_param = ",".join(severity_levels)
-
-        self.log.info(
-            "Using severity threshold: %s, including levels: %s",
-            self.configuration.severity_threshold.value if self.configuration else "default",  # type: ignore
-            severity_levels,
-        )
+        self.log.info("Using template lists %s for scanning", self._template_lists)
 
         lines = []
         for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
-                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d, with severity levels: %s",
+                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",
                     len(chunk),
                     len(targets),
                     milliseconds_per_request,
-                    severity_param,
                 )
                 command = [
                     "nuclei",

@@ -155,7 +155,7 @@ This approach ensures consistency in how module runtime configurations are handl
 Runtime Configuration Registry
 ---------------------
 
-The ``Runtime ConfigurationRegistry`` class provides a centralized registry for module runtime configurations. It is implemented as a singleton, ensuring that there's only one instance of the registry throughout the application.
+The ``RuntimeConfigurationRegistry`` class provides a centralized registry for module runtime configurations. It is implemented as a singleton, ensuring that there's only one instance of the registry throughout the application.
 
 Basic Usage
 ~~~~~~~~~~

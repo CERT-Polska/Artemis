@@ -10,7 +10,7 @@ import subprocess
 import time
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 
 import more_itertools
 from karton.core import Task
@@ -89,18 +89,18 @@ class Nuclei(ArtemisBase):
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
 
-            template_list_sources: Dict[str, Callable[[], List[str]]] = {}
+            template_lists_raw: Dict[str, List[str]] = {}
 
             for severity in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):
-                template_list_sources[severity] = (
-                    lambda: check_output_log_on_error(["nuclei", "-s", severity] + templates_list_command, self.log)
+                template_lists_raw[severity] = (
+                    check_output_log_on_error(["nuclei", "-s", severity] + templates_list_command, self.log)
                     .decode("ascii")
                     .split()
                 )
 
             # Add non-severity specific sources
             if "known_exploited_vulnerabilities" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
-                template_list_sources["known_exploited_vulnerabilities"] = lambda: [
+                template_lists_raw["known_exploited_vulnerabilities"] = [
                     item
                     for item in check_output_log_on_error(
                         ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
@@ -111,7 +111,7 @@ class Nuclei(ArtemisBase):
                 ]
 
             if "log_exposures" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
-                template_list_sources["log_exposures"] = lambda: [
+                template_lists_raw["log_exposures"] = [
                     item
                     for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
                     .decode("ascii")
@@ -123,7 +123,7 @@ class Nuclei(ArtemisBase):
                 ]
 
             if "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
-                template_list_sources["exposed_panels"] = lambda: [
+                template_lists_raw["exposed_panels"] = [
                     item
                     for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
                     .decode("ascii")
@@ -133,13 +133,14 @@ class Nuclei(ArtemisBase):
 
             self._template_lists: Dict[str, List[str]] = {}
 
-            for name in template_list_sources.keys():
-                template_list = template_list_sources[name]()
+            for name in template_lists_raw.keys():
+                template_list = template_lists_raw[name]
 
                 if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
                     if len(template_list) == 0:
                         raise RuntimeError(f"Unable to obtain Nuclei templates for list {name}")
 
+                self._template_lists[name] = []
                 for template in template_list:
                     if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
                         self._template_lists[name].append(template)
@@ -148,6 +149,13 @@ class Nuclei(ArtemisBase):
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._template_lists["custom"].append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
+
+            for key in self._template_lists:
+                self.log.info(
+                    "There are %d templates on list %s",
+                    len(self._template_lists[key]),
+                    key,
+                )
 
             self._workflows = [os.path.join(os.path.dirname(__file__), "data", "nuclei_workflows_custom", "workflows")]
 
@@ -399,7 +407,7 @@ class Nuclei(ArtemisBase):
             else:
                 templates.extend(self._template_lists[template_list])
 
-        self.log.info(f"running {len(templates)} templates and {len(self._workflows)} on {len(tasks)} hosts.")
+        self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
 
         targets = []
         for task in tasks:

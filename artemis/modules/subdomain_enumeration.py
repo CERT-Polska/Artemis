@@ -158,9 +158,12 @@ class SubdomainEnumeration(ArtemisBase):
         # for wildcard DNS query.
         #
         # The number here (100) is not a mistake - we observed that there might be a large number of possible results.
-        results_for_random_subdomain = [
-            tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(100)
-        ]
+        try:
+            results_for_random_subdomain = [
+                tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(100)
+            ]
+        except ResolutionException:
+            return []
 
         subdomains: Set[str] = set()
         self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))

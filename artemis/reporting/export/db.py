@@ -1,6 +1,6 @@
 import datetime
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Optional, Set
+from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple
 
 from karton.core import Task
 from tqdm import tqdm
@@ -66,7 +66,7 @@ class DataLoader:
         if not self._silent:
             results = tqdm(results)  # type: ignore
 
-        seen_assets: Set[Asset] = set()
+        seen_assets: Set[Tuple[str, str]] = set()
 
         for result in results:
             result_tag = result["task"].get("payload_persistent", {}).get("tag", None)
@@ -107,9 +107,9 @@ class DataLoader:
 
             assets_to_add: List[Asset] = []
             for item in assets_from_task_result(data_for_reporters):
-                if item in seen_assets:
+                if (item.asset_type, item.name) in seen_assets:
                     continue
-                seen_assets.add(item)
+                seen_assets.add((item.asset_type, item.name))
                 assets_to_add.append(item)
 
             for asset_to_add in assets_to_add:

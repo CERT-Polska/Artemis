@@ -135,7 +135,7 @@ class ExportingTestCase(BaseE2ETestCase):
 
                 self.assertEqual(
                     sorted(output_data["assets"]),
-                    {},
+                    {"a": "b"},
                 )
 
     def test_exporting_api(self) -> None:

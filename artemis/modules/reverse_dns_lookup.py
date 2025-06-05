@@ -46,7 +46,7 @@ class ReverseDNSLookup(ArtemisBase):
         hostname, aliaslist, _ = gethostbyaddr(ip)
         if hostname not in aliaslist:
             aliaslist.append(hostname)
-        hosts.extend(aliaslist)
+        hosts.extend([item for item in aliaslist if not is_ip_address(item)])
         return list(set(hosts))
 
     def run(self, current_task: Task) -> None:

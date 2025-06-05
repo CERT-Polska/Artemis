@@ -16,6 +16,9 @@ class ClassifierReporter(Reporter):
             "ip": AssetType.IP,
         }
 
+        if not isinstance(task_result["result"], dict):
+            return []
+
         if task_result["result"]["type"].lower() not in mapping:
             return []
 

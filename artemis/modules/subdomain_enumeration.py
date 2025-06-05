@@ -293,7 +293,7 @@ class SubdomainEnumeration(ArtemisBase):
                 status=TaskStatus.OK,
                 data={
                     "valid_subdomains": valid_subdomains,
-                    "existing_subdomains": existing_subdomains,
+                    "existing_subdomains": sorted(existing_subdomains),
                 },
             )
         else:

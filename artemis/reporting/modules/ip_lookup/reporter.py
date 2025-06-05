@@ -11,4 +11,7 @@ class IPLookupReporter(Reporter):
         if task_result["headers"]["receiver"] != "ip_lookup":
             return []
 
+        if not isinstance(task_result["result"], dict):
+            return []
+
         return [Asset(asset_type=AssetType.IP, name=ip) for ip in task_result["result"].get("ips", [])]

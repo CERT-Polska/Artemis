@@ -163,7 +163,7 @@ class SubdomainEnumeration(ArtemisBase):
                 tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(100)
             ]
         except ResolutionException:
-            return []
+            return set()
 
         subdomains: Set[str] = set()
         self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))

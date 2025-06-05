@@ -66,6 +66,8 @@ class DataLoader:
         if not self._silent:
             results = tqdm(results)  # type: ignore
 
+        seen_assets: Set[Asset] = set()
+
         for result in results:
             result_tag = result["task"].get("payload_persistent", {}).get("tag", None)
             self._tag_stats[result_tag] += 1
@@ -103,7 +105,13 @@ class DataLoader:
                 report_to_add.normal_form = report_to_add.get_normal_form()
                 report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
-            assets_to_add = assets_from_task_result(data_for_reporters)
+            assets_to_add: List[Asset] = []
+            for item in assets_from_task_result(data_for_reporters):
+                if item in seen_assets:
+                    continue
+                seen_assets.add(item)
+                assets_to_add.append(item)
+
             for asset_to_add in assets_to_add:
                 asset_to_add.original_karton_name = result["task"]["headers"]["receiver"]
             self._assets.extend(assets_to_add)

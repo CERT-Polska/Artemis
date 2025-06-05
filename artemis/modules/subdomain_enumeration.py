@@ -214,6 +214,7 @@ class SubdomainEnumeration(ArtemisBase):
             return
 
         valid_subdomains = set()
+        existing_subdomains = set()
 
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
@@ -273,7 +274,8 @@ class SubdomainEnumeration(ArtemisBase):
                             "domain": subdomain,
                         },
                     )
-                    self.add_task_if_domain_exists(current_task, task)
+                    if self.add_task_if_domain_exists(current_task, task):
+                        existing_subdomains.add(subdomain)
 
                     task = Task(
                         {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST},
@@ -286,7 +288,14 @@ class SubdomainEnumeration(ArtemisBase):
             valid_subdomains.update(valid_subdomains_from_tool)
 
         if valid_subdomains:
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(valid_subdomains))
+            self.db.save_task_result(
+                task=current_task,
+                status=TaskStatus.OK,
+                data={
+                    "valid_subdomains": valid_subdomains,
+                    "existing_subdomains": existing_subdomains,
+                },
+            )
         else:
             self.log.error(f"Failed to obtain any subdomains for domain {domain}")
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR)

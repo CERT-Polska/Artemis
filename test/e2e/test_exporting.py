@@ -133,6 +133,11 @@ class ExportingTestCase(BaseE2ETestCase):
                     ),
                 )
 
+                self.assertEqual(
+                    sorted(output_data["assets"]),
+                    {},
+                )
+
     def test_exporting_api(self) -> None:
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]

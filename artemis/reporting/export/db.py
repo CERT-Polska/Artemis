@@ -8,9 +8,13 @@ from tqdm import tqdm
 from artemis.blocklist import BlocklistItem, blocklist_reports
 from artemis.config import Config
 from artemis.db import DB
+from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
-from artemis.reporting.base.reporters import reports_from_task_result
+from artemis.reporting.base.reporters import (
+    assets_from_task_result,
+    reports_from_task_result,
+)
 from artemis.reporting.severity import get_severity
 from artemis.reporting.utils import get_top_level_target
 from artemis.task_utils import get_target_host
@@ -48,6 +52,7 @@ class DataLoader:
             return
 
         self._reports = []
+        self._assets = []
         self._ips = {}
         self._hosts_with_waf_detected: Set[str] = set()
         self._scanned_top_level_targets = set()
@@ -98,6 +103,7 @@ class DataLoader:
                 report_to_add.normal_form = report_to_add.get_normal_form()
                 report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
+            self._assets.extend(assets_from_task_result(data_for_reporters))
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))
         self._data_initialized = True
 
@@ -105,6 +111,11 @@ class DataLoader:
     def reports(self) -> List[Report]:
         self._initialize_data_if_needed()
         return self._reports
+
+    @property
+    def assets(self) -> List[Asset]:
+        self._initialize_data_if_needed()
+        return self._assets
 
     @property
     def ips(self) -> dict[str, List[str]]:

@@ -11,4 +11,7 @@ class SubdomainEnumerationReporter(Reporter):
         if task_result["headers"]["receiver"] != "subdomain_enumeration":
             return []
 
-        return [Asset(asset_type=AssetType.DOMAIN, name=domain) for domain in task_result["result"].get("existing_domains", [])]
+        return [
+            Asset(asset_type=AssetType.DOMAIN, name=domain)
+            for domain in task_result["result"].get("existing_domains", [])
+        ]

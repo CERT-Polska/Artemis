@@ -11,4 +11,6 @@ class ReverseDNSLookupReporter(Reporter):
         if task_result["headers"]["receiver"] != "ReverseDNSLookup":
             return []
 
-        return [Asset(asset_type=AssetType.DOMAIN, name=domain) for domain in task_result["result"].get("found_domains", [])]
+        return [
+            Asset(asset_type=AssetType.DOMAIN, name=domain) for domain in task_result["result"].get("found_domains", [])
+        ]

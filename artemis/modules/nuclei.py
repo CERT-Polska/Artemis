@@ -10,7 +10,7 @@ import subprocess
 import time
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 
 import more_itertools
 from karton.core import Task
@@ -20,7 +20,14 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
+from artemis.modules.base.runtime_configuration_registry import (
+    RuntimeConfigurationRegistry,
+)
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
+from artemis.modules.runtime_configuration.nuclei_configuration import (
+    NucleiConfiguration,
+    SeverityThreshold,
+)
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
@@ -51,6 +58,16 @@ class Nuclei(ArtemisBase):
     batch_tasks = True
     task_max_batch_size = Config.Modules.Nuclei.NUCLEI_MAX_BATCH_SIZE
 
+    def get_default_configuration(self) -> NucleiConfiguration:
+        """
+        Get the default configuration for the Nuclei module.
+
+        Returns:
+            NucleiConfiguration: Default configuration instance with:
+                - severity_threshold: Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
+        """
+        return NucleiConfiguration(severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
@@ -72,8 +89,18 @@ class Nuclei(ArtemisBase):
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
 
-            template_list_sources: Dict[str, Callable[[], List[str]]] = {
-                "known_exploited_vulnerabilities": lambda: [
+            template_lists_raw: Dict[str, List[str]] = {}
+
+            for severity in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):
+                template_lists_raw[severity] = (
+                    check_output_log_on_error(["nuclei", "-s", severity] + templates_list_command, self.log)
+                    .decode("ascii")
+                    .split()
+                )
+
+            # Add non-severity specific sources
+            if "known_exploited_vulnerabilities" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_lists_raw["known_exploited_vulnerabilities"] = [
                     item
                     for item in check_output_log_on_error(
                         ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
@@ -81,22 +108,10 @@ class Nuclei(ArtemisBase):
                     .decode("ascii")
                     .split()
                     if item.endswith(".yml") or item.endswith(".yaml")
-                ],
-                "critical": lambda: check_output_log_on_error(
-                    ["nuclei", "-s", "critical"] + templates_list_command, self.log
-                )
-                .decode("ascii")
-                .split(),
-                "high": lambda: check_output_log_on_error(["nuclei", "-s", "high"] + templates_list_command, self.log)
-                .decode("ascii")
-                .split(),
-                "medium": lambda: check_output_log_on_error(
-                    ["nuclei", "-s", "medium"] + templates_list_command, self.log
-                )
-                .decode("ascii")
-                .split(),
-                # These are not high severity, but may lead to significant information leaks and are easy to fix
-                "log_exposures": lambda: [
+                ]
+
+            if "log_exposures" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_lists_raw["log_exposures"] = [
                     item
                     for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
                     .decode("ascii")
@@ -105,32 +120,42 @@ class Nuclei(ArtemisBase):
                     # we already have a git detection module that filters FPs such as
                     # exposed source code of a repo that is already public
                     and not item.startswith("http/exposures/logs/git-")
-                ],
-                "exposed_panels": lambda: [
+                ]
+
+            if "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_lists_raw["exposed_panels"] = [
                     item
                     for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
                     .decode("ascii")
                     .split()
                     if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
-                ],
-            }
+                ]
 
-            self._templates = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
-            for name in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
-                if name not in template_list_sources:
-                    raise Exception(f"Unknown template list: {name}")
-                template_list = template_list_sources[name]()
+            self._template_lists: Dict[str, List[str]] = {}
+
+            for name in template_lists_raw.keys():
+                template_list = template_lists_raw[name]
 
                 if Config.Modules.Nuclei.NUCLEI_CHECK_TEMPLATE_LIST:
                     if len(template_list) == 0:
                         raise RuntimeError(f"Unable to obtain Nuclei templates for list {name}")
 
+                self._template_lists[name] = []
                 for template in template_list:
                     if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
-                        self._templates.append(template)
+                        self._template_lists[name].append(template)
+
+            self._template_lists["custom"] = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
-                self._templates.append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
+                self._template_lists["custom"].append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
+
+            for key in self._template_lists:
+                self.log.info(
+                    "There are %d templates on list %s",
+                    len(self._template_lists[key]),
+                    key,
+                )
 
             self._workflows = [os.path.join(os.path.dirname(__file__), "data", "nuclei_workflows_custom", "workflows")]
 
@@ -229,6 +254,10 @@ class Nuclei(ArtemisBase):
             len(templates_or_workflows_filtered),
             len(templates_or_workflows),
         )
+
+        if not templates_or_workflows_filtered:
+            self.log.info("No templates or workflows left after filtering, skipping scan.")
+            return []
 
         if self.requests_per_second_for_current_tasks:
             milliseconds_per_request_initial = int(
@@ -361,7 +390,24 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
-        self.log.info(f"running {len(self._templates)} templates and {len(self._workflows)} on {len(tasks)} hosts.")
+        templates = []
+
+        severity_levels = (
+            self.configuration.get_severity_options()  # type: ignore
+            if self.configuration
+            else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+        )
+
+        self.log.info("Using severity levels %s for scanning", severity_levels)
+
+        for template_list in self._template_lists.keys():
+            if template_list in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):
+                if template_list in severity_levels:
+                    templates.extend(self._template_lists[template_list])
+            else:
+                templates.extend(self._template_lists[template_list])
+
+        self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
 
         targets = []
         for task in tasks:
@@ -375,7 +421,7 @@ class Nuclei(ArtemisBase):
             links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
 
-        findings = self._scan(self._templates, ScanUsing.TEMPLATES, targets) + self._scan(
+        findings = self._scan(templates, ScanUsing.TEMPLATES, targets) + self._scan(
             self._workflows, ScanUsing.WORKFLOWS, targets
         )
 
@@ -394,10 +440,20 @@ class Nuclei(ArtemisBase):
         for finding in findings:
             found = False
             for task in tasks:
-                if finding["url"] in [get_target_url(task)] + links_per_task[task.uid]:
-                    findings_per_task[task.uid].append(finding)
-                    found = True
-                    break
+                if "url" in finding:
+                    if finding["url"] in [get_target_url(task)] + links_per_task[task.uid]:
+                        findings_per_task[task.uid].append(finding)
+                        found = True
+                        break
+                elif "matched-at" in finding:
+                    urls = [get_target_url(task)] + links_per_task[task.uid]
+                    hosts_with_port = [
+                        urllib.parse.urlparse(item).netloc for item in urls if ":" in urllib.parse.urlparse(item).netloc
+                    ]
+                    if finding["matched-at"] in urls or finding["matched-at"] in hosts_with_port:
+                        findings_per_task[task.uid].append(finding)
+                        found = True
+                        break
             if not found:
                 findings_unmatched.append(finding)
 
@@ -430,6 +486,9 @@ class Nuclei(ArtemisBase):
                 status = TaskStatus.OK
                 status_reason = None
             self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=result)
+
+
+RuntimeConfigurationRegistry().register_configuration(Nuclei.identity, NucleiConfiguration)
 
 
 if __name__ == "__main__":

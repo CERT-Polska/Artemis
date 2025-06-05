@@ -4,12 +4,20 @@ msgid ""
 "verification mechanisms:"
 msgstr ""
 
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:8
+msgid "Warning:"
+msgstr ""
+
 #: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:10
+msgid "Error:"
+msgstr ""
+
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:16
 #, python-format
 msgid "Problem with the %(type)s mechanism:"
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:18
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:24
 #, python-format
 msgid ""
 "For the DMARC mechanism to work properly on %(top_level_target)s, the "
@@ -18,13 +26,13 @@ msgid ""
 ".eu or .co.uk)."
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:27
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:33
 msgid ""
 "These mechanisms greatly increase the chance that the recipient server "
 "will reject a spoofed message."
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:28
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:34
 msgid ""
 "Even if a domain is not used to send e-mails, SPF and DMARC records are "
 "needed to reduce the possibility to spoof e-mails."

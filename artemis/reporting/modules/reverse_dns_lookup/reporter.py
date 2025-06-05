@@ -5,10 +5,10 @@ from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.reporter import Reporter
 
 
-class SubdomainEnumerationReporter(Reporter):
+class ReverseDNSLookupReporter(Reporter):
     @staticmethod
     def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
-        if task_result["headers"]["receiver"] != "subdomain_enumeration":
+        if task_result["headers"]["receiver"] != "ReverseDNSLookup":
             return []
 
-        return [Asset(asset_type=AssetType.DOMAIN, name=domain) for domain in task_result["result"].get("existing_domains", [])]
+        return [Asset(asset_type=AssetType.DOMAIN, name=domain) for domain in task_result["result"].get("found_domains", [])]

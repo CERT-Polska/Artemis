@@ -103,7 +103,11 @@ class DataLoader:
                 report_to_add.normal_form = report_to_add.get_normal_form()
                 report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
-            self._assets.extend(assets_from_task_result(data_for_reporters))
+            assets_to_add = assets_from_task_result(data_for_reporters)
+            for asset_to_add in assets_to_add:
+                asset_to_add.original_karton_name = result["task"]["headers"]["receiver"]
+            self._assets.extend(assets_to_add)
+
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))
         self._data_initialized = True
 

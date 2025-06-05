@@ -9,6 +9,7 @@ from artemis.blocklist import BlocklistItem, blocklist_reports
 from artemis.config import Config
 from artemis.db import DB
 from artemis.reporting.base.asset import Asset
+from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.reporters import (
@@ -114,6 +115,8 @@ class DataLoader:
 
             for asset_to_add in assets_to_add:
                 asset_to_add.original_karton_name = result["task"]["headers"]["receiver"]
+                domain = asset_to_add.name if asset_to_add.asset_type == AssetType.DOMAIN else None
+                asset_to_add.last_domain = domain or result["task"]["payload"].get("last_domain", None)
             self._assets.extend(assets_to_add)
 
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))

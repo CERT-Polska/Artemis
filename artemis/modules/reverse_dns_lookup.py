@@ -8,7 +8,7 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
-from artemis.domains import is_subdomain
+from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
 from artemis.task_utils import get_ip_range, has_ip_range
@@ -39,7 +39,7 @@ class ReverseDNSLookup(ArtemisBase):
             json_data = response.json()
             if "hostnames" in json_data:
                 self.log.info(f"Got hosts {json_data['hostnames']} from {api}")
-                hosts.extend(json_data["hostnames"])
+                hosts.extend([item for item in json_data["hostnames"] if is_domain(item)])
 
         # Use the PTR record
         hostname, aliaslist, _ = gethostbyaddr(ip)

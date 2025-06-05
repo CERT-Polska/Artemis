@@ -440,10 +440,20 @@ class Nuclei(ArtemisBase):
         for finding in findings:
             found = False
             for task in tasks:
-                if finding["url"] in [get_target_url(task)] + links_per_task[task.uid]:
-                    findings_per_task[task.uid].append(finding)
-                    found = True
-                    break
+                if "url" in finding:
+                    if finding["url"] in [get_target_url(task)] + links_per_task[task.uid]:
+                        findings_per_task[task.uid].append(finding)
+                        found = True
+                        break
+                elif "matched-at" in finding:
+                    urls = [get_target_url(task)] + links_per_task[task.uid]
+                    hosts_with_port = [
+                        urllib.parse.urlparse(item).netloc for item in urls if ":" in urllib.parse.urlparse(item).netloc
+                    ]
+                    if finding["matched-at"] in urls or finding["matched-at"] in hosts_with_port:
+                        findings_per_task[task.uid].append(finding)
+                        found = True
+                        break
             if not found:
                 findings_unmatched.append(finding)
 

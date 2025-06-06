@@ -94,7 +94,6 @@ class DataLoader:
                     report_to_add.target_ip = result["task"]["payload_persistent"]["original_ip"]
                     report_to_add.target_ip_checked = True
                 report_to_add.original_karton_name = result["task"]["headers"]["receiver"]
-                report_to_add.original_karton_name = result["task"]["headers"]["receiver"]
                 report_to_add.original_task_result_id = result["id"]
                 report_to_add.original_task_result_root_uid = result["analysis_id"]
                 report_to_add.original_task_target_string = result["target_string"]

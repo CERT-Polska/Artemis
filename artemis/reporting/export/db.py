@@ -90,6 +90,10 @@ class DataLoader:
             for report_to_add in reports_to_add:
                 report_to_add.tag = result_tag
                 report_to_add.target_is_ip_address__as_property = report_to_add.target_is_ip_address()
+                if "original_ip" in result["task"].get("payload_persistent", {}):
+                    report_to_add.target_ip = result["task"]["payload_persistent"]["original_ip"]
+                    report_to_add.target_ip_checked = True
+                report_to_add.original_karton_name = result["task"]["headers"]["receiver"]
                 report_to_add.original_karton_name = result["task"]["headers"]["receiver"]
                 report_to_add.original_task_result_id = result["id"]
                 report_to_add.original_task_result_root_uid = result["analysis_id"]

@@ -107,7 +107,6 @@ class ExportingTestCase(BaseE2ETestCase):
                             "",
                             "        </body>",
                             "    </html>",
-                            "",
                         ]
                     ).encode("ascii"),
                 )
@@ -253,7 +252,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "",
                             "                            Nie znaleziono poprawnego rekordu DMARC. Rekomendujemy używanie wszystkich trzech mechanizmów: SPF, DKIM i DMARC, aby zmniejszyć szansę, że sfałszowana wiadomość zostanie zaakceptowana przez serwer odbiorcy.",
                             "",
-                            "",
+                            "                        ",
                             "                    </li>",
                             "        </ul>",
                             "        <p>",

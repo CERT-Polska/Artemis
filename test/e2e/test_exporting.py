@@ -107,6 +107,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "",
                             "        </body>",
                             "    </html>",
+                            "",
                         ]
                     ).encode("ascii"),
                 )

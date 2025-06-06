@@ -9,7 +9,7 @@ class Asset:
     asset_type: AssetType
     name: str
 
-    # Data about the original task result that led to the creation of this Report
+    # Data about the original task result that led to the creation of this Asset
     original_karton_name: Optional[str] = None
 
     # What was the last domain observed when scanning (e.g. when we started with example.com, then proceeded to

@@ -1,6 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any, Callable, Dict, List, Tuple
 
+from .asset import Asset
 from .language import Language
 from .normal_form import (
     NormalForm,
@@ -33,16 +34,14 @@ class Reporter(ABC):
         return []
 
     @staticmethod
-    @abstractmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
         """A method that extracts vulnerability information and creates Reports."""
-        raise NotImplementedError()
+        return []
 
     @staticmethod
-    @abstractmethod
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         """Fragments of e-mail messages to render report types provided by this Reporter."""
-        raise NotImplementedError()
+        return []
 
     @classmethod
     def get_normal_form_rules(cls) -> Dict[ReportType, Callable[[Report], NormalForm]]:
@@ -94,3 +93,8 @@ class Reporter(ABC):
                 ),
             }
         )
+
+    @staticmethod
+    def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
+        """A method that extracts information about detected assets. They may or may not be vulnerable."""
+        return []

@@ -33,6 +33,16 @@ def get_all_reporters() -> List[Type[Any]]:
     return reporters
 
 
+def assets_from_task_result(task_result: Dict[str, Any]) -> List[Any]:
+    """
+    Converts a task result as saved by an Artemis task to (one or many) found assets.
+    """
+    assets = []
+    for reporter in get_all_reporters():
+        assets.extend(reporter.get_assets(task_result))
+    return assets
+
+
 def reports_from_task_result(task_result: Dict[str, Any], language: Language) -> List[Any]:
     """
     Converts a task result as saved by an Artemis task to (one or many) filtered vulnerability reports.

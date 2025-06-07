@@ -158,9 +158,16 @@ class SubdomainEnumeration(ArtemisBase):
         # for wildcard DNS query.
         #
         # The number here (100) is not a mistake - we observed that there might be a large number of possible results.
-        results_for_random_subdomain = [
-            tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain)) for _ in range(100)
-        ]
+        results_for_random_subdomain = []
+        for _ in range(100):
+            try:
+                results_for_random_subdomain.append(
+                    tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain))
+                )
+            except ResolutionException:
+                pass
+        if not results_for_random_subdomain:
+            return set()
 
         subdomains: Set[str] = set()
         self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
@@ -214,6 +221,7 @@ class SubdomainEnumeration(ArtemisBase):
             return
 
         valid_subdomains = set()
+        existing_subdomains = set()
 
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
@@ -273,7 +281,8 @@ class SubdomainEnumeration(ArtemisBase):
                             "domain": subdomain,
                         },
                     )
-                    self.add_task_if_domain_exists(current_task, task)
+                    if self.add_task_if_domain_exists(current_task, task):
+                        existing_subdomains.add(subdomain)
 
                     task = Task(
                         {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST},
@@ -286,7 +295,14 @@ class SubdomainEnumeration(ArtemisBase):
             valid_subdomains.update(valid_subdomains_from_tool)
 
         if valid_subdomains:
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=list(valid_subdomains))
+            self.db.save_task_result(
+                task=current_task,
+                status=TaskStatus.OK,
+                data={
+                    "valid_subdomains": list(sorted(valid_subdomains)),
+                    "existing_subdomains": list(sorted(existing_subdomains)),
+                },
+            )
         else:
             self.log.error(f"Failed to obtain any subdomains for domain {domain}")
             self.db.save_task_result(task=current_task, status=TaskStatus.ERROR)

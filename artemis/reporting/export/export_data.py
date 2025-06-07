@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 from artemis.domains import is_domain
+from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
@@ -30,6 +31,7 @@ class ExportData:
     ips: Dict[str, List[str]]
     messages: Dict[str, SingleTopLevelTargetExportData]
     alerts: List[str]
+    assets: List[Asset]
     hosts_with_waf_detected: List[str]
 
 
@@ -101,5 +103,6 @@ def build_export_data(
         ips=db.ips,
         messages=message_data,
         alerts=alerts,
+        assets=db.assets,
         hosts_with_waf_detected=list(db.hosts_with_waf_detected),
     )

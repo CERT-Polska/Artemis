@@ -103,6 +103,7 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
                 "tag",
                 "target_string",
                 "result",
+                "logs",
             },
         )
         self.assertEqual(task_results[0]["receiver"], "mail_dns_scanner")

@@ -68,7 +68,7 @@ docker compose \
     -f docker-compose.test.yaml \
     -f docker-compose.yaml \
     -f docker-compose.test-e2e.yaml \
-    run --entrypoint bash \
+    run \
     test-e2e
 
 EXIT_CODE=$?

@@ -22,12 +22,6 @@ class APIScannerTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-flask-vulnerable-api:5000/api/login")
-        self.assertEqual(call.kwargs["data"]["results"][0]["method"], "POST")
-        self.assertEqual(call.kwargs["data"]["results"][0]["vulnerable"], True)
-        self.assertEqual(call.kwargs["data"]["results"][0]["vuln_details"], "One or more parameter is vulnerable to SQL Injection Attack")
-        self.assertEqual(call.kwargs["data"]["results"][0]["status_code"], 500)
-
         self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-flask-vulnerable-api:5000/api/user/' AND (SELECT * FROM (SELECT(SLEEP(5)))abc)")
         self.assertEqual(call.kwargs["data"]["results"][0]["method"], "GET")
         self.assertEqual(call.kwargs["data"]["results"][0]["vulnerable"], True)

@@ -1,7 +1,7 @@
 import json
 import os
-import tempfile
-from typing import Any, Dict, Optional
+import subprocess
+from typing import Any, Dict, Optional, Tuple
 
 from karton.core import Task
 from openapi_schema_validator import validate
@@ -15,6 +15,7 @@ from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
 COMMON_SPEC_PATHS = [
+    "/docs",
     "/swagger.json",
     "/v2/swagger.json",
     "/v3/api-docs",
@@ -28,7 +29,7 @@ class APIResult(BaseModel):
     url: str
     method: str
     vulnerable: bool
-    details: Optional[str]
+    vuln_details: Optional[str]
     curl_command: Optional[str]
     status_code: Optional[int]
 
@@ -44,7 +45,7 @@ class APIScanner(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def discover_spec(self, base_url: str) -> Optional[str]:
+    def discover_spec(self, base_url: str) -> Tuple[str, ...]:
         """Try to discover OpenAPI/Swagger specification from common paths."""
         for path in COMMON_SPEC_PATHS:
             try_url = base_url.rstrip("/") + path
@@ -53,51 +54,49 @@ class APIScanner(ArtemisBase):
                 if response.status_code == 200 and (
                     "openapi" in response.text.lower() or "swagger" in response.text.lower()
                 ):
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as f:
+                    temp_file = f"/tmp/api_spec_{os.urandom(8).hex()}"
+                    with open(temp_file, "w") as f:
                         f.write(response.content)
-                        temp_file = f.name
 
                     # Validate the spec
                     spec_dict, _ = read_from_filename(temp_file)
                     try:
                         validate(spec_dict)
-                        return temp_file
+                        return temp_file, try_url
                     except Exception as e:
                         self.log.info(f"Unable to validate spec at {try_url}: {e}")
                         continue
             except Exception as e:
                 self.log.debug(f"Error checking {try_url}: {e}")
                 continue
-        return None
+        return "", ""
 
     def install_offat(self) -> None:
         if not os.path.exists("/offat"):
-            os.system("git clone https://github.com/OWASP/OFFAT /offat")
-            patch_file_path = os.path.join(os.path.dirname(__file__), "data/offat", "offat_artemis.patch")
-            os.system(f"git -C /offat apply {patch_file_path}")
+            subprocess.call(["git", "clone", "https://github.com/OWASP/OFFAT", "/offat"])
+            patch_file_path = os.path.join(os.path.dirname(__file__), "data/offat/offat_artemis.patch")
+            subprocess.call(["git", "-C", "/offat", "apply", patch_file_path])
 
-        os.system("pip install -e /offat/src")
+        subprocess.call(["pip", "install", "-e", "/offat/src"])
 
     def scan(self, target_api_specification: str) -> Dict[str, Any]:
         output_file = "/tmp/output.json"
 
+        offat_cmd = [
+            "offat",
+            "-f",
+            target_api_specification,
+            "-o",
+            output_file,
+            "--format",
+            "json",
+        ]
+
         if Config.Modules.APIScanner.ONLY_GET_REQUESTS:
-            os.system(
-                " ".join(
-                    [
-                        "offat",
-                        "-f",
-                        target_api_specification,
-                        "--only-get-requests",
-                        "-o",
-                        output_file,
-                        "--format",
-                        "json",
-                    ]
-                )
-            )
+            offat_cmd.append("--only-get-requests")
+            subprocess.call(offat_cmd)
         else:
-            os.system(" ".join(["offat", "-f", target_api_specification, "-o", output_file, "--format", "json"]))
+            subprocess.call(offat_cmd)
 
         with open(output_file) as f:
             file_contents = f.read()
@@ -110,7 +109,7 @@ class APIScanner(ArtemisBase):
         url = get_target_url(current_task)
 
         # Try to discover the API spec
-        spec_file = self.discover_spec(url)
+        spec_file, spec_file_url = self.discover_spec(url)
         if not spec_file:
             self.db.save_task_result(
                 task=current_task, status=TaskStatus.OK, status_reason="No OpenAPI/Swagger specification found", data={}
@@ -128,7 +127,7 @@ class APIScanner(ArtemisBase):
                             url=result.get("url"),
                             method=result.get("method"),
                             vulnerable=result.get("vulnerable"),
-                            details=result.get("vuln_details"),
+                            vuln_details=result.get("vuln_details"),
                             curl_command=result.get("curl_command"),
                             status_code=result.get("response_status_code"),
                         )
@@ -139,7 +138,7 @@ class APIScanner(ArtemisBase):
                 status_reason = "Found potential vulnerabilities in the api"
             else:
                 status = TaskStatus.OK
-                status_reason = None
+                status_reason = f"detected API on {spec_file_url}, no vulnerabilities found"
 
             self.db.save_task_result(
                 task=current_task,

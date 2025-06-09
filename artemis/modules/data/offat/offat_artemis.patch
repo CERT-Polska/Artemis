@@ -13,7 +13,7 @@ index f73c524..3fc5428 100644
 -        '-v', '--version', action='version', version=f"%(prog)s {get_package_version()}"
 +        '--only-get-requests',
 +        dest='only_get_requests',
-+        help="send only get requests while scanning",
++        help="send only GET requests while scanning",
 +        action='store_true',
 +        default=False,
 +        required=False

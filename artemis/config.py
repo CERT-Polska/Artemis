@@ -305,8 +305,8 @@ class Config:
         class APIScanner:
             ONLY_GET_REQUESTS: Annotated[
                 bool,
-                "If set to True, api scanner will only use GET requests to scan. If to False, a more intrusive scan "
-                "can be carried (using other http methods like POST)",
+                "If set to True, API scanner will only use GET requests to scan. If to False, a more intrusive scan "
+                "can be carried out (using other HTTP methods like POST)",
             ] = get_config("ONLY_GET_REQUESTS", default=True, cast=bool)
 
         class Bruter:

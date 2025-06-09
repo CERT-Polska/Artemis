@@ -12,7 +12,7 @@ from artemis.reporting.utils import get_top_level_target
 from artemis.resolvers import ResolutionException, lookup
 
 
-class APIHackingReporter(Reporter):
+class APIScannerReporter(Reporter):
     API_VULNERABILITY = ReportType("api_vulnerability")
 
     @staticmethod
@@ -30,24 +30,17 @@ class APIHackingReporter(Reporter):
         for result in task_result["data"]["results"]:
             try:
                 url = result["url"]
-                parsed_url = urllib.parse.urlparse(url)
-
-                # Resolve hostname to IP
-                ips = list(lookup(parsed_url.hostname)) if parsed_url.hostname else []
-                resolved_host = ips[0] if ips else parsed_url.hostname
 
                 reports.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
                         target=url,
-                        report_type=APIHackingReporter.API_VULNERABILITY,
+                        report_type=APIScannerReporter.API_VULNERABILITY,
                         additional_data={
                             "method": result["method"],
-                            "vulnerability_type": result.get("vulnerability_type", "unknown"),
-                            "details": result["details"],
+                            "details": result["vuln_details"],
                             "curl_command": result["curl_command"],
                             "status_code": result["status_code"],
-                            "resolved_host": resolved_host,
                         },
                         timestamp=task_result["created_at"],
                     )
@@ -69,7 +62,7 @@ class APIHackingReporter(Reporter):
     @staticmethod
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         return {
-            APIHackingReporter.API_VULNERABILITY: lambda report: Reporter.dict_to_tuple(
+            APIScannerReporter.API_VULNERABILITY: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
                     "target": get_domain_normal_form(urllib.parse.urlparse(report.target).hostname or ""),

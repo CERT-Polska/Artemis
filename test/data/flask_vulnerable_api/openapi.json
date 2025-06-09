@@ -11,7 +11,7 @@
     }
   ],
   "paths": {
-    "/login": {
+    "/api/login": {
       "post": {
         "summary": "Login endpoint (vulnerable to SQLi)",
         "description": "Accepts username and password in JSON body.\nSQL injection possible via body parameters.",
@@ -42,7 +42,7 @@
         }
       }
     },
-    "/user/{username}": {
+    "/api/user/{username}": {
       "get": {
         "summary": "Get user by username (vulnerable to SQLi)",
         "description": "Retrieves user info based on username in URL path.\nSQL injection possible via path parameter.",

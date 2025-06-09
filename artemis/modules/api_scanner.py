@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
@@ -72,24 +73,36 @@ class APIScanner(ArtemisBase):
     def install_offat(self) -> None:
         if not os.path.exists("/offat"):
             os.system("git clone https://github.com/OWASP/OFFAT /offat")
-            os.system(
-                f"git -C /offat apply {os.path.join(os.path.dirname(__file__), "data/offat", "offat_artemis.patch")}"
-            )
+            patch_file_path = os.path.join(os.path.dirname(__file__), "data/offat", "offat_artemis.patch")
+            os.system(f"git -C /offat apply {patch_file_path}")
 
         os.system("pip install -e /offat/src")
 
     def scan(self, target_api_specification: str) -> Dict[str, Any]:
         output_file = "/tmp/output.json"
-        os.system(
-            " ".join(
-                ["offat", "-f", target_api_specification, "--only-get-requests", "-o", output_file, "--format", "json"]
+
+        if Config.Modules.APIScanner.ONLY_GET_REQUESTS:
+            os.system(
+                " ".join(
+                    [
+                        "offat",
+                        "-f",
+                        target_api_specification,
+                        "--only-get-requests",
+                        "-o",
+                        output_file,
+                        "--format",
+                        "json",
+                    ]
+                )
             )
-        )
+        else:
+            os.system(" ".join(["offat", "-f", target_api_specification, "-o", output_file, "--format", "json"]))
 
         with open(output_file) as f:
             file_contents = f.read()
 
-        report = json.loads(file_contents)
+        report: Dict[str, Any] = json.loads(file_contents)
         os.unlink(output_file)
         return report
 

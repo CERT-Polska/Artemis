@@ -302,6 +302,13 @@ class Config:
                 "How many times to recheck whether the good password works, and the bad doesn't",
             ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=10, cast=int)
 
+        class APIScanner:
+            ONLY_GET_REQUESTS: Annotated[
+                bool,
+                "If set to True, api scanner will only use GET requests to scan. If to False, a more intrusive scan "
+                "can be carried (using other http methods like POST)",
+            ] = get_config("ONLY_GET_REQUESTS", default=True, cast=bool)
+
         class Bruter:
             BRUTER_FILE_LIST: Annotated[
                 str,

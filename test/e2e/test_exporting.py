@@ -114,13 +114,6 @@ class ExportingTestCase(BaseE2ETestCase):
 
             with export.open("advanced/output.json", "r") as f:
                 output_data = json.loads(f.read().decode("ascii"))
-                import base64
-
-                print(
-                    base64.b64encode(
-                        output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"].encode("utf-8")
-                    )
-                )
                 self.assertEqual(
                     output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
                     "\n".join(
@@ -142,6 +135,7 @@ class ExportingTestCase(BaseE2ETestCase):
                     ),
                 )
 
+                print(repr(sorted(output_data["assets"])))
                 self.assertEqual(
                     sorted(output_data["assets"]),
                     {"a": "b"},

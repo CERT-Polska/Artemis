@@ -135,10 +135,16 @@ class ExportingTestCase(BaseE2ETestCase):
                     ),
                 )
 
-                print(repr(sorted(output_data["assets"])))
                 self.assertEqual(
                     sorted(output_data["assets"]),
-                    {"a": "b"},
+                    [
+                        {
+                            "asset_type": "domain",
+                            "name": "test-smtp-server.artemis",
+                            "original_karton_name": "classifier",
+                            "last_domain": "test-smtp-server.artemis",
+                        }
+                    ],
                 )
 
     def test_exporting_api(self) -> None:

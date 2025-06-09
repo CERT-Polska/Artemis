@@ -116,7 +116,7 @@ class ExportingTestCase(BaseE2ETestCase):
                 output_data = json.loads(f.read().decode("ascii"))
                 import base64
 
-                print(base64.b64encode(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"]))
+                print(base64.b64encode(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"].encode("utf-8")))
                 self.assertEqual(
                     output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
                     "\n".join(

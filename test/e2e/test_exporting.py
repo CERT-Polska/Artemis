@@ -130,6 +130,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "                        test-smtp-server.artemis:",
                             "",
                             "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            "",
                             "                        ",
                             "                    </li>",
                             "</ul>",

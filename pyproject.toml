@@ -22,6 +22,7 @@ authorized_licenses = [
     "python software foundation",
     "PSF-2.0",
     "the unlicense (unlicense)",
+    "Apache-2.0 AND BSD-2-Clause",
 ]
 
 [tool.liccheck.authorized_packages]

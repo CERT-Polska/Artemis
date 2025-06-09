@@ -9,7 +9,7 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
-from artemis.resolvers import lookup, ResolutionException
+from artemis.resolvers import ResolutionException, lookup
 
 
 class APIHackingReporter(Reporter):
@@ -23,9 +23,7 @@ class APIHackingReporter(Reporter):
         if task_result["status"] != "INTERESTING":
             return []
 
-        if not isinstance(task_result.get("data"), dict) or not isinstance(
-            task_result["data"].get("results"), list
-        ):
+        if not isinstance(task_result.get("data"), dict) or not isinstance(task_result["data"].get("results"), list):
             return []
 
         reports = []
@@ -71,12 +69,12 @@ class APIHackingReporter(Reporter):
     @staticmethod
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         return {
-            APIHackingReporter.API_VULNERABILITY: lambda report: Reporter.dict_to_tuple({
-                "type": report.report_type,
-                "target": get_domain_normal_form(
-                    urllib.parse.urlparse(report.target).hostname or ""
-                ),
-                "endpoint": urllib.parse.urlparse(report.target).path,
-                "vulnerability_type": report.additional_data.get("vulnerability_type", "unknown"),
-            })
+            APIHackingReporter.API_VULNERABILITY: lambda report: Reporter.dict_to_tuple(
+                {
+                    "type": report.report_type,
+                    "target": get_domain_normal_form(urllib.parse.urlparse(report.target).hostname or ""),
+                    "endpoint": urllib.parse.urlparse(report.target).path,
+                    "vulnerability_type": report.additional_data.get("vulnerability_type", "unknown"),
+                }
+            )
         }

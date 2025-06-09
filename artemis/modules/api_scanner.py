@@ -1,19 +1,17 @@
-import os
 import json
+import os
 import tempfile
-from typing import List, Optional, Dict
+from typing import Any, Dict, Optional
 
 from karton.core import Task
+from openapi_schema_validator import validate
+from openapi_spec_validator.readers import read_from_filename
 from pydantic import BaseModel
 
 from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
-from openapi_spec_validator.readers import read_from_filename
-from openapi_schema_validator import validate
-from enum import Enum
-
 
 COMMON_SPEC_PATHS = [
     "/swagger.json",
@@ -21,8 +19,7 @@ COMMON_SPEC_PATHS = [
     "/v3/api-docs",
     "/openapi.json",
     "/api-docs",
-    "/api/docs"
-    "/docs/swagger.json"
+    "/api/docs" "/docs/swagger.json",
 ]
 
 
@@ -49,10 +46,12 @@ class APIScanner(ArtemisBase):
     def discover_spec(self, base_url: str) -> Optional[str]:
         """Try to discover OpenAPI/Swagger specification from common paths."""
         for path in COMMON_SPEC_PATHS:
-            try_url = base_url.rstrip('/') + path
+            try_url = base_url.rstrip("/") + path
             try:
                 response = http_requests.get(try_url)
-                if response.status_code == 200 and ("openapi" in response.text.lower() or "swagger" in response.text.lower()):
+                if response.status_code == 200 and (
+                    "openapi" in response.text.lower() or "swagger" in response.text.lower()
+                ):
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as f:
                         f.write(response.content)
                         temp_file = f.name
@@ -69,21 +68,27 @@ class APIScanner(ArtemisBase):
                 self.log.debug(f"Error checking {try_url}: {e}")
                 continue
         return None
-    
-    def install_offat(self):
+
+    def install_offat(self) -> None:
         if not os.path.exists("/offat"):
             os.system("git clone https://github.com/OWASP/OFFAT /offat")
-            os.system(f"git -C /offat apply {os.path.join(os.path.dirname(__file__), "data/offat", "offat_artemis.patch")}")
+            os.system(
+                f"git -C /offat apply {os.path.join(os.path.dirname(__file__), "data/offat", "offat_artemis.patch")}"
+            )
 
         os.system("pip install -e /offat/src")
-    
-    def scan(self, target_api_specification: str):
+
+    def scan(self, target_api_specification: str) -> Dict[str, Any]:
         output_file = "/tmp/output.json"
-        os.system(' '.join(["offat", "-f", target_api_specification, "--only-get-requests", "-o", output_file, "--format", "json"]))
+        os.system(
+            " ".join(
+                ["offat", "-f", target_api_specification, "--only-get-requests", "-o", output_file, "--format", "json"]
+            )
+        )
 
         with open(output_file) as f:
             file_contents = f.read()
-    
+
         report = json.loads(file_contents)
         os.unlink(output_file)
         return report
@@ -95,27 +100,26 @@ class APIScanner(ArtemisBase):
         spec_file = self.discover_spec(url)
         if not spec_file:
             self.db.save_task_result(
-                task=current_task,
-                status=TaskStatus.OK,
-                status_reason="No OpenAPI/Swagger specification found",
-                data={}
+                task=current_task, status=TaskStatus.OK, status_reason="No OpenAPI/Swagger specification found", data={}
             )
             return
-        
+
         try:
             results = []
             test_results = self.scan(spec_file)
 
-            for result in test_results:
+            for result in test_results.get("results", {}):
                 if result.get("vulnerable", False):
-                    results.append(APIResult(
-                        url=result.get("url"),
-                        method=result.get("method"),
-                        vulnerable=result.get("vulnerable"),
-                        details=result.get("vuln_details"),
-                        curl_command=result.get("curl_command"),
-                        status_code=result.get("response_status_code")
-                    ))
+                    results.append(
+                        APIResult(
+                            url=result.get("url"),
+                            method=result.get("method"),
+                            vulnerable=result.get("vulnerable"),
+                            details=result.get("vuln_details"),
+                            curl_command=result.get("curl_command"),
+                            status_code=result.get("response_status_code"),
+                        )
+                    )
 
             if results:
                 status = TaskStatus.INTERESTING

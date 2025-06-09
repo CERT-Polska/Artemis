@@ -1,6 +1,6 @@
 import datetime
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Optional, Set
+from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple
 
 from karton.core import Task
 from tqdm import tqdm
@@ -8,9 +8,14 @@ from tqdm import tqdm
 from artemis.blocklist import BlocklistItem, blocklist_reports
 from artemis.config import Config
 from artemis.db import DB
+from artemis.reporting.base.asset import Asset
+from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
-from artemis.reporting.base.reporters import reports_from_task_result
+from artemis.reporting.base.reporters import (
+    assets_from_task_result,
+    reports_from_task_result,
+)
 from artemis.reporting.severity import get_severity
 from artemis.reporting.utils import get_top_level_target
 from artemis.task_utils import get_target_host
@@ -48,6 +53,7 @@ class DataLoader:
             return
 
         self._reports = []
+        self._assets = []
         self._ips = {}
         self._hosts_with_waf_detected: Set[str] = set()
         self._scanned_top_level_targets = set()
@@ -60,6 +66,8 @@ class DataLoader:
         )
         if not self._silent:
             results = tqdm(results)  # type: ignore
+
+        seen_assets: Set[Tuple[str, str]] = set()
 
         for result in results:
             result_tag = result["task"].get("payload_persistent", {}).get("tag", None)
@@ -101,6 +109,19 @@ class DataLoader:
                 report_to_add.normal_form = report_to_add.get_normal_form()
                 report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
+            assets_to_add: List[Asset] = []
+            for item in assets_from_task_result(data_for_reporters):
+                if (item.asset_type, item.name) in seen_assets:
+                    continue
+                seen_assets.add((item.asset_type, item.name))
+                assets_to_add.append(item)
+
+            for asset_to_add in assets_to_add:
+                asset_to_add.original_karton_name = result["task"]["headers"]["receiver"]
+                domain = asset_to_add.name if asset_to_add.asset_type == AssetType.DOMAIN else None
+                asset_to_add.last_domain = domain or result["task"]["payload"].get("last_domain", None)
+            self._assets.extend(assets_to_add)
+
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))
         self._data_initialized = True
 
@@ -108,6 +129,11 @@ class DataLoader:
     def reports(self) -> List[Report]:
         self._initialize_data_if_needed()
         return self._reports
+
+    @property
+    def assets(self) -> List[Asset]:
+        self._initialize_data_if_needed()
+        return self._assets
 
     @property
     def ips(self) -> dict[str, List[str]]:

@@ -251,9 +251,7 @@ class Classifier(ArtemisBase):
                 },
             )
             self.add_task(current_task, new_task)
-            self.db.save_task_result(
-                task=current_task, status=TaskStatus.OK, data={"type": task_type, "data": [sanitized]}
-            )
+            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]})
         else:
             data = Classifier._clean_ipv6_brackets(data)
 

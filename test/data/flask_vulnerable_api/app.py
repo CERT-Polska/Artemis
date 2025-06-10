@@ -1,13 +1,14 @@
 import sqlite3
+from typing import Any, Dict, Optional, Tuple, Union
 
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, Response, jsonify, request, send_file
 
 app = Flask(__name__)
 DATABASE = "test.db"
 
 
 # Setup DB and dummy data
-def init_db():
+def init_db() -> None:
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     c.execute(
@@ -26,16 +27,16 @@ def init_db():
 
 
 @app.route("/")
-def index():
+def index() -> Tuple[Response, int]:
     return jsonify({"message": "Test API with SQLi vulnerabilities"}), 200
 
 
 # Vulnerable to SQLi via POST body
 @app.route("/api/login", methods=["POST"])
-def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
+def login() -> Tuple[Response, int]:
+    data: Optional[Dict[str, Any]] = request.get_json()
+    username: Optional[str] = data.get("username") if data else None
+    password: Optional[str] = data.get("password") if data else None
 
     query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
     print(f"Executing query: {query}")
@@ -43,7 +44,7 @@ def login():
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     c.execute(query)
-    user = c.fetchone()
+    user: Optional[Tuple[Any, ...]] = c.fetchone()
     conn.close()
 
     if user:
@@ -54,14 +55,14 @@ def login():
 
 # Vulnerable to SQLi via path parameter
 @app.route("/api/user/<username>", methods=["GET"])
-def get_user(username):
+def get_user(username: str) -> Tuple[Response, int]:
     query = f"SELECT * FROM users WHERE username = '{username}'"
     print(f"Executing query: {query}")
 
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     c.execute(query)
-    user = c.fetchone()
+    user: Optional[Tuple[Any, ...]] = c.fetchone()
     conn.close()
 
     if user:
@@ -71,7 +72,7 @@ def get_user(username):
 
 
 @app.route("/api/docs", methods=["GET"])
-def get_openapi_spec():
+def get_openapi_spec() -> Union[Response, Tuple[Response, int]]:
     try:
         return send_file("openapi.json", mimetype="application/json")
     except FileNotFoundError:

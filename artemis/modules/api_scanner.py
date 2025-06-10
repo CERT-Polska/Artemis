@@ -4,7 +4,7 @@ import subprocess
 from typing import Any, Dict, Optional, Tuple
 
 from karton.core import Task
-from openapi_schema_validator import validate
+from openapi_spec_validator import validate
 from openapi_spec_validator.readers import read_from_filename
 from pydantic import BaseModel
 
@@ -12,17 +12,8 @@ from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
+from artemis.modules.data.api_scanner_data import COMMON_SPEC_PATHS
 from artemis.task_utils import get_target_url
-
-COMMON_SPEC_PATHS = [
-    "/docs",
-    "/swagger.json",
-    "/v2/swagger.json",
-    "/v3/api-docs",
-    "/openapi.json",
-    "/api-docs",
-    "/api/docs" "/docs/swagger.json",
-]
 
 
 class APIResult(BaseModel):
@@ -48,7 +39,7 @@ class APIScanner(ArtemisBase):
     def discover_spec(self, base_url: str) -> Tuple[str, ...]:
         """Try to discover OpenAPI/Swagger specification from common paths."""
         for path in COMMON_SPEC_PATHS:
-            try_url = base_url.rstrip("/") + path
+            try_url = base_url.rstrip("/") + "/" + path
             try:
                 response = http_requests.get(try_url)
                 if response.status_code == 200 and (

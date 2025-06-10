@@ -26,8 +26,8 @@ index f73c524..3fc5428 100644
          ssl_verify=args.ssl_verify,
 +        only_get_requests=args.only_get_requests,
      )
- 
- 
+
+
 diff --git a/src/offat/tester/handler.py b/src/offat/tester/handler.py
 index 44bf376..e8663bb 100644
 --- a/src/offat/tester/handler.py
@@ -46,7 +46,7 @@ index 44bf376..e8663bb 100644
          ssl_verify=ssl_verify,
 +        only_get_requests=only_get_requests,
      )
- 
+
      results: list = []
 diff --git a/src/offat/tester/runner.py b/src/offat/tester/runner.py
 index d61fbdb..80868ce 100644
@@ -67,10 +67,10 @@ index d61fbdb..80868ce 100644
 +        self.only_get_requests = only_get_requests
          self.progress = Progress(console=console)
          self.progress_task_id: TaskID | None = None
- 
+
 @@ -125,6 +127,15 @@ class TestRunner:
              )
- 
+
          test_result = test_task
 +        if str(http_method).upper() != "GET" and self.only_get_requests:
 +            test_result['request_headers'] = []

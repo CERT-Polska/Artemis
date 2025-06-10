@@ -9,7 +9,6 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
-from artemis.resolvers import ResolutionException, lookup
 
 
 class APIScannerReporter(Reporter):
@@ -45,7 +44,7 @@ class APIScannerReporter(Reporter):
                         timestamp=task_result["created_at"],
                     )
                 )
-            except (ResolutionException, KeyError, AttributeError):
+            except (KeyError, AttributeError):
                 continue
 
         return reports

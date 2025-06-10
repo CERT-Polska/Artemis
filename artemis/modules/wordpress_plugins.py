@@ -41,7 +41,10 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
 ]
 PLUGINS_TO_SKIP_CHANGELOG = [
     "backwpup",
+    "boldgrid-easy-seo",
+    "booking",
     "everest-forms",
+    "permalink-manager",
     "social-pug",
     "wordpress-popup",
     "wp-members",
@@ -56,16 +59,18 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
-    "delete-all-comments-of-website",
     "disable-remove-google-fonts",
+    "famethemes-demo-importer",
+    "gallery-block-lightbox",
+    "gallery-by-supsystic",
     "icon-element",
     "link-manager",
     "login-logo",
     "page-or-post-clone",
+    "perfect-woocommerce-brands",
+    "persian-elementor",
     "rafflepress",
-    "skyboot-custom-icons-for-elementor",
     "website-monetization-by-magenet",
-    "woo-tools",
     "wp-maximum-execution-time-exceeded",
     "yellow-pencil-visual-theme-customizer",
 ]
@@ -161,7 +166,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                     line = line[1:]
 
                 version = (
-                    re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|=|<h4>|</h4>)", " ", line)
+                    re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|=|<h4>|</h4>|\|)", " ", line)
                     .strip()
                     # Some versions are prefixed with 'v' (e.g. v1.0.0)
                     .lstrip("v")

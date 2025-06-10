@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    entrypoint: ""
     env_file: env.test
     command: python -m unittest discover test.e2e
     volumes:

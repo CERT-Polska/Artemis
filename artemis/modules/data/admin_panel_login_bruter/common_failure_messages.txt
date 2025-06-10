@@ -29,3 +29,50 @@ Nazwa użytkownika lub hasło nie jest
 Złe hasło
 niepoprawne hasło
 Błędna nazwa użytkownika
+# WordPress
+ERROR: Invalid username.
+ERROR: The password you entered for the username is incorrect.
+# Grafana
+Invalid username or password
+# Kibana
+Login is currently disabled
+# Jenkins
+Invalid login information. Please try again.
+# GLPI
+Zły login lub hasło
+# Zabbix
+Login name or password is incorrect
+# Roundcube
+Login failed
+# Webmin
+Login failed. Please try again.
+# ISPConfig
+Login failed. Please try again.
+# OTRS
+Nieprawidłowy login lub hasło!
+# iTop
+Incorrect login or password, please try again
+# Fortinet / Fortigate
+Invalid credentials
+# Nextcloud
+Wrong password. Reset it?
+# ownCloud
+Invalid username/password
+# phpMyAdmin
+Access denied for user
+# Moodle
+Invalid login, please try again
+# TYPO3
+Your login attempt did not succeed. Make sure to spell your username and password correctly.
+# Prestashop
+There is one error. The employee does not exist, or the password provided is incorrect.
+# Magento
+You did not sign in correctly or your account is temporarily disabled.
+# Drupal
+Unrecognized username or password.
+# GitLab
+Invalid Login or password.
+# Rocket.Chat
+Your credentials are incorrect or do not match any user in the system
+# Discourse
+Incorrect username, email or password.

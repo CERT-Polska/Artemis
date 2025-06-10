@@ -1,3 +1,7 @@
-#: artemis/reporting/templates/header.jinja2:3
-msgid "This problem has already been reported in earlier notifications."
+#: artemis/reporting/templates/header.jinja2:4
+msgid "This problem has already been reported in previous notifications."
+msgstr ""
+
+#: artemis/reporting/templates/header.jinja2:9
+msgid "At the moment of the scanning, this was the IP address of "
 msgstr ""

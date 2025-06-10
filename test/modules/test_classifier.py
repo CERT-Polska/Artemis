@@ -57,7 +57,7 @@ class ClassifierTest(ArtemisModuleTestCase):
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "service", "service": "http"},
                         payload={"host": "cert.pl", "port": 80, "last_domain": "cert.pl", "ssl": False},
-                        payload_persistent={"original_domain": "cert.pl"},
+                        payload_persistent={"original_domain": "cert.pl", "original_target": "cert.pl:80"},
                     ),
                 ],
             ),
@@ -67,7 +67,7 @@ class ClassifierTest(ArtemisModuleTestCase):
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "service", "service": "http"},
                         payload={"host": cert_ip, "port": 80, "ssl": False},
-                        payload_persistent={"original_ip": cert_ip},
+                        payload_persistent={"original_ip": cert_ip, "original_target": f"{cert_ip}:80"},
                     ),
                 ],
             ),
@@ -77,12 +77,12 @@ class ClassifierTest(ArtemisModuleTestCase):
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "domain_that_may_not_exist"},
                         payload={"domain": "cert.pl", "last_domain": "cert.pl"},
-                        payload_persistent={"original_domain": "cert.pl"},
+                        payload_persistent={"original_domain": "cert.pl", "original_target": "cert.pl"},
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "domain"},
                         payload={"domain": "cert.pl", "last_domain": "cert.pl"},
-                        payload_persistent={"original_domain": "cert.pl"},
+                        payload_persistent={"original_domain": "cert.pl", "original_target": "cert.pl"},
                     ),
                 ],
             ),
@@ -92,12 +92,12 @@ class ClassifierTest(ArtemisModuleTestCase):
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "domain_that_may_not_exist"},
                         payload={"domain": "cert.pl", "last_domain": "cert.pl"},
-                        payload_persistent={"original_domain": "cert.pl"},
+                        payload_persistent={"original_domain": "cert.pl", "original_target": "CERT.pl"},
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "domain"},
                         payload={"domain": "cert.pl", "last_domain": "cert.pl"},
-                        payload_persistent={"original_domain": "cert.pl"},
+                        payload_persistent={"original_domain": "cert.pl", "original_target": "CERT.pl"},
                     ),
                 ],
             ),
@@ -107,27 +107,88 @@ class ClassifierTest(ArtemisModuleTestCase):
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.1"},
-                        payload_persistent={"original_ip": "127.0.0.1", "original_ip_range": "127.0.0.1-127.0.0.5"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.1",
+                            "original_ip_range": "127.0.0.1-127.0.0.5",
+                            "original_target": "127.0.0.1-127.0.0.5",
+                        },
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.2"},
-                        payload_persistent={"original_ip": "127.0.0.2", "original_ip_range": "127.0.0.1-127.0.0.5"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.2",
+                            "original_ip_range": "127.0.0.1-127.0.0.5",
+                            "original_target": "127.0.0.1-127.0.0.5",
+                        },
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.3"},
-                        payload_persistent={"original_ip": "127.0.0.3", "original_ip_range": "127.0.0.1-127.0.0.5"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.3",
+                            "original_ip_range": "127.0.0.1-127.0.0.5",
+                            "original_target": "127.0.0.1-127.0.0.5",
+                        },
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.4"},
-                        payload_persistent={"original_ip": "127.0.0.4", "original_ip_range": "127.0.0.1-127.0.0.5"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.4",
+                            "original_ip_range": "127.0.0.1-127.0.0.5",
+                            "original_target": "127.0.0.1-127.0.0.5",
+                        },
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.5"},
-                        payload_persistent={"original_ip": "127.0.0.5", "original_ip_range": "127.0.0.1-127.0.0.5"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.5",
+                            "original_ip_range": "127.0.0.1-127.0.0.5",
+                            "original_target": "127.0.0.1-127.0.0.5",
+                        },
+                    ),
+                ],
+            ),
+            TestData(
+                "127.0.0.0/255.255.255.252",
+                [
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.0"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.0",
+                            "original_ip_range": "127.0.0.0/255.255.255.252",
+                            "original_target": "127.0.0.0/255.255.255.252",
+                        },
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.1"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.1",
+                            "original_ip_range": "127.0.0.0/255.255.255.252",
+                            "original_target": "127.0.0.0/255.255.255.252",
+                        },
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.2"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.2",
+                            "original_ip_range": "127.0.0.0/255.255.255.252",
+                            "original_target": "127.0.0.0/255.255.255.252",
+                        },
+                    ),
+                    ExpectedTaskData(
+                        headers={"origin": "classifier", "type": "ip"},
+                        payload={"ip": "127.0.0.3"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.3",
+                            "original_ip_range": "127.0.0.0/255.255.255.252",
+                            "original_target": "127.0.0.0/255.255.255.252",
+                        },
                     ),
                 ],
             ),
@@ -137,22 +198,38 @@ class ClassifierTest(ArtemisModuleTestCase):
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.0"},
-                        payload_persistent={"original_ip": "127.0.0.0", "original_ip_range": "127.0.0.0/30"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.0",
+                            "original_ip_range": "127.0.0.0/30",
+                            "original_target": "127.0.0.0/30",
+                        },
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.1"},
-                        payload_persistent={"original_ip": "127.0.0.1", "original_ip_range": "127.0.0.0/30"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.1",
+                            "original_ip_range": "127.0.0.0/30",
+                            "original_target": "127.0.0.0/30",
+                        },
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.2"},
-                        payload_persistent={"original_ip": "127.0.0.2", "original_ip_range": "127.0.0.0/30"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.2",
+                            "original_ip_range": "127.0.0.0/30",
+                            "original_target": "127.0.0.0/30",
+                        },
                     ),
                     ExpectedTaskData(
                         headers={"origin": "classifier", "type": "ip"},
                         payload={"ip": "127.0.0.3"},
-                        payload_persistent={"original_ip": "127.0.0.3", "original_ip_range": "127.0.0.0/30"},
+                        payload_persistent={
+                            "original_ip": "127.0.0.3",
+                            "original_ip_range": "127.0.0.0/30",
+                            "original_target": "127.0.0.0/30",
+                        },
                     ),
                 ],
             ),

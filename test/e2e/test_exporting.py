@@ -75,7 +75,6 @@ class ExportingTestCase(BaseE2ETestCase):
                     "\n".join(
                         [
                             "",
-                            "",
                             "    <html>",
                             "        <head>",
                             '            <meta charset="UTF-8">',

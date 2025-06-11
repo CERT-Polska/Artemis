@@ -70,13 +70,11 @@ class ExportingTestCase(BaseE2ETestCase):
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
-                import base64
-
-                print(base64.b64encode(content))
                 self.assertEqual(
                     content,
                     "\n".join(
                         [
+                            "",
                             "",
                             "    <html>",
                             "        <head>",
@@ -93,6 +91,8 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        <ol>",
                             "    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
                             "                    <li>",
+                            "                            Error:",
+                            "",
                             "                        test-smtp-server.artemis:",
                             "",
                             "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
@@ -117,6 +117,9 @@ class ExportingTestCase(BaseE2ETestCase):
 
             with export.open("advanced/output.json", "r") as f:
                 output_data = json.loads(f.read().decode("ascii"))
+                import base64
+
+                print(base64.b64encode(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"]))
                 self.assertEqual(
                     output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
                     "\n".join(
@@ -240,9 +243,6 @@ class ExportingTestCase(BaseE2ETestCase):
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
-                import base64
-
-                print(base64.b64encode(content))
                 self.assertEqual(
                     content,
                     "\n".join(
@@ -263,6 +263,8 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        <ol>",
                             "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
                             "                    <li>",
+                            "                            Błąd:",
+                            "",
                             "                        test-smtp-server.artemis:",
                             "",
                             "                            Nie znaleziono poprawnego rekordu DMARC. Rekomendujemy używanie wszystkich trzech mechanizmów: SPF, DKIM i DMARC, aby zmniejszyć szansę, że sfałszowana wiadomość zostanie zaakceptowana przez serwer odbiorcy.",

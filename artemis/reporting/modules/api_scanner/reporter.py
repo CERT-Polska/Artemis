@@ -36,10 +36,12 @@ class APIScannerReporter(Reporter):
                         target=url,
                         report_type=APIScannerReporter.API_VULNERABILITY,
                         additional_data={
-                            "method": result["method"],
-                            "details": result["vuln_details"],
-                            "curl_command": result["curl_command"],
-                            "status_code": result["status_code"],
+                            "method": result.get("method"),
+                            "endpoint": result.get("endpoint"),
+                            "data_leak": result.get("data_leak"),
+                            "details": result.get("vuln_details"),
+                            "curl_command": result.get("curl_command"),
+                            "status_code": result.get("status_code"),
                         },
                         timestamp=task_result["created_at"],
                     )

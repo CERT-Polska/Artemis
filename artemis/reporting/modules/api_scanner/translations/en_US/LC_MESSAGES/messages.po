@@ -7,18 +7,26 @@ msgid "Method:"
 msgstr ""
 
 #: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:10
-msgid "Status Code:"
+msgid "Endpoint:"
 msgstr ""
 
 #: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:11
+msgid "Status Code:"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:12
 msgid "Details:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:13
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:14
+msgid "Data leaks:"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:17
 msgid "CURL Command:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:21
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:25
 msgid ""
 "API vulnerabilities can expose sensitive data, enable unauthorized actions, "
 "or compromise backend systems. These issues often stem from insufficient "

@@ -26,7 +26,11 @@ class APIScannerTest(ArtemisModuleTestCase):
             call.kwargs["data"]["results"][0]["url"],
             "http://test-flask-vulnerable-api:5000/api/user/' AND (SELECT * FROM (SELECT(SLEEP(5)))abc)",
         )
+        self.assertEqual(
+            call.kwargs["data"]["results"][0]["endpoint"], "/api/user/' AND (SELECT * FROM (SELECT(SLEEP(5)))abc)"
+        )
+        self.assertEqual(call.kwargs["data"]["results"][0]["data_leak"], None)
         self.assertEqual(call.kwargs["data"]["results"][0]["method"], "GET")
         self.assertEqual(call.kwargs["data"]["results"][0]["vulnerable"], True)
-        self.assertEqual(call.kwargs["data"]["results"][0]["vuln_details"], "Endpoint might be vulnerable to SQli")
+        self.assertEqual(call.kwargs["data"]["results"][0]["vuln_details"], "SQL Injection")
         self.assertEqual(call.kwargs["data"]["results"][0]["status_code"], 500)

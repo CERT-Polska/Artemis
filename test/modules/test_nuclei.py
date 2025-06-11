@@ -40,6 +40,8 @@ class NucleiTest(ArtemisModuleTestCase):
         # Should find nothing if the severity threshold is set to critical, as the template is not critical-severity
         self.assertEqual(call.kwargs["status"], TaskStatus.OK)
 
+        self.mock_db.reset_mock()
+
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={

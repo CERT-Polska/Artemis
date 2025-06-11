@@ -69,6 +69,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-service-with-exposed-apache-config:
+    image: php:7.4-apache
+    volumes:
+      - ./test/data/exposed_apache_config/:/var/www/html/
+
   test-service-with-bruteable-files:
     image: php:7.4-apache
     volumes:

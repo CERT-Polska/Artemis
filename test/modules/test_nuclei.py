@@ -30,7 +30,7 @@ class NucleiTest(ArtemisModuleTestCase):
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-php-xss-but-not-on-homepage",
+                "host": "test-service-with-exposed-apache-config",
                 "port": 80,
             },
             payload_persistent={"module_runtime_configurations": {"nuclei": {"severity_threshold": "critical_only"}}},
@@ -39,6 +39,18 @@ class NucleiTest(ArtemisModuleTestCase):
         (call,) = self.mock_db.save_task_result.call_args_list
         # Should find nothing if the severity threshold is set to critical, as the template is not critical-severity
         self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-service-with-exposed-apache-config",
+                "port": 80,
+            },
+            payload_persistent={"module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
 
     def test_links(self) -> None:
         task = Task(

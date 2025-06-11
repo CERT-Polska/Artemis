@@ -46,7 +46,9 @@ class NucleiTest(ArtemisModuleTestCase):
                 "host": "test-service-with-exposed-apache-config",
                 "port": 80,
             },
-            payload_persistent={"module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}},
+            payload_persistent={
+                "module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}
+            },
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list

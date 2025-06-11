@@ -116,15 +116,14 @@ class ExportingTestCase(BaseE2ETestCase):
 
             with export.open("advanced/output.json", "r") as f:
                 output_data = json.loads(f.read().decode("ascii"))
-                import base64
-
-                print(base64.b64encode(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"].encode("utf-8")))
                 self.assertEqual(
                     output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
                     "\n".join(
                         [
                             "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
                             "<li>",
+                            "                            Error:",
+                            "",
                             "                        test-smtp-server.artemis:",
                             "",
                             "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",

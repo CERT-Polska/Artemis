@@ -56,7 +56,7 @@ class MailDNSScanner(ArtemisBase):
             pass
 
         try:
-            has_mx_records = has_mx_records or len(dns.resolver.resolve(PUBLIC_SUFFIX_LIST.get_sld(domain), "MX")) > 0
+            has_mx_records = has_mx_records or len(dns.resolver.resolve(PUBLIC_SUFFIX_LIST.privatesuffix(domain), "MX")) > 0
         except dns.resolver.NoAnswer:
             pass
 

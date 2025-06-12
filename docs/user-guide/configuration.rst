@@ -50,13 +50,13 @@ Artemis is based on the Karton framework (https://github.com/CERT-Polska/karton)
 `Karton documentation <https://karton-core.readthedocs.io/en/latest/getting_started.html#configuration>`_ for more information.
 
 Module Runtime Configuration
--------------------
+----------------------------
 
 The ``ModuleRuntimeConfiguration`` class serves as the base for all module-specific runtime configurations (that can be changed on a per-task basis)
 in Artemis. It provides a standardized way to handle module configurations with serialization, deserialization, and validation capabilities.
 
 Basic Usage
-~~~~~~~~~~
+^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -76,7 +76,7 @@ Basic Usage
     is_valid = config.validate()
 
 Extending The Base Class
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 To create a module-specific configuration, extend the ``ModuleRuntimeConfiguration`` class:
 
@@ -119,17 +119,7 @@ To create a module-specific configuration, extend the ``ModuleRuntimeConfigurati
             )
 
 API Reference
-~~~~~~~~~~~~
-
-Constructor
-^^^^^^^^^^
-
-.. code-block:: python
-
-    ModuleRuntimeConfiguration()
-
-Methods
-^^^^^^^
+"""""""""""""
 
 ``serialize() -> Dict[str, Any]``
   Serializes the configuration to a dictionary format suitable for storage or transmission.
@@ -141,7 +131,7 @@ Methods
   Validates that the configuration is valid. Returns ``True`` if valid, ``False`` otherwise.
 
 Integration with Module System
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""""""""""""""""""""""""""""""
 
 When developing a new module for Artemis, you should:
 
@@ -153,12 +143,12 @@ When developing a new module for Artemis, you should:
 This approach ensures consistency in how module runtime configurations are handled throughout the system.
 
 Runtime Configuration Registry
----------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``RuntimeConfigurationRegistry`` class provides a centralized registry for module runtime configurations. It is implemented as a singleton, ensuring that there's only one instance of the registry throughout the application.
 
 Basic Usage
-~~~~~~~~~~
+"""""""""""
 
 .. code-block:: python
 
@@ -186,19 +176,13 @@ Basic Usage
     modules = registry.get_registered_modules()
 
 API Reference
-~~~~~~~~~~~~
-
-Constructor
-^^^^^^^^^^
+"""""""""""""
 
 .. code-block:: python
 
     RuntimeConfigurationRegistry()
 
 Always returns the same singleton instance.
-
-Methods
-^^^^^^^
 
 ``register_configuration(module_name: str, config_class: Type[ModuleConfiguration]) -> None``
   Registers a configuration class for a module.
@@ -213,7 +197,7 @@ Methods
   Gets all registered module configurations as a dictionary mapping module names to configuration classes.
 
 Integration with Module System
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""""""""""""""""""""""""""""""
 
 When integrating with the Artemis module system:
 

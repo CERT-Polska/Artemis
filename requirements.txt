@@ -47,7 +47,7 @@ termcolor==3.1.0
 timeout-decorator==0.5.0
 tqdm==4.67.1
 typer==0.16.0
-typing-extensions==4.13.2
+typing-extensions==4.14.0
 urllib3==1.26.18
 uvicorn==0.34.3
 validators==0.35.0

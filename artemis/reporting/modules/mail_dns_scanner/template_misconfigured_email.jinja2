@@ -17,7 +17,7 @@
                                 {% endwith %}
                             {% endif %}
 
-                            {{ report.additional_data.message_translated }}
+                            {{ report.additional_data.message_translated|nl2br }}
 
                             {% if report.additional_data.is_for_parent_domain %}
                                 {% with top_level_target=report.top_level_target, target=report.target %}

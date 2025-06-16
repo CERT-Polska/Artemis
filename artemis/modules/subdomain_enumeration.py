@@ -196,6 +196,11 @@ class SubdomainEnumeration(ArtemisBase):
         if current_task.headers.get("origin", "") == self.identity:
             return
 
+        if has_ip_range(current_task):
+            # In practice, there are too many subdomains such as 1.2.3.4.hosting-provider.net.
+            # returned via reverse DNS to perform subdomain enumeration on all of them.
+            return
+
         domain = current_task.get_payload("domain").lower()
 
         if (

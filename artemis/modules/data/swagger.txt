@@ -57,9 +57,7 @@ openapi.yaml
 .well-known/openapi.json
 .well-known/openapi.yaml
 docs
-swagger.json
+api/docs
 v2/swagger.json
 v3/api-docs
-openapi.json
-api-docs
 docs/swagger.json

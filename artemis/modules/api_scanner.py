@@ -115,6 +115,7 @@ class APIScanner(ArtemisBase):
 
             for result in test_results.get("results", {}):
                 # Removing BOLA and BOPLA results as they are prone to False Positives
+                # Issue: https://github.com/CERT-Polska/Artemis/issues/1787
                 if (
                     result.get("vulnerable", False)
                     and "BOLA" not in result.get("vuln_details")

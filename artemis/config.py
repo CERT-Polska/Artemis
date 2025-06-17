@@ -536,7 +536,8 @@ class Config:
             )
             NUCLEI_TEMPLATES_TO_SKIP_WHEN_REPORTING: Annotated[
                 List[str],
-                "Comma-separated list of Nuclei templates to be executed but not to be reported. See artemis/config.py for the rationale "
+                "Comma-separated list of Nuclei templates to be executed but not to be reported (they will be used "
+                "for asset discovery only). See artemis/config.py for the rationale "
                 "behind skipping particular templates.",
             ] = get_config(
                 "NUCLEI_TEMPLATES_TO_SKIP_WHEN_REPORTING",

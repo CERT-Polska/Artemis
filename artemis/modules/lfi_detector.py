@@ -63,7 +63,7 @@ class LFIDetector(ArtemisBase):
         messages: List[Dict[str, Any]] = []
 
         for current_url in urls:
-            for param_batch in more_itertools.batched(URL_PARAMS, 40):
+            for param_batch in more_itertools.batched(URL_PARAMS, 35):
                 for payload in LFI_PAYLOADS:
                     url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
                     response = self.http_get(url_with_payload)

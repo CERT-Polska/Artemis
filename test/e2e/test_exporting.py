@@ -143,6 +143,7 @@ class ExportingTestCase(BaseE2ETestCase):
                     sorted(output_data["assets"]),
                     [
                         {
+                            "additional_type": None,
                             "asset_type": "domain",
                             "name": "test-smtp-server.artemis",
                             "original_karton_name": "classifier",

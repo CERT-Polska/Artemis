@@ -23,10 +23,9 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
     def test_asset_discovery(self) -> None:
         data = self._obtain_task_result("test-old-wordpress")
         message = self._task_result_to_message(data)
-        print(message)
         # this should not be reported as WordPress panel detection template is skipped from reporting (but not from running)
         self.assertNotIn("test-old-wordpress", message)
-        assets = assets_from_task_result(data, Language.en_US)  # type: ignore
+        assets = assets_from_task_result(data)  # type: ignore
         print(assets)
 
     def _obtain_task_result(self, host: str) -> Dict[str, Any]:
@@ -40,7 +39,7 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
         return {
             "created_at": None,
             "headers": {
-                "receiver": "bruter",
+                "receiver": "nuclei",
             },
             "payload": {
                 "last_domain": host,
@@ -52,7 +51,9 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
         }
 
     def _task_result_to_message(self, data: Dict[str, Any]) -> str:
+        print(data)
         reports = reports_from_task_result(data, Language.en_US)  # type: ignore
+        print(reports)
         message_template = self.generate_message_template()
         return message_template.render(
             {

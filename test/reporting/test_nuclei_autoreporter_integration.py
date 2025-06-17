@@ -15,12 +15,12 @@ from artemis.reporting.base.reporters import (
 class NucleiAutoreporterIntegrationTest(BaseReportingTest):
     karton_class = Nuclei  # type: ignore
 
-    def test_reporting(self, host: str) -> None:
+    def test_reporting(self) -> None:
         data = self._obtain_task_result("test-phpmyadmin-easy-password")
         message = self._task_result_to_message(data)
         print(message)
 
-    def test_asset_discovery(self, host: str) -> None:
+    def test_asset_discovery(self) -> None:
         data = self._obtain_task_result("test-old-wordpress")
         message = self._task_result_to_message(data)
         print(message)

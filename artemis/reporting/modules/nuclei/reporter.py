@@ -7,6 +7,8 @@ from typing import Any, Callable, Counter, Dict, List
 from artemis.config import Config
 from artemis.domains import is_domain
 from artemis.modules.nuclei import EXPOSED_PANEL_TEMPLATE_PATH_PREFIX
+from artemis.reporting.base.asset import Asset
+from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_domain_normal_form
 from artemis.reporting.base.report import Report
@@ -102,7 +104,11 @@ class NucleiReporter(Reporter):
 
             templates_seen.add(template)
 
-            if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
+            if (
+                template
+                in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+                + Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_WHEN_REPORTING
+            ):
                 continue
 
             if "description" in vulnerability["info"]:
@@ -229,3 +235,35 @@ class NucleiReporter(Reporter):
             )
         else:
             raise NotImplementedError()
+
+    @staticmethod
+    def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
+        if task_result["headers"]["receiver"] != "nuclei":
+            return []
+
+        if not isinstance(task_result["result"], list):
+            return []
+
+        result = []
+
+        for vulnerability in task_result["result"]:
+            if not isinstance(vulnerability, dict):
+                continue
+
+            if "template" not in vulnerability:
+                continue
+
+            template = vulnerability["template"]
+
+            if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
+                continue
+
+            if not template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+                continue
+
+            panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
+
+            result.append(
+                Asset(asset_type=AssetType.EXPOSED_PANEL, name=vulnerability["matched-at"], additional_type=panel)
+            )
+        return result

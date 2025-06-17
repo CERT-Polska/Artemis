@@ -90,9 +90,12 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        <ol>",
                             "    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
                             "                    <li>",
+                            "                            Error:",
+                            "",
                             "                        test-smtp-server.artemis:",
                             "",
                             "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            "",
                             "                        ",
                             "                    </li>",
                             "        </ul>",
@@ -119,9 +122,12 @@ class ExportingTestCase(BaseE2ETestCase):
                         [
                             "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
                             "<li>",
+                            "                            Error:",
+                            "",
                             "                        test-smtp-server.artemis:",
                             "",
                             "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                            "",
                             "                        ",
                             "                    </li>",
                             "</ul>",
@@ -131,6 +137,19 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        </p>",
                         ]
                     ),
+                )
+
+                self.assertEqual(
+                    sorted(output_data["assets"]),
+                    [
+                        {
+                            "additional_type": None,
+                            "asset_type": "domain",
+                            "name": "test-smtp-server.artemis",
+                            "original_karton_name": "classifier",
+                            "last_domain": "test-smtp-server.artemis",
+                        }
+                    ],
                 )
 
     def test_exporting_api(self) -> None:
@@ -243,9 +262,12 @@ class ExportingTestCase(BaseE2ETestCase):
                             "        <ol>",
                             "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
                             "                    <li>",
+                            "                            Błąd:",
+                            "",
                             "                        test-smtp-server.artemis:",
                             "",
                             "                            Nie znaleziono poprawnego rekordu DMARC. Rekomendujemy używanie wszystkich trzech mechanizmów: SPF, DKIM i DMARC, aby zmniejszyć szansę, że sfałszowana wiadomość zostanie zaakceptowana przez serwer odbiorcy.",
+                            "",
                             "                        ",
                             "                    </li>",
                             "        </ul>",

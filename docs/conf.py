@@ -20,6 +20,7 @@ import sys
 import sphinx_rtd_theme  # noqa
 
 sys.path.insert(0, os.path.abspath("../artemis"))
+sys.path.insert(0, os.path.abspath("../"))
 sys.path.insert(0, os.path.abspath("."))
 
 

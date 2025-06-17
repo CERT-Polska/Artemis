@@ -37,7 +37,15 @@ def get_top_level_target(task_result: Dict[str, Any]) -> str:
                 assert is_subdomain(item, payload_persistent["original_domain"])
                 return item
 
-    if "original_domain" in payload_persistent:
+    # The ordering here is important. The right way to retrieve the original target is via the `original_target`
+    # key - it has not been previously present, so let's keep the other ones for compatibility.
+    if "original_target" in payload_persistent:
+        assert isinstance(payload_persistent["original_target"], str)
+        return payload_persistent["original_target"]
+    elif "original_ip_range" in payload_persistent:
+        assert isinstance(payload_persistent["original_ip_range"], str)
+        return payload_persistent["original_ip_range"]
+    elif "original_domain" in payload_persistent:
         assert isinstance(payload_persistent["original_domain"], str)
         return payload_persistent["original_domain"]
     elif "original_ip" in payload_persistent:

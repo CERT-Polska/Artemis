@@ -3,6 +3,10 @@ from typing import Annotated, Any, List, Optional, get_type_hints
 
 import decouple
 
+from artemis.modules.runtime_configuration.nuclei_configuration import (
+    SeverityThreshold as NucleiSeverityThreshold,
+)
+
 DEFAULTS = {}
 
 
@@ -48,7 +52,7 @@ class Config:
             AUTOARCHIVER_MIN_AGE_SECONDS: Annotated[
                 int, "How old the task results need to be to be archived (in seconds)"
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS", default=120 * 24 * 60 * 60, cast=int
+                "AUTOARCHIVER_MIN_AGE_SECONDS", default=180 * 24 * 60 * 60, cast=int
             )  # 80 days
             AUTOARCHIVER_PACK_SIZE: Annotated[
                 int,
@@ -62,7 +66,7 @@ class Config:
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."
-        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=120, cast=int)
+        ] = get_config("REPORTING_MAX_VULN_AGE_DAYS", default=180, cast=int)
 
         REPORTING_SEPARATE_INSTITUTIONS: Annotated[
             List[str],
@@ -275,7 +279,7 @@ class Config:
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config(
             "MODULES_DISABLED_BY_DEFAULT",
-            default="admin_panel_login_bruter,example,humble,ssh_bruter,moodle_scanner",
+            default="admin_panel_login_bruter,example,humble,ssh_bruter,moodle_scanner,xss_scanner",
             cast=decouple.Csv(str, delimiter=","),
         )
 
@@ -353,14 +357,28 @@ class Config:
         class Nuclei:
             NUCLEI_TEMPLATE_LISTS: Annotated[
                 str,
-                "Which template lists to use. Available: known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
-                "critical (having severity=critical), high (having severity=high), medium (having severity=medium), "
+                "Which template lists to use besides the ones defined by NUCLEI_SEVERITY_THRESHOLD. Available: "
+                "known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
                 "log_exposures (http/exposures/logs folder in https://github.com/projectdiscovery/nuclei-templates/), "
                 "exposed_panels (http/exposed-panels/ folder).",
             ] = get_config(
                 "NUCLEI_TEMPLATE_LISTS",
-                default="known_exploited_vulnerabilities,critical,high,log_exposures,exposed_panels",
+                default="known_exploited_vulnerabilities,log_exposures,exposed_panels",
                 cast=decouple.Csv(str, delimiter=","),
+            )
+
+            NUCLEI_SEVERITY_THRESHOLD: Annotated[
+                NucleiSeverityThreshold,
+                "The minimum severity level to include when scanning. Options: "
+                "CRITICAL_ONLY (only critical findings), "
+                "HIGH_AND_ABOVE (critical and high), "
+                "MEDIUM_AND_ABOVE (critical, high, and medium), "
+                "LOW_AND_ABOVE (critical, high, medium, and low), "
+                "ALL (all severity levels including info and unknown).",
+            ] = get_config(
+                "NUCLEI_SEVERITY_THRESHOLD",
+                default="high_and_above",
+                cast=lambda v: NucleiSeverityThreshold(v),
             )
 
             NUCLEI_INTERACTSH_SERVER: Annotated[
@@ -429,83 +447,10 @@ class Config:
                         "http/exposures/files/travis-ci-disclosure.yaml",
                         # caused multiple FPs, and as RockMongo is not maintained anymore, let's skip it
                         "http/vulnerabilities/other/rockmongo-xss.yaml",
-                        # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
-                        # Feel free to make a different decision.
-                        "http/exposed-panels/adobe/aem-sling-login.yaml",
-                        "http/exposed-panels/alfresco-detect.yaml",
-                        "http/exposed-panels/backpack/backpack-admin-panel.yaml",
-                        "http/exposed-panels/bolt-cms-panel.yaml",
-                        "http/exposed-panels/concrete5/concrete5-panel.yaml",
-                        "http/exposed-panels/contao-login-panel.yaml",
-                        "http/exposed-panels/craftcms-admin-panel.yaml",
-                        "http/exposed-panels/django-admin-panel.yaml",
-                        "http/exposed-panels/dokuwiki-panel.yaml",
-                        "http/exposed-panels/drupal-login.yaml",
-                        "http/exposed-panels/ez-publish-panel.yaml",
-                        "http/exposed-panels/joomla-panel.yaml",
-                        "http/exposed-panels/kentico-login.yaml",
-                        "http/exposed-panels/liferay-portal.yaml",
-                        "http/exposed-panels/magnolia-panel.yaml",
-                        "http/exposed-panels/neos-panel.yaml",
-                        "http/exposed-panels/netlify-cms.yaml",
-                        "http/exposed-panels/strapi-panel.yaml",
-                        "http/exposed-panels/tikiwiki-cms.yaml",
-                        "http/exposed-panels/typo3-login.yaml",
-                        "http/exposed-panels/umbraco-login.yaml",
-                        "http/exposed-panels/wordpress-login.yaml",
-                        # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
-                        # make different decision.
-                        "http/exposed-panels/axigen-webmail.yaml",
-                        "http/exposed-panels/squirrelmail-login.yaml",
-                        "http/exposed-panels/horde-webmail-login.yaml",
-                        "http/exposed-panels/horde-login-panel.yaml",
-                        "http/exposed-panels/zimbra-web-login.yaml",
-                        "http/exposed-panels/zimbra-web-client.yaml",
-                        "http/exposed-panels/icewarp-panel-detect.yaml",
                         # These are Tomcat docs, not application docs
                         "http/exposed-panels/tomcat/tomcat-exposed-docs.yaml",
                         # Generic API docs
                         "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
-                        # VPN web portals, SSO and other ones that need to be exposed
-                        "http/exposed-panels/fortinet/fortiweb-panel.yaml",
-                        "http/exposed-panels/fortinet/fortios-panel.yaml",
-                        "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
-                        "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
-                        "http/exposed-panels/pulse-secure-panel.yaml",
-                        "http/exposed-panels/pulse-secure-version.yaml",
-                        "http/exposed-panels/cisco/cisco-asa-panel.yaml",
-                        "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
-                        "http/exposed-panels/openvpn-connect.yaml",
-                        "http/exposed-panels/ivanti-csa-panel.yaml",
-                        "http/exposed-panels/ivanti-connect-secure-panel.yaml",
-                        "http/exposed-panels/softether-vpn-panel.yaml",
-                        "http/exposed-panels/cas-login.yaml",
-                        "http/exposed-panels/casdoor-login.yaml",
-                        "http/exposed-panels/openam-panel.yaml",
-                        "http/exposed-panels/sonicwall-sslvpn-panel.yaml",
-                        # Too small impact to report
-                        "http/exposed-panels/webeditors-check-detect.yaml",
-                        # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
-                        "http/exposed-panels/bitrix-panel.yaml",
-                        "http/exposed-panels/dynamicweb-panel.yaml",
-                        "http/exposed-panels/jira-detect.yaml",
-                        "http/exposed-panels/kanboard-login.yaml",
-                        "http/exposed-panels/linshare-panel.yaml",
-                        "http/exposed-panels/magento-admin-panel.yaml",
-                        "http/exposed-panels/mantisbt-panel.yaml",
-                        "http/exposed-panels/mautic-crm-panel.yaml",
-                        "http/exposed-panels/opencart-panel.yaml",
-                        "http/exposed-panels/osticket-panel.yaml",
-                        "http/exposed-panels/redmine-panel.yaml",
-                        # Mostly meant to be publicly accessible
-                        "http/exposed-panels/bigbluebutton-login.yaml",
-                        "http/exposed-panels/ilias-panel.yaml",
-                        "http/exposed-panels/librespeed-panel.yaml",
-                        "http/exposed-panels/office-webapps-panel.yaml",
-                        "http/exposed-panels/onlyoffice-login-panel.yaml",
-                        "http/exposed-panels/opensis-panel.yaml",
-                        "http/exposed-panels/projectsend-login.yaml",
-                        "http/exposed-panels/rocketchat-panel.yaml",
                         # Source of FPs
                         "custom:CVE-2019-1579",
                         "custom:CVE-2024-35286",
@@ -592,6 +537,92 @@ class Config:
                         "http/cves/2024/CVE-2024-43919.yaml",
                         # We already check for Gitlab
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
+                    ]
+                ),
+                cast=decouple.Csv(str),
+            )
+            NUCLEI_TEMPLATES_TO_SKIP_WHEN_REPORTING: Annotated[
+                List[str],
+                "Comma-separated list of Nuclei templates to be executed but not to be reported (they will be used "
+                "for asset discovery only). See artemis/config.py for the rationale "
+                "behind skipping particular templates.",
+            ] = get_config(
+                "NUCLEI_TEMPLATES_TO_SKIP_WHEN_REPORTING",
+                default=",".join(
+                    [
+                        # At CERT.PL we don't report exposed CMS panels, as having them exposed is a standard workflow for small institutions.
+                        # Feel free to make a different decision.
+                        "http/exposed-panels/adobe/aem-sling-login.yaml",
+                        "http/exposed-panels/alfresco-detect.yaml",
+                        "http/exposed-panels/backpack/backpack-admin-panel.yaml",
+                        "http/exposed-panels/bolt-cms-panel.yaml",
+                        "http/exposed-panels/concrete5/concrete5-panel.yaml",
+                        "http/exposed-panels/contao-login-panel.yaml",
+                        "http/exposed-panels/craftcms-admin-panel.yaml",
+                        "http/exposed-panels/django-admin-panel.yaml",
+                        "http/exposed-panels/dokuwiki-panel.yaml",
+                        "http/exposed-panels/drupal-login.yaml",
+                        "http/exposed-panels/ez-publish-panel.yaml",
+                        "http/exposed-panels/joomla-panel.yaml",
+                        "http/exposed-panels/kentico-login.yaml",
+                        "http/exposed-panels/liferay-portal.yaml",
+                        "http/exposed-panels/magnolia-panel.yaml",
+                        "http/exposed-panels/neos-panel.yaml",
+                        "http/exposed-panels/netlify-cms.yaml",
+                        "http/exposed-panels/strapi-panel.yaml",
+                        "http/exposed-panels/tikiwiki-cms.yaml",
+                        "http/exposed-panels/typo3-login.yaml",
+                        "http/exposed-panels/umbraco-login.yaml",
+                        "http/exposed-panels/wordpress-login.yaml",
+                        # At CERT PL we don't report exposed webmails, as it's a standard practice to expose them - feel free to
+                        # make different decision.
+                        "http/exposed-panels/axigen-webmail.yaml",
+                        "http/exposed-panels/squirrelmail-login.yaml",
+                        "http/exposed-panels/horde-webmail-login.yaml",
+                        "http/exposed-panels/horde-login-panel.yaml",
+                        "http/exposed-panels/zimbra-web-login.yaml",
+                        "http/exposed-panels/zimbra-web-client.yaml",
+                        "http/exposed-panels/icewarp-panel-detect.yaml",
+                        # VPN web portals, SSO and other ones that need to be exposed
+                        "http/exposed-panels/fortinet/fortiweb-panel.yaml",
+                        "http/exposed-panels/fortinet/fortios-panel.yaml",
+                        "http/exposed-panels/fortinet/fortinet-fortigate-panel.yaml",
+                        "http/exposed-panels/checkpoint/ssl-network-extender.yaml",
+                        "http/exposed-panels/pulse-secure-panel.yaml",
+                        "http/exposed-panels/pulse-secure-version.yaml",
+                        "http/exposed-panels/cisco/cisco-asa-panel.yaml",
+                        "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
+                        "http/exposed-panels/openvpn-connect.yaml",
+                        "http/exposed-panels/ivanti-csa-panel.yaml",
+                        "http/exposed-panels/ivanti-connect-secure-panel.yaml",
+                        "http/exposed-panels/softether-vpn-panel.yaml",
+                        "http/exposed-panels/cas-login.yaml",
+                        "http/exposed-panels/casdoor-login.yaml",
+                        "http/exposed-panels/openam-panel.yaml",
+                        "http/exposed-panels/sonicwall-sslvpn-panel.yaml",
+                        # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        "http/exposed-panels/bitrix-panel.yaml",
+                        "http/exposed-panels/dynamicweb-panel.yaml",
+                        "http/exposed-panels/jira-detect.yaml",
+                        "http/exposed-panels/kanboard-login.yaml",
+                        "http/exposed-panels/linshare-panel.yaml",
+                        "http/exposed-panels/magento-admin-panel.yaml",
+                        "http/exposed-panels/mantisbt-panel.yaml",
+                        "http/exposed-panels/mautic-crm-panel.yaml",
+                        "http/exposed-panels/opencart-panel.yaml",
+                        "http/exposed-panels/osticket-panel.yaml",
+                        "http/exposed-panels/redmine-panel.yaml",
+                        # Mostly meant to be publicly accessible
+                        "http/exposed-panels/bigbluebutton-login.yaml",
+                        "http/exposed-panels/ilias-panel.yaml",
+                        "http/exposed-panels/librespeed-panel.yaml",
+                        "http/exposed-panels/office-webapps-panel.yaml",
+                        "http/exposed-panels/onlyoffice-login-panel.yaml",
+                        "http/exposed-panels/opensis-panel.yaml",
+                        "http/exposed-panels/projectsend-login.yaml",
+                        "http/exposed-panels/rocketchat-panel.yaml",
+                        # Too small impact to report
+                        "http/exposed-panels/webeditors-check-detect.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -756,7 +787,6 @@ class Config:
                         "http/cves/2023/CVE-2023-43373.yaml",
                         "http/cves/2023/CVE-2023-43374.yaml",
                         "http/cves/2023/CVE-2023-47684.yaml",
-                        "http/cves/2025/CVE-2025-24813.yaml",
                         "http/iot/targa-camera-lfi.yaml",
                         "http/vulnerabilities/ibm/eclipse-help-system-xss.yaml",
                         "http/vulnerabilities/ibm/ibm-infoprint-lfi.yaml",

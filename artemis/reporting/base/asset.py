@@ -8,6 +8,7 @@ from artemis.reporting.base.asset_type import AssetType
 class Asset:
     asset_type: AssetType
     name: str
+    additional_type: Optional[str] = None
 
     # Data about the original task result that led to the creation of this Asset
     original_karton_name: Optional[str] = None

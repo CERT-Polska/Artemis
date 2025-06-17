@@ -213,6 +213,11 @@ services:
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
 
+  test-apache-with-lfi:
+    image: php:7.4-apache
+    volumes:
+      - ./test/data/lfi/:/var/www/html/
+
   test-apache-with-sql-injection-postgres:
     build:
       dockerfile: test/images/php-postgres/Dockerfile

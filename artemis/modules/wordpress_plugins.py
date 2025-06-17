@@ -71,7 +71,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "rafflepress",
     "sticky-header-effects-for-elementor",
     "website-monetization-by-magenet",
-    "woocommerce-products-filter",
     "wp-maximum-execution-time-exceeded",
     "yellow-pencil-visual-theme-customizer",
 ]

@@ -254,6 +254,10 @@ class NucleiReporter(Reporter):
                 continue
 
             template = vulnerability["template"]
+
+            if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
+                continue
+
             if not template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
                 continue
 

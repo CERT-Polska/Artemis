@@ -54,7 +54,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "admin"
+            "example": "randomuser"
           }
         ],
         "responses": {
@@ -86,7 +86,7 @@
         "properties": {
           "username": {
             "type": "string",
-            "example": "admin"
+            "example": "randomuser"
           },
           "password": {
             "type": "string",
@@ -103,7 +103,7 @@
           },
           "username": {
             "type": "string",
-            "example": "admin"
+            "example": "randomuser"
           }
         }
       },
@@ -116,7 +116,7 @@
           },
           "username": {
             "type": "string",
-            "example": "admin"
+            "example": "randomuser"
           }
         }
       }

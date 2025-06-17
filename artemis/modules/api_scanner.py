@@ -12,7 +12,7 @@ from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
-from artemis.modules.data.api_scanner_data import COMMON_SPEC_PATHS, VULN_DETAILS_MAP
+from artemis.modules.data.api_scanner_data import COMMON_SPEC_PATHS
 from artemis.task_utils import get_target_url
 
 
@@ -114,7 +114,12 @@ class APIScanner(ArtemisBase):
             test_results = self.scan(spec_file)
 
             for result in test_results.get("results", {}):
-                if result.get("vulnerable", False):
+                # Removing BOLA and BOPLA results as they are prone to False Positives
+                if (
+                    result.get("vulnerable", False)
+                    and "BOLA" not in result.get("vuln_details")
+                    and "BOPLA" not in result.get("vuln_details")
+                ):
                     results.append(
                         APIResult(
                             url=result.get("url"),
@@ -122,7 +127,7 @@ class APIScanner(ArtemisBase):
                             data_leak=result.get("data_leak") or None,
                             method=result.get("method"),
                             vulnerable=result.get("vulnerable"),
-                            vuln_details=VULN_DETAILS_MAP.get(result.get("vuln_details"), "Not found"),
+                            vuln_details=result.get("vuln_details"),
                             curl_command=result.get("curl_command"),
                             status_code=result.get("response_status_code"),
                         )

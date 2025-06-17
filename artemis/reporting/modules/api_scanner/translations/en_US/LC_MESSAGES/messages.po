@@ -14,19 +14,47 @@ msgstr ""
 msgid "Status Code:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:12
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:13
 msgid "Details:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:14
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:16
+msgid "Unsupported HTTP Method"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:18
+msgid "SQL Injection"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:20
+msgid "Time-based SQL Injection"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:22
+msgid "OS Command Injection"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:24
+msgid "XSS/HTML Injection"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:26
+msgid "SSTI"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:28
+msgid "Missing Authentication"
+msgstr ""
+
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:34
 msgid "Data leaks:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:17
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:37
 msgid "CURL Command:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:25
+#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:45
 msgid ""
 "API vulnerabilities can expose sensitive data, enable unauthorized actions, "
 "or compromise backend systems. These issues often stem from insufficient "

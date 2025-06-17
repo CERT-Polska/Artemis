@@ -27,27 +27,24 @@ class APIScannerReporter(Reporter):
 
         reports = []
         for result in task_result["data"]["results"]:
-            try:
-                url = result["url"]
+            url = result["url"]
 
-                reports.append(
-                    Report(
-                        top_level_target=get_top_level_target(task_result),
-                        target=url,
-                        report_type=APIScannerReporter.API_VULNERABILITY,
-                        additional_data={
-                            "method": result.get("method"),
-                            "endpoint": result.get("endpoint"),
-                            "data_leak": result.get("data_leak"),
-                            "details": result.get("vuln_details"),
-                            "curl_command": result.get("curl_command"),
-                            "status_code": result.get("status_code"),
-                        },
-                        timestamp=task_result["created_at"],
-                    )
+            reports.append(
+                Report(
+                    top_level_target=get_top_level_target(task_result),
+                    target=url,
+                    report_type=APIScannerReporter.API_VULNERABILITY,
+                    additional_data={
+                        "method": result.get("method"),
+                        "endpoint": result.get("endpoint"),
+                        "data_leak": result.get("data_leak"),
+                        "details": result.get("vuln_details"),
+                        "curl_command": result.get("curl_command"),
+                        "status_code": result.get("status_code"),
+                    },
+                    timestamp=task_result["created_at"],
                 )
-            except (KeyError, AttributeError):
-                continue
+            )
 
         return reports
 

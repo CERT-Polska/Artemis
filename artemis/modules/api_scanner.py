@@ -114,25 +114,30 @@ class APIScanner(ArtemisBase):
             test_results = self.scan(spec_file)
 
             for result in test_results.get("results", {}):
+                vuln_details = result.get("vuln_details", "")
+                content_type = result.get("response_headers", {}).get("Content-Type", "").lower()
+
+                if not result.get("vulnerable", False):
+                    continue
                 # Removing BOLA and BOPLA results as they are prone to False Positives
                 # Issue: https://github.com/CERT-Polska/Artemis/issues/1787
-                if (
-                    result.get("vulnerable", False)
-                    and "BOLA" not in result.get("vuln_details")
-                    and "BOPLA" not in result.get("vuln_details")
-                ):
-                    results.append(
-                        APIResult(
-                            url=result.get("url"),
-                            endpoint=result.get("endpoint"),
-                            data_leak=result.get("data_leak") or None,
-                            method=result.get("method"),
-                            vulnerable=result.get("vulnerable"),
-                            vuln_details=result.get("vuln_details"),
-                            curl_command=result.get("curl_command"),
-                            status_code=result.get("response_status_code"),
-                        )
+                if "BOLA" in vuln_details or "BOPLA" in vuln_details:
+                    continue
+                if "XSS/HTML Injection" in vuln_details and "text/html" not in content_type:
+                    continue
+
+                results.append(
+                    APIResult(
+                        url=result.get("url"),
+                        endpoint=result.get("endpoint"),
+                        data_leak=result.get("data_leak") or None,
+                        method=result.get("method"),
+                        vulnerable=result.get("vulnerable"),
+                        vuln_details=vuln_details,
+                        curl_command=result.get("curl_command"),
+                        status_code=result.get("response_status_code"),
                     )
+                )
 
             if results:
                 status = TaskStatus.INTERESTING

@@ -101,7 +101,6 @@ class MailDNSScanner(ArtemisBase):
         ):
             result.spf_dmarc_scan_result.dmarc.warnings = []
 
-
         # To decrease the number of false positives, for domains that do have MX records, we require SPF records to
         # be present only if the domain is directly below a public suffix (so we will require SPF on example.com
         # but not on www.example.com).

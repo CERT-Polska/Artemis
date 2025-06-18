@@ -155,9 +155,9 @@ class NucleiReporter(Reporter):
 
                 severity = vulnerability["info"]["severity"]
 
-                for prefix, severity in SEVERITY_OVERRIDES.items():
+                for prefix, severity_override in SEVERITY_OVERRIDES.items():
                     if original_template_name.startswith(prefix):
-                        severity = severity
+                        severity = severity_override
 
                 result.append(
                     Report(

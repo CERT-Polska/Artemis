@@ -90,6 +90,18 @@ class MailDNSScanner(ArtemisBase):
         ):
             result.spf_dmarc_scan_result.spf.valid = True
 
+        # Some sites have TXT records on all subdomains (e.g. wildcard records) - we don't want
+        # to report DMARC problems (e.g. unrelated TXT record found in the '_dmarc' subdomain) in that case,
+        # let's just check the private suffix domain.
+        if (
+            result.spf_dmarc_scan_result
+            and result.spf_dmarc_scan_result.dmarc
+            and result.spf_dmarc_scan_result.dmarc.location != domain
+            and domain != PUBLIC_SUFFIX_LIST.privatesuffix(domain)
+        ):
+            result.spf_dmarc_scan_result.dmarc.warnings = []
+
+
         # To decrease the number of false positives, for domains that do have MX records, we require SPF records to
         # be present only if the domain is directly below a public suffix (so we will require SPF on example.com
         # but not on www.example.com).

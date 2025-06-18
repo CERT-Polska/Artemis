@@ -13,6 +13,10 @@ from redis import Redis
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
+from artemis.module_utils import try_to_import_all_modules
+from artemis.modules.base.runtime_configuration_registry import (
+    RuntimeConfigurationRegistry,
+)
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
@@ -25,6 +29,7 @@ from artemis.templating import render_analyses_table_row, render_task_table_row
 router = APIRouter()
 db = DB()
 redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
+try_to_import_all_modules()  # so that the module runtime configurations get registered
 
 
 class ReportGenerationTaskModel(BaseModel):
@@ -53,13 +58,18 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
 @router.post("/add", dependencies=[Depends(verify_api_token)])
 def add(
     targets: List[str],
-    tag: str | None = Body(default=None),
+    tag: Optional[str] = Body(default=None),
     disabled_modules: Optional[List[str]] = Body(default=None),
     enabled_modules: Optional[List[str]] = Body(default=None),
     requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
+    module_runtime_configurations: Optional[Dict[str, Dict[str, Any]]] = Body(default=None),
 ) -> Dict[str, Any]:
-    """Add targets to be scanned."""
+    """Add targets to be scanned.
+
+    You can provide per-task module configurations through the module_runtime_configurations parameter.
+    These configurations control runtime behavior (like scan aggressiveness) for each module.
+    """
     if disabled_modules and enabled_modules:
         raise HTTPException(
             status_code=400, detail="It's not possible to set both disabled_modules and enabled_modules."
@@ -84,12 +94,29 @@ def add(
     elif not disabled_modules:
         disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
 
+    # Validate module configurations if provided
+    if module_runtime_configurations:
+        for module_name, config in module_runtime_configurations.items():
+            config_class = RuntimeConfigurationRegistry().get_configuration_class(module_name)
+            if config_class:
+                try:
+                    config_instance = config_class.deserialize(config)
+                    if not config_instance.validate():
+                        raise ValueError(f"Invalid configuration for module {module_name}")
+                except Exception as e:
+                    raise HTTPException(status_code=400, detail=f"Invalid configuration for {module_name}: {str(e)}")
+            else:
+                raise HTTPException(status_code=400, detail=f"No runtime configuration class for {module_name}")
+    else:
+        module_runtime_configurations = {}
+
     create_tasks(
         targets,
         tag,
         disabled_modules=disabled_modules,
         priority=TaskPriority(priority),
         requests_per_second_override=requests_per_second_override,
+        module_runtime_configurations=module_runtime_configurations,
     )
 
     return {"ok": True}

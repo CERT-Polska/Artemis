@@ -26,6 +26,36 @@ class NucleiTest(ArtemisModuleTestCase):
             "[medium] http://test-php-403-bypass:80: 403 Forbidden Bypass Detection with Headers Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).\n",
         )
 
+    def test_severity_threshold(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-service-with-exposed-apache-config",
+                "port": 80,
+            },
+            payload_persistent={"module_runtime_configurations": {"nuclei": {"severity_threshold": "critical_only"}}},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        # Should find nothing if the severity threshold is set to critical, as the template is not critical-severity
+        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+
+        self.mock_db.reset_mock()
+
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-service-with-exposed-apache-config",
+                "port": 80,
+            },
+            payload_persistent={
+                "module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+
     def test_links(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},

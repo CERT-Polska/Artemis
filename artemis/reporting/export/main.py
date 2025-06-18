@@ -5,12 +5,21 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import bs4
 import termcolor
 import typer
-from jinja2 import BaseLoader, Environment, StrictUndefined, Template, select_autoescape
+from jinja2 import (
+    BaseLoader,
+    Environment,
+    StrictUndefined,
+    Template,
+    pass_eval_context,
+    select_autoescape,
+)
+from jinja2.nodes import EvalContext
+from markupsafe import Markup
 
 from artemis.blocklist import load_blocklist
 from artemis.config import Config
@@ -33,6 +42,18 @@ from artemis.reporting.export.stats import print_and_save_stats
 from artemis.reporting.export.translations import install_translations
 from artemis.utils import CONSOLE_LOG_HANDLER
 
+
+@pass_eval_context
+def nl2br(eval_ctx: EvalContext, value: str) -> Union[Markup, str]:
+    # Copied and adapted from BSD-licensed https://jinja.palletsprojects.com/en/stable/api/
+    br = "<br>\n"
+
+    br = Markup(br)
+
+    result = br.join([Markup(item).striptags() for item in value.splitlines()])
+    return Markup(result)
+
+
 environment = Environment(
     loader=BaseLoader(),
     extensions=["jinja2.ext.i18n"],
@@ -41,6 +62,7 @@ environment = Environment(
     lstrip_blocks=True,
     autoescape=select_autoescape(default=True),
 )
+environment.filters["nl2br"] = nl2br
 
 
 def unwrap(html: str) -> str:
@@ -110,6 +132,8 @@ def _build_messages_and_print_path(
             top_level_target_shortened = top_level_target[:max_length] + "..."
         else:
             top_level_target_shortened = top_level_target
+
+        top_level_target_shortened = top_level_target_shortened.replace("/", "_")
 
         with open(output_messages_directory_name / (top_level_target_shortened + ".html"), "w") as f:
             f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))

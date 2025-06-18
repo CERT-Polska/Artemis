@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    entrypoint: ""
     env_file: env.test
     command: python -m unittest discover test.e2e
     volumes:
@@ -74,6 +75,11 @@ services:
       dockerfile: test/data/flask_vulnerable_api/Dockerfile
     ports:
       - 5000:5000
+
+  test-service-with-exposed-apache-config:
+    image: php:7.4-apache
+    volumes:
+      - ./test/data/exposed_apache_config/:/var/www/html/
 
   test-service-with-bruteable-files:
     image: php:7.4-apache

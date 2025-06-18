@@ -83,7 +83,7 @@ def request(
         # https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
         # so let's check something lower to make sure our modules aren't exceeding the limit e.g.
         # when batching parameters for SQL injection check.
-        assert len(url) < 1600, f"URL too long, has {len(url)} characters"
+        assert len(url) < 1800, f"URL too long, has {len(url)} characters"
 
     def _internal_request() -> HTTPResponse:
         nonlocal session

@@ -68,7 +68,7 @@ class LFIDetector(ArtemisBase):
                     param_batch.append(param)
                     url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
 
-                    if len(url_with_payload) >= 1500 or i == len(URL_PARAMS) - 1:
+                    if len(url_with_payload) >= 1600 or i == len(URL_PARAMS) - 1:
                         response = self.http_get(url_with_payload)
                         original_response = self.http_get(current_url)
 

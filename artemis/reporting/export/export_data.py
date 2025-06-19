@@ -19,6 +19,7 @@ class SingleTopLevelTargetExportData:
     top_level_target: str
     contains_type: List[ReportType]
     reports: List[Report]
+    assets: List[Asset]
 
 
 @dataclass
@@ -31,7 +32,6 @@ class ExportData:
     ips: Dict[str, List[str]]
     messages: Dict[str, SingleTopLevelTargetExportData]
     alerts: List[str]
-    assets: List[Asset]
     hosts_with_waf_detected: List[str]
 
 
@@ -51,6 +51,15 @@ def build_export_data(
         if report.top_level_target not in reports_per_top_level_target:
             reports_per_top_level_target[report.top_level_target] = []
         reports_per_top_level_target[report.top_level_target].append(report)
+
+    assets_per_top_level_target: Dict[str, List[Asset]] = {}
+    for asset in db.assets:
+        if not asset.top_level_target:
+            continue
+
+        if asset.top_level_target not in assets_per_top_level_target:
+            assets_per_top_level_target[asset.top_level_target] = []
+        assets_per_top_level_target[asset.top_level_target].append(asset)
 
     alerts = []
     for reporter in get_all_reporters():
@@ -92,6 +101,7 @@ def build_export_data(
             top_level_target=top_level_target,
             contains_type=sorted(contains_type),
             reports=reports_per_top_level_target[top_level_target],
+            assets=assets_per_top_level_target[top_level_target],
         )
 
     return ExportData(
@@ -103,6 +113,5 @@ def build_export_data(
         ips=db.ips,
         messages=message_data,
         alerts=alerts,
-        assets=db.assets,
         hosts_with_waf_detected=list(db.hosts_with_waf_detected),
     )

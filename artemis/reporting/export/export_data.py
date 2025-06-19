@@ -86,13 +86,14 @@ def build_export_data(
             else None
         )
 
-    for top_level_target in reports_per_top_level_target.keys():
+    for top_level_target in set(reports_per_top_level_target.keys()) | set(assets_per_top_level_target.keys()):
         contains_type = set()
-        for report in reports_per_top_level_target[top_level_target]:
+        for report in reports_per_top_level_target.get(top_level_target, []):
             contains_type.add(report.report_type)
 
         reports_per_top_level_target[top_level_target] = sorted(
-            reports_per_top_level_target[top_level_target], key=lambda report: (report.report_type, report.target)
+            reports_per_top_level_target.get(top_level_target, []),
+            key=lambda report: (report.report_type, report.target),
         )
 
         message_data[top_level_target] = SingleTopLevelTargetExportData(
@@ -100,8 +101,8 @@ def build_export_data(
             top_level_target_is_domain=is_domain(top_level_target),
             top_level_target=top_level_target,
             contains_type=sorted(contains_type),
-            reports=reports_per_top_level_target[top_level_target],
-            assets=assets_per_top_level_target[top_level_target],
+            reports=reports_per_top_level_target.get(top_level_target, []),
+            assets=assets_per_top_level_target.get(top_level_target, []),
         )
 
     return ExportData(

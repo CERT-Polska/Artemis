@@ -116,6 +116,7 @@ class ExportingTestCase(BaseE2ETestCase):
 
             with export.open("advanced/output.json", "r") as f:
                 output_data = json.loads(f.read().decode("ascii"))
+                print(output_data)
                 self.assertEqual(list(output_data["messages"].keys()), ["test-smtp-server.artemis"])
                 self.assertEqual(
                     output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
@@ -328,6 +329,5 @@ class ExportingTestCase(BaseE2ETestCase):
 
             for tr in t_body.find_all("tr"):
                 package = tr.find_all("td")[1]
-                print(package.text)
 
         self.assertTrue(tag == package.text)

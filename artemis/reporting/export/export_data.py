@@ -54,6 +54,8 @@ def build_export_data(
 
     assets_per_top_level_target: Dict[str, List[Asset]] = {}
     for asset in db.assets:
+        assert asset.top_level_target
+
         if asset.top_level_target not in assets_per_top_level_target:
             assets_per_top_level_target[asset.top_level_target] = []
         assets_per_top_level_target[asset.top_level_target].append(asset)

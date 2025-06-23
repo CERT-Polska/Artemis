@@ -1,10 +1,9 @@
 import random
 import re
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse, urlunparse
 
-import more_itertools
 from karton.core import Task
 
 from artemis import load_risk_class
@@ -38,7 +37,7 @@ class LFIDetector(ArtemisBase):
         url_parsed = urlparse(url)
         return urlunparse(url_parsed._replace(query="", fragment=""))
 
-    def create_url_with_batch_payload(self, url: str, param_batch: Tuple[str, ...], payload: str) -> str:
+    def create_url_with_batch_payload(self, url: str, param_batch: List[str], payload: str) -> str:
         assignments = {key: payload for key in param_batch}
         concatenation = "&" if self.is_url_with_parameters(url) else "?"
         return f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
@@ -63,24 +62,34 @@ class LFIDetector(ArtemisBase):
         messages: List[Dict[str, Any]] = []
 
         for current_url in urls:
-            for param_batch in more_itertools.batched(URL_PARAMS, 50):  # Example parameters
-                for payload in LFI_PAYLOADS:
-                    url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
-                    response = self.http_get(url_with_payload)
-                    original_response = self.http_get(current_url)
+            original_response = self.http_get(current_url)
 
-                    if indicator := self.contains_lfi_indicator(original_response, response):
-                        messages.append(
-                            {
-                                "url": url_with_payload,
-                                "headers": {},
-                                "matched_indicator": indicator,
-                                "statement": "It appears that this URL is vulnerable to LFI: " + url_with_payload,
-                                "code": LFIFindings.LFI_VULNERABILITY.value,
-                            }
-                        )
-                        if Config.Modules.LFIDetector.LFI_STOP_ON_FIRST_MATCH:
-                            return messages
+            for payload in LFI_PAYLOADS:
+                param_batch = []
+                for i, param in enumerate(URL_PARAMS):
+                    param_batch.append(param)
+                    url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
+
+                    # The idea of that check is to break down params into chunks that lead to a given maximum URL
+                    # length (as longer URLs may be unsupported by the servers).
+                    #
+                    # We can't have constant chunk size as the payloads have varied length.
+                    if len(url_with_payload) >= 1600 or i == len(URL_PARAMS) - 1:
+                        response = self.http_get(url_with_payload)
+
+                        if indicator := self.contains_lfi_indicator(original_response, response):
+                            messages.append(
+                                {
+                                    "url": url_with_payload,
+                                    "headers": {},
+                                    "matched_indicator": indicator,
+                                    "statement": "It appears that this URL is vulnerable to LFI: " + url_with_payload,
+                                    "code": LFIFindings.LFI_VULNERABILITY.value,
+                                }
+                            )
+                            if Config.Modules.LFIDetector.LFI_STOP_ON_FIRST_MATCH:
+                                return messages
+                        param_batch = []
 
         return messages
 

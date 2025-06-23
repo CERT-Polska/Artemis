@@ -128,7 +128,7 @@ class DataLoader:
                 asset_to_add.top_level_target = top_level_target
                 if not asset_to_add.top_level_target and result["task"]["headers"]["receiver"] == "classifier":
                     asset_to_add.top_level_target = asset_to_add.name
-                if not report_to_add.top_level_target:
+                if not asset_to_add.top_level_target:
                     raise RuntimeError(
                         f'Assets should have top_level_targets, one from {result["task"]["headers"]["receiver"]} (id {result["id"]}) doesn\'t'
                     )

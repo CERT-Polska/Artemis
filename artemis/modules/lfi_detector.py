@@ -70,6 +70,10 @@ class LFIDetector(ArtemisBase):
                     param_batch.append(param)
                     url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
 
+                    # The idea of that check is to break down params into chunks that lead to a given maximum URL
+                    # length (as longer URLs may be unsupported by the servers).
+                    #
+                    # We can't have constant chunk size as the payloads have varied length.
                     if len(url_with_payload) >= 1600 or i == len(URL_PARAMS) - 1:
                         response = self.http_get(url_with_payload)
 

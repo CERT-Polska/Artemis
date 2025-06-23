@@ -120,7 +120,6 @@ class DataLoader:
                 asset_to_add.original_karton_name = result["task"]["headers"]["receiver"]
                 domain = asset_to_add.name if asset_to_add.asset_type == AssetType.DOMAIN else None
                 asset_to_add.last_domain = domain or result["task"]["payload"].get("last_domain", None)
-                asset_to_add.top_level_target = top_level_target
             self._assets.extend(assets_to_add)
 
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))

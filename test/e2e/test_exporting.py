@@ -140,12 +140,11 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
                 self.assertEqual(
-                    sorted(output_data["messages"]["test-smtp-server.artemis"]["assets"]),
+                    sorted(output_data["assets"]),
                     [
                         {
                             "additional_type": None,
                             "asset_type": "domain",
-                            "top_level_target": "test-smtp-server.artemis",
                             "name": "test-smtp-server.artemis",
                             "original_karton_name": "classifier",
                             "last_domain": "test-smtp-server.artemis",

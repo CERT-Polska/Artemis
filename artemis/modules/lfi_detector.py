@@ -62,6 +62,8 @@ class LFIDetector(ArtemisBase):
         messages: List[Dict[str, Any]] = []
 
         for current_url in urls:
+            original_response = self.http_get(current_url)
+
             for payload in LFI_PAYLOADS:
                 param_batch = []
                 for i, param in enumerate(URL_PARAMS):
@@ -70,7 +72,6 @@ class LFIDetector(ArtemisBase):
 
                     if len(url_with_payload) >= 1600 or i == len(URL_PARAMS) - 1:
                         response = self.http_get(url_with_payload)
-                        original_response = self.http_get(current_url)
 
                         if indicator := self.contains_lfi_indicator(original_response, response):
                             messages.append(

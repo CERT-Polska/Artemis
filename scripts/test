@@ -73,8 +73,6 @@ docker compose \
 
 EXIT_CODE=$?
 
-docker compose -f docker-compose.yaml logs autoreporter
-
 docker compose \
     -f docker-compose.test.yaml \
     -f docker-compose.yaml \

@@ -35,7 +35,7 @@ msgid "OS Command Injection - Arbitrary system commands can be executed on the s
 msgstr ""
 
 #: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:24
-msgid "XSS/HTML Injection - Untrusted input is rendered in the browser, enabling session hijacking or defacement."
+msgid "XSS/HTML Injection - Untrusted input is rendered in the browser, enabling attacks such as session hijacking or defacement. In the case of defacement, reflected XSS allows an attacker to inject and execute arbitrary HTML or JavaScript, altering the appearance or content of the affected page for the victim, effectively changing legitimate site behavior."
 msgstr ""
 
 #: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:26
@@ -43,7 +43,7 @@ msgid "SSTI - Server-Side Template Injection allows attackers to execute code on
 msgstr ""
 
 #: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:28
-msgid "Missing Authentication - Critical endpoints lack proper access control, allowing unauthorized access."
+msgid "Missing Authentication - Endpoints lack proper access control, allowing unauthorized access."
 msgstr ""
 
 #: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:34
@@ -52,11 +52,4 @@ msgstr ""
 
 #: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:37
 msgid "CURL Command:"
-msgstr ""
-
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:45
-msgid ""
-"API vulnerabilities can expose sensitive data, enable unauthorized actions, "
-"or compromise backend systems. These issues often stem from insufficient "
-"input validation, improper authentication, or insecure design patterns."
 msgstr ""

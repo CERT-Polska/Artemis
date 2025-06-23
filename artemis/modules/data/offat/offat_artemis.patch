@@ -55,7 +55,7 @@ index 3c990dd..ca2e6b4 100644
                      'response_filter'
                  ] = PostTestFiltersEnum.STATUS_CODE_FILTER.name
 +
-+                request_obj["sleep_paylaod"] = sqli_payload in sql_injection_sleep_payloads
++                request_obj["sleep_payload"] = sqli_payload in sql_injection_sleep_payloads
                  tasks.append(deepcopy(request_obj))
 
          return tasks

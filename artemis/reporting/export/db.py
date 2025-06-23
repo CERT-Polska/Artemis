@@ -96,6 +96,11 @@ class DataLoader:
 
             reports_to_add = reports_from_task_result(data_for_reporters, self._language)
             for report_to_add in reports_to_add:
+                if not report_to_add.top_level_target:
+                    raise RuntimeError(
+                        f'Reports should have top_level_targets, one from {result["task"]["headers"]["receiver"]} (id {result["id"]}) doesn\'t'
+                    )
+
                 report_to_add.tag = result_tag
                 report_to_add.target_is_ip_address__as_property = report_to_add.target_is_ip_address()
                 if "original_ip" in result["task"].get("payload_persistent", {}):
@@ -120,6 +125,13 @@ class DataLoader:
                 asset_to_add.original_karton_name = result["task"]["headers"]["receiver"]
                 domain = asset_to_add.name if asset_to_add.asset_type == AssetType.DOMAIN else None
                 asset_to_add.last_domain = domain or result["task"]["payload"].get("last_domain", None)
+                asset_to_add.top_level_target = top_level_target
+                if not asset_to_add.top_level_target and result["task"]["headers"]["receiver"] == "classifier":
+                    asset_to_add.top_level_target = asset_to_add.name
+                if not asset_to_add.top_level_target:
+                    raise RuntimeError(
+                        f'Assets should have top_level_targets, one from {result["task"]["headers"]["receiver"]} (id {result["id"]}) doesn\'t'
+                    )
             self._assets.extend(assets_to_add)
 
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))

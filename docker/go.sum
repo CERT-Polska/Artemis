@@ -887,8 +887,8 @@ github.com/projectdiscovery/clistats v0.1.1 h1:8mwbdbwTU4aT88TJvwIzTpiNeow3XnAB7
 github.com/projectdiscovery/clistats v0.1.1/go.mod h1:4LtTC9Oy//RiuT1+76MfTg8Hqs7FQp1JIGBM3nHK6a0=
 github.com/projectdiscovery/dnsx v1.2.2 h1:ZjUov0GOyrS8ERlKAAhk+AOkqzaYHBzCP0qZfO+6Ihg=
 github.com/projectdiscovery/dnsx v1.2.2/go.mod h1:3iYm86OEqo0WxeGDkVl5WZNmG0qYE5TYNx8fBg6wX1I=
-github.com/projectdiscovery/dsl v0.4.2 h1:9PnD6EyDAZFvpQmJ0700gkQ96Fqlzl+lnTdcVHAagXI=
-github.com/projectdiscovery/dsl v0.4.2/go.mod h1:J1RizRF6O3lvk2v8p/tLAYqaxWg6N52OWc+uS5ZmO2U=
+github.com/projectdiscovery/dsl v0.4.3 h1:ZrbRkyK38hRiYMX7s6ohaTorDpq321ErqJuBUDmh49g=
+github.com/projectdiscovery/dsl v0.4.3/go.mod h1:cyt2IaYhS5SlyZ1D2BdK0QwIBXQW/u9zaBmRAKYKAmk=
 github.com/projectdiscovery/fastdialer v0.4.1 h1:kp6Q0odo0VZ0vZIGOn+q9aLgBSk6uYoD1MsjCAH8+h4=
 github.com/projectdiscovery/fastdialer v0.4.1/go.mod h1:875Wlggf0JAz+fDIPwUQeeBqEF6nJA71XVrjuTZCV7I=
 github.com/projectdiscovery/fasttemplate v0.0.2 h1:h2cISk5xDhlJEinlBQS6RRx0vOlOirB2y3Yu4PJzpiA=
@@ -927,8 +927,8 @@ github.com/projectdiscovery/naabu/v2 v2.3.3 h1:7UZvXnYZvaXUbBUlp+I+GJqF+EMyPWP4i
 github.com/projectdiscovery/naabu/v2 v2.3.3/go.mod h1:7VEutopiUJpvoKGZG7udPN9/6q3DDeegEjQWFGTUjmk=
 github.com/projectdiscovery/networkpolicy v0.1.15 h1:jHHPo43s/TSiWmm6T8kJuMqTwL3ukU92iQhxq0K0jg0=
 github.com/projectdiscovery/networkpolicy v0.1.15/go.mod h1:GWMDGJmgJ9qGoVTUOxbq1oLIbEx0pPsL0VKlriCkn2g=
-github.com/projectdiscovery/nuclei/v3 v3.4.4 h1:saYRqHUIiUQH0HIVZGb5FD+5kdWO3yMN3X03mKS4ZdI=
-github.com/projectdiscovery/nuclei/v3 v3.4.4/go.mod h1:nj6YbayW8kt8lYCl2C0Q3iQJ8v6iS5akRTP1AAR/8VY=
+github.com/projectdiscovery/nuclei/v3 v3.4.5 h1:AO2FwHUlimwuOQ/tIzIRVVz1T6Fd9u0eC2hNOoGe6XM=
+github.com/projectdiscovery/nuclei/v3 v3.4.5/go.mod h1:Z1VgCDUZ6TQUTU6sd/ZT9XNVdHI76pOqSXfPsOEVCZo=
 github.com/projectdiscovery/ratelimit v0.0.81 h1:u6lW+rAhS/UO0amHTYmYLipPK8NEotA9521hdojBtgI=
 github.com/projectdiscovery/ratelimit v0.0.81/go.mod h1:tK04WXHuC4i6AsFkByInODSNf45gd9sfaMHzmy2bAsA=
 github.com/projectdiscovery/rawhttp v0.1.90 h1:LOSZ6PUH08tnKmWsIwvwv1Z/4zkiYKYOSZ6n+8RFKtw=

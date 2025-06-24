@@ -999,8 +999,15 @@ TRANSLATIONS = {
     "SysAid 20.3.64 b14 contains a cross-site scripting vulnerability via the /KeepAlive.jsp?stamp= URI.": "SysAid w wersji 20.3.64 b14 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Roundcube Webmail before 1.5.10 and 1.6.x before 1.6.11 allows remote code execution by authenticated users because the _from parameter in a URL is not validated in program/actions/settings/upload.php, leading to PHP Object Deserialization.": "System Roundcube w wersji poniżej 1.5.10, a w gałęzi 1.6.x - poniżej wersji 1.6.11 umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "custom:CVE-2025-49113": "System Roundcube w wersji poniżej 1.5.10, a w gałęzi 1.6.x - poniżej wersji 1.6.11 umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "GateOne 1.1 allows arbitrary file retrieval without authentication via /downloads/.. local file inclusion because os.path.join is incorrectly used.": "GateOne w wersji 1.1 i potencjalnie wcześniejszych umożliwia atakującemu pobieranie dowolnych plików z dysku serwera."
     + UPDATE_HINT,
+    "Rocket LMS default credentials were discovered.": "Wykryto, że domyślne dane dostępowe do systemu Rocket LMS umożliwiają logowanie.",
     "Samsung printers contain a default admin login vulnerability. An attacker can obtain access to user accounts and access sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto drukarkę Samsung umożliwiającą logowanie domyślnym hasłem, co umożliwia atakującemu dostęp do kont użytkowników i wrażliwych informacji, modyfikację danych lub uruchamianie nieuprawnionych operacji.",
     "rack-mini-profiler is prone to environmental information disclosure which could help an attacker formulate additional attacks.": "Wykryto narzędzie rack-mini-profiler skonfigurowane tak, że udostępnia informacje o konfiguracji systemu.",
     "The HUSKY – Products Filter Professional for WooCommerce plugin for WordPress is vulnerable to Local File Inclusion in all versions up to, and including, 1.3.6.5 via the 'template' parameter of the woof_text_search AJAX action. This makes it possible for unauthenticated attackers to include and execute arbitrary files on the server, allowing the execution of any PHP code in those files. This can be used to bypass access controls, obtain sensitive data, or achieve code execution in cases where images and other “safe” file types can be uploaded and included.": "Wtyczka WordPress o nazwie HUSKY – Products Filter Professional for WooCommerce w wersji do 1.3.6.5 włącznie zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt dowolnych plików z serwera, a w niektórych sytuacjach wykonanie dowolnego kodu na serwerze."
@@ -1774,4 +1781,5 @@ TRANSLATIONS = {
     "OpenCATS login panel was detected.": "Wykryto panel logowania OpenCATS.",
     "Veeam Backup Enterprise Manager Login": "Wykryto panel logowania Veeam Backup Enterprise Manager.",
     "Harbor login panel was detected.": "Wykryto panel logowania systemu Harbor.",
+    "Mattermost Login Panel was discovered.": "Wykryto panel logowania systemu Mattermost.",
 }

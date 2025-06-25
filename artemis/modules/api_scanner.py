@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import subprocess
 from typing import Any, Dict, Optional, Tuple
 
@@ -13,6 +14,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.api_scanner_data import COMMON_SPEC_PATHS
+from artemis.sql_injection_data import SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url
 
 
@@ -58,6 +60,7 @@ class APIScanner(ArtemisBase):
                         return temp_file, try_url
                     except Exception as e:
                         self.log.info(f"Unable to validate spec at {try_url}: {e}")
+                        os.unlink(temp_file)
                         continue
             except Exception as e:
                 self.log.debug(f"Error checking {try_url}: {e}")
@@ -124,6 +127,13 @@ class APIScanner(ArtemisBase):
                 if "BOLA" in vuln_details or "BOPLA" in vuln_details:
                     continue
                 if "XSS/HTML Injection" in vuln_details and "text/html" not in content_type:
+                    continue
+
+                # Checking for SQL Error messages to decrease false positives
+                if vuln_details in [
+                    "Endpoint might be vulnerable to SQLi",
+                    "One or more parameter is vulnerable to SQL Injection Attack",
+                ] and not any(re.search(error, result.get("response_body", "")) for error in SQL_ERROR_MESSAGES):
                     continue
 
                 results.append(

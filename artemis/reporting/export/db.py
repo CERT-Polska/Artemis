@@ -114,6 +114,9 @@ class DataLoader:
                 report_to_add.normal_form = report_to_add.get_normal_form()
                 report_to_add.last_domain = result["task"]["payload"].get("last_domain", None)
 
+            if reports_to_add and not result["status"] == "INTERESTING":
+                raise RuntimeError("We expect all task results that lead to reports to have status = INTERESTING")
+
             assets_to_add: List[Asset] = []
             for item in assets_from_task_result(data_for_reporters):
                 if (item.asset_type, item.name) in seen_assets:

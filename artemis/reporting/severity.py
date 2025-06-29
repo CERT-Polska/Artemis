@@ -76,6 +76,7 @@ SEVERITY_MAP = {
     ReportType("almost_expired_ssl_certificate"): Severity.LOW,
     ReportType("bad_certificate_names"): Severity.LOW,
     ReportType("no_https_redirect"): Severity.LOW,
+    ReportType("api_vulnerability"): Severity.MEDIUM,
 }
 
 if Config.Reporting.ADDITIONAL_SEVERITY_FILE:

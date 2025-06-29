@@ -23,11 +23,13 @@ repos:
     - alembic==1.13.2
     - dnspython==2.4.2
     - fastapi==0.103.0
+    - Flask==3.1.1
     - freezegun==1.2.2
     - Jinja2==3.1.2
     - karton-core==5.2.0
     - git+https://github.com/CERT-Polska/mailgoose@v1.0#egg=libmailgoose&subdirectory=scan
     - more-itertools==10.3.0
+    - openapi-spec-validator==0.7.1
     - packaging==23.2
     - prometheus-client==0.17.1
     - pymongo-stubs==0.2.0

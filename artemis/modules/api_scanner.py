@@ -40,6 +40,15 @@ class APIScanner(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        if not os.path.exists("/offat"):
+            subprocess.call(["git", "clone", "https://github.com/OWASP/OFFAT", "/offat"])
+            patch_file_path = os.path.join(os.path.dirname(__file__), "data/offat/offat_artemis.patch")
+            subprocess.call(["git", "-C", "/offat", "apply", patch_file_path])
+
+        subprocess.call(["pip", "install", "-e", "/offat/src"])
+
     def discover_spec(self, base_url: str) -> Tuple[str, ...]:
         """Try to discover OpenAPI/Swagger specification from common paths."""
         for path in COMMON_SPEC_PATHS:
@@ -66,14 +75,6 @@ class APIScanner(ArtemisBase):
                 self.log.debug(f"Error checking {try_url}: {e}")
                 continue
         return "", ""
-
-    def install_offat(self) -> None:
-        if not os.path.exists("/offat"):
-            subprocess.call(["git", "clone", "https://github.com/OWASP/OFFAT", "/offat"])
-            patch_file_path = os.path.join(os.path.dirname(__file__), "data/offat/offat_artemis.patch")
-            subprocess.call(["git", "-C", "/offat", "apply", patch_file_path])
-
-        subprocess.call(["pip", "install", "-e", "/offat/src"])
 
     def scan(self, target_api_specification: str) -> Dict[str, Any]:
         output_file = "/tmp/output.json"
@@ -118,7 +119,11 @@ class APIScanner(ArtemisBase):
 
             for result in test_results.get("results", {}):
                 vuln_details = result.get("vuln_details", "")
-                content_type = result.get("response_headers", {}).get("Content-Type", "").lower()
+                response_headers = result.get("response_headers", {})
+                if isinstance(response_headers, dict):
+                    content_type = result.get("response_headers", {}).get("Content-Type", "").lower()
+                else:
+                    content_type = ""
 
                 if not result.get("vulnerable", False):
                     continue
@@ -160,7 +165,7 @@ class APIScanner(ArtemisBase):
                 task=current_task,
                 status=status,
                 status_reason=status_reason,
-                data={"results": [result.dict() for result in results]},
+                data={"results": [result.model_dump() for result in results]},
             )
 
         except Exception as e:

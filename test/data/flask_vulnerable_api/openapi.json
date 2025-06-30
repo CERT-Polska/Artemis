@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:5000"
+      "url": "http://test-flask-vulnerable-api:5000"
     }
   ],
   "paths": {

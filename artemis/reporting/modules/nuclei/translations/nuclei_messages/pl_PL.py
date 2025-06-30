@@ -1005,6 +1005,16 @@ TRANSLATIONS = {
     "custom:CVE-2025-49113": "System Roundcube w wersji poniżej 1.5.10, a w gałęzi 1.6.x - poniżej wersji 1.6.11 umożliwia atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "The User Profile Builder WordPress plugin before 3.11.8 does not have proper authorisation, allowing unauthenticated users to upload media files via the async upload functionality of WP.": "Wtyczka WordPress o nazwie User Profile Builder w wersji poniżej 3.11.8 umożliwia atakującemu umieszczanie plików multimedialnych na serwerze."
+    + WORDPRESS_UPDATE_HINT,
+    "Zaver through 2020-12-15  is vulnerable to local file inclusion via the GET /.. substring.": "System Zaver w wersji do 2020-12-15 włącznie zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
+    "The Lantronix XPort's telnet service is not configured to require authentication by default.An unauthenticated user can remotely administer the device by hitting 'Enter' when prompted by the telnet service.": "Usługa telnet modułu Lantronix XPort domyślnie nie wymaga autoryzacji - użytkownik może zalogować się wciskając klawisz Enter.",
+    "The flowise version <= 1.6.5 is vulnerable to authentication bypass vulnerability.": "flowise w wersji do 1.6.5 włącznie umożliwia atakującemu ominięcie autoryzacji.",
+    "Hitachi Vantara’s Pentaho Business Analytics Server versions prior to 9.4.0.1, 9.3.0.2, and all 8.3.x are vulnerable due to improper handling of non-canonical URL paths during authorization decisions.\nThis flaw, which is actively exploited in the wild, allows attackers not only to bypass security restrictions but, when chained with CVE-2022-43769, to execute arbitrary commands (RCE) on the server.": "Hitachi Vantara Pentaho Business Analytics Server w wersji poniżej 9.4.0.1, w gałęzi 9.3: 9.3.0.2 i we wszystkich wersjach w gałęzi 8.3 zawiera podatność umożliwiającą omijanie uwierzytelniania, a w połączeniu z podatnością CVE-2022-43769 - również zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "SQL Injection vulnerability in LearnPress – WordPress LMS Plugin <= 4.1.7.3.2 versions.": "Wtyczka WordPress o nazwie LearnPress w wersji do 4.1.7.3.2 włącznie zawiera podatność SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
     "GateOne 1.1 allows arbitrary file retrieval without authentication via /downloads/.. local file inclusion because os.path.join is incorrectly used.": "GateOne w wersji 1.1 i potencjalnie wcześniejszych umożliwia atakującemu pobieranie dowolnych plików z dysku serwera."
     + UPDATE_HINT,
     "Rocket LMS default credentials were discovered.": "Wykryto, że domyślne dane dostępowe do systemu Rocket LMS umożliwiają logowanie.",
@@ -1782,4 +1792,14 @@ TRANSLATIONS = {
     "Veeam Backup Enterprise Manager Login": "Wykryto panel logowania Veeam Backup Enterprise Manager.",
     "Harbor login panel was detected.": "Wykryto panel logowania systemu Harbor.",
     "Mattermost Login Panel was discovered.": "Wykryto panel logowania systemu Mattermost.",
+    "RCDevs WebADM Login Panel was detected.": "Wykryto panel RCDevs WebADM.",
+    "[no description] http/exposed-panels/qdpm-login-panel.yaml": "wykryto panel qdPM",
+    "Juniper J-Web panel was detected.": "Wykryto panel Juniper J-Web.",
+    "Blue Iris login panel was detected.": "Wykrytp panel logowania Blue Iris.",
+    "EMQX login panel was detected.": "Wykryto panel logowania EMQX.",
+    "Dolibarr login panel was detected.": "Wykryto panel logowania Dolibarr.",
+    "Prestashop admin login panel was detected.": "Wykryto panel administracyjny systemu Prestashop.",
+    "Camaleon CMS admin login panel was discovered.": "Wykryto panel administracyjny systemu Camaleon CMS.",
+    "[no description] http/exposed-panels/filegator-panel.yaml": "Wykryto panel systemu FileGator.",
+    "Ollama LLM Panel was detected": "Wykryto panel Ollama LLM.",
 }

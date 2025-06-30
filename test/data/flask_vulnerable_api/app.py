@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Tuple, Union
 from flask import Flask, Response, jsonify, request, send_file
 
 app = Flask(__name__)
-DATABASE = "test.db"
+DATABASE = "/tmp/test.db"
 
 
 # Setup DB and dummy data

@@ -4,10 +4,6 @@ FROM python:3.10-slim
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy project files into the container
-COPY openapi.json openapi.json
-COPY app.py .
-
 # Install Python dependencies
 RUN pip install --no-cache-dir flask
 

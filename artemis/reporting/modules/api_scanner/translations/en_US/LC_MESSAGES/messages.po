@@ -1,55 +1,73 @@
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:2
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:2
 msgid "We identified potential API security vulnerabilities:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:9
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:9
 msgid "Method:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:10
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:10
 msgid "Endpoint:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:11
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:11
 msgid "Status Code:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:13
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:13
 msgid "Details:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:16
-msgid "Unsupported HTTP Method - The endpoint accepts HTTP methods that should not be allowed, potentially enabling unintended operations."
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:16
+msgid ""
+"Unsupported HTTP Method - The endpoint accepts HTTP methods that should "
+"not be allowed, potentially enabling unintended operations."
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:18
-msgid "SQL Injection - Malicious input can manipulate database queries, leading to data leaks or unauthorized access."
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:18
+msgid ""
+"SQL Injection - Malicious input can manipulate database queries, leading "
+"to data leaks or unauthorized access."
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:20
-msgid "Time-based SQL Injection - An attacker can infer data using timing-based payloads, exploiting database behavior."
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:20
+msgid ""
+"Time-based SQL Injection - An attacker can infer data using timing-based "
+"payloads, exploiting database behavior."
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:22
-msgid "OS Command Injection - Arbitrary system commands can be executed on the server, leading to full compromise."
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:22
+msgid ""
+"OS Command Injection - Arbitrary system commands can be executed on the "
+"server, leading to full compromise."
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:24
-msgid "XSS/HTML Injection - Untrusted input is rendered in the browser, enabling attacks such as session hijacking or defacement. In the case of defacement, reflected XSS allows an attacker to inject and execute arbitrary HTML or JavaScript, altering the appearance or content of the affected page for the victim, effectively changing legitimate site behavior."
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:24
+msgid ""
+"XSS/HTML Injection - Untrusted input is rendered in the browser, enabling"
+" attacks such as session hijacking or defacement. In the case of "
+"defacement, reflected XSS allows an attacker to inject and execute "
+"arbitrary HTML or JavaScript, altering the appearance or content of the "
+"affected page for the victim, effectively impersonating changing site "
+"behavior."
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:26
-msgid "SSTI - Server-Side Template Injection allows attackers to execute code on the server by injecting into templates."
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:26
+msgid ""
+"SSTI - Server-Side Template Injection allows attackers to execute code on"
+" the server by injecting into templates."
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:28
-msgid "Missing Authentication - Endpoints lack proper access control, allowing unauthorized access."
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:28
+msgid ""
+"Missing Authentication - Endpoints lack proper access control, allowing "
+"unauthorized access."
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:34
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:34
 msgid "Data leaks:"
 msgstr ""
 
-#: artemis/reporting/modules/api_hacking/template_api_vulnerability.jinja2:37
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:37
 msgid "CURL Command:"
 msgstr ""

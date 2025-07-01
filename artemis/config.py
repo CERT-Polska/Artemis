@@ -838,6 +838,12 @@ class Config:
                 "NUCLEI_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
             ] = get_config("NUCLEI_CHUNK_SIZE", default=200, cast=int)
 
+            NUCLEI_RUN_TECH_DETECTION: Annotated[
+                bool,
+                "Whether to run Nuclei technology detection. If set to True, the module will filter the templates according to "
+                "the technologies detected on the page.",
+            ] = get_config("NUCLEI_RUN_TECH_DETECTION", default=True, cast=bool)
+
         class PlaceholderPageContent:
             ENABLE_PLACEHOLDER_PAGE_DETECTOR: Annotated[
                 bool,

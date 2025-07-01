@@ -479,14 +479,6 @@ class Nuclei(ArtemisBase):
                 # Use a hashable frozenset as the dictionary key
                 scan_groups[frozenset(tags_to_exclude)].append(target_url)
 
-            links_per_task = {}
-            for task in tasks:
-                links = self._get_links(get_target_url(task))
-                # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
-                # of them.
-                links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
-                self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
-
             findings: List[Dict[str, Any]] = []
             for tags_frozen_set, group_targets in scan_groups.items():
                 extra_args = []
@@ -502,6 +494,14 @@ class Nuclei(ArtemisBase):
             findings = self._scan(templates, ScanUsing.TEMPLATES, targets) + self._scan(
                 self._workflows, ScanUsing.WORKFLOWS, targets
             )
+
+        links_per_task = {}
+        for task in tasks:
+            links = self._get_links(get_target_url(task))
+            # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
+            # of them.
+            links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
+            self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
 
         # That way, if we have 100 links for a webpage, we won't run 100 concurrent scans for that webpage
         for link_package in itertools.zip_longest(*list(links_per_task.values())):

@@ -13,7 +13,7 @@ from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
-from artemis.modules.data.api_scanner_data import COMMON_SPEC_PATHS
+from artemis.modules.data.api_scanner_data import COMMON_SPEC_PATHS, VULN_DETAILS_MAP
 from artemis.sql_injection_data import SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url
 
@@ -94,6 +94,12 @@ class APIScanner(ArtemisBase):
             subprocess.call(offat_cmd)
         else:
             subprocess.call(offat_cmd)
+        
+        if Config.Miscellaneous.CUSTOM_USER_AGENT:
+            offat_cmd.extend(["-H", f"User-Agent:{Config.Miscellaneous.CUSTOM_USER_AGENT}"])
+        
+        if self.requests_per_second_for_current_tasks:
+            offat_cmd.extend(["-rl", str(self.requests_per_second_for_current_tasks)])
 
         with open(output_file) as f:
             file_contents = f.read()
@@ -117,6 +123,7 @@ class APIScanner(ArtemisBase):
             results = []
             test_results = self.scan(spec_file)
 
+            vulns_found = set()
             for result in test_results.get("results", {}):
                 vuln_details = result.get("vuln_details", "")
                 response_headers = result.get("response_headers", {})
@@ -141,6 +148,7 @@ class APIScanner(ArtemisBase):
                 ] and not any(re.search(error, result.get("response_body", "")) for error in SQL_ERROR_MESSAGES):
                     continue
 
+                vulns_found.add(VULN_DETAILS_MAP.get(vuln_details,  "Unknown Vulnerability"))
                 results.append(
                     APIResult(
                         url=result.get("url"),
@@ -156,7 +164,7 @@ class APIScanner(ArtemisBase):
 
             if results:
                 status = TaskStatus.INTERESTING
-                status_reason = "Found potential vulnerabilities in the api"
+                status_reason = f"Found potential vulnerabilities ({', '.join(vulns_found)}) in the api"
             else:
                 status = TaskStatus.OK
                 status_reason = f"detected API on {spec_file_url}, no vulnerabilities found"

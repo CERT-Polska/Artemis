@@ -301,6 +301,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Revive Adserver before 5.1.0 contains an open redirect vulnerability via the dest, oadest, and ct0 parameters of the lg.php and ck.php delivery scripts. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Revive Adserver w wersji poniżej 5.1.0 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
+    "Office365 Autodiscover contains an open redirect vulnerability. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto system Office365 Autodiscover zawierajacy podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
     "WordPress WebP Converter for Media < 4.0.3 contains a file (passthru.php) which does not validate the src parameter before redirecting the user to it, leading to an open redirect issue.": "Wtyczka WordPress o nazwie WebP Converter for Media w wersji poniżej 4.0.3 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + WORDPRESS_UPDATE_HINT,
     "In Apache HTTP server 2.4.0 to 2.4.39, Redirects configured with mod_rewrite that were intended to be self-referential might be fooled by encoded newlines and redirect instead to an unexpected URL within the request URL.": "Serwer Apache w wersji 2.4.0 do 2.4.39 zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
@@ -996,6 +997,10 @@ TRANSLATIONS = {
     "The Web Application Firewall in Bitrix24 up to and including 20.0.0 allows XSS via the items[ITEMS][ID] parameter to the components/bitrix/mobileapp.list/ajax.php/ URI.": "Komponent Web Application Firewall w Bitrix24 w wersji do 20.0.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "A reflected cross-site scripting (XSS) vulnerability in the GlobalProtect™ gateway and portal features of Palo Alto Networks PAN-OS® software enables execution of malicious JavaScript in the context of an authenticated Captive Portal user's browser when they click on a specially crafted link.The primary risk is phishing attacks that can lead to credential theft—particularly if you enabled Clientless VPN.": "Wykryto, że bramka GlobalProtect™ i portal Palo Alto Networks PAN-OS® zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION,
+    'Improper escaping of output in mod_rewrite in Apache HTTP Server 2.4.59 and earlier allows an attacker to map URLs to filesystem locations that are permitted to be served by the server but are not intentionally/directly reachable by any URL, resulting in code execution or source code disclosure. Substitutions in server context that use a backreferences or variables as the first segment of the substitution are affected.  Some unsafe RewiteRules will be broken by this change and the rewrite flag "UnsafePrefixStat" can be used to opt back in once ensuring the substitution is appropriately constrained.': "Moduł mod_rewrite serwera Apache w wersji 2.4.59 i wcześniejszych umożliwia atakującemu odczyt i wykonanie niektórych plików które nie powinny być publicznie dostępne.",
+    "http/cves/2022/CVE-2022-40032.yaml": "Simple Task Managing System w wersji v1.0 zawiera podatność SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych.",
     "SysAid 20.3.64 b14 contains a cross-site scripting vulnerability via the /KeepAlive.jsp?stamp= URI.": "SysAid w wersji 20.3.64 b14 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1005,6 +1010,21 @@ TRANSLATIONS = {
     "custom:CVE-2025-49113": "System Roundcube w wersji poniżej 1.5.10, a w gałęzi 1.6.x - poniżej wersji 1.6.11 umożliwia atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "The User Profile Builder WordPress plugin before 3.11.8 does not have proper authorisation, allowing unauthenticated users to upload media files via the async upload functionality of WP.": "Wtyczka WordPress o nazwie User Profile Builder w wersji poniżej 3.11.8 umożliwia atakującemu umieszczanie plików multimedialnych na serwerze."
+    + WORDPRESS_UPDATE_HINT,
+    "An Authentication Bypass vulnerability exists in Flowise version 1.8.2. This could allow a remote, unauthenticated attacker to access API endpoints as an administrator and allow them to access restricted functionality.": "Flowise w wersji 1.8.2 i potencjalnie wcześniejszych zawiera podatnosć umożliwiającą atakującemu ominięcie uwierzytelniania i dostęp do niektóych końcówek jako administrator."
+    + UPDATE_HINT,
+    "Zaver through 2020-12-15  is vulnerable to local file inclusion via the GET /.. substring.": "System Zaver w wersji do 2020-12-15 włącznie zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
+    "A SQL injection vulnerability in mod_mysql_vhost.c in lighttpd before 1.4.35 allows remote attackers to execute arbitrary SQL commands via the host name (related to request_check_hostname).": "Moduł mod_mysql_vhost.c serwera lighttpd w wersji poniżej 1.4.35 zawiera podatność SQL Injection umożliwiającą atakującemu wykonywanie dowolnych poleceń SQL.",
+    "WordPress Core is vulnerable to Sensitive Information Exposure in versions between 4.7.0 and 6.3.1 via the User REST endpoint. While the search results do not display user email addresses unless the requesting user has the 'list_users' capability, the search is applied to the user_email column.": "WordPress w wersji pomiędzy 4.7.0 i 6.3.1 umożliwia nieuprawnionym użytkownikom dostęp do adresów e-mail innych użytkowników."
+    + WORDPRESS_UPDATE_HINT,
+    "The Lantronix XPort's telnet service is not configured to require authentication by default.An unauthenticated user can remotely administer the device by hitting 'Enter' when prompted by the telnet service.": "Usługa telnet modułu Lantronix XPort domyślnie nie wymaga autoryzacji - użytkownik może zalogować się wciskając klawisz Enter.",
+    "The flowise version <= 1.6.5 is vulnerable to authentication bypass vulnerability.": "flowise w wersji do 1.6.5 włącznie umożliwia atakującemu ominięcie autoryzacji.",
+    "Hitachi Vantara’s Pentaho Business Analytics Server versions prior to 9.4.0.1, 9.3.0.2, and all 8.3.x are vulnerable due to improper handling of non-canonical URL paths during authorization decisions.\nThis flaw, which is actively exploited in the wild, allows attackers not only to bypass security restrictions but, when chained with CVE-2022-43769, to execute arbitrary commands (RCE) on the server.": "Hitachi Vantara Pentaho Business Analytics Server w wersji poniżej 9.4.0.1, w gałęzi 9.3: 9.3.0.2 i we wszystkich wersjach w gałęzi 8.3 zawiera podatność umożliwiającą omijanie uwierzytelniania, a w połączeniu z podatnością CVE-2022-43769 - również zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "SQL Injection vulnerability in LearnPress – WordPress LMS Plugin <= 4.1.7.3.2 versions.": "Wtyczka WordPress o nazwie LearnPress w wersji do 4.1.7.3.2 włącznie zawiera podatność SQL Injection umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
     "GateOne 1.1 allows arbitrary file retrieval without authentication via /downloads/.. local file inclusion because os.path.join is incorrectly used.": "GateOne w wersji 1.1 i potencjalnie wcześniejszych umożliwia atakującemu pobieranie dowolnych plików z dysku serwera."
     + UPDATE_HINT,
     "Rocket LMS default credentials were discovered.": "Wykryto, że domyślne dane dostępowe do systemu Rocket LMS umożliwiają logowanie.",
@@ -1782,4 +1802,14 @@ TRANSLATIONS = {
     "Veeam Backup Enterprise Manager Login": "Wykryto panel logowania Veeam Backup Enterprise Manager.",
     "Harbor login panel was detected.": "Wykryto panel logowania systemu Harbor.",
     "Mattermost Login Panel was discovered.": "Wykryto panel logowania systemu Mattermost.",
+    "RCDevs WebADM Login Panel was detected.": "Wykryto panel RCDevs WebADM.",
+    "[no description] http/exposed-panels/qdpm-login-panel.yaml": "wykryto panel qdPM",
+    "Juniper J-Web panel was detected.": "Wykryto panel Juniper J-Web.",
+    "Blue Iris login panel was detected.": "Wykrytp panel logowania Blue Iris.",
+    "EMQX login panel was detected.": "Wykryto panel logowania EMQX.",
+    "Dolibarr login panel was detected.": "Wykryto panel logowania Dolibarr.",
+    "Prestashop admin login panel was detected.": "Wykryto panel administracyjny systemu Prestashop.",
+    "Camaleon CMS admin login panel was discovered.": "Wykryto panel administracyjny systemu Camaleon CMS.",
+    "[no description] http/exposed-panels/filegator-panel.yaml": "Wykryto panel systemu FileGator.",
+    "Ollama LLM Panel was detected": "Wykryto panel Ollama LLM.",
 }

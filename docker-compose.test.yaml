@@ -69,6 +69,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-flask-vulnerable-api:
+    build:
+      context: .
+      dockerfile: test/data/flask_vulnerable_api/Dockerfile
+    volumes:
+      - ./test/data/flask_vulnerable_api/:/app/
+
   test-service-with-exposed-apache-config:
     image: php:7.4-apache
     volumes:

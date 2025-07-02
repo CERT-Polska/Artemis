@@ -1,0 +1,125 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "SQLi Test API",
+    "description": "A deliberately vulnerable test API with two endpoints demonstrating SQL Injection.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://test-flask-vulnerable-api:5000"
+    }
+  ],
+  "paths": {
+    "/api/login": {
+      "post": {
+        "summary": "Login endpoint (vulnerable to SQLi)",
+        "description": "Accepts username and password in JSON body.\nSQL injection possible via body parameters.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/api/user/{username}": {
+      "get": {
+        "summary": "Get user by username (vulnerable to SQLi)",
+        "description": "Retrieves user info based on username in URL path.\nSQL injection possible via path parameter.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "randomuser"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "randomuser"
+          },
+          "password": {
+            "type": "string",
+            "example": "supersecret"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Login successful"
+          },
+          "username": {
+            "type": "string",
+            "example": "randomuser"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "randomuser"
+          }
+        }
+      }
+    }
+  }
+}

@@ -454,7 +454,6 @@ class Config:
                         # Source of FPs
                         "custom:CVE-2019-1579",
                         "custom:CVE-2024-35286",
-                        "custom:CVE-2022-43939",
                         "custom:CVE-2025-24016",
                         "custom:xss-inside-tag-top-params.yaml",
                         # Nothing particularily interesting
@@ -600,7 +599,7 @@ class Config:
                         "http/exposed-panels/casdoor-login.yaml",
                         "http/exposed-panels/openam-panel.yaml",
                         "http/exposed-panels/sonicwall-sslvpn-panel.yaml",
-                        # Online stores, CRMs and ticketing systems - it's a standard practice to have them exposed in a small organization
+                        # Online stores, CRMs, chats and ticketing systems - it's a standard practice to have them exposed in a small organization
                         "http/exposed-panels/bitrix-panel.yaml",
                         "http/exposed-panels/dynamicweb-panel.yaml",
                         "http/exposed-panels/jira-detect.yaml",
@@ -612,6 +611,7 @@ class Config:
                         "http/exposed-panels/opencart-panel.yaml",
                         "http/exposed-panels/osticket-panel.yaml",
                         "http/exposed-panels/redmine-panel.yaml",
+                        "http/exposed-panels/mattermost-panel.yaml",
                         # Mostly meant to be publicly accessible
                         "http/exposed-panels/bigbluebutton-login.yaml",
                         "http/exposed-panels/ilias-panel.yaml",

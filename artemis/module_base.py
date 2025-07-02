@@ -1,5 +1,6 @@
 import datetime
 import fcntl
+import ipaddress
 import json
 import logging
 import random
@@ -8,7 +9,6 @@ import sys
 import time
 import traceback
 import urllib.parse
-from ipaddress import ip_address
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import timeout_decorator
@@ -354,8 +354,14 @@ class ArtemisBase(Karton):
 
         for task in tasks:
             destination = self._get_scan_destination(task)
-            if destination in self._scan_speed_overrides:
-                requests_per_second_overrides.append(self._scan_speed_overrides[destination])
+            for key, value in self._scan_speed_overrides.items():
+                try:
+                    ipaddress.ip_address(destination)
+                except ValueError:
+                    continue
+
+                if ipaddress.ip_address(destination) in ipaddress.ip_network(key):
+                    requests_per_second_overrides.append(value)
 
         self.requests_per_second_for_current_tasks = min(  # type: ignore
             requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
@@ -750,7 +756,7 @@ class ArtemisBase(Karton):
     def _get_ip_for_locking(self, host: str) -> str:
         try:
             # if this doesn't throw then we have an IP address
-            ip_address(host)
+            ipaddress.ip_address(host)
             return host
         except ValueError:
             pass

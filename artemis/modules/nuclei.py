@@ -407,6 +407,9 @@ class Nuclei(ArtemisBase):
             else:
                 templates.extend(self._template_lists[template_list])
 
+        # Remove duplicates
+        templates = list(set(templates))
+
         self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
 
         targets = []

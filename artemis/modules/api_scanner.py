@@ -2,7 +2,7 @@ import json
 import os
 import re
 import subprocess
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Set, Tuple
 
 from karton.core import Task
 from openapi_spec_validator import validate
@@ -94,10 +94,10 @@ class APIScanner(ArtemisBase):
             subprocess.call(offat_cmd)
         else:
             subprocess.call(offat_cmd)
-        
+
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             offat_cmd.extend(["-H", f"User-Agent:{Config.Miscellaneous.CUSTOM_USER_AGENT}"])
-        
+
         if self.requests_per_second_for_current_tasks:
             offat_cmd.extend(["-rl", str(self.requests_per_second_for_current_tasks)])
 
@@ -123,7 +123,7 @@ class APIScanner(ArtemisBase):
             results = []
             test_results = self.scan(spec_file)
 
-            vulns_found = set()
+            vulns_found: Dict[str, Set[str]] = dict()
             for result in test_results.get("results", {}):
                 vuln_details = result.get("vuln_details", "")
                 response_headers = result.get("response_headers", {})
@@ -148,7 +148,9 @@ class APIScanner(ArtemisBase):
                 ] and not any(re.search(error, result.get("response_body", "")) for error in SQL_ERROR_MESSAGES):
                     continue
 
-                vulns_found.add(VULN_DETAILS_MAP.get(vuln_details,  "Unknown Vulnerability"))
+                vulns_found.setdefault(VULN_DETAILS_MAP.get(vuln_details, "Unknown Vulnerability"), set()).add(
+                    result.get("endpoint", "")
+                )
                 results.append(
                     APIResult(
                         url=result.get("url"),
@@ -164,7 +166,9 @@ class APIScanner(ArtemisBase):
 
             if results:
                 status = TaskStatus.INTERESTING
-                status_reason = f"Found potential vulnerabilities ({', '.join(vulns_found)}) in the api"
+                status_reason = "Found potential vulnerabilities in the API:"
+                for vuln_type, endpoints in vulns_found.items():
+                    status_reason += f"\n- {vuln_type}: {', '.join(endpoints)}"
             else:
                 status = TaskStatus.OK
                 status_reason = f"detected API on {spec_file_url}, no vulnerabilities found"

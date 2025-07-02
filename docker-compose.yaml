@@ -94,6 +94,20 @@ services:
       - ./output/autoreporter/:/opt/output/autoreporter
       - ${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/
 
+  karton-api_scanner:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.api_scanner"
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-admin_panel_login_bruter:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.admin_panel_login_bruter"
+    env_file: .env
+    restart: always
+    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.bruter"
@@ -361,18 +375,10 @@ services:
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-admin_panel_login_bruter:
-    <<: [*logging, *artemis-build-or-image]
-    command: "python3 -m artemis.modules.admin_panel_login_bruter"
-    env_file: .env
-    restart: always
-    volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
   test-service-with-exposed-apache-config:
     image: php:7.4-apache
     volumes:
       - ./test/data/exposed_apache_config/:/var/www/html/
-
 
 
 volumes:

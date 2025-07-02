@@ -22,11 +22,13 @@ class APIScannerReporter(Reporter):
         if task_result["status"] != "INTERESTING":
             return []
 
-        if not isinstance(task_result.get("data"), dict) or not isinstance(task_result["data"].get("results"), list):
+        if not isinstance(task_result.get("result"), dict) or not isinstance(
+            task_result["result"].get("results"), list
+        ):
             return []
 
         reports = []
-        for result in task_result["data"]["results"]:
+        for result in task_result["result"]["results"]:
             url = result["url"]
 
             reports.append(

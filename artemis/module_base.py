@@ -674,7 +674,7 @@ class ArtemisBase(Karton):
 
             # Create a fresh output redirector for each batch
 
-            output = ""
+            output = b""
             try:
                 for i in range(self.num_retries):
                     try:
@@ -695,7 +695,9 @@ class ArtemisBase(Karton):
                             if task_result and task_result.get("status", None) == "ERROR":
                                 has_errors = True
                         if has_errors:
-                            self.log.exception("Task(s) returned error status, retrying (try %d/%d)", i, self.num_retries)
+                            self.log.exception(
+                                "Task(s) returned error status, retrying (try %d/%d)", i, self.num_retries
+                            )
                         else:
                             break
 

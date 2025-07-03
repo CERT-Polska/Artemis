@@ -59,12 +59,10 @@ class FlakyModuleRaisingExceptionTest(KartonTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = FlakyModuleRaisingException  # type: ignore
 
-    def setUp(self) -> None:
+    def test_raising_exception(self) -> None:
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=DB()  # type: ignore
         )
-
-    def test_raising_exception(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP},
             payload={"host": "cert.pl", "port": 80},
@@ -80,12 +78,10 @@ class FlakyModuleSavingErrorTest(KartonTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = FlakyModuleSavingError  # type: ignore
 
-    def setUp(self) -> None:
+    def test_saving_error(self) -> None:
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=DB()  # type: ignore
         )
-
-    def test_saving_error(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP},
             payload={"host": "cert.pl", "port": 80},

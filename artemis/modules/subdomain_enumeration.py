@@ -32,6 +32,7 @@ class SubdomainEnumeration(ArtemisBase):
     Consumes `type: domain` to gather subdomains and produces `type: domain`.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "subdomain_enumeration"
     filters = [
         {"type": TaskType.DOMAIN.value},

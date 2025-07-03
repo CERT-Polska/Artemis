@@ -28,6 +28,7 @@ class LFIDetector(ArtemisBase):
     Module for detecting Local File Inclusion (LFI) vulnerabilities.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "lfi_detector"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},

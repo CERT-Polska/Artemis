@@ -78,6 +78,7 @@ class PortScanner(ArtemisBase):
     SERVICE tasks for each service detected on a port (eg. `type: http`).
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     # We want to scan domains (but maybe using cached results for given IP) so that if there
     # are multiple domains for a single IP, service entries will get created for each one (which
     # matters e.g. for HTTP vhosts).

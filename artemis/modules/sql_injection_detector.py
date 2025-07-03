@@ -36,6 +36,7 @@ class SqlInjectionDetector(ArtemisBase):
     Module for detecting SQL injection and time-based SQL injection vulnerabilities.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "sql_injection_detector"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},

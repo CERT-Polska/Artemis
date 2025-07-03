@@ -37,6 +37,7 @@ class SSHBruter(ArtemisBase):
     Performs a brute force attack on SSH.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "ssh_bruter"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.SSH.value},

@@ -61,6 +61,7 @@ class Bruter(ArtemisBase):
     to dynamically update the common paths list.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "bruter"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},

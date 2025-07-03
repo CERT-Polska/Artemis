@@ -3,6 +3,7 @@ from karton.core import Task
 
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.password_utils import get_passwords
 
@@ -15,6 +16,7 @@ class WordPressBruter(ArtemisBase):
     Performs a brute-force attack on WordPress credentials.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "wordpress_bruter"
     filters = [
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},

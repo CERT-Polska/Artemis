@@ -49,6 +49,7 @@ class AdminPanelLoginBruter(ArtemisBase):
     This module attempts to brute-force login pages of admin panels using common credentials.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "admin_panel_login_bruter"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},

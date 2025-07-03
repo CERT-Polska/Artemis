@@ -50,6 +50,7 @@ class Nuclei(ArtemisBase):
     Runs Nuclei templates on URLs.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "nuclei"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},

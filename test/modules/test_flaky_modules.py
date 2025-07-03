@@ -1,10 +1,12 @@
 import random
-from test.base import ArtemisModuleTestCase
+from test.base import KartonBackendMockWithRedis
 
 from karton.core import Task
+from karton.core.test import ConfigMock, KartonTestCase
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.db import DB
 from artemis.module_base import ArtemisBase
 
 
@@ -53,9 +55,14 @@ class FlakyModuleSavingError(ArtemisBase):
         )
 
 
-class FlakyModuleRaisingExceptionTest(ArtemisModuleTestCase):
+class FlakyModuleRaisingExceptionTest(KartonTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = FlakyModuleRaisingException  # type: ignore
+
+    def setUp(self) -> None:
+        self.karton = self.karton_class(  # type: ignore
+            config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=DB()  # type: ignore
+        )
 
     def test_raising_exception(self) -> None:
         task = Task(
@@ -63,14 +70,20 @@ class FlakyModuleRaisingExceptionTest(ArtemisModuleTestCase):
             payload={"host": "cert.pl", "port": 80},
         )
         self.run_task(task)
-        (call,) = self.mock_db.save_task_result.call_args_list
-        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["status_reason"], "Found a vulnerability")
+        db = DB()
+        result = db.get_task_by_id(task.uid)
+        self.assertEqual(result["status"], "INTERESTING")  # type: ignore
+        self.assertEqual(result["status_reason"], "Found a vulnerability")  # type: ignore
 
 
-class FlakyModuleSavingErrorTest(ArtemisModuleTestCase):
+class FlakyModuleSavingErrorTest(KartonTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = FlakyModuleSavingError  # type: ignore
+
+    def setUp(self) -> None:
+        self.karton = self.karton_class(  # type: ignore
+            config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=DB()  # type: ignore
+        )
 
     def test_saving_error(self) -> None:
         task = Task(
@@ -78,6 +91,7 @@ class FlakyModuleSavingErrorTest(ArtemisModuleTestCase):
             payload={"host": "cert.pl", "port": 80},
         )
         self.run_task(task)
-        (call,) = self.mock_db.save_task_result.call_args_list
-        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(call.kwargs["status_reason"], "Found a vulnerability")
+        db = DB()
+        result = db.get_task_by_id(task.uid)
+        self.assertEqual(result["status"], "INTERESTING")  # type: ignore
+        self.assertEqual(result["status_reason"], "Found a vulnerability")  # type: ignore

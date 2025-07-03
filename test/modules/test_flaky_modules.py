@@ -19,7 +19,7 @@ class FlakyModuleRaisingException(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    num_retries = 10
+    num_retries = 100
 
     def run(self, current_task: Task) -> None:
         if random.randint(1, 100) < 90:
@@ -41,7 +41,7 @@ class FlakyModuleSavingError(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    num_retries = 10
+    num_retries = 100
 
     def run(self, current_task: Task) -> None:
         if random.randint(1, 100) < 90:
@@ -72,7 +72,7 @@ class FlakyModuleSavingErrorTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = FlakyModuleSavingError  # type: ignore
 
-    def test_raising_exception(self) -> None:
+    def test_saving_error(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP},
             payload={"host": "cert.pl", "port": 80},

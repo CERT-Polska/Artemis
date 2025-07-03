@@ -673,31 +673,35 @@ class ArtemisBase(Karton):
                 self._configuration = self.get_default_configuration()
 
             # Create a fresh output redirector for each batch
-            output_redirector = OutputRedirector()
 
+            output = ""
             try:
                 for i in range(self.num_retries):
                     try:
+                        output_redirector = OutputRedirector()
                         with output_redirector:
                             if self.batch_tasks:
                                 timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(task_group))()
                             else:
                                 for task in task_group:
                                     timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
+                        output += output_redirector.get_output()
+
                         has_errors = False
                         for task in task_group:
                             task_result = self.db.get_task_by_id(task.uid)
+                            print("aaa", task_result)
 
                             if task_result and task_result.get("status", None) == "ERROR":
                                 has_errors = True
                         if has_errors:
-                            self.log.exception("Task(s) returned error status, retrying")
+                            self.log.exception("Task(s) returned error status, retrying (try %d/%d)", i, self.num_retries)
                         else:
                             break
 
                     except Exception:
                         if i < self.num_retries - 1:
-                            self.log.exception("Task(s) failed, retrying")
+                            self.log.exception("Task(s) failed, retrying (try %d/%d)", i, self.num_retries)
                         else:
                             for task in task_group:
                                 self.db.save_task_result(
@@ -707,7 +711,7 @@ class ArtemisBase(Karton):
             finally:
                 for task in task_group:
                     if Config.Data.SAVE_LOGS_IN_DATABASE:
-                        self.db.save_task_logs(task.uid, output_redirector.get_output())
+                        self.db.save_task_logs(task.uid, output)
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

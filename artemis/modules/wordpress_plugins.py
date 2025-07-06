@@ -68,7 +68,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "login-logo",
     "page-or-post-clone",
     "perfect-woocommerce-brands",
-    "persian-elementor",
     "rafflepress",
     "sticky-header-effects-for-elementor",
     "website-monetization-by-magenet",

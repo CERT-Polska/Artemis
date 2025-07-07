@@ -667,7 +667,6 @@ class Config:
                         "http/exposures/logs/roundcube-log-disclosure.yaml",
                         "network/detection/rtsp-detect.yaml",
                         "http/miscellaneous/defaced-website-detect.yaml",
-                        "http/miscellaneous/http-trace.yaml",
                         "http/misconfiguration/directory-listing-no-host-header.yaml",
                         "http/misconfiguration/django-debug-detect.yaml",
                         "http/misconfiguration/mixed-active-content.yaml",
@@ -973,7 +972,7 @@ class Config:
             DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS: Annotated[
                 int,
                 "Time limit for DNS brute force in seconds - some of the servers are very slow, so we don't want to wait too long.",
-            ] = get_config("DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS", default=1200, cast=int)
+            ] = get_config("DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS", default=2400, cast=int)
 
             DNS_QUERIES_PER_SECOND: Annotated[
                 int,

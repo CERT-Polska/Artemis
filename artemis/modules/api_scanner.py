@@ -90,16 +90,15 @@ class APIScanner(ArtemisBase):
         ]
 
         if Config.Modules.APIScanner.ONLY_GET_REQUESTS:
-            offat_cmd.append("--only-get-requests")
-            subprocess.call(offat_cmd)
-        else:
-            subprocess.call(offat_cmd)
+            offat_cmd.extend(["--http-methods", "GET"])
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             offat_cmd.extend(["-H", f"User-Agent:{Config.Miscellaneous.CUSTOM_USER_AGENT}"])
 
         if self.requests_per_second_for_current_tasks:
             offat_cmd.extend(["-rl", str(self.requests_per_second_for_current_tasks)])
+
+        subprocess.call(offat_cmd)
 
         with open(output_file) as f:
             file_contents = f.read()

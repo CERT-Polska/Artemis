@@ -70,7 +70,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "rafflepress",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
-    "yellow-pencil-visual-theme-customizer",
 ]
 
 

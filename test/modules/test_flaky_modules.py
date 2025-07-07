@@ -70,6 +70,7 @@ class FlakyModuleRaisingExceptionTest(KartonTestCase):
         self.run_task(task)
         db = DB()
         result = db.get_task_by_id(task.uid)
+        print("aaaaaaab1", task.uid, result)
         self.assertEqual(result["status"], "INTERESTING")  # type: ignore
         self.assertEqual(result["status_reason"], "Found a vulnerability")  # type: ignore
 
@@ -89,5 +90,6 @@ class FlakyModuleSavingErrorTest(KartonTestCase):
         self.run_task(task)
         db = DB()
         result = db.get_task_by_id(task.uid)
+        print("aaaaaaab2", task.uid, result)
         self.assertEqual(result["status"], "INTERESTING")  # type: ignore
         self.assertEqual(result["status_reason"], "Found a vulnerability")  # type: ignore

@@ -603,7 +603,8 @@ class TestDB:
     def delete_task_results(self) -> None:
         with self.session() as session:
             task_results = session.query(TaskResult).all()
-            session.delete(task_results)
+            for task_result in task_results:
+                session.delete(task_result)
             session.commit()
 
     def get_single_task_result(self) -> Dict[str, Any]:

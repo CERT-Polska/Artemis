@@ -23,7 +23,7 @@ Markdown==3.8.2
 MarkupSafe==3.0.2
 minio==7.2.1
 more-itertools==10.7.0
-openapi-spec-validator==0.7.1
+openapi-spec-validator==0.7.2
 packaging==25.0
 paramiko==3.5.1
 prometheus-client==0.22.1

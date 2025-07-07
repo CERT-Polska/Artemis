@@ -690,7 +690,6 @@ class ArtemisBase(Karton):
                         has_errors = False
                         for task in task_group:
                             task_result = self.db.get_task_by_id(task.uid)
-                            print("aaaaaaaa", task.uid, task_result)
 
                             if task_result and task_result.get("status", None) == "ERROR":
                                 has_errors = True

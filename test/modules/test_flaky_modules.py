@@ -6,7 +6,7 @@ from karton.core.test import ConfigMock, KartonTestCase
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.db import DB
+from artemis.db import DB, TestDB
 from artemis.module_base import ArtemisBase
 
 
@@ -67,12 +67,12 @@ class FlakyModuleRaisingExceptionTest(KartonTestCase):
             {"type": TaskType.SERVICE.value, "service": Service.HTTP},
             payload={"host": "cert.pl", "port": 80},
         )
+        test_db = TestDB()
+        test_db.delete_task_results()
         self.run_task(task)
-        db = DB()
-        result = db.get_task_by_id(task.uid)
-        print("aaaaaaab1", task.uid, result)
-        self.assertEqual(result["status"], "INTERESTING")  # type: ignore
-        self.assertEqual(result["status_reason"], "Found a vulnerability")  # type: ignore
+        result = test_db.get_single_task_result()
+        self.assertEqual(result["status"], "INTERESTING")
+        self.assertEqual(result["status_reason"], "Found a vulnerability")
 
 
 class FlakyModuleSavingErrorTest(KartonTestCase):
@@ -87,9 +87,9 @@ class FlakyModuleSavingErrorTest(KartonTestCase):
             {"type": TaskType.SERVICE.value, "service": Service.HTTP},
             payload={"host": "cert.pl", "port": 80},
         )
+        test_db = TestDB()
+        test_db.delete_task_results()
         self.run_task(task)
-        db = DB()
-        result = db.get_task_by_id(task.uid)
-        print("aaaaaaab2", task.uid, result)
-        self.assertEqual(result["status"], "INTERESTING")  # type: ignore
-        self.assertEqual(result["status_reason"], "Found a vulnerability")  # type: ignore
+        result = test_db.get_single_task_result()
+        self.assertEqual(result["status"], "INTERESTING")
+        self.assertEqual(result["status_reason"], "Found a vulnerability")

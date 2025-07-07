@@ -551,7 +551,8 @@ class DB:
         query = query.replace('"', " ")  # just in case
         return " & ".join([f'"{item}"' for item in query.split(" ") if item])
 
-    def _strip_internal_db_info(self, d: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def _strip_internal_db_info(d: Dict[str, Any]) -> Dict[str, Any]:
         if "_sa_instance_state" in d:
             del d["_sa_instance_state"]
         if "fulltext" in d:
@@ -588,3 +589,24 @@ class DB:
             for tag_archive_request in tag_archive_requests:
                 session.delete(tag_archive_request)
                 session.commit()
+
+
+class TestDB:
+    def __init__(self) -> None:
+        self.logger = build_logger(__name__)
+
+        self._engine = create_engine(
+            Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
+        )
+        self.session = sessionmaker(bind=self._engine)
+
+    def delete_task_results(self) -> None:
+        with self.session() as session:
+            task_results = session.query(TaskResult).all()
+            session.delete(task_results)
+            session.commit()
+
+    def get_single_task_result(self) -> Dict[str, Any]:
+        with self.session() as session:
+            task_result = session.query(TaskResult).get()
+            return DB._strip_internal_db_info(task_result.__dict__)

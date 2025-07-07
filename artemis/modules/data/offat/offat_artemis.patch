@@ -5,7 +5,7 @@ index 3c990dd..6e799b7 100644
 @@ -269,10 +269,19 @@ class TestGenerator:
              "' AND SLEEP(5) --",
          ]
- 
+
 +        SQL_INJECTION_TIME_THRESHOLD = 5
 +
 +        sql_injection_sleep_payloads = [
@@ -16,7 +16,7 @@ index 3c990dd..6e799b7 100644
 +        ]
 +
          fuzzed_request_list = self.__fuzz_request_params(openapi_parser)
- 
+
          # inject SQLi payloads in string variables
 -        for sqli_payload in basic_sqli_payloads:
 +        for sqli_payload in basic_sqli_payloads+sql_injection_sleep_payloads:
@@ -30,12 +30,12 @@ index 3c990dd..6e799b7 100644
 +
 +                request_obj["sleep_payload"] = sqli_payload in sql_injection_sleep_payloads
                  tasks.append(deepcopy(request_obj))
- 
+
          return tasks
 @@ -354,6 +365,15 @@ class TestGenerator:
              "' AND SLEEP(5) --",
          ]
- 
+
 +        SQL_INJECTION_TIME_THRESHOLD = 5
 +
 +        sql_injection_sleep_payloads = [
@@ -61,9 +61,9 @@ index de0d812..075c84f 100644
 --- a/src/offat/tester/post_test_processor.py
 +++ b/src/offat/tester/post_test_processor.py
 @@ -139,6 +139,39 @@ class PostRunTests:
- 
+
          return new_results
- 
+
 +    @staticmethod
 +    def check_time_based_sqli(results: list[dict], SQL_INJECTION_SLEEP_THRESHOLD: float = 5) -> list[dict]:
 +        """
@@ -109,12 +109,12 @@ index e339c6e..97efe61 100644
  from traceback import format_exc
  from rich.progress import Progress, TaskID
 +from time import time
- 
+
  from ..http import AsyncRequests
  from ..logger import logger, console
 @@ -136,10 +137,24 @@ class TestRunner:
              test_result['error'] = False
- 
+
              return test_result
 +        is_sql_test = test_task.get("test_name") in [
 +            'Checking for SQLi vulnerability',
@@ -144,9 +144,8 @@ index 4194099..e3597a9 100644
 @@ -114,6 +114,8 @@ def run_test(
          # update test result for status based code filter
          test_results = PostRunTests.filter_status_code_based_results(test_results)
- 
+
 +    test_results = PostRunTests.check_time_based_sqli(test_results)
 +
      # update tests result success/failure details
      test_results = PostRunTests.update_result_details(test_results)
- 

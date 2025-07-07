@@ -63,6 +63,8 @@ class ArtemisBase(Karton):
     # their IPs are already scanned, the actual batch size may be lower.
     task_max_batch_size = 1
 
+    num_retries = Config.Miscellaneous.DEFAULT_MODULE_NUM_RETRIES
+
     timeout_seconds = Config.Limits.TASK_TIMEOUT_SECONDS
 
     lock_target = Config.Locking.LOCK_SCANNED_TARGETS
@@ -671,23 +673,46 @@ class ArtemisBase(Karton):
                 self._configuration = self.get_default_configuration()
 
             # Create a fresh output redirector for each batch
-            output_redirector = OutputRedirector()
 
+            output = b""
             try:
-                with output_redirector:
-                    if self.batch_tasks:
-                        timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(task_group))()
-                    else:
+                for i in range(self.num_retries):
+                    try:
+                        output_redirector = OutputRedirector()
+                        with output_redirector:
+                            if self.batch_tasks:
+                                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(task_group))()
+                            else:
+                                for task in task_group:
+                                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
+                        output += output_redirector.get_output()
+
+                        has_errors = False
                         for task in task_group:
-                            timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
-            except Exception:
-                for task in task_group:
-                    self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
-                raise
+                            task_result = self.db.get_task_by_id(task.uid)
+
+                            if task_result and task_result.get("status", None) == "ERROR":
+                                has_errors = True
+                        if has_errors:
+                            self.log.exception(
+                                "Task(s) returned error status, retrying (try %d/%d)", i, self.num_retries
+                            )
+                        else:
+                            break
+
+                    except Exception:
+                        if i < self.num_retries - 1:
+                            self.log.exception("Task(s) failed, retrying (try %d/%d)", i, self.num_retries)
+                        else:
+                            for task in task_group:
+                                self.db.save_task_result(
+                                    task=task, status=TaskStatus.ERROR, data=traceback.format_exc()
+                                )
+                                raise
             finally:
                 for task in task_group:
                     if Config.Data.SAVE_LOGS_IN_DATABASE:
-                        self.db.save_task_logs(task.uid, output_redirector.get_output())
+                        self.db.save_task_logs(task.uid, output)
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:

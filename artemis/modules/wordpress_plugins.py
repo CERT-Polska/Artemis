@@ -219,6 +219,7 @@ class WordpressPlugins(ArtemisBase):
     Checks whether WordPress plugins are up-to-date.
     """
 
+    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "wordpress_plugins"
     filters = [
         {"type": TaskType.WEBAPP.value, "webapp": WebApplication.WORDPRESS.value},

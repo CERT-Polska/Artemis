@@ -190,6 +190,15 @@ class Config:
         ] = get_config("REQUESTS_PER_SECOND", default=0, cast=float)
 
     class Miscellaneous:
+        DEFAULT_MODULE_NUM_RETRIES: Annotated[
+            int, "The number of times a module will be executed in an attempt to obtain a non-error status."
+        ] = get_config("DEFAULT_MODULE_NUM_RETRIES", default=1)
+
+        SLOW_MODULE_NUM_RETRIES: Annotated[
+            int,
+            "The number of times a module will be executed in an attempt to obtain a non-error status for a module that tends to run for a long time.",
+        ] = get_config("SLOW_MODULE_NUM_RETRIES", default=1)
+
         API_TOKEN: Annotated[str, "The token to authenticate to the API. Provide one to use the API."] = get_config(
             "API_TOKEN", default=None
         )

@@ -997,6 +997,16 @@ TRANSLATIONS = {
     "The Web Application Firewall in Bitrix24 up to and including 20.0.0 allows XSS via the items[ITEMS][ID] parameter to the components/bitrix/mobileapp.list/ajax.php/ URI.": "Komponent Web Application Firewall w Bitrix24 w wersji do 20.0.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "A vulnerability in XWiki Platform\'s REST API allows unauthorized users to access document history information. The REST API endpoint exposes the history of any page including modification times, version numbers, author details (username and display name), and version comments, regardless of access rights configuration, even on private wikis.": "Wykryto system XWiki zawierający podatność umożliwiającą atakującemu dostęp do historii dokumentu (w tym komentarzy czy informacji o autorach) bez uwierzytelnienia.",
+    "uWSGI PHP Plugin before 2.0.17 mishandles a DOCUMENT_ROOT check during use of the --php-docroot option, making it susceptible to local file inclusion.": "Wtyczka PHP do narzędzia uWSGI w wersji poniżej 2.0.17 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "Hrsale 2.0.0 is vulnerable to local file inclusion. This exploit allow you to download any readable file from server without permission and login session": "Hrsale w wersji 2.0.0 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "The MapSVG WordPress plugin before 6.2.20 does not validate and escape a parameter via a REST endpoint before using it in a SQL statement, leading to a SQL Injection exploitable by unauthenticated users.": "Wtyczka WordPress o nazwie MapSVG w wersji poniżej 6.2.20 zawiera podatność SQL Injection, umożliwiającą atakującemu odczyt dowolnych danych z bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "Detects exposed JSON configuration files containing sensitive information including API keys, access tokens, AWS credentials, database configurations, base URLs, file paths, and application settings. These files often contain production configurations and credentials that should not be publicly accessible.": "Wykryto publicznie dostępny plik JSON mogący zawierać informacje konfiguracyjne takie jak klucze API, tokeny dostępowe, konfiguracje bazy danych itp."
+    + DATA_HIDE_HINT,
+    "The WP GDPR Compliance plugin allows unauthenticated users to execute any action and update any database value. This vulnerability is due to the lack of proper validation in the Includes/Ajax.php file.": "Wykryto wersję wtyczki WordPress o nazwie WP GDPR Compliance umożliwiającej atakującemu wykonanie dowolnych działań i zmianę dowolnych wartości w bazie danych, a co za tym idzie przejęcie pełnej kontroli nad systemem."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "A reflected cross-site scripting (XSS) vulnerability in the GlobalProtect™ gateway and portal features of Palo Alto Networks PAN-OS® software enables execution of malicious JavaScript in the context of an authenticated Captive Portal user's browser when they click on a specially crafted link.The primary risk is phishing attacks that can lead to credential theft—particularly if you enabled Clientless VPN.": "Wykryto, że bramka GlobalProtect™ i portal Palo Alto Networks PAN-OS® zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION,
     'Improper escaping of output in mod_rewrite in Apache HTTP Server 2.4.59 and earlier allows an attacker to map URLs to filesystem locations that are permitted to be served by the server but are not intentionally/directly reachable by any URL, resulting in code execution or source code disclosure. Substitutions in server context that use a backreferences or variables as the first segment of the substitution are affected.  Some unsafe RewiteRules will be broken by this change and the rewrite flag "UnsafePrefixStat" can be used to opt back in once ensuring the substitution is appropriately constrained.': "Moduł mod_rewrite serwera Apache w wersji 2.4.59 i wcześniejszych umożliwia atakującemu odczyt i wykonanie niektórych plików które nie powinny być publicznie dostępne.",
@@ -1812,4 +1822,9 @@ TRANSLATIONS = {
     "Camaleon CMS admin login panel was discovered.": "Wykryto panel administracyjny systemu Camaleon CMS.",
     "[no description] http/exposed-panels/filegator-panel.yaml": "Wykryto panel systemu FileGator.",
     "Ollama LLM Panel was detected": "Wykryto panel Ollama LLM.",
+    "Detects the presence of the SAP NetWeaver Process Integration / Composition Environment Tools page": "Wykryto moduł SAP NetWeaver Process Integration / Composition Environment Tools",
+    "SqWebMail login panel was detected.": "Wykryto panel logowania systemu SqWebMail.",
+    "Request Tracker panel was discovered.": "Wykryto panel systemu Request Tracker.",
+    "Hashicorp Consul Agent was detected.": "Wykryto system Hashicorp Consul Agent.",
+    "OpenSearch Dashboard is a visualization and management tool for OpenSearch. This template detects the presence of the OpenSearch Dashboard login panel, which is the default authentication interface for accessing the dashboard.": "Wykryto panel systemu OpenSearch Dashboard.",
 }

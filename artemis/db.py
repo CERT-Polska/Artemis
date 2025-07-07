@@ -609,5 +609,5 @@ class TestDB:
 
     def get_single_task_result(self) -> Dict[str, Any]:
         with self.session() as session:
-            task_result = session.query(TaskResult).get()
+            (task_result,) = tuple(session.query(TaskResult).all())
             return DB._strip_internal_db_info(task_result.__dict__)

@@ -1,32 +1,5 @@
-diff --git a/src/offat/__main__.py b/src/offat/__main__.py
-index f73c524..0c7da88 100644
---- a/src/offat/__main__.py
-+++ b/src/offat/__main__.py
-@@ -47,6 +47,14 @@ def start():
-     parser.add_argument(
-         '-v', '--version', action='version', version=f"%(prog)s {get_package_version()}"
-     )
-+    parser.add_argument(
-+        '--only-get-requests',
-+        dest='only_get_requests',
-+        help="send only GET requests while scanning",
-+        action='store_true',
-+        default=False,
-+        required=False
-+    )
-     parser.add_argument(
-         '-rl',
-         '--rate-limit',
-@@ -168,6 +176,7 @@ def start():
-         proxies=args.proxies_list,
-         capture_failed=args.capture_failed,
-         ssl_verify=args.ssl_verify,
-+        only_get_requests=args.only_get_requests,
-     )
-
-
 diff --git a/src/offat/tester/generator.py b/src/offat/tester/generator.py
-index 3c990dd..ca2e6b4 100644
+index 3c990dd..6e799b7 100644
 --- a/src/offat/tester/generator.py
 +++ b/src/offat/tester/generator.py
 @@ -269,10 +269,19 @@ class TestGenerator:
@@ -83,35 +56,14 @@ index 3c990dd..ca2e6b4 100644
                          'response_filter': PostTestFiltersEnum.STATUS_CODE_FILTER.name,
                      }
                  )
-diff --git a/src/offat/tester/handler.py b/src/offat/tester/handler.py
-index 44bf376..e8663bb 100644
---- a/src/offat/tester/handler.py
-+++ b/src/offat/tester/handler.py
-@@ -28,6 +28,7 @@ def generate_and_run_tests(
-     capture_failed: bool = False,
-     remove_unused_data: bool = True,
-     ssl_verify: bool = True,
-+    only_get_requests: bool = False,
- ):
-     """
-     Generates and runs tests for the provided OAS/Swagger file.
-@@ -70,6 +71,7 @@ def generate_and_run_tests(
-         headers=req_headers,
-         proxies=proxies,
-         ssl_verify=ssl_verify,
-+        only_get_requests=only_get_requests,
-     )
-
-     results: list = []
 diff --git a/src/offat/tester/post_test_processor.py b/src/offat/tester/post_test_processor.py
-index de0d812..cf6f028 100644
+index de0d812..075c84f 100644
 --- a/src/offat/tester/post_test_processor.py
 +++ b/src/offat/tester/post_test_processor.py
-@@ -138,6 +138,39 @@ class PostRunTests:
-             new_results.append(new_result)
+@@ -139,6 +139,39 @@ class PostRunTests:
 
          return new_results
-+
+
 +    @staticmethod
 +    def check_time_based_sqli(results: list[dict], SQL_INJECTION_SLEEP_THRESHOLD: float = 5) -> list[dict]:
 +        """
@@ -144,11 +96,12 @@ index de0d812..cf6f028 100644
 +            updated_results.append(new_result)
 +
 +        return updated_results
-
++
      @staticmethod
      def update_result_details(results: list[dict]):
+         new_results = []
 diff --git a/src/offat/tester/runner.py b/src/offat/tester/runner.py
-index d61fbdb..209f7d0 100644
+index e339c6e..97efe61 100644
 --- a/src/offat/tester/runner.py
 +++ b/src/offat/tester/runner.py
 @@ -4,6 +4,7 @@ from enum import Enum
@@ -159,35 +112,10 @@ index d61fbdb..209f7d0 100644
 
  from ..http import AsyncRequests
  from ..logger import logger, console
-@@ -26,6 +27,7 @@ class TestRunner:
-         headers: dict | None = None,
-         proxies: list[str] | None = None,
-         ssl_verify: bool = True,
-+        only_get_requests: bool = False,
-     ) -> None:
-         self._client = AsyncRequests(
-             rate_limit=rate_limit,
-@@ -33,6 +35,7 @@ class TestRunner:
-             proxies=proxies,
-             ssl_verify=ssl_verify,
-         )
-+        self.only_get_requests = only_get_requests
-         self.progress = Progress(console=console)
-         self.progress_task_id: TaskID | None = None
+@@ -136,10 +137,24 @@ class TestRunner:
+             test_result['error'] = False
 
-@@ -125,10 +128,33 @@ class TestRunner:
-             )
-
-         test_result = test_task
-+        if str(http_method).upper() != "GET" and self.only_get_requests:
-+            test_result['request_headers'] = []
-+            test_result['response_headers'] = []
-+            test_result['response_body'] = f"{str(http_method).upper()} request was not sent"
-+            test_result['response_status_code'] = -1
-+            test_result['redirection'] = ''
-+            test_result['error'] = False
-+
-+            return test_result
+             return test_result
 +        is_sql_test = test_task.get("test_name") in [
 +            'Checking for SQLi vulnerability',
 +            'Checking for SQLi vulnerability in URI Path',
@@ -210,15 +138,14 @@ index d61fbdb..209f7d0 100644
              test_result['request_headers'] = response.get('req_headers', [])
              # append response headers and body for analyzing data leak
 diff --git a/src/offat/tester/tester_utils.py b/src/offat/tester/tester_utils.py
-index 4194099..02c1861 100644
+index 4194099..e3597a9 100644
 --- a/src/offat/tester/tester_utils.py
 +++ b/src/offat/tester/tester_utils.py
-@@ -113,6 +113,8 @@ def run_test(
-     else:
+@@ -114,6 +114,8 @@ def run_test(
          # update test result for status based code filter
          test_results = PostRunTests.filter_status_code_based_results(test_results)
-+
-+    test_results = PostRunTests.check_time_based_sqli(test_results)
 
++    test_results = PostRunTests.check_time_based_sqli(test_results)
++
      # update tests result success/failure details
      test_results = PostRunTests.update_result_details(test_results)

@@ -77,8 +77,9 @@ class WPScannerReporter(Reporter):
 
     @staticmethod
     def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
-        if task_result["headers"]["receiver"] != "wp_scanne":
+        if task_result["headers"]["receiver"] != "wp_scanner":
             return []
+
         if not isinstance(task_result["result"], dict):
             return []
 

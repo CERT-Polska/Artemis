@@ -15,5 +15,6 @@ class ReverseDNSLookupReporter(Reporter):
             return []
 
         return [
-            Asset(asset_type=AssetType.DOMAIN, name=domain) for domain in task_result["result"].get("found_domains", [])
+            Asset(asset_type=AssetType.DOMAIN, name=domain)
+            for domain in task_result["result"].get("actually_triggered_tasks", [])
         ]

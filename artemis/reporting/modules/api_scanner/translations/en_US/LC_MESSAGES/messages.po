@@ -1,0 +1,61 @@
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:2
+msgid "We identified following API vulnerabilities:"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:10
+msgid ""
+"the endpoint accepts HTTP methods that is not documented as allowed, "
+"potentially enabling unintended operations"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:12
+msgid ""
+"SQL Injection - malicious input can manipulate database queries, leading "
+"to data leaks or unauthorized access"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:14
+msgid ""
+"time-based SQL Injection - an attacker can infer data using timing-based "
+"payloads, exploiting database behavior"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:16
+msgid ""
+"OS Command Injection - arbitrary system commands can be executed on the "
+"server, leading to full compromise"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:18
+msgid ""
+"XSS/HTML Injection - untrusted input is rendered in the browser, enabling"
+" attacks such as session hijacking or defacement. In the case of "
+"defacement, reflected XSS allows an attacker to inject and execute "
+"arbitrary HTML or JavaScript, altering the appearance or content of the "
+"affected page for the victim, effectively impersonating the administrator"
+" or changing site behavior"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:20
+msgid ""
+"SSTI - Server-Side Template Injection allows attackers to execute code on"
+" the server by injecting into templates"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:22
+msgid ""
+"missing authentication - endpoints lack proper access control, allowing "
+"unauthorized access"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:26
+msgid "method:"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:28
+msgid "status code:"
+msgstr ""
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:28
+msgid "data leaks:"
+msgstr ""

@@ -1,0 +1,78 @@
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:2
+msgid "We identified following API vulnerabilities:"
+msgstr "Wykryliśmy następujące podatności w końcówkach API:"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:10
+msgid ""
+"the endpoint accepts HTTP methods that is not documented as allowed, "
+"potentially enabling unintended operations"
+msgstr ""
+"końcówka akceptuje metody HTTP które nie są udokumentowane, potencjalnie "
+"umożliwiając nieuprawnione operacje"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:12
+msgid ""
+"SQL Injection - malicious input can manipulate database queries, leading "
+"to data leaks or unauthorized access"
+msgstr ""
+"SQL Injection - atakujący może manipulować zapytaniami do bazy danych, co"
+" umożliwia pobranie danych lub nieuprawniony dostęp do systemu"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:14
+msgid ""
+"time-based SQL Injection - an attacker can infer data using timing-based "
+"payloads, exploiting database behavior"
+msgstr ""
+"SQL Injection - atakujący może manipulować zapytaniami do bazy danych, co"
+" umożliwia pobranie danych lub nieuprawniony dostęp do systemu"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:16
+msgid ""
+"OS Command Injection - arbitrary system commands can be executed on the "
+"server, leading to full compromise"
+msgstr ""
+"wstrzykiwanie poleceń systemowych - atakujący może wykonać dowolne "
+"polecenia na serwerze, uzyskując pełny dostęp do systemu"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:18
+msgid ""
+"XSS/HTML Injection - untrusted input is rendered in the browser, enabling"
+" attacks such as session hijacking or defacement. In the case of "
+"defacement, reflected XSS allows an attacker to inject and execute "
+"arbitrary HTML or JavaScript, altering the appearance or content of the "
+"affected page for the victim, effectively impersonating the administrator"
+" or changing site behavior"
+msgstr ""
+"Cross-Site Scripting - niezaufana treść jest wyświetlana/wykonywana w "
+"przeglądarce internetowej, co umożliwia atakującemu spreparowanie linku, "
+"który, po kliknięciu przez administratora, wykona dowolną akcję z jego "
+"uprawnieniami (taką jak np. modyfikacja treści czy kradzież danych)"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:20
+msgid ""
+"SSTI - Server-Side Template Injection allows attackers to execute code on"
+" the server by injecting into templates"
+msgstr ""
+"Server-Side Template Injection - atakujący może wstrzykiwać własną "
+"zawartość szablonów HTML a dzięki temu wykonywać kod na serwerze"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:22
+msgid ""
+"missing authentication - endpoints lack proper access control, allowing "
+"unauthorized access"
+msgstr ""
+"brak uwierzytelnienia - końcówka nie weryfikuje, czy użytkownik jest "
+"uprawniony do jej uruchomienia, co może prowadzić do nieuprawnionego "
+"dostępu do systemu"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:26
+msgid "method:"
+msgstr "metoda:"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:28
+msgid "status code:"
+msgstr "kod odpowiedzi:"
+
+#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:28
+msgid "data leaks:"
+msgstr "wyciek danych:"

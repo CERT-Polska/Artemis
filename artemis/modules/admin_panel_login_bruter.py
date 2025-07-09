@@ -251,7 +251,7 @@ class AdminPanelLoginBruter(ArtemisBase):
             task=current_task,
             status=status,
             status_reason=status_reason,
-            data={"results": [result.dict() for result in results]},
+            data={"results": [result.model_dump() for result in results]},
         )
 
 

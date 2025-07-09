@@ -1,6 +1,8 @@
 import os
 from typing import Any, Callable, Dict, List
 
+from artemis.reporting.base.asset import Asset
+from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_url_normal_form
 from artemis.reporting.base.report import Report
@@ -72,3 +74,20 @@ class WPScannerReporter(Reporter):
                 "version": report.additional_data["version"],
             }
         )
+
+    @staticmethod
+    def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
+        if task_result["headers"]["receiver"] != "wp_scanner":
+            return []
+
+        if not isinstance(task_result["result"], dict):
+            return []
+
+        return [
+            Asset(
+                asset_type=AssetType.CMS,
+                name=get_target_url(task_result),
+                additional_type="wordpress",
+                version=task_result["result"].get("wp_version", None),
+            )
+        ]

@@ -73,6 +73,6 @@ class JoomlaScannerReporter(Reporter):
                 asset_type=AssetType.CMS,
                 name=get_target_url(task_result),
                 additional_type="joomla",
-                version=task_result["result"].get("version", None),
+                version=task_result["result"].get("joomla_version", None),
             )
         ]

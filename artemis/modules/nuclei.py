@@ -3,6 +3,7 @@ import collections
 import enum
 import itertools
 import json
+import logging
 import os
 import random
 import shutil
@@ -40,6 +41,29 @@ CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_tem
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
 TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
+
+
+def group_targets_by_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
+    tech_results = run_tech_detection(targets, logger)
+    scan_groups = collections.defaultdict(list)
+    all_known_techs = {tech for tech in TECHNOLOGY_DETECTION_CONFIG.keys()}
+
+    for target_url in targets:
+        detected_techs_set = {tech.lower() for tech in tech_results.get(target_url, [])}
+        known_detected_techs = set()
+        for tech in all_known_techs:
+            if any(tech in detected_tech for detected_tech in detected_techs_set):
+                known_detected_techs.add(tech)
+
+        undetected_techs = all_known_techs - known_detected_techs
+
+        tags_to_exclude = set()
+        for tech_name in undetected_techs:
+            tags_to_exclude.update(TECHNOLOGY_DETECTION_CONFIG[tech_name]["tags_to_exclude"])
+
+        # Use a hashable frozenset as the dictionary key
+        scan_groups[frozenset(tags_to_exclude)].append(target_url)
+    return scan_groups
 
 
 class ScanUsing(enum.Enum):
@@ -426,26 +450,7 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        tech_results = run_tech_detection(targets, self.log)
-
-        scan_groups = collections.defaultdict(list)
-        all_known_techs = {tech for tech in TECHNOLOGY_DETECTION_CONFIG.keys()}
-
-        for target_url in targets:
-            detected_techs_set = {tech for tech in tech_results.get(target_url, [])}
-            known_detected_techs = set()
-            for tech in all_known_techs:
-                if any(tech in detected_tech.lower() for detected_tech in detected_techs_set):
-                    known_detected_techs.add(tech)
-
-            undetected_techs = all_known_techs - known_detected_techs
-
-            tags_to_exclude = set()
-            for tech_name in undetected_techs:
-                tags_to_exclude.update(TECHNOLOGY_DETECTION_CONFIG[tech_name]["tags_to_exclude"])
-
-            # Use a hashable frozenset as the dictionary key
-            scan_groups[frozenset(tags_to_exclude)].append(target_url)
+        scan_groups = group_targets_by_tech(targets, self.log)
 
         findings: List[Dict[str, Any]] = []
         for tags_frozen_set, group_targets in scan_groups.items():

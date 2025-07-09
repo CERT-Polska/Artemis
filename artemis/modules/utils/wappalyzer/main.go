@@ -75,5 +75,6 @@ func main() {
 		log.Fatalf("Error marshalling to JSON: %v\n", err)
 	}
 
+	log.Println(string(jsonOutput)) // Print the technologies found to the logs as well
 	fmt.Println(string(jsonOutput))
 }

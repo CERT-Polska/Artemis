@@ -144,6 +144,7 @@ class ExportingTestCase(BaseE2ETestCase):
                     sorted(output_data["messages"]["test-smtp-server.artemis"]["assets"]),
                     [
                         {
+                            "version": None,
                             "additional_type": None,
                             "asset_type": "domain",
                             "top_level_target": "test-smtp-server.artemis",

@@ -1,7 +1,6 @@
 from test.base import BaseReportingTest
 
 from artemis.binds import WebApplication
-
 from artemis.modules.wp_scanner import WordPressScanner
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType

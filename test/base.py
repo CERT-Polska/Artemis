@@ -1,16 +1,16 @@
 import os
 import tempfile
+import urllib
 from pathlib import Path
 from typing import Any, Dict, List
 from unittest.mock import MagicMock
-from artemis.binds import WebApplication
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from karton.core import Task
 from karton.core.test import BackendMock, ConfigMock, KartonTestCase
 from redis import StrictRedis
 
-from artemis.binds import Service, TaskType
+from artemis.binds import Service, TaskType, WebApplication
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.reporters import reports_from_task_result
 from artemis.reporting.base.templating import build_message_template
@@ -63,10 +63,11 @@ class BaseReportingTest(ArtemisModuleTestCase):
         return environment.from_string(message_template_content)
 
     def obtain_webapp_task_result(self, receiver: str, webapp: WebApplication, url: str) -> Dict[str, Any]:
+        domain = urllib.parse.urlparse(url).hostname
         task = Task(
             {"type": TaskType.WEBAPP, "webapp": webapp},
             payload={"url": url},
-            payload_persistent={"original_domain": host},
+            payload_persistent={"original_domain": domain},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
@@ -76,10 +77,10 @@ class BaseReportingTest(ArtemisModuleTestCase):
                 "receiver": receiver,
             },
             "payload": {
-                "last_domain": host,
+                "last_domain": domain,
             },
             "payload_persistent": {
-                "original_domain": host,
+                "original_domain": domain,
             },
             "result": call.kwargs["data"],
         }

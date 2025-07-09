@@ -19,7 +19,6 @@ class JoomlaScannerAutoreporterIntegrationTest(BaseReportingTest):
     def test_asset_discovery(self) -> None:
         data = self.obtain_webapp_task_result("joomla_scanner", WebApplication.JOOMLA, "http://test-old-joomla:80/")
         assets = assets_from_task_result(data)
-        print(assets)
         self.assertEqual(
             assets,
             [
@@ -27,6 +26,7 @@ class JoomlaScannerAutoreporterIntegrationTest(BaseReportingTest):
                     asset_type=AssetType.CMS,
                     name="http://test-old-joomla:80/",
                     additional_type="joomla",
+                    version="4.0.5",
                     original_karton_name=None,
                     last_domain=None,
                 )

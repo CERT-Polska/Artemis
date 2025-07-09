@@ -19,7 +19,6 @@ class WPScannerAutoreporterIntegrationTest(BaseReportingTest):
     def test_asset_discovery(self) -> None:
         data = self.obtain_webapp_task_result("wp_scanner", WebApplication.WORDPRESS, "http://test-old-wordpress:80/")
         assets = assets_from_task_result(data)
-        print(assets)
         self.assertEqual(
             assets,
             [
@@ -27,6 +26,7 @@ class WPScannerAutoreporterIntegrationTest(BaseReportingTest):
                     asset_type=AssetType.CMS,
                     name="http://test-old-wordpress:80/",
                     additional_type="wordpress",
+                    version="5.9.3",
                     original_karton_name=None,
                     last_domain=None,
                 )

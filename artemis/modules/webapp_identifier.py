@@ -46,6 +46,11 @@ class WebappIdentifier(ArtemisBase):
         if response.text.startswith("WordPress - Web publishing software"):
             return WebApplication.WORDPRESS
 
+        # Detect Joomla! not advertising itself in generator
+        response = self.http_get(f"{url}/README.txt", allow_redirects=True)
+        if response.text.startswith("Joomla! is a Content Management System"):
+            return WebApplication.JOOMLA
+
         return WebApplication.UNKNOWN
 
     def _process(self, current_task: Task, url: str) -> None:

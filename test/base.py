@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List
 from unittest.mock import MagicMock
+from artemis.binds import WebApplication
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from karton.core import Task
@@ -60,6 +61,28 @@ class BaseReportingTest(ArtemisModuleTestCase):
             install_translations(Language.en_US, environment, Path(f.name), Path("/dev/null"))  # type: ignore
             message_template_content = build_message_template()
         return environment.from_string(message_template_content)
+
+    def obtain_webapp_task_result(self, receiver: str, webapp: WebApplication, url: str) -> Dict[str, Any]:
+        task = Task(
+            {"type": TaskType.WEBAPP, "webapp": webapp},
+            payload={"url": url},
+            payload_persistent={"original_domain": host},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        return {
+            "created_at": None,
+            "headers": {
+                "receiver": receiver,
+            },
+            "payload": {
+                "last_domain": host,
+            },
+            "payload_persistent": {
+                "original_domain": host,
+            },
+            "result": call.kwargs["data"],
+        }
 
     def obtain_http_task_result(self, receiver: str, host: str) -> Dict[str, Any]:
         task = Task(

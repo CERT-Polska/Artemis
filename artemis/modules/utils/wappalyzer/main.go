@@ -23,7 +23,7 @@ func scan(url string, wappalyzerClient *wappalyzer.Wappalyze) map[string][]strin
 	}
 	defer resp.Body.Close()
 
-	data, _ := io.ReadAll(resp.Body) // You can handle error here if needed
+	data, _ := io.ReadAll(resp.Body)
 	fingerprints := wappalyzerClient.Fingerprint(resp.Header, data)
 
 	techs := []string{}
@@ -49,7 +49,7 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	if err := scanner.Err(); err != nil {
-		log.Fatalf("FATAL: Error reading from file: %v", err)
+		log.Fatalf("FATAL: Error reading from file: %v\n", err)
 	}
 
 	urls := []string{}
@@ -72,7 +72,7 @@ func main() {
 
 	jsonOutput, err := json.MarshalIndent(finalResults, "", "  ")
 	if err != nil {
-		log.Fatalf("Error marshalling to JSON: %v", err)
+		log.Fatalf("Error marshalling to JSON: %v\n", err)
 	}
 
 	fmt.Println(string(jsonOutput))

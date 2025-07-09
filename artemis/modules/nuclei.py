@@ -166,38 +166,6 @@ class Nuclei(ArtemisBase):
             for line in open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE):
                 self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
 
-    def _run_tech_detection(self, urls: List[str]) -> Any:
-        """
-        Run technology detection on a list of URLs using Wappalyzer.
-        """
-        wappalyzer_path = os.path.join(os.path.dirname(__file__), "data", "wappalyzer")
-        main_go_path = os.path.join(wappalyzer_path, "main.go")
-        if not os.path.exists(main_go_path):
-            self.log.error(f"Wappalyzer main.go not found at {main_go_path}")
-            return {url: [] for url in urls}
-
-        try:
-            # Update the Wappalyzer package once
-            subprocess.run(["go", "get", "-u", "./..."], cwd=wappalyzer_path, check=True, capture_output=True)
-
-            temp_file_name = "/tmp/temp_urls.txt"
-            with open(temp_file_name, "w") as f:
-                for url in urls:
-                    f.write(url + "\n")
-
-            wappalyzer_output = subprocess.check_output(
-                ["go", "run", main_go_path, temp_file_name], cwd=wappalyzer_path
-            )
-            # The output is a mapping from URL to a list of detected app names
-            if os.path.exists(temp_file_name):
-                os.remove(temp_file_name)
-            return json.loads(wappalyzer_output)
-        except (subprocess.CalledProcessError, FileNotFoundError, json.JSONDecodeError) as e:
-            self.log.error(f"Error running technology detection: {e}")
-            if os.path.exists(temp_file_name):
-                os.remove(temp_file_name)
-            return {url: [] for url in urls}
-
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
         random.shuffle(links)
@@ -457,42 +425,37 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        if Config.Modules.Nuclei.NUCLEI_RUN_TECH_DETECTION:
-            tech_results = self._run_tech_detection(targets)
+        tech_results = self._run_tech_detection(targets)
 
-            scan_groups = collections.defaultdict(list)
-            all_known_techs = {tech for tech in TECHNOLOGY_DETECTION_CONFIG.keys()}
+        scan_groups = collections.defaultdict(list)
+        all_known_techs = {tech for tech in TECHNOLOGY_DETECTION_CONFIG.keys()}
 
-            for target_url in targets:
-                detected_techs_set = {tech for tech in tech_results.get(target_url, [])}
-                known_detected_techs = set()
-                for tech in all_known_techs:
-                    if any(tech in detected_tech.lower() for detected_tech in detected_techs_set):
-                        known_detected_techs.add(tech)
+        for target_url in targets:
+            detected_techs_set = {tech for tech in tech_results.get(target_url, [])}
+            known_detected_techs = set()
+            for tech in all_known_techs:
+                if any(tech in detected_tech.lower() for detected_tech in detected_techs_set):
+                    known_detected_techs.add(tech)
 
-                undetected_techs = all_known_techs - known_detected_techs
+            undetected_techs = all_known_techs - known_detected_techs
 
-                tags_to_exclude = set()
-                for tech_name in undetected_techs:
-                    tags_to_exclude.update(TECHNOLOGY_DETECTION_CONFIG[tech_name]["tags_to_exclude"])
+            tags_to_exclude = set()
+            for tech_name in undetected_techs:
+                tags_to_exclude.update(TECHNOLOGY_DETECTION_CONFIG[tech_name]["tags_to_exclude"])
 
-                # Use a hashable frozenset as the dictionary key
-                scan_groups[frozenset(tags_to_exclude)].append(target_url)
+            # Use a hashable frozenset as the dictionary key
+            scan_groups[frozenset(tags_to_exclude)].append(target_url)
 
-            findings: List[Dict[str, Any]] = []
-            for tags_frozen_set, group_targets in scan_groups.items():
-                extra_args = []
-                if tags_frozen_set:
-                    self.log.info(f"For {len(group_targets)} targets, excluding tags: {tags_frozen_set}")
-                    extra_args = ["-etags", ",".join(tags_frozen_set)]
+        findings: List[Dict[str, Any]] = []
+        for tags_frozen_set, group_targets in scan_groups.items():
+            extra_args = []
+            if tags_frozen_set:
+                self.log.info(f"For {len(group_targets)} targets, excluding tags: {tags_frozen_set}")
+                extra_args = ["-etags", ",".join(tags_frozen_set)]
 
-                findings.extend(self._scan(templates, ScanUsing.TEMPLATES, group_targets, extra_nuclei_args=extra_args))
-                findings.extend(
-                    self._scan(self._workflows, ScanUsing.WORKFLOWS, group_targets, extra_nuclei_args=extra_args)
-                )
-        else:
-            findings = self._scan(templates, ScanUsing.TEMPLATES, targets) + self._scan(
-                self._workflows, ScanUsing.WORKFLOWS, targets
+            findings.extend(self._scan(templates, ScanUsing.TEMPLATES, group_targets, extra_nuclei_args=extra_args))
+            findings.extend(
+                self._scan(self._workflows, ScanUsing.WORKFLOWS, group_targets, extra_nuclei_args=extra_args)
             )
 
         links_per_task = {}

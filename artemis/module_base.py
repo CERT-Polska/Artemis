@@ -3,10 +3,8 @@ import fcntl
 import ipaddress
 import json
 import logging
-import os
 import random
 import shutil
-import subprocess
 import sys
 import time
 import traceback
@@ -310,36 +308,6 @@ class ArtemisBase(Karton):
             self.log.info("Exiting loop after processing %d tasks", task_id)
         else:
             self.log.info("Exiting loop, shutdown=%s", self.shutdown)
-
-    def _run_tech_detection(self, urls: List[str]) -> Any:
-        """
-        Run technology detection on a list of URLs using Wappalyzer.
-        """
-        wappalyzer_path = os.path.join(os.path.dirname(__file__), "modules", "utils", "wappalyzer")
-        main_go_path = os.path.join(wappalyzer_path, "main.go")
-        if not os.path.exists(main_go_path):
-            self.log.error(f"Wappalyzer main.go not found at {main_go_path}")
-            return {url: [] for url in urls}
-
-        try:
-            # Update the Wappalyzer package once
-            subprocess.run(["go", "get", "-u", "./..."], cwd=wappalyzer_path, check=True, capture_output=True)
-
-            temp_file_name = "/tmp/temp_urls.txt"
-            with open(temp_file_name, "w") as f:
-                for url in urls:
-                    f.write(url + "\n")
-
-            wappalyzer_output = subprocess.check_output(
-                ["go", "run", main_go_path, temp_file_name], cwd=wappalyzer_path
-            )
-        except (subprocess.CalledProcessError, FileNotFoundError, json.JSONDecodeError) as e:
-            self.log.error(f"Error running technology detection: {e}")
-        finally:
-            if os.path.exists(temp_file_name):
-                os.remove(temp_file_name)
-            # The output is a mapping from URL to a list of detected app names
-            return json.loads(wappalyzer_output)
 
     def _single_iteration(self) -> int:
         self.log.debug("single iteration")

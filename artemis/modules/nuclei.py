@@ -33,6 +33,7 @@ from artemis.utils import (
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
+from artemis.web_technology_identification import run_tech_detection
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
@@ -425,7 +426,7 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        tech_results = self._run_tech_detection(targets)
+        tech_results = run_tech_detection(targets, self.log)
 
         scan_groups = collections.defaultdict(list)
         all_known_techs = {tech for tech in TECHNOLOGY_DETECTION_CONFIG.keys()}

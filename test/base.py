@@ -77,6 +77,7 @@ class BaseReportingTest(ArtemisModuleTestCase):
                 "receiver": receiver,
             },
             "payload": {
+                "url": url,
                 "last_domain": domain,
             },
             "payload_persistent": {

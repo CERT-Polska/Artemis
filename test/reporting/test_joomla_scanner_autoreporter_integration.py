@@ -1,30 +1,30 @@
 from test.base import BaseReportingTest
 
-from artemis.modules.wp_scanner import WordPressScanner
+from artemis.modules.joomla_scanner import JoomlaScanner
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.reporters import assets_from_task_result
 
 
-class WPScannerAutoreporterIntegrationTest(BaseReportingTest):
-    karton_class = WordPressScanner  # type: ignore
+class JoomlaScannerAutoreporterIntegrationTest(BaseReportingTest):
+    karton_class = JoomlaScanner  # type: ignore
 
     def test_reporting(self) -> None:
-        data = self.obtain_http_task_result("wp_scanner", "test-old-wordpress")
+        data = self.obtain_http_task_result("joomla_scanner", "test-old-joomla")
         message = self.task_result_to_message(data)
-        self.assertIn("The following addresses contain WordPress versions that are no longer", message)
-        self.assertIn("http://test-old-wordpress:80 - WordPress 5.9.3", message)
+        self.assertIn("The following addresses contain old Joomla", message)
+        self.assertIn("http://test-old-joomla:80 - Joomla 4.0.5", message)
 
     def test_asset_discovery(self) -> None:
-        data = self.obtain_http_task_result("wp_scanner", "test-old-wordpress")
+        data = self.obtain_http_task_result("joomla_scanner", "test-old-joomla")
         assets = assets_from_task_result(data)
         self.assertEqual(
             assets,
             [
                 Asset(
                     asset_type=AssetType.CMS,
-                    name="http://test-old-wordpress:80/",
-                    additional_type="wordpress",
+                    name="http://test-old-joomla:80/",
+                    additional_type="joomla",
                     original_karton_name=None,
                     last_domain=None,
                 )

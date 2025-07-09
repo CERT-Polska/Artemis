@@ -694,15 +694,16 @@ class ArtemisBase(Karton):
                             if task_result and task_result.get("status", None) == "ERROR":
                                 has_errors = True
                         if has_errors:
-                            self.log.exception(
-                                "Task(s) returned error status, retrying (try %d/%d)", i, self.num_retries
-                            )
+                            if i < self.num_retries - 1:
+                                self.log.error(
+                                    "Task(s) returned error status, retrying (try %d/%d)", i + 1, self.num_retries
+                                )
                         else:
                             break
 
                     except Exception:
                         if i < self.num_retries - 1:
-                            self.log.exception("Task(s) failed, retrying (try %d/%d)", i, self.num_retries)
+                            self.log.exception("Task(s) failed, retrying (try %d/%d)", i + 1, self.num_retries)
                         else:
                             for task in task_group:
                                 self.db.save_task_result(

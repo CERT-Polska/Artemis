@@ -1,10 +1,10 @@
+import logging
 from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.modules.nuclei import Nuclei, group_targets_by_tech
-import logging
 
 
 class NucleiTest(ArtemisModuleTestCase):
@@ -74,7 +74,7 @@ class NucleiTest(ArtemisModuleTestCase):
             "values in the server response via GET-requests., [medium] http://test-php-xss-but-not-on-homepage:80/xss.php: Fuzzing Parameters - Cross-Site Scripting Cross-site scripting "
             "was discovered via a search for reflected parameter values in the server response via GET-requests.\n",
         )
-    
+
     def test_group_targets_by_tech(self) -> None:
         targets = [
             "http://test-old-wordpress",

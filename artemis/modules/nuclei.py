@@ -458,6 +458,7 @@ class Nuclei(ArtemisBase):
             targets.append(get_target_url(task))
 
         scan_groups = group_targets_by_missing_tech(targets, self.log)
+        assert set(sum(scan_groups.values())) == set(targets)
 
         findings: List[Dict[str, Any]] = []
         for tags_frozen_set, group_targets in scan_groups.items():

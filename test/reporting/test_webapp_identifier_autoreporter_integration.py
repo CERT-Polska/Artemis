@@ -10,7 +10,7 @@ class WebappIdentifierAutoreporterIntegrationTest(BaseReportingTest):
     karton_class = WebappIdentifier  # type: ignore
 
     def test_reporting(self) -> None:
-        data = self.obtain_http_task_result("webapp_identifier", "http://test-old-wordpress:80/")
+        data = self.obtain_http_task_result("webapp_identifier", "test-old-wordpress")
         assets = assets_from_task_result(data)
         print(assets)
         self.assertEqual(

@@ -1,5 +1,5 @@
-import unittest
 import logging
+import unittest
 
 from artemis.web_technology_identification import run_tech_detection
 
@@ -29,9 +29,9 @@ class TestWebTechnologyIdentification(unittest.TestCase):
                 "Debian",
                 "Apache HTTP Server:2.4.51",
                 "PHP:8.0.15",
-            ]
+            ],
         }
-        
+
         for target in targets:
             self.assertIn(target, tech_results)
             self.assertEqual(set(tech_results[target]), set(expected_results[target]))

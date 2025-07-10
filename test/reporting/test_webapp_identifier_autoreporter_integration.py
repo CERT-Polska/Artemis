@@ -1,6 +1,5 @@
 from test.base import BaseReportingTest
 
-from artemis.binds import WebApplication
 from artemis.modules.webapp_identifier import WebappIdentifier
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
@@ -12,7 +11,6 @@ class WebappIdentifierAutoreporterIntegrationTest(BaseReportingTest):
 
     def test_reporting(self) -> None:
         data = self.obtain_http_task_result("webapp_identifier", "http://test-old-wordpress:80/")
-        message = self.task_result_to_message(data)
         assets = assets_from_task_result(data)
         print(assets)
         self.assertEqual(

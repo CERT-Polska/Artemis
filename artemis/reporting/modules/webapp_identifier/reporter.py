@@ -16,5 +16,7 @@ class WebappIdentifierReporter(Reporter):
 
         result = []
         for tag in task_result["result"].get("technology_tags", []):
-            result.append(Asset(asset_type=AssetType.TECHNOLOGY, name=task_result["target_string"], additional_type=tag))
+            result.append(
+                Asset(asset_type=AssetType.TECHNOLOGY, name=task_result["target_string"], additional_type=tag)
+            )
         return result

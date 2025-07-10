@@ -158,7 +158,7 @@ class WordpressPluginsReporter(Reporter):
 
         return [
             Asset(
-                asset_type=AssetType.CMS,
+                asset_type=AssetType.CMS_PLUGIN,
                 name=get_target_url(task_result),
                 additional_type="wordpress-plugin:" + slug,
                 version=data.get("version", ""),

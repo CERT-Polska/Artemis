@@ -2,6 +2,8 @@ import os
 from typing import Any, Callable, Dict, List
 
 from artemis import utils
+from artemis.reporting.base.asset import Asset
+from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_url_normal_form
 from artemis.reporting.base.report import Report
@@ -58,3 +60,21 @@ class JoomlaExtensionsReporter(Reporter):
                 }
             ),
         }
+
+    @staticmethod
+    def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
+        if task_result["headers"]["receiver"] != "joomla_extensions":
+            return []
+
+        if not isinstance(task_result["result"], dict):
+            return []
+
+        return [
+            Asset(
+                asset_type=AssetType.CMS_PLUGIN,
+                name=get_target_url(task_result),
+                additional_type="joomla-extension:" + item["name"],
+                version=item.get("version_on_website", ""),
+            )
+            for item in task_result["result"].get("outdated_extensions", [])
+        ]

@@ -12,17 +12,46 @@ class WebappIdentifierAutoreporterIntegrationTest(BaseReportingTest):
     def test_reporting(self) -> None:
         data = self.obtain_http_task_result("webapp_identifier", "test-old-wordpress")
         assets = assets_from_task_result(data)
-        print(assets)
         self.assertEqual(
-            assets,
-            [
+            set(assets),
+            {
+                Asset(
+                    asset_type=AssetType.TECHNOLOGY,
+                    name="http://test-old-wordpress:80/",
+                    additional_type="MySQL",
+                ),
+                Asset(
+                    asset_type=AssetType.TECHNOLOGY,
+                    name="http://test-old-wordpress:80/",
+                    additional_type="Debian",
+                ),
+                Asset(
+                    asset_type=AssetType.TECHNOLOGY,
+                    name="http://test-old-wordpress:80/",
+                    additional_type="WordPress Site Editor",
+                ),
+                Asset(
+                    asset_type=AssetType.TECHNOLOGY,
+                    name="http://test-old-wordpress:80/",
+                    additional_type="WordPress Block Editor",
+                ),
+                Asset(
+                    asset_type=AssetType.TECHNOLOGY,
+                    name="http://test-old-wordpress:80/",
+                    additional_type="PHP",
+                    version="7.4.29",
+                ),
+                Asset(
+                    asset_type=AssetType.TECHNOLOGY,
+                    name="http://test-old-wordpress:80/",
+                    additional_type="Apache HTTP Server",
+                    version="2.4.53",
+                ),
                 Asset(
                     asset_type=AssetType.CMS,
                     name="http://test-old-wordpress:80/",
                     additional_type="wordpress",
                     version="5.9.3",
-                    original_karton_name=None,
-                    last_domain=None,
-                )
-            ],
+                ),
+            },
         )

@@ -16,7 +16,37 @@ class WebappIdentifierReporter(Reporter):
 
         result = []
         for tag in task_result["result"].get("technology_tags", []):
-            result.append(
-                Asset(asset_type=AssetType.TECHNOLOGY, name=task_result["target_string"], additional_type=tag)
-            )
+            if ":" in tag:
+                technology, version = tag.split(":", 1)
+            else:
+                technology = tag
+                version = None
+
+            if technology == "WordPress":  # we have separate modules for that
+                result.append(
+                    Asset(
+                        asset_type=AssetType.CMS,
+                        name=task_result["target_string"],
+                        additional_type="wordpress",
+                        version=version,
+                    )
+                )
+            elif technology == "Joomla":  # we have separate modules for that
+                result.append(
+                    Asset(
+                        asset_type=AssetType.CMS,
+                        name=task_result["target_string"],
+                        additional_type="joomla",
+                        version=version,
+                    )
+                )
+            else:
+                result.append(
+                    Asset(
+                        asset_type=AssetType.TECHNOLOGY,
+                        name=task_result["target_string"],
+                        additional_type=technology,
+                        version=version,
+                    )
+                )
         return result

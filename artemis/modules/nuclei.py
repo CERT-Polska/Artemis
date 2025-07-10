@@ -3,6 +3,7 @@ import collections
 import enum
 import itertools
 import json
+import logging
 import os
 import random
 import shutil
@@ -33,10 +34,43 @@ from artemis.utils import (
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
+from artemis.web_technology_identification import run_tech_detection
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
+
+TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
+
+
+def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
+    """
+    Groups targets by the technologies that are not detected on them.
+
+    Returns:
+        Dict[frozenset[str], List[str]]: A dictionary where keys are frozensets of tags to exclude,
+        and values are lists of target URLs that share the same set of undetected technologies.
+    """
+    tech_results = run_tech_detection(targets, logger)
+    scan_groups = collections.defaultdict(list)
+    all_known_techs = {tech for tech in TECHNOLOGY_DETECTION_CONFIG.keys()}
+
+    for target_url in targets:
+        detected_techs_set = {tech.lower() for tech in tech_results.get(target_url, [])}
+        known_detected_techs = set()
+        for tech in all_known_techs:
+            if any(tech in detected_tech for detected_tech in detected_techs_set):
+                known_detected_techs.add(tech)
+
+        undetected_techs = all_known_techs - known_detected_techs
+
+        tags_to_exclude = set()
+        for tech_name in undetected_techs:
+            tags_to_exclude.update(TECHNOLOGY_DETECTION_CONFIG[tech_name]["tags_to_exclude"])
+
+        # Use a hashable frozenset as the dictionary key
+        scan_groups[frozenset(tags_to_exclude)].append(target_url)
+    return scan_groups
 
 
 class ScanUsing(enum.Enum):
@@ -224,7 +258,11 @@ class Nuclei(ArtemisBase):
         )
 
     def _scan(
-        self, templates_or_workflows: List[str], scan_using: ScanUsing, targets: List[str]
+        self,
+        templates_or_workflows: List[str],
+        scan_using: ScanUsing,
+        targets: List[str],
+        extra_nuclei_args: List[str] = [],
     ) -> List[Dict[str, Any]]:
         if not targets:
             return []
@@ -314,6 +352,9 @@ class Nuclei(ArtemisBase):
                     "-trace-log",
                     "/dev/stderr",
                 ] + additional_configuration
+
+                if extra_nuclei_args:
+                    command.extend(extra_nuclei_args)
 
                 if scan_using == ScanUsing.TEMPLATES:
                     command.extend(
@@ -413,9 +454,27 @@ class Nuclei(ArtemisBase):
 
         self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
 
-        targets = []
+        targets: List[str] = []
         for task in tasks:
             targets.append(get_target_url(task))
+
+        scan_groups = group_targets_by_missing_tech(targets, self.log)
+        found_targets_after_grouping = []
+        for scan_group in scan_groups.values():
+            found_targets_after_grouping.extend(scan_group)
+        assert set(found_targets_after_grouping) == set(targets)
+
+        findings: List[Dict[str, Any]] = []
+        for tags_frozen_set, group_targets in scan_groups.items():
+            extra_args = []
+            if tags_frozen_set:
+                self.log.info(f"For {len(group_targets)} targets, excluding tags: {tags_frozen_set}")
+                extra_args = ["-etags", ",".join(tags_frozen_set)]
+
+            findings.extend(self._scan(templates, ScanUsing.TEMPLATES, group_targets, extra_nuclei_args=extra_args))
+            findings.extend(
+                self._scan(self._workflows, ScanUsing.WORKFLOWS, group_targets, extra_nuclei_args=extra_args)
+            )
 
         links_per_task = {}
         for task in tasks:
@@ -424,10 +483,6 @@ class Nuclei(ArtemisBase):
             # of them.
             links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
-
-        findings = self._scan(templates, ScanUsing.TEMPLATES, targets) + self._scan(
-            self._workflows, ScanUsing.WORKFLOWS, targets
-        )
 
         # That way, if we have 100 links for a webpage, we won't run 100 concurrent scans for that webpage
         for link_package in itertools.zip_longest(*list(links_per_task.values())):

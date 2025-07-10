@@ -23,6 +23,7 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Any:
             for url in urls:
                 temp_file.write(url + "\n")
             temp_file.flush()
+            os.fsync(temp_file.fileno())
 
             wappalyzer_output = subprocess.check_output(
                 ["go", "run", main_go_path, temp_file.name], cwd=wappalyzer_path

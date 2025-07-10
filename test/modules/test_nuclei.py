@@ -4,7 +4,7 @@ from test.base import ArtemisModuleTestCase
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.modules.nuclei import Nuclei, group_targets_by_tech
+from artemis.modules.nuclei import Nuclei, group_targets_by_missing_tech
 
 
 class NucleiTest(ArtemisModuleTestCase):
@@ -75,7 +75,7 @@ class NucleiTest(ArtemisModuleTestCase):
             "was discovered via a search for reflected parameter values in the server response via GET-requests.\n",
         )
 
-    def test_group_targets_by_tech(self) -> None:
+    def test_group_targets_by_missing_tech(self) -> None:
         targets = [
             "http://test-old-wordpress",
             "http://test-old-joomla",
@@ -83,9 +83,11 @@ class NucleiTest(ArtemisModuleTestCase):
         ]
         logger = logging.Logger("test_logger")
 
-        grouped_targets = group_targets_by_tech(targets, logger)
+        grouped_targets = group_targets_by_missing_tech(targets, logger)
+
+        expected_results = {
+            frozenset(["wordpress"]): [targets[1], targets[2]],
+        }
 
         self.assertIn(frozenset(["wordpress"]), grouped_targets)
-        self.assertFalse(targets[0] in grouped_targets[frozenset(["wordpress"])])
-        self.assertIn(targets[1], grouped_targets[frozenset(["wordpress"])])
-        self.assertIn(targets[2], grouped_targets[frozenset(["wordpress"])])
+        self.assertEqual(grouped_targets[frozenset(["wordpress"])], expected_results[frozenset(["wordpress"])])

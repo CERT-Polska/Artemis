@@ -43,7 +43,14 @@ TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
 
 
-def group_targets_by_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
+def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
+    """
+    Groups targets by the technologies that are not detected on them.
+
+    Returns:
+        Dict[frozenset[str], List[str]]: A dictionary where keys are frozensets of tags to exclude,
+        and values are lists of target URLs that share the same set of undetected technologies.
+    """
     tech_results = run_tech_detection(targets, logger)
     scan_groups = collections.defaultdict(list)
     all_known_techs = {tech for tech in TECHNOLOGY_DETECTION_CONFIG.keys()}
@@ -450,7 +457,7 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        scan_groups = group_targets_by_tech(targets, self.log)
+        scan_groups = group_targets_by_missing_tech(targets, self.log)
 
         findings: List[Dict[str, Any]] = []
         for tags_frozen_set, group_targets in scan_groups.items():

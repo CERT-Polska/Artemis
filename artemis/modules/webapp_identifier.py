@@ -8,6 +8,7 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
+from artemis.web_technology_identification import run_tech_detection
 
 WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
     (WebApplication.WORDPRESS, '<meta name="generator" content="WordPress'),
@@ -67,7 +68,13 @@ class WebappIdentifier(ArtemisBase):
         )
         self.add_task(current_task, new_task)
 
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data=application)
+        technology_tags = run_tech_detection([url], self.log)
+
+        self.db.save_task_result(
+            task=current_task,
+            status=TaskStatus.OK,
+            data={"webapp": application, "technology_tags": technology_tags[url]},
+        )
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)

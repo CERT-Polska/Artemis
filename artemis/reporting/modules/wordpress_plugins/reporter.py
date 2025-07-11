@@ -6,6 +6,8 @@ from packaging import version
 
 from artemis import utils
 from artemis.fallback_api_cache import FallbackAPICache
+from artemis.reporting.base.asset import Asset
+from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_url_normal_form
 from artemis.reporting.base.report import Report
@@ -145,3 +147,21 @@ class WordpressPluginsReporter(Reporter):
                 }
             ),
         }
+
+    @staticmethod
+    def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
+        if task_result["headers"]["receiver"] != "wordpress_plugins":
+            return []
+
+        if not isinstance(task_result["result"], dict):
+            return []
+
+        return [
+            Asset(
+                asset_type=AssetType.CMS_PLUGIN,
+                name=get_target_url(task_result),
+                additional_type="wordpress-plugin:" + slug,
+                version=data.get("version", ""),
+            )
+            for slug, data in task_result["result"].get("plugins", {}).items()
+        ]

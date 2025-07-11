@@ -470,6 +470,8 @@ class Nuclei(ArtemisBase):
             if tags_frozen_set:
                 self.log.info(f"For {len(group_targets)} targets, excluding tags: {tags_frozen_set}")
                 extra_args = ["-etags", ",".join(tags_frozen_set)]
+            else:
+                self.log.info(f"For {len(group_targets)} targets, not excluding any tags")
 
             findings.extend(self._scan(templates, ScanUsing.TEMPLATES, group_targets, extra_nuclei_args=extra_args))
             findings.extend(

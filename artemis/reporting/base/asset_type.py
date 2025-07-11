@@ -9,4 +9,6 @@ class AssetType(Enum):
     CMS = "cms"
     CMS_PLUGIN = "cms_plugin"
 
+    VPN = "vpn"
+
     TECHNOLOGY = "technology"

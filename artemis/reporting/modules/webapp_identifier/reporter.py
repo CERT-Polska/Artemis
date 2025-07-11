@@ -22,7 +22,7 @@ class WebappIdentifierReporter(Reporter):
                 technology = tag
                 version = None
 
-            if technology == "WordPress":  # we have separate modules for that
+            if technology == "WordPress":  # we have separate type for that
                 result.append(
                     Asset(
                         asset_type=AssetType.CMS,
@@ -31,7 +31,7 @@ class WebappIdentifierReporter(Reporter):
                         version=version,
                     )
                 )
-            elif technology == "Joomla":  # we have separate modules for that
+            elif technology == "Joomla":  # we have separate type for that
                 result.append(
                     Asset(
                         asset_type=AssetType.CMS,

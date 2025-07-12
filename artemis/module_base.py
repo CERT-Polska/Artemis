@@ -1,12 +1,12 @@
 import datetime
 import faulthandler
-import signal
 import fcntl
 import ipaddress
 import json
 import logging
 import random
 import shutil
+import signal
 import sys
 import time
 import traceback

@@ -73,7 +73,7 @@ class WebappIdentifier(ArtemisBase):
         self.db.save_task_result(
             task=current_task,
             status=TaskStatus.OK,
-            data={"webapp": application, "technology_tags": technology_tags[url]},
+            data={"webapp": application, "technology_tags": technology_tags.get(url, [])},
         )
 
     def run(self, current_task: Task) -> None:

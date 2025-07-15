@@ -49,7 +49,7 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "http://test-apache-with-sql-injection-postgres:80/headers_vuln.php: "
             "It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers"
         )
-
+        print(call.kwargs["status_reason"])
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertTrue(sqli_message in call.kwargs["status_reason"])
         self.assertTrue(time_base_sqli_message in call.kwargs["status_reason"])

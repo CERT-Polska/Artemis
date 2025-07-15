@@ -151,14 +151,14 @@ class SqlInjectionDetector(ArtemisBase):
             f"'||sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
             f"'||pg_sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})||'",
         ]
-        sql_injection_error_payloads = ["'", '"']
+        sql_injection_error_payloads = ["'\""]
         # Should be correct in all sql contexts: inside and outside strings, even after e.g. PHP addslashes()
         not_error_payload = "-1"
         message: List[Dict[str, Any]] = []
 
         # The code below may look complicated and repetitive, but it shows how the scanning logic works.
         for current_url in urls:
-            for param_batch in more_itertools.batched(URL_PARAMS, 50):
+            for param_batch in more_itertools.batched(URL_PARAMS, 60):
                 if self.is_url_with_parameters(current_url):
                     for error_payload in sql_injection_error_payloads:
                         url_with_payload = self.change_url_params(

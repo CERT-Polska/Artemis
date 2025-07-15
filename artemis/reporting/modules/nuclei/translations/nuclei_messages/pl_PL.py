@@ -40,6 +40,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "QNAP QTS Photo Station External Reference is vulnerable to local file inclusion via an externally controlled reference to a resource vulnerability. If exploited, this could allow an attacker to modify system files. The vulnerability is fixed in the following versions: QTS 5.0.1: Photo Station 6.1.2 and later QTS 5.0.0/4.5.x: Photo Station 6.0.22 and later QTS 4.3.6: Photo Station 5.7.18 and later QTS 4.3.3: Photo Station 5.4.15 and later QTS 4.2.6: Photo Station 5.2.14 and later.": "QNAP QTS Photo Station External Reference zawiera podatność Local File Inclusion, co umożliwia atakującemu modyfikowanie plików systemowych."
     + UPDATE_HINT,
+    "Responsive FileManager before version 9.13.4 is vulnerable to local file inclusion via filemanager/ajax_calls.php because it uses external input to construct a pathname that should be within a restricted directory, aka local file inclusion.": "Responsive FileManager w wersji poniżej 9.13.4 zawiera podatność Local File Inclusion, co umożliwia atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "Joomla! before 3.7.1 contains a SQL injection vulnerability. An attacker can possibly obtain sensitive information from a database, modify data, and execute unauthorized administrative operations in the context of the affected site.": "Joomla! w wersji przed 3.7.1 zawiera podatność SQL Injection. Atakujący może pobrać wrażliwe informacje z bazy danych, zmodyfikować dane i wykonywać dowolne operacje administracyjne na podatnej stronie."
     + UPDATE_HINT,
     "WordPress Google Maps plugin before 7.11.18 contains a SQL injection vulnerability. The plugin includes /class.rest-api.php in the REST API and does not sanitize field names before a SELECT statement. An attacker can possibly obtain sensitive information from a database, modify data, and execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie Google Maps w wersji poniżej 7.11.18 zawiera podatność SQL Injection. Atakujący może pobrać informacje z bazy danych, zmienić je lub wykonać dowolne operacje administracyjne na podatnej stronie."
@@ -997,6 +999,7 @@ TRANSLATIONS = {
     "The Web Application Firewall in Bitrix24 up to and including 20.0.0 allows XSS via the items[ITEMS][ID] parameter to the components/bitrix/mobileapp.list/ajax.php/ URI.": "Komponent Web Application Firewall w Bitrix24 w wersji do 20.0.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Xerox WorkCentre 7xxx printer. default admin credentials admin:1111 were discovered.": "Wykryto drukarkę Xerox WorkCentre 7xxx z działającymi domyślnymi danymi logowania: admin:1111.",
     "The InstaWP Connect – 1-click WP Staging & Migration plugin for WordPress is vulnerable to Local File Inclusion in all versions up to, and including, 0.1.0.85 via the 'instawp-database-manager' parameter. This makes it possible for unauthenticated attackers to include and execute arbitrary files on the server, allowing the execution of any PHP code in those files. This can be used to bypass access controls, obtain sensitive data, or achieve code execution in cases where images and other “safe” file types can be uploaded and included.": "Wtyczka WordPress o nazwie InstaWP Connect - 1-click WP Staging & Migration w wersji do 0.1.0.85 włącznie zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku, a w niektórych sytuacjach - również zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -1834,4 +1837,5 @@ TRANSLATIONS = {
     "Hashicorp Consul Agent was detected.": "Wykryto system Hashicorp Consul Agent.",
     "OpenSearch Dashboard is a visualization and management tool for OpenSearch. This template detects the presence of the OpenSearch Dashboard login panel, which is the default authentication interface for accessing the dashboard.": "Wykryto panel systemu OpenSearch Dashboard.",
     "[no description] http/exposed-panels/jellyseerr-login-panel.yaml": "Wykryto panel logowania Jellyseerr",
+    "Traccar panel was discovered.": "Wykryto panel Traccar.",
 }

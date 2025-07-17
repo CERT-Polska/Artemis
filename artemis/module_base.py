@@ -1,10 +1,12 @@
 import datetime
+import faulthandler
 import fcntl
 import ipaddress
 import json
 import logging
 import random
 import shutil
+import signal
 import sys
 import time
 import traceback
@@ -137,6 +139,8 @@ class ArtemisBase(Karton):
 
         for handler in self.log.handlers:
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
+
+        faulthandler.register(signal.SIGUSR1)
 
     @property
     def configuration(self) -> Optional[ModuleRuntimeConfiguration]:

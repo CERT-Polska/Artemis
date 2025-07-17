@@ -1,3 +1,5 @@
+import faulthandler
+import signal
 from os import path
 
 import uvicorn
@@ -11,6 +13,8 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.frontend import error_content_not_found
 from artemis.frontend import router as router_front
+
+faulthandler.register(signal.SIGUSR1)
 
 app = FastAPI(
     docs_url="/docs" if Config.Miscellaneous.API_TOKEN else None,

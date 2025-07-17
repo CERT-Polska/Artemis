@@ -35,3 +35,22 @@ class TestWebTechnologyIdentification(unittest.TestCase):
         for target in targets:
             self.assertIn(target, tech_results)
             self.assertEqual(set(tech_results[target]), set(expected_results[target]))
+
+    def test_skipping_ssl_verification(self) -> None:
+        targets = ["https://self-signed.badssl.com"]
+
+        logger = logging.Logger("test_logger")
+        tech_results = run_tech_detection(targets, logger=logger)
+
+        # Without skipping SSL verification, the output is empty and the below error is logged:
+        # Error fetching https://self-signed.badssl.com/: Get "https://self-signed.badssl.com/": tls: failed to verify certificate: x509: certificate signed by unknown authority
+        expected_results = {
+            "https://self-signed.badssl.com": [
+                "Ubuntu",
+                "Nginx:1.10.3",
+            ],
+        }
+
+        for target in targets:
+            self.assertIn(target, tech_results)
+            self.assertEqual(set(tech_results[target]), set(expected_results[target]))

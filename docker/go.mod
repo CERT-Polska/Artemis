@@ -5,7 +5,7 @@ go 1.24.1
 require (
 	github.com/lc/gau/v2 v2.2.4
 	github.com/praetorian-inc/fingerprintx v1.1.15
-	github.com/projectdiscovery/naabu/v2 v2.3.3
+	github.com/projectdiscovery/naabu/v2 v2.3.5
 	github.com/projectdiscovery/nuclei/v3 v3.4.7
 	github.com/projectdiscovery/subfinder/v2 v2.8.0
 )
@@ -238,7 +238,7 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/projectdiscovery/asnmap v1.1.1 // indirect
 	github.com/projectdiscovery/blackrock v0.0.1 // indirect
-	github.com/projectdiscovery/cdncheck v1.1.23 // indirect
+	github.com/projectdiscovery/cdncheck v1.1.27 // indirect
 	github.com/projectdiscovery/chaos-client v0.5.2 // indirect
 	github.com/projectdiscovery/clistats v0.1.1 // indirect
 	github.com/projectdiscovery/dnsx v1.2.2 // indirect
@@ -266,7 +266,7 @@ require (
 	github.com/projectdiscovery/rawhttp v0.1.90 // indirect
 	github.com/projectdiscovery/rdap v0.9.1-0.20221108103045-9865884d1917 // indirect
 	github.com/projectdiscovery/retryabledns v1.0.103 // indirect
-	github.com/projectdiscovery/retryablehttp-go v1.0.116 // indirect
+	github.com/projectdiscovery/retryablehttp-go v1.0.117 // indirect
 	github.com/projectdiscovery/sarif v0.0.1 // indirect
 	github.com/projectdiscovery/tlsx v1.1.9 // indirect
 	github.com/projectdiscovery/uncover v1.1.0 // indirect

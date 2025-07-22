@@ -130,7 +130,9 @@ class Nuclei(ArtemisBase):
                     if item.endswith(".yml") or item.endswith(".yaml")
                 ]
 
-            listed_templates = check_output_log_on_error(["nuclei"] + templates_list_command, self.log).decode("ascii").split()
+            listed_templates = (
+                check_output_log_on_error(["nuclei"] + templates_list_command, self.log).decode("ascii").split()
+            )
             if "log_exposures" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 template_lists_raw["log_exposures"] = [
                     item
@@ -143,9 +145,7 @@ class Nuclei(ArtemisBase):
 
             if "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 template_lists_raw["exposed_panels"] = [
-                    item
-                    for item in listed_templates
-                    if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
+                    item for item in listed_templates if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
                 ]
 
             self._template_lists: Dict[str, List[str]] = {}

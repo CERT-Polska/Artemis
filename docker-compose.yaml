@@ -380,6 +380,10 @@ services:
     volumes:
       - ./test/data/exposed_apache_config/:/var/www/html/
 
+  test-mock-CVE-2020-28976:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/mock_CVE-2020-28976/:/var/www/html/
 
 volumes:
   data-nuclei-templates:

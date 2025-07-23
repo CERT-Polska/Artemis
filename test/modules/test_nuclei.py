@@ -70,6 +70,7 @@ class NucleiTest(ArtemisModuleTestCase):
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
+        print("AAAAAA", call)
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],

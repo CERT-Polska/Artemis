@@ -77,7 +77,7 @@ class NucleiTest(ArtemisModuleTestCase):
         )
 
         (call,) = self.mock_db.save_task_logs.call_args_list
-        self.assertIn("Using Interactsh Server: interactsh.lab.cert.pl", call.args[1])
+        self.assertIn(b"Using Interactsh Server: interactsh.lab.cert.pl", call.args[1])
 
     def test_links(self) -> None:
         task = Task(

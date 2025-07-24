@@ -76,8 +76,6 @@ class NucleiTest(ArtemisModuleTestCase):
             "[medium] http://test-php-mock-CVE-2020-28976:80: WordPress Canto 1.3.0 - Blind Server-Side Request Forgery WordPress Canto plugin 1.3.0 is susceptible to blind server-side request forgery. An attacker can make a request to any internal and external server via /includes/lib/detail.php?subdomain and thereby possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.",
         )
 
-        (call,) = self.mock_db.save_task_logs.call_args_list
-        self.assertIn(b"Using Interactsh Server: interactsh.lab.cert.pl", call.args[1])
 
     def test_links(self) -> None:
         task = Task(

@@ -999,12 +999,17 @@ TRANSLATIONS = {
     "The Web Application Firewall in Bitrix24 up to and including 20.0.0 allows XSS via the items[ITEMS][ID] parameter to the components/bitrix/mobileapp.list/ajax.php/ URI.": "Komponent Web Application Firewall w Bitrix24 w wersji do 20.0.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "GeoServer contains a missing authorization vulnerability that allows unauthorized access to the REST API Index page, potentially exposing sensitive configuration information.": "Wykryto narzędzie GeoServer w wersji zawierającej podatność CVE-2025-27505 umożliwiającą atakującemu nieuprawniony dostęp do informacji konfiguracyjnych." +UPDATE_HINT,
+    "GeoServer contains a missing authorization vulnerability that allows unauthorized access to the REST API Index page, potentially exposing sensitive configuration information.": "Wykryto narzędzie GeoServer w wersji zawierającej podatność CVE-2025-27505 umożliwiającą atakującemu nieuprawniony dostęp do informacji konfiguracyjnych."
+    + UPDATE_HINT,
     "A vulnerability in Peplink Balance Two prior to version 8.4.0 allows unauthenticated attackers to modify captive portal configurations due to a missing authorization check. Specifically, attackers can upload files via /guest/portal_admin_upload.cgi, with the changes reflected at /guest/preview.cgi?portal_id=1.": "System Peplink Balance Two w wersji poniżej 8.4.0 zawiea podatność umożliwiającą atakującemu zmianę wyglądu i konfiguracji modułu captive portal.",
-    "The Eventin WordPress plugin before 4.0.27 suffers from an unauthenticated privilege escalation vulnerability. Due to a missing permission check in the a REST API endpoint, unauthenticated attackers can import users with arbitrary roles, including administrator, leading to full site compromise.": "Wtyczka WordPress o nazwie Eventin w wersji poniżej 4.0.27 zawiera podatność umożliwiającą pełne przejęcie kontroli nad systemem." + WORDPRESS_UPDATE_HINT,
-    "Joomla! Portfolio Nexus 1.5 contains a remote file inclusion vulnerability in the inertialFATE iF (com_if_nexus) component that allows remote attackers to include and execute arbitrary local files via a .. (dot dot) in the controller parameter to index.php.": "Joomla! Portfolio Nexus w wersji 1.5 (i potencjalnie wcześniejszych) zawiera (w niektórych konfiguracjach) podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera." + UPDATE_HINT,
-    "Spring Boot H2 Database is susceptible to remote code execution.": "Baza danych Spring Boot H2, gdy jest dostępna publicznie, umożliwia atakującemu zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION,
-    "LG SuperSign CMS 2.5 allows reading of arbitrary files via signEzUI/playlist/edit/upload/..%2f URIs - aka local file inclusion.": "LG SuperSign CMS w wersji 2.5 (i potencjalnie wcześniejszych) umożliwia atakującemu odczyt dowolnych plików z dysku." + UPDATE_HINT,
+    "The Eventin WordPress plugin before 4.0.27 suffers from an unauthenticated privilege escalation vulnerability. Due to a missing permission check in the a REST API endpoint, unauthenticated attackers can import users with arbitrary roles, including administrator, leading to full site compromise.": "Wtyczka WordPress o nazwie Eventin w wersji poniżej 4.0.27 zawiera podatność umożliwiającą pełne przejęcie kontroli nad systemem."
+    + WORDPRESS_UPDATE_HINT,
+    "Joomla! Portfolio Nexus 1.5 contains a remote file inclusion vulnerability in the inertialFATE iF (com_if_nexus) component that allows remote attackers to include and execute arbitrary local files via a .. (dot dot) in the controller parameter to index.php.": "Joomla! Portfolio Nexus w wersji 1.5 (i potencjalnie wcześniejszych) zawiera (w niektórych konfiguracjach) podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Spring Boot H2 Database is susceptible to remote code execution.": "Baza danych Spring Boot H2, gdy jest dostępna publicznie, umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "LG SuperSign CMS 2.5 allows reading of arbitrary files via signEzUI/playlist/edit/upload/..%2f URIs - aka local file inclusion.": "LG SuperSign CMS w wersji 2.5 (i potencjalnie wcześniejszych) umożliwia atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "Webp server go is vulnerable to local file inclusion.": "Wykryto oprogramowanie Wepb server go zawierające podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Pterodactyl is a free, open-source game server management panel. Using the /locales/locale.json with the locale and namespace query parameters, a malicious actor is able to execute arbitrary code without being authenticated.": "Wykryto system Pterodactyl w wersji zawierającej podatność umożliwiającą nieuprawnione wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
@@ -1873,7 +1878,7 @@ TRANSLATIONS = {
     "Checkmk login panel was detected.": "Wykryto panel logowania Checkmk.",
     "Detects Pterodactyl game server management panel.": "Wykryto panel zarządczy systemu Pterodactyl.",
     "Tactical RMM login panel was detected.": "Wykryto panel Tactical RMM.",
-    "Vault login panel was detected." :"Wykryto panel logowania Vault.",
+    "Vault login panel was detected.": "Wykryto panel logowania Vault.",
     "Detects Teleport web login interface exposed at /web/login and version information from /webapi/ping": "Wykryto panel logowania systemu Teleport.",
     "Detects the presence of Wing FTP Server web interface": "Wykryto interfejs przeglądakowy systemu Wing FTP Server.",
 }

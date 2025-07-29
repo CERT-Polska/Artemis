@@ -1012,7 +1012,7 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION,
     "LG SuperSign CMS 2.5 allows reading of arbitrary files via signEzUI/playlist/edit/upload/..%2f URIs - aka local file inclusion.": "LG SuperSign CMS w wersji 2.5 (i potencjalnie wcześniejszych) umożliwia atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
-    "Webp server go is vulnerable to local file inclusion.": "Wykryto oprogramowanie Wepb server go zawierające podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "Webp server go is vulnerable to local file inclusion.": "Wykryto oprogramowanie Webp server go zawierające podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Pterodactyl is a free, open-source game server management panel. Using the /locales/locale.json with the locale and namespace query parameters, a malicious actor is able to execute arbitrary code without being authenticated.": "Wykryto system Pterodactyl w wersji zawierającej podatność umożliwiającą nieuprawnione wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "NocoDB through 0.106.1 has a path traversal vulnerability that allows an unauthenticated attacker to access arbitrary files on the server by manipulating the path parameter of the /download route. This vulnerability could allow an attacker to access sensitive files and data on the server, including configuration files, source code, and other sensitive information.": "NocoDB do wersji 0.106.1 włącznie zawiera podatność Path Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",

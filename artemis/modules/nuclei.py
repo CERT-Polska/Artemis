@@ -6,6 +6,9 @@ import json
 import logging
 import os
 import random
+import shutil
+import subprocess
+import time
 import urllib
 from statistics import StatisticsError, quantiles
 from typing import Any, Dict, List
@@ -38,6 +41,8 @@ CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_tem
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
 TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
+
+UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
 
 
 def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
@@ -105,8 +110,22 @@ class Nuclei(ArtemisBase):
 
         # We are cloning the KEV repository and updating templates in the Dockerfile
         # so we don't need to do every time we start the module.
+        kev_directory = "/known-exploited-vulnerabilities/"
+        if os.path.exists(kev_directory) and os.path.getctime(kev_directory) < time.time() - UPDATE_INTERVAL:
+            shutil.rmtree(kev_directory, ignore_errors=True)
+            subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
 
         with self.lock:
+            template_directory = "/root/nuclei-templates/"
+            if (
+                os.path.exists(template_directory)
+                and os.path.getctime(template_directory) < time.time() - UPDATE_INTERVAL
+            ):
+                shutil.rmtree(template_directory, ignore_errors=True)
+                shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
+
+            subprocess.call(["nuclei", "-update-templates"])
+
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
 
             template_lists_raw: Dict[str, List[str]] = {}

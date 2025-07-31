@@ -17,9 +17,7 @@ If you want to modify/develop Artemis, read **[Development](#development)** firs
 
 **Artemis is experimental software, under active development - use at your own risk.**
 
-To chat about Artemis, join the Discord server:
-
-[![](https://dcbadge.vercel.app/api/server/GfUW4mZmy9)](https://discord.gg/GfUW4mZmy9)
+To chat about Artemis, [join the Discord server](https://discord.gg/GfUW4mZmy9)!
 
 ## Cooperation and conferences
 <div style="margin-bottom: 5px">

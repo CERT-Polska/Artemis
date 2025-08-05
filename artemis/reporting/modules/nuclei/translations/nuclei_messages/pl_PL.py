@@ -996,6 +996,13 @@ TRANSLATIONS = {
     "PacsOne Server (PACS Server In One Box) below 7.1.1 is vulnerable to cross-site scripting.": "PacsOne Server (PACS Server In One Box) w wersji poniżej 7.1.1 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "http/misconfiguration/ssrf-via-oauth-misconfig.yaml": "Wykryto, że implementacja protokołu OAuth jest podatna na atak Server-Side Request Forgery - atakujący może doprowadzić aplikację do wykonywania żądań HTTP do usług w sieci wewnętrznej.",
+    "The SOAP admin service in WSO2 products has a security vulnerability that allows the creation of new user accounts regardless of the self-registration configuration settings.": "Usługa administratora SOAP w produktach WSO2 zawiera podatność umożliwiającą tworzenie kont użytkowników niezależnie od przyjętych uprawnień.",
+    "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Huawei HG255s is vulnerable to local file inclusion due to insufficient validation of the received HTTP requests. A remote attacker may access the local files on the device without authentication.": "Huawei HG255s zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "Improper limitation of a pathname to a restricted directory vulnerability in Samsung MagicINFO 9 Server version before 21.1050 allows attackers to write arbitrary file as system authority.": "Samsung MagicINFO 9 Server w wersji poniżej 21.1050 umożliwia atakującemu zapis dowolnych plików na serwerze."
+    + UPDATE_HINT,
     "The Web Application Firewall in Bitrix24 up to and including 20.0.0 allows XSS via the items[ITEMS][ID] parameter to the components/bitrix/mobileapp.list/ajax.php/ URI.": "Komponent Web Application Firewall w Bitrix24 w wersji do 20.0.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1012,7 +1019,13 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION,
     "LG SuperSign CMS 2.5 allows reading of arbitrary files via signEzUI/playlist/edit/upload/..%2f URIs - aka local file inclusion.": "LG SuperSign CMS w wersji 2.5 (i potencjalnie wcześniejszych) umożliwia atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
+    "In the GeoServer version prior to 2.25.1, 2.24.3 and 2.23.5 of GeoServer, multiple OGC request parameters allow Remote Code Execution (RCE) by unauthenticated users through specially crafted input against a default GeoServer installation due to unsafely evaluating property names as XPath expressions.": "GeoServer w wersji poniżej 2.25.1, w gałęzi 2.24 - 2.24.3, a w gałęzi 2.23 - 2.23.5 umożliwia nieuwierzytelnionemu atakującemu doprowadzenie do zdalnego wykonania kodu. "
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Webp server go is vulnerable to local file inclusion.": "Wykryto oprogramowanie Webp server go zawierające podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "An open redirect vulnerability in Grafana can be chained with other issues, such as XSS or SSRF, to increase impact. An attacker may exploit the redirect to target internal services or deliver malicious JavaScript, potentially leading to internal data exposure or account takeover.": "Wykryto narzędzie Grafana w wersji zawierającej podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
+    "IceWarp Mail Server version 11.4.0 and below contains an open redirect vulnerability that allows attackers to redirect users to arbitrary external domains through malicious URLs.": "IceWarp Mail Server w wersji 11.4.0 i wcześniejszych zawiera podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + UPDATE_HINT,
     "Pterodactyl is a free, open-source game server management panel. Using the /locales/locale.json with the locale and namespace query parameters, a malicious actor is able to execute arbitrary code without being authenticated.": "Wykryto system Pterodactyl w wersji zawierającej podatność umożliwiającą nieuprawnione wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "NocoDB through 0.106.1 has a path traversal vulnerability that allows an unauthenticated attacker to access arbitrary files on the server by manipulating the path parameter of the /download route. This vulnerability could allow an attacker to access sensitive files and data on the server, including configuration files, source code, and other sensitive information.": "NocoDB do wersji 0.106.1 włącznie zawiera podatność Path Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
@@ -1883,4 +1896,5 @@ TRANSLATIONS = {
     "Vault login panel was detected.": "Wykryto panel logowania Vault.",
     "Detects Teleport web login interface exposed at /web/login and version information from /webapi/ping": "Wykryto panel logowania systemu Teleport.",
     "Detects the presence of Wing FTP Server web interface": "Wykryto interfejs przeglądakowy systemu Wing FTP Server.",
+    "peplink login panel was detected.": "wykryto panel logowania systemu peplink.",
 }

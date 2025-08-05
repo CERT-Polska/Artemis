@@ -145,7 +145,7 @@ class NucleiReporter(Reporter):
                 #
                 # We want to restrict this behavior only to services on empty path (e.g. redis://some-domain:6379) because
                 # if the path is nonempty, it may contain an exploit that may get filtered by e-mail filters.
-                matched_at = add_protocol_if_needed(vulnerability["matched-at"])
+                matched_at = add_protocol_if_needed(vulnerability.get("matched-at", target))
                 if _is_url_without_path_query_fragment(matched_at) and get_host_from_url(target) == get_host_from_url(
                     matched_at
                 ):

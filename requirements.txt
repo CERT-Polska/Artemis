@@ -12,7 +12,7 @@ dnspython==2.7.0
 fastapi==0.116.1
 fastapi-csrf-protect==1.0.3
 Flask==3.1.1
-freezegun==1.5.3
+freezegun==1.5.4
 h11==0.16.0
 idna==3.10
 Jinja2==3.1.6

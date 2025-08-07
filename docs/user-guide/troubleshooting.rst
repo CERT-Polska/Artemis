@@ -72,7 +72,7 @@ If you encounter problem with DNS while running ``scripts/tests`` you may need t
 According to https://docs.docker.com/engine/network/; containers should use the same DNS servers as the host by default
 But there are known issues on Ubuntu distribution regarding to that.
 
-To resolve that you can e.g: 
+To resolve that you can e.g:
 
 .. code-block::
 

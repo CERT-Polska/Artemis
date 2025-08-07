@@ -63,3 +63,20 @@ Results disappeared after migrating from an old version of Artemis
 ------------------------------------------------------------------
 If you updated from an old version of Artemis and don't see the scanned targets or scan results anymore,
 contact us on Discord: https://discord.gg/GfUW4mZmy9.
+
+
+Running tests locally
+---------------------
+If you encounter problem with DNS while running ``scripts/tests`` you may need to set it explicitly
+
+According to https://docs.docker.com/engine/network/; containers should use the same DNS servers as the host by default
+But there are known issues on Ubuntu distribution regarding to that.
+
+To resolve that you can e.g: 
+
+.. code-block::
+
+    # add the following line to /etc/docker/daemon.json
+    {"dns": ["8.8.8.8"]}
+    # restart your docker
+    sudo systemctl restart docker

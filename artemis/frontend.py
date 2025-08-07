@@ -461,7 +461,7 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
         "task_list.jinja2",
         {
             "request": request,
-            "title": f"Analysis of { analysis['target'] }",
+            "title": f"Analysis of {analysis['target']}",
             "api_url": "/api/task-results-table?" + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },

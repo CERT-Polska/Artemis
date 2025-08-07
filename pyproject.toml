@@ -15,6 +15,7 @@ authorized_licenses = [
     "apache software",
     "isc",
     "isc license (iscl)",
+    "LGPL-2.1",
     "gnu lesser general public license v2 or later (lgplv2+)",
     "gnu library or lesser general public license (lgpl)",
     "mozilla public license 2.0 (mpl 2.0)",

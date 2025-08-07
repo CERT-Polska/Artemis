@@ -67,9 +67,21 @@ contact us on Discord: https://discord.gg/GfUW4mZmy9.
 
 Running tests locally
 ---------------------
-If you encounter problem with DNS while running ``scripts/tests`` you may need to set it explicitly
+If you encounter problem with DNS while running ``scripts/tests`` you may need to set it explicitly.
+Example error you may encounter:
 
-According to https://docs.docker.com/engine/network/; containers should use the same DNS servers as the host by default
+.. code-block::
+
+    # main error will be:
+    failed to solve: process "/bin/sh -c apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && ...
+    # exact reason:
+    fatal: unable to access 'https://github.com/CERT-Polska/checkdmarc/': Could not resolve host: github.com
+    fatal: could not fetch adddeb056c05d9fa69f4b34d06ae5fcb21948490 from promisor remote
+    warning: Clone succeeded, but checkout failed.
+    You can inspect what was checked out with 'git status'
+    and retry with 'git restore --source=HEAD :/'
+
+According to https://docs.docker.com/engine/network/, containers should use the same DNS servers as the host by default
 But there are known issues on Ubuntu distribution regarding to that.
 
 To resolve that you can e.g:

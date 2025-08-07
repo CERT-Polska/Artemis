@@ -9,6 +9,7 @@ authorized_licenses = [
     "bsd",
     "apache 2.0",
     "Apache-2.0",
+    "Apache-2.0 AND MIT",
     "BSD-3-Clause",
     "MIT AND Python-2.0",
     "Apache License 2.0",

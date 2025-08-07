@@ -20,23 +20,23 @@ repos:
     args: [--strict]
     additional_dependencies:
     - aiohttp==3.12.15
-    - alembic==1.13.2
-    - dnspython==2.4.2
-    - fastapi==0.103.0
+    - alembic==1.16.4
+    - dnspython==2.7.0
+    - fastapi==0.116.1
     - Flask==3.1.1
-    - freezegun==1.2.2
-    - Jinja2==3.1.2
-    - karton-core==5.2.0
-    - git+https://github.com/CERT-Polska/mailgoose@v1.0#egg=libmailgoose&subdirectory=scan
-    - more-itertools==10.3.0
-    - openapi-spec-validator==0.7.1
-    - packaging==23.2
-    - prometheus-client==0.17.1
+    - freezegun==1.5.4
+    - Jinja2==3.1.6
+    - karton-core==5.8.0
+    - git+https://github.com/CERT-Polska/mailgoose@v1.3.15#egg=libmailgoose&subdirectory=scan
+    - more-itertools==10.7.0
+    - openapi-spec-validator==0.7.2
+    - packaging==25.0
+    - prometheus-client==0.22.1
     - pymongo-stubs==0.2.0
-    - requests_mock==1.11.0
     - requests-cache==1.2.1
+    - requests-mock==1.12.1
     - sqlalchemy-stubs==0.4
-    - typer==0.9.0
+    - typer==0.16.0
     - types-beautifulsoup4==4.12.0.6
     - types-Markdown==3.4.2.10
     - types-paramiko==2.7.2
@@ -50,7 +50,7 @@ repos:
     - types-retry==0.9.9.4
     - types-termcolor==1.1.6.2
     - types-tqdm==4.66.0.2
-    - uvicorn==0.23.2
+    - uvicorn==0.35.0
 - repo: https://github.com/PyCQA/flake8
   rev: 7.0.0
   hooks:

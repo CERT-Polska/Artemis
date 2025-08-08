@@ -18,10 +18,7 @@ organizations (see :ref:`generating-reports`).
 Artemis is built with scalability in mind -- different scanners are separate microservices
 and can be scaled independently if such a need arises.
 
-To chat about Artemis, join the Discord server:
-
-.. image:: https://dcbadge.vercel.app/api/server/GfUW4mZmy9
-   :target: https://discord.gg/GfUW4mZmy9
+To chat about Artemis, join the Discord server: https://discord.gg/GfUW4mZmy9
 
 .. warning::
   Artemis doesn't yet support proxying the requests and will leak your IP address.

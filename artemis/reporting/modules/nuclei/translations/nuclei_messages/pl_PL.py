@@ -1904,6 +1904,6 @@ TRANSLATIONS = {
     "Detects Teleport web login interface exposed at /web/login and version information from /webapi/ping": "Wykryto panel logowania systemu Teleport.",
     "Detects the presence of Wing FTP Server web interface": "Wykryto interfejs przeglądakowy systemu Wing FTP Server.",
     "peplink login panel was detected.": "wykryto panel logowania systemu peplink.",
-    "OLT Web Management Interface login panel was detected.": "Wykryto panel logowanai OLT Web Management Interface.",
+    "OLT Web Management Interface login panel was detected.": "Wykryto panel logowania OLT Web Management Interface.",
     "Dell IDRAC panel was detected.": "Wykryto panel Dell IDRAC.",
 }

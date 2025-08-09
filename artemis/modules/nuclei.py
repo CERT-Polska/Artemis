@@ -42,6 +42,8 @@ TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
 TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
 
+UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
+
 
 def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
     """
@@ -106,17 +108,19 @@ class Nuclei(ArtemisBase):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        # We clone this repo in __init__ (on karton start) so that it will get periodically
-        # re-cloned when the container gets retarted every 𝑛 tasks. The same logic lies behind
-        # updating the Nuclei templates in __init__.
-        if os.path.exists("/known-exploited-vulnerabilities/"):
-            shutil.rmtree("/known-exploited-vulnerabilities/")
+        # We are cloning the KEV repository and updating templates in the Dockerfile
+        # so we don't need to do every time we start the module.
+        kev_directory = "/known-exploited-vulnerabilities/"
+        if os.path.exists(kev_directory) and os.path.getctime(kev_directory) < time.time() - UPDATE_INTERVAL:
+            shutil.rmtree(kev_directory, ignore_errors=True)
+            subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
 
-        subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", "/known-exploited-vulnerabilities/"])
         with self.lock:
-            # Cleanup so that no old template files exist
             template_directory = "/root/nuclei-templates/"
-            if os.path.exists(template_directory) and os.path.getctime(template_directory) < time.time() - 3600:
+            if (
+                os.path.exists(template_directory)
+                and os.path.getctime(template_directory) < time.time() - UPDATE_INTERVAL
+            ):
                 shutil.rmtree(template_directory, ignore_errors=True)
                 shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
 
@@ -145,12 +149,13 @@ class Nuclei(ArtemisBase):
                     if item.endswith(".yml") or item.endswith(".yaml")
                 ]
 
+            listed_templates = (
+                check_output_log_on_error(["nuclei"] + templates_list_command, self.log).decode("ascii").split()
+            )
             if "log_exposures" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 template_lists_raw["log_exposures"] = [
                     item
-                    for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
-                    .decode("ascii")
-                    .split()
+                    for item in listed_templates
                     if item.startswith("http/exposures/logs")
                     # we already have a git detection module that filters FPs such as
                     # exposed source code of a repo that is already public
@@ -159,11 +164,7 @@ class Nuclei(ArtemisBase):
 
             if "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
                 template_lists_raw["exposed_panels"] = [
-                    item
-                    for item in check_output_log_on_error(["nuclei"] + templates_list_command, self.log)
-                    .decode("ascii")
-                    .split()
-                    if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
+                    item for item in listed_templates if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
                 ]
 
             self._template_lists: Dict[str, List[str]] = {}

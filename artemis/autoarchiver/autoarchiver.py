@@ -82,7 +82,7 @@ def archive_old_results(interesting: bool) -> None:
         LOGGER.info("Too small, not archiving")
         return
 
-    _save_and_delete_items(old_items, "_interesting_" if interesting else "_not_interesting_")
+    _save_and_delete_items(old_items, "_interesting" if interesting else "_not_interesting")
 
 
 def main() -> None:

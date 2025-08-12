@@ -257,17 +257,6 @@ services:
       - data-nuclei-templates:/root/nuclei-templates
       - data-nuclei-config:/root/.config/nuclei
 
-  karton-nuclei-dast:
-    <<: [*logging, *artemis-build-or-image]
-    command: "python3 -m artemis.modules.nuclei_dast"
-    env_file: .env
-    restart: always
-    volumes:
-      - "./docker/karton.ini:/etc/karton/karton.ini"
-      - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
-      - data-nuclei-templates:/root/nuclei-templates
-      - data-nuclei-config:/root/.config/nuclei
-
   karton-port_scanner:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.port_scanner"

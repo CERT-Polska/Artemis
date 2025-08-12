@@ -60,17 +60,11 @@ def get_target_url(task: Task) -> str:
 
     target = get_target_host(task)
     port = task.get_payload("port")
-    path = task.get_payload("path")
-    if not path.startswith("/"):
-        path = "/" + path
-    params = task.get_payload("params", {})
-    if len(params) > 0:
-        params = "?" + "&".join([f"{key}={params[key]}" for key in params])
     protocol = "http"
     if task.get_payload("ssl"):
         protocol += "s"
 
-    return f"{protocol}://{target}:{port}{path}{params}"
+    return f"{protocol}://{target}:{port}"
 
 
 ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX = b"analysis-num-finished-tasks-"

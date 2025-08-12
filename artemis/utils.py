@@ -4,6 +4,7 @@ import time
 import urllib.parse
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
 from whoisdomain import query as whois_query
@@ -117,3 +118,21 @@ def get_host_from_url(url: str) -> str:
 def read_template(path: str) -> str:
     with open(Path(__file__).parent.parent / "templates" / path) as f:
         return f.read()
+
+
+def add_common_params_from_wordlist(url: str, params_wordlist: str, default_param_value: str = "") -> str:
+    with open(params_wordlist, "r") as file:
+        params = file.read().splitlines()
+        params = [param.strip() for param in params if param.strip() and not param.startswith("#")]
+
+    parsed_url = urlparse(url)
+
+    query_params = parse_qs(parsed_url.query)
+
+    for param in params:
+        if param not in query_params:
+            query_params[param] = [default_param_value or "testvalue"]
+
+    new_query = urlencode(query_params, doseq=True)
+
+    return urlunparse(parsed_url._replace(query=new_query))

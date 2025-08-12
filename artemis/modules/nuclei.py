@@ -31,6 +31,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
+    add_common_params_from_wordlist,
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
@@ -41,6 +42,17 @@ CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_tem
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
 TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
+
+DAST_SCANNING: Dict[str, Dict[str, Any]] = {
+    "ssrf": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "ssrf.txt"),
+        "param_default_value": "http://example.com",
+    },
+    "lfi": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "lfi.txt"),
+        "param_default_value": "abc.html",
+    },
+}
 
 
 def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
@@ -181,6 +193,18 @@ class Nuclei(ArtemisBase):
                         self._template_lists[name].append(template)
 
             self._template_lists["custom"] = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
+
+            dast_templates = check_output_log_on_error(["nuclei", "-dast", "-tl"], self.log).decode("ascii").split()
+            dast_templates = [
+                template
+                for template in dast_templates
+                if template.startswith("dast/") and template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+            ]
+            self._dast_templates: Dict[str, List[str]] = {}
+            for template_name in DAST_SCANNING.keys():
+                self._dast_templates[template_name] = [
+                    template for template in dast_templates if template_name in template
+                ]
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._template_lists["custom"].append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
@@ -457,14 +481,20 @@ class Nuclei(ArtemisBase):
         self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
 
         targets: List[str] = []
-        for task in tasks:
-            targets.append(get_target_url(task))
-
         scan_groups = group_targets_by_missing_tech(targets, self.log)
         found_targets_after_grouping = []
         for scan_group in scan_groups.values():
             found_targets_after_grouping.extend(scan_group)
         assert set(found_targets_after_grouping) == set(targets)
+
+        for template_name, template_data in DAST_SCANNING.items():
+            DAST_SCANNING[template_name]["targets"] = list()
+            for task in tasks:
+                DAST_SCANNING[template_name]["targets"].append(
+                    add_common_params_from_wordlist(
+                        get_target_url(task), template_data["params_wordlist"], template_data["param_default_value"]
+                    )
+                )
 
         findings: List[Dict[str, Any]] = []
         for tags_frozen_set, group_targets in scan_groups.items():
@@ -478,6 +508,17 @@ class Nuclei(ArtemisBase):
             findings.extend(self._scan(templates, ScanUsing.TEMPLATES, group_targets, extra_nuclei_args=extra_args))
             findings.extend(
                 self._scan(self._workflows, ScanUsing.WORKFLOWS, group_targets, extra_nuclei_args=extra_args)
+            )
+
+        # DAST scanning
+        for template_name, template_data in DAST_SCANNING.items():
+            findings.extend(
+                self._scan(
+                    self._dast_templates[template_name],
+                    ScanUsing.TEMPLATES,
+                    template_data["targets"],
+                    extra_nuclei_args=["-dast"],
+                )
             )
 
         links_per_task = {}
@@ -539,7 +580,7 @@ class Nuclei(ArtemisBase):
             for finding in findings_per_task[task.uid]:
                 result.append(finding)
                 messages.append(
-                    f"[{finding['info']['severity']}] {finding['url']}: {finding['info'].get('name')} {finding['info'].get('description')}"
+                    f"[{finding['info']['severity']}] {finding['url']}: {finding['info'].get('name')} {finding['info'].get('description', '')}"
                 )
 
             if messages:

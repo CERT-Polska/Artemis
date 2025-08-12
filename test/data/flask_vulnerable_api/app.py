@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from typing import Any, Dict, Optional, Tuple, Union
 
@@ -28,6 +29,9 @@ def init_db() -> None:
 
 @app.route("/")
 def index() -> Tuple[Response, int]:
+    filename = request.args.get("filename", "")
+    if filename:
+        return jsonify({"message": open(os.path.join("/tmp", filename), "r").read()}), 200
     return jsonify({"message": "Test API with SQLi vulnerabilities"}), 200
 
 

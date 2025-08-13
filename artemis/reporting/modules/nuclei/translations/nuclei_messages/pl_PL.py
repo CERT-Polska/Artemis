@@ -997,6 +997,9 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "http/misconfiguration/ssrf-via-oauth-misconfig.yaml": "Wykryto, że implementacja protokołu OAuth jest podatna na atak Server-Side Request Forgery - atakujący może doprowadzić aplikację do wykonywania żądań HTTP do usług w sieci wewnętrznej.",
+    "Publicly exposed smtp4dev interface allowing access to intercepted emails and test configurations.": "Publicznie dostępny interfejs smtp4dev umożliwia dostęp do wiadomości e-mail i konfiguracji testowych.",
+    "ZXHN-F660T and ZXHN-F660A provided by ZTE Japan K.K. use a common credential for all installations. With the knowledge of the credential, an attacker may log in to the affected devices.": "Urządzenia ZXHN-F660T i ZXHN-F660A dostarczone przez ZTE Japan K.K. używają prostych, domyślnych danych logowania.",
+    "Yealink CTP18 Default Administrator Credentials Discovered.": "Wykryto urządzenie Yealink CTP18, w którym domyślne dane dostępowe umożliwiają logowanie.",
     "VMware VCenter is susceptible to remote code execution via the Apache Log4j framework. An attacker can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": " VMware VCenter zawiera podatność umożliwiającą zdalne wykonanie kodu i przejęcie pełnej kontroli nad systemem. Luka wynika z użycia podatnej wersji Apache Log4j."
     + UPDATE_HINT,
     "http/exposures/configs/config-properties.yaml": "Wykryto plik konfiguracyjny zawierający hasła lub dane dostepowe do bazy danych.",
@@ -1904,6 +1907,7 @@ TRANSLATIONS = {
     "Detects Teleport web login interface exposed at /web/login and version information from /webapi/ping": "Wykryto panel logowania systemu Teleport.",
     "Detects the presence of Wing FTP Server web interface": "Wykryto interfejs przeglądakowy systemu Wing FTP Server.",
     "peplink login panel was detected.": "wykryto panel logowania systemu peplink.",
+    "http/exposed-panels/wd-mycloud-panel.yaml": "wykryto panel WD My Cloud.",
     "OLT Web Management Interface login panel was detected.": "Wykryto panel logowania OLT Web Management Interface.",
     "Dell IDRAC panel was detected.": "Wykryto panel Dell IDRAC.",
 }

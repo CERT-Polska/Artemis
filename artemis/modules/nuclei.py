@@ -52,6 +52,22 @@ DAST_SCANNING: Dict[str, Dict[str, Any]] = {
         "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "lfi.txt"),
         "param_default_value": "abc.html",
     },
+    "cmdi": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "cmdi.txt"),
+        "param_default_value": "testing",
+    },
+    "redirect": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "redirect.txt"),
+        "param_default_value": "http://127.0.0.1",
+    },
+    "sqli": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "sqli.txt"),
+        "param_default_value": "testing",
+    },
+    "xss": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "xss.txt"),
+        "param_default_value": "testing",
+    },
 }
 
 
@@ -202,7 +218,10 @@ class Nuclei(ArtemisBase):
             ]
             self._dast_templates: Dict[str, List[str]] = {}
             for keyword in DAST_SCANNING.keys():
-                self._dast_templates[keyword] = [template for template in dast_templates if keyword in template]
+                self._dast_templates[keyword] = [
+                    dast_templates.pop(i) for i in range(len(dast_templates)) if keyword in dast_templates[i]
+                ]
+            self._dast_templates["other"] = dast_templates
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._template_lists["custom"].append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
@@ -481,7 +500,7 @@ class Nuclei(ArtemisBase):
         targets: List[str] = []
         for task in tasks:
             targets.append(get_target_url(task))
-        
+
         scan_groups = group_targets_by_missing_tech(targets, self.log)
         found_targets_after_grouping = []
         for scan_group in scan_groups.values():
@@ -540,6 +559,23 @@ class Nuclei(ArtemisBase):
                     [item for item in link_package if item],
                 )
             )
+            findings.extend(
+                self._scan(
+                    self._dast_templates["other"],
+                    ScanUsing.TEMPLATES,
+                    [item for item in link_package if item],
+                    extra_nuclei_args=["-dast"],
+                )
+            )
+            for keyword in DAST_SCANNING:
+                findings.extend(
+                    self._scan(
+                        self._dast_templates[keyword],
+                        ScanUsing.TEMPLATES,
+                        [item for item in link_package if item],
+                        extra_nuclei_args=["-dast"],
+                    )
+                )
 
         findings_per_task = collections.defaultdict(list)
         findings_unmatched = []

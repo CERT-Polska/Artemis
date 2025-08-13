@@ -1,0 +1,22 @@
+# Taken from: https://github.com/lutfumertceylan/top25-parameter/blob/master/openredirect-parameters.txt
+# Apache License: https://github.com/lutfumertceylan/top25-parameter/blob/master/LICENSE
+next
+url
+target
+rurl
+dest
+destination
+redir
+redirect_uri
+redirect
+out
+view
+to
+image_url
+go
+return
+returnTo
+return_to
+checkout_url
+continue
+return_path

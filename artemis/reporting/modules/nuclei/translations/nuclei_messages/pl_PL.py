@@ -997,6 +997,9 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "http/misconfiguration/ssrf-via-oauth-misconfig.yaml": "Wykryto, że implementacja protokołu OAuth jest podatna na atak Server-Side Request Forgery - atakujący może doprowadzić aplikację do wykonywania żądań HTTP do usług w sieci wewnętrznej.",
+    "Publicly exposed smtp4dev interface allowing access to intercepted emails and test configurations.": "Publicznie dostępny interfejs smtp4dev umożliwia dostęp do wiadomości e-mail i konfiguracji testowych.",
+    "ZXHN-F660T and ZXHN-F660A provided by ZTE Japan K.K. use a common credential for all installations. With the knowledge of the credential, an attacker may log in to the affected devices.": "Urządzenia ZXHN-F660T i ZXHN-F660A dostarczone przez ZTE Japan K.K. używają prostych, domyślnych danych logowania.",
+    "Yealink CTP18 Default Administrator Credentials Discovered.": "Wykryto urządzenie Yealink CTP18, w którym domyślne dane dostępowe umożliwiają logowanie.",
     "The SOAP admin service in WSO2 products has a security vulnerability that allows the creation of new user accounts regardless of the self-registration configuration settings.": "Usługa administratora SOAP w produktach WSO2 zawiera podatność umożliwiającą tworzenie kont użytkowników niezależnie od przyjętych uprawnień.",
     "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
@@ -1897,4 +1900,5 @@ TRANSLATIONS = {
     "Detects Teleport web login interface exposed at /web/login and version information from /webapi/ping": "Wykryto panel logowania systemu Teleport.",
     "Detects the presence of Wing FTP Server web interface": "Wykryto interfejs przeglądakowy systemu Wing FTP Server.",
     "peplink login panel was detected.": "wykryto panel logowania systemu peplink.",
+    "http/exposed-panels/wd-mycloud-panel.yaml": "wykryto panel WD My Cloud.",
 }

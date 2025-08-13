@@ -33,7 +33,9 @@ class DnsScanner(ArtemisBase):
         result: Dict[str, Any] = {}
 
         zone_name = dns.resolver.zone_for_name(domain)
-        soa_result = [str(ns.mname) for ns in dns.resolver.resolve(zone_name, "SOA")]
+        # mname is attribute of SOA:
+        # https://dnspython.readthedocs.io/en/stable/rdata-subclasses.html#dns.rdtypes.ANY.SOA.SOA.mname
+        soa_result = [str(ns.mname) for ns in dns.resolver.resolve(zone_name, "SOA")]  # type: ignore[attr-defined]
         ns_result = [str(ns) for ns in dns.resolver.resolve(zone_name, "NS")]
         nameservers = list(set(soa_result + ns_result))
 

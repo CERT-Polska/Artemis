@@ -404,9 +404,15 @@ class DB:
         return result
 
     def get_oldest_task_results_before(
-        self, time_to: datetime.datetime, max_length: int, batch_size: int = 100
+        self, time_to: datetime.datetime, max_length: int, interesting: bool, batch_size: int = 100
     ) -> List[Dict[str, Any]]:
         query = select(TaskResult).filter(TaskResult.created_at <= time_to).order_by(TaskResult.created_at)  # type: ignore
+
+        if interesting:
+            query = query.filter(TaskResult.status == "INTERESTING")
+        else:
+            query = query.filter(TaskResult.status != "INTERESTING")
+
         result = []
         for i, item in enumerate(self._iter_results(query, batch_size)):
             if i >= max_length:

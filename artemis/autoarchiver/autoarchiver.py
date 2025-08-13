@@ -60,21 +60,29 @@ def archive_tag(tag: str) -> int:
     return len(items)
 
 
-def archive_old_results() -> None:
-    archive_age_timedelta = datetime.timedelta(seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS)
+def archive_old_results(interesting: bool) -> None:
+    if interesting:
+        archive_age_timedelta = datetime.timedelta(
+            seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS_INTERESTING
+        )
+    else:
+        archive_age_timedelta = datetime.timedelta(
+            seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING
+        )
 
     old_items = db.get_oldest_task_results_before(
         time_to=datetime.datetime.now() - archive_age_timedelta,
         max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
+        interesting=interesting,
     )
 
-    LOGGER.info("Found %s old items", len(old_items))
+    LOGGER.info("Found %s old items, interesting=%s", len(old_items), interesting)
 
     if len(old_items) < Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE:
         LOGGER.info("Too small, not archiving")
         return
 
-    _save_and_delete_items(old_items, "")
+    _save_and_delete_items(old_items, "_interesting" if interesting else "_not_interesting")
 
 
 def main() -> None:
@@ -88,7 +96,8 @@ def main() -> None:
                 db.delete_tag_archive_request(tag)
 
         LOGGER.info("Archiving old results...")
-        archive_old_results()
+        archive_old_results(True)
+        archive_old_results(False)
 
         LOGGER.info("Sleeping %s seconds", Config.Data.Autoarchiver.AUTOARCHIVER_INTERVAL_SECONDS)
         time.sleep(Config.Data.Autoarchiver.AUTOARCHIVER_INTERVAL_SECONDS)

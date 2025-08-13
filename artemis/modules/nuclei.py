@@ -46,7 +46,7 @@ TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {
     "ssrf": {
         "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "ssrf.txt"),
-        "param_default_value": "http://example.com",
+        "param_default_value": "http://127.0.0.1",
     },
     "lfi": {
         "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "lfi.txt"),
@@ -479,6 +479,9 @@ class Nuclei(ArtemisBase):
         self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
 
         targets: List[str] = []
+        for task in tasks:
+            targets.append(get_target_url(task))
+        
         scan_groups = group_targets_by_missing_tech(targets, self.log)
         found_targets_after_grouping = []
         for scan_group in scan_groups.values():

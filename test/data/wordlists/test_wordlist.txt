@@ -1,0 +1,5 @@
+# This wordlist is only for testing
+a
+query
+param2
+param3

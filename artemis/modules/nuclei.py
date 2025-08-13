@@ -201,10 +201,8 @@ class Nuclei(ArtemisBase):
                 if template.startswith("dast/") and template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
             ]
             self._dast_templates: Dict[str, List[str]] = {}
-            for template_name in DAST_SCANNING.keys():
-                self._dast_templates[template_name] = [
-                    template for template in dast_templates if template_name in template
-                ]
+            for keyword in DAST_SCANNING.keys():
+                self._dast_templates[keyword] = [template for template in dast_templates if keyword in template]
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._template_lists["custom"].append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
@@ -487,10 +485,11 @@ class Nuclei(ArtemisBase):
             found_targets_after_grouping.extend(scan_group)
         assert set(found_targets_after_grouping) == set(targets)
 
-        for template_name, template_data in DAST_SCANNING.items():
-            DAST_SCANNING[template_name]["targets"] = list()
+        dast_targets: Dict[str, List[str]] = {}
+        for keyword, template_data in DAST_SCANNING.items():
+            dast_targets[keyword] = []
             for task in tasks:
-                DAST_SCANNING[template_name]["targets"].append(
+                dast_targets[keyword].append(
                     add_common_params_from_wordlist(
                         get_target_url(task), template_data["params_wordlist"], template_data["param_default_value"]
                     )
@@ -511,12 +510,12 @@ class Nuclei(ArtemisBase):
             )
 
         # DAST scanning
-        for template_name, template_data in DAST_SCANNING.items():
+        for keyword in DAST_SCANNING:
             findings.extend(
                 self._scan(
-                    self._dast_templates[template_name],
+                    self._dast_templates[keyword],
                     ScanUsing.TEMPLATES,
-                    template_data["targets"],
+                    dast_targets["targets"],
                     extra_nuclei_args=["-dast"],
                 )
             )

@@ -115,7 +115,7 @@ class NucleiTest(ArtemisModuleTestCase):
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-flask-vulnerable-api",
+                "host": "test-dast-vuln-app",
                 "port": 5000,
             },
         )
@@ -124,5 +124,5 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "[high] http://test-flask-vulnerable-api:5000?filename=abc.html: LFI Detection - Keyed , [high] http://test-flask-vulnerable-api:5000?filename=abc.html: Local File Inclusion - Linux ",
+            "[high] http://test-dast-vuln-app:5000?filename=abc.html: LFI Detection - Keyed , [high] http://test-dast-vuln-app:5000?filename=abc.html: Local File Inclusion - Linux ",
         )

@@ -142,7 +142,7 @@ class PortScanner(ArtemisBase):
             if stderr:
                 self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
 
-            self.log.info(f"scanning of {new_target_ips} took {time.time()  - time_start} seconds")
+            self.log.info(f"scanning of {new_target_ips} took {time.time() - time_start} seconds")
 
             if stdout:
                 lines = stdout.decode("ascii").split("\n")
@@ -203,7 +203,7 @@ class PortScanner(ArtemisBase):
                         result[ip] = {}
                     result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
 
-            self.log.info(f"fingerprinting of {new_target_ips} took {time.time()  - time_start} seconds")
+            self.log.info(f"fingerprinting of {new_target_ips} took {time.time() - time_start} seconds")
 
             for target_ip in new_target_ips:
                 self.cache.set(target_ip, json.dumps(result.get(target_ip, {})).encode("utf-8"))

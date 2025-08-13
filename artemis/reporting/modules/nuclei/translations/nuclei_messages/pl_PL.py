@@ -1000,11 +1000,18 @@ TRANSLATIONS = {
     "Publicly exposed smtp4dev interface allowing access to intercepted emails and test configurations.": "Publicznie dostępny interfejs smtp4dev umożliwia dostęp do wiadomości e-mail i konfiguracji testowych.",
     "ZXHN-F660T and ZXHN-F660A provided by ZTE Japan K.K. use a common credential for all installations. With the knowledge of the credential, an attacker may log in to the affected devices.": "Urządzenia ZXHN-F660T i ZXHN-F660A dostarczone przez ZTE Japan K.K. używają prostych, domyślnych danych logowania.",
     "Yealink CTP18 Default Administrator Credentials Discovered.": "Wykryto urządzenie Yealink CTP18, w którym domyślne dane dostępowe umożliwiają logowanie.",
+    "VMware VCenter is susceptible to remote code execution via the Apache Log4j framework. An attacker can execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": " VMware VCenter zawiera podatność umożliwiającą zdalne wykonanie kodu i przejęcie pełnej kontroli nad systemem. Luka wynika z użycia podatnej wersji Apache Log4j."
+    + UPDATE_HINT,
+    "http/exposures/configs/config-properties.yaml": "Wykryto plik konfiguracyjny zawierający hasła lub dane dostepowe do bazy danych.",
     "The SOAP admin service in WSO2 products has a security vulnerability that allows the creation of new user accounts regardless of the self-registration configuration settings.": "Usługa administratora SOAP w produktach WSO2 zawiera podatność umożliwiającą tworzenie kont użytkowników niezależnie od przyjętych uprawnień.",
     "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Huawei HG255s is vulnerable to local file inclusion due to insufficient validation of the received HTTP requests. A remote attacker may access the local files on the device without authentication.": "Huawei HG255s zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Improper limitation of a pathname to a restricted directory vulnerability in Samsung MagicINFO 9 Server version before 21.1050 allows attackers to write arbitrary file as system authority.": "Samsung MagicINFO 9 Server w wersji poniżej 21.1050 umożliwia atakującemu zapis dowolnych plików na serwerze."
+    + UPDATE_HINT,
+    "Rainloop WebMail default admin login credentials were successful.": "Wykryto system Rainloop WebMail, w którym domyślne dane logowania umożliwiają logowanie.",
+    "WSO2 contains a reflected cross-site scripting vulnerability in the Management Console of API Manager 2.2.0, 2.5.0, 2.6.0, 3.0.0, 3.1.0, 3.2.0, and 4.0.0; API Manager Analytics 2.2.0, 2.5.0, and 2.6.0; API Microgateway 2.2.0; Data Analytics Server 3.2.0; Enterprise Integrator 6.2.0, 6.3.0, 6.4.0, 6.5.0, and 6.6.0; IS as Key Manager 5.5.0, 5.6.0, 5.7.0, 5.9.0, and 5.10.0; Identity Server 5.5.0, 5.6.0, 5.7.0, 5.9.0, 5.10.0, and 5.11.0; Identity Server Analytics 5.5.0 and 5.6.0; and WSO2 Micro Integrator 1.0.0.": "WSO2 API Manager 2.2.0, 2.5.0, 2.6.0, 3.0.0, 3.1.0, 3.2.0 i 4.0.0, API Manager Analytics 2.2.0, 2.5.0 i 2.6.0, API Microgateway 2.2.0; Data Analytics Server 3.2.0; Enterprise Integrator 6.2.0, 6.3.0, 6.4.0, 6.5.0 i 6.6.0, IS as Key Manager 5.5.0, 5.6.0, 5.7.0, 5.9.0 i 5.10.0,Identity Server 5.5.0, 5.6.0, 5.7.0, 5.9.0, 5.10.0 i 5.11.0, Identity Server Analytics 5.5.0 i 5.6.0 i WSO2 Micro Integrator 1.0.0 zawierają podatność "
+    + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "The Web Application Firewall in Bitrix24 up to and including 20.0.0 allows XSS via the items[ITEMS][ID] parameter to the components/bitrix/mobileapp.list/ajax.php/ URI.": "Komponent Web Application Firewall w Bitrix24 w wersji do 20.0.0 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
@@ -1901,4 +1908,6 @@ TRANSLATIONS = {
     "Detects the presence of Wing FTP Server web interface": "Wykryto interfejs przeglądakowy systemu Wing FTP Server.",
     "peplink login panel was detected.": "wykryto panel logowania systemu peplink.",
     "http/exposed-panels/wd-mycloud-panel.yaml": "wykryto panel WD My Cloud.",
+    "OLT Web Management Interface login panel was detected.": "Wykryto panel logowania OLT Web Management Interface.",
+    "Dell IDRAC panel was detected.": "Wykryto panel Dell IDRAC.",
 }

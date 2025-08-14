@@ -1,0 +1,27 @@
+# Taken from https://github.com/lutfumertceylan/top25-parameter/blob/master/xss-parameters.txt
+# Apache License: https://github.com/lutfumertceylan/top25-parameter/blob/master/LICENSE
+q
+s
+search
+id
+lang
+keyword
+query
+page
+keywords
+year
+view
+email
+type
+name
+p
+month
+image
+list_type
+url
+terms
+categoryid
+key
+login
+begindate
+enddate

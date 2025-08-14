@@ -1,0 +1,27 @@
+# Taken from https://github.com/lutfumertceylan/top25-parameter/blob/master/rce-paramaters-get-based.txt
+# Apache License: https://github.com/lutfumertceylan/top25-parameter/blob/master/LICENSE
+cmd
+exec
+command
+execute
+ping
+query
+jump
+code
+reg
+do
+func
+arg
+option
+load
+process
+step
+read
+function
+req
+feature
+exe
+module
+payload
+run
+print

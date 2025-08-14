@@ -31,6 +31,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
+    add_common_params_from_wordlist,
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
@@ -41,6 +42,33 @@ CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_tem
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
 TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
+
+DAST_SCANNING: Dict[str, Dict[str, Any]] = {
+    "ssrf": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "ssrf.txt"),
+        "param_default_value": "http://127.0.0.1",
+    },
+    "lfi": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "lfi.txt"),
+        "param_default_value": "abc.html",
+    },
+    "cmdi": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "cmdi.txt"),
+        "param_default_value": "testing",
+    },
+    "redirect": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "redirect.txt"),
+        "param_default_value": "http://127.0.0.1",
+    },
+    "sqli": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "sqli.txt"),
+        "param_default_value": "testing",
+    },
+    "xss": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "xss.txt"),
+        "param_default_value": "testing",
+    },
+}
 
 
 def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
@@ -181,6 +209,19 @@ class Nuclei(ArtemisBase):
                         self._template_lists[name].append(template)
 
             self._template_lists["custom"] = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
+
+            dast_templates = check_output_log_on_error(["nuclei", "-dast", "-tl"], self.log).decode("ascii").split()
+            dast_templates = [
+                template
+                for template in dast_templates
+                if template.startswith("dast/") and template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+            ]
+            self._dast_templates: Dict[str, List[str]] = {}
+            for keyword in DAST_SCANNING.keys():
+                self._dast_templates[keyword] = [template for template in dast_templates if keyword in template]
+            self._dast_templates["other"] = [
+                template for template in dast_templates if not any(template in s for s in self._dast_templates.values())
+            ]
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._template_lists["custom"].append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
@@ -480,6 +521,25 @@ class Nuclei(ArtemisBase):
                 self._scan(self._workflows, ScanUsing.WORKFLOWS, group_targets, extra_nuclei_args=extra_args)
             )
 
+        # DAST scanning
+        dast_targets: Dict[str, List[str]] = {}
+        for keyword, template_data in DAST_SCANNING.items():
+            dast_targets[keyword] = []
+            for task in tasks:
+                dast_targets[keyword].append(
+                    add_common_params_from_wordlist(
+                        get_target_url(task), template_data["params_wordlist"], template_data["param_default_value"]
+                    )
+                )
+            findings.extend(
+                self._scan(
+                    self._dast_templates[keyword],
+                    ScanUsing.TEMPLATES,
+                    dast_targets[keyword],
+                    extra_nuclei_args=["-dast"],
+                )
+            )
+
         links_per_task = {}
         for task in tasks:
             links = self._get_links(get_target_url(task))
@@ -497,6 +557,33 @@ class Nuclei(ArtemisBase):
                     [item for item in link_package if item],
                 )
             )
+            findings.extend(
+                self._scan(
+                    self._dast_templates["other"],
+                    ScanUsing.TEMPLATES,
+                    [item for item in link_package if item],
+                    extra_nuclei_args=["-dast"],
+                )
+            )
+
+            dast_targets.clear()
+            for keyword, template_data in DAST_SCANNING.items():
+                dast_targets[keyword] = []
+                for item in link_package:
+                    if item:
+                        dast_targets[keyword].append(
+                            add_common_params_from_wordlist(
+                                item, template_data["params_wordlist"], template_data["param_default_value"]
+                            )
+                        )
+                findings.extend(
+                    self._scan(
+                        self._dast_templates[keyword],
+                        ScanUsing.TEMPLATES,
+                        dast_targets[keyword],
+                        extra_nuclei_args=["-dast"],
+                    )
+                )
 
         findings_per_task = collections.defaultdict(list)
         findings_unmatched = []
@@ -539,7 +626,7 @@ class Nuclei(ArtemisBase):
             for finding in findings_per_task[task.uid]:
                 result.append(finding)
                 messages.append(
-                    f"[{finding['info']['severity']}] {finding['url']}: {finding['info'].get('name')} {finding['info'].get('description')}"
+                    f"[{finding['info']['severity']}] {finding['url']}: {finding['info'].get('name')} {finding['info'].get('description', '')}"
                 )
 
             if messages:

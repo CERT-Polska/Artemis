@@ -110,3 +110,22 @@ class NucleiTest(ArtemisModuleTestCase):
 
         self.assertIn(frozenset(["wordpress"]), grouped_targets)
         self.assertEqual(grouped_targets[frozenset(["wordpress"])], expected_results[frozenset(["wordpress"])])
+
+    def test_lfi_dast_template(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-dast-vuln-app",
+                "port": 5000,
+            },
+        )
+        expected_templates = [
+            "LFI Detection - Keyed",
+            "Local File Inclusion - Linux",
+            "Reflected SSTI Arithmetic Based",
+        ]
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        for template in expected_templates:
+            self.assertIn(template, call.kwargs["status_reason"])

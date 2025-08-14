@@ -1910,4 +1910,6 @@ TRANSLATIONS = {
     "http/exposed-panels/wd-mycloud-panel.yaml": "wykryto panel WD My Cloud.",
     "OLT Web Management Interface login panel was detected.": "Wykryto panel logowania OLT Web Management Interface.",
     "Dell IDRAC panel was detected.": "Wykryto panel Dell IDRAC.",
+    "MikroTik RouterOS admin login panel was detected.": "Wykryto panel logowania systemu MikroTik RouterOS.",
+    "Tenda Web Master login panel was detected.": "Wykryto panel logowania Tenda Web Master.",
 }

@@ -1,17 +1,23 @@
 import os
 from typing import Tuple
 
-from flask import Flask, Response, jsonify, request
+from flask import Flask, render_template, render_template_string, request
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def index() -> Tuple[Response, int]:
+def index() -> Tuple[str, int]:
     filename = request.args.get("filename", "")
     if filename:
-        return jsonify({"message": open(os.path.join("/tmp", filename), "r").read()}), 200
-    return jsonify({"message": "Testing DAST templates"}), 200
+        return str(open(os.path.join("/tmp", filename), "r").read()), 200
+    return render_template("index.html"), 200
+
+
+@app.route("/ssti")
+def ssti() -> Tuple[str, int]:
+    template = request.args.get("template", "")
+    return render_template_string(template), 200
 
 
 if __name__ == "__main__":

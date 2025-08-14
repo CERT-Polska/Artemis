@@ -126,3 +126,19 @@ class NucleiTest(ArtemisModuleTestCase):
             call.kwargs["status_reason"],
             "[high] http://test-dast-vuln-app:5000?filename=abc.html: LFI Detection - Keyed , [high] http://test-dast-vuln-app:5000?filename=abc.html: Local File Inclusion - Linux ",
         )
+
+    def test_dast_scanning_for_other_keyword(self) -> None:
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-dast-vuln-app",
+                "port": 5000,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "[high] http://test-dast-vuln-app:5000?filename=abc.html: LFI Detection - Keyed , [high] http://test-dast-vuln-app:5000?filename=abc.html: Local File Inclusion - Linux ",
+        )

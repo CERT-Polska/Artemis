@@ -5,6 +5,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Install Python dependencies
+COPY ./test/data/dast_vuln_app/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 # Expose port Flask will run on

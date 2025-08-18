@@ -91,7 +91,8 @@ class NucleiTest(ArtemisModuleTestCase):
             call.kwargs["status_reason"],
             "[high] http://test-php-xss-but-not-on-homepage:80/xss.php: Top 38 Parameters - Cross-Site Scripting Cross-site scripting was discovered via a search for reflected parameter "
             "values in the server response via GET-requests., [medium] http://test-php-xss-but-not-on-homepage:80/xss.php: Fuzzing Parameters - Cross-Site Scripting Cross-site scripting "
-            "was discovered via a search for reflected parameter values in the server response via GET-requests.\n",
+            "was discovered via a search for reflected parameter values in the server response via GET-requests.\n, "
+            "[medium] http://test-php-xss-but-not-on-homepage:80/xss.php?q=testing&s=testing&search=testing&id=testing&lang=testing&keyword=testing&query=testing&page=testing&keywords=testing&year=testing&view=testing&email=testing&type=testing&name=testing&p=testing&month=testing&image=testing&list_type=testing&url=testing&terms=testing&categoryid=testing&key=testing&login=testing&begindate=testing&enddate=testing: Reflected Cross-Site Scripting ",
         )
 
     def test_group_targets_by_missing_tech(self) -> None:
@@ -119,13 +120,20 @@ class NucleiTest(ArtemisModuleTestCase):
                 "port": 5000,
             },
         )
-        expected_templates = [
-            "LFI Detection - Keyed",
-            "Local File Inclusion - Linux",
-            "Reflected SSTI Arithmetic Based",
-        ]
+        # expected_templates = [
+        #     "LFI Detection - Keyed",
+        #     "Local File Inclusion - Linux",
+        #     "Reflected SSTI Arithmetic Based",
+        # ]
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        for template in expected_templates:
-            self.assertIn(template, call.kwargs["status_reason"])
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "[high] http://test-dast-vuln-app:5000?cat=abc.html&dir=abc.html&action=abc.html&board=abc.html&date=abc.html&detail=abc.html&file=abc.html&filename=abc.html&download=abc.html&path=abc.html&folder=abc.html&prefix=abc.html&include=abc.html&page=abc.html&inc=abc.html&locate=abc.html&show=abc.html&doc=abc.html&site=abc.html&type=abc.html&view=abc.html&content=abc.html&document=abc.html&layout=abc.html&mod=abc.html&conf=abc.html: LFI Detection - Keyed , "
+            "[high] http://test-dast-vuln-app:5000?cat=abc.html&dir=abc.html&action=abc.html&board=abc.html&date=abc.html&detail=abc.html&file=abc.html&filename=abc.html&download=abc.html&path=abc.html&folder=abc.html&prefix=abc.html&include=abc.html&page=abc.html&inc=abc.html&locate=abc.html&show=abc.html&doc=abc.html&site=abc.html&type=abc.html&view=abc.html&content=abc.html&document=abc.html&layout=abc.html&mod=abc.html&conf=abc.html: Local File Inclusion - Linux , "
+            "[medium] http://test-dast-vuln-app:5000/ssti?template=Testing&q=testing&s=testing&search=testing&id=testing&lang=testing&keyword=testing&query=testing&page=testing&keywords=testing&year=testing&view=testing&email=testing&type=testing&name=testing&p=testing&month=testing&image=testing&list_type=testing&url=testing&terms=testing&categoryid=testing&key=testing&login=testing&begindate=testing&enddate=testing: Reflected Cross-Site Scripting , "
+            "[medium] http://test-dast-vuln-app:5000/ssti?template=Testing: Reflected SSTI Arithmetic Based ",
+        )
+        # for template in expected_templates:
+        #     self.assertIn(template, call.kwargs["status_reason"])

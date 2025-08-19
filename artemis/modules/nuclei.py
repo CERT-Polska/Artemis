@@ -523,14 +523,16 @@ class Nuclei(ArtemisBase):
 
         # DAST scanning
         dast_targets: Dict[str, List[str]] = {}
+        dast_targets["other"] = []
         for keyword, template_data in DAST_SCANNING.items():
             dast_targets[keyword] = []
             for task in tasks:
-                dast_targets[keyword].append(
-                    add_common_params_from_wordlist(
-                        get_target_url(task), template_data["params_wordlist"], template_data["param_default_value"]
-                    )
+                param_url = add_common_params_from_wordlist(
+                    get_target_url(task), template_data["params_wordlist"], template_data["param_default_value"]
                 )
+                dast_targets[keyword].append(param_url)
+                # Since there are no params for "other", we can just combine all the params from the different vulns into this
+                dast_targets["other"].append(param_url)
             findings.extend(
                 self._scan(
                     self._dast_templates[keyword],
@@ -539,6 +541,15 @@ class Nuclei(ArtemisBase):
                     extra_nuclei_args=["-dast"],
                 )
             )
+
+        findings.extend(
+            self._scan(
+                self._dast_templates["other"],
+                ScanUsing.TEMPLATES,
+                dast_targets["other"],
+                extra_nuclei_args=["-dast"],
+            )
+        )
 
         links_per_task = {}
         for task in tasks:
@@ -557,25 +568,19 @@ class Nuclei(ArtemisBase):
                     [item for item in link_package if item],
                 )
             )
-            findings.extend(
-                self._scan(
-                    self._dast_templates["other"],
-                    ScanUsing.TEMPLATES,
-                    [item for item in link_package if item],
-                    extra_nuclei_args=["-dast"],
-                )
-            )
 
             dast_targets.clear()
+            dast_targets["other"] = []
             for keyword, template_data in DAST_SCANNING.items():
                 dast_targets[keyword] = []
                 for item in link_package:
                     if item:
-                        dast_targets[keyword].append(
-                            add_common_params_from_wordlist(
-                                item, template_data["params_wordlist"], template_data["param_default_value"]
-                            )
+                        param_url = add_common_params_from_wordlist(
+                            item, template_data["params_wordlist"], template_data["param_default_value"]
                         )
+                        dast_targets[keyword].append(param_url)
+                        dast_targets["other"].append(param_url)
+
                 findings.extend(
                     self._scan(
                         self._dast_templates[keyword],
@@ -584,6 +589,15 @@ class Nuclei(ArtemisBase):
                         extra_nuclei_args=["-dast"],
                     )
                 )
+
+            findings.extend(
+                self._scan(
+                    self._dast_templates["other"],
+                    ScanUsing.TEMPLATES,
+                    dast_targets["other"],
+                    extra_nuclei_args=["-dast"],
+                )
+            )
 
         findings_per_task = collections.defaultdict(list)
         findings_unmatched = []

@@ -996,6 +996,15 @@ TRANSLATIONS = {
     "PacsOne Server (PACS Server In One Box) below 7.1.1 is vulnerable to cross-site scripting.": "PacsOne Server (PACS Server In One Box) w wersji poniżej 7.1.1 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "WordPress acf-to-rest-ap through 3.1.0 allows an insecure direct object reference via permalinks manipulation, as demonstrated by a wp-json/acf/v3/options/ request that can read sensitive information in the wp_options table such as the login and pass values.": "Wtyczka WordPress o nazwie acf-to-rest-ap w wersji do 3.1.0 włącznie zawiera podatnosć Insecure Direct Object Reference umożliwiającą atakującemu odczyt opcji konfiguracyjnych, w których mogą znajdować się dane wrażliwe, np. hasła.",
+    "Apache Log4j2 <=2.14.1 JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints. An attacker who can control log messages or log message parameters can execute arbitrary code loaded from LDAP servers when message lookup substitution is enabled.": "Moduł Apache Log4j2 w wersji do 2.14.1 włącznie zawiera podatność CVE-2021-44228 umożliwiającą atakującemu zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATYE_HINT,
+    "Formcraft3 before version 3.8.2  does not validate the URL parameter in the formcraft3_get AJAX action, leading to server-side request forgery issues exploitable by unauthenticated users.": "Formcraft w wersji poniżej 3.8.2 zawiera podatność Server-Side Request Forgery - atakujący może doprowadzić aplikację do wykonywania żądań HTTP do usług w sieci wewnętrznej.",
+    "Next.Js, inferior to version 14.1.1, have its image optimization built-in component prone to SSRF.": "Next.Js w wersji poniżej 14.1.1 zawiera podatność Server-Side Request Forgery - atakujący może doprowadzić aplikację do wykonywania żądań HTTP do usług w sieci wewnętrznej.",
+    "Okta is susceptible to Log4j JNDI remote code execution. Okta provides cloud software that helps companies manage and secure user authentication into applications, and for developers to build identity controls into applications, website web services and devices.": "Wykryto system Okta zawierający podatność Remote Code Execution wynikającą z użycia podatnej wersji Log4j JNDI."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The Easy WP SMTP plugin for WordPress is vulnerable to authorization bypass in versions up to, and including, 1.3.9. This is due to missing capability checks on the admin_init() function, in addition to insufficient input validation. This makes it possible for unauthenticated attackers to modify the plugins settings and arbitrary options on the site that can be used to inject new administrative user accounts.": "Wtyczka WordPress o nazwie Easy WP SMTP w wersji do 1.3.9 włącznie zawiera podatność umożliwiającą atakującemu zmianę dowolnych opcji konfiguracyjnych, a w konsekwencji przejęcie pełnej kontroli nad stroną."
+    + WORDPRESS_UPDATE_HINT,
     "http/misconfiguration/ssrf-via-oauth-misconfig.yaml": "Wykryto, że implementacja protokołu OAuth jest podatna na atak Server-Side Request Forgery - atakujący może doprowadzić aplikację do wykonywania żądań HTTP do usług w sieci wewnętrznej.",
     "Publicly exposed smtp4dev interface allowing access to intercepted emails and test configurations.": "Publicznie dostępny interfejs smtp4dev umożliwia dostęp do wiadomości e-mail i konfiguracji testowych.",
     "ZXHN-F660T and ZXHN-F660A provided by ZTE Japan K.K. use a common credential for all installations. With the knowledge of the credential, an attacker may log in to the affected devices.": "Urządzenia ZXHN-F660T i ZXHN-F660A dostarczone przez ZTE Japan K.K. używają prostych, domyślnych danych logowania.",
@@ -1912,4 +1921,6 @@ TRANSLATIONS = {
     "Dell IDRAC panel was detected.": "Wykryto panel Dell IDRAC.",
     "MikroTik RouterOS admin login panel was detected.": "Wykryto panel logowania systemu MikroTik RouterOS.",
     "Tenda Web Master login panel was detected.": "Wykryto panel logowania Tenda Web Master.",
+    "ZOHO ManageEngine ADSelfService panel was detected.": "Wykryto panel ZOHO ManageEngine ADSelfService.",
+    "[no description] http/exposed-panels/audiobookshelf-panel.yaml": "Wykryto panel logowania systemu Audiobookshelf.",
 }

@@ -67,7 +67,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "link-manager",
     "login-logo",
     "page-or-post-clone",
-    "rafflepress",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
     "zapier",

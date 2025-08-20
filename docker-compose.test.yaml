@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     entrypoint: ""
-    command: bash -c "alembic upgrade head && unittest-parallel -j 2 -s test.modules && unittest-parallel -j 2 -s test.reporting && unittest-parallel -j 2 -s test.unit"
+    command: bash -c "alembic upgrade head && unittest-parallel -j 2 -t . -s test.modules && unittest-parallel -j 2 -t . -s test.reporting && unittest-parallel -j 2 -t . -s test.unit"
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379

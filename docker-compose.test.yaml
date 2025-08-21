@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     entrypoint: ""
-    command: bash -c "alembic upgrade head && python -m unittest discover test.modules && python -m unittest discover test.reporting && python -m unittest discover test.unit"
+    command: bash -c "alembic upgrade head && unittest-parallel -j 4 -t . -s test.modules && unittest-parallel -j 4 -t . -s test.reporting && unittest-parallel -j 4 -t . -s test.unit"
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379

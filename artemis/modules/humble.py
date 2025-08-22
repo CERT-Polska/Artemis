@@ -77,7 +77,7 @@ def process_json_data(result: Dict[str, Any]) -> List[Message]:
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class Humble(ArtemisBase):
     """
-    Runs humble -> A HTTP Headers Analyzer.
+    Runs humble - A HTTP Headers Analyzer.
     """
 
     identity = "humble"

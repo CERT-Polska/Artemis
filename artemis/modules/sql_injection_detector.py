@@ -14,7 +14,10 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.crawling import (
+    get_injectable_parameters,
+    get_links_and_resources_on_same_domain,
+)
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.parameters import URL_PARAMS
@@ -145,6 +148,8 @@ class SqlInjectionDetector(ArtemisBase):
         return data
 
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
+        self.log.info("Scanning URLs: %s", urls)
+
         sql_injection_sleep_payloads = [
             f"sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})",
             f"pg_sleep({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})",
@@ -158,7 +163,10 @@ class SqlInjectionDetector(ArtemisBase):
 
         # The code below may look complicated and repetitive, but it shows how the scanning logic works.
         for current_url in urls:
-            for param_batch in more_itertools.batched(URL_PARAMS, 75):
+            parameters = get_injectable_parameters(current_url)
+            self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
+
+            for param_batch in more_itertools.batched(parameters + URL_PARAMS, 75):
                 if self.is_url_with_parameters(current_url):
                     for error_payload in sql_injection_error_payloads:
                         url_with_payload = self.change_url_params(

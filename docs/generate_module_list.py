@@ -1,7 +1,7 @@
 import os
-import textwrap
 from pathlib import Path
-from typing import IO, Any, get_type_hints
+from typing import IO, Any
+
 from artemis.module_base import ArtemisBase
 
 # By default, these variables are required by the modules. As we are importing the modules
@@ -41,16 +41,14 @@ def print_module_docs(output_file: IO[str]) -> None:
                 if not hasattr(attribute, "original_doc") and attribute.__name__.startswith("Base"):
                     continue
 
-                if attribute.identity in ['classifier', 'http_service_to_url']:
+                if attribute.identity in ["classifier", "http_service_to_url"]:
                     continue
 
-                module_docs[attribute.identity] = attribute.original_doc.strip().replace("\n", " ")
+                module_docs[attribute.identity] = attribute.original_doc.strip().replace("\n", " ")  # type: ignore
 
     for item in sorted(module_docs.keys(), key=lambda key: key.lower()):
         output_file.write(item + "\n")
-        output_file.write("^" * len(item) +"\n")
+        output_file.write("^" * len(item) + "\n")
         # RST uses double backticks for code
-        output_file.write(module_docs[item].replace('`', '``') + "\n")
+        output_file.write(module_docs[item].replace("`", "``") + "\n")
         output_file.write("\n")
-
-

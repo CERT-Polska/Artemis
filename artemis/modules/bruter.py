@@ -57,7 +57,7 @@ class BruterResult:
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class Bruter(ArtemisBase):
     """
-    Brute-forces common paths such as `/index.php.bak`. 
+    Brute-forces common paths such as `/index.php.bak`.
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES

@@ -548,11 +548,6 @@ class Nuclei(ArtemisBase):
                     param_url, template_data["params_wordlist"], template_data["param_default_value"]
                 )
             dast_targets["other"].append(param_url)
-        findings.extend(
-            self._scan(
-                self._dast_templates["other"], ScanUsing.TEMPLATES, dast_targets["other"], extra_nuclei_args=["-dast"]
-            )
-        )
 
         findings.extend(
             self._scan(
@@ -606,7 +601,7 @@ class Nuclei(ArtemisBase):
                     param_url = item
                     for keyword, template_data in DAST_SCANNING.items():
                         param_url = add_common_params_from_wordlist(
-                            item, template_data["params_wordlist"], template_data["param_default_value"]
+                            param_url, template_data["params_wordlist"], template_data["param_default_value"]
                         )
                     dast_targets["other"].append(param_url)
 

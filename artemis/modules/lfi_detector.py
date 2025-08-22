@@ -9,7 +9,10 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.crawling import (
+    get_injectable_parameters,
+    get_links_and_resources_on_same_domain,
+)
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.lfi_detector_data import LFI_PAYLOADS
@@ -65,9 +68,12 @@ class LFIDetector(ArtemisBase):
         for current_url in urls:
             original_response = self.http_get(current_url)
 
+            parameters = get_injectable_parameters(current_url)
+            self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
+
             for payload in LFI_PAYLOADS:
                 param_batch = []
-                for i, param in enumerate(URL_PARAMS):
+                for i, param in enumerate(parameters + URL_PARAMS):
                     param_batch.append(param)
                     url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
 

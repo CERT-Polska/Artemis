@@ -74,8 +74,7 @@ PORTS = sorted(list(PORTS_SET))
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class PortScanner(ArtemisBase):
     """
-    Consumes `type: IP` or `type: DOMAIN`, scans them with naabu and fingerprintx and produces
-    SERVICE tasks for each service detected on a port (eg. `type: http`).
+    Scans ports with `naabu` and fingerprints the service with `fingerprintx`.
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES

@@ -10,6 +10,8 @@ class LoadRiskClass(str, Enum):
 
 def load_risk_class(c: LoadRiskClass) -> Callable[[Any], Any]:
     def decorator(decorated_class: Any) -> Any:
+        decorated_class.original_doc = decorated_class.__doc__
+
         if decorated_class.__doc__:
             decorated_class.__doc__ = decorated_class.__doc__.strip() + "\n\n" + c.value
         else:

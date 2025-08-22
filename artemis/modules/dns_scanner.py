@@ -20,7 +20,7 @@ KNOWN_BAD_NAMESERVERS = ["fns1.42.pl", "fns2.42.pl"]
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class DnsScanner(ArtemisBase):
     """
-    Check for domain transfer and known bad nameservers.
+    Check for zone transfer and some known bad nameservers.
     """
 
     identity = "dns_scanner"

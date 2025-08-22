@@ -18,7 +18,7 @@ from artemis.task_utils import get_ip_range, has_ip_range
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class ReverseDNSLookup(ArtemisBase):
     """
-    Collects `type: IP`, performs reverse DNS lookup and produces `type: NEW` tasks.
+    Performs reverse DNS lookup of IP addresses.
     """
 
     identity = "ReverseDNSLookup"

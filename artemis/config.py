@@ -878,7 +878,7 @@ class Config:
                 "containing a different HTML code element to check.",
             ] = get_config(
                 "PLACEHOLDER_PAGE_CONTENT_FILENAME",
-                default="/opt/artemis/modules/data/placeholder_page_content.txt",
+                default=os.path.join(os.path.dirname(__file__), "modules", "data", "placeholder_page_content.txt"),
                 cast=str,
             )
 

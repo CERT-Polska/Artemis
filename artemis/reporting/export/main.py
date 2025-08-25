@@ -185,7 +185,7 @@ def export(
         timestamp,
         skip_suspicious_reports,
     )
-    date_str = timestamp.isoformat()
+    date_str = timestamp.isoformat(timespec="microseconds")
     output_dir = OUTPUT_LOCATION / str(tag) / date_str
     os.makedirs(output_dir)
     os.makedirs(output_dir / "advanced")

@@ -37,7 +37,7 @@ class RobotsResult:
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class RobotsScanner(ArtemisBase):
     """
-    Looks for robots.txt file, emits a URL task for each found path and checks whether the paths have a directory index enabled.
+    Looks for robots.txt file, triggers a scan of found URLs and checks whether the paths have a directory index enabled.
     """
 
     identity = "robots"

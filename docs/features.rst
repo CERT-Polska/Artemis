@@ -29,6 +29,10 @@ Besides, the additional modules repository (https://github.com/CERT-Polska/Artem
  - subdomain takeover check,
  - SSL configuration check.
 
+Full list of modules
+--------------------
+.. include:: module-list.inc
+
 .. _rate-limiting:
 
 Rate limiting

@@ -12,7 +12,7 @@ from artemis.resolvers import lookup
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class IPLookup(ArtemisBase):
     """
-    Collects `type: domain`, performs IP lookup and produces `type: NEW`.
+    Resolves IP addresses of domains so that HTTP-related modules can be run on the IPs directly.
     """
 
     identity = "IPLookup"

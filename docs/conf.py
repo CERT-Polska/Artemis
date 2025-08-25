@@ -46,6 +46,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "generate_config_docs",
+    "generate_module_list",
 ]
 
 graphviz_output_format = "svg"

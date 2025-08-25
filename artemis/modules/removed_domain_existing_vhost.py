@@ -21,7 +21,7 @@ _orig_create_connection = connection.create_connection
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class RemovedDomainExistingVhost(ArtemisBase):
     """
-    A module that checks that despite removing domain, the corresponding vhost still exists on the server.
+    Checks that despite removing domain, the corresponding vhost still exists on the server (if a data source is configured).
     """
 
     identity = "removed_domain_existing_vhost"

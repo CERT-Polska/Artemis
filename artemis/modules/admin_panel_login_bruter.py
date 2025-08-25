@@ -46,7 +46,7 @@ class AdminPanelLoginBruterResult(BaseModel):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class AdminPanelLoginBruter(ArtemisBase):
     """
-    This module attempts to brute-force login pages of admin panels using common credentials.
+    Attempts to brute-force login pages of admin panels using common credentials.
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES

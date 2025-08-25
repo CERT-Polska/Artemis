@@ -1,0 +1,27 @@
+# Taken from https://github.com/lutfumertceylan/top25-parameter/blob/master/ssrf-parameters.txt
+# Apache License: https://github.com/lutfumertceylan/top25-parameter/blob/master/LICENSE
+dest
+redirect
+uri
+path
+continue
+url
+window
+next
+data
+reference
+site
+html
+val
+validate
+domain
+callback
+return
+page
+feed
+host
+port
+to
+out
+view
+dir

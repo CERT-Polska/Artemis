@@ -71,6 +71,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-dast-vuln-app:
+    build:
+      context: .
+      dockerfile: test/data/dast_vuln_app/Dockerfile
+    volumes:
+      - ./test/data/dast_vuln_app/:/app/
+
   test-flask-vulnerable-api:
     build:
       context: .

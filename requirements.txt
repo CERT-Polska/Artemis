@@ -11,7 +11,7 @@ cryptography==45.0.6
 dnspython==2.7.0
 fastapi==0.116.1
 fastapi-csrf-protect==1.0.6
-Flask==3.1.1
+Flask==3.1.2
 freezegun==1.5.5
 h11==0.16.0
 idna==3.10

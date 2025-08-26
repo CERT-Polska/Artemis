@@ -997,6 +997,14 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "WordPress acf-to-rest-ap through 3.1.0 allows an insecure direct object reference via permalinks manipulation, as demonstrated by a wp-json/acf/v3/options/ request that can read sensitive information in the wp_options table such as the login and pass values.": "Wtyczka WordPress o nazwie acf-to-rest-ap w wersji do 3.1.0 włącznie zawiera podatnosć Insecure Direct Object Reference umożliwiającą atakującemu odczyt opcji konfiguracyjnych, w których mogą znajdować się dane wrażliwe, np. hasła.",
+    "SAR2HTML could allow a remote attacker to execute arbitrary commands on the system via a command injection flaw in the index.php script. By sending specially-crafted commands, an attacker could exploit this vulnerability to execute arbitrary commands on the system.": "Wykryto SAR2HTML w wersji zawierającą podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Geutebruck is susceptible to multiple vulnerabilities its web-based management interface that could allow an unauthenticated, remote attacker to perform command injection attacks against an affected device.": "Wykryto urządzenie Geutebruck zawierające podatność CVE-2021-33544 umożliwiającą atakującemu zdalne wykonanie kodu bez uwierzytelnienia."
+    + RCE_EFFECT_DESCRIPTION,
+    "A server-side request forgery vulnerability in the SAML component of Ivanti Connect Secure (9.x, 22.x) and Ivanti Policy Secure (9.x, 22.x) and Ivanti Neurons for ZTA allows an attacker to access certain restricted resources without authentication": "Ivanti Connect Secure (9.x, 22.x), Ivanti Policy Secure (9.x, 22.x) i Ivanti Neurons for ZTA zawiera podatność Server-Side Request Forgery umożliwiającą atakującemu dostęp do niektórych zasobów bez uwierzytelniania.",
+    "DokuWiki through 2017-02-19b contains a cross-site scripting vulnerability in the DATE_AT parameter to doku.php which allows an attacker to execute arbitrary script code in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "DokuWiki w wersji do 2017-02-19b włącznie zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
     "Apache Log4j2 <=2.14.1 JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints. An attacker who can control log messages or log message parameters can execute arbitrary code loaded from LDAP servers when message lookup substitution is enabled.": "Moduł Apache Log4j2 w wersji do 2.14.1 włącznie zawiera podatność CVE-2021-44228 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -1925,4 +1933,5 @@ TRANSLATIONS = {
     "Tenda Web Master login panel was detected.": "Wykryto panel logowania Tenda Web Master.",
     "ZOHO ManageEngine ADSelfService panel was detected.": "Wykryto panel ZOHO ManageEngine ADSelfService.",
     "[no description] http/exposed-panels/audiobookshelf-panel.yaml": "Wykryto panel logowania systemu Audiobookshelf.",
+    "Scalar API documentation panel was detected.": "Wykryto panel dokumentacji Scalar API.",
 }

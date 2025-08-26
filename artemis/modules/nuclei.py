@@ -214,7 +214,10 @@ class Nuclei(ArtemisBase):
             dast_templates = [
                 template
                 for template in dast_templates
-                if template.startswith("dast/") and template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+                # Skipping CSP bypass templates as it's enough to detect an XSS
+                if template.startswith("dast/")
+                and template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+                and "/csp-bypass/" not in template
             ]
             self._dast_templates: Dict[str, List[str]] = {}
             for keyword in DAST_SCANNING.keys():

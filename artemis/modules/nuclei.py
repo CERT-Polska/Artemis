@@ -370,6 +370,7 @@ class Nuclei(ArtemisBase):
             additional_configuration = []
 
         lines = []
+        time_start = time.time()
         for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
@@ -477,6 +478,15 @@ class Nuclei(ArtemisBase):
             if line.strip():
                 finding = json.loads(line)
                 findings.append(finding)
+        self.log.info(
+            "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f",
+            len(targets),
+            targets[:3],
+            len(templates_or_workflows_filtered),
+            templates_or_workflows_filtered[:3],
+            time_start - time.time(),
+        )
+
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:

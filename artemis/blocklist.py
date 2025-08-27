@@ -99,7 +99,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
 
 
 def should_block_scanning(
-    domain: Optional[str], ip: Optional[str], karton_name: str, blocklist: List[BlocklistItem]
+    domain: Optional[str], ip: Optional[str], karton_name: Optional[str], blocklist: List[BlocklistItem]
 ) -> bool:
     logger.info("checking whether scanning of domain=%s ip=%s by %s is filtered", domain, ip, karton_name)
     for item in blocklist:

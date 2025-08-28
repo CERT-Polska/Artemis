@@ -479,12 +479,12 @@ class Nuclei(ArtemisBase):
                 finding = json.loads(line)
                 findings.append(finding)
         self.log.info(
-            "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f",
+            "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f seconds",
             len(targets),
             targets[:3],
             len(templates_or_workflows_filtered),
             templates_or_workflows_filtered[:3],
-            time_start - time.time(),
+            time.time() - time_start,
         )
 
         return findings

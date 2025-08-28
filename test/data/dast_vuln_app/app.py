@@ -17,6 +17,9 @@ def index() -> Tuple[str, int]:
 @app.route("/ssti")
 def ssti() -> Tuple[str, int]:
     template = request.args.get("template", "")
+    template = template.replace("<", "&lt;").replace(
+        ">", "&gt;"
+    )  # Prevent XSS templates from executing as it interferes in writing the tests
     return render_template_string(template), 200
 
 

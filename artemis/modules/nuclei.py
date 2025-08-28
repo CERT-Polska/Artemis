@@ -537,38 +537,26 @@ class Nuclei(ArtemisBase):
             )
 
         # DAST scanning
-        dast_targets: Dict[str, List[str]] = {}
-        for keyword, template_data in DAST_SCANNING.items():
-            dast_targets[keyword] = []
-            for task in tasks:
-                param_url = add_common_params_from_wordlist(
-                    get_target_url(task), template_data["params_wordlist"], template_data["param_default_value"]
-                )
-                dast_targets[keyword].append(param_url)
-            findings.extend(
-                self._scan(
-                    self._dast_templates[keyword],
-                    ScanUsing.TEMPLATES,
-                    dast_targets[keyword],
-                    extra_nuclei_args=["-dast"],
-                )
-            )
-
-        # Since there are no params for "other", we can just combine all the params from the different vulns into this
-        dast_targets["other"] = []
+        dast_targets: List[str] = []
         for task in tasks:
             param_url = get_target_url(task)
-            for keyword, template_data in DAST_SCANNING.items():
+            for _, template_data in DAST_SCANNING.items():
                 param_url = add_common_params_from_wordlist(
                     param_url, template_data["params_wordlist"], template_data["param_default_value"]
                 )
-            dast_targets["other"].append(param_url)
+            dast_targets.append(param_url)
+
+        # Running all dast templates at once on all dast targets constructed
+        all_dast_templates = []
+        for keyword in DAST_SCANNING.keys():
+            all_dast_templates.extend(self._dast_templates[keyword])
+        all_dast_templates.extend(self._dast_templates["other"])
 
         findings.extend(
             self._scan(
-                self._dast_templates["other"],
+                all_dast_templates,
                 ScanUsing.TEMPLATES,
-                dast_targets["other"],
+                dast_targets,
                 extra_nuclei_args=["-dast"],
             )
         )
@@ -592,39 +580,26 @@ class Nuclei(ArtemisBase):
             )
 
             dast_targets.clear()
-            for keyword, template_data in DAST_SCANNING.items():
-                dast_targets[keyword] = []
-                for item in link_package:
-                    if item:
-                        param_url = add_common_params_from_wordlist(
-                            item, template_data["params_wordlist"], template_data["param_default_value"]
-                        )
-                        dast_targets[keyword].append(param_url)
 
-                findings.extend(
-                    self._scan(
-                        self._dast_templates[keyword],
-                        ScanUsing.TEMPLATES,
-                        dast_targets[keyword],
-                        extra_nuclei_args=["-dast"],
-                    )
-                )
-
-            dast_targets["other"] = []
             for item in link_package:
                 if item:
                     param_url = item
-                    for keyword, template_data in DAST_SCANNING.items():
+                    for _, template_data in DAST_SCANNING.items():
                         param_url = add_common_params_from_wordlist(
                             param_url, template_data["params_wordlist"], template_data["param_default_value"]
                         )
-                    dast_targets["other"].append(param_url)
+                    dast_targets.append(param_url)
+
+            all_dast_templates = []
+            for keyword in DAST_SCANNING.keys():
+                all_dast_templates.extend(self._dast_templates[keyword])
+            all_dast_templates.extend(self._dast_templates["other"])
 
             findings.extend(
                 self._scan(
-                    self._dast_templates["other"],
+                    all_dast_templates,
                     ScanUsing.TEMPLATES,
-                    dast_targets["other"],
+                    dast_targets,
                     extra_nuclei_args=["-dast"],
                 )
             )

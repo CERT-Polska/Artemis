@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "SQLi Test API",
-    "description": "A deliberately vulnerable test API with two endpoints demonstrating SQL Injection.",
-    "version": "1.0.0"
+    "title": "Vulnerable Test API",
+    "description": "A deliberately vulnerable test API demonstrating SQL Injection and a specific XSS false positive scenario.",
+    "version": "1.0.1"
   },
   "servers": [
     {
@@ -73,6 +73,35 @@
           }
         }
       }
+    },
+    "/api/xss": {
+      "get": {
+        "summary": "XSS Test Endpoint",
+        "description": "Reflects a user-provided payload in a response with a Content-Type of 'application/problem+json'. This is designed specifically to test for reflected XSS false positives, as a browser will not execute script tags within this content type.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "payload",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "<script>alert(1)</script>"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Problem Details response reflecting the payload.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -117,6 +146,33 @@
           "username": {
             "type": "string",
             "example": "randomuser"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri",
+            "example": "about:blank"
+          },
+          "title": {
+            "type": "string",
+            "example": "XSS Test Endpoint"
+          },
+          "status": {
+            "type": "integer",
+            "example": 400
+          },
+          "detail": {
+            "type": "string",
+            "example": "The provided payload was: <script>alert(1)</script>"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri-reference",
+            "example": "/api/xss?payload=<script>alert(1)</script>"
           }
         }
       }

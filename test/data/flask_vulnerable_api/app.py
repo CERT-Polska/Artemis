@@ -1,4 +1,5 @@
 import sqlite3
+import json
 from typing import Any, Dict, Optional, Tuple, Union
 
 from flask import Flask, Response, jsonify, request, send_file
@@ -69,6 +70,26 @@ def get_user(username: str) -> Tuple[Response, int]:
         return jsonify({"user-id": user[0], "username": user[1]}), 200
     else:
         return jsonify({"message": "User not found"}), 404
+
+@app.route("/api/xss", methods=["GET"])
+def xss_test() -> Response:
+    payload = request.args.get("payload", "")
+
+    # A standard problem+json response
+    problem_details = {
+        "type": "about:blank",
+        "title": "XSS Test Endpoint",
+        "status": 400,
+        "detail": f"The provided payload was: {payload}",
+        "instance": request.path,
+    }
+
+    response = Response(
+        json.dumps(problem_details),
+        status=400,
+        mimetype="application/problem+json; charset=utf-8",
+    )
+    return response
 
 
 @app.route("/api/docs", methods=["GET"])

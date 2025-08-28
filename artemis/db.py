@@ -199,6 +199,13 @@ class DB:
             session.commit()
 
     def create_analysis(self, analysis: Task) -> None:
+        """
+        Create a new :class:`~artemis.db.Analysis` entry in the database from a given Karton Task.
+
+        :param analysis: The Karton Task object containing analysis information.
+        :type analysis: Task
+        :returns: None
+        """
         analysis_dict = self.task_to_dict(analysis)
 
         analysis = Analysis(
@@ -215,6 +222,19 @@ class DB:
     def save_task_result(
         self, task: Task, *, status: TaskStatus, status_reason: Optional[str] = None, data: Optional[Any] = None
     ) -> None:
+        """
+        Save the result of a task execution to the database.
+
+        :param task: The Karton Task object for which the result is being saved.
+        :type task: Task
+        :param status: The status of the task (e.g., OK, INTERESTING, etc.).
+        :type status: TaskStatus
+        :param status_reason: Optional reason or message describing the status.
+        :type status_reason: Optional[str]
+        :param data: Optional result data, can be a Pydantic model, Exception, or any serializable object.
+        :type data: Optional[Any]
+        :returns: None
+        """
         to_save = dict(
             task=self.task_to_dict(task),
             id=task.uid,
@@ -246,6 +266,14 @@ class DB:
             session.commit()
 
     def get_analysis_by_id(self, analysis_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Retrieve an :class:`~artemis.db.Analysis` entry from the database by its analysis ID.
+
+        :param analysis_id: The unique identifier of the analysis to retrieve. It's `Task.root_uuid`.
+        :type analysis_id: str
+        :return: The analysis data as a dictionary if found, otherwise None.
+        :rtype: Optional[Dict[str, Any]]
+        """
         try:
             with self.session() as session:
                 item = session.query(Analysis).get(analysis_id)

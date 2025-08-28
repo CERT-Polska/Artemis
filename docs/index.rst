@@ -42,3 +42,4 @@ To chat about Artemis, join the Discord server: https://discord.gg/GfUW4mZmy9
    user-guide/troubleshooting
    user-guide/utilities
    uninstalling-artemis
+   api/index

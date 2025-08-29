@@ -21,11 +21,11 @@ from artemis.task_utils import get_target_url
 class APIResult(BaseModel):
     url: str
     endpoint: str
-    data_leak: Optional[Dict[Any, Any]]
+    data_leak: Optional[Dict[Any, Any]] = None
     method: str
     vulnerable: bool
     vuln_details: Optional[str]
-    curl_command: Optional[str]
+    curl_command: Optional[str] = None
     status_code: Optional[int]
 
 

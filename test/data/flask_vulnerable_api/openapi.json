@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Vulnerable Test API",
-    "description": "A deliberately vulnerable test API demonstrating SQL Injection and a specific XSS false positive scenario.",
-    "version": "1.0.1"
+    "description": "A deliberately vulnerable test API demonstrating SQL Injection, XSS false positives, and additional false positive cases for security scanner testing.",
+    "version": "1.1.0"
   },
   "servers": [
     {
@@ -74,10 +74,40 @@
         }
       }
     },
-    "/api/xss": {
+    "/api/ssti": {
+      "get": {
+        "summary": "SSTI endpoint (vulnerable)",
+        "description": "Renders a user-provided string as a Jinja2 template. This endpoint is vulnerable to Server-Side Template Injection (SSTI) via the 'template' query parameter.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "template",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{7*7}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The rendered template output.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "example": "49"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fp/xss": {
       "get": {
         "summary": "XSS Test Endpoint",
-        "description": "Reflects a user-provided payload in a response with a Content-Type of 'application/problem+json'. This is designed specifically to test for reflected XSS false positives, as a browser will not execute script tags within this content type.",
+        "description": "Reflects a user-provided payload in a response with a Content-Type of 'application/problem+json'. This is designed to test for reflected XSS false positives.",
         "parameters": [
           {
             "in": "query",
@@ -96,6 +126,147 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fp/sleep": {
+      "get": {
+        "summary": "False Positive: Always sleeps 10 seconds",
+        "description": "This endpoint always responds after 10 seconds. Useful for ensuring time-based SQLi false positives aren’t triggered.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "input",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "test"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Always responds with success after sleep",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericMessage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fp/error": {
+      "get": {
+        "summary": "False Positive: Always returns 500",
+        "description": "This endpoint always fails with a 500 Internal Server Error, independent of input. Useful for error-based SQLi false positive testing.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "input",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "test"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Always fails with 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fp/echo": {
+      "get": {
+        "summary": "False Positive: Echo input",
+        "description": "Echoes back the provided query parameter `q`. Useful for ensuring XSS/SSTI payloads are not misclassified.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{7*7}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Echoed response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EchoResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "False Positive: Echo JSON input",
+        "description": "Echoes back the provided JSON body `{q: value}`.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EchoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Echoed response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EchoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fp/ssti": {
+      "get": {
+        "summary": "False Positive: Fake SSTI",
+        "description": "Always returns a static message with '49 is a dangerous number', regardless of input. Used to test SSTI misclassifications.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "template",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{7*7}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Static response with SSTI-like value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericMessage"
                 }
               }
             }
@@ -173,6 +344,42 @@
             "type": "string",
             "format": "uri-reference",
             "example": "/api/xss?payload=<script>alert(1)</script>"
+          }
+        }
+      },
+      "GenericMessage": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "This endpoint always sleeps 10 seconds"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "This endpoint always fails with 500"
+          }
+        }
+      },
+      "EchoRequest": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "example": "{{7*7}}"
+          }
+        }
+      },
+      "EchoResponse": {
+        "type": "object",
+        "properties": {
+          "echo": {
+            "type": "string",
+            "example": "{{7*7}}"
           }
         }
       }

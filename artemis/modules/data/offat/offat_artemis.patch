@@ -1,11 +1,373 @@
+diff --git a/src/offat/__main__.py b/src/offat/__main__.py
+index cabbc61..e4aa518 100644
+--- a/src/offat/__main__.py
++++ b/src/offat/__main__.py
+@@ -52,9 +52,9 @@ def start():
+         dest='http_methods',
+         nargs='+',
+         choices=['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'],
+-        help="Specify one or more HTTP methods to use while scanning. Allowed values: GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH",
++        help='Specify one or more HTTP methods to use while scanning. Allowed values: GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH',
+         default=['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'],
+-        required=False
++        required=False,
+     )
+     parser.add_argument(
+         '-rl',
+@@ -162,8 +162,7 @@ def start():
+ 
+     # parse args and run tests
+     api_parser: SwaggerParser | OpenAPIv3Parser = create_parser(
+-        args.fpath, server_url=args.server_url,
+-        ssl_verify=args.ssl_verify
++        args.fpath, server_url=args.server_url, ssl_verify=args.ssl_verify
+     )
+ 
+     generate_and_run_tests(
+diff --git a/src/offat/api/__main__.py b/src/offat/api/__main__.py
+index f222bb6..79a9ebb 100644
+--- a/src/offat/api/__main__.py
++++ b/src/offat/api/__main__.py
+@@ -5,17 +5,17 @@ import importlib.resources
+ def get_offat_installation_dir():
+     try:
+         # For non-editable installation
+-        return importlib.resources.files("offat")
++        return importlib.resources.files('offat')
+     except ImportError:
+         # For editable installation (pip install -e .)
+-        return importlib.resources.files(".")
++        return importlib.resources.files('.')
+ 
+ 
+ def start():
+     installation_dir = get_offat_installation_dir()
+     run(
+-        app="offat.api.app:app",
+-        host="0.0.0.0",
++        app='offat.api.app:app',
++        host='0.0.0.0',
+         port=8000,
+         workers=2,
+         reload=True,
+@@ -23,5 +23,5 @@ def start():
+     )
+ 
+ 
+-if __name__ == "__main__":
++if __name__ == '__main__':
+     start()
+diff --git a/src/offat/api/auth_utils.py b/src/offat/api/auth_utils.py
+index ced8a03..a5cb788 100644
+--- a/src/offat/api/auth_utils.py
++++ b/src/offat/api/auth_utils.py
+@@ -4,9 +4,9 @@ import string
+ 
+ def generate_random_secret_key_string(length=128):
+     # Define the characters allowed in the HTTP header
+-    characters = string.ascii_letters + string.digits + "-_."
++    characters = string.ascii_letters + string.digits + '-_.'
+ 
+     # Generate a random string of the specified length
+-    random_string = "".join(secrets.choice(characters) for _ in range(length))
++    random_string = ''.join(secrets.choice(characters) for _ in range(length))
+ 
+     return random_string
+diff --git a/src/offat/api/config.py b/src/offat/api/config.py
+index c4ebf09..021bf5d 100644
+--- a/src/offat/api/config.py
++++ b/src/offat/api/config.py
+@@ -10,18 +10,18 @@ from .auth_utils import generate_random_secret_key_string
+ load_dotenv()
+ 
+ app = FastAPI(
+-    title="OFFAT - API",
++    title='OFFAT - API',
+     servers=[
+         {
+-            "url": "http://localhost:8000",
++            'url': 'http://localhost:8000',
+         }
+     ],
+ )
+ 
+-auth_secret_key = environ.get("AUTH_SECRET_KEY", generate_random_secret_key_string())
++auth_secret_key = environ.get('AUTH_SECRET_KEY', generate_random_secret_key_string())
+ redis_con = Redis(
+-    host=environ.get("REDIS_HOST", "localhost"),
+-    port=int(environ.get("REDIS_PORT", 6379)),
++    host=environ.get('REDIS_HOST', 'localhost'),
++    port=int(environ.get('REDIS_PORT', 6379)),
+ )
+-task_queue = Queue(name="offat_task_queue", connection=redis_con)
++task_queue = Queue(name='offat_task_queue', connection=redis_con)
+ task_timeout = 60 * 60  # 3600 s = 1 hour
+diff --git a/src/offat/logger.py b/src/offat/logger.py
+index f96c7ed..12c43e0 100644
+--- a/src/offat/logger.py
++++ b/src/offat/logger.py
+@@ -8,11 +8,11 @@ console = Console()
+ 
+ # create logger
+ logging.basicConfig(
+-    format="%(message)s",
+-    datefmt="[%X]",
++    format='%(message)s',
++    datefmt='[%X]',
+     handlers=[
+         RichHandler(console=console, rich_tracebacks=True, tracebacks_show_locals=True)
+     ],
+ )
+-logger = logging.getLogger("OWASP-OFFAT")
++logger = logging.getLogger('OWASP-OFFAT')
+ logger.setLevel(logging.INFO)
+diff --git a/src/offat/parsers/parser.py b/src/offat/parsers/parser.py
+index 9576770..2693072 100644
+--- a/src/offat/parsers/parser.py
++++ b/src/offat/parsers/parser.py
+@@ -16,7 +16,7 @@ class BaseParser:
+     ) -> None:
+         if spec:
+             self.specification: dict = spec
+-            base_uri = ""
++            base_uri = ''
+         else:
+             self.specification, base_uri = read_from_filename(file_or_url)
+ 
+@@ -24,44 +24,44 @@ class BaseParser:
+ 
+         # overwrite server if present according to OAS version
+         if self.is_v3 and server_url:
+-            self.specification["servers"] = [{"url": server_url}]
++            self.specification['servers'] = [{'url': server_url}]
+         elif server_url:
+             scheme, host, port, basepath = parse_server_url(url=server_url)
+-            basepath = "/" if basepath == "" else basepath
+-            self.specification["host"] = f"{host}:{port}"
+-            self.specification["schemes"] = [scheme]
+-            self.specification["basePath"] = basepath
++            basepath = '/' if basepath == '' else basepath
++            self.specification['host'] = f"{host}:{port}"
++            self.specification['schemes'] = [scheme]
++            self.specification['basePath'] = basepath
+ 
+         try:
+             validate(spec=self.specification, base_uri=base_uri)
+             self.valid = True
+         except Exception as e:
+-            logger.warning("OAS/Swagger file is invalid!")
++            logger.warning('OAS/Swagger file is invalid!')
+             logger.error(
+-                "Failed to validate spec %s due to err: %s", file_or_url, repr(e)
++                'Failed to validate spec %s due to err: %s', file_or_url, repr(e)
+             )
+             self.valid = False
+ 
+         self.hosts = []
+ 
+     def _get_oas_version(self):
+-        if self.specification.get("openapi"):
++        if self.specification.get('openapi'):
+             return 3
+-        elif self.specification.get("swagger"):
++        elif self.specification.get('swagger'):
+             return 2
+-        raise InvalidSpecVersion("only openapi and swagger specs are supported for now")
++        raise InvalidSpecVersion('only openapi and swagger specs are supported for now')
+ 
+     def _get_endpoints(self):
+         """Returns list of endpoint paths along with HTTP methods allowed"""
+         endpoints = []
+ 
+-        for endpoint in self.specification.get("paths", {}).keys():
+-            methods = list(self.specification["paths"][endpoint].keys())
+-            if "parameters" in methods:
+-                methods.remove("parameters")
++        for endpoint in self.specification.get('paths', {}).keys():
++            methods = list(self.specification['paths'][endpoint].keys())
++            if 'parameters' in methods:
++                methods.remove('parameters')
+             endpoints.append((endpoint, methods))
+ 
+         return endpoints
+ 
+     def _get_endpoint_details_for_fuzz_test(self):
+-        return self.specification.get("paths")
++        return self.specification.get('paths')
+diff --git a/src/offat/tester/fuzzer.py b/src/offat/tester/fuzzer.py
+index ff8c086..03f1337 100644
+--- a/src/offat/tester/fuzzer.py
++++ b/src/offat/tester/fuzzer.py
+@@ -10,38 +10,38 @@ def generate_random_int(max_value: int = 100):
+ 
+ def generate_phone_number():
+     """Generate Random 10 digit phone number starting with 72"""
+-    return "72" + "".join(random.choice(string.digits) for _ in range(8))
++    return '72' + ''.join(random.choice(string.digits) for _ in range(8))
+ 
+ 
+ def generate_random_chars(length):
+     """Generate a random string of given length containing characters only."""
+     characters = string.ascii_letters
+-    return "".join(random.choice(characters) for _ in range(length))
++    return ''.join(random.choice(characters) for _ in range(length))
+ 
+ 
+ def generate_random_char_digits(length):
+     """Generate a random string of given length containing characters and digits only."""
+     characters = string.ascii_letters + string.digits
+-    return "".join(random.choice(characters) for _ in range(length))
++    return ''.join(random.choice(characters) for _ in range(length))
+ 
+ 
+ def generate_random_string(length):
+     """Generate a random string of given length."""
+     characters = string.ascii_letters + string.digits + string.punctuation
+-    return "".join(random.choice(characters) for _ in range(length))
++    return ''.join(random.choice(characters) for _ in range(length))
+ 
+ 
+ def fuzz_string_type(var_name: str):
+     var_name_lower = str(var_name).lower()
+-    if "email" in var_name_lower:
+-        var_value = generate_random_char_digits(6).lower() + "@example.com"
+-    elif "password" in var_name_lower:
++    if 'email' in var_name_lower:
++        var_value = generate_random_char_digits(6).lower() + '@example.com'
++    elif 'password' in var_name_lower:
+         var_value = generate_random_string(15)
+-    elif "phone" in var_name_lower:
++    elif 'phone' in var_name_lower:
+         var_value = generate_phone_number()
+-    elif "name" in var_name_lower:
++    elif 'name' in var_name_lower:
+         var_value = generate_random_chars(7)
+-    elif "username" in var_name_lower:
++    elif 'username' in var_name_lower:
+         var_value = generate_random_char_digits(6)
+     else:
+         var_value = generate_random_string(10)
+@@ -54,26 +54,26 @@ def fill_schema_params(
+ ):
+     schema_params = []
+     for var_name, var_data in params.items():
+-        var_type = var_data.get("type")
++        var_type = var_data.get('type')
+ 
+         match var_type:
+-            case "string":
++            case 'string':
+                 var_value = fuzz_string_type(var_name)
+ 
+-            case "integer":
++            case 'integer':
+                 var_value = generate_random_int()
+ 
+             case _:
+                 var_value = generate_random_string(10)
+ 
+-        var_data["value"] = var_value
+-        var_data["name"] = var_name
++        var_data['value'] = var_value
++        var_data['name'] = var_name
+ 
+         if is_required:
+-            var_data["required"] = is_required
++            var_data['required'] = is_required
+ 
+         if param_in:
+-            var_data["in"] = param_in
++            var_data['in'] = param_in
+ 
+         schema_params.append(var_data)
+ 
+@@ -82,10 +82,10 @@ def fill_schema_params(
+ 
+ def fuzz_type_value(param_type: str, param_name: str):
+     match param_type:
+-        case "string":
++        case 'string':
+             param_value = fuzz_string_type(param_name)
+ 
+-        case "integer":
++        case 'integer':
+             param_value = generate_random_int()
+ 
+         # TODO: handle file and array type
+@@ -101,41 +101,41 @@ def fill_params(params: list[dict], is_v3: bool) -> list[dict]:
+     schema_params = []
+     for index, _ in enumerate(params):
+         param_type = (
+-            params[index].get("schema", {}).get("type")
++            params[index].get('schema', {}).get('type')
+             if is_v3
+-            else params[index].get("type")
++            else params[index].get('type')
+         )
+-        param_is_required = params[index].get("required")
+-        param_in = params[index].get("in")
+-        param_name = params[index].get("name", "")
++        param_is_required = params[index].get('required')
++        param_in = params[index].get('in')
++        param_name = params[index].get('name', '')
+ 
+         param_value = fuzz_type_value(param_type=param_type, param_name=param_name)
+ 
+-        if params[index].get("schema"):
+-            schema_type = params[index].get("schema", {}).get("type")
+-            if schema_type == "object":
+-                schema_obj = params[index].get("schema", {}).get("properties", {})
++        if params[index].get('schema'):
++            schema_type = params[index].get('schema', {}).get('type')
++            if schema_type == 'object':
++                schema_obj = params[index].get('schema', {}).get('properties', {})
+                 filled_schema_params = fill_schema_params(
+                     schema_obj, param_in, param_is_required
+                 )
+             else:
+                 filled_schema_params = [
+                     {
+-                        "in": param_in,
+-                        "name": param_name,
+-                        "required": param_is_required,
+-                        "value": param_value,
+-                        "type": param_type
++                        'in': param_in,
++                        'name': param_name,
++                        'required': param_is_required,
++                        'value': param_value,
++                        'type': param_type,
+                     }
+                 ]
+ 
+             schema_params.append(filled_schema_params)
+         else:
+-            params[index]["value"] = param_value
++            params[index]['value'] = param_value
+ 
+     # delete schema params
+     for param in params:
+-        if param.get("schema"):
++        if param.get('schema'):
+             params.remove(param)
+ 
+     for schema_param in schema_params:
 diff --git a/src/offat/tester/generator.py b/src/offat/tester/generator.py
-index 3c990dd..6e799b7 100644
+index 3c990dd..24b3e07 100644
 --- a/src/offat/tester/generator.py
 +++ b/src/offat/tester/generator.py
-@@ -269,10 +269,19 @@ class TestGenerator:
+@@ -2,6 +2,7 @@
+ This module contains the TestGenerator class which is used to generate API test checks.
+ '''
+ from copy import deepcopy
++from random import randint
+ from .fuzzer import fill_params
+ from .post_test_processor import PostTestFiltersEnum
+ from .fuzzer import generate_random_int
+@@ -269,10 +270,19 @@ class TestGenerator:
              "' AND SLEEP(5) --",
          ]
-
+ 
 +        SQL_INJECTION_TIME_THRESHOLD = 5
 +
 +        sql_injection_sleep_payloads = [
@@ -16,26 +378,28 @@ index 3c990dd..6e799b7 100644
 +        ]
 +
          fuzzed_request_list = self.__fuzz_request_params(openapi_parser)
-
+ 
          # inject SQLi payloads in string variables
 -        for sqli_payload in basic_sqli_payloads:
-+        for sqli_payload in basic_sqli_payloads+sql_injection_sleep_payloads:
++        for sqli_payload in basic_sqli_payloads + sql_injection_sleep_payloads:
              for request_obj in fuzzed_request_list:
                  # handle body request params
                  body_request_params = request_obj.get('body_params', [])
-@@ -305,6 +314,8 @@ class TestGenerator:
+@@ -305,6 +315,10 @@ class TestGenerator:
                  request_obj[
                      'response_filter'
                  ] = PostTestFiltersEnum.STATUS_CODE_FILTER.name
 +
-+                request_obj["sleep_payload"] = sqli_payload in sql_injection_sleep_payloads
++                request_obj['sleep_payload'] = (
++                    sqli_payload in sql_injection_sleep_payloads
++                )
                  tasks.append(deepcopy(request_obj))
-
+ 
          return tasks
-@@ -354,6 +365,15 @@ class TestGenerator:
+@@ -354,6 +368,15 @@ class TestGenerator:
              "' AND SLEEP(5) --",
          ]
-
+ 
 +        SQL_INJECTION_TIME_THRESHOLD = 5
 +
 +        sql_injection_sleep_payloads = [
@@ -48,7 +412,7 @@ index 3c990dd..6e799b7 100644
          tasks = []
          for sqli_payload in basic_sqli_payloads:
              for path_obj in endpoints_with_param_in_path:
-@@ -409,6 +429,7 @@ class TestGenerator:
+@@ -409,6 +432,7 @@ class TestGenerator:
                              False: 'Endpoint is not vulnerable to SQLi',
                          },
                          'success_codes': success_codes,
@@ -56,16 +420,66 @@ index 3c990dd..6e799b7 100644
                          'response_filter': PostTestFiltersEnum.STATUS_CODE_FILTER.name,
                      }
                  )
+@@ -944,17 +968,28 @@ class TestGenerator:
+         '''
+         test_name = 'SSTI Test'
+ 
++        num1 = randint(2, 3)
++        num2 = randint(8, 137)
+         payloads_data = [
+-            {'request_payload': r'${7777+99999}', 'response_match_regex': r'107776'},
+-            {'request_payload': r"{{7*'7'}}", 'response_match_regex': r'49'},
+-            {'request_payload': r"{{7*'7'}}", 'response_match_regex': r'7777777'},
+             {
+-                'request_payload': r"{{ '<script>confirm(1337)</script>' }}",
+-                'response_match_regex': r'<script>confirm(1337)</script>',
++                'request_payload': rf'${{{num1}+99999}}',
++                'response_match_regex': rf'{num1+99999}',
+             },
+             {
+-                'request_payload': r"{{ '<script>confirm(1337)</script>' | safe }}",
+-                'response_match_regex': r'<script>confirm(1337)</script>',
++                'request_payload': rf"\{{{{{num1}*'{num2}'}}}}",
++                'response_match_regex': rf'{num1*num2}',
++            },
++            {
++                'request_payload': rf"\{{{{{num1}*'{num2}'}}}}",
++                'response_match_regex': rf'{num1*str(num2)}',
++            },
++            {
++                'request_payload': rf"{{ '<script>confirm({num1})</script>' }}",
++                'response_match_regex': rf'<script>confirm({num1})</script>',
++            },
++            {
++                'request_payload': rf"{{ '<script>confirm({num2})</script>' | safe }}",
++                'response_match_regex': rf'<script>confirm({num2})</script>',
+             },
+             {
+                 'request_payload': r"{{'owasp offat'.toUpperCase()}}",
+@@ -968,7 +1003,10 @@ class TestGenerator:
+                 'request_payload': r"<%= system('cat /etc/passwd') %>",
+                 'response_match_regex': r'root:.*',
+             },
+-            {'request_payload': r'*{7*7}', 'response_match_regex': r'49'},
++            {
++                'request_payload': rf'*{{{num1}*{num2}}}',
++                'response_match_regex': rf'{num1*num2}',
++            },
+         ]
+ 
+         vuln_details = {
 diff --git a/src/offat/tester/post_test_processor.py b/src/offat/tester/post_test_processor.py
-index de0d812..075c84f 100644
+index de0d812..9a9ada5 100644
 --- a/src/offat/tester/post_test_processor.py
 +++ b/src/offat/tester/post_test_processor.py
-@@ -139,6 +139,39 @@ class PostRunTests:
-
+@@ -139,6 +139,45 @@ class PostRunTests:
+ 
          return new_results
-
+ 
 +    @staticmethod
-+    def check_time_based_sqli(results: list[dict], SQL_INJECTION_SLEEP_THRESHOLD: float = 5) -> list[dict]:
++    def check_time_based_sqli(
++        results: list[dict], SQL_INJECTION_SLEEP_THRESHOLD: float = 5
++    ) -> list[dict]:
 +        """
 +        Checks SQLi results for time-based blind SQL injection vulnerabilities.
 +
@@ -79,16 +493,20 @@ index de0d812..075c84f 100644
 +        updated_results = []
 +
 +        for result in results:
-+            test_name = result.get("test_name", "")
-+            is_sql_test = "SQLi" in test_name or "sql" in test_name.lower()
-+            sleep_payload = result.get("sleep_payload", False)
-+            response_time = result.get("response_time")
++            test_name = result.get('test_name', '')
++            is_sql_test = 'SQLi' in test_name or 'sql' in test_name.lower()
++            sleep_payload = result.get('sleep_payload', False)
++            response_time = result.get('response_time')
 +
 +            new_result = deepcopy(result)
 +
-+            if is_sql_test and sleep_payload and isinstance(response_time, (int, float)):
-+                new_result["vulnerable"] = response_time > SQL_INJECTION_SLEEP_THRESHOLD
-+                new_result["vuln_details"] = {
++            if (
++                is_sql_test
++                and sleep_payload
++                and isinstance(response_time, (int, float))
++            ):
++                new_result['vulnerable'] = response_time > SQL_INJECTION_SLEEP_THRESHOLD
++                new_result['vuln_details'] = {
 +                    True: f"Response time exceeded threshold, possible time-based SQL injection.",
 +                    False: f"Response time did not exceed threshold, likely not vulnerable.",
 +                }
@@ -100,8 +518,31 @@ index de0d812..075c84f 100644
      @staticmethod
      def update_result_details(results: list[dict]):
          new_results = []
+diff --git a/src/offat/tester/regexs.py b/src/offat/tester/regexs.py
+index b42090a..fd7beb7 100644
+--- a/src/offat/tester/regexs.py
++++ b/src/offat/tester/regexs.py
+@@ -26,12 +26,12 @@ sensitive_data_regex_patterns = {
+     'AWSResourceURL': r'\b([A-Za-z0-9-_]*\.[A-Za-z0-9-_]*\.amazonaws.com*)\b',
+     'AWSArnId': r'\barn:aws:[A-Za-z0-9-_]*\:[A-Za-z0-9-_]*\:[A-Za-z0-9-_]*\:[A-Za-z0-9-/_]*\b',
+     # Google Tokens
+-    'Google' : r'google_oauth_token|google_oauth|google_b64',
++    'Google': r'google_oauth_token|google_oauth|google_b64',
+     # Slack
+-    'Slack' : r'xoxo-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+',
++    'Slack': r'xoxo-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+',
+     # Postgres DSN postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+-    'PostgresDSN' : r'postgresql:\/\/|pgsql:',
+-    'MySQLDSN' : 'mysql://',
+-    'RedisDSN' : 'redis://',
+-    'OutlookWebhook' : 'https://outlook.office.com/webhook/'
++    'PostgresDSN': r'postgresql:\/\/|pgsql:',
++    'MySQLDSN': 'mysql://',
++    'RedisDSN': 'redis://',
++    'OutlookWebhook': 'https://outlook.office.com/webhook/',
+ }
 diff --git a/src/offat/tester/runner.py b/src/offat/tester/runner.py
-index e339c6e..97efe61 100644
+index e339c6e..d218131 100644
 --- a/src/offat/tester/runner.py
 +++ b/src/offat/tester/runner.py
 @@ -4,6 +4,7 @@ from enum import Enum
@@ -109,14 +550,23 @@ index e339c6e..97efe61 100644
  from traceback import format_exc
  from rich.progress import Progress, TaskID
 +from time import time
-
+ 
  from ..http import AsyncRequests
  from ..logger import logger, console
-@@ -136,10 +137,24 @@ class TestRunner:
+@@ -130,16 +131,32 @@ class TestRunner:
+         if self.http_methods and str(http_method).upper() not in self.http_methods:
+             test_result['request_headers'] = []
+             test_result['response_headers'] = []
+-            test_result['response_body'] = f"{str(http_method).upper()} request was not sent"
++            test_result[
++                'response_body'
++            ] = f"{str(http_method).upper()} request was not sent"
+             test_result['response_status_code'] = -1
+             test_result['redirection'] = ''
              test_result['error'] = False
-
+ 
              return test_result
-+        is_sql_test = test_task.get("test_name") in [
++        is_sql_test = test_task.get('test_name') in [
 +            'Checking for SQLi vulnerability',
 +            'Checking for SQLi vulnerability in URI Path',
 +        ]
@@ -138,14 +588,208 @@ index e339c6e..97efe61 100644
              test_result['request_headers'] = response.get('req_headers', [])
              # append response headers and body for analyzing data leak
 diff --git a/src/offat/tester/tester_utils.py b/src/offat/tester/tester_utils.py
-index 4194099..e3597a9 100644
+index 4194099..004a790 100644
 --- a/src/offat/tester/tester_utils.py
 +++ b/src/offat/tester/tester_utils.py
-@@ -114,6 +114,8 @@ def run_test(
+@@ -16,7 +16,9 @@ from ..logger import logger
+ from ..parsers import SwaggerParser, OpenAPIv3Parser
+ 
+ 
+-def is_host_up(openapi_parser: SwaggerParser | OpenAPIv3Parser, ssl_verify: bool = True) -> bool:
++def is_host_up(
++    openapi_parser: SwaggerParser | OpenAPIv3Parser, ssl_verify: bool = True
++) -> bool:
+     '''checks whether the host from openapi doc is available or not.
+     Returns True is host is available else returns False'''
+     tokens = openapi_parser.host.split(':')
+@@ -59,7 +61,8 @@ def is_host_up(openapi_parser: SwaggerParser | OpenAPIv3Parser, ssl_verify: bool
+                     host=host,
+                     port=port,
+                     timeout=5,
+-                    context = ssl._create_unverified_context())
++                    context=ssl._create_unverified_context(),
++                )
+         conn.request('GET', '/')
+         res = conn.getresponse()
+         logger.info('Host returned status code: %d', res.status)
+@@ -114,6 +117,8 @@ def run_test(
          # update test result for status based code filter
          test_results = PostRunTests.filter_status_code_based_results(test_results)
-
+ 
 +    test_results = PostRunTests.check_time_based_sqli(test_results)
 +
      # update tests result success/failure details
      test_results = PostRunTests.update_result_details(test_results)
+ 
+diff --git a/src/offat/tests/parsers/test_parser.py b/src/offat/tests/parsers/test_parser.py
+index f41caa2..01fc291 100644
+--- a/src/offat/tests/parsers/test_parser.py
++++ b/src/offat/tests/parsers/test_parser.py
+@@ -6,8 +6,9 @@ from ...parsers import BaseParser
+ 
+ class TestBaseParser(unittest.TestCase):
+     def test_BaseParser(self):
+-        tmp_spec = tempfile.NamedTemporaryFile(mode="+a", encoding="utf-8")
+-        tmp_spec.write("""
++        tmp_spec = tempfile.NamedTemporaryFile(mode='+a', encoding='utf-8')
++        tmp_spec.write(
++            """
+ {
+   "openapi": "3.0.0",
+   "paths": {
+@@ -41,17 +42,11 @@ class TestBaseParser(unittest.TestCase):
+   }
+ }
+ """
+-    )
++        )
+         tmp_spec.flush()
+         obj = BaseParser(tmp_spec.name)
+ 
+-        self.assertTrue(
+-            obj.is_v3,
+-            "Provided JSON is v3"
+-        )
++        self.assertTrue(obj.is_v3, 'Provided JSON is v3')
+ 
+         end_points = list(obj.specification.get('paths').keys())
+-        self.assertTrue(
+-            '/api/render' in end_points,
+-            "Spec has '/api/render'"
+-        )
++        self.assertTrue('/api/render' in end_points, "Spec has '/api/render'")
+diff --git a/src/offat/tests/self_signed/self_signed_server_tester.py b/src/offat/tests/self_signed/self_signed_server_tester.py
+index aa6698e..422c719 100644
+--- a/src/offat/tests/self_signed/self_signed_server_tester.py
++++ b/src/offat/tests/self_signed/self_signed_server_tester.py
+@@ -11,10 +11,10 @@ class SimpleHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+     pass
+ 
+ 
+-httpd = http.server.HTTPServer(("localhost", 4443), SimpleHTTPRequestHandler)
++httpd = http.server.HTTPServer(('localhost', 4443), SimpleHTTPRequestHandler)
+ httpd.socket = ssl.wrap_socket(
+-    httpd.socket, keyfile="key.pem", certfile="cert.pem", server_side=True
++    httpd.socket, keyfile='key.pem', certfile='cert.pem', server_side=True
+ )
+ 
+-print("Serving on https://localhost:4443")
++print('Serving on https://localhost:4443')
+ httpd.serve_forever()
+diff --git a/src/offat/tests/testers/test_fuzzer.py b/src/offat/tests/testers/test_fuzzer.py
+index 45703cc..0c7e396 100644
+--- a/src/offat/tests/testers/test_fuzzer.py
++++ b/src/offat/tests/testers/test_fuzzer.py
+@@ -1,32 +1,23 @@
+-
+ import unittest
+ from ...tester.fuzzer import fill_params
+ 
++
+ class TestFuzzer(unittest.TestCase):
+     def test_fill_params(self):
+         params_in = [
+             {
+-                "in": "body", 
+-                "name": "text/plain", 
+-                "description": "Write your text here", 
+-                "required": True, 
+-                "schema": {"type": "string"}
++                'in': 'body',
++                'name': 'text/plain',
++                'description': 'Write your text here',
++                'required': True,
++                'schema': {'type': 'string'},
+             }
+         ]
+ 
+-        params_out = fill_params(params = params_in[:], is_v3 = True)
++        params_out = fill_params(params=params_in[:], is_v3=True)
+ 
+-        self.assertTrue(
+-            'value' in params_out[0].keys(),
+-            "'value' should exist"
+-        )
++        self.assertTrue('value' in params_out[0].keys(), "'value' should exist")
+ 
+-        self.assertTrue(
+-            'type' in params_out[0].keys(),
+-            "'type' should exist"
+-        )
++        self.assertTrue('type' in params_out[0].keys(), "'type' should exist")
+ 
+-        self.assertTrue(
+-            'schema' not in params_out[0].keys(),
+-            "'schema' should be gone"
+-        )
++        self.assertTrue('schema' not in params_out[0].keys(), "'schema' should be gone")
+diff --git a/src/offat/tests/utils/test_parse_server_url.py b/src/offat/tests/utils/test_parse_server_url.py
+index dfea3e6..56a5cf0 100644
+--- a/src/offat/tests/utils/test_parse_server_url.py
++++ b/src/offat/tests/utils/test_parse_server_url.py
+@@ -6,30 +6,30 @@ from ...utils import parse_server_url
+ class TestParseUrls(unittest.TestCase):
+     def test_valid_urls(self):
+         urls = [
+-            "https://example.com",
+-            "https://owasp.org/OFFAT/",
+-            "http://localhost:8000/test",
+-            "http://127.0.0.1:8001/url/1",
++            'https://example.com',
++            'https://owasp.org/OFFAT/',
++            'http://localhost:8000/test',
++            'http://127.0.0.1:8001/url/1',
+         ]
+         for url in urls:
+             scheme, host, port, basepath = parse_server_url(url=url)
+             self.assertIn(
+-                scheme, ["http", "https"], f"Failed to validate url scheme: {url}"
++                scheme, ['http', 'https'], f"Failed to validate url scheme: {url}"
+             )
+             self.assertIn(
+                 host,
+-                ["example.com", "owasp.org", "localhost", "127.0.0.1"],
+-                "Host does not match expected test cases",
++                ['example.com', 'owasp.org', 'localhost', '127.0.0.1'],
++                'Host does not match expected test cases',
+             )
+             self.assertIn(
+                 port,
+                 [80, 443, 8000, 8001],
+-                "Port does not match according to test case",
++                'Port does not match according to test case',
+             )
+-            self.assertIn(basepath, ["", "/OFFAT/", "/test", "/url/1"])
++            self.assertIn(basepath, ['', '/OFFAT/', '/test', '/url/1'])
+ 
+     def test_invalid_urls(self):
+-        urls = ["owasp", "ftp://example/", "\0\0alkdsjlatest", '" OR 1==1 -- -']
++        urls = ['owasp', 'ftp://example/', '\0\0alkdsjlatest', '" OR 1==1 -- -']
+         for url in urls:
+             with raises(ValueError):
+                 parse_server_url(url=url)
+diff --git a/src/offat/tests/utils/test_url_validations.py b/src/offat/tests/utils/test_url_validations.py
+index 7f44fca..905a661 100644
+--- a/src/offat/tests/utils/test_url_validations.py
++++ b/src/offat/tests/utils/test_url_validations.py
+@@ -5,15 +5,15 @@ from ...utils import is_valid_url
+ class TestUrls(unittest.TestCase):
+     def test_valid_urls(self):
+         urls = [
+-            "https://example.com",
+-            "https://owasp.org/OFFAT/",
+-            "http://localhost:8000/test",
+-            "http://127.0.0.1:8001/url",
++            'https://example.com',
++            'https://owasp.org/OFFAT/',
++            'http://localhost:8000/test',
++            'http://127.0.0.1:8001/url',
+         ]
+         for url in urls:
+             self.assertTrue(is_valid_url(url=url), f"Failed to validate url: {url}")
+ 
+     def test_invalid_urls(self):
+-        urls = ["owasp", "ftp://example/", "\0\0alkdsjlatest", '" OR 1==1 -- -']
++        urls = ['owasp', 'ftp://example/', '\0\0alkdsjlatest', '" OR 1==1 -- -']
+         for url in urls:
+             assert is_valid_url(url=url) is False

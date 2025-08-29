@@ -380,7 +380,6 @@ services:
     volumes:
       - ./test/data/exposed_apache_config/:/var/www/html/
 
-
 volumes:
   data-nuclei-templates:
   data-nuclei-config:

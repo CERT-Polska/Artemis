@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,10 +14,16 @@ import (
 	wappalyzer "github.com/projectdiscovery/wappalyzergo"
 )
 
+var client = &http.Client{
+	Transport: &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	},
+}
+
 func scan(url string, wappalyzerClient *wappalyzer.Wappalyze) map[string][]string {
 	result := make(map[string][]string)
 
-	resp, err := http.DefaultClient.Get(url)
+	resp, err := client.Get(url)
 	if err != nil {
 		log.Printf("Error fetching %s: %v\n", url, err)
 		return result

@@ -30,6 +30,8 @@ services:
 
       SQL_INJECTION_STOP_ON_FIRST_MATCH: False
 
+      NUCLEI_INTERACTSH_SERVER: https://interactsh.lab.cert.pl/
+
       POSTMAN_MAIL_FROM: artemis@localhost.com
       POSTMAN_MAIL_TO: artemis@localhost.com
 
@@ -96,6 +98,11 @@ services:
     image: php:8.0-apache
     volumes:
       - ./test/data/php_easy_admin_password/:/var/www/html/
+
+  test-php-mock-CVE-2020-28976:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/mock_CVE-2020-28976/:/var/www/html/
 
   test-php-403-bypass:
     image: php:8.0-apache

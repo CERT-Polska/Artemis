@@ -375,7 +375,9 @@ class Nuclei(ArtemisBase):
                     assert False
 
                 if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
-                    command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER])
+                    # Unfortunately, because of https://github.com/projectdiscovery/interactsh/issues/135,
+                    # the trailing slash matters.
+                    command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER.strip("/")])
 
                 if scan_using == ScanUsing.TEMPLATES:
                     # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if

@@ -1934,4 +1934,5 @@ TRANSLATIONS = {
     "ZOHO ManageEngine ADSelfService panel was detected.": "Wykryto panel ZOHO ManageEngine ADSelfService.",
     "[no description] http/exposed-panels/audiobookshelf-panel.yaml": "Wykryto panel logowania systemu Audiobookshelf.",
     "Scalar API documentation panel was detected.": "Wykryto panel dokumentacji Scalar API.",
+    "ZOHO ManageEngine KeyManagerPlus panel was detected.": "Wykryto panel ZOHO ManageEngine KeyManagerPlus.",
 }

@@ -1,0 +1,28 @@
+# Taken from https://github.com/lutfumertceylan/top25-parameter/blob/master/lfi-parameters.txt
+# Apache License: https://github.com/lutfumertceylan/top25-parameter/blob/master/LICENSE
+cat
+dir
+action
+board
+date
+detail
+file
+filename
+download
+path
+folder
+prefix
+include
+page
+inc
+locate
+show
+doc
+site
+type
+view
+content
+document
+layout
+mod
+conf

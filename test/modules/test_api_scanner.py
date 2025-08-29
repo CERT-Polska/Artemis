@@ -67,10 +67,6 @@ class APIScannerTest(ArtemisModuleTestCase):
                 call.kwargs["data"]["results"][i]["endpoint"],
                 expected_results[i].endpoint,
             )
-            self.assertEqual(
-                call.kwargs["data"]["results"][i]["data_leak"],
-                expected_results[i].data_leak,
-            )
             self.assertEqual(call.kwargs["data"]["results"][i]["method"], expected_results[i].method)
             self.assertEqual(call.kwargs["data"]["results"][i]["vulnerable"], expected_results[i].vulnerable)
             self.assertEqual(call.kwargs["data"]["results"][i]["vuln_details"], expected_results[i].vuln_details)

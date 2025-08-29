@@ -21,7 +21,6 @@ from artemis.task_utils import get_target_url
 class APIResult(BaseModel):
     url: str
     endpoint: str
-    data_leak: Optional[Dict[Any, Any]] = None
     method: str
     vulnerable: bool
     vuln_details: Optional[str]
@@ -154,7 +153,6 @@ class APIScanner(ArtemisBase):
                     APIResult(
                         url=result.get("url"),
                         endpoint=result.get("endpoint"),
-                        data_leak=result.get("data_leak") or None,
                         method=result.get("method"),
                         vulnerable=result.get("vulnerable"),
                         vuln_details=vuln_details,

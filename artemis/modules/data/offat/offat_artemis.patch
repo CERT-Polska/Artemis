@@ -1,5 +1,5 @@
 diff --git a/src/offat/tester/generator.py b/src/offat/tester/generator.py
-index 3c990dd..24b3e07 100644
+index 3c990dd..dc3ed9c 100644
 --- a/src/offat/tester/generator.py
 +++ b/src/offat/tester/generator.py
 @@ -2,6 +2,7 @@
@@ -70,8 +70,8 @@ index 3c990dd..24b3e07 100644
          '''
          test_name = 'SSTI Test'
  
-+        num1 = randint(2, 3)
-+        num2 = randint(8, 137)
++        num1 = randint(123, 1337)
++        num2 = randint(123, 1337)
          payloads_data = [
 -            {'request_payload': r'${7777+99999}', 'response_match_regex': r'107776'},
 -            {'request_payload': r"{{7*'7'}}", 'response_match_regex': r'49'},
@@ -79,25 +79,25 @@ index 3c990dd..24b3e07 100644
              {
 -                'request_payload': r"{{ '<script>confirm(1337)</script>' }}",
 -                'response_match_regex': r'<script>confirm(1337)</script>',
-+                'request_payload': rf'${{{num1}+99999}}',
-+                'response_match_regex': rf'{num1+99999}',
++                'request_payload': rf'${{{num1}+{num2}}}',
++                'response_match_regex': rf'{num1+num2}',
              },
              {
 -                'request_payload': r"{{ '<script>confirm(1337)</script>' | safe }}",
 -                'response_match_regex': r'<script>confirm(1337)</script>',
-+                'request_payload': rf"{{{{{num1}*'{num2}'}}}}",
++                'request_payload': rf"\{{{{{num1}*'{num2}'}}}}",
 +                'response_match_regex': rf'{num1*num2}',
 +            },
 +            {
-+                'request_payload': rf"{{{{{num1}*'{num2}'}}}}",
++                'request_payload': rf"\{{{{{num1}*'{num2}'}}}}",
 +                'response_match_regex': rf'{num1*str(num2)}',
 +            },
 +            {
-+                'request_payload': rf"{{ '<script>confirm({num1})</script>' }}",
++                'request_payload': rf"{{{{ '<script>confirm({num1})</script>' }}}}",
 +                'response_match_regex': rf'<script>confirm({num1})</script>',
 +            },
 +            {
-+                'request_payload': rf"{{ '<script>confirm({num2})</script>' | safe }}",
++                'request_payload': rf"{{{{ '<script>confirm({num2})</script>' | safe }}}}",
 +                'response_match_regex': rf'<script>confirm({num2})</script>',
              },
              {

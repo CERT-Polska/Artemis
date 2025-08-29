@@ -1,5 +1,6 @@
 import json
 import sqlite3
+from time import sleep
 from typing import Any, Dict, Optional, Tuple, Union
 
 from flask import Flask, Response, jsonify, render_template_string, request, send_file
@@ -96,17 +97,16 @@ def xss_test() -> Response:
 @app.route("/api/fp/sleep", methods=["GET"])
 def false_positive_sleep() -> Tuple[Response, int]:
     _ = request.args.get("input", "")
-    return jsonify({"message": "This endpoint always sleeps 10 seconds"}), 200
+    sleep(5)
+    return jsonify({"message": "This endpoint always sleeps 5 seconds"}), 200
 
 
-# Always returns 500 (to simulate error responses, not SQLi)
 @app.route("/api/fp/error", methods=["GET"])
 def false_positive_error() -> Tuple[Response, int]:
     _ = request.args.get("input", "")
     return jsonify({"error": "This endpoint always fails with 500"}), 500
 
 
-# Always echoes input back (XSS-like, but not SSTI)
 @app.route("/api/fp/echo", methods=["GET", "POST"])
 def false_positive_echo() -> Tuple[Response, int]:
     data = request.args.get("q") or (request.get_json() or {}).get("q")

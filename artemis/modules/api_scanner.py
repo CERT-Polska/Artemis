@@ -163,7 +163,16 @@ class APIScanner(ArtemisBase):
                     )
                 )
 
-            if results:
+            # Remove duplicate results
+            final_results = []
+            seen = set()
+            for result in results:
+                identifier = (result.url, result.method, result.vuln_details, result.status_code)
+                if identifier not in seen:
+                    seen.add(identifier)
+                    final_results.append(result)
+
+            if final_results:
                 status = TaskStatus.INTERESTING
                 status_reason = "Found potential vulnerabilities in the API:"
                 for vuln_type, endpoints in vulns_found.items():
@@ -176,7 +185,7 @@ class APIScanner(ArtemisBase):
                 task=current_task,
                 status=status,
                 status_reason=status_reason,
-                data={"results": [result.model_dump() for result in results]},
+                data={"results": [result.model_dump() for result in final_results]},
             )
 
         except Exception as e:

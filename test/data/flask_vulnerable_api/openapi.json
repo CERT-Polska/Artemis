@@ -86,7 +86,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "{{7*7}}"
+            "example": "this is my query"
           }
         ],
         "responses": {
@@ -96,7 +96,7 @@
               "text/html": {
                 "schema": {
                   "type": "string",
-                  "example": "49"
+                  "example": "this is my query"
                 }
               }
             }
@@ -116,7 +116,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "<script>alert(1)</script>"
+            "example": "some text"
           }
         ],
         "responses": {
@@ -203,7 +203,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "{{7*7}}"
+            "example": "this is my query"
           }
         ],
         "responses": {
@@ -257,7 +257,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "{{7*7}}"
+            "example": "this is my query"
           }
         ],
         "responses": {
@@ -338,12 +338,12 @@
           },
           "detail": {
             "type": "string",
-            "example": "The provided payload was: <script>alert(1)</script>"
+            "example": "The provided payload was: some text"
           },
           "instance": {
             "type": "string",
             "format": "uri-reference",
-            "example": "/api/xss?payload=<script>alert(1)</script>"
+            "example": "/api/xss?payload=some text"
           }
         }
       },
@@ -370,7 +370,7 @@
         "properties": {
           "q": {
             "type": "string",
-            "example": "{{7*7}}"
+            "example": "this is my query"
           }
         }
       },
@@ -379,7 +379,7 @@
         "properties": {
           "echo": {
             "type": "string",
-            "example": "{{7*7}}"
+            "example": "this is my query"
           }
         }
       }

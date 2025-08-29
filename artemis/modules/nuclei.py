@@ -43,11 +43,19 @@ TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
 TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
 
+# It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {
-    "ssrf": {
+    "ssrf": {  # ssrf dast templates work only when the param is of the form http://...
         "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "ssrf.txt"),
-        "param_default_value": "http://127.0.0.1",
+        "param_default_value": "http://127.0.0.1/abc.html",
     },
+    "redirect": {  # redirect dast templates work only when param is of the form http://
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "redirect.txt"),
+        "param_default_value": "http://127.0.0.1/abc.html",
+    },
+    # lfi dast templates work only when the param is a filename with some extension, which is why we are using abc.html
+    # also the reason why the above two templates default values end in abc.html so that it takes care in case the two wordlists
+    # have any repeated values
     "lfi": {
         "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "lfi.txt"),
         "param_default_value": "abc.html",
@@ -55,10 +63,6 @@ DAST_SCANNING: Dict[str, Dict[str, Any]] = {
     "cmdi": {
         "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "cmdi.txt"),
         "param_default_value": "testing",
-    },
-    "redirect": {
-        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "redirect.txt"),
-        "param_default_value": "http://127.0.0.1",
     },
     "sqli": {
         "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "sqli.txt"),

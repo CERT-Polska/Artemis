@@ -55,7 +55,3 @@ msgstr ""
 #: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:28
 msgid "status code:"
 msgstr ""
-
-#: artemis/reporting/modules/api_scanner/template_api_vulnerability.jinja2:28
-msgid "data leaks:"
-msgstr ""

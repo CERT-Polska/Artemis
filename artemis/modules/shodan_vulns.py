@@ -21,7 +21,7 @@ class ShodanVulnsResult(BaseModel):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class ShodanVulns(ArtemisBase):
     """
-    Lists vulnerabilities from Shodan.
+    Lists vulnerabilities from Shodan (if an API key is configured)
     """
 
     identity = "shodan_vulns"

@@ -9,7 +9,7 @@ from artemis.task_utils import get_target_host, get_target_url
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class DeviceIdentifier(ArtemisBase):
     """
-    Tries to identify the device (FortiOS, ...) and produces a DEVICE task with proper type (e.g. Device.FORTIOS)
+    Tries to identify the device (FortiOS, ...) and triggers downstream modules testing respective devices, if such modules exist.
     """
 
     identity = "device_identifier"

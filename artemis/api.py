@@ -10,6 +10,7 @@ from karton.core.task import TaskPriority
 from pydantic import BaseModel
 from redis import Redis
 
+from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.karton_utils import get_binds_that_can_be_disabled
@@ -30,6 +31,12 @@ router = APIRouter()
 db = DB()
 redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 try_to_import_all_modules()  # so that the module runtime configurations get registered
+
+
+if Config.Miscellaneous.BLOCKLIST_FILE:
+    BLOCKLIST = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
+else:
+    BLOCKLIST = []
 
 
 class ReportGenerationTaskModel(BaseModel):
@@ -207,6 +214,12 @@ def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskMo
         )
         for task in db.list_report_generation_tasks(tag_prefix=tag_prefix)
     ]
+
+
+@router.get("/is-blocklisted/{domain}", dependencies=[Depends(verify_api_token)])
+def is_blocklisted(domain: str) -> bool:
+    """Returns True if scanning of a given domain is blocklisted"""
+    return should_block_scanning(domain=domain, ip=None, karton_name=None, blocklist=BLOCKLIST)
 
 
 # This is a redirect so that we have an entry in api docs

@@ -28,7 +28,7 @@ class FallbackAPICache:
     LOGGER = utils.build_logger(__name__)
 
     CACHE = CachedSession(
-        backend=FileCache("/cache"),
+        backend=FileCache("/tmp/cache"),
         cache_control=False,
         expire_after=timedelta(seconds=3600),
         allowable_codes=[200],

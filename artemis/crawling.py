@@ -24,3 +24,22 @@ def get_links_and_resources_on_same_domain(url: str) -> List[str]:
             if url_parsed.hostname == new_url_parsed.hostname:
                 links.append(new_url.split("#")[0])
     return list(set(links))
+
+
+def get_injectable_parameters(url: str) -> List[str]:
+    try:
+        response = http_requests.get(url)
+    except Exception:
+        return []
+
+    if response:
+        content = response.text
+    else:
+        return []
+
+    result = set()
+    soup = BeautifulSoup(content, "html.parser")
+    for input_tag in soup.find_all("input"):
+        if input_tag.get("name"):
+            result.add(input_tag.get("name"))
+    return list(result)

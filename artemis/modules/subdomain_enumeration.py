@@ -29,7 +29,7 @@ class UnableToObtainSubdomainsException(Exception):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class SubdomainEnumeration(ArtemisBase):
     """
-    Consumes `type: domain` to gather subdomains and produces `type: domain`.
+    Enumerates subdomains using `gau`, `subfinder` and DNS brute-forcing.
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES

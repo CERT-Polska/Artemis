@@ -24,7 +24,7 @@ WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class WebappIdentifier(ArtemisBase):
     """
-    Tries to identify the web application and produces a WEBAPP task with proper type (e.g. WebApplication.WORDPRESS).
+    Tries to identify the web application such as WordPress, Drupal or Joomla! and triggers modules that check the security of various applications.
     """
 
     identity = "webapp_identifier"

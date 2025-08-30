@@ -32,7 +32,7 @@ class APIResult(BaseModel):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class APIScanner(ArtemisBase):
     """
-    Scans API endpoints for vulnerabilities based on OpenAPI/Swagger specifications.
+    Scans API endpoints for vulnerabilities using OpenAPI/Swagger specifications.
     """
 
     identity = "api_scanner"

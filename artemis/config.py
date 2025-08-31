@@ -802,6 +802,7 @@ class Config:
                         "http/cves/2023/CVE-2023-43373.yaml",
                         "http/cves/2023/CVE-2023-43374.yaml",
                         "http/cves/2023/CVE-2023-47684.yaml",
+                        "http/cves/2015/CVE-2015-4074.yaml",
                         "http/iot/targa-camera-lfi.yaml",
                         "http/vulnerabilities/ibm/eclipse-help-system-xss.yaml",
                         "http/vulnerabilities/ibm/ibm-infoprint-lfi.yaml",

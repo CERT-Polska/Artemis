@@ -31,6 +31,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
+    add_common_params_from_wordlist,
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
@@ -41,6 +42,37 @@ CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_tem
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
 TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
+
+# It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
+DAST_SCANNING: Dict[str, Dict[str, Any]] = {
+    "ssrf": {  # ssrf dast templates work only when the param is of the form http://...
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "ssrf.txt"),
+        "param_default_value": "http://127.0.0.1/abc.html",
+    },
+    "redirect": {  # redirect dast templates work only when param is of the form http://
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "redirect.txt"),
+        "param_default_value": "http://127.0.0.1/abc.html",
+    },
+    # lfi dast templates work only when the param is a filename with some extension, which is why we are using abc.html
+    # also the reason why the above two templates default values end in abc.html so that it takes care in case the two wordlists
+    # have any repeated values
+    "lfi": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "lfi.txt"),
+        "param_default_value": "abc.html",
+    },
+    "cmdi": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "cmdi.txt"),
+        "param_default_value": "testing",
+    },
+    "sqli": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "sqli.txt"),
+        "param_default_value": "testing",
+    },
+    "xss": {
+        "params_wordlist": os.path.join(os.path.dirname(__file__), "data", "dast_params", "xss.txt"),
+        "param_default_value": "testing",
+    },
+}
 
 UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
 
@@ -182,6 +214,24 @@ class Nuclei(ArtemisBase):
                         self._template_lists[name].append(template)
 
             self._template_lists["custom"] = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
+
+            dast_templates = check_output_log_on_error(["nuclei", "-dast", "-tl"], self.log).decode("ascii").split()
+            dast_templates = [
+                template
+                for template in dast_templates
+                # Skipping CSP bypass templates as it's enough to detect an XSS
+                # Skipping CVEs as they're too specific to be run on every link
+                if template.startswith("dast/")
+                and template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+                and "/csp-bypass/" not in template
+                and "/cve" not in template
+            ]
+            self._dast_templates: Dict[str, List[str]] = {}
+            for keyword in DAST_SCANNING.keys():
+                self._dast_templates[keyword] = [template for template in dast_templates if keyword in template]
+            self._dast_templates["other"] = [
+                template for template in dast_templates if not any(template in s for s in self._dast_templates.values())
+            ]
 
             for custom_template_filename in os.listdir(CUSTOM_TEMPLATES_PATH):
                 self._template_lists["custom"].append(os.path.join(CUSTOM_TEMPLATES_PATH, custom_template_filename))
@@ -325,6 +375,7 @@ class Nuclei(ArtemisBase):
             additional_configuration = []
 
         lines = []
+        time_start = time.time()
         for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
@@ -432,6 +483,15 @@ class Nuclei(ArtemisBase):
             if line.strip():
                 finding = json.loads(line)
                 findings.append(finding)
+        self.log.info(
+            "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f seconds",
+            len(targets),
+            targets[:3],
+            len(templates_or_workflows_filtered),
+            templates_or_workflows_filtered[:3],
+            time.time() - time_start,
+        )
+
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
@@ -481,6 +541,31 @@ class Nuclei(ArtemisBase):
                 self._scan(self._workflows, ScanUsing.WORKFLOWS, group_targets, extra_nuclei_args=extra_args)
             )
 
+        # DAST scanning
+        dast_targets: List[str] = []
+        for task in tasks:
+            param_url = get_target_url(task)
+            for _, template_data in DAST_SCANNING.items():
+                param_url = add_common_params_from_wordlist(
+                    param_url, template_data["params_wordlist"], template_data["param_default_value"]
+                )
+            dast_targets.append(param_url)
+
+        # Running all dast templates at once on all dast targets constructed
+        all_dast_templates = []
+        for keyword in DAST_SCANNING.keys():
+            all_dast_templates.extend(self._dast_templates[keyword])
+        all_dast_templates.extend(self._dast_templates["other"])
+
+        findings.extend(
+            self._scan(
+                all_dast_templates,
+                ScanUsing.TEMPLATES,
+                dast_targets,
+                extra_nuclei_args=["-dast"],
+            )
+        )
+
         links_per_task = {}
         for task in tasks:
             links = self._get_links(get_target_url(task))
@@ -496,6 +581,31 @@ class Nuclei(ArtemisBase):
                     Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS,
                     ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
+                )
+            )
+
+            dast_targets.clear()
+
+            for item in link_package:
+                if item:
+                    param_url = item
+                    for _, template_data in DAST_SCANNING.items():
+                        param_url = add_common_params_from_wordlist(
+                            param_url, template_data["params_wordlist"], template_data["param_default_value"]
+                        )
+                    dast_targets.append(param_url)
+
+            all_dast_templates = []
+            for keyword in DAST_SCANNING.keys():
+                all_dast_templates.extend(self._dast_templates[keyword])
+            all_dast_templates.extend(self._dast_templates["other"])
+
+            findings.extend(
+                self._scan(
+                    all_dast_templates,
+                    ScanUsing.TEMPLATES,
+                    dast_targets,
+                    extra_nuclei_args=["-dast"],
                 )
             )
 
@@ -540,7 +650,7 @@ class Nuclei(ArtemisBase):
             for finding in findings_per_task[task.uid]:
                 result.append(finding)
                 messages.append(
-                    f"[{finding['info']['severity']}] {finding['url']}: {finding['info'].get('name')} {finding['info'].get('description')}"
+                    f"[{finding['info']['severity']}] {finding['matched-at']}: {finding['info'].get('name')} {finding['info'].get('description', '')}"
                 )
 
             if messages:

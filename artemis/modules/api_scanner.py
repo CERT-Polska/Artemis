@@ -21,11 +21,10 @@ from artemis.task_utils import get_target_url
 class APIResult(BaseModel):
     url: str
     endpoint: str
-    data_leak: Optional[Dict[Any, Any]]
     method: str
     vulnerable: bool
     vuln_details: Optional[str]
-    curl_command: Optional[str]
+    curl_command: Optional[str] = None
     status_code: Optional[int]
 
 
@@ -154,7 +153,6 @@ class APIScanner(ArtemisBase):
                     APIResult(
                         url=result.get("url"),
                         endpoint=result.get("endpoint"),
-                        data_leak=result.get("data_leak") or None,
                         method=result.get("method"),
                         vulnerable=result.get("vulnerable"),
                         vuln_details=vuln_details,
@@ -163,7 +161,16 @@ class APIScanner(ArtemisBase):
                     )
                 )
 
-            if results:
+            # Remove duplicate results
+            final_results = []
+            seen = set()
+            for result in results:
+                identifier = (result.url, result.method, result.vuln_details, result.status_code)
+                if identifier not in seen:
+                    seen.add(identifier)
+                    final_results.append(result)
+
+            if final_results:
                 status = TaskStatus.INTERESTING
                 status_reason = "Found potential vulnerabilities in the API:"
                 for vuln_type, endpoints in vulns_found.items():
@@ -176,7 +183,7 @@ class APIScanner(ArtemisBase):
                 task=current_task,
                 status=status,
                 status_reason=status_reason,
-                data={"results": [result.model_dump() for result in results]},
+                data={"results": [result.model_dump() for result in final_results]},
             )
 
         except Exception as e:

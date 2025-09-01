@@ -1,7 +1,9 @@
+import json
 import sqlite3
+from time import sleep
 from typing import Any, Dict, Optional, Tuple, Union
 
-from flask import Flask, Response, jsonify, request, send_file
+from flask import Flask, Response, jsonify, render_template_string, request, send_file
 
 app = Flask(__name__)
 DATABASE = "/tmp/test.db"
@@ -69,6 +71,58 @@ def get_user(username: str) -> Tuple[Response, int]:
         return jsonify({"user-id": user[0], "username": user[1]}), 200
     else:
         return jsonify({"message": "User not found"}), 404
+
+
+@app.route("/api/fp/xss", methods=["GET"])
+def xss_test() -> Response:
+    payload = request.args.get("payload", "")
+
+    # A standard problem+json response
+    problem_details = {
+        "type": "about:blank",
+        "title": "XSS Test Endpoint",
+        "status": 400,
+        "detail": f"The provided payload was: {payload}",
+        "instance": request.path,
+    }
+
+    response = Response(
+        json.dumps(problem_details),
+        status=400,
+        mimetype="application/problem+json; charset=utf-8",
+    )
+    return response
+
+
+@app.route("/api/fp/sleep", methods=["GET"])
+def false_positive_sleep() -> Tuple[Response, int]:
+    _ = request.args.get("input", "")
+    sleep(5)
+    return jsonify({"message": "This endpoint always sleeps 5 seconds"}), 200
+
+
+@app.route("/api/fp/error", methods=["GET"])
+def false_positive_error() -> Tuple[Response, int]:
+    _ = request.args.get("input", "")
+    return jsonify({"error": "This endpoint always fails with 500"}), 500
+
+
+@app.route("/api/fp/echo", methods=["GET", "POST"])
+def false_positive_echo() -> Tuple[Response, int]:
+    data = request.args.get("q") or (request.get_json() or {}).get("q")
+    return jsonify({"echo": data}), 200
+
+
+@app.route("/api/fp/ssti", methods=["GET"])
+def false_positive_ssti() -> Tuple[Response, int]:
+    _ = request.args.get("template", "")
+    return jsonify({"template": "49 is a dangerous number"}), 200
+
+
+@app.route("/api/ssti", methods=["GET"])
+def ssti() -> Tuple[str, int]:
+    template = request.args.get("template", "")
+    return render_template_string(template), 200
 
 
 @app.route("/api/docs", methods=["GET"])

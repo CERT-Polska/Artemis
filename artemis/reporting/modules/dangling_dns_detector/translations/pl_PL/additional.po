@@ -1,0 +1,14 @@
+msgid ""
+"The defined domain has CNAME record configured but the CNAME does not resolve."
+msgstr ""
+"Skonfigurowana domena ma dns rekord CNAME który nie odpowiada."
+
+msgid ""
+"The defined domain has A record configured but the ip does not resolve."
+msgstr ""
+"Skonfigurowana domena ma dns rekord A na IP które nie odpowiada."
+
+msgid ""
+"The defined domain has AAAA record configured but the ip does not resolve."
+msgstr ""
+"Skonfigurowana domena ma dns rekord AAAA na IP które nie odpowiada."

@@ -1,0 +1,20 @@
+{% if "dangling_dns_record" in data.contains_type %}
+    <li>{% trans %}We identified a dangling dns records for the following subdomains:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "dangling_dns_record" %}
+                    <li>
+                        {{ report.target }}: {{ _(report.additional_data.message_en) }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Dangling dns record can allow for subdomain takeover. Please verify the configuration and if domain
+                takeover is possible, change it. Subdomain takeover allows an attacker to put any content on the website, including malware.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

@@ -2,7 +2,9 @@ import ipaddress
 import socket
 from typing import Any
 
+import dns.message
 import dns.name
+import dns.query
 import dns.resolver
 from dns import rdatatype
 from dns.rdata import Rdata
@@ -14,14 +16,12 @@ from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
 
 
-def direct_dns_query(name, record_type, server_ip):
+def direct_dns_query(
+    name: dns.name.Name, record_type: rdatatype.RdataType, server_ip: ipaddress.IPv4Address
+) -> dns.message.Message | None:
     try:
         query = dns.message.make_query(name, record_type)
-
-        if server_ip.version == 4:
-            response = dns.query.udp(query, str(server_ip), timeout=5)
-        else:
-            response = dns.query.udp(query, str(server_ip), timeout=5, source_port=0, family=socket.AF_INET6)
+        response = dns.query.udp(query, str(server_ip), timeout=5)
 
         return response
     except Exception:
@@ -31,7 +31,7 @@ def direct_dns_query(name, record_type, server_ip):
 def edns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.Answer | None:
     try:
         resolver = dns.resolver.Resolver()
-        resolver.use_edns = True
+        resolver.use_edns(True)
         return resolver.resolve(target, record_type)
     except Exception:
         return None
@@ -61,7 +61,7 @@ class DanglingDnsDetector(ArtemisBase):
             return None
 
         cname_target_types = [rdatatype.A, rdatatype.AAAA, rdatatype.TXT]
-        cname_target = record.target.to_text()
+        cname_target = record.target.to_text()  # type: ignore[attr-defined]
 
         dangling = True
         for record_type in cname_target_types:
@@ -89,7 +89,7 @@ class DanglingDnsDetector(ArtemisBase):
                                 "domain": domain,
                                 "record": rdatatype.CNAME,
                                 "message": (
-                                    "The defined domain has CNAME record configured " "but the CNAME does not resolve."
+                                    "The defined domain has CNAME record configured but the CNAME does not resolve."
                                 ),
                             }
                         )
@@ -118,7 +118,7 @@ class DanglingDnsDetector(ArtemisBase):
         if not hasattr(record, "rdtype") or record.rdtype != rdatatype.NS:
             return None
 
-        ns_target = record.target.to_text()
+        ns_target = record.target.to_text()  # type: ignore[attr-defined]
 
         correct_responses = 0
         for record_type in [rdatatype.A, rdatatype.AAAA]:
@@ -130,7 +130,7 @@ class DanglingDnsDetector(ArtemisBase):
             for answer in response:
                 if record_type == rdatatype.A:
                     correct_responses += 1
-                    self.check_soa(domain, qname, ipaddress.IPv4Address(answer.address), result)
+                    self.check_soa(domain, qname, ipaddress.IPv4Address(answer.address), result)  # type: ignore[attr-defined]
                 elif record_type == rdatatype.AAAA:
                     correct_responses += 1
 
@@ -164,7 +164,7 @@ class DanglingDnsDetector(ArtemisBase):
                         if not hasattr(record, "rdtype") or record.rdtype != dns_ip_record:
                             continue
 
-                        dangling = not ip_exists(record.address)
+                        dangling = not ip_exists(record.address)  # type: ignore[attr-defined]
                         if dangling:
                             result.append(
                                 {

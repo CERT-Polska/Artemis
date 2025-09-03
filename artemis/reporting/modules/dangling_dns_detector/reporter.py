@@ -36,6 +36,10 @@ class DanglingDnsReporter(Reporter):
                         timestamp=task_result["created_at"],
                     )
                 )
+            elif item["record"] in (rdatatype.AAAA, rdatatype.NS):
+                continue
+            else:
+                raise ValueError(f"Dns value record {item['record']} is not implemented.")
         return result
 
     @staticmethod

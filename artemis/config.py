@@ -347,6 +347,11 @@ class Config:
                 "doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.",
             ] = get_config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
+        class DanglingDnsDetector:
+            DANGLING_DNS_SKIP_ROOT_DOMAIN: Annotated[
+                bool, "If set to True, detector will not perform checks against root domain."
+            ] = get_config("DANGLING_DNS_SKIP_ROOT_DOMAIN", default=True, cast=bool)
+
         class DNSScanner:
             ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD: Annotated[
                 int, "The number of domains below which zone transfer won't be reported."

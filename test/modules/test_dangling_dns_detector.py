@@ -54,7 +54,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
 
         a_record = MagicMock()
         a_record.rdtype = rdatatype.A
-        a_record.address = "203.0.113.10"
+        a_record.address = "8.8.8.8"
         mock_a_answer = MagicMock()
         mock_a_answer.__iter__.return_value = iter([a_record])
         mock_edns_query.side_effect = [mock_a_answer, None]

@@ -1,5 +1,5 @@
 import ipaddress
-import socket
+import subprocess
 from typing import Any
 
 import dns.message
@@ -12,6 +12,8 @@ from karton.core import Task
 
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
+from artemis.config import Config
+from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
 
@@ -37,11 +39,15 @@ def edns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.An
         return None
 
 
-def ip_exists(ip: str, port: int = 80, timeout: float = 2.0) -> bool:
+def ip_exists(ip: str, timeout: int = 5) -> bool:
     try:
-        with socket.create_connection((ip, port), timeout=timeout):
-            return True
-    except (OSError, socket.timeout):
+        result = subprocess.run(
+            ["ping", "-c", "1", "-W", str(timeout), ip],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return result.returncode == 0
+    except Exception:
         return False
 
 
@@ -56,7 +62,7 @@ class DanglingDnsDetector(ArtemisBase):
         {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value},
     ]
 
-    def __check_cname(self, record: Rdata) -> bool | None:
+    def _check_cname(self, record: Rdata) -> bool | None:
         if not hasattr(record, "rdtype") or record.rdtype != rdatatype.CNAME:
             return None
 
@@ -82,7 +88,7 @@ class DanglingDnsDetector(ArtemisBase):
             answers = dns.resolver.resolve(domain, rdatatype.CNAME, raise_on_no_answer=False)
             if answers.rrset is not None:
                 for record in answers:
-                    dangling = self.__check_cname(record)
+                    dangling = self._check_cname(record)
                     if dangling:
                         result.append(
                             {
@@ -108,7 +114,7 @@ class DanglingDnsDetector(ArtemisBase):
             result.append({"domain": domain, "record": rdatatype.NS, "message": "Target NS query failed."})
             return None
 
-    def __check_ns(
+    def _check_ns(
         self,
         domain: str,
         qname: dns.name.Name,
@@ -142,7 +148,7 @@ class DanglingDnsDetector(ArtemisBase):
             answers = dns.resolver.resolve(domain, rdatatype.NS, raise_on_no_answer=False)
             if answers.rrset is not None:
                 for record in answers:
-                    dangling = self.__check_ns(domain, answers.qname, record, result)
+                    dangling = self._check_ns(domain, answers.qname, record, result)
                     if dangling:
                         result.append(
                             {
@@ -179,6 +185,14 @@ class DanglingDnsDetector(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = get_target_host(current_task)
+
+        if Config.Modules.DanglingDnsDetector.DANGLING_DNS_SKIP_ROOT_DOMAIN and is_main_domain(domain):
+            self.db.save_task_result(
+                task=current_task,
+                status=TaskStatus.OK,
+                status_reason="Skipped",
+            )
+            return
 
         result: list[dict[str, Any]] = []
         self.check_dns_ip_records(domain, result)

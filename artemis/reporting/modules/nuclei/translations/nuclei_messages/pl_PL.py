@@ -997,11 +997,16 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "WordPress acf-to-rest-ap through 3.1.0 allows an insecure direct object reference via permalinks manipulation, as demonstrated by a wp-json/acf/v3/options/ request that can read sensitive information in the wp_options table such as the login and pass values.": "Wtyczka WordPress o nazwie acf-to-rest-ap w wersji do 3.1.0 włącznie zawiera podatnosć Insecure Direct Object Reference umożliwiającą atakującemu odczyt opcji konfiguracyjnych, w których mogą znajdować się dane wrażliwe, np. hasła.",
+    "A security issue was discovered in  ingress-nginx https-//github.com/kubernetes/ingress-nginx  where the `mirror-target` and `mirror-host` Ingress annotations can be used to inject arbitrary configuration into nginx. This can lead to arbitrary code execution in the context of the ingress-nginx controller, and disclosure of Secrets accessible to the controller. (Note that in the default installation, the controller can access all Secrets cluster-wide.)": "Wykryto komponent ingress-nginx zawierający podatność CVE-2025-1098 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "appsetting.json file discloses the DB connection strings containing sensitive information.": "Wykryto plik appsetting.json zawierający dane dostępowe do bazy danych."
+    + DATA_HIDE_HINT,
     "SAR2HTML could allow a remote attacker to execute arbitrary commands on the system via a command injection flaw in the index.php script. By sending specially-crafted commands, an attacker could exploit this vulnerability to execute arbitrary commands on the system.": "Wykryto SAR2HTML w wersji zawierającą podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Geutebruck is susceptible to multiple vulnerabilities its web-based management interface that could allow an unauthenticated, remote attacker to perform command injection attacks against an affected device.": "Wykryto urządzenie Geutebruck zawierające podatność CVE-2021-33544 umożliwiającą atakującemu zdalne wykonanie kodu bez uwierzytelnienia."
     + RCE_EFFECT_DESCRIPTION,
-    "A server-side request forgery vulnerability in the SAML component of Ivanti Connect Secure (9.x, 22.x) and Ivanti Policy Secure (9.x, 22.x) and Ivanti Neurons for ZTA allows an attacker to access certain restricted resources without authentication": "Ivanti Connect Secure (9.x, 22.x), Ivanti Policy Secure (9.x, 22.x) i Ivanti Neurons for ZTA zawiera podatność Server-Side Request Forgery umożliwiającą atakującemu dostęp do niektórych zasobów bez uwierzytelniania.",
+    "A server-side request forgery vulnerability in the SAML component of Ivanti Connect Secure (9.x, 22.x) and Ivanti Policy Secure (9.x, 22.x) and Ivanti Neurons for ZTA allows an attacker to access certain restricted resources without authentication.": "Ivanti Connect Secure (9.x, 22.x), Ivanti Policy Secure (9.x, 22.x) i Ivanti Neurons for ZTA zawiera podatność Server-Side Request Forgery umożliwiającą atakującemu dostęp do niektórych zasobów bez uwierzytelniania.",
     "DokuWiki through 2017-02-19b contains a cross-site scripting vulnerability in the DATE_AT parameter to doku.php which allows an attacker to execute arbitrary script code in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "DokuWiki w wersji do 2017-02-19b włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1023,7 +1028,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "http/exposures/configs/config-properties.yaml": "Wykryto plik konfiguracyjny zawierający hasła lub dane dostepowe do bazy danych.",
     "The SOAP admin service in WSO2 products has a security vulnerability that allows the creation of new user accounts regardless of the self-registration configuration settings.": "Usługa administratora SOAP w produktach WSO2 zawiera podatność umożliwiającą tworzenie kont użytkowników niezależnie od przyjętych uprawnień.",
-    "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Huawei HG255s is vulnerable to local file inclusion due to insufficient validation of the received HTTP requests. A remote attacker may access the local files on the device without authentication.": "Huawei HG255s zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "Improper limitation of a pathname to a restricted directory vulnerability in Samsung MagicINFO 9 Server version before 21.1050 allows attackers to write arbitrary file as system authority.": "Samsung MagicINFO 9 Server w wersji poniżej 21.1050 umożliwia atakującemu zapis dowolnych plików na serwerze."
@@ -1934,4 +1939,8 @@ TRANSLATIONS = {
     "ZOHO ManageEngine ADSelfService panel was detected.": "Wykryto panel ZOHO ManageEngine ADSelfService.",
     "[no description] http/exposed-panels/audiobookshelf-panel.yaml": "Wykryto panel logowania systemu Audiobookshelf.",
     "Scalar API documentation panel was detected.": "Wykryto panel dokumentacji Scalar API.",
+    "ZOHO ManageEngine KeyManagerPlus panel was detected.": "Wykryto panel ZOHO ManageEngine KeyManagerPlus.",
+    "AdGuard Installation panel has been exposed.": "Wykryto panel instalacyjny systemu AdGuard.",
+    "Linksys Smart Wi-Fi login panel was detected.": "Wykryto panel logowania Linksys Smart Wi-Fi.",
+    "A Python based monitoring and tracking tool for Plex Media Server.": "Wykryto panel systemu Tautulli.",
 }

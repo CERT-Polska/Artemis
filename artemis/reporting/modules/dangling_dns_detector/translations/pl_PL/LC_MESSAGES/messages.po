@@ -1,13 +1,13 @@
 #: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:2
-msgid "We identified a dangling dns records for the following subdomains:"
-msgstr "Wykryto ustawienia dangling dns rekordu dla domen:"
+msgid "We identified a risk of subdomain takeover for the following subdomains:"
+msgstr "Wykryto ustawienia stwarzające ryzyko przejęcia domen:"
 
 #: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:14
 msgid ""
-"Dangling dns record can allow for subdomain takeover. Please verify the configuration and if domain "
-"takeover is possible, change it. Subdomain takeover allows an attacker to put any content on the website, "
-"including malware."
+"Please verify the configuration, and, if subdomain takeover is possible, "
+"change it. Subdomain takeover allows an attacker to put any content on "
+"the website, including malware."
 msgstr ""
-"Dangling dns rekordy mogą umożliwić przejęcie domeny. Prosimy o weryfikację i jeśli "
-"przejęcie domeny jest możliwe, zmianę konfiguracji. Przejęcie domeny przez atakującego "
-"umożliwi mu umieszczenie na niej dowolnych treści, w tym np. szkodliwego oprogramowania."
+"Prosimy o weryfikację i jeśli przejęcie domeny jest możliwe, zmianę "
+"konfiguracji. Przejęcie domeny przez atakującego umożliwi mu umieszczenie"
+" na niej dowolnych treści, w tym np. szkodliwego oprogramowania."

@@ -24,7 +24,7 @@ class DanglingDnsReporter(Reporter):
 
         result = []
         for item in task_result["result"]:
-            if item["record"] in (rdatatype.A, rdatatype.CNAME):
+            if item["record"] in (rdatatype.A, rdatatype.AAAA, rdatatype.CNAME):
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -36,7 +36,7 @@ class DanglingDnsReporter(Reporter):
                         timestamp=task_result["created_at"],
                     )
                 )
-            elif item["record"] in (rdatatype.AAAA, rdatatype.NS):
+            elif item["record"] == rdatatype.NS:
                 continue
             else:
                 raise ValueError(f"Dns value record {item['record']} is not implemented.")

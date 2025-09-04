@@ -13,7 +13,6 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
-from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host
 
@@ -30,10 +29,9 @@ def direct_dns_query(
         return None
 
 
-def edns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.Answer | None:
+def dns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.Answer | None:
     try:
         resolver = dns.resolver.Resolver()
-        resolver.use_edns(True)
         return resolver.resolve(target, record_type)
     except Exception:
         return None
@@ -71,7 +69,7 @@ class DanglingDnsDetector(ArtemisBase):
 
         dangling = True
         for record_type in cname_target_types:
-            response = edns_query(cname_target, record_type)
+            response = dns_query(cname_target, record_type)
 
             if not response:
                 continue
@@ -128,7 +126,7 @@ class DanglingDnsDetector(ArtemisBase):
 
         correct_responses = 0
         for record_type in [rdatatype.A, rdatatype.AAAA]:
-            response = edns_query(ns_target, record_type)
+            response = dns_query(ns_target, record_type)
 
             if not response:
                 continue
@@ -185,12 +183,14 @@ class DanglingDnsDetector(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         domain = get_target_host(current_task)
+        analysis = self.db.get_analysis_by_id(current_task.root_uid)
+        root_domain = analysis.get("target") if analysis else None
 
-        if Config.Modules.DanglingDnsDetector.DANGLING_DNS_SKIP_ROOT_DOMAIN and is_main_domain(domain):
+        if Config.Modules.DanglingDnsDetector.DANGLING_DNS_SKIP_ROOT_DOMAIN and domain == root_domain:
             self.db.save_task_result(
                 task=current_task,
                 status=TaskStatus.OK,
-                status_reason="Skipped",
+                status_reason="Skipped: root domain",
             )
             return
 

@@ -14,9 +14,9 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
     karton_class = DanglingDnsDetector  # type: ignore
 
     @patch("artemis.modules.dangling_dns_detector.direct_dns_query")
-    @patch("artemis.modules.dangling_dns_detector.edns_query")
+    @patch("artemis.modules.dangling_dns_detector.dns_query")
     @patch("dns.resolver.resolve")
-    def test_check_ns_dangling(self, mock_resolve, mock_edns_query, mock_direct_dns_query) -> None:  # type: ignore
+    def test_check_ns_dangling(self, mock_resolve, mock_dns_query, mock_direct_dns_query) -> None:  # type: ignore
         # given
         ns_record = MagicMock()
         ns_record.rdtype = rdatatype.NS
@@ -26,8 +26,8 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         mock_ns_answer.qname = dns.name.from_text("dangling.example.com.")
         mock_ns_answer.__iter__.return_value = iter([ns_record])
         mock_resolve.side_effect = [mock_ns_answer]
-        # edns_query returns None for both A and AAAA
-        mock_edns_query.side_effect = [None, None]
+        # dns_query returns None for both A and AAAA
+        mock_dns_query.side_effect = [None, None]
 
         # when
         result: list[dict[str, Any]] = []
@@ -39,9 +39,9 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         self.assertTrue("dangling NS" in result[0]["message"])
 
     @patch("artemis.modules.dangling_dns_detector.direct_dns_query")
-    @patch("artemis.modules.dangling_dns_detector.edns_query")
+    @patch("artemis.modules.dangling_dns_detector.dns_query")
     @patch("dns.resolver.resolve")
-    def test_check_ns_valid(self, mock_resolve, mock_edns_query, mock_direct_dns_query) -> None:  # type: ignore
+    def test_check_ns_valid(self, mock_resolve, mock_dns_query, mock_direct_dns_query) -> None:  # type: ignore
         # given
         ns_record = MagicMock()
         ns_record.rdtype = rdatatype.NS
@@ -57,7 +57,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         a_record.address = "8.8.8.8"
         mock_a_answer = MagicMock()
         mock_a_answer.__iter__.return_value = iter([a_record])
-        mock_edns_query.side_effect = [mock_a_answer, None]
+        mock_dns_query.side_effect = [mock_a_answer, None]
 
         # direct_dns_query returns a reply with SOA
         mock_reply = MagicMock()
@@ -183,9 +183,9 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         self.assertTrue(result[0]["record"] == rdatatype.CNAME)
         self.assertTrue("does not resolve" in result[0]["message"])
 
-    @patch("artemis.modules.dangling_dns_detector.edns_query")
+    @patch("artemis.modules.dangling_dns_detector.dns_query")
     @patch("dns.resolver.resolve")
-    def test_check_cname_registered(self, mock_resolve, mock_edns_query) -> None:  # type: ignore
+    def test_check_cname_registered(self, mock_resolve, mock_dns_query) -> None:  # type: ignore
         # given
         cname_record = MagicMock()
         cname_record.rdtype = rdatatype.CNAME
@@ -199,7 +199,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         a_record.rdtype = rdatatype.A
         mock_a_answer = MagicMock()
         mock_a_answer.__iter__.return_value = iter([a_record])
-        mock_edns_query.side_effect = [mock_a_answer, None, None]
+        mock_dns_query.side_effect = [mock_a_answer, None, None]
 
         # when
         result: list[dict[str, Any]] = []

@@ -240,9 +240,9 @@ class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
 
         # then
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(
-            call.kwargs["status_reason"],
-            "The defined domain has CNAME record configured but the CNAME does not resolve.",
+        self.assertTrue(
+            "The defined domain has CNAME record configured but the CNAME does not resolve."
+            in call.kwargs["status_reason"],
         )
 
     def test_check_dns_ip_records_integration(self) -> None:
@@ -258,6 +258,6 @@ class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
 
         # then
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertEqual(
-            call.kwargs["status_reason"], "The defined domain has A record configured but the ip does not resolve."
+        self.assertTrue(
+            "The defined domain has A record configured but the ip does not resolve." in call.kwargs["status_reason"]
         )

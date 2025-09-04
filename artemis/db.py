@@ -62,6 +62,16 @@ class TSVector(TypeDecorator):  # type: ignore
 
 
 class ScheduledTask(Base):  # type: ignore
+    """
+    Represents a scheduled task in the Artemis system.
+
+    :ivar analysis_id: Unique identifier for the analysis associated with this scheduled task.
+    :ivar deduplication_data: Hash used for deduplication of scheduled tasks.
+    :ivar deduplication_data_original: Original string used for deduplication.
+    :ivar task_id: Unique identifier for the underlying task.
+    :ivar created_at: Timestamp when the scheduled task was created.
+    """
+
     __tablename__ = "scheduled_task"
     created_at = Column(DateTime, server_default=text("NOW()"))
     analysis_id = Column(String, primary_key=True)
@@ -75,6 +85,18 @@ class ScheduledTask(Base):  # type: ignore
 
 
 class Analysis(Base):  # type: ignore
+    """
+    Represents an analysis entry in the Artemis system.
+    Analysis consists of :class:`~artemis.db.ScheduledTask` and :class:`~artemis.db.TaskResult`
+
+    :ivar id: Unique identifier for the analysis.
+    :ivar created_at: Timestamp when the analysis was created.
+    :ivar target: Target of the analysis (e.g., domain, IP).
+    :ivar tag: Tag associated with the analysis.
+    :ivar stopped: Whether the analysis has been stopped.
+    :ivar disabled_modules: Comma-separated list of disabled modules for this analysis.
+    """
+
     __tablename__ = "analysis"
     id = Column(String, primary_key=True)
     created_at = Column(DateTime, server_default=text("NOW()"))
@@ -92,6 +114,23 @@ class Analysis(Base):  # type: ignore
 
 
 class TaskResult(Base):  # type: ignore
+    """
+    Stores the result of a Karton :class:`~karton.core.task.Task` execution.
+
+    :ivar id: Unique identifier for the task result.
+    :ivar analysis_id: Identifier of the related analysis.
+    :ivar created_at: Timestamp when the result was created.
+    :ivar status: Status of the task (e.g., OK, ERROR, INTERESTING).
+    :ivar tag: Tag associated with the result.
+    :ivar receiver: Receiver module for the task.
+    :ivar target_string: Target string for the result.
+    :ivar status_reason: Reason for the status.
+    :ivar headers_string: String of all headers for searching.
+    :ivar logs: Logs associated with the task.
+    :ivar task: JSON representation of the original task.
+    :ivar result: JSON representation of the result data.
+    """
+
     __tablename__ = "task_result"
     id = Column(String, primary_key=True)
     analysis_id = Column(String, index=True)
@@ -125,6 +164,24 @@ class ReportGenerationTaskStatus(str, enum.Enum):
 
 
 class ReportGenerationTask(Base):  # type: ignore
+    """
+    Represents a report generation task in the Artemis system.
+
+    :ivar id: Unique identifier for the report generation task.
+    :ivar created_at: Timestamp when the report generation task was created.
+    :ivar comment: Optional comment for the task.
+    :ivar status: Status of the report generation task.
+    :ivar tag: Optional tag for the task.
+    :ivar language: Language for the report.
+    :ivar skip_previously_exported: Whether to skip previously exported reports.
+    :ivar skip_hooks: Whether to skip hooks during report generation.
+    :ivar skip_suspicious_reports: Whether to skip suspicious reports.
+    :ivar custom_template_arguments: Custom arguments for the report template.
+    :ivar output_location: Output location for the report.
+    :ivar error: Error message, if any.
+    :ivar alerts: Alerts associated with the report generation task.
+    """
+
     __tablename__ = "report_generation_task"
 
     id = Column(Integer, primary_key=True)
@@ -144,6 +201,14 @@ class ReportGenerationTask(Base):  # type: ignore
 
 
 class Tag(Base):  # type: ignore
+    """
+    Represents a tag used for categorizing analyses.
+
+    :ivar id: Unique identifier for the tag.
+    :ivar tag_name: Name of the tag.
+    :ivar created_at: Timestamp when the tag was created.
+    """
+
     __tablename__ = "tag"
 
     id = Column(Integer, primary_key=True)
@@ -200,10 +265,10 @@ class DB:
 
     def create_analysis(self, analysis: Task) -> None:
         """
-        Create a new :class:`~artemis.db.Analysis` entry in the database from a given Karton Task.
+        Create a new :class:`~artemis.db.Analysis` entry in the database from a given Karton :class:`~karton.core.task.Task`.
 
         :param analysis: The Karton Task object containing analysis information.
-        :type analysis: Task
+        :type analysis: :class:`~karton.core.task.Task`
         :returns: None
         """
         analysis_dict = self.task_to_dict(analysis)
@@ -223,12 +288,12 @@ class DB:
         self, task: Task, *, status: TaskStatus, status_reason: Optional[str] = None, data: Optional[Any] = None
     ) -> None:
         """
-        Save the result of a task execution to the database.
+        Save the result of a :class:`~karton.core.task.Task` execution to the database.
 
         :param task: The Karton Task object for which the result is being saved.
-        :type task: Task
+        :type task: :class:`~karton.core.task.Task`
         :param status: The status of the task (e.g., OK, INTERESTING, etc.).
-        :type status: TaskStatus
+        :type status: :class:`~artemis.binds.TaskStatus`
         :param status_reason: Optional reason or message describing the status.
         :type status_reason: Optional[str]
         :param data: Optional result data, can be a Pydantic model, Exception, or any serializable object.

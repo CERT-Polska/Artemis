@@ -10,14 +10,7 @@ from artemis.ip_utils import to_ip_range
 
 def get_target_host(task: Task) -> str:
     """
-    Extract the target host identifier from a Karton task based on its type.
-
-    This function extracts different identifiers depending on the task type:
-    - SERVICE, DEVICE: Returns the "host" payload (hostname or IP)
-    - DOMAIN, DOMAIN_THAT_MAY_NOT_EXIST: Returns the domain name
-    - IP: Returns the IP address
-    - WEBAPP, URL: Extracts and returns just the hostname portion from the URL
-    - NEW: Returns the "data" payload, or just the host part if in "host:port" format
+    Extract the target host identifier (domain, ip) from a Karton task based on its type.
 
     :param task: A Karton task object
     :type task: Task

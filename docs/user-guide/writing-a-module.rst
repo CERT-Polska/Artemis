@@ -30,7 +30,16 @@ Since Artemis saves some additional task information in the database, you need t
 Utilities
 ---------
 Modules often needs to obtain certain variables such as IP adresses, hostnames etc.
-Utilities for that are provided inside ``artemis.task_utils`` module (see: :ref:`task_utils`).
+The ``artemis.task_utils`` (see: :ref:`task_utils`) module provides such helpers for extracting and
+manipulating task-related data in Artemis modules.
+
+Example utilities:
+
+- ``artemis.task_utils.get_target_host``
+    Extracts the target host (domain, IP, or hostname) from a Karton task, based on its type.
+- ``artemis.task_utils.get_target_url``
+    Returns the full URL from a Karton task, either directly or by constructing it from parameters.
+
 
 Cache
 -----

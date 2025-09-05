@@ -109,7 +109,7 @@ def should_block_scanning(
         if item.domain_only:
             if not domain:
                 continue
-            if domain != item.domain_only:
+            if domain.lower() != item.domain_only.lower():
                 continue
 
         if item.domain_and_subdomains:
@@ -177,7 +177,7 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
             if item.domain_only:
                 if not domain:
                     continue
-                if domain != item.domain_only:
+                if domain.lower() != item.domain_only.lower():
                     continue
 
             if item.domain_and_subdomains:

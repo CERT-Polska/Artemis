@@ -22,8 +22,8 @@ def is_main_domain(domain: str) -> bool:
 
 
 def is_subdomain(candidate: str, parent_domain: str, allow_equal: bool = True) -> bool:
-    candidate = candidate.strip(".")
-    parent_domain = parent_domain.strip(".")
+    candidate = candidate.strip(".").lower()
+    parent_domain = parent_domain.strip(".").lower()
 
     if allow_equal and candidate == parent_domain:
         return True

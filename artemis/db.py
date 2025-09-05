@@ -64,6 +64,7 @@ class TSVector(TypeDecorator):  # type: ignore
 class ScheduledTask(Base):  # type: ignore
     """
     Represents a scheduled task in the Artemis system.
+    The purpose of this object is solely to prevent duplication, not to perform actual task scheduling.
 
     :ivar analysis_id: Unique identifier for the analysis associated with this scheduled task.
     :ivar deduplication_data: Hash used for deduplication of scheduled tasks.
@@ -87,7 +88,7 @@ class ScheduledTask(Base):  # type: ignore
 class Analysis(Base):  # type: ignore
     """
     Represents an analysis entry in the Artemis system.
-    Analysis consists of :class:`~artemis.db.ScheduledTask` and :class:`~artemis.db.TaskResult`
+    An analysis is a scan of an entered domain and can consist of multiple :class:`~artemis.db.TaskResult`.
 
     :ivar id: Unique identifier for the analysis.
     :ivar created_at: Timestamp when the analysis was created.
@@ -120,7 +121,7 @@ class TaskResult(Base):  # type: ignore
     :ivar id: Unique identifier for the task result.
     :ivar analysis_id: Identifier of the related analysis.
     :ivar created_at: Timestamp when the result was created.
-    :ivar status: Status of the task (e.g., OK, ERROR, INTERESTING).
+    :ivar status: :class:`~artemis.binds.TaskStatus` (e.g., OK, ERROR, INTERESTING).
     :ivar tag: Tag associated with the result.
     :ivar receiver: Receiver module for the task.
     :ivar target_string: Target string for the result.
@@ -166,6 +167,7 @@ class ReportGenerationTaskStatus(str, enum.Enum):
 class ReportGenerationTask(Base):  # type: ignore
     """
     Represents a report generation task in the Artemis system.
+    For more information on report generation, see :ref:`generating-reports`
 
     :ivar id: Unique identifier for the report generation task.
     :ivar created_at: Timestamp when the report generation task was created.

@@ -10,16 +10,16 @@ from artemis.ip_utils import to_ip_range
 
 def get_target_host(task: Task) -> str:
     """
-    Extract the target host identifier (domain, ip) from a Karton task based on its type.
+    Extract the target host (domain, ip) from a Karton task based on its type.
 
     :param task: A Karton task object
     :type task: Task
 
-    :return: A string representing the target host identifier (hostname, domain name, or IP address)
+    :return: A string representing the target host (domain name, or IP address)
     :rtype: str
 
     :raises ValueError: If the task type is unknown
-    :raises AssertionError: If the extracted payload is not of the expected type
+    :raises AssertionError: If the extracted payload is not of the supported type
     """
     task_type = task.headers["type"]
 

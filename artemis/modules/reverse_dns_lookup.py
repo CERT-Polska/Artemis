@@ -71,7 +71,7 @@ class ReverseDNSLookup(ArtemisBase):
 
             if "original_domain" in current_task.payload_persistent:
                 if not Config.Miscellaneous.VERIFY_REVDNS_IN_SCOPE or is_subdomain(
-                    entry, current_task.payload_persistent["original_domain"]
+                    entry, current_task.payload_persistent["original_domain"], allow_equal=False
                 ):
                     new_task = Task({"type": TaskType.NEW}, payload={"data": entry})
                     actually_triggered_tasks.append(entry)

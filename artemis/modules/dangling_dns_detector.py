@@ -60,7 +60,7 @@ class DanglingDnsDetector(ArtemisBase):
         {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value},
     ]
 
-    def _check_cname(self, record: Rdata) -> bool | None:
+    def _is_cname_dangling(self, record: Rdata) -> bool | None:
         if not hasattr(record, "rdtype") or record.rdtype != rdatatype.CNAME:
             return None
 
@@ -86,7 +86,7 @@ class DanglingDnsDetector(ArtemisBase):
             answers = dns.resolver.resolve(domain, rdatatype.CNAME, raise_on_no_answer=False)
             if answers.rrset is not None:
                 for record in answers:
-                    dangling = self._check_cname(record)
+                    dangling = self._is_cname_dangling(record)
                     if dangling:
                         result.append(
                             {
@@ -102,7 +102,7 @@ class DanglingDnsDetector(ArtemisBase):
         except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
             pass
 
-    def check_soa(
+    def query_soa_record_for_ns(
         self, domain: str, ns_name: dns.name.Name, server_ip: ipaddress.IPv4Address, result: list[dict[str, Any]]
     ) -> None:
         name = ns_name
@@ -114,7 +114,7 @@ class DanglingDnsDetector(ArtemisBase):
             result.append({"domain": domain, "record": rdatatype.NS, "message": "Target NS query failed."})
             return None
 
-    def _check_ns(
+    def _is_ns_dangling(
         self,
         domain: str,
         qname: dns.name.Name,
@@ -136,7 +136,7 @@ class DanglingDnsDetector(ArtemisBase):
             for answer in response:
                 if record_type == rdatatype.A:
                     correct_responses += 1
-                    self.check_soa(domain, qname, ipaddress.IPv4Address(answer.address), result)  # type: ignore[attr-defined]
+                    self.query_soa_record_for_ns(domain, qname, ipaddress.IPv4Address(answer.address), result)  # type: ignore[attr-defined]
                 elif record_type == rdatatype.AAAA:
                     correct_responses += 1
 
@@ -148,7 +148,7 @@ class DanglingDnsDetector(ArtemisBase):
             answers = dns.resolver.resolve(domain, rdatatype.NS, raise_on_no_answer=False)
             if answers.rrset is not None:
                 for record in answers:
-                    dangling = self._check_ns(domain, answers.qname, record, result)
+                    dangling = self._is_ns_dangling(domain, answers.qname, record, result)
                     if dangling:
                         result.append(
                             {
@@ -160,7 +160,7 @@ class DanglingDnsDetector(ArtemisBase):
         except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
             pass
 
-    def check_dns_ip_records(self, domain: str, result: list[dict[str, Any]]) -> None:
+    def check_dns_ip_records_are_alive(self, domain: str, result: list[dict[str, Any]]) -> None:
         dns_ip_records = [rdatatype.A, rdatatype.AAAA]
         for dns_ip_record in dns_ip_records:
             try:
@@ -178,8 +178,8 @@ class DanglingDnsDetector(ArtemisBase):
                                     "record": dns_ip_record,
                                     "message": f"The defined domain has {dns_ip_record.name} "
                                     f"record configured but the ip does not resolve. "
-                                    f"If IP belongs to host provider and can be bought, then subdomain "
-                                    f"takeover is possible.",
+                                    f"If IP belongs to host provider and can be bought by other customer, "
+                                    f"then subdomain takeover is possible.",
                                 }
                             )
             except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
@@ -199,7 +199,7 @@ class DanglingDnsDetector(ArtemisBase):
             return
 
         result: list[dict[str, Any]] = []
-        self.check_dns_ip_records(domain, result)
+        self.check_dns_ip_records_are_alive(domain, result)
         self.check_cname(domain, result)
         self.check_ns(domain, result)
 

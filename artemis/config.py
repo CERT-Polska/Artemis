@@ -349,8 +349,8 @@ class Config:
 
         class DanglingDnsDetector:
             DANGLING_DNS_SKIP_ROOT_DOMAIN: Annotated[
-                bool, "If set to True, detector will not perform checks against root domain."
-            ] = get_config("DANGLING_DNS_SKIP_ROOT_DOMAIN", default=True, cast=bool)
+                bool, "If set to True, detector will not perform checks against the root domain."
+            ] = get_config("DANGLING_DNS_SKIP_ROOT_DOMAIN", default=False, cast=bool)
 
         class DNSScanner:
             ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD: Annotated[

@@ -77,7 +77,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         # given
         a_record = MagicMock()
         a_record.rdtype = rdatatype.A
-        a_record.address = "203.0.113.1"
+        a_record.address = "1.1.1.1"
         mock_a_answer = MagicMock()
         mock_a_answer.rrset = [a_record]
         mock_a_answer.__iter__.return_value = iter([a_record])
@@ -102,7 +102,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         # given
         a_record = MagicMock()
         a_record.rdtype = rdatatype.A
-        a_record.address = "203.0.113.2"
+        a_record.address = "1.1.1.1"
         mock_a_answer = MagicMock()
         mock_a_answer.rrset = [a_record]
         mock_a_answer.__iter__.return_value = iter([a_record])
@@ -125,7 +125,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         # given
         aaaa_record = MagicMock()
         aaaa_record.rdtype = rdatatype.AAAA
-        aaaa_record.address = "2001:db8::1"
+        aaaa_record.address = "2606:4700:4700::1111"
         mock_a_answer = MagicMock()
         mock_a_answer.rrset = None
         mock_a_answer.__iter__.return_value = iter([])

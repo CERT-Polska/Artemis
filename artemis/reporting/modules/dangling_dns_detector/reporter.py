@@ -46,6 +46,6 @@ class DanglingDnsReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                str(Path(__file__).parents[0] / "template_dangling_dns_record.jinja2"), priority=10
+                str(Path(__file__).parents[0] / "template_dangling_dns_record.jinja2"), priority=7
             ),
         ]

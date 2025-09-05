@@ -77,6 +77,7 @@ SEVERITY_MAP = {
     ReportType("bad_certificate_names"): Severity.LOW,
     ReportType("no_https_redirect"): Severity.LOW,
     ReportType("api_vulnerability"): Severity.MEDIUM,
+    ReportType("dangling_dns_record"): Severity.HIGH,
 }
 
 if Config.Reporting.ADDITIONAL_SEVERITY_FILE:

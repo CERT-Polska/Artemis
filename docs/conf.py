@@ -47,6 +47,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "generate_config_docs",
     "generate_module_list",
+    "sphinx.ext.intersphinx",
 ]
 
 graphviz_output_format = "svg"
@@ -76,3 +77,8 @@ html_static_path = ["_static"]
 html_css_files = [
     "style.css",
 ]
+
+# allow to reference other documentations
+intersphinx_mapping = {
+    "karton": ("https://karton-core.readthedocs.io/en/latest/", None),
+}

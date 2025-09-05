@@ -9,6 +9,18 @@ from artemis.ip_utils import to_ip_range
 
 
 def get_target_host(task: Task) -> str:
+    """
+    Extract the target host (domain, ip) from a Karton task based on its type.
+
+    :param task: A Karton task object
+    :type task: Task
+
+    :return: A string representing the target host (domain name, or IP address)
+    :rtype: str
+
+    :raises ValueError: If the task type is unknown
+    :raises AssertionError: If the extracted payload is not of the supported type
+    """
     task_type = task.headers["type"]
 
     if task_type == TaskType.SERVICE:
@@ -49,6 +61,20 @@ def get_target_host(task: Task) -> str:
 
 
 def get_target_url(task: Task) -> str:
+    """
+    Build or extract a complete URL from a Karton task.
+
+    If the task already contains an URL, it is returned directly, otherwise it's constructed.
+
+    :param task: A Karton task object
+    :type task: Task
+
+    :return: A complete URL string
+    :rtype: str
+
+    :raises NotImplementedError: If the service is not HTTP
+    :raises AssertionError: If the extracted URL is not a string
+    """
     url = task.get_payload("url")
 
     if url:

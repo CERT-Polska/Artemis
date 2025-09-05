@@ -14,6 +14,8 @@ Feel free to copy this module to implement a real one. Remember to start the mod
 https://github.com/CERT-Polska/Artemis/blob/main/docker-compose.yaml.
 
 Since Artemis uses the Karton framework (https://github.com/CERT-Polska/karton) underneath, modules are Karton services.
+It is recommeneded to get familiar with (https://karton-core.readthedocs.io/en/latest/advanced_concepts.html) in order to
+properly undestand the architecture of Karton framework.
 
 Artemis provides a few helpers to make writing a module easier.
 
@@ -24,6 +26,21 @@ a new task.
 
 Since Artemis saves some additional task information in the database, you need to use a wrapper - ``self.add_task``.
 
+
+Utilities
+---------
+Modules often needs to obtain certain variables such as IP adresses, hostnames etc.
+The ``artemis.task_utils`` (see: :ref:`task_utils`) module provides such helpers for extracting and
+manipulating task-related data in Artemis modules.
+
+Example utilities:
+
+- ``artemis.task_utils.get_target_host``
+    Extracts the target host (domain or IP) from a Karton task, based on its type.
+- ``artemis.task_utils.get_target_url``
+    Returns the full URL from a Karton task, either directly or by constructing it from parameters.
+
+
 Cache
 -----
 Modules often perform long running tasks, where we want to cache the results. Such example may be port scanning. Artemis provides simple Redis-based
@@ -33,6 +50,7 @@ cache API for each module. The cache is available under ``self.cache``. Rather t
 Database
 --------
 Artemis uses PostgreSQL to save task results - this feature is available via ``self.save_task_result``.
+More about possible db utils can be found in db (module :ref:`db`).
 
 Resource Locking
 ----------------

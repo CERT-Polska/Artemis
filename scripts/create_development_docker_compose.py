@@ -55,6 +55,14 @@ class LocalBuildContainersStrategy(YamlProcessor):
         return data
 
 
+class PostgresOpenPortsStrategy(YamlProcessor):
+    def process(self, data: Any) -> Any:
+        for service in data["services"]:
+            if service == "postgres":
+                data["services"][service]["ports"] = ["5432:5432"]
+        return data
+
+
 class FileProcessor:
     def __init__(self, input_file: str, output_file: str) -> None:
         self.docker_compose_data = None
@@ -86,6 +94,8 @@ if __name__ == "__main__":
     processor.process_file(VolumeDevelopStrategy())
 
     processor.process_file(LocalBuildContainersStrategy())
+
+    processor.process_file(PostgresOpenPortsStrategy())
 
     # We used to change "restart" to "no". We know, though, that some users use Artemis in development
     # version for actual scanning. Because the containers restart after a given number of scanning tasks,

@@ -94,8 +94,8 @@ class DanglingDnsDetector(ArtemisBase):
                                 "record": rdatatype.CNAME,
                                 "target": record.target.to_text(),  # type: ignore[attr-defined]
                                 "message": (
-                                    "The defined domain has CNAME record configured but the CNAME "
-                                    "does not resolve. If the subdomain that CNAME record points to "
+                                    "The defined domain has a CNAME record configured but the CNAME "
+                                    "does not resolve. If the subdomain that the CNAME record points to "
                                     "can be bought, then takeover is possible."
                                 ),
                             }
@@ -178,10 +178,10 @@ class DanglingDnsDetector(ArtemisBase):
                                     "domain": domain,
                                     "record": dns_ip_record,
                                     "target": record.address,  # type: ignore[attr-defined]
-                                    "message": f"The defined domain has {dns_ip_record.name} "
-                                    f"record configured but the IP does not resolve. "  # type: ignore[attr-defined]
-                                    f"If IP belongs to host provider and can be bought by other customer, "
-                                    f"then subdomain takeover is possible.",
+                                    "message": f"The defined domain has an {dns_ip_record.name} "
+                                    "record configured but the IP does not resolve. "
+                                    "If IP belongs to a hosting provider and can be bought by other customer, "
+                                    "then subdomain takeover is possible.",
                                 }
                             )
             except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):

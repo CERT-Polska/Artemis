@@ -595,14 +595,9 @@ class Nuclei(ArtemisBase):
                         )
                     dast_targets.append(param_url)
 
-            all_dast_templates = []
-            for keyword in DAST_SCANNING.keys():
-                all_dast_templates.extend(self._dast_templates[keyword])
-            all_dast_templates.extend(self._dast_templates["other"])
-
             findings.extend(
                 self._scan(
-                    all_dast_templates,
+                    Config.Modules.Nuclei.NUCLEI_DAST_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS,
                     ScanUsing.TEMPLATES,
                     dast_targets,
                     extra_nuclei_args=["-dast"],

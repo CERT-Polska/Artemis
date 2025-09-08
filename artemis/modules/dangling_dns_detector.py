@@ -38,29 +38,30 @@ def dns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.Ans
         return None
 
 
-def ip_exists(ip: str, timeout: int = 5) -> bool:
-    try:
-        result = subprocess.run(
-            ["ping", "-c", "1", "-W", str(timeout), ip],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        if result.returncode == 0:
-            return True
-    except Exception:
-        pass
+def ip_exists(ip: str, timeout: int = 5, num_retries: int=20) -> bool:
+    for _ in range(num_retries):
+        try:
+            result = subprocess.run(
+                ["ping", "-c", "1", "-W", str(timeout), ip],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            if result.returncode == 0:
+                return True
+        except Exception:
+            pass
 
-    try:
-        with socket.create_connection((ip, 80), timeout=timeout):
-            return True
-    except Exception:
-        pass
+        try:
+            with socket.create_connection((ip, 80), timeout=timeout):
+                return True
+        except Exception:
+            pass
 
-    try:
-        with socket.create_connection((ip, 443), timeout=timeout):
-            return True
-    except Exception:
-        pass
+        try:
+            with socket.create_connection((ip, 443), timeout=timeout):
+                return True
+        except Exception:
+            pass
 
     return False
 

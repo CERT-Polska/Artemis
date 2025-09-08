@@ -562,7 +562,7 @@ class Nuclei(ArtemisBase):
                 all_dast_templates,
                 ScanUsing.TEMPLATES,
                 dast_targets,
-                extra_nuclei_args=["-dast"],
+                extra_nuclei_args=["-dast", "-fuzzing-mode", "multiple"],
             )
         )
 
@@ -600,7 +600,7 @@ class Nuclei(ArtemisBase):
                     Config.Modules.Nuclei.NUCLEI_DAST_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS,
                     ScanUsing.TEMPLATES,
                     dast_targets,
-                    extra_nuclei_args=["-dast"],
+                    extra_nuclei_args=["-dast", "-fuzzing-mode", "multiple"],
                 )
             )
 

@@ -38,7 +38,7 @@ def dns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.Ans
         return None
 
 
-def ip_exists(ip: str, timeout: int = 5, num_retries: int=20) -> bool:
+def ip_exists(ip: str, timeout: int = 5, num_retries: int = 20) -> bool:
     for _ in range(num_retries):
         try:
             result = subprocess.run(

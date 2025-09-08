@@ -2,6 +2,10 @@
 msgid "We identified a risk of subdomain takeover for the following subdomains:"
 msgstr "Wykryto ustawienia stwarzające ryzyko przejęcia domen:"
 
+#: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:7
+msgid "the records points to"
+msgstr "rekord kieruje w"
+
 #: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:14
 msgid ""
 "Please verify the configuration, and, if subdomain takeover is possible, "

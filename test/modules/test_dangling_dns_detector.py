@@ -259,5 +259,5 @@ class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
         # then
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertTrue(
-            "The defined domain has A record configured but the ip does not resolve." in call.kwargs["status_reason"]
+            "The defined domain has A record configured but the IP does not resolve." in call.kwargs["status_reason"]
         )

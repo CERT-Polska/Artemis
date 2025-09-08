@@ -32,6 +32,7 @@ class DanglingDnsReporter(Reporter):
                         report_type=DanglingDnsReporter.DANGLING_DNS_RECORD,
                         additional_data={
                             "message_en": item["message"],
+                            "target": item["target"],
                         },
                         timestamp=task_result["created_at"],
                     )
@@ -46,6 +47,6 @@ class DanglingDnsReporter(Reporter):
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
             ReportEmailTemplateFragment.from_file(
-                str(Path(__file__).parents[0] / "template_dangling_dns_record.jinja2"), priority=7
+                str(Path(__file__).parents[0] / "template_dangling_dns_record.jinja2"), priority=5
             ),
         ]

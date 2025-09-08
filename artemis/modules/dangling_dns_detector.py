@@ -64,7 +64,7 @@ class DanglingDnsDetector(ArtemisBase):
         if not hasattr(record, "rdtype") or record.rdtype != rdatatype.CNAME:
             return None
 
-        cname_target_types = [rdatatype.A, rdatatype.AAAA]
+        cname_target_types = [rdatatype.A, rdatatype.AAAA, rdatatype.TXT]
         cname_target = record.target.to_text()  # type: ignore[attr-defined]
 
         dangling = True

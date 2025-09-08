@@ -1,4 +1,5 @@
 import ipaddress
+import socket
 import subprocess
 from typing import Any
 
@@ -46,7 +47,21 @@ def ip_exists(ip: str, timeout: int = 5) -> bool:
         )
         return result.returncode == 0
     except Exception:
-        return False
+        pass
+
+    try:
+        with socket.create_connection((ip, 80), timeout=timeout):
+            return True
+    except Exception:
+        pass
+
+    try:
+        with socket.create_connection((ip, 443), timeout=timeout):
+            return True
+    except Exception:
+        pass
+
+    return False
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)

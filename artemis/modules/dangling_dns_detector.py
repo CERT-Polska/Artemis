@@ -45,7 +45,8 @@ def ip_exists(ip: str, timeout: int = 5) -> bool:
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        return result.returncode == 0
+        if result.returncode == 0:
+            return True
     except Exception:
         pass
 

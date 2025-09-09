@@ -834,25 +834,6 @@ class Config:
                 cast=decouple.Csv(str),
             )
 
-            NUCLEI_DAST_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS: Annotated[
-                List[str],
-                "Normally, Nuclei DAST templates are ran only on the root url. These templates will also run "
-                "on all URLs linked from the root URL to detect vulnerabilities on non-root pages.",
-            ] = get_config(
-                "NUCLEI_DAST_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS",
-                default=",".join(
-                    [
-                        # We don't do SQLi here as we have a separate, good module for that
-                        "dast/vulnerabilities/cmdi/blind-oast-polyglots.yaml",
-                        "dast/vulnerabilities/ssrf/blind-ssrf.yaml",
-                        "dast/vulnerabilities/lfi/lfi-keyed.yaml",
-                        "dast/vulnerabilities/xss/reflected-xss.yaml",
-                        "dast/vulnerabilities/rfi/generic-rfi.yaml",
-                    ]
-                ),
-                cast=decouple.Csv(str),
-            )
-
             NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS: Annotated[
                 List[str],
                 "Normally, Nuclei templates are ran only on the root url. These templates will also run "

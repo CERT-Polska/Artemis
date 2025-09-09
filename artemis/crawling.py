@@ -1,3 +1,4 @@
+import functools
 import urllib
 from typing import List
 
@@ -26,6 +27,7 @@ def get_links_and_resources_on_same_domain(url: str) -> List[str]:
     return list(set(links))
 
 
+@functools.lru_cache(maxsize=8192)
 def get_injectable_parameters(url: str) -> List[str]:
     try:
         response = http_requests.get(url)

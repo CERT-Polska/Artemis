@@ -10,6 +10,7 @@ from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
 from whoisdomain import query as whois_query
 
 from artemis.config import Config
+from artemis.crawling import get_injectable_parameters
 
 CONSOLE_LOG_HANDLER = logging.StreamHandler()
 CONSOLE_LOG_HANDLER.setLevel(getattr(logging, Config.Miscellaneous.LOG_LEVEL))
@@ -120,10 +121,14 @@ def read_template(path: str) -> str:
         return f.read()
 
 
-def add_common_params_from_wordlist(url: str, params_wordlist: str, default_param_value: str = "") -> str:
+def add_injectable_params_and_common_params_from_wordlist(
+    url: str, params_wordlist: str, default_param_value: str = ""
+) -> str:
     with open(params_wordlist, "r") as file:
         params = file.read().splitlines()
-        params = [param.strip() for param in params if param.strip() and not param.startswith("#")]
+        params = [
+            param.strip() for param in params if param.strip() and not param.startswith("#")
+        ] + get_injectable_parameters(url)
 
     parsed_url = urlparse(url)
 

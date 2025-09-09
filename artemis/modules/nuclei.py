@@ -31,7 +31,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
-    add_common_params_from_wordlist,
+    add_injectable_params_and_common_params_from_wordlist,
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
@@ -482,13 +482,15 @@ class Nuclei(ArtemisBase):
         for line in lines:
             if line.strip():
                 finding = json.loads(line)
+                self.log.info("AAA"  + repr(finding))
+
                 findings.append(finding)
         self.log.info(
             "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f seconds",
             len(targets),
             targets[:3],
             len(templates_or_workflows_filtered),
-            templates_or_workflows_filtered[:3],
+            templates_or_workflows_filtered,
             time.time() - time_start,
         )
 
@@ -546,7 +548,7 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             param_url = get_target_url(task)
             for _, template_data in DAST_SCANNING.items():
-                param_url = add_common_params_from_wordlist(
+                param_url = add_injectable_params_and_common_params_from_wordlist(
                     param_url, template_data["params_wordlist"], template_data["param_default_value"]
                 )
             dast_targets.append(param_url)
@@ -590,7 +592,7 @@ class Nuclei(ArtemisBase):
                 if item:
                     param_url = item
                     for _, template_data in DAST_SCANNING.items():
-                        param_url = add_common_params_from_wordlist(
+                        param_url = add_injectable_params_and_common_params_from_wordlist(
                             param_url, template_data["params_wordlist"], template_data["param_default_value"]
                         )
                     dast_targets.append(param_url)

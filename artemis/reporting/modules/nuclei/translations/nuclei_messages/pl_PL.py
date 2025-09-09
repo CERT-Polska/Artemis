@@ -109,6 +109,8 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "group:sql-injection": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych."
     + BUG_FIX_HINT,
+    "dast/vulnerabilities/sqli/sqli-error-based.yaml": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych."
+    + BUG_FIX_HINT,
     "WordPress WooCommerce plugin before 3.1.2 does not have authorisation and CSRF checks in the wpt_admin_update_notice_option AJAX action available to both unauthenticated and authenticated users as well as does not validate the callback parameter, allowing unauthenticated attackers to call arbitrary functions with either none or one user controlled argument.": "Wtyczka WooCommerce w wersji poniżej 3.1.2 zawiera podatność, która może prowadzić do zdalnego wykonania kodu przez niezalogowanego użytkownika."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
@@ -997,6 +999,16 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "WordPress acf-to-rest-ap through 3.1.0 allows an insecure direct object reference via permalinks manipulation, as demonstrated by a wp-json/acf/v3/options/ request that can read sensitive information in the wp_options table such as the login and pass values.": "Wtyczka WordPress o nazwie acf-to-rest-ap w wersji do 3.1.0 włącznie zawiera podatnosć Insecure Direct Object Reference umożliwiającą atakującemu odczyt opcji konfiguracyjnych, w których mogą znajdować się dane wrażliwe, np. hasła.",
+    "[no description] dast/vulnerabilities/lfi/lfi-keyed.yaml": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + BUG_FIX_HINT,
+    "[no description] dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + BUG_FIX_HINT,
+    "[no description] dast/vulnerabilities/ssrf/response-ssrf.yaml": "Wykryto podatność Server-Side Request Forgery umożliwiającą atakującemu dostęp do zasobów w sieci wewnętrznej."
+    + BUG_FIX_HINT,
+    "[no description] dast/vulnerabilities/redirect/open-redirect.yaml": "Wykryto podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + BUG_FIX_HINT,
+    "[no description] dast/vulnerabilities/redirect/open-redirect-bypass.yaml": "Wykryto podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + BUG_FIX_HINT,
     "A security issue was discovered in  ingress-nginx https-//github.com/kubernetes/ingress-nginx  where the `mirror-target` and `mirror-host` Ingress annotations can be used to inject arbitrary configuration into nginx. This can lead to arbitrary code execution in the context of the ingress-nginx controller, and disclosure of Secrets accessible to the controller. (Note that in the default installation, the controller can access all Secrets cluster-wide.)": "Wykryto komponent ingress-nginx zawierający podatność CVE-2025-1098 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,

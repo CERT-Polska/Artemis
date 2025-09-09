@@ -19,7 +19,10 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.crawling import (
+    add_injectable_params_and_common_params_from_wordlist,
+    get_links_and_resources_on_same_domain,
+)
 from artemis.module_base import ArtemisBase
 from artemis.modules.base.runtime_configuration_registry import (
     RuntimeConfigurationRegistry,
@@ -31,7 +34,6 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
-    add_injectable_params_and_common_params_from_wordlist,
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
@@ -482,7 +484,7 @@ class Nuclei(ArtemisBase):
         for line in lines:
             if line.strip():
                 finding = json.loads(line)
-                self.log.info("AAA"  + repr(finding))
+                self.log.info("AAA" + repr(finding))
 
                 findings.append(finding)
         self.log.info(

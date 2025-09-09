@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from artemis.utils import add_injectable_params_and_common_params_from_wordlist
+from artemis.crawling import add_injectable_params_and_common_params_from_wordlist
 
 
 class TestAddCommonParamsFromWordlist(unittest.TestCase):

@@ -490,7 +490,7 @@ class Nuclei(ArtemisBase):
             len(targets),
             targets[:3],
             len(templates_or_workflows_filtered),
-            templates_or_workflows_filtered,
+            templates_or_workflows_filtered[:3],
             time.time() - time_start,
         )
 

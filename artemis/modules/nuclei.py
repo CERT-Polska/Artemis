@@ -251,10 +251,7 @@ class Nuclei(ArtemisBase):
                 self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
 
     def _get_links(self, url: str) -> List[str]:
-        try:
-            links = get_links_and_resources_on_same_domain(url)
-        except requests.exceptions.RequestException:
-            return []
+        links = get_links_and_resources_on_same_domain(url)
 
         random.shuffle(links)
 

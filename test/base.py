@@ -112,7 +112,7 @@ class BaseReportingTest(ArtemisModuleTestCase):
     def obtain_domain_task_result(self, receiver: str, domain: str) -> Dict[str, Any]:
         task = Task(
             {"type": TaskType.DOMAIN},
-            payload={"host": domain},
+            payload={"domain": domain},
             payload_persistent={"original_domain": domain},
         )
         self.run_task(task)

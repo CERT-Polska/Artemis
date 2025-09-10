@@ -119,7 +119,7 @@ class BaseReportingTest(ArtemisModuleTestCase):
         (call,) = self.mock_db.save_task_result.call_args_list
         return {
             "created_at": None,
-            "target_string": host,
+            "target_string": domain,
             "headers": {
                 "receiver": receiver,
             },

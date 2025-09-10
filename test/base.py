@@ -109,6 +109,29 @@ class BaseReportingTest(ArtemisModuleTestCase):
             "result": call.kwargs["data"],
         }
 
+    def obtain_domain_task_result(self, receiver: str, domain: str) -> Dict[str, Any]:
+        task = Task(
+            {"type": TaskType.DOMAIN},
+            payload={"host": domain},
+            payload_persistent={"original_domain": domain},
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        return {
+            "created_at": None,
+            "target_string": host,
+            "headers": {
+                "receiver": receiver,
+            },
+            "payload": {
+                "last_domain": domain,
+            },
+            "payload_persistent": {
+                "original_domain": domain,
+            },
+            "result": call.kwargs["data"],
+        }
+
     def task_result_to_message(self, data: Dict[str, Any]) -> str:
         reports = reports_from_task_result(data, Language.en_US)  # type: ignore
         message_template = self.generate_message_template()

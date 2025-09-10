@@ -252,7 +252,6 @@ class Nuclei(ArtemisBase):
 
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
-
         random.shuffle(links)
 
         links = [

@@ -8,7 +8,7 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
-from artemis.reporting.utils import get_top_level_target
+from artemis.reporting.utils import get_target_url, get_top_level_target
 
 
 class LFIDetectorReporter(Reporter):
@@ -25,12 +25,10 @@ class LFIDetectorReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
-        target_url = task_result["result"]["result"][0]["url"]
-
         return [
             Report(
                 top_level_target=get_top_level_target(task_result),
-                target=target_url,
+                target=get_target_url(task_result),
                 report_type=LFIDetectorReporter.LFI,
                 additional_data=task_result["result"],
                 timestamp=task_result["created_at"],

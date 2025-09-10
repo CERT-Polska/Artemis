@@ -1,6 +1,7 @@
 import urllib
 from typing import List
 
+import requests
 from bs4 import BeautifulSoup
 
 from artemis import http_requests

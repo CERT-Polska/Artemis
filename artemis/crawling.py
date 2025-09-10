@@ -1,6 +1,7 @@
 import urllib
 from typing import List
 
+import requests
 from bs4 import BeautifulSoup
 
 from artemis import http_requests
@@ -8,7 +9,11 @@ from artemis import http_requests
 
 def get_links_and_resources_on_same_domain(url: str) -> List[str]:
     url_parsed = urllib.parse.urlparse(url)
-    response = http_requests.get(url)
+    try:
+        response = http_requests.get(url)
+    except requests.exceptions.RequestException:
+        return []
+
     soup = BeautifulSoup(response.text)
     links = []
     for tag in soup.find_all():

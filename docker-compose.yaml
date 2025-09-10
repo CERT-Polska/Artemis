@@ -298,6 +298,14 @@ services:
     env_file: .env
     restart: always
     volumes: ["./docker/karton.ini:/etc/karton/karton.ini", "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+  
+  test-dast-vuln-app:
+    build:
+      context: .
+      dockerfile: test/data/dast_vuln_app/Dockerfile
+    volumes:
+      - ./test/data/dast_vuln_app/:/app/
+
 
   karton-scripts_unregistered_domains:
     <<: [*logging, *artemis-build-or-image]

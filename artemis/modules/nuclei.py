@@ -484,8 +484,6 @@ class Nuclei(ArtemisBase):
         for line in lines:
             if line.strip():
                 finding = json.loads(line)
-                self.log.info("AAA" + repr(finding))
-
                 findings.append(finding)
         self.log.info(
             "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f seconds",

@@ -1,6 +1,5 @@
 from test.base import BaseReportingTest
 
-from artemis.binds import WebApplication
 from artemis.modules.port_scanner import PortScanner
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
@@ -11,7 +10,7 @@ class PortScannerAutoreporterIntegrationTest(BaseReportingTest):
     karton_class = PortScanner  # type: ignore
 
     def test_asset_discovery(self) -> None:
-        data = self.obtain_host_task_result("port_scanner", 'test-old-wordpress')
+        data = self.obtain_domain_task_result("port_scanner", "test-old-wordpress")
         assets = assets_from_task_result(data)
         self.assertEqual(
             assets,

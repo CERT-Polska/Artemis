@@ -575,7 +575,7 @@ class Nuclei(ArtemisBase):
                     "-dast",
                     "-fuzzing-mode",
                     "multiple",
-                    " -fuzz-param-frequency",
+                    "-fuzz-param-frequency",
                     str(get_max_num_parameters(dast_targets)),
                 ],
             )
@@ -624,7 +624,7 @@ class Nuclei(ArtemisBase):
                         "-dast",
                         "-fuzzing-mode",
                         "multiple",
-                        " -fuzz-param-frequency",
+                        "-fuzz-param-frequency",
                         str(get_max_num_parameters(dast_targets)),
                     ],
                 )

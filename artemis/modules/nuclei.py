@@ -79,6 +79,13 @@ DAST_SCANNING: Dict[str, Dict[str, Any]] = {
 UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
 
 
+def get_max_num_parameters(targets: List[str]) -> int:
+    if not targets:
+        return 0
+
+    return max([len(urllib.parse.parse_qs(urllib.parse.urlparse(item).query)) for item in targets])
+
+
 def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
     """
     Groups targets by the technologies that are not detected on them.
@@ -444,9 +451,6 @@ class Nuclei(ArtemisBase):
                     command.append("-target")
                     command.append(target)
 
-                import sys
-                sys.stderr.write("AAAAA" + " ".join(command) + "\n")
-
                 self.log.debug("Running command: %s", " ".join(command))
                 stdout, stderr = check_output_log_on_error_with_stderr(command, self.log)
 
@@ -567,7 +571,13 @@ class Nuclei(ArtemisBase):
                 all_dast_templates,
                 ScanUsing.TEMPLATES,
                 dast_targets,
-                extra_nuclei_args=["-dast", "-fuzzing-mode", "multiple"],
+                extra_nuclei_args=[
+                    "-dast",
+                    "-fuzzing-mode",
+                    "multiple",
+                    " -fuzz-param-frequency",
+                    str(get_max_num_parameters(dast_targets)),
+                ],
             )
         )
 
@@ -610,7 +620,13 @@ class Nuclei(ArtemisBase):
                     all_dast_templates,
                     ScanUsing.TEMPLATES,
                     dast_targets,
-                    extra_nuclei_args=["-dast", "-fuzzing-mode", "multiple"],
+                    extra_nuclei_args=[
+                        "-dast",
+                        "-fuzzing-mode",
+                        "multiple",
+                        " -fuzz-param-frequency",
+                        str(get_max_num_parameters(dast_targets)),
+                    ],
                 )
             )
 

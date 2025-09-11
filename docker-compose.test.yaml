@@ -30,7 +30,7 @@ services:
 
       SQL_INJECTION_STOP_ON_FIRST_MATCH: False
 
-      NUCLEI_INTERACTSH_SERVER: https://interactsh.lab.cert.pl/
+      NUCLEI_INTERACTSH_SERVER: https://interactsh.lab.cert.pl
 
       POSTMAN_MAIL_FROM: artemis@localhost.com
       POSTMAN_MAIL_TO: artemis@localhost.com

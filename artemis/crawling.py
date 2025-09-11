@@ -1,5 +1,7 @@
+import functools
 import urllib
 from typing import List
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -31,6 +33,7 @@ def get_links_and_resources_on_same_domain(url: str) -> List[str]:
     return list(set(links))
 
 
+@functools.lru_cache(maxsize=8192)
 def get_injectable_parameters(url: str) -> List[str]:
     try:
         response = http_requests.get(url)
@@ -48,3 +51,25 @@ def get_injectable_parameters(url: str) -> List[str]:
         if input_tag.get("name"):
             result.add(input_tag.get("name"))
     return list(result)
+
+
+def add_injectable_params_and_common_params_from_wordlist(
+    url: str, params_wordlist: str, default_param_value: str = ""
+) -> str:
+    with open(params_wordlist, "r") as file:
+        params = file.read().splitlines()
+        params = [
+            param.strip() for param in params if param.strip() and not param.startswith("#")
+        ] + get_injectable_parameters(url)
+
+    parsed_url = urlparse(url)
+
+    query_params = parse_qs(parsed_url.query)
+
+    for param in params:
+        if param not in query_params:
+            query_params[param] = [default_param_value or "testvalue"]
+
+    new_query = urlencode(query_params, doseq=True)
+
+    return urlunparse(parsed_url._replace(query=new_query))

@@ -231,7 +231,7 @@ class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
         # given
         task = Task(
             {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value},
-            payload={"domain": "bad.kadetest.xyz"},
+            payload={"domain": "dangling-cname.test.artemis.lab.cert.pl"},
         )
 
         # when

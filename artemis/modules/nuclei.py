@@ -19,7 +19,10 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.crawling import (
+    add_injectable_params_and_common_params_from_wordlist,
+    get_links_and_resources_on_same_domain,
+)
 from artemis.module_base import ArtemisBase
 from artemis.modules.base.runtime_configuration_registry import (
     RuntimeConfigurationRegistry,
@@ -31,7 +34,6 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
-    add_common_params_from_wordlist,
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
@@ -75,6 +77,13 @@ DAST_SCANNING: Dict[str, Dict[str, Any]] = {
 }
 
 UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
+
+
+def get_max_num_parameters(targets: List[str]) -> int:
+    if not targets:
+        return 0
+
+    return max([len(urllib.parse.parse_qs(urllib.parse.urlparse(item).query)) for item in targets])
 
 
 def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
@@ -546,7 +555,7 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             param_url = get_target_url(task)
             for _, template_data in DAST_SCANNING.items():
-                param_url = add_common_params_from_wordlist(
+                param_url = add_injectable_params_and_common_params_from_wordlist(
                     param_url, template_data["params_wordlist"], template_data["param_default_value"]
                 )
             dast_targets.append(param_url)
@@ -562,7 +571,13 @@ class Nuclei(ArtemisBase):
                 all_dast_templates,
                 ScanUsing.TEMPLATES,
                 dast_targets,
-                extra_nuclei_args=["-dast", "-fuzzing-mode", "multiple"],
+                extra_nuclei_args=[
+                    "-dast",
+                    "-fuzzing-mode",
+                    "multiple",
+                    "-fuzz-param-frequency",
+                    str(get_max_num_parameters(dast_targets)),
+                ],
             )
         )
 
@@ -590,7 +605,7 @@ class Nuclei(ArtemisBase):
                 if item:
                     param_url = item
                     for _, template_data in DAST_SCANNING.items():
-                        param_url = add_common_params_from_wordlist(
+                        param_url = add_injectable_params_and_common_params_from_wordlist(
                             param_url, template_data["params_wordlist"], template_data["param_default_value"]
                         )
                     dast_targets.append(param_url)
@@ -605,7 +620,13 @@ class Nuclei(ArtemisBase):
                     all_dast_templates,
                     ScanUsing.TEMPLATES,
                     dast_targets,
-                    extra_nuclei_args=["-dast", "-fuzzing-mode", "multiple"],
+                    extra_nuclei_args=[
+                        "-dast",
+                        "-fuzzing-mode",
+                        "multiple",
+                        "-fuzz-param-frequency",
+                        str(get_max_num_parameters(dast_targets)),
+                    ],
                 )
             )
 

@@ -1,6 +1,6 @@
 FROM python:3.13-alpine3.20
 
-COPY --from=golang:1.23-alpine /usr/local/go/ /usr/local/go/
+COPY --from=golang:1.24-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
 
 COPY docker/wait-for-it.sh /wait-for-it.sh

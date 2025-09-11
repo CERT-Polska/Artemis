@@ -444,6 +444,9 @@ class Nuclei(ArtemisBase):
                     command.append("-target")
                     command.append(target)
 
+                import sys
+                sys.stderr.write("AAAAA" + " ".join(command) + "\n")
+
                 self.log.debug("Running command: %s", " ".join(command))
                 stdout, stderr = check_output_log_on_error_with_stderr(command, self.log)
 

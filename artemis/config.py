@@ -557,6 +557,8 @@ class Config:
                         "http/cves/2024/CVE-2024-43919.yaml",
                         # We already check for Gitlab
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
+                        # Too many FPs
+                        "dast/vulnerabilities/crlf/cookie-injection.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

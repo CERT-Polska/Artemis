@@ -68,6 +68,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "login-logo",
     "page-or-post-clone",
     "website-monetization-by-magenet",
+    "woo-multi-currency",
     "wp-maximum-execution-time-exceeded",
     "zapier",
 ]

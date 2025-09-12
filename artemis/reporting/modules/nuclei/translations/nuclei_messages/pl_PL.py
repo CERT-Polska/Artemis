@@ -663,6 +663,8 @@ TRANSLATIONS = {
     "A misconfiguration in Gitea allows arbitrary users to sign up and read code hosted on the service.": "Wykryto serwis Gitea, którego konfiguracja umożliwia nowym użytkownikom rejestrację, co może dać atakującemu dostęp do kodu źródłowego przechowywanego w serwisie.",
     "JBoss JMX Console default login information was discovered.": "wykryto, że do panelu JBoss JMX Console można zalogować się domyślnymi danymi."
     + DEFAULT_CREDENTIALS_HINT,
+    "http/default-logins/pcoweb/pcoweb-default-login.yaml": "wykryto system pCOWeb, do którego można zalogować się domyślnymi danymi."
+    + DEFAULT_CREDENTIALS_HINT,
     "Apache ActiveMQ default login information was discovered.": "wykryto, że do panelu Apache ActiveMQ Console można zalogować się domyślnymi danymi."
     + DEFAULT_CREDENTIALS_HINT,
     "SiteCore 9.3 is vulnerable to LFI.": "Narzędzie SiteCore w wersji 9.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
@@ -979,6 +981,9 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "WordPress White Label CMS plugin before 2.2.9 contains a reflected cross-site scripting vulnerability. It does not sanitize and validate the wlcms[_login_custom_js] parameter before outputting it back in the response while previewing.": "Wtyczka WordPress o nazwie White Label CMS w wersji poniżej 2.2.9 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Sophos SG UTMA WebAdmin is susceptible to a remote code execution vulnerability in versions before v9.705 MR5, v9.607 MR7, and v9.511 MR11.": "Sophos SG UTMA WebAdmin w wersji poniżej v9.705 MR5, v9.607 MR7 i v9.511 MR11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "The W3 Total Cache WordPress plugin was affected by an Unauthenticated Server Side Request Forgery (SSRF) security vulnerability.": "Wykryto wtyczkę WordPress o nazwie W3 Total Cache w wersji zawierającej podatność Server Side Request Forgery (SSRF), czyli umożliwiającą atakującemu dostęp do zasobów w sieci lokalnej. "
     + WORDPRESS_UPDATE_HINT,

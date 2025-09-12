@@ -682,6 +682,7 @@ class Config:
                 "NUCLEI_ADDITIONAL_TEMPLATES",
                 default=",".join(
                     [
+                        "http/exposures/configs/phpinfo-files.yaml",
                         "http/exposures/configs/dompdf-config.yaml",
                         "http/exposures/configs/ftp-credentials-exposure.yaml",
                         "http/exposures/configs/prometheus-metrics.yaml",

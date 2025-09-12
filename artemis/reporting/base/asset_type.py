@@ -6,6 +6,8 @@ class AssetType(Enum):
     DOMAIN = "domain"
     IP = "ip"
 
+    OPEN_PORT = "open_port"
+
     CMS = "cms"
     CMS_PLUGIN = "cms_plugin"
 

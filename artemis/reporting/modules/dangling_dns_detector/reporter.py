@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 
 from dns import rdatatype
 
+from artemis.modules.dangling_dns_detector import ip_exists
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
@@ -25,6 +26,10 @@ class DanglingDnsReporter(Reporter):
         result = []
         for item in task_result["result"]:
             if item["record"] in (rdatatype.A, rdatatype.AAAA, rdatatype.CNAME):
+                if item["record"] in (rdatatype.A, rdatatype.AAAA):
+                    # we are double checking if ip is still unreachable
+                    if ip_exists(item["target"], num_retries=1):
+                        continue
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),

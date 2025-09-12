@@ -103,7 +103,7 @@ class PortScannerReporter(Reporter):
 
             for port, port_data in data.items():
                 service = port_data["service"].lower()
-                host = task_result["task"]["payload"].get("ip") or task_result["task"]["payload"].get("domain")
+                host = task_result["payload"].get("ip") or task_result["payload"].get("domain")
                 assert host
 
                 result.append(

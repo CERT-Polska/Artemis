@@ -2,6 +2,8 @@ import os
 from typing import Any, Dict, List
 
 from artemis.ip_utils import is_ip_address
+from artemis.reporting.base.asset import Asset
+from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
@@ -86,3 +88,29 @@ class PortScannerReporter(Reporter):
                 os.path.join(os.path.dirname(__file__), "template_open_port_database.jinja2"), priority=1
             ),
         ]
+
+    @staticmethod
+    def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
+        if task_result["headers"]["receiver"] != "port_scanner":
+            return []
+
+        if not isinstance(task_result["result"], dict):
+            return []
+
+        result = []
+        for ip, data in task_result["result"].items():
+            assert is_ip_address(ip)
+
+            for port, port_data in data.items():
+                service = port_data["service"].lower()
+                host = task_result["payload"].get("ip") or task_result["payload"].get("domain")
+                assert host
+
+                result.append(
+                    Asset(
+                        asset_type=AssetType.OPEN_PORT,
+                        name=host + ":" + port,
+                        additional_type=service,
+                    )
+                )
+        return result

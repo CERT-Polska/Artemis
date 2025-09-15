@@ -5,14 +5,18 @@ import time
 from karton.core import Consumer
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
+from karton.core.inspect import KartonState
 
 from artemis import utils
+from artemis.db import DB
 
 logger = utils.build_logger(__name__)
 
 DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS = 3
 DELAY_BETWEEN_CLEANUPS__SECONDS = 4 * 3600
 OLD_MODULES = ["dalfox"]
+
+db = DB()
 
 
 def _cleanup_tasks_not_in_queues() -> None:
@@ -67,9 +71,26 @@ def _cleanup_queues() -> None:
         logger.info("Queue for %s is cleaned up", old_module)
 
 
+def _cleanup_scheduled_tasks() -> None:
+    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+    finished_analysis_ids = []
+    for analysis in db.list_analysis():
+        if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
+            finished_analysis_ids.append(analysis["id"])
+
+    if finished_analysis_ids:
+        # introducing batched to not overwhelm database
+        BATCH = 100
+        for i in range(0, len(finished_analysis_ids), BATCH):
+            analysis_ids = finished_analysis_ids[i : i + BATCH]
+            db.delete_analysis_scheduled_tasks(analysis_ids)
+            logger.info("Cleaned up ScheduledTask table for analysis: %s", ",".join(analysis_ids))
+
+
 def cleanup() -> None:
     _cleanup_tasks_not_in_queues()
     _cleanup_queues()
+    _cleanup_scheduled_tasks()
 
 
 if __name__ == "__main__":

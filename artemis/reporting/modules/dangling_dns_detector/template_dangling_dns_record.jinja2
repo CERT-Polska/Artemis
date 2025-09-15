@@ -9,9 +9,12 @@
                     </li>
                 {% endif %}
             {% endfor %}
-            {% if data.reports | length > 5%}
+            {% if data.reports | length > 5 %}
                 <p>
-                {% trans %}Reporting is currently limited to first five results, rest was skipped.{% endtrans %}
+                {% trans trimmed %}
+                    We are limiting the number of records to five in case the institution has control over
+                    reported DNS/IP records. This way, we prevent over-reporting in case of false positives.
+                {% endtrans %}
                 </p>
             {% endif %}
         </ul>

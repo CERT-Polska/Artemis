@@ -28,7 +28,7 @@ class DanglingDnsReporter(Reporter):
             if item["record"] in (rdatatype.A, rdatatype.AAAA, rdatatype.CNAME):
                 if item["record"] in (rdatatype.A, rdatatype.AAAA):
                     # we are double checking if ip is still unreachable
-                    if ip_exists(item["target"], num_retries=1):
+                    if ip_exists(item["target"]):
                         continue
                 result.append(
                     Report(

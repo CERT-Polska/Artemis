@@ -51,17 +51,14 @@ def ip_exists(ip: str, timeout: int = 5, num_retries: int = 20) -> bool:
         except Exception:
             pass
 
-        try:
-            with socket.create_connection((ip, 80), timeout=timeout):
-                return True
-        except Exception:
-            pass
+        ports_to_check = [80, 443, 25, 110, 465, 587]
 
-        try:
-            with socket.create_connection((ip, 443), timeout=timeout):
-                return True
-        except Exception:
-            pass
+        for port in ports_to_check:
+            try:
+                with socket.create_connection((ip, port), timeout=timeout):
+                    return True
+            except Exception:
+                pass
 
     return False
 

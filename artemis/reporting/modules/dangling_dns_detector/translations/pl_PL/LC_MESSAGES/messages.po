@@ -7,12 +7,17 @@ msgid "the records points to"
 msgstr "rekord kieruje w"
 
 #: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:14
-msgid "Reporting is currently limited to first five results, rest was skipped."
+msgid ""
+"We are limiting the number of records to five in case the institution has"
+" control over reported DNS/IP records. This way, we prevent over-"
+"reporting in case of false positives."
 msgstr ""
-"Liczba rekordów w raportowaniu ograniczona jest do pierwszych pięciu, "
-"pozostałe rekordy zostały pominięte."
+"Liczba rekordów w raportowaniu ograniczona jest do pierwszych pięciu na "
+"wypadek, gdyby instytucja miała kontrolę nad reportowanymi rekordami "
+"DNS/IP. W ten sposób zapobiegamy nadmiernemu raportowaniu w przypadku "
+"fałszywych alarmów."
 
-#: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:19
+#: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:22
 msgid ""
 "Please verify the configuration, and, if subdomain takeover is possible, "
 "change it. Subdomain takeover allows an attacker to put any content on "

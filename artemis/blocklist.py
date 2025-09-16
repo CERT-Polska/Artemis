@@ -113,7 +113,7 @@ def should_block_scanning(
         if item.domain_regex:
             if not domain:
                 continue
-            if not re.match(domain.lower(), item.domain_regex):
+            if not re.fullmatch(item.domain_regex, domain.lower()):
                 continue
 
         if item.domain_only:
@@ -193,7 +193,7 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
             if item.domain_regex:
                 if not domain:
                     continue
-                if not re.match(domain.lower(), item.domain_regex):
+                if not re.fullmatch(item.domain_regex, domain.lower()):
                     continue
 
             if item.domain_and_subdomains:

@@ -997,6 +997,8 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "DNN (formerly DotNetNuke) is an open-source web content management platform (CMS) in the Microsoft ecosystem. In versions 6.0.0 to before 10.0.1, DNN.PLATFORM allows a specially crafted series of malicious interaction to potentially expose NTLM hashes to a third party SMB server. This issue has been patched in version 10.0.1.": "DNN (dawniej DotNetNuke) od wersji 6.0.0 do wersji 10.0.1 (bez wersji 10.0.1) zawiera podatność umożliwiającą atakującemu poznanie haszy NTLM." + UPDATE_HINT,
+    "Potential blind OS command injection vulnerabilities, where the application constructs OS commands using unsanitized user input.\nSuccessful exploitation could lead to arbitrary command execution on the system.": "Wykryto podatność Blind Command Injection, umożliwiającą atakującemu wykonywanie dowolnych poleceń systemowych." + BUG_FIX_HINT + RCE_EFFECT_DESCRIPTION,
     "SquirrelMail Address Add 1.4.2 plugin contains a cross-site scripting vulnerability. It fails to properly sanitize user-supplied input, thus allowing an attacker to execute arbitrary script in the browser of an unsuspecting user in the context of the affected site. This can allow the attacker to steal cookie-based authentication credentials and launch other attacks.": "Wtyczka SquirrelMail o nazwie Address Add w wersji 1.4.2 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -1046,6 +1048,8 @@ TRANSLATIONS = {
     "http/exposures/configs/config-properties.yaml": "Wykryto plik konfiguracyjny zawierający hasła lub dane dostepowe do bazy danych.",
     "The SOAP admin service in WSO2 products has a security vulnerability that allows the creation of new user accounts regardless of the self-registration configuration settings.": "Usługa administratora SOAP w produktach WSO2 zawiera podatność umożliwiającą tworzenie kont użytkowników niezależnie od przyjętych uprawnień.",
     "Fastjson 1.2.62 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.62 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
@@ -1962,4 +1966,5 @@ TRANSLATIONS = {
     "AdGuard Installation panel has been exposed.": "Wykryto panel instalacyjny systemu AdGuard.",
     "Linksys Smart Wi-Fi login panel was detected.": "Wykryto panel logowania Linksys Smart Wi-Fi.",
     "A Python based monitoring and tracking tool for Plex Media Server.": "Wykryto panel systemu Tautulli.",
+    "A Cyber Chef Panel was detected": "Wykryto panel Cyber Chef.",
 }

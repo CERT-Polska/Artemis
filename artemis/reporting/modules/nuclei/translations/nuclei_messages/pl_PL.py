@@ -1970,4 +1970,5 @@ TRANSLATIONS = {
     "Linksys Smart Wi-Fi login panel was detected.": "Wykryto panel logowania Linksys Smart Wi-Fi.",
     "A Python based monitoring and tracking tool for Plex Media Server.": "Wykryto panel systemu Tautulli.",
     "A Cyber Chef Panel was detected": "Wykryto panel Cyber Chef.",
+    "ZOHO ManageEngine KeyManagerPlus panel was detected.": "Wykryto panel ZOHO ManageEngine KeyManagerPlus.",
 }

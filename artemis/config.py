@@ -315,9 +315,9 @@ class Config:
             "Maximum number of URLs to scan per target for modules that crawl like lfi_detector, Nuclei, sq_injection_detector, etc.",
         ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
 
-        CLEANUP_RAISE_ERR_ON_NON_UNFINISHED_ANALYSES: Annotated[
+        CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES: Annotated[
             bool, "Raise error in case cleanup task did not found unfinished analyses."
-        ] = get_config("CLEANUP_RAISE_ERR_ON_NON_UNFINISHED_ANALYSES", default=False, cast=bool)
+        ] = get_config("CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES", default=False, cast=bool)
 
     class Modules:
         class AdminPanelLoginBruter:

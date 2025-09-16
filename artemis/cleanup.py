@@ -82,16 +82,20 @@ def _cleanup_scheduled_tasks() -> None:
         else:
             has_unfinished_analyses = True
 
-    if not has_unfinished_analyses and Config.Miscellaneous.CLEANUP_RAISE_ERR_ON_NON_UNFINISHED_ANALYSES:
+    if not has_unfinished_analyses and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:
         raise AssertionError("Did not found unfinished analyses during cleanup.")
 
     if finished_analyses_ids:
-        # introducing batched to not overwhelm database
+        # introducing batches to not overwhelm database
         BATCH = 100
+        removed_rows = 0
         for i in range(0, len(finished_analyses_ids), BATCH):
             analysis_ids = finished_analyses_ids[i : i + BATCH]
-            db.delete_analysis_scheduled_tasks(analysis_ids)
-            logger.info("Cleaned up ScheduledTask table for analyses: %s", ",".join(analysis_ids))
+            rows = db.delete_scheduled_tasks_for_analyses(analysis_ids)
+            removed_rows += rows
+
+            logger.debug("Cleaned up ScheduledTask table for analyses: %s", ",".join(analysis_ids))
+        logger.info("Removed %d rows in ScheduleTask table.", removed_rows)
 
 
 def cleanup() -> None:

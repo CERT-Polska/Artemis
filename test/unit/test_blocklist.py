@@ -28,7 +28,7 @@ class ScanningBlocklistTest(unittest.TestCase):
         )
         self.assertEqual(should_block_scanning("server1.com", None, "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning("server1.example.com", None, "karton-name", [blocklist_item1]), True)
-        self.assertEqual(should_block_scanning("server2.example.com", None, "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning("server12.example.com", None, "karton-name", [blocklist_item1]), False)
 
     def test_domain_only_matching(self) -> None:
         blocklist_item1 = BlocklistItem(

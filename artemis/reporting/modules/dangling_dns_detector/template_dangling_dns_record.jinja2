@@ -12,9 +12,9 @@
             {% if data.reports | length > 5 %}
                 <p>
                 {% trans trimmed %}
-                    We are limiting the number of records to five in case the institution has control over
-                    reported DNS/IP records. This way, we prevent over-reporting in case of false positives.
-                {% endtrans %}
+                    To prevent over-reporting in case this is a false positive,
+                    the number of reported problems of this type has been limited to 5.
+                    Let us know if you want to learn about all such issues.
                 </p>
             {% endif %}
         </ul>

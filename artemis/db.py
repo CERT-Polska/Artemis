@@ -22,6 +22,7 @@ from sqlalchemy import (  # type: ignore
     Integer,
     String,
     create_engine,
+    delete,
 )
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
@@ -478,6 +479,13 @@ class DB:
             result = session.execute(statement)
             session.commit()
             return bool(result.rowcount)
+
+    def delete_scheduled_tasks_for_analyses(self, analysis_ids: list[str]) -> int:
+        query = delete(ScheduledTask).where(ScheduledTask.analysis_id.in_(analysis_ids))  # type: ignore
+        with self.session() as session:
+            result = session.execute(query)
+            session.commit()
+            return int(result.rowcount)
 
     def get_task_results_since(
         self, time_from: datetime.datetime, tag: Optional[str] = None, batch_size: int = 100

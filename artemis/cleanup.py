@@ -5,14 +5,19 @@ import time
 from karton.core import Consumer
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
+from karton.core.inspect import KartonState
 
 from artemis import utils
+from artemis.config import Config
+from artemis.db import DB
 
 logger = utils.build_logger(__name__)
 
 DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS = 3
 DELAY_BETWEEN_CLEANUPS__SECONDS = 4 * 3600
 OLD_MODULES = ["dalfox"]
+
+db = DB()
 
 
 def _cleanup_tasks_not_in_queues() -> None:
@@ -67,9 +72,36 @@ def _cleanup_queues() -> None:
         logger.info("Queue for %s is cleaned up", old_module)
 
 
+def _cleanup_scheduled_tasks() -> None:
+    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+    finished_analyses_ids = []
+    has_unfinished_analyses = False
+    for analysis in db.list_analysis():
+        if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
+            finished_analyses_ids.append(analysis["id"])
+        else:
+            has_unfinished_analyses = True
+
+    if not has_unfinished_analyses and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:
+        raise AssertionError("Did not found unfinished analyses during cleanup.")
+
+    if finished_analyses_ids:
+        # introducing batches to not overwhelm database
+        BATCH = 100
+        removed_rows = 0
+        for i in range(0, len(finished_analyses_ids), BATCH):
+            analysis_ids = finished_analyses_ids[i : i + BATCH]
+            rows = db.delete_scheduled_tasks_for_analyses(analysis_ids)
+            removed_rows += rows
+
+            logger.debug("Cleaned up ScheduledTask table for analyses: %s", ",".join(analysis_ids))
+        logger.info("Removed %d rows in ScheduleTask table.", removed_rows)
+
+
 def cleanup() -> None:
     _cleanup_tasks_not_in_queues()
     _cleanup_queues()
+    _cleanup_scheduled_tasks()
 
 
 if __name__ == "__main__":

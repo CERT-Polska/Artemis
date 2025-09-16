@@ -21,6 +21,15 @@ class ScanningBlocklistTest(unittest.TestCase):
         self.assertEqual(should_block_scanning(None, "1.1.1.2", "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning(None, "1.1.1.1", "karton-name", [blocklist_item1]), True)
 
+    def test_domain_regex_matching(self) -> None:
+        blocklist_item1 = BlocklistItem(
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+            domain_regex="server[0-9].example.com",
+        )
+        self.assertEqual(should_block_scanning("server1.com", None, "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning("server1.example.com", None, "karton-name", [blocklist_item1]), True)
+        self.assertEqual(should_block_scanning("server12.example.com", None, "karton-name", [blocklist_item1]), False)
+
     def test_domain_only_matching(self) -> None:
         blocklist_item1 = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,

@@ -2,6 +2,7 @@ import dataclasses
 import datetime
 import enum
 import ipaddress
+import re
 from typing import List, Optional, Union
 
 import yaml
@@ -35,6 +36,7 @@ class BlocklistItem:
     domain_only: Optional[str] = None
     domain_and_subdomains: Optional[str] = None
     subdomains: Optional[str] = None
+    domain_regex: Optional[str] = None
     ip_range: Optional[Union[ipaddress.IPv4Network, ipaddress.IPv6Network]] = None
     until: Optional[datetime.datetime] = None
     karton_name: Optional[str] = None
@@ -58,6 +60,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         "mode",
         "domain_and_subdomains",
         "domain_only",
+        "domain_regex",
         "subdomains",
         "ip_range",
         "until",
@@ -84,6 +87,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
             mode=BlocklistMode(item["mode"]),
             domain_and_subdomains=item.get("domain_and_subdomains", None),
             domain_only=item.get("domain_only", None),
+            domain_regex=item.get("domain_regex", None),
             subdomains=item.get("subdomains", None),
             ip_range=ipaddress.ip_network(item["ip_range"], strict=False) if item.get("ip_range", None) else None,
             until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if item.get("until", None) else None,
@@ -105,6 +109,12 @@ def should_block_scanning(
     for item in blocklist:
         if item.mode != BlocklistMode.BLOCK_SCANNING_AND_REPORTING:
             continue
+
+        if item.domain_regex:
+            if not domain:
+                continue
+            if not re.fullmatch(item.domain_regex, domain.lower()):
+                continue
 
         if item.domain_only:
             if not domain:
@@ -178,6 +188,12 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
                 if not domain:
                     continue
                 if domain.lower() != item.domain_only.lower():
+                    continue
+
+            if item.domain_regex:
+                if not domain:
+                    continue
+                if not re.fullmatch(item.domain_regex, domain.lower()):
                     continue
 
             if item.domain_and_subdomains:

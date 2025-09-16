@@ -8,15 +8,16 @@ msgstr "rekord kieruje w"
 
 #: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:14
 msgid ""
-"To prevent over-reporting in case this is a false positive, "
-"the number of reported problems of this type has been limited to 5. "
-"Let us know if you want to learn about all such issues."
+"To prevent over-reporting in case this is a false positive, the number of"
+" reported problems of this type has been limited to 5. Let us know if you"
+" want to learn about all such issues."
 msgstr ""
 "Aby zapobiec nadmiernemu raportowaniu w przypadku fałszywych alarmów, "
-"liczba zgłoszonych problemów tego typu została ograniczona do 5. "
-"Daj nam znać, jeśli chcesz otrzymać informacje o wszystkich znalezionych problemach."
+"liczba zgłoszonych problemów tego typu została ograniczona do 5. Daj nam "
+"znać, jeśli chcesz otrzymać informacje o wszystkich znalezionych "
+"problemach."
 
-#: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:22
+#: artemis/reporting/modules/dangling_dns_detector/template_dangling_dns_record.jinja2:23
 msgid ""
 "Please verify the configuration, and, if subdomain takeover is possible, "
 "change it. Subdomain takeover allows an attacker to put any content on "

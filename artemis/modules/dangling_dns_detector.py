@@ -61,7 +61,7 @@ def ip_exists(ip: str, timeout: int = 5, num_retries: int = 20) -> bool:
             return False
 
         ports_to_check = [80, 443, 25, 110, 465, 587]
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        with ThreadPoolExecutor(max_workers=len(ports_to_check)) as executor:
             if any(executor.map(check_port, ports_to_check)):
                 return True
 

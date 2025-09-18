@@ -20,6 +20,9 @@ class DanglingDnsReporter(Reporter):
         if task_result["headers"]["receiver"] != "dangling_dns_detector":
             return []
 
+        if not task_result["status"] == "INTERESTING":
+            return []
+
         if not isinstance(task_result["result"], list):
             return []
 

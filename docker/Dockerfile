@@ -40,6 +40,7 @@ COPY "docker/wait-for-dependencies.sh" "/wait-for-dependencies.sh"
 # version check) fail, the response will be served from an on-disk cache.
 RUN DB_CONN_STR=unused POSTGRES_CONN_STR=unused REDIS_CONN_STR=unused python3 -m artemis.fallback_api_cache
 
+COPY docker/karton.ini /etc/karton/karton.ini
 
 ENTRYPOINT ["/wait-for-dependencies.sh"]
 CMD ["bash", "-c", "alembic upgrade head && uvicorn artemis.main:app --host 0.0.0.0 --port 5000"]

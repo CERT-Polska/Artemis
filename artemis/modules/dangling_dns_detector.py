@@ -1,6 +1,7 @@
 import ipaddress
 import socket
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 import dns.message
@@ -51,14 +52,18 @@ def ip_exists(ip: str, timeout: int = 5, num_retries: int = 20) -> bool:
         except Exception:
             pass
 
-        ports_to_check = [80, 443, 25, 110, 465, 587]
-
-        for port in ports_to_check:
+        def check_port(port: int) -> bool:
             try:
                 with socket.create_connection((ip, port), timeout=timeout):
                     return True
             except Exception:
-                pass
+                return False
+            return False
+
+        ports_to_check = [80, 443, 25, 110, 465, 587]
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            if any(executor.map(check_port, ports_to_check)):
+                return True
 
     return False
 

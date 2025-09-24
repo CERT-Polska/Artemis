@@ -48,6 +48,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "permalink-manager",
     "social-pug",
     "wordpress-popup",
+    "wp-hide-security-enhancer",
     "wp-members",
     "wppao-sitemap",
     "yith-woocommerce-catalog-mode",

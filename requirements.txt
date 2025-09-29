@@ -34,7 +34,7 @@ pydantic==2.11.9
 PyMySQL==1.1.2
 python-decouple==3.8
 pytz==2025.2
-PyYAML==6.0.2
+PyYAML==6.0.3
 redis==6.4.0
 requests==2.32.5
 requests-cache==1.2.1

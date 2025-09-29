@@ -48,7 +48,7 @@ six==1.17.0
 termcolor==3.1.0
 timeout-decorator==0.5.0
 tqdm==4.67.1
-typer==0.19.1
+typer==0.19.2
 typing-extensions==4.15.0
 unittest-parallel==1.7.5
 urllib3==2.5.0

@@ -7,7 +7,7 @@ require (
 	github.com/praetorian-inc/fingerprintx v1.1.15
 	github.com/projectdiscovery/naabu/v2 v2.3.3
 	github.com/projectdiscovery/nuclei/v3 v3.4.7
-	github.com/projectdiscovery/subfinder/v2 v2.8.0
+	github.com/projectdiscovery/subfinder/v2 v2.9.0
 )
 
 require (
@@ -238,7 +238,7 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/projectdiscovery/asnmap v1.1.1 // indirect
 	github.com/projectdiscovery/blackrock v0.0.1 // indirect
-	github.com/projectdiscovery/cdncheck v1.1.23 // indirect
+	github.com/projectdiscovery/cdncheck v1.1.24 // indirect
 	github.com/projectdiscovery/chaos-client v0.5.2 // indirect
 	github.com/projectdiscovery/clistats v0.1.1 // indirect
 	github.com/projectdiscovery/dnsx v1.2.2 // indirect
@@ -314,7 +314,7 @@ require (
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
-	github.com/ulikunitz/xz v0.5.12 // indirect
+	github.com/ulikunitz/xz v0.5.15 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.31.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect

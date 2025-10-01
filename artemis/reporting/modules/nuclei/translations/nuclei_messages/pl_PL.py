@@ -997,6 +997,9 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "RabbitMQ default admin credentials were discovered.": "Wykryto system RabbitMQ umożliwiający logowanie domyślnymi danymi dostępowymi.",
+    "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in LiteSpeed Technologies LiteSpeed Cache allows Stored XSS.This issue affects LiteSpeed Cache- from n/a through 5.7.": "Wykryto wtyczkę WordPress o nazwie LiteSpeed Cache w wersji do 5.7 włącznie zawierającą podatność Stored XSS umożliwiającą atakującemu dodanie własnego kodu (np. skryptu) do treści strony internetowej."
+    + WORDPRESS_UPDATE_HINT,
     "SNMPv1 was configured with the default public community string, which allows unauthorized users to query system information. This may expose sensitive details such as network configuration, running processes, and device information.": "Wykryto implementację protokołu SNMPv1 umożliwiającą nieuwierzytelnionym użytkownikom pobranie informacji na temat systemu takich jak konfiguracja sieci, działające procesy czy informacje na temat urządzeń.",
     "Incorrect Privilege Assignment vulnerability in LiteSpeed Technologies LiteSpeed Cache litespeed-cache allows Privilege Escalation.This issue affects LiteSpeed Cache: from 1.9 through 6.3.0.1.": "Wtyczka WordPress o nazwie LiteSpeed Cache w wersji od 1.9 do 6.3.0.1 włącznie zawiera krytyczną podatność CVE-2024-28000 umożliwiającą nieuwierzytelnionemu atakującemu uzyskanie uprawnień administratora."
     + WORDPRESS_UPDATE_HINT,
@@ -1983,4 +1986,6 @@ TRANSLATIONS = {
     "A Python based monitoring and tracking tool for Plex Media Server.": "Wykryto panel systemu Tautulli.",
     "A Cyber Chef Panel was detected": "Wykryto panel Cyber Chef.",
     "ZOHO ManageEngine KeyManagerPlus panel was detected.": "Wykryto panel ZOHO ManageEngine KeyManagerPlus.",
+    "Tiny Tiny RSS is a free RSS feed reader": "Wykryto panel Tiny Tiny RSS",
+    "Nagios XI login panel was detected.": "Wykryto panel Nagios XI.",
 }

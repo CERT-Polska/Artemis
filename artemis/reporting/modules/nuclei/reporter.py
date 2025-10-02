@@ -39,6 +39,94 @@ class NucleiReporter(Reporter):
         GROUPS = json.load(f)
 
     @staticmethod
+    def _minimize_curl_command(curl_command: str | None, max_length: int = 200) -> str | None:
+        """
+        Minimize long curl commands by truncating query parameters while preserving essential information.
+
+        Args:
+            curl_command: The original curl command (may be None)
+            max_length: Maximum length for the minimized command
+
+        Returns:
+            Minimized curl command or None if input is None
+        """
+        if curl_command is None:
+            return None
+
+        # If already short enough, return as-is
+        if len(curl_command) <= max_length:
+            return curl_command
+
+        # Extract URL from curl command (assumes format like "curl -X GET http://...")
+        # Find the URL part (typically the last argument)
+        parts = curl_command.split()
+        url_index = -1
+        for i, part in enumerate(parts):
+            if part.startswith("http://") or part.startswith("https://"):
+                url_index = i
+                break
+
+        if url_index == -1:
+            # Can't parse, return truncated version
+            return curl_command[:max_length - 3] + "..."
+
+        url = parts[url_index]
+        parsed = urllib.parse.urlparse(url)
+
+        # If no query string, URL can't be meaningfully shortened - just truncate
+        if not parsed.query:
+            return curl_command[:max_length - 3] + "..."
+
+        # Build base command (everything before the URL)
+        base_cmd = " ".join(parts[:url_index])
+        base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+
+        # Calculate available space for query params
+        # base_cmd + " " + base_url + "?" + query_params + fragment
+        available_for_query = max_length - len(base_cmd) - len(base_url) - 10  # 10 for " ", "?", "...", etc.
+
+        if available_for_query < 20:  # Not enough space for meaningful query
+            minimized_url = base_url + "?..."
+        else:
+            # Split query into params
+            params = parsed.query.split("&")
+
+            # Try to keep first few params and last param to show both start and end
+            if len(params) <= 3:
+                # Few params, try to fit them all
+                query_str = parsed.query
+                if len(query_str) > available_for_query:
+                    query_str = query_str[:available_for_query - 3] + "..."
+                minimized_url = f"{base_url}?{query_str}"
+            else:
+                # Many params - keep first 2, add "...", and last 1
+                first_params = "&".join(params[:2])
+                last_param = params[-1]
+
+                # Truncate params if still too long
+                max_param_len = (available_for_query - 5) // 2  # Split space between first and last
+                if len(first_params) > max_param_len:
+                    first_params = first_params[:max_param_len - 3] + "..."
+                if len(last_param) > max_param_len:
+                    last_param = last_param[:max_param_len - 3] + "..."
+
+                query_str = f"{first_params}&...&{last_param}"
+                minimized_url = f"{base_url}?{query_str}"
+
+        # Add fragment if present
+        if parsed.fragment:
+            minimized_url += f"#{parsed.fragment[:20]}"
+
+        # Rebuild curl command
+        result = f"{base_cmd} {minimized_url}"
+
+        # Final check - if still too long, hard truncate
+        if len(result) > max_length:
+            result = result[:max_length - 3] + "..."
+
+        return result
+
+    @staticmethod
     def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
         result = []
 
@@ -130,7 +218,7 @@ class NucleiReporter(Reporter):
                             "matched_at": vulnerability["matched-at"],
                             "template_name": template,
                             "original_template_name": original_template_name,
-                            "curl_command": vulnerability.get("curl-command", None),
+                            "curl_command": NucleiReporter._minimize_curl_command(vulnerability.get("curl-command", None)),
                         },
                         timestamp=task_result["created_at"],
                     )
@@ -179,7 +267,7 @@ class NucleiReporter(Reporter):
                             "matched_at": matched_at,
                             "template_name": template,
                             "original_template_name": original_template_name,
-                            "curl_command": vulnerability.get("curl-command", None),
+                            "curl_command": NucleiReporter._minimize_curl_command(vulnerability.get("curl-command", None)),
                         },
                         timestamp=task_result["created_at"],
                     )

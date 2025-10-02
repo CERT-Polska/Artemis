@@ -39,7 +39,11 @@ from artemis.reporting.export.long_unseen_report_types import (
 )
 from artemis.reporting.export.previous_reports import load_previous_reports
 from artemis.reporting.export.stats import print_and_save_stats
-from artemis.reporting.export.translations import install_translations
+from artemis.reporting.export.translations import (
+    clear_missing_translations,
+    get_missing_translations,
+    install_translations,
+)
 from artemis.utils import CONSOLE_LOG_HANDLER
 
 
@@ -166,6 +170,10 @@ def export(
 ) -> Path:
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
+
+    # Clear any previously collected missing translations
+    clear_missing_translations()
+
     blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
 
     if previous_reports_directory:
@@ -217,6 +225,20 @@ def export(
     if not silent:
         for alert in export_data.alerts:
             print(termcolor.colored("ALERT:" + alert, color="red"))
+
+    # Report missing translations at the end
+    missing_translations = get_missing_translations()
+    if missing_translations:
+        if not silent:
+            print()
+            print(termcolor.colored("=" * 80, color="yellow"))
+            print(termcolor.colored(f"WARNING: {len(missing_translations)} missing translation(s) found:", color="yellow", attrs=["bold"]))
+            print(termcolor.colored("=" * 80, color="yellow"))
+            for translation in missing_translations:
+                print(termcolor.colored(f"  - {translation}", color="yellow"))
+            print(termcolor.colored("=" * 80, color="yellow"))
+            print()
+
     return output_dir
 
 

@@ -36,22 +36,26 @@ class LFIDetectorReporter(Reporter):
                 rce_data.append(item)
             else:
                 raise ValueError("Not implemented LFIFinding")
-        return [
-            Report(
-                top_level_target=get_top_level_target(task_result),
-                target=get_target_url(task_result),
-                report_type=LFIDetectorReporter.LFI,
-                additional_data={"result": lfi_data, "statements": task_result["result"]["statements"]},
-                timestamp=task_result["created_at"],
-            ),
-            Report(
-                top_level_target=get_top_level_target(task_result),
-                target=get_target_url(task_result),
-                report_type=LFIDetectorReporter.RCE,
-                additional_data={"result": rce_data, "statements": task_result["result"]["statements"]},
-                timestamp=task_result["created_at"],
-            ),
-        ]
+
+        reports = []
+
+        def add_report(report_type: ReportType) -> None:
+            reports.append(
+                Report(
+                    top_level_target=get_top_level_target(task_result),
+                    target=get_target_url(task_result),
+                    report_type=report_type,
+                    additional_data={"result": lfi_data, "statements": task_result["result"]["statements"]},
+                    timestamp=task_result["created_at"],
+                )
+            )
+
+        if lfi_data:
+            add_report(LFIDetectorReporter.LFI)
+        if rce_data:
+            add_report(LFIDetectorReporter.RCE)
+
+        return reports
 
     @staticmethod
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
@@ -62,7 +66,7 @@ class LFIDetectorReporter(Reporter):
             ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_rce.jinja2"),
-                priority=8,
+                priority=10,
             ),
         ]
 

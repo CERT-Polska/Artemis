@@ -2,7 +2,7 @@
     <li>{% trans %}We identified that the following URLs are vulnerable to Remote Code Execution (RCE):{% endtrans %}
         <ul>
             {% for report in data.reports %}
-                {% if report.report_type == "lfi_vulnerability" %}
+                {% if report.report_type == "rce_vulnerability" %}
                     {% for message in report.additional_data.result %}
                         <li>
                             {{ message.url }}

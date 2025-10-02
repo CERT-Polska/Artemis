@@ -234,10 +234,10 @@ services:
     volumes:
       - ./test/reporting/data/bruteable_files/htpasswd/:/var/www/html/
 
-  test-apache-with-lfi:
+  test-apache-with-lfi-and-rce:
     image: php:7.4-apache
     volumes:
-      - ./test/data/lfi/:/var/www/html/
+      - ./test/data/lfi-rce/:/var/www/html/
 
   test-apache-with-sql-injection-postgres:
     build:

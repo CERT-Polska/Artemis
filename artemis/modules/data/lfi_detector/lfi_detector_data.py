@@ -1,6 +1,5 @@
 from os.path import dirname
 
-# Common LFI payloads
 with open(f"{dirname(__file__)}/lfi_detector_payloads.txt", "r") as f:
     lines = f.read().splitlines()
     LFI_PAYLOADS = [line.strip() for line in lines if not line.startswith("#")]

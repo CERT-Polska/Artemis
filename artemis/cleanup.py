@@ -78,7 +78,7 @@ def _cleanup_scheduled_tasks() -> None:
     for analysis in db.list_analysis():
         finished_analyses_ids_set.add(analysis["id"])
 
-    kept_rows += 1
+    kept_rows = 0
     for task in karton_backend.iter_all_tasks():
         if task.root_uid in finished_analyses_ids_set:
             finished_analyses_ids_set.remove(task.root_uid)

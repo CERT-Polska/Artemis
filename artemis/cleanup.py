@@ -5,7 +5,6 @@ import time
 from karton.core import Consumer
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
-from karton.core.inspect import KartonState
 
 from artemis import utils
 from artemis.config import Config
@@ -73,18 +72,21 @@ def _cleanup_queues() -> None:
 
 
 def _cleanup_scheduled_tasks() -> None:
-    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
-    finished_analyses_ids = []
+    karton_backend = KartonBackend(config=KartonConfig())
+    finished_analyses_ids_set = set()
     has_unfinished_analyses = False
     for analysis in db.list_analysis():
-        if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
-            finished_analyses_ids.append(analysis["id"])
-        else:
+        finished_analyses_ids_set.add(analysis["id"])
+
+    for task in karton_backend.iter_all_tasks():
+        if task.root_uid in finished_analyses_ids_set:
+            finished_analyses_ids_set.remove(task.root_uid)
             has_unfinished_analyses = True
 
     if not has_unfinished_analyses and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:
         raise AssertionError("Did not found unfinished analyses during cleanup.")
 
+    finished_analyses_ids = list(finished_analyses_ids_set)
     if finished_analyses_ids:
         # introducing batches to not overwhelm database
         BATCH = 100

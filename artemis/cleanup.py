@@ -73,6 +73,8 @@ def _cleanup_queues() -> None:
 
 def _cleanup_scheduled_tasks() -> None:
     karton_backend = KartonBackend(config=KartonConfig())
+
+    # First we take the set of all analyses, and then remove the ones that have tasks (i.e. unfinished). That way we result in the set of finished analyses.
     finished_analyses_ids_set = set()
     has_unfinished_analyses = False
     for analysis in db.list_analysis():

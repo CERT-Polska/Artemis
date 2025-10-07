@@ -24,7 +24,7 @@ class SingleTopLevelTargetExportData:
 
 @dataclass
 class ExportData:
-    timestamp: datetime.datetime
+    timestamp: str
     tag: Optional[str]
     language: str
     scanned_top_level_targets: List[str]
@@ -105,7 +105,7 @@ def build_export_data(
         )
 
     return ExportData(
-        timestamp=timestamp,
+        timestamp=timestamp.isoformat(timespec="microseconds"),
         tag=tag,
         language=language.value,
         scanned_top_level_targets=list(db.scanned_top_level_targets),

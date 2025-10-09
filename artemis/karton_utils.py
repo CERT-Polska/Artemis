@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
@@ -28,3 +28,10 @@ def restart_crashed_tasks() -> None:
     for queue in state.queues.values():
         for task in queue.crashed_tasks:
             backend.restart_task(task)
+
+
+def get_num_pending_tasks(karton_backend: KartonBackend) -> Dict[str, int]:
+    result: Dict[str, int] = {}
+    for task in karton_backend.iter_all_tasks():
+        result[task.root_uid] = result.get(task.root_uid, 0) + 1
+    return result

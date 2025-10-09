@@ -277,7 +277,7 @@ def get_analyses_table(
     for entry in result.data:
         num_finished_tasks = get_analysis_num_finished_tasks(redis, entry["id"])
         num_in_progress_tasks = get_analysis_num_in_progress_tasks(redis, entry["id"])
-        num_all_tasks = num_finished_tasks + num_in_progress_tasks + num_pending_tasks[entry["id"]]
+        num_all_tasks = num_finished_tasks + num_in_progress_tasks + num_pending_tasks.get(entry["id"], 0)
 
         entries.append(
             {

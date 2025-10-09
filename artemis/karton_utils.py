@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from karton.core.backend import KartonBackend, KartonBind
+from karton.core.task import TaskState
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 
@@ -33,5 +34,8 @@ def restart_crashed_tasks() -> None:
 def get_num_pending_tasks(karton_backend: KartonBackend) -> Dict[str, int]:
     result: Dict[str, int] = {}
     for task in karton_backend.iter_all_tasks():
-        result[task.root_uid] = result.get(task.root_uid, 0) + 1
+        if task.status in [TaskState.STARTED, TaskState.SPAWNED, TaskState.DECLARED]:
+            result[task.root_uid] = result.get(task.root_uid, 0) + 1
+        else:
+            assert task.status in [TaskState.FINISHED, TaskState.CRASHED], "Unknown task status: " + str(task.status)
     return result

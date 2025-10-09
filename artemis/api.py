@@ -5,7 +5,6 @@ from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Requ
 from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
-from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority
 from pydantic import BaseModel
 from redis import Redis
@@ -13,7 +12,7 @@ from redis import Redis
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
-from artemis.karton_utils import get_binds_that_can_be_disabled
+from artemis.karton_utils import get_binds_that_can_be_disabled, get_num_pending_tasks
 from artemis.module_utils import try_to_import_all_modules
 from artemis.modules.base.runtime_configuration_registry import (
     RuntimeConfigurationRegistry,
@@ -132,12 +131,10 @@ def add(
 @router.get("/analyses", dependencies=[Depends(verify_api_token)])
 def list_analysis() -> List[Dict[str, Any]]:
     """Returns the list of analysed targets. Any scanned target would be listed here."""
+    num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
     analyses = db.list_analysis()
-    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
     for analysis in analyses:
-        analysis["num_pending_tasks"] = (
-            len(karton_state.analyses[analysis["id"]].pending_tasks) if analysis["id"] in karton_state.analyses else 0
-        )
+        analysis["num_pending_tasks"] = num_pending_tasks.get(analysis["id"], 0)
     return analyses
 
 
@@ -273,20 +270,14 @@ def get_analyses_table(
     ordering = _get_ordering(request, column_names=["created_at", "target", "tag", None, None])
     search_query = _get_search_query(request)
 
-    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
-
     result = db.get_paginated_analyses(start, length, ordering, search_query=search_query)
+    num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
 
     entries = []
     for entry in result.data:
-        if entry["id"] in karton_state.analyses:
-            num_pending_tasks = len(karton_state.analyses[entry["id"]].pending_tasks)
-        else:
-            num_pending_tasks = 0
-
         num_finished_tasks = get_analysis_num_finished_tasks(redis, entry["id"])
         num_in_progress_tasks = get_analysis_num_in_progress_tasks(redis, entry["id"])
-        num_all_tasks = num_finished_tasks + num_in_progress_tasks + num_pending_tasks
+        num_all_tasks = num_finished_tasks + num_in_progress_tasks + num_pending_tasks.get(entry["id"], 0)
 
         entries.append(
             {
@@ -295,7 +286,7 @@ def get_analyses_table(
                 "target": entry["target"],
                 "created_at": entry["created_at"],
                 "disabled_modules": entry["disabled_modules"],
-                "num_pending_tasks": num_pending_tasks,
+                "num_pending_tasks": num_pending_tasks.get(entry["id"], 0),
                 "num_all_tasks": num_all_tasks,
                 "num_finished_tasks": num_finished_tasks,
                 "percentage_finished_tasks": 100.0 * num_finished_tasks / num_all_tasks if num_all_tasks else "N/A",

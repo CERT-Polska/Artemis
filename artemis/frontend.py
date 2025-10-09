@@ -22,7 +22,11 @@ from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
 from artemis.json_utils import JSONEncoderAdditionalTypes
-from artemis.karton_utils import get_binds_that_can_be_disabled, restart_crashed_tasks
+from artemis.karton_utils import (
+    get_binds_that_can_be_disabled,
+    get_num_pending_tasks,
+    restart_crashed_tasks,
+)
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
@@ -78,12 +82,13 @@ if not Config.Miscellaneous.API_TOKEN:
 
 @router.get("/", include_in_schema=False)
 def get_root(request: Request) -> Response:
-    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
     has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
     has_finished_analyses = False
 
+    num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
+
     for analysis in db.list_analysis():
-        if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
+        if analysis["id"] not in num_pending_tasks or num_pending_tasks[analysis["id"]] == 0:
             has_finished_analyses = True
 
     return templates.TemplateResponse(
@@ -93,7 +98,7 @@ def get_root(request: Request) -> Response:
             "has_analyses": has_analyses,
             "has_finished_analyses": has_finished_analyses,
             "api_url": "/api/analyses-table",
-            "num_active_tasks": sum([len(analysis.pending_tasks) for analysis in karton_state.analyses.values()]),
+            "num_active_tasks": sum(num_pending_tasks.values()),
         },
     )
 

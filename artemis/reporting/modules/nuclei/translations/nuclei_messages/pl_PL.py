@@ -997,6 +997,19 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "The host is configured as a proxy which allows access to other hosts on the external network.": "Host jest skonfigurowany jako serwer proxy, umożliwiając atakującemu wykonywanie dowolnych żądań HTTP do innych serwerów.",
+    "AlquistManager branch as of commit 280d99f43b11378212652e75f6f3159cde9c1d36 is affected by a directory traversal vulnerability in alquist/IO/input.py. This attack can cause the disclosure of critical secrets stored anywhere on the system and can significantly aid in getting remote code access.": "AlquistManager w wersji do 280d99f43b11378212652e75f6f3159cde9c1d36 włącznie zawiera podatność Directory Traversal, umożliwiająca atakującemu odczyt plików z dysku serwera.",
+    "dast/vulnerabilities/cmdi/python-code-injection.yaml": "Wykryto podatność Python Code Injection, umożliwiającą atakującemu wykonanie dowolnego kodu języka Python."
+    + RCE_EFFECT_DESCRIPTION
+    + BUG_FIX_HINT,
+    "The Checkmk agent had exposed sensitive system information on TCP port 6556 without requiring authentication.": "Agent systemu Checkmk udostępnia wrażliwe informacje o systemie na porcie 6556 bez uwierzytelnienia."
+    + DATA_HIDE_HINT,
+    "dast/vulnerabilities/ssti/reflection-ssti.yaml": "Wykryto podatność Server-Side Template Injection, umożliwiającą atakującemu wykonywanie komend języka szablonów na stronie internetowej, co może prowadzić do zdalnego wykonania kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + BUG_FIX_HINT,
+    "Tenda Router AC11  is susceptible to remote command injection vulnerabilities in the web-based management interface that could allow an unauthenticated, remote attacker to perform command injection attacks against an affected device.": "Tenda Router AC11 zawiera podatność Remote Command Injection umożliwiającą atakującemu wykonywanie dowolnych poleceń systemowych na urządzeniu.",
+    "Rocket.Chat 3.11, 3.12 and 3.13 contains a NoSQL injection vulnerability which allows unauthenticated access to an API endpoint. An attacker can possibly obtain sensitive information from a database, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Rocket.Chat 3.11, 3.12 i 3.13 zawiera podatność NoSQL Injection."
+    + UPDATE_HINT,
     "RabbitMQ default admin credentials were discovered.": "Wykryto system RabbitMQ umożliwiający logowanie domyślnymi danymi dostępowymi.",
     "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in LiteSpeed Technologies LiteSpeed Cache allows Stored XSS.This issue affects LiteSpeed Cache- from n/a through 5.7.": "Wykryto wtyczkę WordPress o nazwie LiteSpeed Cache w wersji do 5.7 włącznie zawierającą podatność Stored XSS umożliwiającą atakującemu dodanie własnego kodu (np. skryptu) do treści strony internetowej."
     + WORDPRESS_UPDATE_HINT,
@@ -1988,4 +2001,6 @@ TRANSLATIONS = {
     "ZOHO ManageEngine KeyManagerPlus panel was detected.": "Wykryto panel ZOHO ManageEngine KeyManagerPlus.",
     "Tiny Tiny RSS is a free RSS feed reader": "Wykryto panel Tiny Tiny RSS",
     "Nagios XI login panel was detected.": "Wykryto panel Nagios XI.",
+    "Netdata panel was discovered.": "Wykryto panel Netdata.",
+    "OpenVPN Admin login panel was detected.": "Wykryto administracyjny panel logowania OpenVPN.",
 }

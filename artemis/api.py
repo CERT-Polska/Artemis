@@ -286,7 +286,7 @@ def get_analyses_table(
                 "target": entry["target"],
                 "created_at": entry["created_at"],
                 "disabled_modules": entry["disabled_modules"],
-                "num_pending_tasks": num_pending_tasks,
+                "num_pending_tasks": num_pending_tasks.get(entry["id"], 0),
                 "num_all_tasks": num_all_tasks,
                 "num_finished_tasks": num_finished_tasks,
                 "percentage_finished_tasks": 100.0 * num_finished_tasks / num_all_tasks if num_all_tasks else "N/A",

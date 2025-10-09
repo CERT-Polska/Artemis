@@ -1,9 +1,9 @@
 from typing import Dict, List
 
 from karton.core.backend import KartonBackend, KartonBind
-from karton.core.task import TaskState
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
+from karton.core.task import TaskState
 
 BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
 

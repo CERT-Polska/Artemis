@@ -47,10 +47,12 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "everest-forms",
     "permalink-manager",
     "social-pug",
+    "uicore-animate",
     "wordpress-popup",
     "wp-hide-security-enhancer",
     "wp-members",
     "wppao-sitemap",
+    "xml-sitemap-generator-for-google",
     "yith-woocommerce-catalog-mode",
 ]
 PLUGINS_TO_SKIP_STABLE_TAG = [
@@ -62,7 +64,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "disable-remove-google-fonts",
-    "ditty-news-ticker",
     "famethemes-demo-importer",
     "gallery-block-lightbox",
     "icon-element",

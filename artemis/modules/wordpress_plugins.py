@@ -51,6 +51,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "wp-hide-security-enhancer",
     "wp-members",
     "wppao-sitemap",
+    "xml-sitemap-generator-for-google",
     "yith-woocommerce-catalog-mode",
 ]
 PLUGINS_TO_SKIP_STABLE_TAG = [
@@ -62,7 +63,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "disable-remove-google-fonts",
-    "ditty-news-ticker",
     "famethemes-demo-importer",
     "gallery-block-lightbox",
     "icon-element",
@@ -70,6 +70,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "login-logo",
     "page-or-post-clone",
     "trustpilot-reviews",
+    "uicore-animate",
     "website-monetization-by-magenet",
     "woo-multi-currency",
     "wp-maximum-execution-time-exceeded",

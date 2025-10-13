@@ -30,7 +30,7 @@ prometheus-client==0.23.1
 psutil==7.1.0
 psycopg2-binary==2.9.11
 publicsuffixlist==1.0.2.20250927
-pydantic==2.11.9
+pydantic==2.12.0
 PyMySQL==1.1.2
 python-decouple==3.8
 pytz==2025.2

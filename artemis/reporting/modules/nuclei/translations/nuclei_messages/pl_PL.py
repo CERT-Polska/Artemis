@@ -997,6 +997,14 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Schools Alert Management Script is susceptible to an arbitrary file read vulnerability via the f parameter in img.php, aka absolute path traversal.": "Wykryto system Schools Alert Management Script zawierający podatność Arbitrary File Read, umożliwiającą atakującemu odczyt dowolnych plików z dysku, w tym zawierających informacje konfiguracyjne.",
+    "Blue Ocean Excellence is vulnerable to local file inclusion.": "Wykryto system Blue Ocean Excellence w wersji zawierającej podatność Local File Inclusion.",
+    "Detects exposed NextcloudPi dashboard instances. NextcloudPi dashboard is typically accessible on port 4443 and should not be exposed to the internet as it provides administrative access to the NextcloudPi instance.": "Wykryto publicznie dostępny panel systemu NextcloudPi. Nie powinien być publicznie dostępny, ponieważ umożliwia dostęp administracyjny.",
+    "Detected OpenSSH server banners that indicated End-of-Life (EOL) Debian releases (sarge, etch, lenny, squeeze, wheezy, jessie, stretch, buster). EOL systems no longer received official security updates.": "Wykryto banner usługi OpenSSH świadczący o tym, że na serwerze jest zainstalowany system Debian w niewspieranej wersji (takiej jak sarge, etch, lenny, squeeze, wheezy, jessie, stretch, buster). Te wersje nie otrzymują już poprawek bezpieczeństwa."
+    + UPDATE_HINT,
+    "Checks if TFTP service becomes available after Smart Install exploitation. This template should be run after the configuration extraction payload to verify that the device is now serving configuration files via TFTP.": "Wykryto system Cisco IOS lub Cisco IOS XE zawierający podatność CVE-2018-0171 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "The plugin is vulnerable to privilege escalation due to a missing capability check on the /wp-json/fluentform/v1/managers REST API endpoint. This makes it possible for unauthenticated attackers to grant users with Fluent Form management permissions which gives them access to all of the plugin's settings and features. This also makes it possible for unauthenticated attackers to delete manager accounts.": "Wtyczka WordPress o nazwie Contact Form Plugin by Fluent Forms for Quiz, Survey, and Drag & Drop WP Form Builder w wersji do 5.1.16 włącznie umożliwia atakującemu zwiększenie swoich uprawnień i wykonywanie nieuprawnionych operacji takich jak edycja ustawień wtyczki czy usuwanie niektórych kont użytkowników."
     + WORDPRESS_UPDATE_HINT,
     "An issue was discovered in Zimbra Collaboration (ZCS) 8.8.15 and 9.0. An attacker can upload arbitrary files through amavis via a cpio loophole (extraction to /opt/zimbra/jetty/webapps/zimbra/public) that can lead to incorrect access to any other user accounts. Zimbra recommends pax over cpio. Also, pax is in the prerequisites of Zimbra on Ubuntu; however, pax is no longer part of a default Red Hat installation after RHEL 6 (or CentOS 6). Once pax is installed, amavis automatically prefers it over cpio.": "Zimbra Collaboration (ZCS) w wersji 8.8.15, 9.0 i potencjalnie wcześniejszych, zawiera podatność CVE-2022-41352 umożliwiającą atakującemu umieszczanie na serwerze dowolnych plików a konsekwencji dostęp do kont innych użytkowników.",
@@ -2022,5 +2030,6 @@ TRANSLATIONS = {
     "Nagios XI login panel was detected.": "Wykryto panel Nagios XI.",
     "Netdata panel was discovered.": "Wykryto panel Netdata.",
     "OpenVPN Admin login panel was detected.": "Wykryto administracyjny panel logowania OpenVPN.",
+    "Clave login panel was detected.": "Wykryto panel logowania systemu Clave.",
     "Zammad is an open source helpdesk and customer support system that provides ticket management, live chat, and knowledge base functionality. This template detects exposed Zammad installations.": "Wykryto panel systemu Zammad.",
 }

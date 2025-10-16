@@ -997,7 +997,7 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "vsftpd before 3.0.3 allows remote attackers to cause a denial of service by sending a crafted FTP command.": "Serwer vsftpd w wersji poniżej 3.0.3 zawiera podatność Denial Of Service, umożliwiające atakującemu przerwanie działania usługi."
+    "vsftpd before 3.0.3 allows remote attackers to cause a denial of service by sending a crafted FTP command.": "Serwer vsftpd w wersji poniżej 3.0.3 zawiera podatność Denial Of Service, umożliwiającą atakującemu przerwanie działania usługi."
     + UPDATE_HINT,
     "Vendure is an open-source headless commerce platform. Prior to versions 3.0.5 and 2.3.3, a vulnerability in Vendure's asset server plugin allows an attacker to craft a request which is able to traverse the server file system and retrieve the contents of arbitrary files, including sensitive data such as configuration files, environment variables, and other critical data stored on the server. In the same code path is an additional vector for crashing the server via a malformed URI.": "System Vendure w wersji poniżej 3.0.5 (a w gałęzi 2.x - poniżej wersji 2.3.3) zawiera podatność Path Traversal umożliwiającą atakującemu nieuprawniony odczyt plików z dysku."
     + UPDATE_HINT,

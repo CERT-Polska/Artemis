@@ -99,13 +99,17 @@ class BaseReportingTest(ArtemisModuleTestCase):
             "target_string": "http://" + host + ":80/",
             "headers": {
                 "receiver": receiver,
+                "service": Service.HTTP,
+                "type": TaskType.SERVICE,
             },
             "payload": {
                 "last_domain": host,
+                "host": host,
             },
             "payload_persistent": {
                 "original_domain": host,
             },
+            "status": call.kwargs["status"],
             "result": call.kwargs["data"],
         }
 

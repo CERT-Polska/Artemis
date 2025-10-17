@@ -1,0 +1,27 @@
+{% if "rce_vulnerability" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are vulnerable to Remote Code Execution (RCE):{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "rce_vulnerability" %}
+                    {% for message in report.additional_data.result %}
+                        <li>
+                            {{ message.url }}
+                            {% if message.code == report.additional_data.statements.rce_vulnerability %}
+                                :
+                                {% trans trimmed %}
+                                    This means that an attacker can execute arbitrary code.
+                                {% endtrans %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Remote Code Execution (RCE) allows an attacker to run arbitrary code on a vulnerable system.
+                This can lead to data theft, system compromise, installation of malware, and full control over the affected server.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

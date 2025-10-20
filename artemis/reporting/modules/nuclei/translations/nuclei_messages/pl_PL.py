@@ -997,6 +997,23 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "This template detects a vulnerability in the Really Simple SSL plugin's authentication bypass.": "Wykryto wtyczkę WordPress o nazwie Really Simple SSL zawierającą podatność CVE-2024-10924 umożliwiającą ominięcie uwierzytelnienia."
+    + WORDPRESS_UPDATE_HINT,
+    "ProFTPD versions before 1.3.3c contain directory traversal vulnerabilities in the mod_site_misc module. The vulnerability allows attackers to traverse directories and potentially overwrite arbitrary files on the system through crafted input to commands like SITE MKDIR and other SITE commands.": "ProFTPd w wersji poniżej 1.3.3c zawiera podatność Directory Traversal umożliwiającą atakującemu potencjalne nadpisanie dowolnych plików w systemie."
+    + UPDATE_HINT,
+    "ProFTPD versions before 1.3.6b and various pre-release versions (1.3.7rc before 1.3.7rc2) are vulnerable to remote unauthenticated denial of service. The vulnerability occurs when processing overly long commands, causing an infinite loop in a child process that can crash the server.": "ProFTPd w wersji poniżej 1.3.6b i w niektórych niewydanych wersjach (np. 1.3.7rc poniżej 1.3.7rc2) zawiera podatność Denial of Service, umożliwiającą atakującemu przerwanie działania usługi."
+    + UPDATE_HINT,
+    "Onkyo TX-NR585 1000-0000-000-0008-0000 devices allows remote unauthenticated users on the network to read sensitive files via %2e%2e%2f directory traversal and local file inclusion.": "Onkyo TX-NR585 1000-0000-000-0008-0000 zawiera podatność umożliwiającą atakującemu odczyt plików z dysku serwera.",
+    "http/vulnerabilities/juniper/junos-xss.yaml": "Wykryto system JunOS zawierający podatność Cross-Site Scripting.",
+    "A vulnerability in XWiki's REST API allows unauthenticated users to access information about private pages through the pages endpoint. This could lead to disclosure of sensitive information and page metadata.": "Wykryto system XWiki zawierający podatność CVE-2025-29925 umożliwiającą atakującemu dostęp do informacji na temat niepublicznych stron."
+    + UPDATE_HINT,
+    "Drupal Avatar Uploader v7.x-1.0-beta8 plugin contains a cross-site scripting vulnerability in the slider import search feature and tab parameter via plugin settings.": "Drupal Avatar Uploader w wersji v7.x-1.0-beta8 (i potencjalnie wcześniejszych) zawiera podatność "
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Cobbler, a Linux installation server that allows for rapid setup of network installation environments, has an improper authentication vulnerability starting in version 3.0.0 and prior to versions 3.2.3 and 3.3.7. `utils.get_shared_secret()` always returns `-1`, which allows anyone to connect to cobbler XML-RPC as user `''` password `-1` and make any changes. This gives anyone with network access to a cobbler server full control of the server. Versions 3.2.3 and 3.3.7 fix the issue.": "System Cobbler w wersji od 3.0.0 poniżej 3.2.3 (a w gałęzi 3.3 - poniżej 3.3.7) zawiera podatność umożliwiającą atakującemu pełen dostęp administracyjny."
+    + UPDATE_HINT,
+    "NodeRED-Dashboard before 2.26.2 is vulnerable to local file inclusion because it allows ui_base/js/..%2f directory traversal to read files.": "NodeRED-Dashboard w wersji poniżej 2.26.2 zawiera podatność Directory Traversal (o identyfikatorze CVE-2021-3223) umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
     "In the module “Search Products” (possearchproducts) from PosThemes for PrestaShop, a guest can perform SQL injection in affected versions.": "Moduł Search Product szablonu PosThemes systemu PrestaShop zawiera podatność SQL Injection (o identyfikatorze CVE-2023-30192) umożliwiającą atakującemu nieuprawniony dostęp do bazy danych."
     + UPDATE_HINT,
     "GeoTools is an open source Java library that provides tools for geospatial data. Prior to versions 31.2, 30.4, and 29.6, Remote Code Execution (RCE) is possible if an application uses certain GeoTools functionality to evaluate XPath expressions supplied by user input. Versions 31.2, 30.4, and 29.6 contain a fix for this issue. As a workaround, GeoTools can operate with reduced functionality by removing the `gt-complex` jar from one's application. As an example of the impact, application schema `datastore` would not function without the ability to use XPath expressions to query complex content. Alternatively, one may utilize a drop-in replacement GeoTools jar from SourceForge for versions 31.1, 30.3, 30.2, 29.2, 28.2, 27.5, 27.4, 26.7, 26.4, 25.2, and 24.0. These jars are for download only and are not available from maven central, intended to quickly provide a fix to affected applications.": "GeoTools w wersji poniżej 31.2, w gałęzi 30 - 30.4, a w gałęzi 29 - poniżej 29.6, zawiera podatność CVE-2024-36404 umożliwiającą atakującemu w niektórych konfiguracjach zdalne wykonanie kodu."
@@ -2051,4 +2068,9 @@ TRANSLATIONS = {
     "OpenVPN Admin login panel was detected.": "Wykryto administracyjny panel logowania OpenVPN.",
     "Clave login panel was detected.": "Wykryto panel logowania systemu Clave.",
     "Zammad is an open source helpdesk and customer support system that provides ticket management, live chat, and knowledge base functionality. This template detects exposed Zammad installations.": "Wykryto panel systemu Zammad.",
+    "AXWAY Secure Transport Web Client panel was detected.": "wykryto panel AXWAY Secure Transport Web Client.",
+    "Tableau Services Manager login panel was detected.": "wykryto panel logowania Tableau Services Manager.",
+    "Login panel for adapt was detected.": "wykryto panel logowania systemu adapt.",
+    "TurnKey OpenVPN panel was detected.": "wykryto panel TurnKey OpenVPN.",
+    "Detect Windows Admin Center Panel web interface.": "Wykryto panel Windows Admin Center.",
 }

@@ -52,6 +52,6 @@ typer==0.19.2
 typing-extensions==4.15.0
 unittest-parallel==1.7.5
 urllib3==2.5.0
-uvicorn==0.37.0
+uvicorn==0.38.0
 validators==0.35.0
 whoisdomain==1.20250929.1

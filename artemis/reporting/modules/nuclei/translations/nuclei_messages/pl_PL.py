@@ -997,7 +997,7 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "This template detects a vulnerability in the Really Simple SSL plugin's authentication bypass.": "Wykryto wtyczkę WordPress o nazwie Really Simple SSL zawierającą podatność CVE-2024-10924 umożliwiającą ominięcie uwierzytelniania."
+    "This template detects a vulnerability in the Really Simple SSL plugin's authentication bypass.": "Wykryto wtyczkę WordPress o nazwie Really Simple SSL zawierającą podatność CVE-2024-10924 umożliwiającą ominięcie uwierzytelnienia."
     + WORDPRESS_UPDATE_HINT,
     "ProFTPD versions before 1.3.3c contain directory traversal vulnerabilities in the mod_site_misc module. The vulnerability allows attackers to traverse directories and potentially overwrite arbitrary files on the system through crafted input to commands like SITE MKDIR and other SITE commands.": "ProFTPd w wersji poniżej 1.3.3c zawiera podatność Directory Traversal umożliwiającą atakującemu potencjalne nadpisanie dowolnych plików w systemie."
     + UPDATE_HINT,
@@ -1010,7 +1010,7 @@ TRANSLATIONS = {
     "Drupal Avatar Uploader v7.x-1.0-beta8 plugin contains a cross-site scripting vulnerability in the slider import search feature and tab parameter via plugin settings.": "Drupal Avatar Uploader w wersji v7.x-1.0-beta8 (i potencjalnie wcześniejszych) zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "Cobbler, a Linux installation server that allows for rapid setup of network installation environments, has an improper authentication vulnerability starting in version 3.0.0 and prior to versions 3.2.3 and 3.3.7. `utils.get_shared_secret()` always returns `-1`, which allows anyone to connect to cobbler XML-RPC as user `''` password `-1` and make any changes. This gives anyone with network access to a cobbler server full control of the server. Versions 3.2.3 and 3.3.7 fix the issue.": "System Cobbler w wersji od 3.0.0 do 3.2.3 (a w gałęzi 3.3 - do 3.3.7) zawiera podatność umożliwiającą atakującemu pełen dostęp administracyjny."
+    "Cobbler, a Linux installation server that allows for rapid setup of network installation environments, has an improper authentication vulnerability starting in version 3.0.0 and prior to versions 3.2.3 and 3.3.7. `utils.get_shared_secret()` always returns `-1`, which allows anyone to connect to cobbler XML-RPC as user `''` password `-1` and make any changes. This gives anyone with network access to a cobbler server full control of the server. Versions 3.2.3 and 3.3.7 fix the issue.": "System Cobbler w wersji od 3.0.0 poniżej 3.2.3 (a w gałęzi 3.3 - poniżej 3.3.7) zawiera podatność umożliwiającą atakującemu pełen dostęp administracyjny."
     + UPDATE_HINT,
     "NodeRED-Dashboard before 2.26.2 is vulnerable to local file inclusion because it allows ui_base/js/..%2f directory traversal to read files.": "NodeRED-Dashboard w wersji poniżej 2.26.2 zawiera podatność Directory Traversal (o identyfikatorze CVE-2021-3223) umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,

@@ -7,7 +7,7 @@ beautifulsoup4==4.14.2
 certifi==2025.10.5
 chardet==5.2.0
 click==8.3.0
-cryptography==46.0.2
+cryptography==46.0.3
 dnspython==2.8.0
 fastapi==0.119.1
 fastapi-csrf-protect==1.0.7

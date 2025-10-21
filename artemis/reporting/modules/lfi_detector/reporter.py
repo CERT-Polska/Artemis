@@ -39,21 +39,21 @@ class LFIDetectorReporter(Reporter):
 
         reports = []
 
-        def add_report(report_type: ReportType) -> None:
+        def add_report(report_type: ReportType, data: List[Any]) -> None:
             reports.append(
                 Report(
                     top_level_target=get_top_level_target(task_result),
                     target=get_target_url(task_result),
                     report_type=report_type,
-                    additional_data={"result": lfi_data, "statements": task_result["result"]["statements"]},
+                    additional_data={"result": data, "statements": task_result["result"]["statements"]},
                     timestamp=task_result["created_at"],
                 )
             )
 
         if lfi_data:
-            add_report(LFIDetectorReporter.LFI)
+            add_report(LFIDetectorReporter.LFI, lfi_data)
         if rce_data:
-            add_report(LFIDetectorReporter.RCE)
+            add_report(LFIDetectorReporter.RCE, rce_data)
 
         return reports
 

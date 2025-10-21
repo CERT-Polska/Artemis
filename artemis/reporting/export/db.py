@@ -33,6 +33,7 @@ class DataLoader:
         language: Language,
         tag: Optional[str],
         silent: bool = False,
+        include_only_results_since: Optional[datetime.datetime] = None,
     ):
         self._db = db
         self._blocklist = blocklist
@@ -40,6 +41,7 @@ class DataLoader:
         self._tag = tag
         self._data_initialized = False
         self._silent = silent
+        self._include_only_results_since = include_only_results_since
 
     def _initialize_data_if_needed(self) -> None:
         """
@@ -61,7 +63,8 @@ class DataLoader:
         self._tag_stats: DefaultDict[str, int] = defaultdict(lambda: 0)
 
         results = self._db.get_task_results_since(
-            datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS),
+            self._include_only_results_since
+            or datetime.datetime.now() - datetime.timedelta(days=Config.Reporting.REPORTING_MAX_VULN_AGE_DAYS),
             tag=self._tag,
         )
         if not self._silent:

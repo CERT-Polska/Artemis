@@ -194,6 +194,7 @@ class ReportGenerationTask(Base):  # type: ignore
     status = Column(String, index=True)
     tag = Column(String, nullable=True)
     language = Column(String)
+    include_only_results_since = Column(DateTime, nullable=True)
     skip_previously_exported = Column(Boolean)
     skip_hooks = Column(Boolean)
     skip_suspicious_reports = Column(Boolean)
@@ -574,6 +575,7 @@ class DB:
         skip_hooks: bool = False,
         skip_suspicious_reports: bool = False,
         custom_template_arguments: Dict[str, Any] = {},
+        include_only_results_since: Optional[datetime.datetime] = None,
     ) -> None:
         with self.session() as session:
             task = ReportGenerationTask(
@@ -585,6 +587,7 @@ class DB:
                 skip_hooks=skip_hooks,
                 skip_suspicious_reports=skip_suspicious_reports,
                 custom_template_arguments=custom_template_arguments,
+                include_only_results_since=include_only_results_since,
             )
             session.add(task)
             session.commit()

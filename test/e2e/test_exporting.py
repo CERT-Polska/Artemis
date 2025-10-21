@@ -289,6 +289,80 @@ class ExportingTestCase(BaseE2ETestCase):
                     ).encode("utf-8"),
                 )
 
+    def test_exporting_api_timeframe(self) -> None:
+        self.submit_tasks_with_modules_enabled(
+            ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
+        )
+
+        for i in range(100):
+            task_results = requests.get(
+                BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+            ).json()
+
+            if len(task_results) == 1:
+                break
+
+            time.sleep(1)
+
+        self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
+        self.assertEqual(
+            requests.post(
+                BACKEND_URL + "api/export",
+                json={
+                    "skip_previously_exported": True,
+                    "language": "pl_PL",
+                    "tag": "exporting-api",
+                    "include_only_results_since": "2100-01-01T00:00:00Z",
+                },
+                headers={"X-Api-Token": "api-token"},
+            ).json(),
+            {"ok": True},
+        )
+
+        for i in range(500):
+            data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
+            assert len(data) == 1
+            if data[0]["zip_url"]:
+                break
+
+            time.sleep(1)
+
+        filename = tempfile.mktemp()
+
+        with open(filename, "wb") as f:
+            f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+
+        with zipfile.ZipFile(filename) as export:
+            with export.open("messages/test-smtp-server.artemis.html", "r") as f:
+                content = f.read()
+                self.assertEqual(
+                    content,
+                    "\n".join(
+                        [
+                            "",
+                            "    <html>",
+                            "        <head>",
+                            '            <meta charset="UTF-8">',
+                            "        </head>",
+                            "        <style>",
+                            "            ul {",
+                            "                margin-top: 10px;",
+                            "                margin-bottom: 10px;",
+                            "            }",
+                            "        </style>",
+                            "        <body>",
+                            "",
+                            "        <ol>",
+                            "        </ol>",
+                            "",
+                            "",
+                            "        </body>",
+                            "    </html>",
+                            "",
+                        ]
+                    ).encode("utf-8"),
+                )
+
     def test_tag_export_gui(self) -> None:
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "saving_tag-gui", ["mail_dns_scanner", "classifier"]

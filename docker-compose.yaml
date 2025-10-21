@@ -125,6 +125,11 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  test-php-xss-but-not-on-homepage:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_xss_but_not_on_homepage/:/var/www/html/
+
   karton-dashboard:
     <<: *logging
     command: ["/wait-for-dependencies.sh", "karton-dashboard", "run", "--host", "0.0.0.0"]

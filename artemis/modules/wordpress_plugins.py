@@ -50,6 +50,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "uicore-animate",
     "wordpress-popup",
     "wp-hide-security-enhancer",
+    "wp-letsencrypt-ssl",
     "wp-members",
     "wppao-sitemap",
     "xml-sitemap-generator-for-google",

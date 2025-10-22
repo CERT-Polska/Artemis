@@ -334,35 +334,9 @@ class ExportingTestCase(BaseE2ETestCase):
             f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
 
         with zipfile.ZipFile(filename) as export:
-            with export.open("messages/test-smtp-server.artemis.html", "r") as f:
-                content = f.read()
-                self.assertEqual(
-                    content,
-                    "\n".join(
-                        [
-                            "",
-                            "    <html>",
-                            "        <head>",
-                            '            <meta charset="UTF-8">',
-                            "        </head>",
-                            "        <style>",
-                            "            ul {",
-                            "                margin-top: 10px;",
-                            "                margin-bottom: 10px;",
-                            "            }",
-                            "        </style>",
-                            "        <body>",
-                            "",
-                            "        <ol>",
-                            "        </ol>",
-                            "",
-                            "",
-                            "        </body>",
-                            "    </html>",
-                            "",
-                        ]
-                    ).encode("utf-8"),
-                )
+            with export.open("messages/output.json", "r") as f:
+                data = json.load(f)
+                self.assertEqual(data["messages"], [])
 
     def test_tag_export_gui(self) -> None:
         self.submit_tasks_with_modules_enabled(

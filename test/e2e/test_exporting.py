@@ -334,7 +334,7 @@ class ExportingTestCase(BaseE2ETestCase):
             f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
 
         with zipfile.ZipFile(filename) as export:
-            with export.open("output.json", "r") as f:
+            with export.open("advanced/output.json", "r") as f:
                 data = json.load(f)
                 self.assertEqual(data["messages"], [])
 

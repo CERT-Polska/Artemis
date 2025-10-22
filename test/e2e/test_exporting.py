@@ -219,6 +219,7 @@ class ExportingTestCase(BaseE2ETestCase):
                 "status",
                 "language",
                 "skip_previously_exported",
+                "include_only_results_since",
                 "zip_url",
                 "error",
                 "alerts",

@@ -336,7 +336,7 @@ class ExportingTestCase(BaseE2ETestCase):
         with zipfile.ZipFile(filename) as export:
             with export.open("advanced/output.json", "r") as f:
                 data = json.load(f)
-                self.assertEqual(data["messages"], [])
+                self.assertEqual(data["messages"], {})
 
     def test_tag_export_gui(self) -> None:
         self.submit_tasks_with_modules_enabled(

@@ -49,6 +49,7 @@ class ReportGenerationTaskModel(BaseModel):
     zip_url: Optional[str]
     error: Optional[str]
     alerts: Any
+    include_only_results_since: Optional[datetime.datetime]
 
 
 def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
@@ -204,6 +205,7 @@ def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskMo
             tag=task.tag,
             status=task.status,
             language=task.language,
+            include_only_results_since=task.include_only_results_since,
             skip_previously_exported=task.skip_previously_exported,
             zip_url=f"/api/export/download-zip/{task.id}" if task.output_location else None,
             error=task.error,
@@ -242,6 +244,7 @@ async def post_export(
     tag: Optional[str] = Body(None),
     comment: Optional[str] = Body(None),
     custom_template_arguments: Dict[str, Any] = Body({}),
+    include_only_results_since: Optional[datetime.datetime] = Body(None),
     skip_hooks: bool = Body(False),
     skip_suspicious_reports: bool = Body(False),
 ) -> Dict[str, Any]:
@@ -253,6 +256,7 @@ async def post_export(
         custom_template_arguments=custom_template_arguments,
         language=Language(language),
         skip_hooks=skip_hooks,
+        include_only_results_since=include_only_results_since,
         skip_suspicious_reports=skip_suspicious_reports,
     )
     return {

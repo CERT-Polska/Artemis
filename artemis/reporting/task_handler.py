@@ -46,6 +46,7 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
             silent=True,
             skip_hooks=report_generation_task.skip_hooks,
             skip_suspicious_reports=report_generation_task.skip_suspicious_reports,
+            include_only_results_since=report_generation_task.include_only_results_since,
         )
     finally:
         if previous_reports_directory:

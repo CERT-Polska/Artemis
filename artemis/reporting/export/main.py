@@ -163,6 +163,7 @@ def export(
     tag: Optional[str] = None,
     skip_hooks: bool = False,
     skip_suspicious_reports: bool = False,
+    include_only_results_since: Optional[datetime.datetime] = None,
 ) -> Path:
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
@@ -174,7 +175,9 @@ def export(
         previous_reports = []
 
     db = DB()
-    export_db_connector = DataLoader(db, blocklist, language, tag, silent)
+    export_db_connector = DataLoader(
+        db, blocklist, language, tag, silent, include_only_results_since=include_only_results_since
+    )
     timestamp = datetime.datetime.now()
     export_data = build_export_data(
         previous_reports,

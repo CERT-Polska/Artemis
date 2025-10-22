@@ -29,3 +29,26 @@ msgstr ""
 "sytuacjach - również zdalne wykonanie kodu. Podatność występuje, gdy dane"
 " od użytkownika są używane jako część ścieżki pliku bez wystarczającej "
 "walidacji, co umożliwia atakującemu manipulację ścieżką."
+
+#: artemis/reporting/modules/lfi_detector/template_rce.jinja2:2
+msgid ""
+"We identified that the following URLs are vulnerable to Remote Code "
+"Execution (RCE):"
+msgstr ""
+"Wykryliśmy, że poniższe adresy zawierają podatność Remote Code Execution "
+"(RCE):"
+
+#: artemis/reporting/modules/lfi_detector/template_rce.jinja2:11
+msgid "This means that an attacker can execute arbitrary code."
+msgstr "Oznacza to, że atakujący może doprowadzić do zdalnego wykonania kodu."
+
+#: artemis/reporting/modules/lfi_detector/template_rce.jinja2:21
+msgid ""
+"Remote Code Execution (RCE) allows an attacker to run arbitrary code on a"
+" vulnerable system. This can lead to data theft, system compromise, "
+"installation of malware, and full control over the affected server."
+msgstr ""
+"Remote Code Execution (RCE) pozwala atakującemu uruchomić dowolny kod na "
+"podatnym systemie. Może to prowadzić do kradzieży danych, przejęcia "
+"kontroli nad systemem, instalacji złośliwego oprogramowania oraz pełnego "
+"przejęcia serwera przez atakującego."

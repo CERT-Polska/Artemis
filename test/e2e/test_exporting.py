@@ -3,6 +3,7 @@ import re
 import tempfile
 import time
 import zipfile
+from socket import gethostbyname
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 
 import requests
@@ -147,6 +148,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             "version": None,
                             "additional_type": None,
                             "asset_type": "domain",
+                            "domain_ips": [gethostbyname("test-smtp-server.artemis")],
                             "top_level_target": "test-smtp-server.artemis",
                             "name": "test-smtp-server.artemis",
                             "original_karton_name": "classifier",

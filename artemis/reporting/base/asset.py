@@ -34,3 +34,5 @@ class Asset:
                 self.domain_ips = list(lookup(self.name))
             except ResolutionException:
                 self.domain_ips = []
+        else:
+            self.domain_ips = None

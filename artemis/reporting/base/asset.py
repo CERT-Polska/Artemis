@@ -1,7 +1,8 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 from artemis.reporting.base.asset_type import AssetType
+from artemis.resolvers import ResolutionException, lookup
 
 
 @dataclass
@@ -10,6 +11,9 @@ class Asset:
     name: str
     additional_type: Optional[str] = None
     version: Optional[str] = None
+
+    # Data about the IP address of the asset
+    domain_ips: Optional[List[str]] = field(init=False)
 
     # Data about the original task result that led to the creation of this Asset
     original_karton_name: Optional[str] = None
@@ -23,3 +27,12 @@ class Asset:
     # the target where actual asset was found - e.g. you may start with scanning example.com and the
     # asset may be found on https://subdomain.example.com/phpmyadmin/
     top_level_target: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        if self.asset_type == AssetType.DOMAIN:
+            try:
+                self.domain_ips = list(lookup(self.name))
+            except ResolutionException:
+                self.domain_ips = []
+        else:
+            self.domain_ips = None

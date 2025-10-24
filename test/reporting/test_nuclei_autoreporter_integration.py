@@ -45,6 +45,6 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
         reports = reports_from_task_result(data, Language.en_US)  # type: ignore
         count = 0
         for report in reports:
-            if "lfi" in report.template_name:
+            if "lfi" in report.additional_data["template_name"]:
                 count += 1
         self.assertEqual(count, 1)

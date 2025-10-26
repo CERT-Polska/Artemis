@@ -1041,6 +1041,8 @@ TRANSLATIONS = {
     "Checks if TFTP service becomes available after Smart Install exploitation. This template should be run after the configuration extraction payload to verify that the device is now serving configuration files via TFTP.": "Wykryto system Cisco IOS lub Cisco IOS XE zawierający podatność CVE-2018-0171 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "The Contact Form Plugin by Fluent Forms for Quiz, Survey, and Drag & Drop WP Form Builder plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the /wp-json/fluentform/v1/global-settings REST API endpoint in all versions up to, and including, 5.1.16. This makes it possible for unauthenticated attackers to modify all of the plugin's settings.": "Wtyczka WordPress o nazwie The Contact Form Plugin by Fluent Forms for Quiz, Survey, and Drag & Drop WP Form Builder w wersji do 5.1.16 włącznie zawiera podatność umożliwiającą atakującemu nieuprawnioną zmianę ustawień wtyczki."
+    + WORDPRESS_UPDATE_HINT,
     "The plugin is vulnerable to privilege escalation due to a missing capability check on the /wp-json/fluentform/v1/managers REST API endpoint. This makes it possible for unauthenticated attackers to grant users with Fluent Form management permissions which gives them access to all of the plugin's settings and features. This also makes it possible for unauthenticated attackers to delete manager accounts.": "Wtyczka WordPress o nazwie Contact Form Plugin by Fluent Forms for Quiz, Survey, and Drag & Drop WP Form Builder w wersji do 5.1.16 włącznie umożliwia atakującemu zwiększenie swoich uprawnień i wykonywanie nieuprawnionych operacji takich jak edycja ustawień wtyczki czy usuwanie niektórych kont użytkowników."
     + WORDPRESS_UPDATE_HINT,
     "An issue was discovered in Zimbra Collaboration (ZCS) 8.8.15 and 9.0. An attacker can upload arbitrary files through amavis via a cpio loophole (extraction to /opt/zimbra/jetty/webapps/zimbra/public) that can lead to incorrect access to any other user accounts. Zimbra recommends pax over cpio. Also, pax is in the prerequisites of Zimbra on Ubuntu; however, pax is no longer part of a default Red Hat installation after RHEL 6 (or CentOS 6). Once pax is installed, amavis automatically prefers it over cpio.": "Zimbra Collaboration (ZCS) w wersji 8.8.15, 9.0 i potencjalnie wcześniejszych, zawiera podatność CVE-2022-41352 umożliwiającą atakującemu umieszczanie na serwerze dowolnych plików a konsekwencji dostęp do kont innych użytkowników.",
@@ -1139,6 +1141,23 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "http/exposures/configs/config-properties.yaml": "Wykryto plik konfiguracyjny zawierający hasła lub dane dostepowe do bazy danych.",
     "The SOAP admin service in WSO2 products has a security vulnerability that allows the creation of new user accounts regardless of the self-registration configuration settings.": "Usługa administratora SOAP w produktach WSO2 zawiera podatność umożliwiającą tworzenie kont użytkowników niezależnie od przyjętych uprawnień.",
+    "Jitsi Meet is susceptible to Log4j JNDI remote code execution. Jitsi is a collection of free and open-source multiplatform voice, video conferencing and instant messaging applications for the Web platforms.": "Wykryto system Jitsi Meet w wersji zawierającej podatność Log4j JNDI Remote Code Execution."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "D-Link DWR-116 through 1.06, DWR-512 through 2.02, DWR-712 through 2.02, DWR-912 through 2.02, DWR-921 through 2.02, and DWR-111 through 1.01 device may allow an authenticated attacker to execute arbitrary code by injecting the shell command into the chkisg.htm page Sip parameter. This allows for full control over the device internals.": "D-Link DWR-116 w wersji do 1.06 włącznie, DWR-512 w wersji do 2.02 włącznie, DWR-712 w wersji do 2.02 włącznie, DWR-912 w wersji do 2.02 włącznie, DWR-921 w wersji do 2.02 włącznie i DWR-111 w wersji do 1.01 włącznie zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "vulnerability in XWiki's WYSIWYG API allows an attacker to redirect users to arbitrary external URLs through the xerror parameter. This could be used in phishing attacks to redirect users to malicious websites.": "Wykryto system XWiki w wersji zawierającej podatność Open Redirect (o identyfikatorze CVE-2025-32970), umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + UPDATE_HINT,
+    "A template injection vulnerability on older versions of Confluence Data Center and Server allows an unauthenticated attacker to achieve RCE on an affected instance. Customers using an affected version must take immediate action.\nMost recent supported versions of Confluence Data Center and Server are not affected by this vulnerability as it was ultimately mitigated during regular version updates. However, Atlassian recommends that customers take care to install the latest version to protect their instances from non-critical vulnerabilities outlined in Atlassian’s January Security Bulletin.": "Starsze wersje Confluence Data Center i Server zawierają podatność Template Injection (o identyfikatorze CVE-2023-22527) umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The plugin lacks authorization and authentication for requests to its displayItems endpoint, allowing unauthenticated visitors to make requests to arbitrary URLs. v3.1.57 attempted to fix the issue with a nonce check, however any authenticated users, such as subscriber can retrieve it.": "Wtyczka WordPress o nazwie Ditty w wersji do v1.3.58 zawiera podatność Server-Side Request Foregery (o identyfikatorze CVE-2025-8085) umożlwiającą atakującemu wykonywanie żądań do usług w sieci lokalnej."
+    + WORDPRESS_UPDATE_HINT,
+    "The SureTriggers- All-in-One Automation Platform plugin for WordPress is vulnerable to an authentication bypass leading to administrative account creation due to a missing empty value check on the 'secret_key' value in the 'autheticate_user' function in all versions up to, and including, 1.0.78. This makes it possible for unauthenticated attackers to create administrator accounts on the target website when the plugin is installed and activated but not configured with an API key.": "Wtyczka WordPress o nazwie SureTriggers w wersji do 1.0.78 włącznie zawiera podatność CVE-2025-3102 umożliwiającą atakującemu w niektórych sytuacjach nieuprawnione tworzenie kont administracyjnych."
+    + WORDPRESS_UPDATE_HINT,
+    "Fastjson 1.2.68 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.68 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
     "Fastjson 1.2.62 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.62 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
@@ -2073,4 +2092,6 @@ TRANSLATIONS = {
     "Login panel for adapt was detected.": "wykryto panel logowania systemu adapt.",
     "TurnKey OpenVPN panel was detected.": "wykryto panel TurnKey OpenVPN.",
     "Detect Windows Admin Center Panel web interface.": "Wykryto panel Windows Admin Center.",
+    "CasaOS login panel was detected.": "Wykryto panel logowania CasaOS.",
+    "Buildbot panel was detected.": "Wykryto panel Buildbot.",
 }

@@ -292,6 +292,60 @@ class ExportingTestCase(BaseE2ETestCase):
                     ).encode("utf-8"),
                 )
 
+    def test_exporting_api_exclude_normal_forms_from_html(self) -> None:
+        for exclude_normal_forms_from_html, expected_num_html_files in [(["TODO"], 0), ([], 1)]:
+            self._clean_db_and_redis()
+
+            self.submit_tasks_with_modules_enabled(
+                ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
+            )
+
+            for i in range(100):
+                task_results = requests.get(
+                    BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+                ).json()
+
+                if len(task_results) == 1:
+                    break
+
+                time.sleep(1)
+
+            self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
+            self.assertEqual(
+                requests.post(
+                    BACKEND_URL + "api/export",
+                    json={
+                        "skip_previously_exported": True,
+                        "language": "pl_PL",
+                        "tag": "exporting-api",
+                    },
+                    headers={"X-Api-Token": "api-token"},
+                ).json(),
+                {"ok": True},
+            )
+
+            for i in range(500):
+                data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
+                assert len(data) == 1
+                if data[0]["zip_url"]:
+                    break
+
+                time.sleep(1)
+
+            filename = tempfile.mktemp()
+
+            with open(filename, "wb") as f:
+                f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+
+            with zipfile.ZipFile(filename) as export:
+                with export.open("advanced/output.json", "r") as f:
+                    data = json.load(f)
+                    self.assertEqual(len(data["messages"]), 1)  # exclude only from html export
+
+                self.assertEqual(
+                    len([item for item in export.namelist() if item.endswith(".html")]), expected_num_html_files
+                )
+
     def test_exporting_api_timeframe(self) -> None:
         for include_only_results_since, expected_num_messages in [("2100-01-01T00:00:00Z", 0), (None, 1)]:
             self._clean_db_and_redis()
@@ -318,7 +372,7 @@ class ExportingTestCase(BaseE2ETestCase):
                         "skip_previously_exported": True,
                         "language": "pl_PL",
                         "tag": "exporting-api",
-                        "include_only_results_since": include_only_results_since
+                        "include_only_results_since": include_only_results_since,
                     },
                     headers={"X-Api-Token": "api-token"},
                 ).json(),
@@ -341,7 +395,7 @@ class ExportingTestCase(BaseE2ETestCase):
             with zipfile.ZipFile(filename) as export:
                 with export.open("advanced/output.json", "r") as f:
                     data = json.load(f)
-                    print("AAAAA", data['messages'])
+                    print("AAAAA", data["messages"])
                     self.assertEqual(len(data["messages"]), expected_num_messages)
 
     def test_tag_export_gui(self) -> None:

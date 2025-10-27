@@ -27,7 +27,7 @@ openapi-spec-validator==0.7.2
 packaging==25.0
 paramiko==4.0.0
 prometheus-client==0.23.1
-psutil==7.1.1
+psutil==7.1.2
 psycopg2-binary==2.9.11
 publicsuffixlist==1.0.2.20251018
 pydantic==2.12.0

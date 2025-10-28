@@ -296,11 +296,13 @@ class ExportingTestCase(BaseE2ETestCase):
         for exclude_normal_forms_from_html, expected_num_html_files in [
             (
                 [
-                    ["type", "misconfigured_email"],
-                    ["target", "test-smtp-server.artemis"],
                     [
-                        "message",
-                        "Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                        ["type", "misconfigured_email"],
+                        ["target", "test-smtp-server.artemis"],
+                        [
+                            "message",
+                            "Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                        ],
                     ],
                 ],
                 0,

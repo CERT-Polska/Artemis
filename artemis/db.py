@@ -577,7 +577,7 @@ class DB:
         skip_suspicious_reports: bool = False,
         custom_template_arguments: Dict[str, Any] = {},
         include_only_results_since: Optional[datetime.datetime] = None,
-        exclude_normal_forms_from_html: Optional[Dict[str, Any]] = None,
+        exclude_normal_forms_from_html: Optional[List[Any]] = None,
     ) -> None:
         with self.session() as session:
             task = ReportGenerationTask(

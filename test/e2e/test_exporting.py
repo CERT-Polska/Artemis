@@ -328,9 +328,10 @@ class ExportingTestCase(BaseE2ETestCase):
                 requests.post(
                     BACKEND_URL + "api/export",
                     json={
-                        "skip_previously_exported": True,
+                        "skip_previously_exported": False,
                         "language": "pl_PL",
                         "tag": "exporting-api",
+                        "exclude_normal_forms_from_html": exclude_normal_forms_from_html,
                     },
                     headers={"X-Api-Token": "api-token"},
                 ).json(),

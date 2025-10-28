@@ -293,7 +293,20 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
     def test_exporting_api_exclude_normal_forms_from_html(self) -> None:
-        for exclude_normal_forms_from_html, expected_num_html_files in [(["TODO"], 0), ([], 1)]:
+        for exclude_normal_forms_from_html, expected_num_html_files in [
+            (
+                [
+                    ["type", "misconfigured_email"],
+                    ["target", "test-smtp-server.artemis"],
+                    [
+                        "message",
+                        "Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                    ],
+                ],
+                0,
+            ),
+            ([], 1),
+        ]:
             self._clean_db_and_redis()
 
             self.submit_tasks_with_modules_enabled(
@@ -395,7 +408,6 @@ class ExportingTestCase(BaseE2ETestCase):
             with zipfile.ZipFile(filename) as export:
                 with export.open("advanced/output.json", "r") as f:
                     data = json.load(f)
-                    print("AAAAA", data["messages"])
                     self.assertEqual(len(data["messages"]), expected_num_messages)
 
     def test_tag_export_gui(self) -> None:

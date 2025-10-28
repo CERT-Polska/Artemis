@@ -154,16 +154,15 @@ def _build_messages_and_print_path(
 
         top_level_target_shortened = top_level_target_shortened.replace("/", "_")
 
+        filtered_message = _filter_message(
+            export_data_dict["messages"][top_level_target], exclude_normal_forms_from_html or []
+        )
+
+        if not filtered_message["reports"]:
+            continue
+
         with open(output_messages_directory_name / (top_level_target_shortened + ".html"), "w") as f:
-            f.write(
-                message_template.render(
-                    {
-                        "data": _filter_message(
-                            export_data_dict["messages"][top_level_target], exclude_normal_forms_from_html or []
-                        )
-                    }
-                )
-            )
+            f.write(message_template.render({"data": filtered_message}))
 
     for message in export_data.messages.values():
         for report in message.reports:

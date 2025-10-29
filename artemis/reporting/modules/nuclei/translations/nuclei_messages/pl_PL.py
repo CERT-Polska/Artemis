@@ -997,6 +997,7 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Total.js Platform before 3.2.3 is vulnerable to local file inclusion.": "Platforma Total.js w wersji poniżej 3.2.3 zawiera Podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "This template detects a vulnerability in the Really Simple SSL plugin's authentication bypass.": "Wykryto wtyczkę WordPress o nazwie Really Simple SSL zawierającą podatność CVE-2024-10924 umożliwiającą ominięcie uwierzytelnienia."
     + WORDPRESS_UPDATE_HINT,
     "ProFTPD versions before 1.3.3c contain directory traversal vulnerabilities in the mod_site_misc module. The vulnerability allows attackers to traverse directories and potentially overwrite arbitrary files on the system through crafted input to commands like SITE MKDIR and other SITE commands.": "ProFTPd w wersji poniżej 1.3.3c zawiera podatność Directory Traversal umożliwiającą atakującemu potencjalne nadpisanie dowolnych plików w systemie."
@@ -1156,7 +1157,16 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT,
     "The SureTriggers- All-in-One Automation Platform plugin for WordPress is vulnerable to an authentication bypass leading to administrative account creation due to a missing empty value check on the 'secret_key' value in the 'autheticate_user' function in all versions up to, and including, 1.0.78. This makes it possible for unauthenticated attackers to create administrator accounts on the target website when the plugin is installed and activated but not configured with an API key.": "Wtyczka WordPress o nazwie SureTriggers w wersji do 1.0.78 włącznie zawiera podatność CVE-2025-3102 umożliwiającą atakującemu w niektórych sytuacjach nieuprawnione tworzenie kont administracyjnych."
     + WORDPRESS_UPDATE_HINT,
+    "Insufficient input validation leading to memory overread on the NetScaler Management Interface NetScaler ADC and NetScaler Gateway": "Wykryto urządzenie NetScaler Management Interface, NetScaler ADC lub NetScaler Gateway zawierające podatność CVE-2025-5777 umożliwiającą atakującemu nieuprawniony odczyt zawartości pamięci urządzenia."
+    + UPDATE_HINT,
+    "A Cross-Site Scripting vulnerability in Roundcube through 1.5.7 and 1.6.x through 1.6.7 allows a remote attacker to steal and send emails of a victim via a crafted e-mail message that abuses a Desanitization issue in message_body() in program/actions/mail/show.php.": "Roundcube w wersji do 1.5.7 włącznie, a w gałęzi 1.6.x - do 1.6.7 zawiera podatność Reflected Cross-Site Scripting, umożliwiającą atakującemu spreparowanie wiadomości, która wykona dowolny skrypt w przeglądarce odbiorcy, co może prowadzić do kradzieży e-maili lub wysyłania e-maili w imieniu ofiary."
+    + UPDATE_HINT,
+    "Path Traversal in Sonatype Nexus Repository 3 allows an unauthenticated attacker to read system files. Fixed in version 3.68.1.": "Sonatype Nexus Repository 3 w wersji poniżej 3.68.1 zawiwera podatność Path Traversal (identyfikator CVE-2024-4956) umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "The CKFinder file manager was found to be exposed without authentication, allowing unauthenticated users to directly access its web interface. Due to this misconfiguration, attackers were able to browse server directories, upload arbitrary files, and manage existing files.": "Wykryto menedżer plików CKFinder udostępniony bez autoryzacji, co umożliwia atakującemu przeglądanie i modyfikację plików na serwerze.",
     "Fastjson 1.2.68 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.68 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Fastjson 1.2.67 is susceptible to a remote code execution vulnerability.": "Fastjson w wersji 1.2.67 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Fastjson 1.2.62 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.62 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
@@ -2094,4 +2104,5 @@ TRANSLATIONS = {
     "Detect Windows Admin Center Panel web interface.": "Wykryto panel Windows Admin Center.",
     "CasaOS login panel was detected.": "Wykryto panel logowania CasaOS.",
     "Buildbot panel was detected.": "Wykryto panel Buildbot.",
+    "Saia PCD Web Server panel was detected.": "Wykryto panel Saia PCD Web Server.",
 }

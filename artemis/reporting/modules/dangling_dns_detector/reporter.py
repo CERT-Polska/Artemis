@@ -17,7 +17,7 @@ class DanglingDnsReporter(Reporter):
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
-        return  # Temporarily disabling reporting until the % of FP is decreased
+        return []  # Temporarily disabling reporting until the % of FP is decreased
 
         if task_result["headers"]["receiver"] != "dangling_dns_detector":
             return []

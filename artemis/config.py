@@ -295,7 +295,7 @@ class Config:
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config(
             "MODULES_DISABLED_BY_DEFAULT",
-            default="admin_panel_login_bruter,example,humble,ssh_bruter,moodle_scanner,xss_scanner",
+            default="admin_panel_login_bruter,dangling_dns_detector,example,humble,ssh_bruter,moodle_scanner,xss_scanner",
             cast=decouple.Csv(str, delimiter=","),
         )
 

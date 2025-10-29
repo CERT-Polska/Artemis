@@ -247,6 +247,7 @@ async def post_export(
     include_only_results_since: Optional[datetime.datetime] = Body(None),
     skip_hooks: bool = Body(False),
     skip_suspicious_reports: bool = Body(False),
+    exclude_normal_forms_from_html: Optional[List[Any]] = Body(None),
 ) -> Dict[str, Any]:
     """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
     db.create_report_generation_task(
@@ -258,6 +259,7 @@ async def post_export(
         skip_hooks=skip_hooks,
         include_only_results_since=include_only_results_since,
         skip_suspicious_reports=skip_suspicious_reports,
+        exclude_normal_forms_from_html=exclude_normal_forms_from_html,
     )
     return {
         "ok": True,

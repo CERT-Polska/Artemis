@@ -292,53 +292,126 @@ class ExportingTestCase(BaseE2ETestCase):
                     ).encode("utf-8"),
                 )
 
+    def test_exporting_api_exclude_normal_forms_from_html(self) -> None:
+        for exclude_normal_forms_from_html, expected_num_html_files in [
+            (
+                [
+                    [
+                        ["type", "misconfigured_email"],
+                        ["target", "test-smtp-server.artemis"],
+                        [
+                            "message",
+                            "Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                        ],
+                    ],
+                ],
+                0,
+            ),
+            ([], 1),
+        ]:
+            self._clean_db_and_redis()
+
+            self.submit_tasks_with_modules_enabled(
+                ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
+            )
+
+            for i in range(100):
+                task_results = requests.get(
+                    BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+                ).json()
+
+                if len(task_results) == 1:
+                    break
+
+                time.sleep(1)
+
+            self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
+            self.assertEqual(
+                requests.post(
+                    BACKEND_URL + "api/export",
+                    json={
+                        "skip_previously_exported": False,
+                        "language": "pl_PL",
+                        "tag": "exporting-api",
+                        "exclude_normal_forms_from_html": exclude_normal_forms_from_html,
+                    },
+                    headers={"X-Api-Token": "api-token"},
+                ).json(),
+                {"ok": True},
+            )
+
+            for i in range(500):
+                data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
+                assert len(data) == 1
+                if data[0]["zip_url"]:
+                    break
+
+                time.sleep(1)
+
+            filename = tempfile.mktemp()
+
+            with open(filename, "wb") as f:
+                f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+
+            with zipfile.ZipFile(filename) as export:
+                with export.open("advanced/output.json", "r") as f:
+                    data = json.load(f)
+                    self.assertEqual(len(data["messages"]), 1)  # exclude only from html export
+
+                self.assertEqual(
+                    len([item for item in export.namelist() if item.endswith(".html")]), expected_num_html_files
+                )
+
     def test_exporting_api_timeframe(self) -> None:
-        self.submit_tasks_with_modules_enabled(
-            ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
-        )
+        for include_only_results_since, expected_num_messages in [("2100-01-01T00:00:00Z", 0), (None, 1)]:
+            self._clean_db_and_redis()
 
-        for i in range(100):
-            task_results = requests.get(
-                BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
-            ).json()
+            self.submit_tasks_with_modules_enabled(
+                ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
+            )
 
-            if len(task_results) == 1:
-                break
+            for i in range(100):
+                task_results = requests.get(
+                    BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
+                ).json()
 
-            time.sleep(1)
+                if len(task_results) == 1:
+                    break
 
-        self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
-        self.assertEqual(
-            requests.post(
-                BACKEND_URL + "api/export",
-                json={
-                    "skip_previously_exported": True,
-                    "language": "pl_PL",
-                    "tag": "exporting-api",
-                    "include_only_results_since": "2100-01-01T00:00:00Z",
-                },
-                headers={"X-Api-Token": "api-token"},
-            ).json(),
-            {"ok": True},
-        )
+                time.sleep(1)
 
-        for i in range(500):
-            data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
-            assert len(data) == 1
-            if data[0]["zip_url"]:
-                break
+            self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
+            self.assertEqual(
+                requests.post(
+                    BACKEND_URL + "api/export",
+                    json={
+                        "skip_previously_exported": True,
+                        "language": "pl_PL",
+                        "tag": "exporting-api",
+                        "include_only_results_since": include_only_results_since,
+                    },
+                    headers={"X-Api-Token": "api-token"},
+                ).json(),
+                {"ok": True},
+            )
 
-            time.sleep(1)
+            for i in range(500):
+                data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
+                assert len(data) == 1
+                if data[0]["zip_url"]:
+                    break
 
-        filename = tempfile.mktemp()
+                time.sleep(1)
 
-        with open(filename, "wb") as f:
-            f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+            filename = tempfile.mktemp()
 
-        with zipfile.ZipFile(filename) as export:
-            with export.open("advanced/output.json", "r") as f:
-                data = json.load(f)
-                self.assertEqual(data["messages"], {})
+            with open(filename, "wb") as f:
+                f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+
+            with zipfile.ZipFile(filename) as export:
+                with export.open("advanced/output.json", "r") as f:
+                    data = json.load(f)
+                    self.assertEqual(len(data["messages"]), expected_num_messages)
 
     def test_tag_export_gui(self) -> None:
         self.submit_tasks_with_modules_enabled(

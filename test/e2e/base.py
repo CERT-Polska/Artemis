@@ -27,7 +27,9 @@ class BaseE2ETestCase(TestCase):
 
     def setUp(self) -> None:
         self._wait_for_backend()
+        self._clean_db_and_redis()
 
+    def _clean_db_and_redis(self) -> None:
         db = DB()
         session = db.session()
         session.query(ScheduledTask).delete()

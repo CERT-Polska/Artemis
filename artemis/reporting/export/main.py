@@ -5,7 +5,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import bs4
 import termcolor
@@ -115,8 +115,27 @@ def _dump_export_data_and_print_path(export_data: ExportData, output_dir: Path, 
         print(f"JSON written to file: {output_json_file_name}")
 
 
+def _filter_message(message: Dict[str, Any], exclude_normal_forms_from_html: List[Any]) -> Dict[str, Any]:
+    new_reports = []
+    for report in message["reports"]:
+        should_skip = False
+        for excluded_normal_form in exclude_normal_forms_from_html:
+            if excluded_normal_form == report["normal_form"]:
+                should_skip = True
+
+        if not should_skip:
+            new_reports.append(report)
+    message["reports"] = new_reports
+    message["contains_type"] = list(set(report["report_type"] for report in new_reports))
+    return message
+
+
 def _build_messages_and_print_path(
-    message_template: Template, export_data: ExportData, output_dir: Path, silent: bool
+    message_template: Template,
+    export_data: ExportData,
+    output_dir: Path,
+    silent: bool,
+    exclude_normal_forms_from_html: Optional[List[Any]],
 ) -> None:
     output_messages_directory_name = output_dir / "messages"
 
@@ -135,8 +154,15 @@ def _build_messages_and_print_path(
 
         top_level_target_shortened = top_level_target_shortened.replace("/", "_")
 
+        filtered_message = _filter_message(
+            export_data_dict["messages"][top_level_target], exclude_normal_forms_from_html or []
+        )
+
+        if not filtered_message["reports"]:
+            continue
+
         with open(output_messages_directory_name / (top_level_target_shortened + ".html"), "w") as f:
-            f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))
+            f.write(message_template.render({"data": filtered_message}))
 
     for message in export_data.messages.values():
         for report in message.reports:
@@ -164,6 +190,7 @@ def export(
     skip_hooks: bool = False,
     skip_suspicious_reports: bool = False,
     include_only_results_since: Optional[datetime.datetime] = None,
+    exclude_normal_forms_from_html: Optional[List[Any]] = None,
 ) -> Path:
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
@@ -199,7 +226,7 @@ def export(
         run_export_hooks(output_dir, export_data, silent)
 
     message_template = _build_message_template_and_print_path(output_dir, silent)
-    _build_messages_and_print_path(message_template, export_data, output_dir, silent)
+    _build_messages_and_print_path(message_template, export_data, output_dir, silent, exclude_normal_forms_from_html)
     _dump_export_data_and_print_path(export_data, output_dir, silent)
 
     print_and_save_stats(export_data, output_dir, silent)

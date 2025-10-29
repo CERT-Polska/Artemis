@@ -999,7 +999,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The mTheme-Unus theme for WordPress, prior to version 2.3, contained a directory traversal flaw that let attackers access arbitrary files. This was possible by exploiting the files parameter in css/css.php with .. sequences.": "Szablon WordPress o nazwie mTheme-Unus w wersji poniżej 2.3 zawiera podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + WORDPRESS_UPDATE_HINT,
-    "Total.js Platform before 3.2.3 is vulnerable to local file inclusion.": "Platforma Total.js w wersji poniżej 3.2.3 zawiera Podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "Total.js Platform before 3.2.3 is vulnerable to local file inclusion.": "Platforma Total.js w wersji poniżej 3.2.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "This template detects a vulnerability in the Really Simple SSL plugin's authentication bypass.": "Wykryto wtyczkę WordPress o nazwie Really Simple SSL zawierającą podatność CVE-2024-10924 umożliwiającą ominięcie uwierzytelnienia."
     + WORDPRESS_UPDATE_HINT,
     "The Oracle WebLogic Server component of Oracle Fusion Middleware (Web Services) versions 10.3.6.0, 12.1.3.0, 12.2.1.0, 12.2.1.1 and 12.2.1.2 is susceptible to a difficult to exploit vulnerability that could allow unauthenticated attackers with network access via HTTP to compromise Oracle WebLogic Server.": "Komponent Oracle WebLogic Server systemu Oracle Fusion Middleware w wersji 10.3.6.0, 12.1.3.0, 12.2.1.0, 12.2.1.1 i 12.2.1.2 zawiera podatność CVE-2017-3506 umożliwiającą nieuprawniony dostęp i modyfikację danych."

@@ -1,4 +1,7 @@
 import datetime
+import os
+import tempfile
+from pathlib import Path
 from typing import Annotated, Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
@@ -20,6 +23,10 @@ from artemis.modules.base.runtime_configuration_registry import (
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
+from artemis.reporting.export.main import (
+    build_message_template_and_print_path,
+    install_translations_and_print_path,
+)
 from artemis.task_utils import (
     get_analysis_num_finished_tasks,
     get_analysis_num_in_progress_tasks,
@@ -237,6 +244,16 @@ async def post_export_delete(id: int) -> Dict[str, Any]:
     }
 
 
+@router.post("/build-html-message", dependencies=[Depends(verify_api_token)])
+async def post_build_html_message(language: str = Body(), data: Dict[str, Any] = Body()) -> str:
+    """Renders a custom list of vulnerabilities as HTML."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        os.makedirs(Path(tmp_dir) / "advanced")
+        message_template = build_message_template_and_print_path(Path(tmp_dir), silent=True)
+        install_translations_and_print_path(Language(language), Path(tmp_dir), silent=True)
+        return message_template.render({"data": data})
+
+
 @router.post("/export", dependencies=[Depends(verify_api_token)])
 async def post_export(
     language: str = Body(),
@@ -247,7 +264,6 @@ async def post_export(
     include_only_results_since: Optional[datetime.datetime] = Body(None),
     skip_hooks: bool = Body(False),
     skip_suspicious_reports: bool = Body(False),
-    exclude_normal_forms_from_html: Optional[List[Any]] = Body(None),
 ) -> Dict[str, Any]:
     """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
     db.create_report_generation_task(
@@ -259,7 +275,6 @@ async def post_export(
         skip_hooks=skip_hooks,
         include_only_results_since=include_only_results_since,
         skip_suspicious_reports=skip_suspicious_reports,
-        exclude_normal_forms_from_html=exclude_normal_forms_from_html,
     )
     return {
         "ok": True,

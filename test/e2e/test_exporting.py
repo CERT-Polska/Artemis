@@ -292,75 +292,99 @@ class ExportingTestCase(BaseE2ETestCase):
                     ).encode("utf-8"),
                 )
 
-    def test_exporting_api_exclude_normal_forms_from_html(self) -> None:
-        for exclude_normal_forms_from_html, expected_num_html_files in [
-            (
-                [
-                    [
-                        ["type", "misconfigured_email"],
-                        ["target", "test-smtp-server.artemis"],
-                        [
-                            "message",
-                            "Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
-                        ],
-                    ],
-                ],
-                0,
-            ),
-            ([], 1),
-        ]:
-            self._clean_db_and_redis()
-
-            self.submit_tasks_with_modules_enabled(
-                ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
-            )
-
-            for i in range(100):
-                task_results = requests.get(
-                    BACKEND_URL + "api/task-results?only_interesting=true", headers={"X-API-Token": "api-token"}
-                ).json()
-
-                if len(task_results) == 1:
-                    break
-
-                time.sleep(1)
-
-            self.assertEqual(requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json(), [])
-            self.assertEqual(
-                requests.post(
-                    BACKEND_URL + "api/export",
-                    json={
-                        "skip_previously_exported": False,
-                        "language": "pl_PL",
-                        "tag": "exporting-api",
-                        "exclude_normal_forms_from_html": exclude_normal_forms_from_html,
+    def test_build_html_message(self) -> None:
+        result = requests.post(
+            BACKEND_URL + "api/build-html-message",
+            json={
+                "language": "pl_PL",
+                "data": {
+                    "custom_template_arguments": {
+                        "min_vulnerability_date_str": "2025-10-30",
+                        "max_vulnerability_date_str": "2025-10-30",
                     },
-                    headers={"X-Api-Token": "api-token"},
-                ).json(),
-                {"ok": True},
-            )
+                    "top_level_target_is_domain": True,
+                    "top_level_target": "example.com",
+                    "contains_type": ["misconfigured_email"],
+                    "reports": [
+                        {
+                            "top_level_target": "example.com",
+                            "target": "example.com",
+                            "report_type": "misconfigured_email",
+                            "additional_data": {
+                                "type": "DMARC",
+                                "message_en": "When 1 is present in the fo tag, including 0 is redundant",
+                                "message_translated": "Je\u015bli w tagu 'fo' (okre\u015blaj\u0105cym, kiedy wysy\u0142a\u0107 raport DMARC) jest w\u0142\u0105czona opcja 1 (oznaczaj\u0105ca, \u017ce raport jest wysy\u0142any je\u015bli wiadomo\u015b\u0107 nie jest poprawnie zweryfikowana przez mechanizm SPF lub DKIM, nawet, je\u015bli zosta\u0142a zweryfikowana przez drugi z mechanizm\u00f3w), opcja 0 (tj. wysy\u0142ka raport\u00f3w, gdy wiadomo\u015b\u0107 zostanie zweryfikowana negatywnie przez oba mechanizmy) jest zb\u0119dna.",
+                                "is_for_parent_domain": False,
+                                "is_warning": True,
+                            },
+                            "timestamp": "2025-10-30T07:40:03.341464",
+                            "uuid": "19d77a84-170e-4296-9f34-722291a7b976",
+                            "target_is_ip_address__as_property": False,
+                            "target_ip": None,
+                            "target_ip_checked": True,
+                            "is_subsequent_reminder": False,
+                            "is_suspicious": False,
+                            "last_domain": "kazet.cc",
+                            "tag": None,
+                            "original_karton_name": "mail_dns_scanner",
+                            "original_task_result_id": "d64ebcc4-def7-41e7-bd07-6fbe5353d55b",
+                            "original_task_result_root_uid": "f6bdfff5-c670-44ec-8c4f-5c34383a360e",
+                            "original_task_target_string": "kazet.cc",
+                            "severity": "medium",
+                            "normal_form": [
+                                ["type", "misconfigured_email"],
+                                ["target", "kazet.cc"],
+                                ["message", "When 1 is present in the fo tag, including 0 is redundant"],
+                            ],
+                        }
+                    ],
+                    "assets": [],
+                },
+            },
+            headers={"X-Api-Token": "api-token"},
+        ).content
 
-            for i in range(500):
-                data = requests.get(BACKEND_URL + "api/exports", headers={"X-Api-Token": "api-token"}).json()
-                assert len(data) == 1
-                if data[0]["zip_url"]:
-                    break
-
-                time.sleep(1)
-
-            filename = tempfile.mktemp()
-
-            with open(filename, "wb") as f:
-                f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
-
-            with zipfile.ZipFile(filename) as export:
-                with export.open("advanced/output.json", "r") as f:
-                    data = json.load(f)
-                    self.assertEqual(len(data["messages"]), 1)  # exclude only from html export
-
-                self.assertEqual(
-                    len([item for item in export.namelist() if item.endswith(".html")]), expected_num_html_files
-                )
+        self.assertEqual(
+            json.loads(result).split("\n"),
+            [
+                "",
+                "    <html>",
+                "        <head>",
+                '            <meta charset="UTF-8">',
+                "        </head>",
+                "        <style>",
+                "            ul {",
+                "                margin-top: 10px;",
+                "                margin-bottom: 10px;",
+                "            }",
+                "        </style>",
+                "        <body>",
+                "",
+                "        <ol>",
+                "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
+                "                    <li>",
+                "                            Ostrzeżenie:",
+                "",
+                "                        example.com:",
+                "",
+                "                            Jeśli w tagu &#39;fo&#39; (określającym, kiedy wysyłać raport DMARC) jest włączona opcja 1 (oznaczająca, że raport jest wysyłany jeśli wiadomość nie jest poprawnie zweryfikowana przez mechanizm SPF lub DKIM, nawet, jeśli została zweryfikowana przez drugi z mechanizmów), opcja 0 (tj. wysyłka raportów, gdy wiadomość zostanie zweryfikowana negatywnie przez oba mechanizmy) jest zbędna.",
+                "",
+                "                        ",
+                "                    </li>",
+                "        </ul>",
+                "        <p>",
+                "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
+                "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
+                "        </p>",
+                "    </li>",
+                "        </ol>",
+                "",
+                "",
+                "        </body>",
+                "    </html>",
+                "",
+            ],
+        )
 
     def test_exporting_api_timeframe(self) -> None:
         for include_only_results_since, expected_num_messages in [("2100-01-01T00:00:00Z", 0), (None, 1)]:

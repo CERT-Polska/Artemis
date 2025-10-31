@@ -997,6 +997,7 @@ TRANSLATIONS = {
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    :Redis w wersji 8.2.1 i wcześniejszych pozwala uwierzytelnionemu użytkownikowi wykorzystać specjalnie przygotowany skrypt Lua, co może doprowadzić do zdalnego wykonania kodu. Problem dotyczy wszystkich wersji Redis obsługujących skrypty Lua. Tymczasowe obejście: zablokować wykonywanie skryptów Lua (np. przez ACL ograniczając komendy EVAL i EVALSHA)." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
     "The mTheme-Unus theme for WordPress, prior to version 2.3, contained a directory traversal flaw that let attackers access arbitrary files. This was possible by exploiting the files parameter in css/css.php with .. sequences.": "Szablon WordPress o nazwie mTheme-Unus w wersji poniżej 2.3 zawiera podatność Directory Traversal, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + WORDPRESS_UPDATE_HINT,
     "Total.js Platform before 3.2.3 is vulnerable to local file inclusion.": "Platforma Total.js w wersji poniżej 3.2.3 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku.",

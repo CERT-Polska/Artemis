@@ -8,5 +8,10 @@
     "custom:error-based-sql-injection": "sql-injection",
     "http/exposures/configs/codeigniter-env.yaml": "env-file",
     "http/exposures/configs/laravel-env.yaml": "env-file",
-    "http/vulnerabilities/generic/generic-env.yaml": "env-file"
+    "http/vulnerabilities/generic/generic-env.yaml": "env-file",
+    "dast/vulnerabilities/lfi/lfi-keyed.yaml": "lfi",
+    "dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml": "lfi",
+    "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml": "lfi",
+    "dast/vulnerabilities/redirect/open-redirect-bypass.yaml": "open-redirect",
+    "dast/vulnerabilities/redirect/open-redirect.yaml": "open-redirect"
 }

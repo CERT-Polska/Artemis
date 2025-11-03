@@ -31,16 +31,6 @@ SEVERITY_OVERRIDES = {
 }
 
 
-def is_open_redirect_template(template_id: str) -> bool:
-    keys = ("open redirect", "open-redirection")
-    return any(key in template_id.lower() for key in keys)
-
-
-def is_lfi_template(template_id: str) -> bool:
-    keys = ("lfi", "local file inclusion")
-    return any(key in template_id.lower() for key in keys)
-
-
 class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
     NUCLEI_EXPOSED_PANEL = ReportType("nuclei_exposed_panel")
@@ -93,8 +83,6 @@ class NucleiReporter(Reporter):
         result = []
 
         templates_seen = set()
-        lfi_reported = False
-        open_redirect_reported = False
 
         for vulnerability in task_result["result"]:
             if not isinstance(vulnerability, dict):
@@ -122,15 +110,6 @@ class NucleiReporter(Reporter):
                 + Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_WHEN_REPORTING
             ):
                 continue
-            if is_lfi_template(template):
-                if lfi_reported:
-                    continue
-                lfi_reported = True
-
-            if is_open_redirect_template(template):
-                if open_redirect_reported:
-                    continue
-                open_redirect_reported = True
 
             if "description" in vulnerability["info"]:
                 description = vulnerability["info"]["description"]

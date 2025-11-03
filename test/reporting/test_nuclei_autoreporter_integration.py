@@ -3,7 +3,11 @@ from test.base import BaseReportingTest
 from artemis.modules.nuclei import Nuclei
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
-from artemis.reporting.base.reporters import assets_from_task_result
+from artemis.reporting.base.language import Language
+from artemis.reporting.base.reporters import (
+    assets_from_task_result,
+    reports_from_task_result,
+)
 
 
 class NucleiAutoreporterIntegrationTest(BaseReportingTest):
@@ -35,3 +39,12 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
                 )
             ],
         )
+
+    def test_report_one_lfi_template(self) -> None:
+        data = self.obtain_http_task_result("nuclei", "test-dast-vuln-app", 5000)
+        reports = reports_from_task_result(data, Language.en_US)  # type: ignore
+        count = 0
+        for report in reports:
+            if "lfi" in report.additional_data["template_name"]:
+                count += 1
+        self.assertEqual(count, 1)

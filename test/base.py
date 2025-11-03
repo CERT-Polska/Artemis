@@ -86,17 +86,17 @@ class BaseReportingTest(ArtemisModuleTestCase):
             "result": call.kwargs["data"],
         }
 
-    def obtain_http_task_result(self, receiver: str, host: str) -> Dict[str, Any]:
+    def obtain_http_task_result(self, receiver: str, host: str, port: int = 80) -> Dict[str, Any]:
         task = Task(
             {"type": TaskType.SERVICE, "service": Service.HTTP},
-            payload={"host": host, "port": 80},
+            payload={"host": host, "port": port},
             payload_persistent={"original_domain": host},
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         return {
             "created_at": None,
-            "target_string": "http://" + host + ":80/",
+            "target_string": "http://" + host + ":" + str(port) + "/",
             "headers": {
                 "receiver": receiver,
                 "service": Service.HTTP,

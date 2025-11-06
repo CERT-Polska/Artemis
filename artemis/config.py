@@ -355,6 +355,15 @@ class Config:
             DANGLING_DNS_SKIP_ROOT_DOMAIN: Annotated[
                 bool, "If set to True, detector will not perform checks against the root domain."
             ] = get_config("DANGLING_DNS_SKIP_ROOT_DOMAIN", default=False, cast=bool)
+            DANGLING_DNS_NUMBER_OF_RETRIES_FOR_IP: Annotated[int, "Number of retries for dangling ip records."] = (
+                get_config("DANGLING_DNS_NUMBER_OF_RETRIES_FOR_IP", default=20, cast=int)
+            )
+            DANGLING_DNS_MAX_DELAY_RETRY: Annotated[int, "Max number of delay in seconds between each retry."] = (
+                get_config("DANGLING_DNS_MAX_DELAY_RETRY", default=3600, cast=int)
+            )
+            DANGLING_DNS_DELAY_STEP: Annotated[int, "Number of seconds for incremental step for retries."] = get_config(
+                "DANGLING_DNS_DELAY_STEP", default=600, cast=int
+            )
 
         class DNSScanner:
             ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD: Annotated[

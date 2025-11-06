@@ -1,7 +1,9 @@
 import ipaddress
 import socket
 import subprocess
+import time
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import dns.message
@@ -39,32 +41,30 @@ def dns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.Ans
         return None
 
 
-def ip_exists(ip: str, timeout: int = 5, num_retries: int = 20) -> bool:
-    for _ in range(num_retries):
+def ip_exists(ip: str, timeout: int = 5) -> bool:
+    try:
+        result = subprocess.run(
+            ["ping", "-c", "1", "-W", str(timeout), ip],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if result.returncode == 0:
+            return True
+    except Exception:
+        pass
+
+    def check_port(port: int) -> bool:
         try:
-            result = subprocess.run(
-                ["ping", "-c", "1", "-W", str(timeout), ip],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            if result.returncode == 0:
+            with socket.create_connection((ip, port), timeout=timeout):
                 return True
         except Exception:
-            pass
-
-        def check_port(port: int) -> bool:
-            try:
-                with socket.create_connection((ip, port), timeout=timeout):
-                    return True
-            except Exception:
-                return False
             return False
+        return False
 
-        ports_to_check = [80, 443, 25, 110, 465, 587]
-        with ThreadPoolExecutor(max_workers=len(ports_to_check)) as executor:
-            if any(executor.map(check_port, ports_to_check)):
-                return True
-
+    ports_to_check = [80, 443, 25, 110, 465, 587]
+    with ThreadPoolExecutor(max_workers=len(ports_to_check)) as executor:
+        if any(executor.map(check_port, ports_to_check)):
+            return True
     return False
 
 
@@ -77,7 +77,73 @@ class DanglingDnsDetector(ArtemisBase):
     identity = "dangling_dns_detector"
     filters = [
         {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value},
+        {"type": TaskType.SUSPECTED_DANGLING_IP.value},
     ]
+
+    def handle_retry_timeout(self, current_task: Task, task_type: TaskType) -> bool:
+        """
+        Handles all logic related to skipping the task if not available yet.
+
+        :returns: True if Task is not available yet.
+        """
+        if task_type == TaskType.SUSPECTED_DANGLING_IP:
+            available_at = current_task.payload.get("available_at")
+            now = datetime.now(timezone.utc).timestamp()
+            if available_at and now <= available_at:
+                new_task = Task(
+                    {
+                        "type": TaskType.SUSPECTED_DANGLING_IP,
+                    },
+                    payload=current_task.payload,
+                )
+
+                # no need to keep data for deduplication
+                # order is important, as we will not add new task before deleting previous scheduled_task
+                if current_task.orig_uid:
+                    self.db.delete_scheduled_task(current_task.orig_uid)
+                self.add_task(current_task, new_task)
+
+                self.log.info("Task is not available yet.")
+
+                return True
+        return False
+
+    def handle_scheduling_retry(
+        self, domain: str, current_task: Task, ip_records_alive: bool, last_ip_scan: bool
+    ) -> bool:
+        """
+        Handles all logic related to scheduling retry task.
+
+        :returns: True if Task is was scheduled.
+        """
+        if not ip_records_alive and not last_ip_scan:
+            retry_count = current_task.payload.get("retry_count", 0)
+            new_payload = current_task.payload.copy()
+            new_payload["retry_count"] = retry_count + 1
+
+            step = Config.Modules.DanglingDnsDetector.DANGLING_DNS_DELAY_STEP
+            delay = min(step * (retry_count + 1), Config.Modules.DanglingDnsDetector.DANGLING_DNS_MAX_DELAY_RETRY)
+            available_at = (datetime.now(timezone.utc) + timedelta(seconds=delay)).timestamp()
+            new_payload["available_at"] = available_at
+
+            new_task = Task(
+                {
+                    "type": TaskType.SUSPECTED_DANGLING_IP,
+                },
+                payload=new_payload,
+            )
+
+            self.log.info(
+                "Rescheduling %s with delay=%ss, available_at=%s",
+                domain,
+                delay,
+                available_at,
+            )
+
+            self.add_task(current_task, new_task)
+
+            return True
+        return False
 
     def _is_cname_dangling(self, record: Rdata) -> bool | None:
         if not hasattr(record, "rdtype") or record.rdtype != rdatatype.CNAME:
@@ -180,7 +246,8 @@ class DanglingDnsDetector(ArtemisBase):
         except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
             pass
 
-    def check_dns_ip_records_are_alive(self, domain: str, result: list[dict[str, Any]]) -> None:
+    def check_dns_ip_records_are_alive(self, domain: str, result: list[dict[str, Any]], save_results: bool) -> bool:
+        ip_records_alive = True
         dns_ip_records = [rdatatype.A, rdatatype.AAAA]
         for dns_ip_record in dns_ip_records:
             try:
@@ -192,6 +259,8 @@ class DanglingDnsDetector(ArtemisBase):
 
                         dangling = not ip_exists(record.address)  # type: ignore[attr-defined]
                         if dangling:
+                            ip_records_alive = False
+                        if dangling and save_results:
                             result.append(
                                 {
                                     "domain": domain,
@@ -205,9 +274,18 @@ class DanglingDnsDetector(ArtemisBase):
                             )
             except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
                 pass
+        return ip_records_alive
 
     def run(self, current_task: Task) -> None:
         domain = get_target_host(current_task)
+        task_type = current_task.headers["type"]
+
+        if self.handle_retry_timeout(current_task, task_type):
+            # small delay in case of no active tasks to not spam que
+            time.sleep(5)
+            return
+
+        retry_count = current_task.payload.get("retry_count", 0)
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
         root_domain = analysis.get("target") if analysis else None
 
@@ -220,13 +298,24 @@ class DanglingDnsDetector(ArtemisBase):
             return
 
         result: list[dict[str, Any]] = []
-        self.check_dns_ip_records_are_alive(domain, result)
-        self.check_cname(domain, result)
-        self.check_ns(domain, result)
+
+        last_ip_scan = retry_count >= Config.Modules.DanglingDnsDetector.DANGLING_DNS_NUMBER_OF_RETRIES_FOR_IP
+        ip_records_alive = self.check_dns_ip_records_are_alive(domain, result, save_results=last_ip_scan)
+
+        if task_type == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
+            # we only check that once, no need to rerun that when suspecting dangling ip
+            self.check_cname(domain, result)
+            self.check_ns(domain, result)
+
+        retry_message = None
+        if self.handle_scheduling_retry(domain, current_task, ip_records_alive, last_ip_scan):
+            retry_message = f"Defined domain has dangling IP record, scheduling {retry_count + 1} retry."
 
         status = TaskStatus.INTERESTING if result else TaskStatus.OK
         messages = [r["message"] for r in result]
-        status_reason = " ".join(messages) if result else None
+        if retry_message:
+            messages.append(retry_message)
+        status_reason = " ".join(messages) if messages else None
 
         self.db.save_task_result(
             task=current_task,

@@ -15,6 +15,7 @@ class TaskType(str, Enum):
     :cvar WEBAPP: Web application with URL and type (e.g., WordPress).
     :cvar URL: HTTP URL, must have content attached.
     :cvar DEVICE: Device with host, port, SSL, and type (e.g., FortiOS).
+    :cvar SUSPECTED_DANGLING_IP: Specific for dangling_dns_detector module, for retry purpose.
     """
 
     # unclassified data (goes to classifier)
@@ -40,6 +41,9 @@ class TaskType(str, Enum):
 
     # {device: having a host, port, ssl, and a device type, e.g. Device.FORTIOS}
     DEVICE = "device"
+
+    # {specific to dangling_dns_detector module, for retry purpose}
+    SUSPECTED_DANGLING_IP = "suspected_dangling_ip"
 
 
 class Service(str, Enum):

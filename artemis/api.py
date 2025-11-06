@@ -1,5 +1,5 @@
-import json
 import datetime
+import json
 from typing import Annotated, Any, Dict, List, Optional
 
 import requests
@@ -242,7 +242,7 @@ async def post_export_delete(id: int) -> Dict[str, Any]:
 @router.post("/build-html-message", dependencies=[Depends(verify_api_token)])
 async def post_build_html_message(language: str = Body(), data: Dict[str, Any] = Body()) -> str:
     """Renders a custom list of vulnerabilities as HTML."""
-    return json.loads(
+    return json.loads(  # type: ignore
         requests.post(
             "http://autoreporter:5000/api/build-html-message",
             json={

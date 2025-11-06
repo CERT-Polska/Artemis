@@ -253,8 +253,10 @@ class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
         )
 
         # when
-        self.run_task(task)
-        (call,) = self.mock_db.save_task_result.call_args_list
+        with patch("artemis.config.Config.Modules.DanglingDnsDetector") as mocked_config:
+            mocked_config.DANGLING_DNS_NUMBER_OF_RETRIES_FOR_IP = 0
+            self.run_task(task)
+            (call,) = self.mock_db.save_task_result.call_args_list
 
         # then
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)

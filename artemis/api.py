@@ -1,9 +1,7 @@
 import datetime
-import os
-import tempfile
-from pathlib import Path
 from typing import Annotated, Any, Dict, List, Optional
 
+import requests
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend
@@ -23,10 +21,6 @@ from artemis.modules.base.runtime_configuration_registry import (
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
-from artemis.reporting.export.main import (
-    build_message_template_and_print_path,
-    install_translations_and_print_path,
-)
 from artemis.task_utils import (
     get_analysis_num_finished_tasks,
     get_analysis_num_in_progress_tasks,
@@ -247,11 +241,15 @@ async def post_export_delete(id: int) -> Dict[str, Any]:
 @router.post("/build-html-message", dependencies=[Depends(verify_api_token)])
 async def post_build_html_message(language: str = Body(), data: Dict[str, Any] = Body()) -> str:
     """Renders a custom list of vulnerabilities as HTML."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        os.makedirs(Path(tmp_dir) / "advanced")
-        message_template = build_message_template_and_print_path(Path(tmp_dir), silent=True)
-        install_translations_and_print_path(Language(language), Path(tmp_dir), silent=True)
-        return message_template.render({"data": data})
+    return json.loads(
+        requests.post(
+            "http://autoreporter:5000/api/build-html-message",
+            json={
+                "language": language,
+                "data": data,
+            },
+        ).text
+    )
 
 
 @router.post("/export", dependencies=[Depends(verify_api_token)])

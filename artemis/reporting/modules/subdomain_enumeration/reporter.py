@@ -16,5 +16,5 @@ class SubdomainEnumerationReporter(Reporter):
 
         return [
             Asset(asset_type=AssetType.DOMAIN, name=domain)
-            for domain in task_result["result"].get("existing_domains", [])
+            for domain in task_result["result"].get("existing_subdomains", [])
         ]

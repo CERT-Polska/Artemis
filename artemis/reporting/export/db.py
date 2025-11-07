@@ -70,7 +70,7 @@ class DataLoader:
         if not self._silent:
             results = tqdm(results)  # type: ignore
 
-        seen_assets: Set[Tuple[str, str, str]] = set()
+        seen_assets: Set[Tuple[str, str, str, str]] = set()
 
         for result in results:
             result_tag = result["task"].get("payload_persistent", {}).get("tag", None)
@@ -120,12 +120,7 @@ class DataLoader:
             if reports_to_add and not result["status"] == "INTERESTING":
                 raise RuntimeError("We expect all task results that lead to reports to have status = INTERESTING")
 
-            assets_to_add: List[Asset] = []
-            for item in assets_from_task_result(data_for_reporters):
-                if (item.asset_type, item.additional_type, item.name) in seen_assets:
-                    continue
-                seen_assets.add((item.asset_type, item.additional_type, item.name))
-                assets_to_add.append(item)
+            assets_to_add = assets_from_task_result(data_for_reporters)
 
             for asset_to_add in assets_to_add:
                 asset_to_add.original_karton_name = result["task"]["headers"]["receiver"]
@@ -138,7 +133,16 @@ class DataLoader:
                     raise RuntimeError(
                         f'Assets should have top_level_targets, one from {result["task"]["headers"]["receiver"]} (id {result["id"]}) doesn\'t'
                     )
-            self._assets.extend(assets_to_add)
+
+            assets_filtered: List[Asset] = []
+            for item in assets_to_add:
+                # We save last domain so that even if an IP occurs multiple times on multiple domains, we'll still
+                # save it for each domain.
+                if (item.asset_type, item.additional_type, item.name, item.last_domain) in seen_assets:
+                    continue
+                seen_assets.add((item.asset_type, item.additional_type, item.name, item.last_domain))
+                assets_filtered.append(item)
+            self._assets.extend(assets_filtered)
 
             self._reports.extend(blocklist_reports(reports_to_add, self._blocklist))
         self._data_initialized = True

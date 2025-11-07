@@ -49,6 +49,9 @@ class Config:
             AUTOARCHIVER_INTERVAL_SECONDS: Annotated[
                 int, "How frequently the archive process is triggered (in seconds)"
             ] = get_config("AUTOARCHIVER_INTERVAL_SECONDS", default=3600, cast=int)
+            AUTOARCHIVER_TAG_ARCHIVE_MIN_AGE_SECONDS: Annotated[
+                int, "What should be the minimum age of a tag archive request to be handled."
+            ] = get_config("AUTOARCHIVER_TAG_ARCHIVE_MIN_AGE_SECONDS", default=0, cast=int)
             AUTOARCHIVER_MIN_AGE_SECONDS_INTERESTING: Annotated[
                 int,
                 "How old the task results need to be to be archived (in seconds) for tasks that have status=INTERESTING",

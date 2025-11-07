@@ -4,6 +4,7 @@ import hashlib
 import json
 import shutil
 import tempfile
+import threading
 import time
 import traceback
 from pathlib import Path
@@ -15,6 +16,8 @@ from artemis.config import Config
 from artemis.db import DB, ReportGenerationTask, ReportGenerationTaskStatus
 from artemis.reporting.base.language import Language
 from artemis.reporting.export.main import export
+
+from . import api
 
 db = DB()
 logger = utils.build_logger(__name__)
@@ -100,4 +103,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    api_thread = threading.Thread(target=api.run)
+    api_thread.start()
+
     main()

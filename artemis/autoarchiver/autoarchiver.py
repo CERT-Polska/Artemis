@@ -88,7 +88,10 @@ def archive_old_results(interesting: bool) -> None:
 def main() -> None:
     while True:
         LOGGER.info("Archiving tags that need to be archived...")
-        for item in db.list_tag_archive_requests():
+        for item in db.list_tag_archive_requests(
+            min_age=datetime.datetime.now()
+            - datetime.timedelta(seconds=Config.Data.Autoarchiver.AUTOARCHIVER_TAG_ARCHIVE_MIN_AGE_SECONDS)
+        ):
             tag = item["tag"]
             LOGGER.info(f"Archiving tag {tag}")
             num_items_archived = archive_tag(tag)

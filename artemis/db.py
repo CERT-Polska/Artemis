@@ -231,6 +231,7 @@ class TagArchiveRequest(Base):  # type: ignore
     __tablename__ = "tag_archive_request"
     id = Column(Integer, primary_key=True)
     tag = Column(String, index=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
 
 
 class DB:
@@ -685,9 +686,12 @@ class DB:
         with self.session() as session:
             return session.query(Tag).all()
 
-    def list_tag_archive_requests(self) -> List[Dict[str, Any]]:
+    def list_tag_archive_requests(self, min_age: datetime.datetime) -> List[Dict[str, Any]]:
         with self.session() as session:
-            return [self._strip_internal_db_info(item.__dict__) for item in session.query(TagArchiveRequest).all()]
+            return [
+                self._strip_internal_db_info(item.__dict__)
+                for item in session.query(TagArchiveRequest).filter(TagArchiveRequest.created_at <= min_age)
+            ]
 
     def create_tag_archive_request(self, tag: str) -> None:
         tag_archive_request = TagArchiveRequest(tag=tag)

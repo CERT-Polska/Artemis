@@ -996,15 +996,28 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "Yii2 PHP Framework before 2.0.52 is vulnerable to remote code execution via improper validation of the __class key in JSON behaviors. An attacker can instantiate arbitrary PHP classes and achieve RCE.": "Framework Yii2 w wersji poniżej 2.0.52 zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Traccar 5.8-6.0 (non-default installs with web.override set) and 6.1-6.8.1 (default installs) contain a local file inclusion vulnerability caused by enabled web override configuration, letting unauthenticated attackers leak arbitrary files including passwords, exploit requires local access.": "Traccar w wersjach 5.8-6.0 (instalacja inna od domyślnej z ustawieniem web.override) i 6.1-6.8.1 (domyślne instalacje) zawiera podatność Local File Inclusion, umożliwiającą nieuwierzytelnionemu atakującemu odczyt plików z dysku."
+    + UPDATE_HINT,
+    "ZEIT Next.js before 2.4.1 is susceptible to local file inclusion via the /_next and /static request namespace, allowing attackers to obtain sensitive information.": "ZEIT Next.js w wersji poniżej 2.4.1 zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "Prestashop posstaticfooter <= 1.0.0 is vulnerable to SQL Injection via posstaticfooter::getPosCurrentHook().": "Moduł systemu Prestashop o nazwie posstaticfooter w wersji do 1.0.0 włącznie zawiera podatność SQL Injection umożliwiającą atakującemu pobranie danych z bazy danych."
     + UPDATE_HINT,
     "Oracle Business Intelligence and XML Publisher 11.1.1.9.0 / 12.2.1.3.0 / 12.2.1.4.0 are vulnerable to an XML external entity injection attack.": "Oracle Business Intelligence and XML Publisher 11.1.1.9.0 / 12.2.1.3.0 / 12.2.1.4.0 zawiera podatność XML External Entity (o identyfikatorze CVE-2019-2616), umożliwiającą atakującemu nieuprawniony odczyt, modyfikację i usunięcie danych."
     + UPDATE_HINT,
     "Vite is misconfigured within nuxt to permit any file to be retrieved from the file system.": "System Vite/_nuxt jest błędnie skonfigurowany, co powoduje możliwość odczytywania plików z dysku.",
-    "Redis is an open source, in-memory database that persists on disk. Versions 8.2.1 and below allow an authenticated user to use a specially crafted Lua script to cause an integer overflow and potentially lead to remote code execution The problem exists in all versions of Redis with Lua scripting. This issue is fixed in version 8.2.2.": "Redis w wersji 8.2.1 i wcześniejszych pozwala uwierzytelnionemu użytkownikowi wykorzystać specjalnie przygotowany skrypt Lua, co może doprowadzić do zdalnego wykonania kodu. Identyfikator podatności: CVE-2025-46817."
+    "In PostgreSQL 9.3 through 11.2, the \"COPY TO/FROM PROGRAM\" function allows superusers and users in the 'pg_execute_server_program' group to execute arbitrary code in the context of the database's operating system user. This functionality is enabled by default and can be abused to run arbitrary operating system commands on Windows, Linux, and macOS. NOTE: Third parties claim/state this is not an issue because PostgreSQL functionality for ‘COPY TO/FROM PROGRAM’ is acting as intended. References state that in PostgreSQL, a superuser can execute commands as the server user without using the ‘COPY FROM PROGRAM’.": "Wykryto publicznie dostępny serwer PostgreSQL w wersji pomiędzy 9.3 a 11.2 z włączoną opcją COPY TO/FROM PROGRAM umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The `/rest/settings` endpoint in N8n was publicly exposed, which could have disclosed internal configuration details and sensitive application information.": "Wykryto system N8n z publicznie dostępną końcówką /rest/settings umożliwiającą atakującemu odczyt informacji konfiguracyjnych."
+    + DATA_HIDE_HINT,
+    "Redis is an open source, in-memory database that persists on disk. Versions 8.2.1 and below allow an authenticated user to use a specially crafted Lua script to cause an integer overflow and potentially lead to remote code execution The problem exists in all versions of Redis with Lua scripting. This issue is fixed in version 8.2.2.": "Redis w wersji 8.2.1 i wcześniejszych pozwala uwierzytelnionemu użytkownikowi wykorzystać specjalnie przygotowany skrypt Lua, co może doprowadzić do zdalnego wykonania kodu. Identyfikator podatności: CVE-2025-46817.",
+    "Redis is an open source, in-memory database that persists on disk. Versions 8.2.1 and below allow an authenticated user to use a specially crafted LUA script to read out-of-bound data or crash the server and subsequent denial of service. The problem exists in all versions of Redis with Lua scripting. This issue is fixed in version 8.2.2. To workaround this issue without patching the redis-server executable is to prevent users from executing Lua scripts. This can be done using ACL to block a script by restricting both the EVAL and FUNCTION command families.": "Redis w wersji 8.2.1 i wcześniejszych pozwala uwierzytelnionemu użytkownikowi wykorzystać specjalnie przygotowany skrypt Lua, co może umożliwić atakującemu wyłączenie usługi lub nieuprawniony odczyt danych. Identyfikator podatności: CVE-2025-46819."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "Redis is an open source, in-memory database that persists on disk. Versions 8.2.1 and below allow an authenticated user to use a specially crafted Lua script to manipulate different LUA objects and potentially run their own code in the context of another user. The problem exists in all versions of Redis with LUA scripting. This issue is fixed in version 8.2.2. A workaround to mitigate the problem without patching the redis-server executable is to prevent users from executing LUA scripts. This can be done using ACL to block a script by restricting both the EVAL and FUNCTION command families.": "Redis w wersji 8.2.1 i wcześniejszych pozwala uwierzytelnionemu użytkownikowi wykorzystać specjalnie przygotowany skrypt Lua, co może doprowadzić do wykonania kodu w kontekście innego użytkownika. Identyfikator podatności: CVE-2025-46818."
@@ -2141,4 +2154,5 @@ TRANSLATIONS = {
     "Saia PCD Web Server panel was detected.": "Wykryto panel Saia PCD Web Server.",
     "ThingsBoard was detected — a Open-source IoT Platform for device management, data collection, processing and visualization.": "Wykryto panel ThingsBoard.",
     "Dify panel was discovered.": "Wykryto panel Dify.",
+    "Samsung MagicINFO panel was discovered.": "Wykryto panel Samsung MagicINFO.",
 }

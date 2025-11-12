@@ -692,6 +692,8 @@ TRANSLATIONS = {
     "Multiple Docker Compose configuration files were detected. The configuration allows deploy, combine and configure operations on multiple containers at the same time. The default is to outsource each process to its own container, which is then publicly accessible.": "Wykryto pliki konfiguracyjne Docker Compose, umożliwiające atakującemu poznanie konfiguracji aplikacji."
     + DATA_HIDE_HINT,
     "An open redirect vulnerability was detected. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
+    "[no description] group:open-redirect": "Wykryto podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
+    + BUG_FIX_HINT,
     "Odoo CMS contains an open redirect vulnerability. An attacker can redirect a user to a malicious site and possibly obtain sensitive information, modify data, and/or execute unauthorized operations.": "Wykryto system Odoo CMS zawierający podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
     "Apache Tomcat versions prior to 9.0.12, 8.5.34, and 7.0.91 are prone to an open-redirection vulnerability because it fails to properly sanitize user-supplied input.": "System Apache Tomcat w wersji poniżej 9.0.12, w gałęzi 8 w wersji poniżej 8.5.34 i w gałęzi 7 w wersji poniżej 7.0.91 zawiera podatność typu Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie."
     + UPDATE_HINT,
@@ -996,6 +998,10 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Prestashop posstaticfooter <= 1.0.0 is vulnerable to SQL Injection via posstaticfooter::getPosCurrentHook().": "Moduł systemu Prestashop o nazwie posstaticfooter w wersji do 1.0.0 włącznie zawiera podatność SQL Injection umożliwiającą atakującemu pobranie danych z bazy danych."
+    + UPDATE_HINT,
+    "Oracle Business Intelligence and XML Publisher 11.1.1.9.0 / 12.2.1.3.0 / 12.2.1.4.0 are vulnerable to an XML external entity injection attack.": "Oracle Business Intelligence and XML Publisher 11.1.1.9.0 / 12.2.1.3.0 / 12.2.1.4.0 zawiera podatność XML External Entity (o identyfikatorze CVE-2019-2616), umożliwiającą atakującemu nieuprawniony odczyt, modyfikację i usunięcie danych."
     + UPDATE_HINT,
     "Vite is misconfigured within nuxt to permit any file to be retrieved from the file system.": "System Vite/_nuxt jest błędnie skonfigurowany, co powoduje możliwość odczytywania plików z dysku.",
     "Redis is an open source, in-memory database that persists on disk. Versions 8.2.1 and below allow an authenticated user to use a specially crafted Lua script to cause an integer overflow and potentially lead to remote code execution The problem exists in all versions of Redis with Lua scripting. This issue is fixed in version 8.2.2.": "Redis w wersji 8.2.1 i wcześniejszych pozwala uwierzytelnionemu użytkownikowi wykorzystać specjalnie przygotowany skrypt Lua, co może doprowadzić do zdalnego wykonania kodu. Identyfikator podatności: CVE-2025-46817."
@@ -1466,6 +1472,8 @@ TRANSLATIONS = {
     "The Redis server running on the remote host is not protected by password authentication. A remote attacker can exploit this to gain unauthorized access to the server.": "Wykryto serwer Redis dostępny bez uwierzytelniania. Rekomendujemy, aby nie był dostępny publicznie.",
     "http/misconfiguration/springboot/springboot-httptrace.yaml": "Wykryto informację na temat żądań i odpowiedzi HTTP przetwarzanych przez system Spring Boot.",
     "Multiple fuzzes for /etc/passwd on passed URLs were conducted, leading to multiple instances of local file inclusion vulnerability.": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnego pliku z dysku.",
+    "[no description] group:lfi": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnego pliku z dysku."
+    + BUG_FIX_HINT,
     "WordPress LearnPress plugin before 4.1.6 contains a cross-site scripting vulnerability. It does not sanitize and escape the lp-dismiss-notice before outputting it back via the lp_background_single_email AJAX action.": "Wtyczka WordPress o nazwie LearnPress w wersji poniżej 4.1.6 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
@@ -2131,4 +2139,6 @@ TRANSLATIONS = {
     "CasaOS login panel was detected.": "Wykryto panel logowania CasaOS.",
     "Buildbot panel was detected.": "Wykryto panel Buildbot.",
     "Saia PCD Web Server panel was detected.": "Wykryto panel Saia PCD Web Server.",
+    "ThingsBoard was detected — a Open-source IoT Platform for device management, data collection, processing and visualization.": "Wykryto panel ThingsBoard.",
+    "Dify panel was discovered.": "Wykryto panel Dify.",
 }

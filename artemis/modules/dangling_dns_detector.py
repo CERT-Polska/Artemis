@@ -307,14 +307,10 @@ class DanglingDnsDetector(ArtemisBase):
             self.check_cname(domain, result)
             self.check_ns(domain, result)
 
-        retry_message = None
-        if self.handle_scheduling_retry(domain, current_task, ip_records_alive, last_ip_scan):
-            retry_message = f"Defined domain has dangling IP record, scheduling {retry_count + 1} retry."
+        self.handle_scheduling_retry(domain, current_task, ip_records_alive, last_ip_scan)
 
         status = TaskStatus.INTERESTING if result else TaskStatus.OK
         messages = [r["message"] for r in result]
-        if retry_message:
-            messages.append(retry_message)
         status_reason = " ".join(messages) if messages else None
 
         self.db.save_task_result(

@@ -482,6 +482,13 @@ class DB:
             session.commit()
             return bool(result.rowcount)
 
+    def delete_scheduled_task(self, scheduled_task_id: str) -> int:
+        query = delete(ScheduledTask).where(ScheduledTask.task_id == scheduled_task_id)  # type: ignore
+        with self.session() as session:
+            result = session.execute(query)
+            session.commit()
+            return int(result.rowcount)
+
     def delete_scheduled_tasks_for_analyses(self, analysis_ids: list[str]) -> int:
         query = delete(ScheduledTask).where(ScheduledTask.analysis_id.in_(analysis_ids))  # type: ignore
         with self.session() as session:

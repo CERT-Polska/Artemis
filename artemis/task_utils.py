@@ -28,7 +28,11 @@ def get_target_host(task: Task) -> str:
         assert isinstance(payload, str)
         return payload
 
-    if task_type == TaskType.DOMAIN or task_type == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
+    if (
+        task_type == TaskType.DOMAIN
+        or task_type == TaskType.DOMAIN_THAT_MAY_NOT_EXIST
+        or task_type == TaskType.SUSPECTED_DANGLING_IP
+    ):
         payload = task.get_payload(TaskType.DOMAIN)
         assert isinstance(payload, str)
         return payload
@@ -119,7 +123,11 @@ def get_task_target(task: Task) -> str:
         result = task.payload.get("data", None)
     elif task.headers["type"] == TaskType.IP:
         result = task.payload.get("ip", None)
-    elif task.headers["type"] == TaskType.DOMAIN or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
+    elif (
+        task.headers["type"] == TaskType.DOMAIN
+        or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST
+        or task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP
+    ):
         result = task.payload.get("domain", None)
     elif task.headers["type"] == TaskType.WEBAPP:
         result = task.payload.get("url", None)

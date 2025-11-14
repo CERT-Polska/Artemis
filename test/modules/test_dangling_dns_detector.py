@@ -89,7 +89,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
 
         # when
         result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("dangling.example.com", result)
+        self.karton.check_dns_ip_records_are_alive("dangling.example.com", result, True)
 
         # then
         self.assertTrue(len(result) == 1)
@@ -114,7 +114,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
 
         # when
         result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("valid.example.com", result)
+        self.karton.check_dns_ip_records_are_alive("valid.example.com", result, True)
 
         # then
         self.assertFalse(result)
@@ -137,7 +137,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
 
         # when
         result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("dangling.example.com", result)
+        self.karton.check_dns_ip_records_are_alive("dangling.example.com", result, True)
 
         # then
         self.assertTrue(len(result) == 1)
@@ -158,7 +158,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
 
         # when
         result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("norecords.example.com", result)
+        self.karton.check_dns_ip_records_are_alive("norecords.example.com", result, True)
 
         # then
         self.assertFalse(result)
@@ -253,8 +253,10 @@ class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
         )
 
         # when
-        self.run_task(task)
-        (call,) = self.mock_db.save_task_result.call_args_list
+        with patch("artemis.config.Config.Modules.DanglingDnsDetector") as mocked_config:
+            mocked_config.DANGLING_DNS_NUMBER_OF_RETRIES_FOR_IP = 0
+            self.run_task(task)
+            (call,) = self.mock_db.save_task_result.call_args_list
 
         # then
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)

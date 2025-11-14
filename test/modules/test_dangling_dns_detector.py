@@ -114,7 +114,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
 
         # when
         result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("dangling.example.com", result, True)
+        self.karton.check_dns_ip_records_are_alive("valid.example.com", result, True)
 
         # then
         self.assertFalse(result)
@@ -158,7 +158,7 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
 
         # when
         result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("dangling.example.com", result, True)
+        self.karton.check_dns_ip_records_are_alive("norecords.example.com", result, True)
 
         # then
         self.assertFalse(result)

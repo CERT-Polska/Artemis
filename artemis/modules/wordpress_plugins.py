@@ -76,6 +76,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "website-monetization-by-magenet",
     "woo-multi-currency",
     "wp-maximum-execution-time-exceeded",
+    "wp-migrate-db",
     "zapier",
 ]
 

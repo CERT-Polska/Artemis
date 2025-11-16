@@ -68,6 +68,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "famethemes-demo-importer",
     "gallery-block-lightbox",
     "icon-element",
+    "jetpack-backup",
     "link-manager",
     "login-logo",
     "page-or-post-clone",
@@ -75,6 +76,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "website-monetization-by-magenet",
     "woo-multi-currency",
     "wp-maximum-execution-time-exceeded",
+    "wp-migrate-db",
     "zapier",
 ]
 
@@ -157,6 +159,8 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
                 # Some changelog entries have the format <slug>: <version>
                 if line.startswith(slug):
                     line = line[len(slug) :].strip(" :")
+                if line.lower().startswith("=  " + slug.replace("-", " ")):
+                    line = line[len(slug) + 2 :]
                 # Some changelog entries have the format version <version>
                 # let's take only first 25 characters as the "version" word may occur in a middle of a sentence
                 if "version" in line[:25]:

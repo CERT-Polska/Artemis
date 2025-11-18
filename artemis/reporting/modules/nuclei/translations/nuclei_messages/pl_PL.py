@@ -999,12 +999,23 @@ TRANSLATIONS = {
     "Yii2 PHP Framework before 2.0.52 is vulnerable to remote code execution via improper validation of the __class key in JSON behaviors. An attacker can instantiate arbitrary PHP classes and achieve RCE.": "Framework Yii2 w wersji poniżej 2.0.52 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Tenda router allows unauthenticated users to download the configuration file containing sensitive credentials via the /cgi-bin/DownloadCfg/RouterCfm.jpg endpoint.": "Wykryto router Tenda umożliwiający nieuwierzytelnionemu użytkownikowi pobranie konfiguracji zawierającej wrażliwe dane, w tym dane dostępowe."
+    + DATA_HIDE_HINT,
+    "vsftpd 3.0.2 and earlier contain a vulnerability that allows remote attackers to bypass access restrictions due to improper parsing of the deny_file configuration directive.": "vsftpd w wersji 3.0.2 i wcześniejszych zawiera podatność o identyfikatorze CVE-2015-1419 umożliwiającą atakującemu ominięcie ograniczeń dostępu.",
+    "TOTOLINK Realtek SDK based routers may allow an authenticated attacker to execute arbitrary OS commands via the sysCmd parameter to the boafrm/formSysCmd URI, even if the GUI (syscmd.htm) is not available. This allows for full control over the device's internals. This affects A3002RU through 2.0.0, A702R through 2.1.3, N301RT through 2.1.6, N302R through 3.4.0, N300RT through 3.4.0, N200RE through 4.0.0, N150RT through 3.4.0, and N100RE through 3.4.0.": "Urządzenia oparte na oprogramowaniu TOTOLINK Realtek SDK (A3002RU w wersji do 2.0.0 włącznie, A702R w wersji do 2.1.3 włącznie, N301RT do 2.1.6 włącznie, N302R do 3.4.0 włącznie, N300RT do 3.4.0 włącznie, N200RE do 4.0.0 włącznie, N150RT do 3.4.0 włącznie i N100RE do 3.4.0 włącznie zawierają podatność o identyfikatorze CVE-2019-19824 umożliwiającą atakującemu wykonywanie dowolnych poleceń systemowych nawet gdy GUI nie jest dostępne."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "ClinicCases 7.3.3 is susceptible to multiple reflected cross-site scripting vulnerabilities that could allow unauthenticated attackers to introduce arbitrary JavaScript by crafting a malicious URL. This can result in account takeover via session token theft.": "ClinicCases w wersji 7.3.3 i potencjalnie wcześniejszych zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "Traccar 5.8-6.0 (non-default installs with web.override set) and 6.1-6.8.1 (default installs) contain a local file inclusion vulnerability caused by enabled web override configuration, letting unauthenticated attackers leak arbitrary files including passwords, exploit requires local access.": "Traccar w wersjach 5.8-6.0 (instalacja inna od domyślnej z ustawieniem web.override) i 6.1-6.8.1 (domyślne instalacje) zawiera podatność Local File Inclusion, umożliwiającą nieuwierzytelnionemu atakującemu odczyt plików z dysku."
     + UPDATE_HINT,
+    "Traccar is an open source GPS tracking system. Versions prior to 6.0 are vulnerable to path traversal and unrestricted upload of file with dangerous type. Since the system allows registration by default, attackers can acquire ordinary user permissions by registering an account and exploit this vulnerability to upload files with the prefix `device.` under any folder. Attackers can use this vulnerability for phishing, cross-site scripting attacks, and potentially execute arbitrary commands on the server. Version 6.0 contains a patch for the issue.": "Traccar w wersji poniżej 6.0 umożliwia atakującemu odczyt plików z serwera i umieszczanie na serwerze plików, co może doprowadzić do zdalnego wykonania kodu. Podatności nadano identyfikator CVE-2024-24809."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "ZEIT Next.js before 2.4.1 is susceptible to local file inclusion via the /_next and /static request namespace, allowing attackers to obtain sensitive information.": "ZEIT Next.js w wersji poniżej 2.4.1 zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Graphite's send_email in graphite-web/webapp/graphite/composer/views.py in versions up to 1.1.5 is vulnerable to server-side request forgery (SSR)F. The vulnerable SSRF endpoint can be used by an attacker to have the Graphite web server request any resource. The response to this SSRF request is encoded into an image file and then sent to an email address that can be supplied by the attacker. Thus, an attacker can exfiltrate any information.": "System Graphite w wersji do 1.1.5 zawiera podatność o identyfikatorze CVE-2017-18638 umożliwiającą atakującemu odczyt dowolnych zasobów z sieci wewnętrznej."
     + UPDATE_HINT,
     "Prestashop posstaticfooter <= 1.0.0 is vulnerable to SQL Injection via posstaticfooter::getPosCurrentHook().": "Moduł systemu Prestashop o nazwie posstaticfooter w wersji do 1.0.0 włącznie zawiera podatność SQL Injection umożliwiającą atakującemu pobranie danych z bazy danych."
     + UPDATE_HINT,
@@ -2155,4 +2166,5 @@ TRANSLATIONS = {
     "ThingsBoard was detected — a Open-source IoT Platform for device management, data collection, processing and visualization.": "Wykryto panel ThingsBoard.",
     "Dify panel was discovered.": "Wykryto panel Dify.",
     "Samsung MagicINFO panel was discovered.": "Wykryto panel Samsung MagicINFO.",
+    "airCube login panel was detected.": "Wykryto panel logowania airCube.",
 }

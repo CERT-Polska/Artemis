@@ -10,7 +10,7 @@ import traceback
 from pathlib import Path
 
 import psutil
-from sqlalchemy.orm import ObjectDeletedError  # type: ignore
+from sqlalchemy.orm.exc import ObjectDeletedError
 
 from artemis import utils
 from artemis.config import Config

@@ -10,7 +10,7 @@ import traceback
 from pathlib import Path
 
 import psutil
-import sqlalchemy.orm.exc.ObjectDeletedError  # type: ignore
+from sqlalchemy.orm import ObjectDeletedError  # type: ignore
 
 from artemis import utils
 from artemis.config import Config
@@ -98,7 +98,7 @@ def main() -> None:
                     db.save_report_generation_task_results(
                         task, ReportGenerationTaskStatus.FAILED, error=traceback.format_exc()
                     )
-                except sqlalchemy.orm.exc.ObjectDeletedError:
+                except ObjectDeletedError:
                     # Ignore the case that the object has gone missing because someone called
                     # /export/delete in the meantime.
                     pass

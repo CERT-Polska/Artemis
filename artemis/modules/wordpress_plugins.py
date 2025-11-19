@@ -72,6 +72,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "link-manager",
     "login-logo",
     "page-or-post-clone",
+    "rafflepress",
     "trustpilot-reviews",
     "website-monetization-by-magenet",
     "woo-multi-currency",

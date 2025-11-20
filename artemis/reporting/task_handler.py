@@ -10,6 +10,7 @@ import traceback
 from pathlib import Path
 
 import psutil
+from sqlalchemy.orm.exc import ObjectDeletedError
 
 from artemis import utils
 from artemis.config import Config
@@ -92,9 +93,16 @@ def main() -> None:
                 logger.info("Reporting task succeeded")
             except Exception:
                 logger.exception("Reporting task failed")
-                db.save_report_generation_task_results(
-                    task, ReportGenerationTaskStatus.FAILED, error=traceback.format_exc()
-                )
+
+                try:
+                    db.save_report_generation_task_results(
+                        task, ReportGenerationTaskStatus.FAILED, error=traceback.format_exc()
+                    )
+                except ObjectDeletedError:
+                    # Ignore the case that the object has gone missing because someone called
+                    # /export/delete in the meantime.
+                    pass
+
             if Config.Miscellaneous.LOG_LEVEL == "DEBUG":
                 faulthandler.cancel_dump_traceback_later()
             report_mem()

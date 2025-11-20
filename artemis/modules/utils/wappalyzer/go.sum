@@ -18,6 +18,8 @@ github.com/projectdiscovery/wappalyzergo v0.2.51 h1:HWPSSwrptaODJjTTHs68m4w/4Y5c
 github.com/projectdiscovery/wappalyzergo v0.2.51/go.mod h1:lwuDLdAqWDZ1IL8OQnoNQ0t17UP9AQSvVuFcDAm4FpQ=
 github.com/projectdiscovery/wappalyzergo v0.2.52 h1:Yh5gGlWv/jfATZ8MixCJBXQOYIc4M/hSdVJDyTRI8NQ=
 github.com/projectdiscovery/wappalyzergo v0.2.52/go.mod h1:lwuDLdAqWDZ1IL8OQnoNQ0t17UP9AQSvVuFcDAm4FpQ=
+github.com/projectdiscovery/wappalyzergo v0.2.55 h1:Yw8bSrEH/+prUrkb6c4NMwi5m2Sso28nrdy4vFxYn8I=
+github.com/projectdiscovery/wappalyzergo v0.2.55/go.mod h1:lwuDLdAqWDZ1IL8OQnoNQ0t17UP9AQSvVuFcDAm4FpQ=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
@@ -31,5 +33,7 @@ golang.org/x/net v0.44.0 h1:evd8IRDyfNBMBTTY5XRF1vaZlD+EmWx6x8PkhR04H/I=
 golang.org/x/net v0.44.0/go.mod h1:ECOoLqd5U3Lhyeyo/QDCEVQ4sNgYsqvCZ722XogGieY=
 golang.org/x/net v0.46.0 h1:giFlY12I07fugqwPuWJi68oOnpfqFnJIJzaIIm2JVV4=
 golang.org/x/net v0.46.0/go.mod h1:Q9BGdFy1y4nkUwiLvT5qtyhAnEHgnQ/zd8PfU6nc210=
+golang.org/x/net v0.47.0 h1:Mx+4dIFzqraBXUugkia1OOvlD6LemFo1ALMHjrXDOhY=
+golang.org/x/net v0.47.0/go.mod h1:/jNxtkgq5yWUGYkaZGqo27cfGZ1c5Nen03aYrrKpVRU=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

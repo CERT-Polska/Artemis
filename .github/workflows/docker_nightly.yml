@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
+      - run: |
+          sudo docker image prune --all --force
+          sudo docker system prune -a
+      - run: df -h
       - name: Checkout source code
         uses: actions/checkout@v5
         with:

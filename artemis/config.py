@@ -67,7 +67,7 @@ class Config:
             AUTOARCHIVER_PACK_SIZE: Annotated[
                 int,
                 "How many task results will go into single .json.gz archive. If there are not that many old task results, archiving will not be performed.",
-            ] = get_config("AUTOARCHIVER_PACK_SIZE", default=5_000, cast=int)
+            ] = get_config("AUTOARCHIVER_PACK_SIZE", default=2_000, cast=int)
             AUTOARCHIVER_OUTPUT_PATH: Annotated[
                 str,
                 "Where the archived task results will be saved (remember that this is a path inside the container).",

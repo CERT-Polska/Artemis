@@ -999,6 +999,7 @@ TRANSLATIONS = {
     "Yii2 PHP Framework before 2.0.52 is vulnerable to remote code execution via improper validation of the __class key in JSON behaviors. An attacker can instantiate arbitrary PHP classes and achieve RCE.": "Framework Yii2 w wersji poniżej 2.0.52 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Adobe Commerce versions 2.4.9-alpha2, 2.4.8-p2, 2.4.7-p7, 2.4.6-p12, 2.4.5-p14, 2.4.4-p15 and earlier are affected by an Improper Input Validation vulnerability. A successful attacker can abuse this to achieve session takeover, increasing the confidentiality, and integrity impact to high. Exploitation of this issue does not require user interaction.": "Adobe Commerce w wersji 2.4.9-alpha2, 2.4.8-p2, 2.4.7-p7, 2.4.6-p12, 2.4.5-p14, 2.4.4-p15 i wcześniejszych zawiera podatność CVE-2025-54236 umożliwiającą przejęcie konta innego użytkownika." + UPDATE_HINT,
     "Linear eMerge E3-Series devices allow Command Injections.": "Wykryto urządzenie Linear eMerge E3-SERIES zawierające podatność CVE-2019-7256 umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -2170,4 +2171,5 @@ TRANSLATIONS = {
     "Dify panel was discovered.": "Wykryto panel Dify.",
     "Samsung MagicINFO panel was discovered.": "Wykryto panel Samsung MagicINFO.",
     "airCube login panel was detected.": "Wykryto panel logowania airCube.",
+    "Fortinet FortiManager panel was detected.": "Wykryto panel Fortinet FortiManager.",
 }

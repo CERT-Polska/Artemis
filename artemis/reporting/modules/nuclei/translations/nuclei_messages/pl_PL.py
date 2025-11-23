@@ -2173,4 +2173,5 @@ TRANSLATIONS = {
     "airCube login panel was detected.": "Wykryto panel logowania airCube.",
     "Fortinet FortiManager panel was detected.": "Wykryto panel Fortinet FortiManager.",
     "Detects the presence of a NextcloudPi login page. NextcloudPi is a ready-to-use Nextcloud instance for Raspberry Pi.": "Wykryto panel logowania NextcloudPi.",
+    "UniFi OS Panel was discovered": "Wykryto panel UniFi OS.",
 }

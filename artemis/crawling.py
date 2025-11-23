@@ -5,6 +5,7 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import requests
 from bs4 import BeautifulSoup
+from bs4.exceptions import ParserRejectedMarkup
 
 from artemis import http_requests
 
@@ -46,7 +47,11 @@ def get_injectable_parameters(url: str) -> List[str]:
         return []
 
     result = set()
-    soup = BeautifulSoup(content, "html.parser")
+    try:
+        soup = BeautifulSoup(content, "html.parser")
+    except ParserRejectedMarkup:
+        return []
+    
     for input_tag in soup.find_all("input"):
         if input_tag.get("name"):
             result.add(input_tag.get("name"))

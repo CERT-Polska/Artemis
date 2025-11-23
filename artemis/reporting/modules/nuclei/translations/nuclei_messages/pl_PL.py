@@ -999,7 +999,9 @@ TRANSLATIONS = {
     "Yii2 PHP Framework before 2.0.52 is vulnerable to remote code execution via improper validation of the __class key in JSON behaviors. An attacker can instantiate arbitrary PHP classes and achieve RCE.": "Framework Yii2 w wersji poniżej 2.0.52 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
-    "Linear eMerge E3-Series devices allow Command Injections.": "Wykryto urządzenie Linear eMerge E3-SERIES zawierające podatność CVE-2019-7256 umożliwiającą zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
+    "Linear eMerge E3-Series devices allow Command Injections.": "Wykryto urządzenie Linear eMerge E3-SERIES zawierające podatność CVE-2019-7256 umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Tenda router allows unauthenticated users to download the configuration file containing sensitive credentials via the /cgi-bin/DownloadCfg/RouterCfm.jpg endpoint.": "Wykryto router Tenda umożliwiający nieuwierzytelnionemu użytkownikowi pobranie konfiguracji zawierającej wrażliwe dane, w tym dane dostępowe."
     + DATA_HIDE_HINT,
     "vsftpd 3.0.2 and earlier contain a vulnerability that allows remote attackers to bypass access restrictions due to improper parsing of the deny_file configuration directive.": "vsftpd w wersji 3.0.2 i wcześniejszych zawiera podatność o identyfikatorze CVE-2015-1419 umożliwiającą atakującemu ominięcie ograniczeń dostępu.",

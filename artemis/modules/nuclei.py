@@ -671,7 +671,7 @@ class Nuclei(ArtemisBase):
             for finding in findings_per_task[task.uid]:
                 result.append(finding)
                 messages.append(
-                    f"[{finding['info']['severity']}] {finding['matched-at']}: {finding['info'].get('name')} {finding['info'].get('description', '')}"
+                    f"[{finding['info']['severity']}] {finding.get('matched-at', None) or finding.get('url')}: {finding['info'].get('name')} {finding['info'].get('description', '')}"
                 )
 
             if messages:

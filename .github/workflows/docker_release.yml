@@ -11,7 +11,7 @@ jobs:
     steps:
       - run: sudo rm -rf /usr/lib/jvm /usr/share/dotnet	/usr/share/swift /usr/local/.ghcup /usr/local/lib/android/sdk
       - name: Checkout source code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.ref }}
 

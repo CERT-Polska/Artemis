@@ -999,6 +999,9 @@ TRANSLATIONS = {
     "Yii2 PHP Framework before 2.0.52 is vulnerable to remote code execution via improper validation of the __class key in JSON behaviors. An attacker can instantiate arbitrary PHP classes and achieve RCE.": "Framework Yii2 w wersji poniżej 2.0.52 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "tagDiv Composer plugin versions before 4.2 for WordPress are vulnerable to unauthenticated stored XSS via the /wp-json/tdw/save_css endpoint. An attacker can inject malicious JavaScript code through the compiled_css parameter, which gets stored and executed when the CSS is loaded.": "Wtyczka WordPress o nazwie tagDiv Composer w wersji poniżej 4.2 zawiera podatność Unauthenticated XSS, umożliwiającą atakującemu wstrzyknięcie szkodliwego kodu do strony internetowej."
+    + WORDPRESS_UPDATE_HINT,
+    "[no description] dast/vulnerabilities/crlf/crlf-injection.yaml": "Wykryto podatność CRLF Injection, umożliwiającą spreparowanie linku w Państwa domenie, który odpowiada spreparowanymi przez atakującego nagłówkami HTTP lub treścią.",
     "The vsf_filename_passes_filter function in ls.c in vsftpd before 2.3.3 allows remote authenticated users to cause a denial of service (CPU consumption and process slot exhaustion) via crafted glob expressions in STAT commands in multiple FTP sessions, a different vulnerability than CVE-2010-2632.": "vsftpd w wersji poniżej 2.3.3 zawiera podatność CVE-2011-0762 umożliwiającą atakującemu przerwanie działania usługi."
     + UPDATE_HINT,
     "Zimbra Collaboration Suite (ZCS) allows remote unauthenticated attackers to cause the product to include content returned by third-party servers and use it as its own code.": "Wykryto oprogramowanie Zimbra Collaboration Suite (ZCS) zawierające podatność Server-Side Request Forgery (o identyfikatorze CVE-2020-7796) umożliwiającą atakującemu dostęp do usług w sieci wewnętrznej."

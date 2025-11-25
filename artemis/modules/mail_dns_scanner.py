@@ -42,6 +42,10 @@ class MailDNSScanner(ArtemisBase):
     def get_default_configuration(self) -> MailDNSScannerConfiguration:
         return MailDNSScannerConfiguration()
 
+    @staticmethod
+    def _filter_warnings(warnings: List[str]) -> List[str]:
+        return [warning for warning in warnings if dns.resolver.LifetimeTimeout.msg[:1] not in warning]
+
     def scan(self, current_task: Task, domain: str) -> MailDNSScannerResult:
         result = MailDNSScannerResult()
 
@@ -160,10 +164,10 @@ class MailDNSScanner(ArtemisBase):
         status_reasons: List[str] = []
         if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.spf:
             status_reasons.extend(result.spf_dmarc_scan_result.spf.errors)
-            status_reasons.extend(result.spf_dmarc_scan_result.spf.warnings)
+            status_reasons.extend(self._filter_warnings(result.spf_dmarc_scan_result.spf.warnings))
         if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.dmarc:
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
-            status_reasons.extend(result.spf_dmarc_scan_result.dmarc.warnings)
+            status_reasons.extend(self._filter_warnings(result.spf_dmarc_scan_result.dmarc.warnings))
 
         if status_reasons:
             status = TaskStatus.INTERESTING

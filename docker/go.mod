@@ -209,7 +209,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mattn/go-sqlite3 v1.14.28 // indirect
 	github.com/mholt/acmez v1.2.0 // indirect
-	github.com/mholt/archives v0.1.3 // indirect
+	github.com/mholt/archives v0.1.5 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/microsoft/go-mssqldb v1.9.2 // indirect
 	github.com/miekg/dns v1.1.66 // indirect

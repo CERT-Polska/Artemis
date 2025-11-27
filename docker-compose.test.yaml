@@ -194,8 +194,6 @@ services:
       PASSWORD_ACCESS: true
       USER_PASSWORD: password
       USER_NAME: user
-    ports:
-      - "2222:2222"
 
   test-postgresql-with-easy-password:
     image: postgres

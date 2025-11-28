@@ -999,6 +999,7 @@ TRANSLATIONS = {
     "Yii2 PHP Framework before 2.0.52 is vulnerable to remote code execution via improper validation of the __class key in JSON behaviors. An attacker can instantiate arbitrary PHP classes and achieve RCE.": "Framework Yii2 w wersji poniżej 2.0.52 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "UPS Network Management Card version 4 suffers from a path traversal vulnerability.": "UPS Network Management Card w wersji 4 zawiera podatność Path Traversal, umożliwiającą atakującemu pobranie zawartości dowolnych plików z dysku.",
     "tagDiv Composer plugin versions before 4.2 for WordPress are vulnerable to unauthenticated stored XSS via the /wp-json/tdw/save_css endpoint. An attacker can inject malicious JavaScript code through the compiled_css parameter, which gets stored and executed when the CSS is loaded.": "Wtyczka WordPress o nazwie tagDiv Composer w wersji poniżej 4.2 zawiera podatność Unauthenticated XSS, umożliwiającą atakującemu wstrzyknięcie szkodliwego kodu do strony internetowej."
     + WORDPRESS_UPDATE_HINT,
     "[no description] dast/vulnerabilities/crlf/crlf-injection.yaml": "Wykryto podatność CRLF Injection, umożliwiającą spreparowanie linku w Państwa domenie, który odpowiada spreparowanymi przez atakującego nagłówkami HTTP lub treścią.",
@@ -2185,4 +2186,5 @@ TRANSLATIONS = {
     "Fortinet FortiManager panel was detected.": "Wykryto panel Fortinet FortiManager.",
     "Detects the presence of a NextcloudPi login page. NextcloudPi is a ready-to-use Nextcloud instance for Raspberry Pi.": "Wykryto panel logowania NextcloudPi.",
     "UniFi OS Panel was discovered": "Wykryto panel UniFi OS.",
+    "Commvault web console login panel was detected.": "Wykryto panel logowania konsoli Commvault.",
 }

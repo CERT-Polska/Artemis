@@ -44,7 +44,7 @@ class MailDNSScanner(ArtemisBase):
 
     @staticmethod
     def _filter_warnings(warnings: List[str]) -> List[str]:
-        return [warning for warning in warnings if dns.resolver.LifetimeTimeout.msg[:1] not in warning]
+        return [warning for warning in warnings if dns.resolver.LifetimeTimeout.msg[:-1] not in warning]
 
     def scan(self, current_task: Task, domain: str) -> MailDNSScannerResult:
         result = MailDNSScannerResult()

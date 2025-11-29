@@ -314,6 +314,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "[no description] http/takeovers/tilda-takeover.yaml": "Wykryto domenę kierującą do narzędzia Tilda, ale domena docelowa jest wolna. Atakujący może zarejestrować domenę w narzędziu Tilda, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "tumblr takeover was detected.": "Wykryto domenę kierującą do serwisu Tumblr, ale strona docelowa nie istnieje. Atakujący może utworzyć stronę w serwisie Tumblr, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
+    "Framer takeover was detected.": "Wykryto domenę kierującą do serwisu Framer, ale strona docelowa nie istnieje. Atakujący może utworzyć stronę w serwisie Framer, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "AWS Bucket takeover was detected.": "Wykryto domenę kierującą do zasobu AWS S3, który nie istnieje. Atakujący może utworzyć taki zasób, aby serwować tam swoje treści. Jeśli domena nie jest używana, rekomendujemy jej usunięcie.",
     "[no description] http/misconfiguration/clockwork-dashboard-exposure.yaml": "Wykryto publicznie dostępny panel narzędzia Clockwork. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
     "[no description] http/vulnerabilities/generic/cache-poisoning-xss.yaml": "Wykryto podatność Cache Poisoning, umożliwiającą atakującemu zmianę treści prezentowanych innym użytkownikom serwisu, w tym umieszczenie tam szkodliwego oprogramowania."
@@ -996,9 +997,15 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "Improper limitation of a pathname to a restricted directory vulnerability in Samsung MagicINFO 9 Server version before 21.1052 allows attackers to write arbitrary file as system authority.": "Samsung MagicINFO 9 Server w wersji poniżej 21.1052 zawiera podatność o identyfikatorze CVE-2025-4632 umożliwiającą atakującemu nadpisywanie dowolnych plików."
+    + UPDATE_HINT,
+    'In CWP (Control Web Panel, previously CentOS Web Panel) before version 0.9.8.1107, an unauthenticated attacker can abuse null byte (%00) injection with the "scripts" parameter in the /user/loader.php or /user/login.php endpoints to register arbitrary API keys or access sensitive files. This can be exploited by using multiple %00 sequences to traverse directories via crafted requests such as /user/loader.php?api=1&scripts=.%00./.%00./api/account_new_create&acc=guadaapi, or similar payloads with more %00 instances (e.g., .%00%00%00./.%00%00%00./api/account_new_create': "Oprogramowanie CWP (Control Web Panel, dawniej CentOS Web Panel) w wersji poniżej 0.9.8.1107 zawiera podatność o identyfikatorze CVE-2021-45467 która umożliwia nieuprawnionemu atakującemu dodawanie nowych kluczy API lub nieuprawniony dostęp do plików."
+    + UPDATE_HINT,
     "Yii2 PHP Framework before 2.0.52 is vulnerable to remote code execution via improper validation of the __class key in JSON behaviors. An attacker can instantiate arbitrary PHP classes and achieve RCE.": "Framework Yii2 w wersji poniżej 2.0.52 zawiera podatność umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Hashicorp Consul Services API is vulnerable to an attack that can be leveraged to perform remote command execution on Consul nodes.": "Wykryto API Hashicorp Consult Services skonfigurowane w sposób, który umożliwia atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
     "UPS Network Management Card version 4 suffers from a path traversal vulnerability.": "UPS Network Management Card w wersji 4 zawiera podatność Path Traversal, umożliwiającą atakującemu pobranie zawartości dowolnych plików z dysku.",
     "tagDiv Composer plugin versions before 4.2 for WordPress are vulnerable to unauthenticated stored XSS via the /wp-json/tdw/save_css endpoint. An attacker can inject malicious JavaScript code through the compiled_css parameter, which gets stored and executed when the CSS is loaded.": "Wtyczka WordPress o nazwie tagDiv Composer w wersji poniżej 4.2 zawiera podatność Unauthenticated XSS, umożliwiającą atakującemu wstrzyknięcie szkodliwego kodu do strony internetowej."
     + WORDPRESS_UPDATE_HINT,
@@ -1172,6 +1179,8 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
     "WordPress acf-to-rest-ap through 3.1.0 allows an insecure direct object reference via permalinks manipulation, as demonstrated by a wp-json/acf/v3/options/ request that can read sensitive information in the wp_options table such as the login and pass values.": "Wtyczka WordPress o nazwie acf-to-rest-ap w wersji do 3.1.0 włącznie zawiera podatnosć Insecure Direct Object Reference umożliwiającą atakującemu odczyt opcji konfiguracyjnych, w których mogą znajdować się dane wrażliwe, np. hasła.",
+    "Fuzzing for /windows/win.ini.": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + BUG_FIX_HINT,
     "[no description] dast/vulnerabilities/lfi/lfi-keyed.yaml": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + BUG_FIX_HINT,
     "[no description] dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml": "Wykryto podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
@@ -1243,6 +1252,8 @@ TRANSLATIONS = {
     "Fastjson 1.2.62 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.62 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Fastjson 1.2.43 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.43 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
@@ -2187,4 +2198,6 @@ TRANSLATIONS = {
     "Detects the presence of a NextcloudPi login page. NextcloudPi is a ready-to-use Nextcloud instance for Raspberry Pi.": "Wykryto panel logowania NextcloudPi.",
     "UniFi OS Panel was discovered": "Wykryto panel UniFi OS.",
     "Commvault web console login panel was detected.": "Wykryto panel logowania konsoli Commvault.",
+    "SugarCRM login panel was detected.": "Wykryto panel logowania SugarCRM.",
+    "Detects the presence of the Saltbo/zpan file management panel.": "Wykryto panel zarządzania plikami Saltbo/zpan.",
 }

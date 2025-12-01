@@ -65,7 +65,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "disable-remove-google-fonts",
-    "embed-any-document",
     "famethemes-demo-importer",
     "gallery-block-lightbox",
     "icon-element",

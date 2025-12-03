@@ -44,7 +44,7 @@ def is_log_file(found_url: FoundURL) -> bool:
         return False
 
     if found_url.has_directory_index:
-        soup = bs4.BeautifulSoup(found_url.content_prefix)
+        soup = bs4.BeautifulSoup(found_url.content_prefix, "lxml")
         for link in soup.find_all("a"):
             href = link.get("href")
             if (

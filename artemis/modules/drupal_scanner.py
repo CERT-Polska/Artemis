@@ -33,7 +33,7 @@ class DrupalScanner(BaseNewerVersionComparerModule):
     def run(self, current_task: Task) -> None:
         url = current_task.get_payload("url")
         response = self.http_get(url, max_size=DrupalScanner.DOWNLOADED_CONTENT_PREFIX_SIZE)
-        soup = bs4.BeautifulSoup(response.content)
+        soup = bs4.BeautifulSoup(response.content, "lxml")
 
         version: Optional[str] = None
         for script in soup.find_all("script"):

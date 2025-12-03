@@ -34,7 +34,7 @@ class DirectoryIndex(ArtemisBase):
 
     def scan(self, base_url: str) -> List[FoundURL]:
         response = self.http_get(base_url)
-        soup = BeautifulSoup(response.content, "html.parser")
+        soup = BeautifulSoup(response.content, "lxml")
         original_base_url_parsed = urllib.parse.urlparse(base_url)
 
         path_candidates = set()

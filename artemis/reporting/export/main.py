@@ -68,13 +68,13 @@ environment.filters["nl2br"] = nl2br
 def unwrap(html: str) -> str:
     """Uwraps html if it's wrapped in a single tag (e.g. <div>)."""
     html = html.strip()
-    soup = bs4.BeautifulSoup(html)
+    soup = bs4.BeautifulSoup(html, "lxml")
     while len(list(soup.children)) == 1:
         only_child = list(soup.children)[0]
 
         if only_child.name:  # type: ignore
             only_child.unwrap()
-            soup = bs4.BeautifulSoup(soup.renderContents().strip())
+            soup = bs4.BeautifulSoup(soup.renderContents().strip(), "lxml")
         else:
             break
 

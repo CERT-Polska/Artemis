@@ -71,7 +71,7 @@ class ScriptsUnregisteredDomains(ArtemisBase):
 
         content = self.http_get(url).content
 
-        soup = bs4.BeautifulSoup(content, "html.parser")
+        soup = bs4.BeautifulSoup(content, "lxml")
         scripts = soup.find_all("script", src=True)
         scripts_from_unregistered_domains = []
         messages = []

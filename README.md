@@ -78,6 +78,12 @@ To run the tests, use:
 ./scripts/test
 ```
 
+> [!WARNING]
+> Avoid using `python -m unittest` directly as the `command:` in `docker-compose.test.yaml`.
+When Python runs as PID 1, subprocesses, especially Go binaries like Nuclei, suffer from slow or degraded I/O because PID 1 handles signals and stdout/stderr differently.
+Use unittest-parallel instead, since its worker processes avoid the PID 1 issue.
+
+
 ### Code formatting
 Artemis uses `pre-commit` to run linters and format the code.
 `pre-commit` is executed on CI to verify that the code is formatted properly.

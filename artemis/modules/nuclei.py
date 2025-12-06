@@ -43,10 +43,6 @@ EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
-# TODO: temporarily disabling the tag exclusion feature, as after the exclusion the tasks took twice as long, as there
-# were two invocations - one with excluded tags, one without.
-TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": []}}  # type: ignore
-
 # It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {
     "ssrf": {  # ssrf dast templates work only when the param is of the form http://...
@@ -86,36 +82,6 @@ def get_max_num_parameters(targets: List[str]) -> int:
         return 0
 
     return max([len(urllib.parse.parse_qs(urllib.parse.urlparse(item).query)) for item in targets])
-
-
-def group_targets_by_missing_tech(targets: List[str], logger: logging.Logger) -> Dict[frozenset[str], List[str]]:
-    """
-    Groups targets by the technologies that are not detected on them.
-
-    Returns:
-        Dict[frozenset[str], List[str]]: A dictionary where keys are frozensets of tags to exclude,
-        and values are lists of target URLs that share the same set of undetected technologies.
-    """
-    tech_results = run_tech_detection(targets, logger)
-    scan_groups = collections.defaultdict(list)
-    all_known_techs = {tech for tech in TECHNOLOGY_DETECTION_CONFIG.keys()}
-
-    for target_url in targets:
-        detected_techs_set = {tech.lower() for tech in tech_results.get(target_url, [])}
-        known_detected_techs = set()
-        for tech in all_known_techs:
-            if any(tech in detected_tech for detected_tech in detected_techs_set):
-                known_detected_techs.add(tech)
-
-        undetected_techs = all_known_techs - known_detected_techs
-
-        tags_to_exclude = set()
-        for tech_name in undetected_techs:
-            tags_to_exclude.update(TECHNOLOGY_DETECTION_CONFIG[tech_name]["tags_to_exclude"])
-
-        # Use a hashable frozenset as the dictionary key
-        scan_groups[frozenset(tags_to_exclude)].append(target_url)
-    return scan_groups
 
 
 class ScanUsing(enum.Enum):
@@ -532,25 +498,10 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        scan_groups = group_targets_by_missing_tech(targets, self.log)
-        found_targets_after_grouping = []
-        for scan_group in scan_groups.values():
-            found_targets_after_grouping.extend(scan_group)
-        assert set(found_targets_after_grouping) == set(targets)
-
-        findings: List[Dict[str, Any]] = []
-        for tags_frozen_set, group_targets in scan_groups.items():
-            extra_args = []
-            if tags_frozen_set:
-                self.log.info(f"For {len(group_targets)} targets, excluding tags: {tags_frozen_set}")
-                extra_args = ["-etags", ",".join(tags_frozen_set)]
-            else:
-                self.log.info(f"For {len(group_targets)} targets, not excluding any tags")
-
-            findings.extend(self._scan(templates, ScanUsing.TEMPLATES, group_targets, extra_nuclei_args=extra_args))
-            findings.extend(
-                self._scan(self._workflows, ScanUsing.WORKFLOWS, group_targets, extra_nuclei_args=extra_args)
-            )
+        findings.extend(self._scan(templates, ScanUsing.TEMPLATES, targets)
+        findings.extend(
+            self._scan(self._workflows, ScanUsing.WORKFLOWS, targets)
+        )
 
         # DAST scanning
         dast_targets: List[str] = []

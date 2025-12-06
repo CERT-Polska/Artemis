@@ -1,10 +1,9 @@
-import logging
 from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.modules.nuclei import Nuclei, group_targets_by_missing_tech
+from artemis.modules.nuclei import Nuclei
 
 
 class NucleiTest(ArtemisModuleTestCase):
@@ -93,23 +92,6 @@ class NucleiTest(ArtemisModuleTestCase):
             r"\[medium\] http://test-php-xss-but-not-on-homepage:80/xss\.php/\?deleted=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-deleted%27%29%3E&search=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-search%27%29%3E&action=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-action%27%29%3E&newname=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-newname%27%29%3E&info=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-info%27%29%3E&content=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-content%27%29%3E&signature=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-signature%27%29%3E&noconfirmation=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-noconfirmation%27%29%3E&field=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-field%27%29%3E&output=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-output%27%29%3E&city=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-city%27%29%3E&rename=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-rename%27%29%3E&mail=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-mail%27%29%3E&term=%27%3E%22%3Csvg%2Fonload=confirm%28%27xss-term%27%29%3E: Fuzzing Parameters - Cross-Site Scripting Cross-site scripting was discovered via a search for reflected parameter values in the server response via GET-requests\.\n, "
             r"\[medium\] http://test-php-xss-but-not-on-homepage:80/xss\.php\?.*\'\"><\d+>.*: Reflected Cross-Site Scripting $",
         )
-
-    def test_group_targets_by_missing_tech(self) -> None:
-        targets = [
-            "http://test-old-wordpress",
-            "http://test-old-joomla",
-            "http://test-flask-vulnerable-api:5000",
-        ]
-        logger = logging.Logger("test_logger")
-
-        grouped_targets = group_targets_by_missing_tech(targets, logger)
-
-        expected_results = {
-            frozenset(["wordpress"]): [targets[1], targets[2]],
-        }
-
-        self.assertIn(frozenset(["wordpress"]), grouped_targets)
-        self.assertEqual(grouped_targets[frozenset(["wordpress"])], expected_results[frozenset(["wordpress"])])
 
     def test_dast_template(self) -> None:
         task = Task(

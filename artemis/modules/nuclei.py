@@ -43,7 +43,9 @@ EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
 
-TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": ["wordpress"]}}
+# TODO: temporarily disabling the tag exclusion feature, as after the exclusion the tasks took twice as long, as there
+# were two invocations - one with excluded tags, one without.
+TECHNOLOGY_DETECTION_CONFIG = {"wordpress": {"tags_to_exclude": []}}  # type: ignore
 
 # It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {

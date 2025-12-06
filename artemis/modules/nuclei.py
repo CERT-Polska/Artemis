@@ -3,7 +3,6 @@ import collections
 import enum
 import itertools
 import json
-import logging
 import os
 import random
 import shutil
@@ -37,7 +36,6 @@ from artemis.utils import (
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
 )
-from artemis.web_technology_identification import run_tech_detection
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
@@ -498,10 +496,8 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        findings.extend(self._scan(templates, ScanUsing.TEMPLATES, targets)
-        findings.extend(
-            self._scan(self._workflows, ScanUsing.WORKFLOWS, targets)
-        )
+        findings = self._scan(templates, ScanUsing.TEMPLATES, targets)
+        findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets))
 
         # DAST scanning
         dast_targets: List[str] = []

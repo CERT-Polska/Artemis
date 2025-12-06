@@ -1,10 +1,9 @@
-import logging
 from test.base import ArtemisModuleTestCase
 
 from karton.core import Task
 
 from artemis.binds import Service, TaskStatus, TaskType
-from artemis.modules.nuclei import Nuclei, group_targets_by_missing_tech
+from artemis.modules.nuclei import Nuclei
 
 
 class NucleiTest(ArtemisModuleTestCase):

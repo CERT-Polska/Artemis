@@ -70,6 +70,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "icon-element",
     "link-manager",
     "login-logo",
+    "official-statcounter-plugin-for-wordpress",
     "page-or-post-clone",
     "rafflepress",
     "trustpilot-reviews",

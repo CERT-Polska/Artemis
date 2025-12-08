@@ -878,6 +878,10 @@ class Config:
                         "dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml",
                         "dast/vulnerabilities/crlf/crlf-injection.yaml",
                         "dast/vulnerabilities/cmdi/python-code-injection.yaml",
+                        "dast/vulnerabilities/xss/reflected-xss.yaml",
+                        "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml",
+                        "dast/vulnerabilities/redirect/open-redirect-bypass.yaml",
+                        "dast/vulnerabilities/redirect/open-redirect.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

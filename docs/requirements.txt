@@ -1,4 +1,4 @@
 python-decouple==3.8
-Sphinx==8.2.3
+Sphinx==9.0.4
 sphinx-rtd-theme==3.0.2
 -r ../requirements.txt

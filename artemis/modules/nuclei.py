@@ -566,7 +566,11 @@ class Nuclei(ArtemisBase):
 
             findings.extend(
                 self._scan(
-                    all_dast_templates,
+                    [
+                        template
+                        for template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
+                        if template.startswith("dast/")
+                    ],
                     ScanUsing.TEMPLATES,
                     dast_targets,
                     extra_nuclei_args=[

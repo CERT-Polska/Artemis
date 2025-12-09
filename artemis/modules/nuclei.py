@@ -227,7 +227,6 @@ class Nuclei(ArtemisBase):
 
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
-        random.shuffle(links)
 
         links = [
             link
@@ -235,7 +234,6 @@ class Nuclei(ArtemisBase):
             if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
         ]
 
-        links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
         return links
 
     def _strip_query_string(self, url: str) -> str:
@@ -535,14 +533,19 @@ class Nuclei(ArtemisBase):
             links = self._get_links(get_target_url(task))
             # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
             # of them.
-            links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
+            links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+
+            random.shuffle(links)
+            links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
+
+            links_per_task[task.uid] = links
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
 
-        # That way, if we have 100 links for a webpage, we won't run 100 concurrent scans for that webpage
+        # That way, if we have 20 links for a webpage, we won't run 100 concurrent scans for that webpage
         for link_package in itertools.zip_longest(*list(links_per_task.values())):
             findings.extend(
                 self._scan(
-                    Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS,
+                    [item for item in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS if not template.startswith("dast/")],
                     ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
                 )

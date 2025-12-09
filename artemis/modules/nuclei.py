@@ -428,7 +428,7 @@ class Nuclei(ArtemisBase):
                 if use_fake_home:
                     # That way Nuclei will only load the specified templates, not all in /root/nuclei-templates/,
                     # which will be way faster for small template lists on some installations where IO is slow.
-                    os.makedirs("/fake-home/nuclei-templates", exists_ok=True)
+                    os.makedirs("/fake-home/nuclei-templates", exist_ok=True)
                     env["HOME"] = "/fake-home/"
 
                 stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)

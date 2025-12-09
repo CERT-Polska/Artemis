@@ -374,6 +374,12 @@ class Nuclei(ArtemisBase):
                     "-stats-json",
                     "-stats-interval",
                     "1",
+                    "-response-size-read",
+                    "1048576",
+                    "-concurrency",
+                    "5",
+                    "-bulk-size",
+                    str(len(targets)),
                     "-trace-log",
                     "/dev/stderr",
                 ] + additional_configuration
@@ -545,7 +551,11 @@ class Nuclei(ArtemisBase):
         for link_package in itertools.zip_longest(*list(links_per_task.values())):
             findings.extend(
                 self._scan(
-                    [item for item in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS if not template.startswith("dast/")],
+                    [
+                        item
+                        for item in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
+                        if not item.startswith("dast/")
+                    ],
                     ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
                 )

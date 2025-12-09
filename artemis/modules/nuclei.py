@@ -39,7 +39,8 @@ from artemis.utils import (
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
-TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
+TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
+NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
 
 # It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {
@@ -286,6 +287,7 @@ class Nuclei(ArtemisBase):
         templates_or_workflows: List[str],
         scan_using: ScanUsing,
         targets: List[str],
+        use_fake_home: bool = False,
         extra_nuclei_args: List[str] = [],
     ) -> List[Dict[str, Any]]:
         if not targets:
@@ -360,8 +362,6 @@ class Nuclei(ArtemisBase):
                 command = [
                     "nuclei",
                     "-disable-update-check",
-                    "-itags",
-                    ",".join(TAGS_TO_INCLUDE),
                     "-v",
                     "-timeout",
                     str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
@@ -422,7 +422,16 @@ class Nuclei(ArtemisBase):
                     command.append(target)
 
                 self.log.debug("Running command: %s", " ".join(command))
-                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log)
+
+                env = os.environ.copy()
+
+                if use_fake_home:
+                    # That way Nuclei will only load the specified templates, not all in /root/nuclei-templates/,
+                    # which will be way faster for small template lists on some installations where IO is slow.
+                    os.makedirs("/fake-home/nuclei-templates")
+                    env["HOME"] = "/fake-home/"
+
+                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)
 
                 stdout_utf8 = stdout.decode("utf-8", errors="ignore")
                 stderr_utf8 = stderr.decode("utf-8", errors="ignore")
@@ -500,8 +509,14 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        findings = self._scan(templates, ScanUsing.TEMPLATES, targets)
-        findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets))
+        findings = self._scan(
+            templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
+        )
+        findings.extend(
+            self._scan(
+                self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
+            )
+        )
 
         # DAST scanning
         dast_targets: List[str] = []
@@ -521,9 +536,10 @@ class Nuclei(ArtemisBase):
 
         findings.extend(
             self._scan(
-                all_dast_templates,
+                [NUCLEI_TEMPLATES_LOCATION + item for item in all_dast_templates],
                 ScanUsing.TEMPLATES,
                 dast_targets,
+                use_fake_home=True,
                 extra_nuclei_args=[
                     "-dast",
                     "-fuzzing-mode",
@@ -552,12 +568,13 @@ class Nuclei(ArtemisBase):
             findings.extend(
                 self._scan(
                     [
-                        item
+                        NUCLEI_TEMPLATES_LOCATION + item
                         for item in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
                         if not item.startswith("dast/")
                     ],
                     ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
+                    extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)],
                 )
             )
 
@@ -580,12 +597,13 @@ class Nuclei(ArtemisBase):
             findings.extend(
                 self._scan(
                     [
-                        template
+                        NUCLEI_TEMPLATES_LOCATION + template
                         for template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
                         if template.startswith("dast/")
                     ],
                     ScanUsing.TEMPLATES,
                     dast_targets,
+                    use_fake_home=True,
                     extra_nuclei_args=[
                         "-dast",
                         "-fuzzing-mode",

@@ -470,8 +470,8 @@ class Nuclei(ArtemisBase):
         for line in lines:
             if line.strip():
                 finding = json.loads(line)
-                if finding["template-name"].startswith(NUCLEI_TEMPLATES_LOCATION):
-                    finding["template-name"] = finding["template-name"][len(NUCLEI_TEMPLATES_LOCATION):]
+                if "template" in finding and finding["template"].startswith(NUCLEI_TEMPLATES_LOCATION):
+                    finding["template"] = finding["template"][len(NUCLEI_TEMPLATES_LOCATION) :]
 
                 findings.append(finding)
         self.log.info(

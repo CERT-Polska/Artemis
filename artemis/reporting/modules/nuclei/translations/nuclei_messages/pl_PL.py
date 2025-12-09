@@ -997,6 +997,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "There is an input verification vulnerability in the implementation of a certain CGI program in Resin. A remote attacker may use this vulnerability to read any files in the home directory of the Web, including JSP source code or class files.": "Wykryto oprogramowanie Resin w wersji zawierającej podatność umożliwiającą atakującemu odczyt niektórych plików z dysku.",
     "NETGEAR ProSAFE Plus  before 2.6.0.43 is susceptible to unauthenticated remote code execution. Any HTML page is allowed as a valid endpoint to submit POST requests, allowing debug action via the submitId and debugCmd parameters. The problem is publicly exposed in the login.html webpage, which has to be publicly available to perform login requests but does not implement any restriction for executing debug actions. This will allow attackers to execute system commands.": "NETGEAR ProSAFE Plus w wersji poniżej 2.6.0.43 zawiera podatność o identyfikatorze CVE-2020-26919 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,

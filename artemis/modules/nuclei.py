@@ -39,7 +39,8 @@ from artemis.utils import (
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
-TAGS_TO_INCLUDE = ["fuzz", "fuzzing", "dast"]
+TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
+NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
 
 # It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {
@@ -227,7 +228,6 @@ class Nuclei(ArtemisBase):
 
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
-        random.shuffle(links)
 
         links = [
             link
@@ -235,7 +235,6 @@ class Nuclei(ArtemisBase):
             if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
         ]
 
-        links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
         return links
 
     def _strip_query_string(self, url: str) -> str:
@@ -288,6 +287,7 @@ class Nuclei(ArtemisBase):
         templates_or_workflows: List[str],
         scan_using: ScanUsing,
         targets: List[str],
+        use_fake_home: bool = False,
         extra_nuclei_args: List[str] = [],
     ) -> List[Dict[str, Any]]:
         if not targets:
@@ -362,8 +362,6 @@ class Nuclei(ArtemisBase):
                 command = [
                     "nuclei",
                     "-disable-update-check",
-                    "-itags",
-                    ",".join(TAGS_TO_INCLUDE),
                     "-v",
                     "-timeout",
                     str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
@@ -376,6 +374,12 @@ class Nuclei(ArtemisBase):
                     "-stats-json",
                     "-stats-interval",
                     "1",
+                    "-response-size-read",
+                    "1048576",
+                    "-concurrency",
+                    "5",
+                    "-bulk-size",
+                    str(len(targets)),
                     "-trace-log",
                     "/dev/stderr",
                 ] + additional_configuration
@@ -418,7 +422,16 @@ class Nuclei(ArtemisBase):
                     command.append(target)
 
                 self.log.debug("Running command: %s", " ".join(command))
-                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log)
+
+                env = os.environ.copy()
+
+                if use_fake_home:
+                    # That way Nuclei will only load the specified templates, not all in /root/nuclei-templates/,
+                    # which will be way faster for small template lists on some installations where IO is slow.
+                    os.makedirs("/fake-home/nuclei-templates", exist_ok=True)
+                    env["HOME"] = "/fake-home/"
+
+                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)
 
                 stdout_utf8 = stdout.decode("utf-8", errors="ignore")
                 stderr_utf8 = stderr.decode("utf-8", errors="ignore")
@@ -457,6 +470,9 @@ class Nuclei(ArtemisBase):
         for line in lines:
             if line.strip():
                 finding = json.loads(line)
+                if "template-path" in finding and finding["template-path"].startswith(NUCLEI_TEMPLATES_LOCATION):
+                    finding["template"] = finding["template-path"][len(NUCLEI_TEMPLATES_LOCATION) :]
+
                 findings.append(finding)
         self.log.info(
             "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f seconds",
@@ -496,8 +512,14 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        findings = self._scan(templates, ScanUsing.TEMPLATES, targets)
-        findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets))
+        findings = self._scan(
+            templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
+        )
+        findings.extend(
+            self._scan(
+                self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
+            )
+        )
 
         # DAST scanning
         dast_targets: List[str] = []
@@ -517,9 +539,10 @@ class Nuclei(ArtemisBase):
 
         findings.extend(
             self._scan(
-                all_dast_templates,
+                [NUCLEI_TEMPLATES_LOCATION + item for item in all_dast_templates],
                 ScanUsing.TEMPLATES,
                 dast_targets,
+                use_fake_home=True,
                 extra_nuclei_args=[
                     "-dast",
                     "-fuzzing-mode",
@@ -535,16 +558,26 @@ class Nuclei(ArtemisBase):
             links = self._get_links(get_target_url(task))
             # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
             # of them.
-            links_per_task[task.uid] = list(set(links) | set([self._strip_query_string(link) for link in links]))
+            links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+
+            random.shuffle(links)
+            links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
+
+            links_per_task[task.uid] = links
             self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
 
-        # That way, if we have 100 links for a webpage, we won't run 100 concurrent scans for that webpage
+        # That way, if we have 20 links for a webpage, we won't run 100 concurrent scans for that webpage
         for link_package in itertools.zip_longest(*list(links_per_task.values())):
             findings.extend(
                 self._scan(
-                    Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS,
+                    [
+                        NUCLEI_TEMPLATES_LOCATION + item
+                        for item in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
+                        if not item.startswith("dast/")
+                    ],
                     ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
+                    extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)],
                 )
             )
 
@@ -567,12 +600,13 @@ class Nuclei(ArtemisBase):
             findings.extend(
                 self._scan(
                     [
-                        template
+                        NUCLEI_TEMPLATES_LOCATION + template
                         for template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
                         if template.startswith("dast/")
                     ],
                     ScanUsing.TEMPLATES,
                     dast_targets,
+                    use_fake_home=True,
                     extra_nuclei_args=[
                         "-dast",
                         "-fuzzing-mode",

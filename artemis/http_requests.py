@@ -60,7 +60,7 @@ class HTTPResponse:
 
     @property
     def content(self) -> str:
-        if self.encoding:
+        if self.encoding and self.encoding != "binary":
             return self.content_bytes.decode(self.encoding, errors="ignore")
         else:
             encoding = chardet.detect(self.content_bytes)["encoding"] or "utf-8"

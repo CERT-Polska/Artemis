@@ -1,1 +1,2 @@
+# Additional list of subdomains to brute-force
 ipa

@@ -21,6 +21,9 @@ class HumbleReporter(Reporter):
 
         if not isinstance(task_result["result"], dict):
             return []
+        
+        if task_result["result"].get("message_data") is None:
+            return []
 
         return [
             Report(

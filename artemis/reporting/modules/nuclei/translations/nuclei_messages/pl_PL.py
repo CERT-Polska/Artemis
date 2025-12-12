@@ -997,6 +997,10 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "ECShop 4.1.0 has SQL injection vulnerability, which can be exploited by attackers to obtain sensitive information.": "ECShop w wersji 4.1.0 i potencjalnie wcześniejszych zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie danych z bazy danych."
+    + UPDATE_HINT,
+    "Themewinter Eventin contains a path traversal caused by relative path manipulation, letting attackers access arbitrary files on the server, exploit requires no specific privileges or user interaction.": "Themewinter Eventin zawiera podatność Path Traversal o identyfikatorze CVE-2025-47445 umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "IBM Data Risk Manager 2.0.1, 2.0.2, 2.0.3, 2.0.4, 2.0.5, and 2.0.6 contains a default password for an IDRM administrative account. A remote attacker could exploit this vulnerability to login and execute arbitrary code on the system with root privileges. IBM X-Force ID- 180534.": "IBM Data Risk Manager w wersji 2.0.1 do 2.0.6 zawiera domyślne hasło konta administracyjnego umożliwiające logowanie i dostęp administracyjny do systemu. Podatność ma identyfikator CVE-2020-4429.",
     "There is an input verification vulnerability in the implementation of a certain CGI program in Resin. A remote attacker may use this vulnerability to read any files in the home directory of the Web, including JSP source code or class files.": "Wykryto oprogramowanie Resin w wersji zawierającej podatność umożliwiającą atakującemu odczyt niektórych plików z dysku.",
     "NETGEAR ProSAFE Plus  before 2.6.0.43 is susceptible to unauthenticated remote code execution. Any HTML page is allowed as a valid endpoint to submit POST requests, allowing debug action via the submitId and debugCmd parameters. The problem is publicly exposed in the login.html webpage, which has to be publicly available to perform login requests but does not implement any restriction for executing debug actions. This will allow attackers to execute system commands.": "NETGEAR ProSAFE Plus w wersji poniżej 2.6.0.43 zawiera podatność o identyfikatorze CVE-2020-26919 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
@@ -1286,6 +1290,8 @@ TRANSLATIONS = {
     "Fastjson 1.2.67 is susceptible to a remote code execution vulnerability.": "Fastjson w wersji 1.2.67 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Fastjson 1.2.62 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.62 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Fastjson 1.2.41 is susceptible to a deserialization remote code execution vulnerability.": "Fastjson w wersji 1.2.41 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "Fastjson 1.2.42 is susceptible to a deserialization remote code execution vulnerability": "Fastjson w wersji 1.2.42 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,

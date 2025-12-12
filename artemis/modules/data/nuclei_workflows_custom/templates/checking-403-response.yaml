@@ -2,6 +2,7 @@ id: checking-403-response
 
 info:
   name: Detecting 403 Forbidden Target
+  severity: medium
   author: Dr4g0n
   description: |
     Checks if a target gives a 403 Forbidden response.

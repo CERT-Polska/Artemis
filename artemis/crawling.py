@@ -17,7 +17,7 @@ def get_links_and_resources_on_same_domain(url: str) -> List[str]:
     except requests.exceptions.RequestException:
         return []
 
-    soup = BeautifulSoup(response.text)
+    soup = BeautifulSoup(response.text, "lxml")
     links = []
     for tag in soup.find_all():
         new_url = None
@@ -48,7 +48,7 @@ def get_injectable_parameters(url: str) -> List[str]:
 
     result = set()
     try:
-        soup = BeautifulSoup(content, "html.parser")
+        soup = BeautifulSoup(content, "lxml")
     except ParserRejectedMarkup:
         return []
 

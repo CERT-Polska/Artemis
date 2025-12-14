@@ -58,8 +58,9 @@ PLUGINS_TO_SKIP_CHANGELOG = [
 ]
 PLUGINS_TO_SKIP_STABLE_TAG = [
     "flowpaper-lite-pdf-flipbook",
-    "scheduled-post-trigger",
     "pdf-viewer-for-elementor",
+    "scheduled-post-trigger",
+    "testimonial-slider-and-showcase",
     "wow-carousel-for-divi-lite",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
@@ -73,6 +74,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "official-statcounter-plugin-for-wordpress",
     "page-or-post-clone",
     "rafflepress",
+    "search-meter",
     "trustpilot-reviews",
     "website-monetization-by-magenet",
     "woo-multi-currency",

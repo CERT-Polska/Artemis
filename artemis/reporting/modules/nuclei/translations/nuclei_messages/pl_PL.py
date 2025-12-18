@@ -997,6 +997,15 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "A Server-Side Request Forgery (SSRF) vulnerability exists in the gradio-app/gradio image component allows an attacker to exploit SSRF using the path value in the `/queue/join` endpoint, obtained from the user and expected to be a URL, is used to make an HTTP request without sufficient validation checks. This flaw allows an attacker to send crafted requests that could lead to unauthorized access to the local network or the AWS metadata endpoint, thereby compromising the security of internal servers.": "Komponent gradio-app/gradio zawiera podatność Server-Site Request Forgery, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej, a w niektórych sytuacjach uzyskanie nieuprawnionego dostępu, jeśli końcówka metadanych AWS jest dostępna w sieci wewnętrznej.",
+    "LumisXP (aka Lumis Experience Platform) before 10.0.0 allows unauthenticated blind XML external entity (XXE) attacks via an API request to PageControllerXml.jsp. One can send a request crafted with an XXE payload and achieve outcomes such as reading local server files or denial of service.": "LumisXP (Lumis Experience Platform) w wersji poniżej 10.0.0 zawiera podatność Blind XML External Entity umożliwiającą atakującemu m. in. dostęp do plików na serwerze lub przerwanie działania systemu."
+    + UPDATE_HINT,
+    "An issue was discovered in the Calendar feature in Zimbra Collaboration Suite 8.8.x before 8.8.15 patch 30 (update 1), as exploited in the wild starting in December 2021. An attacker could place HTML containing executable JavaScript inside element attributes. This markup becomes unescaped, causing arbitrary markup to be injected into the document.": "Zimbra Collaboration Suite w gałęzi 8.8.x w wersji poniżej 8.8.15 patch 30 (update 1) zawiera aktywnie wykorzystywaną podatność o identyfikatorze CVE-2022-24682 umożliwiającą atakującemu przejmowanie kont użytkowników, dostęp do treści wiadomości i wysyłanie wiadomości w imieniu użytkowników."
+    + UPDATE_HINT,
+    "Umbraco before version 7.4.0 contains a server-side request forgery vulnerability in feedproxy.aspx that allows attackers to send arbitrary HTTP GET requests via http://local/Umbraco/feedproxy.aspx?url=http://127.0.0.1:80/index.": "Umbraco poniżej wersji 7.4.0 zawiera podatność Server-Side Request Forgery umożliwiającą atakującemu wysyłanie żądań HTTP GET do dowolnych serwisów w sieci wewnętrznej. Podatności nadano identyfikator CVE-2015-8813."
+    + UPDATE_HINT,
+    "Local File Inclusion vulnerability in LearnPress – WordPress LMS Plugin <= 4.1.7.3.2 versions.": "Wtyczka WordPress o nazwie LearnPress w wersji do 4.1.7.3.2 włącznie zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt dowolnych plików z dysku serwera. Podatności nadano identyfikator CVE-2022-47615."
+    + WORDPRESS_UPDATE_HINT,
     "React Server Components 19.0.0, 19.1.0, 19.1.1, and 19.2.0 including react-server-dom-parcel,\nreact-server-dom-turbopack, and react-server-dom-webpack contain a remote code execution caused\nby unsafe deserialization of payloads from HTTP requests to Server Function endpoints, letting\nunauthenticated attackers execute arbitrary code remotely, exploit requires no authentication.": "React Server Components w wersji 19.0.0, 19.1.0, 19.1.1 i 19.2.0 oraz moduły react-server-dom-parcel, react-server-dom-turbopack i react-server-dom-webpack zawierają podatność umożliwiającą atakującemu nieuprawnione zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT
@@ -2250,4 +2259,5 @@ TRANSLATIONS = {
     "Detects the presence of the Saltbo/zpan file management panel.": "Wykryto panel zarządzania plikami Saltbo/zpan.",
     "QlikView AccessPoint login panel was detected.": "Wykryto panel logowania QlikView AccessPoint.",
     "[no description] http/exposed-panels/pcoweb-panel.yaml": "Wykryto panel pCOWeb.",
+    "Ricoh Web Image Monitor device was detected.": "Wykryto urządzenie Ricoh Web Image Monitor.",
 }

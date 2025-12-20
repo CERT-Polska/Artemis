@@ -997,6 +997,12 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "This template detects Generic Blind XXE.": "Wykryto podatność XML External Entities, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej, a w niektórych sytuacjach uzyskanie nieuprawnionego dostępu lub odczyt plików z dysku. Więcej informacji: https://sekurak.pl/problemy-z-xxe-xml-external-entity/ ."
+    + BUG_FIX_HINT,
+    "Ulterius Server before 1.9.5.0 allows HTTP server directory traversal via the process function in RemoteTaskServer/WebServer/HttpServer.cs.": "Ulterius Server w wersji poniżej 1.9.5.0 zawiera podatność Directory Traversal (o identyfikatorze CVE-2017-16806) umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "The Advanced Access Manager plugin for WordPress is vulnerable to Unauthenticated Arbitrary File Read in versions up to, and including, 5.9.8.1 due to insufficient validation on the aam-media parameter. This allows unauthenticated attackers to read any file on the server, including sensitive files such as wp-config.php": "Wtyczka WordPress o nazwie Advanced Access Manager w wersji do 5.9.8.1 włącznie zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku, w tym plików konfiguracyjnych zawierających dane dostępowe do bazy danych."
+    + WORDPRESS_UPDATE_HINT,
     "A Server-Side Request Forgery (SSRF) vulnerability exists in the gradio-app/gradio image component allows an attacker to exploit SSRF using the path value in the `/queue/join` endpoint, obtained from the user and expected to be a URL, is used to make an HTTP request without sufficient validation checks. This flaw allows an attacker to send crafted requests that could lead to unauthorized access to the local network or the AWS metadata endpoint, thereby compromising the security of internal servers.": "Komponent gradio-app/gradio zawiera podatność Server-Site Request Forgery, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej, a w niektórych sytuacjach uzyskanie nieuprawnionego dostępu, jeśli końcówka metadanych AWS jest dostępna w sieci wewnętrznej.",
     "LumisXP (aka Lumis Experience Platform) before 10.0.0 allows unauthenticated blind XML external entity (XXE) attacks via an API request to PageControllerXml.jsp. One can send a request crafted with an XXE payload and achieve outcomes such as reading local server files or denial of service.": "LumisXP (Lumis Experience Platform) w wersji poniżej 10.0.0 zawiera podatność Blind XML External Entity umożliwiającą atakującemu m. in. dostęp do plików na serwerze lub przerwanie działania systemu."
     + UPDATE_HINT,
@@ -2260,4 +2266,6 @@ TRANSLATIONS = {
     "QlikView AccessPoint login panel was detected.": "Wykryto panel logowania QlikView AccessPoint.",
     "[no description] http/exposed-panels/pcoweb-panel.yaml": "Wykryto panel pCOWeb.",
     "Ricoh Web Image Monitor device was detected.": "Wykryto urządzenie Ricoh Web Image Monitor.",
+    "Eclipse BIRT (Business Intelligence Reporting Tool) detected": "Wykryto narzędzie Eclipse BIRT (Business Intelligence Reporting Tool)",
+    "OpenTouch Multimedia Services Login Panel was detected.": "Wykryto panel logowania OpenTouch Multimedia Services.",
 }

@@ -7,7 +7,7 @@ require (
 	github.com/praetorian-inc/fingerprintx v1.1.15
 	github.com/projectdiscovery/naabu/v2 v2.3.3
 	github.com/projectdiscovery/nuclei/v3 v3.4.7
-	github.com/projectdiscovery/subfinder/v2 v2.10.1
+	github.com/projectdiscovery/subfinder/v2 v2.11.0
 )
 
 require (

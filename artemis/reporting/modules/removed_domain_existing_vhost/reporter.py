@@ -26,7 +26,11 @@ class RemovedDomainExistingVhostReporter(Reporter):
 
         if (
             Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_REPORT_ONLY_SUBDOMAINS
-            and task_result["result"]["domain"] == task_result["payload_persistent"].get("original_domain")
+            and task_result["result"]["domain"]
+            in (
+                task_result["payload_persistent"].get("original_domain"),
+                "www." + task_result["payload_persistent"].get("original_domain"),
+            )
         ):
             return []
 

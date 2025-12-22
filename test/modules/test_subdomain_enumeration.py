@@ -1,5 +1,4 @@
 import unittest
-
 from test.base import ArtemisModuleTestCase
 from typing import NamedTuple
 

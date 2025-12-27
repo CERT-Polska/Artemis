@@ -997,6 +997,13 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "Mirai is susceptible to an unknown exploit that targets the login CGI script, where a key parameter is not properly sanitized leading to a command injection vulnerability.": "Wykryto urządzenie zawierające podatność umożliwiającą atakującemu zdalne wykonanie kodu, wykorzystywaną przez botnet Mirai."
+    + RCE_EFFECT_DESCRIPTION,
+    "Unauthenticated Access to phpmyadmin dashboard.": "Wykryto panel systemu phpMyAdmin który nie wymaga logowania.",
+    "Detects an unauthenticated MQTT broker and attempts to subscribe to the $SYS/# topic to enumerate broker and system information.": "Wykryto broker MQTT niewymagający logowania.",
+    "Samsung WLAN AP WEA453e is susceptible to local file inclusion vulnerabilities.": "Samsung WLAN AP WEA453e zawiera podatność Local File Inclusion umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "VMware vCenter Server contains an arbitrary file upload vulnerability in the Analytics service. A malicious actor with network access to port 443 on vCenter Server may exploit this issue to execute code on vCenter Server by uploading a specially crafted file.": "VMware vCenter Server zawiera podatnosć w usłudze Analytics, która pozwala na przesyłanie dowolnych plików. Atakujący z dostępem do portu 443 na serwerze vCenter może wykorzystać tę lukę, aby wgrać spreparowany plik i uruchomić kod na serwerze.",
+    'A certain router administration interface using Realtek APMIB (e.g., on TOTOLINK models) allows unauthenticated remote attackers to disclose the entire router configuration, including sensitive credentials, via accessing the "config.dat" file. Affected devices include TOTOLINK A3002RU through 2.0.0, A702R through 2.1.3, N301RT through 2.1.6, N302R through 3.4.0, N300RT through 3.4.0, N200RE through 4.0.0, N150RT through 3.4.0, N100RE through 3.4.0, and other Realtek SDK-based devices.': "Panel administracyjny niektórych routerów z Realtek APMIB (np. modele TOTOLINK) umożliwia nieuwierzytelnionym atakującym pobranie pełnej konfiguracji urządzenia, w tym wrażliwych danych logowania. Zagrożone są m.in. modele TOTOLINK: A3002RU (do wersji 2.0.0), A702R (do 2.1.3), N301RT (do 2.1.6), N302R (do 3.4.0), N300RT (do 3.4.0), N200RE (do 4.0.0), N150RT (do 3.4.0), N100RE (do 3.4.0) oraz inne urządzenia oparte na SDK Realtek.",
     "Multiple phpMyAdmin server import pages were detected.": "Wykryto publicznie dostępny moduł importu danych systemu phpMyAdmin.",
     "Icinga Web 2 is an open source monitoring web interface, framework and command-line interface. Unauthenticated users can leak the contents of files of the local system accessible to the web-server user, including `icingaweb2` configuration files with database credentials.": "Wykryto system Icinga zawierający podatność CVE-2022-24716 umożliwiającą nieuwierzytelnionemu atakującemu odczyt dowolnych plików z dysku, w tym zawierających dane dostępowe."
     + UPDATE_HINT,
@@ -2275,4 +2282,5 @@ TRANSLATIONS = {
     "Ricoh Web Image Monitor device was detected.": "Wykryto urządzenie Ricoh Web Image Monitor.",
     "Eclipse BIRT (Business Intelligence Reporting Tool) detected": "Wykryto narzędzie Eclipse BIRT (Business Intelligence Reporting Tool)",
     "OpenTouch Multimedia Services Login Panel was detected.": "Wykryto panel logowania OpenTouch Multimedia Services.",
+    "Homebridge allows you to integrate with smart home devices that do not natively support HomeKit.": "Wykryto panel Homebridge.",
 }

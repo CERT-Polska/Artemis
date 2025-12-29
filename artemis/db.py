@@ -24,7 +24,7 @@ from sqlalchemy import (  # type: ignore
     create_engine,
     delete,
 )
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
 from sqlalchemy.orm.exc import NoResultFound
@@ -131,6 +131,7 @@ class TaskResult(Base):  # type: ignore
     :ivar logs: Logs associated with the task.
     :ivar task: JSON representation of the original task.
     :ivar result: JSON representation of the result data.
+    :ivar additional_info: JSON representation of the additional data that can be saved
     """
 
     __tablename__ = "task_result"
@@ -146,6 +147,7 @@ class TaskResult(Base):  # type: ignore
     logs = Column(String)
     task = Column(JSON)
     result = Column(JSON)
+    additional_info = Column(JSONB)
 
     fulltext = Column(
         TSVector(),

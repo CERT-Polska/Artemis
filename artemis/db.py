@@ -8,7 +8,7 @@ import json
 import os
 import shutil
 from enum import Enum
-from typing import Any, Callable, Dict, Generator, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Generator, List, Optional, Type
 
 from karton.core import Task
 from pydantic import BaseModel
@@ -26,7 +26,7 @@ from sqlalchemy import (  # type: ignore
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
-from sqlalchemy.orm import Query, declarative_base, sessionmaker  # type: ignore
+from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import select, text
 from sqlalchemy.types import TypeDecorator
@@ -37,9 +37,6 @@ from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
 from artemis.task_utils import get_task_target
 from artemis.utils import build_logger
-
-T = TypeVar("T")
-QueryFilter = Callable[[Query[T]], Query[T]]
 
 
 @dataclasses.dataclass
@@ -405,7 +402,7 @@ class DB:
         search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
-        apply_custom_filter: Optional[QueryFilter[Any]] = None,
+        apply_custom_filter: Optional[Callable] = None,  # type: ignore
     ) -> PaginatedResults:
         ordering_postgresql = [
             (

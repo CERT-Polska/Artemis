@@ -8,7 +8,7 @@ import json
 import os
 import shutil
 from enum import Enum
-from typing import Any, Dict, Generator, List, Optional, Type
+from typing import Any, Callable, Dict, Generator, List, Optional, Type, TypeVar
 
 from karton.core import Task
 from pydantic import BaseModel
@@ -26,7 +26,7 @@ from sqlalchemy import (  # type: ignore
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
-from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
+from sqlalchemy.orm import Query, declarative_base, sessionmaker  # type: ignore
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import select, text
 from sqlalchemy.types import TypeDecorator
@@ -37,6 +37,9 @@ from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
 from artemis.task_utils import get_task_target
 from artemis.utils import build_logger
+
+T = TypeVar("T")
+QueryFilter = Callable[[Query[T]], Query[T]]
 
 
 @dataclasses.dataclass
@@ -402,6 +405,7 @@ class DB:
         search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
+        apply_custom_filter: Optional[QueryFilter[Any]] = None,
     ) -> PaginatedResults:
         ordering_postgresql = [
             (
@@ -426,6 +430,9 @@ class DB:
             if task_filter:
                 for key, value in task_filter.as_dict().items():
                     query = query.filter(getattr(TaskResult, key) == value)
+
+            if apply_custom_filter:
+                query = apply_custom_filter(query)
 
             records_count_filtered = query.count()
             results_page = [

@@ -8,7 +8,7 @@ import json
 import os
 import shutil
 from enum import Enum
-from typing import Any, Dict, Generator, List, Optional, Type
+from typing import Any, Callable, Dict, Generator, List, Optional, Type
 
 from karton.core import Task
 from pydantic import BaseModel
@@ -24,7 +24,7 @@ from sqlalchemy import (  # type: ignore
     create_engine,
     delete,
 )
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
 from sqlalchemy.orm.exc import NoResultFound
@@ -131,6 +131,7 @@ class TaskResult(Base):  # type: ignore
     :ivar logs: Logs associated with the task.
     :ivar task: JSON representation of the original task.
     :ivar result: JSON representation of the result data.
+    :ivar additional_info: JSON representation of the additional data that can be saved
     """
 
     __tablename__ = "task_result"
@@ -146,6 +147,7 @@ class TaskResult(Base):  # type: ignore
     logs = Column(String)
     task = Column(JSON)
     result = Column(JSON)
+    additional_info = Column(JSONB)
 
     fulltext = Column(
         TSVector(),
@@ -400,6 +402,7 @@ class DB:
         search_query: Optional[str] = None,
         analysis_id: Optional[str] = None,
         task_filter: Optional[TaskFilter] = None,
+        apply_custom_filter: Optional[Callable] = None,  # type: ignore
     ) -> PaginatedResults:
         ordering_postgresql = [
             (
@@ -424,6 +427,9 @@ class DB:
             if task_filter:
                 for key, value in task_filter.as_dict().items():
                     query = query.filter(getattr(TaskResult, key) == value)
+
+            if apply_custom_filter:
+                query = apply_custom_filter(query)
 
             records_count_filtered = query.count()
             results_page = [

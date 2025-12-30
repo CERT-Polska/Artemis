@@ -50,7 +50,7 @@ class BaseE2ETestCase(TestCase):
         with requests.Session() as s:
             response = s.get(BACKEND_URL + "add")
             data = response.content
-            soup = BeautifulSoup(data, "html.parser")
+            soup = BeautifulSoup(data, "lxml")
             csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
             response = s.post(
                 BACKEND_URL + "add",
@@ -66,7 +66,7 @@ class BaseE2ETestCase(TestCase):
     def submit_tasks_with_modules_enabled(self, tasks: List[str], tag: str, modules_enabled: List[str]) -> None:
         with requests.Session() as s:
             data = s.get(BACKEND_URL + "add").content
-            soup = BeautifulSoup(data, "html.parser")
+            soup = BeautifulSoup(data, "lxml")
             csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
 
             response = s.post(

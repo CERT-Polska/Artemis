@@ -2283,4 +2283,5 @@ TRANSLATIONS = {
     "Eclipse BIRT (Business Intelligence Reporting Tool) detected": "Wykryto narzędzie Eclipse BIRT (Business Intelligence Reporting Tool)",
     "OpenTouch Multimedia Services Login Panel was detected.": "Wykryto panel logowania OpenTouch Multimedia Services.",
     "Homebridge allows you to integrate with smart home devices that do not natively support HomeKit.": "Wykryto panel Homebridge.",
+    "Phabricator login panel was detected.": "Wykryto panel logowania systemu Phabricator.",
 }

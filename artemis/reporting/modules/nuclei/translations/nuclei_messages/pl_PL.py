@@ -2297,4 +2297,5 @@ TRANSLATIONS = {
     "Homebridge allows you to integrate with smart home devices that do not natively support HomeKit.": "Wykryto panel Homebridge.",
     "Phabricator login panel was detected.": "Wykryto panel logowania systemu Phabricator.",
     "http/exposed-panels/memos-panel.yaml": "Wykryto panel systemu Memos.",
+    "http/exposed-panels/unleash-panel.yaml": "Wykryto panel systemu Unleash.",
 }

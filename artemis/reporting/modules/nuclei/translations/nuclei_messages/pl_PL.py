@@ -997,6 +997,14 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "The C-Lodop printer has an arbitrary file reading vulnerability. By constructing a special URL, it can read any file in the system.": "Drukarka C-Lodop zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
+    "XWiki Platform is a generic wiki platform offering runtime services for applications built on top of it. In versions 9.4-rc-1 through 16.10.5 and 17.0.0-rc-1 through 17.2.2, it's possible for anyone to inject SQL using the parameter sort of the getdeleteddocuments.vm. It's injected as is as an ORDER BY value.": "XWiki w wersji od 9.4-rc-1 do 16.10.5 włącznie i od 17.0.0-rc-1 do 17.2.2 włącznie zawiera podatność SQL Injection (o identyfikatorze CVE-2025-32429) umożliwiającą atakującemu pobieranie danych z bazy danych."
+    + UPDATE_HINT,
+    "GitLab 10.5 and later contain a server-side request forgery caused by insecure handling of webhook requests, letting unauthenticated attackers exploit the server for arbitrary requests, exploit requires sending crafted webhook requests.": "GitLab w wersji 10.5 do 13.6.7 zawiera podatność Server-Side Request Forgery (o identyfikatorze CVE-2021-22175) umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
+    + UPDATE_HINT,
+    "Belkin LINKSYS RE6500 devices before 1.0.012.001 allow remote attackers to execute arbitrary commands or set a new password via shell metacharacters to the goform/setSysAdm page.": "Urządzenia Belkin LINKSYS RE6500 w wersji poniżej 1.0.012.001 umożliwiają atakującemu wykonywanie dowolnych poleceń powłoki i zmianę haseł. Podatności nadano identyfikator CVE-2020-35713."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "n8n < 1.120.4, 1.121.1, 1.122.0 contains a remote code execution caused by insufficient isolation in workflow expression evaluation, letting authenticated attackers execute arbitrary code with n8n process privileges. Exploit requires authentication.": "n8n w wersji poniżej 1.120.4, w gałęzi 1.121 - poniżej 1.121.1, a w gałęzi 1.122 - w wersji 1.122.0, zawiera podatność CVE-2025-68613 umożliwiającą uwierzytelnionemu atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -2299,4 +2307,5 @@ TRANSLATIONS = {
     "Phabricator login panel was detected.": "Wykryto panel logowania systemu Phabricator.",
     "http/exposed-panels/memos-panel.yaml": "Wykryto panel systemu Memos.",
     "http/exposed-panels/unleash-panel.yaml": "Wykryto panel systemu Unleash.",
+    "Grails Admin Console panel was detected.": "Wykryto panel Grails Admin Console.",
 }

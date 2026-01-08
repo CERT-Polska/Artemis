@@ -997,6 +997,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "Detected Glimpse diagnostics endpoint. Glimpse is a .NET diagnostics tool that reveals detailed request information, server configuration, SQL queries, connection strings, and session data.": "Wykryto końcówkę diagnostyczną narzędzia Glimpse. Może ona udostępniać informacje o konfiguracji serwera, zapytania SQL, dane sesji czy dane dostępowe bazy danych.",
     "The C-Lodop printer has an arbitrary file reading vulnerability. By constructing a special URL, it can read any file in the system.": "Drukarka C-Lodop zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "XWiki Platform is a generic wiki platform offering runtime services for applications built on top of it. In versions 9.4-rc-1 through 16.10.5 and 17.0.0-rc-1 through 17.2.2, it's possible for anyone to inject SQL using the parameter sort of the getdeleteddocuments.vm. It's injected as is as an ORDER BY value.": "XWiki w wersji od 9.4-rc-1 do 16.10.5 włącznie i od 17.0.0-rc-1 do 17.2.2 włącznie zawiera podatność SQL Injection (o identyfikatorze CVE-2025-32429) umożliwiającą atakującemu pobieranie danych z bazy danych."
     + UPDATE_HINT,

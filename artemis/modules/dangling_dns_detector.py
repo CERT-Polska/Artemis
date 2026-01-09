@@ -303,11 +303,13 @@ class DanglingDnsDetector(ArtemisBase):
         return None
 
     def check_for_public_institutions(self, domain: str) -> bool:
-        # in case of dangling ip records, we run into a number of FP cause of not properly configured
-        # dns while ip's are in public instutuion IP range
-        # this method filters that out
+        # Dangling ip records can generate a high number of FP when dns ip records points to not used
+        # server resources. Currently module determine that if IP is not responding it may be vulnberable to
+        # domain takeover, while some entities like e.g. universities are in control of ip range that dns
+        # is incorrectly configured - thus leading to FP.
+        # This method filters out such entities based on results from RIPE.
 
-        filters = ["university", "educational", "academic", "education", "technology"]
+        filters = ["university", "educational", "academic", "education", "institute of technology"]
 
         ip = self.get_ip_from_domain(domain)
         try:

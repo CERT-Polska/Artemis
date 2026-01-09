@@ -12,6 +12,8 @@ import dns.query
 import dns.resolver
 from dns import rdatatype
 from dns.rdata import Rdata
+from ipwhois import IPWhois  # type: ignore[import-not-found]
+from ipwhois.exceptions import HTTPLookupError  # type: ignore[import-not-found]
 from karton.core import Task
 
 from artemis import load_risk_class
@@ -114,11 +116,22 @@ class DanglingDnsDetector(ArtemisBase):
         """
         Handles all logic related to scheduling retry task.
 
-        :returns: True if Task is was scheduled.
+        :returns: True if Task was scheduled.
         """
         if not ip_records_alive and not last_ip_scan:
             retry_count = current_task.payload.get("retry_count", 0)
+
             new_payload = current_task.payload.copy()
+            if retry_count == 0:
+                # in order to not retry multiple subdomains that points towards the same ip
+                # we remove domain from payload and add ip
+                # last_domain is removed from deduplication logic, so we will store domain there
+                ip = self.get_ip_from_domain(domain)
+                new_payload["ip"] = ip
+                if "domain" in new_payload:
+                    new_payload["last_domain"] = new_payload["domain"]
+                    del new_payload["domain"]
+
             new_payload["retry_count"] = retry_count + 1
 
             step = Config.Modules.DanglingDnsDetector.DANGLING_DNS_DELAY_STEP
@@ -276,8 +289,53 @@ class DanglingDnsDetector(ArtemisBase):
                 pass
         return ip_records_alive
 
+    def get_ip_from_domain(self, domain: str) -> str | None:
+        try:
+            answers = dns.resolver.resolve(domain, rdatatype.A, raise_on_no_answer=False)
+            if answers.rrset is not None:
+                for record in answers:
+                    if hasattr(record, "rdtype") and record.rdtype == rdatatype.A:
+                        return record.address  # type: ignore[attr-defined, no-any-return]
+
+        except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
+            return None
+
+        return None
+
+    def check_for_public_institutions(self, domain: str) -> bool:
+        # in case of dangling ip records, we run into a number of FP cause of not properly configured
+        # dns while ip's are in public instutuion IP range
+        # this method filters that out
+
+        filters = ["educational users", "university", "hosting servers"]
+
+        ip = self.get_ip_from_domain(domain)
+        try:
+            whois_data = IPWhois(ip).lookup_whois()
+        except HTTPLookupError as e:
+            if any(
+                token in e
+                for token in (
+                    "429",
+                    "too many requests",
+                    "rate limit",
+                    "quota",
+                    "retry-after",
+                    "503",
+                )
+            ):
+                self.log.info("Quota exceeded for whois query for %s", ip)
+                return False
+
+        if "nets" in whois_data:
+            for net in whois_data["nets"]:
+                if "description" in net and any(f.lower() in net["description"].lower() for f in filters):
+                    return True
+
+        return False
+
     def run(self, current_task: Task) -> None:
-        domain = get_target_host(current_task)
+        target = get_target_host(current_task)
         task_type = current_task.headers["type"]
 
         if self.handle_retry_timeout(current_task, task_type):
@@ -288,6 +346,8 @@ class DanglingDnsDetector(ArtemisBase):
         retry_count = current_task.payload.get("retry_count", 0)
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
         root_domain = analysis.get("target") if analysis else None
+
+        domain = current_task.get_payload("last_domain") if task_type == TaskType.SUSPECTED_DANGLING_IP else target
 
         if Config.Modules.DanglingDnsDetector.DANGLING_DNS_SKIP_ROOT_DOMAIN and domain == root_domain:
             self.db.save_task_result(
@@ -308,6 +368,11 @@ class DanglingDnsDetector(ArtemisBase):
             self.check_ns(domain, result)
 
         self.handle_scheduling_retry(domain, current_task, ip_records_alive, last_ip_scan)
+
+        if last_ip_scan and not ip_records_alive and self.check_for_public_institutions(domain):
+            # clear result as we want to skip it
+            result = []
+            self.log.info("Domain %s determined as public institution, not reporting dangling IP", domain)
 
         status = TaskStatus.INTERESTING if result else TaskStatus.OK
         messages = [r["message"] for r in result]

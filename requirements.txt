@@ -15,6 +15,7 @@ Flask==3.1.2
 freezegun==1.5.5
 h11==0.16.0
 idna==3.11
+ipwhois==1.3.0
 Jinja2==3.1.6
 karton-core==5.9.0
 git+https://github.com/CERT-Polska/mailgoose@v1.3.15#egg=libmailgoose&subdirectory=scan

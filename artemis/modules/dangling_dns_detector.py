@@ -307,7 +307,7 @@ class DanglingDnsDetector(ArtemisBase):
         # dns while ip's are in public instutuion IP range
         # this method filters that out
 
-        filters = ["educational users", "university", "hosting servers"]
+        filters = ["university", "educational", "academic", "education", "technology"]
 
         ip = self.get_ip_from_domain(domain)
         try:
@@ -327,11 +327,17 @@ class DanglingDnsDetector(ArtemisBase):
                 self.log.info("Quota exceeded for whois query for %s", ip)
                 return False
 
+        descriptions: list[str] = []
+        if "asn_description" in whois_data and whois_data["asn_description"]:
+            descriptions.append(whois_data["asn_description"])
         if "nets" in whois_data:
             for net in whois_data["nets"]:
-                if "description" in net and any(f.lower() in net["description"].lower() for f in filters):
-                    return True
+                if "description" in net and net["description"]:
+                    descriptions.append(net["description"])
 
+        for descr in descriptions:
+            if any(f.lower() in descr.lower() for f in filters):
+                return True
         return False
 
     def run(self, current_task: Task) -> None:

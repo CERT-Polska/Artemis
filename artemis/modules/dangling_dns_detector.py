@@ -302,12 +302,13 @@ class DanglingDnsDetector(ArtemisBase):
 
         return None
 
-    def check_for_public_institutions(self, domain: str) -> bool:
-        # Dangling ip records can generate a high number of FP when dns ip records points to not used
-        # server resources. Currently module determine that if IP is not responding it may be vulnberable to
-        # domain takeover, while some entities like e.g. universities are in control of ip range that dns
-        # is incorrectly configured - thus leading to FP.
-        # This method filters out such entities based on results from RIPE.
+    def check_for_public_entities(self, domain: str) -> bool:
+        # Dangling IP record detection can generate a high number of false positives when DNS IP records points to
+        # unused server resources. The module used to determine that if IP is not responding it may be vulnberable to
+        # takeover, but some entities, e.g. universities, are in control of the IP range that the domain resolved to
+        # - thus leading to false positives.
+        #
+        # This method is a heuristic to filter out such entities based on results from RIPE.
 
         filters = ["university", "educational", "academic", "education", "institute of technology"]
 
@@ -377,10 +378,10 @@ class DanglingDnsDetector(ArtemisBase):
 
         self.handle_scheduling_retry(domain, current_task, ip_records_alive, last_ip_scan)
 
-        if last_ip_scan and not ip_records_alive and self.check_for_public_institutions(domain):
+        if last_ip_scan and not ip_records_alive and self.check_for_public_entities(domain):
             # clear result as we want to skip it
             result = []
-            self.log.info("Domain %s determined as public institution, not reporting dangling IP", domain)
+            self.log.info("Domain %s IP determined as belonging to a public entity, not reporting dangling IP", domain)
 
         status = TaskStatus.INTERESTING if result else TaskStatus.OK
         messages = [r["message"] for r in result]

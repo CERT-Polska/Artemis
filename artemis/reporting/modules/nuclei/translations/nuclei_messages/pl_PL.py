@@ -997,7 +997,6 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
-<<<<<<< Updated upstream
     "In multiple products of WAGO, a vulnerability allows an unauthenticated, remote attacker to create new users and change the device configuration which can result in unintended behavior, Denial of Service, and full system compromise.": "Wykryto produkt WAGO zawierający podatność o identyfikatorze CVE-2023-1698 umożliwiającą atakującemu tworzenie nowych kont użytkowników i zmianę ustawień.",
     "Rails <5.2.2.1, <5.1.6.2, <5.0.7.2, <4.2.11.1 and v3 are susceptible to a file content disclosure vulnerability because specially crafted accept headers can cause contents of arbitrary files on the target system's file system to be exposed.": "Rails <5.2.2.1, <5.1.6.2, <5.0.7.2, <4.2.11.1 i v3 zawiera podatność o identyfikatorze CVE-2019-5418 umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "A vulnerability was found in code-projects School Fees Payment System 1.0. It has been rated as critical. This issue affects some unknown processing of the file /student.php. The manipulation of the argument ID leads to sql injection. The attack may be initiated remotely. The exploit has been disclosed to the public and may be used.": "Oprogramowanie code-projects School Fees Payment System 1.0 zawiera podatność SQL Injection (o identyfikatorze CVE-2025-6403) umożliwiającą atakującemu pobranie danych z bazy danych.",

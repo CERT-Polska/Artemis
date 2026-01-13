@@ -1,0 +1,22 @@
+{% if "open_port_telnet" in data.contains_type %}
+    <li>{% trans %}The following servers have open telnet ports:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "open_port_telnet" %}
+                    <li>
+                        {{ report.target }} ({{ report.additional_data.service }})
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                We do not recommend telnet ports to be publicly available - the password is sent unencrypted and some devices
+                allow anonymous login or login with easy/publicly available passwords.
+
+                The recommended configuration is to make such services available on an internal network only.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

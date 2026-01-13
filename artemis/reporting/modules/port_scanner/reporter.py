@@ -16,6 +16,7 @@ class PortScannerReporter(Reporter):
     OPEN_PORT_REMOTE_DESKTOP = ReportType("open_port_remote_desktop")
     OPEN_PORT_DATABASE = ReportType("open_port_database")
     OPEN_PORT_SMB = ReportType("open_port_smb")
+    OPEN_PORT_TELNET = ReportType("open_port_telnet")
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
@@ -31,6 +32,19 @@ class PortScannerReporter(Reporter):
 
             for port, port_data in data.items():
                 service = port_data["service"].lower()
+                if service in ["telnet"]:
+                    result.append(
+                        Report(
+                            top_level_target=get_top_level_target(task_result),
+                            target=f"{service}://{ip}:{port}",
+                            report_type=PortScannerReporter.OPEN_PORT_TELNET,
+                            additional_data={
+                                "port": port,
+                                "service": service,
+                            },
+                            timestamp=task_result["created_at"],
+                        )
+                    )
                 if service in ["mysql", "postgresql", "mssql"]:
                     result.append(
                         Report(
@@ -78,6 +92,9 @@ class PortScannerReporter(Reporter):
     @staticmethod
     def get_email_template_fragments() -> List[ReportEmailTemplateFragment]:
         return [
+            ReportEmailTemplateFragment.from_file(
+                os.path.join(os.path.dirname(__file__), "template_open_port_telnet.jinja2"), priority=4
+            ),
             ReportEmailTemplateFragment.from_file(
                 os.path.join(os.path.dirname(__file__), "template_open_port_remote_desktop.jinja2"), priority=3
             ),

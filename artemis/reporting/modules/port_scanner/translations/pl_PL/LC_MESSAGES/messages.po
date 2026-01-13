@@ -68,3 +68,19 @@ msgstr ""
 "atakujący zgadnie hasło lub wykorzysta hasło upublicznione w wycieku, "
 "może pobrać lub modyfikować pliki. Zalecamy, aby takie usługi były "
 "dostępne jedynie w sieci wewnętrznej."
+
+#: artemis/reporting/modules/port_scanner/template_open_port_telnet.jinja2:2
+msgid "The following servers have open telnet ports:"
+msgstr "Następujące serwery mają otwarty port usługi telnet:"
+
+#: artemis/reporting/modules/port_scanner/template_open_port_telnet.jinja2:14
+msgid ""
+"We do not recommend telnet ports to be publicly available - the password "
+"is sent unencrypted and some devices allow anonymous login or login with "
+"easy/publicly available passwords. The recommended configuration is to "
+"make such services available on an internal network only."
+msgstr ""
+"Nie rekomendujemy, aby porty usługi telnet były dostępne publicznie - "
+"hasło jest przesyłane bez szyfrowania, a niektóre urządzenia umożliwiają "
+"logowanie bez hasła lub przy użyciu prostego/publicznie dostępnego hasła."
+" Zalecamy, aby takie usługi były dostępne tylko w sieci wewnętrznej."

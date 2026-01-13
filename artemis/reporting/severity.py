@@ -57,6 +57,7 @@ SEVERITY_MAP = {
     ReportType("exposed_bash_history"): Severity.MEDIUM,
     ReportType("close_domain_expiration_date"): Severity.MEDIUM,
     ReportType("close_domain_expiry_date"): Severity.MEDIUM,
+    ReportType("open_port_telnet"): Severity.MEDIUM,
     ReportType("open_port_database"): Severity.LOW,
     ReportType("open_port_smb"): Severity.LOW,
     ReportType("exposed_php_var_dump"): Severity.LOW,

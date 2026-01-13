@@ -42,3 +42,15 @@ msgid ""
 "e.g. access or modify files. The recommended configuration is to make "
 "such services available on an internal network only."
 msgstr ""
+
+#: artemis/reporting/modules/port_scanner/template_open_port_telnet.jinja2:2
+msgid "The following servers have open telnet ports:"
+msgstr ""
+
+#: artemis/reporting/modules/port_scanner/template_open_port_telnet.jinja2:14
+msgid ""
+"We do not recommend telnet ports to be publicly available - the password "
+"is sent unencrypted and some devices allow anonymous login or login with "
+"easy/publicly available passwords. The recommended configuration is to "
+"make such services available on an internal network only."
+msgstr ""

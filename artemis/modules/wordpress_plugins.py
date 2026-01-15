@@ -49,7 +49,6 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "social-pug",
     "uicore-animate",
     "wordpress-popup",
-    "wp-hide-security-enhancer",
     "wp-letsencrypt-ssl",
     "wp-members",
     "wppao-sitemap",

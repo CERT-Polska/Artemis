@@ -231,7 +231,10 @@ class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
         # given
         task = Task(
             {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value},
-            payload={"domain": "dangling-cname.test.artemis.lab.cert.pl"},
+            payload={
+                "domain": "dangling-cname.test.artemis.lab.cert.pl",
+                "last_domain": "dangling-cname.test.artemis.lab.cert.pl",
+            },
         )
 
         # when
@@ -249,7 +252,10 @@ class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
         # given
         task = Task(
             {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value},
-            payload={"domain": "dangling.test.artemis.lab.cert.pl"},
+            payload={
+                "domain": "dangling.test.artemis.lab.cert.pl",
+                "last_domain": "dangling.test.artemis.lab.cert.pl",
+            },
         )
 
         # when

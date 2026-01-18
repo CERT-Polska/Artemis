@@ -997,6 +997,19 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "D-Link DSL-2888A devices with firmware prior to AU_2.31_V1.1.47ae55 are vulnerable to authentication bypass issues which can lead to remote command execution. An unauthenticated attacker could bypass authentication to access authenticated pages and functionality.": "Urządzenia D-Link DSL-2888A z firmware w wersji poniżej AU_2.31_V1.1.47ae55 umożliwiają atakującemu ominięcie uwierzytelniania a w konsekwencji zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "A directory traversal vulnerability in the component SCS.Web.Server.SPI/1.0 of Linx Sphere LINX 7.35.ST15 allows attackers to read arbitrary files.": "Komponent SCS.Web.Server.SPI/1.0 systemu Linx Sphere LINX 7.35.ST15 zawiera podatność o identyfikatorze CVE-2022-45269 umożliwiającą atakującemu odczyt dowolnych plików z dysku."
+    + UPDATE_HINT,
+    "Zimbra Collaboration Suite versions 8.8.15 and 9.0 contain a memcached command injection vulnerability that allows an unauthenticated attacker to inject arbitrary memcache commands into a targeted instance, leading to cache poisoning and potential credential theft.": "Zimbra Collaboration Suite w wersji 8.8.15, 9.0 i potencjalnie wcześniejszych zawiera podatność Memcached Command Injection o identyfikatorze CVE-2022-27924 umożliwiającą atakującemu w niektórych sytuacjach przejęcie danych dostępowych."
+    + UPDATE_HINT,
+    "A vulnerability in the file uploader component found in the ~/src/Classes/FileUploader.php file of the ProfilePress WordPress plugin made it possible for users to upload arbitrary files during user registration or during profile updates. This issue affects versions 3.0.0 - 3.1.3.": "Wtyczha WordPress o nazwie ProfilePress w wersji 3.0.0 - 3.1.3 umożliwia atakującemu umieszczenie dowolnych plików na serwerze, a w konsekwencji zdalne wykonanie kodu. Podatności nadano identyfikator CVE-2021-34624."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The .gitmodules file was exposed on the web server as part of an accessible .git directory.This exposure indicated a misconfiguration that could have allowed attackers to explore the .git directory further and potentially reconstruct or download the full source code repository.": "Wykryto plik .gitmodules udostępniający atakującemu informacje o wykorzystywanych w systemie repozytoriach kodu."
+    + DATA_HIDE_HINT,
+    "Visual Studio Code and Visual Studio may create slnx.sqlite database files that contain solution metadata, project information, and potentially sensitive configuration data. If these files are accessible on a web server, they can expose internal project structure and development environment details.": "Wykryto plik slnx.sqlite tworzony przez programy Visual Studio Code i Visual Studio który zawiera metadane, informacje o projekcie i potencjalnie wrażliwe informacje konfiguracyjne.",
     "In multiple products of WAGO, a vulnerability allows an unauthenticated, remote attacker to create new users and change the device configuration which can result in unintended behavior, Denial of Service, and full system compromise.": "Wykryto produkt WAGO zawierający podatność o identyfikatorze CVE-2023-1698 umożliwiającą atakującemu tworzenie nowych kont użytkowników i zmianę ustawień.",
     "Rails <5.2.2.1, <5.1.6.2, <5.0.7.2, <4.2.11.1 and v3 are susceptible to a file content disclosure vulnerability because specially crafted accept headers can cause contents of arbitrary files on the target system's file system to be exposed.": "Rails <5.2.2.1, <5.1.6.2, <5.0.7.2, <4.2.11.1 i v3 zawiera podatność o identyfikatorze CVE-2019-5418 umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "A vulnerability was found in code-projects School Fees Payment System 1.0. It has been rated as critical. This issue affects some unknown processing of the file /student.php. The manipulation of the argument ID leads to sql injection. The attack may be initiated remotely. The exploit has been disclosed to the public and may be used.": "Oprogramowanie code-projects School Fees Payment System 1.0 zawiera podatność SQL Injection (o identyfikatorze CVE-2025-6403) umożliwiającą atakującemu pobranie danych z bazy danych.",
@@ -2325,4 +2338,5 @@ TRANSLATIONS = {
     "Grails Admin Console panel was detected.": "Wykryto panel Grails Admin Console.",
     "VMware vCloud Director panel was detected": "Wykryto panel VMware vCloud Director.",
     "VMware vCloud Director panel was detected.": "Wykryto panel VMware vCloud Director.",
+    "Gotify login panel was detected.": "Wykryto panel logowania systemu Gotify.",
 }

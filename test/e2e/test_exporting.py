@@ -141,6 +141,10 @@ class ExportingTestCase(BaseE2ETestCase):
                     ),
                 )
 
+                for item in output_data["messages"]["test-smtp-server.artemis"]["assets"]:
+                    self.assertIn("original_task_result_id", item)
+                    del item["original_task_result_id"]
+
                 self.assertEqual(
                     sorted(output_data["messages"]["test-smtp-server.artemis"]["assets"]),
                     [

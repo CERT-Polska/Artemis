@@ -20,7 +20,6 @@ from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
-from artemis.task_utils import get_target_host
 
 
 def direct_dns_query(
@@ -344,7 +343,7 @@ class DanglingDnsDetector(ArtemisBase):
         return False
 
     def run(self, current_task: Task) -> None:
-        target = get_target_host(current_task)
+        domain = current_task.get_payload("last_domain")
         task_type = current_task.headers["type"]
 
         if self.handle_retry_timeout(current_task, task_type):
@@ -355,8 +354,6 @@ class DanglingDnsDetector(ArtemisBase):
         retry_count = current_task.payload.get("retry_count", 0)
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
         root_domain = analysis.get("target") if analysis else None
-
-        domain = current_task.get_payload("last_domain") if task_type == TaskType.SUSPECTED_DANGLING_IP else target
 
         if Config.Modules.DanglingDnsDetector.DANGLING_DNS_SKIP_ROOT_DOMAIN and domain == root_domain:
             self.db.save_task_result(

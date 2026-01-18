@@ -746,9 +746,18 @@ class ArtemisBase(Karton):
         result = None
         if task.headers["type"] == TaskType.NEW:
             result = task.payload["data"]
-        elif task.headers["type"] == TaskType.IP or task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP:
+        elif task.headers["type"] == TaskType.IP:
             result = task.payload["ip"]
-        elif task.headers["type"] == TaskType.DOMAIN or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
+        elif task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP and "ip" in task.payload:
+            # Payload for suspected dangling ip has changed and now it should contain IP, but old tasks do not have it
+            # Get ip if possible, otherwise fallback to domain in next condition
+            # FIXME: to be removed in future
+            result = task.payload["ip"]
+        elif (
+            task.headers["type"] == TaskType.DOMAIN
+            or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST
+            or task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP
+        ):
             # This is an approximation. Sometimes, when we scan domain, we actually scan the IP the domain
             # resolves to (e.g. in port_scan karton), sometimes the domain itself (e.g. the DNS kartons) or
             # even the MX servers. Therefore this will not map 1:1 to the actual host being scanned.

@@ -124,6 +124,7 @@ class DataLoader:
 
             for asset_to_add in assets_to_add:
                 asset_to_add.original_karton_name = result["task"]["headers"]["receiver"]
+                asset_to_add.original_task_result_id = result["id"]
                 domain = asset_to_add.name if asset_to_add.asset_type == AssetType.DOMAIN else None
                 asset_to_add.last_domain = domain or result["task"]["payload"].get("last_domain", None)
                 asset_to_add.top_level_target = top_level_target

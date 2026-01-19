@@ -997,6 +997,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "Zimbra Collaboration (ZCS) 10.0 and 10.1 contain a local file inclusion caused by improper handling of user-supplied parameters in the RestFilter servlet, letting unauthenticated remote attackers include arbitrary files from WebRoot, exploit requires crafted requests to /h/rest endpoint.": "Zimbra Collaboration Suite (ZCS) w wersjach 10.0 i 10.1 zawiera podatność typu Local File Inclusion o identyfikatorze CVE-2025-68645. Luka ta umożliwia nieuwierzytelnionym atakującym zdalnie dołączenie dowolnych plików z katalogu WebRoot." + UPDATE_HINT,
     "D-Link DSL-2888A devices with firmware prior to AU_2.31_V1.1.47ae55 are vulnerable to authentication bypass issues which can lead to remote command execution. An unauthenticated attacker could bypass authentication to access authenticated pages and functionality.": "Urządzenia D-Link DSL-2888A z firmware w wersji poniżej AU_2.31_V1.1.47ae55 umożliwiają atakującemu ominięcie uwierzytelniania a w konsekwencji zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,

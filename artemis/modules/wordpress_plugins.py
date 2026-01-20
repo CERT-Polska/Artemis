@@ -64,7 +64,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
-    "disable-remove-google-fonts",
     "famethemes-demo-importer",
     "gallery-block-lightbox",
     "icon-element",
@@ -75,6 +74,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "rafflepress",
     "search-meter",
     "trustpilot-reviews",
+    "unlimited-elements-for-elementor",
     "website-monetization-by-magenet",
     "woo-multi-currency",
     "wp-maximum-execution-time-exceeded",

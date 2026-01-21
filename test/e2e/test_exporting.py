@@ -32,7 +32,7 @@ class ExportingTestCase(BaseE2ETestCase):
 
         with requests.Session() as s:
             data = s.get(BACKEND_URL + "export").content
-            soup = BeautifulSoup(data, "html.parser")
+            soup = BeautifulSoup(data, "lxml")
             csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
 
             response = s.post(
@@ -448,7 +448,7 @@ class ExportingTestCase(BaseE2ETestCase):
 
         with requests.Session() as s:
             data = s.get(BACKEND_URL + "export").content
-            soup = BeautifulSoup(data, "html.parser")
+            soup = BeautifulSoup(data, "lxml")
 
             option_values = [option.text for option in soup.select("select option")]
 
@@ -460,7 +460,7 @@ class ExportingTestCase(BaseE2ETestCase):
 
         with requests.Session() as s:
             data = s.get(BACKEND_URL + "export").content
-            soup = BeautifulSoup(data, "html.parser")
+            soup = BeautifulSoup(data, "lxml")
             csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
 
             s.post(
@@ -476,7 +476,7 @@ class ExportingTestCase(BaseE2ETestCase):
 
         with requests.Session() as s:
             data = s.get(BACKEND_URL + "exports").content
-            soup = BeautifulSoup(data, "html.parser")
+            soup = BeautifulSoup(data, "lxml")
             t_body = soup.find_all(id="task_list")[0].tbody
 
             for tr in t_body.find_all("tr"):

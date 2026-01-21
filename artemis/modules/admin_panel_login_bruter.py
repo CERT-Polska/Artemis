@@ -96,7 +96,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                 return (False, None)
 
             original_cookies = session.cookies.get_dict()  # type: ignore
-            soup = BeautifulSoup(response.text, "html.parser")
+            soup = BeautifulSoup(response.text, "lxml")
             forms = soup.find_all("form")
 
             for form in forms:

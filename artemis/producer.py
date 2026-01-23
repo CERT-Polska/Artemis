@@ -20,7 +20,7 @@ def create_tasks(
     requests_per_second_override: Optional[float] = None,
     module_runtime_configurations: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> None:
-    for uri in uris:
+    for uri in {uri.lower() for uri in uris}:
         task = Task({"type": TaskType.NEW})
         task.add_payload("data", uri)
         if priority:

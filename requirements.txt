@@ -25,7 +25,7 @@ MarkupSafe==3.0.3
 minio==7.2.20
 more-itertools==10.8.0
 openapi-spec-validator==0.7.2
-packaging==25.0
+packaging==26.0
 paramiko==4.0.0
 prometheus-client==0.24.1
 psutil==7.2.1

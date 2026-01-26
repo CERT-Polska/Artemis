@@ -1,6 +1,9 @@
+import urllib.parse
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from artemis.domains import is_domain
+from artemis.ip_utils import is_ip_address
 from artemis.reporting.base.asset_type import AssetType
 from artemis.resolvers import ResolutionException, lookup
 
@@ -30,9 +33,23 @@ class Asset:
     top_level_target: Optional[str] = None
 
     def __post_init__(self) -> None:
-        if self.asset_type == AssetType.DOMAIN:
+        if "://" in self.name:
+            data = urllib.parse.urlparse(self.name)
+            host = data.hostname
+        elif ":" in self.name:
+            host = self.name.split(":")[0]
+        else:
+            host = self.name
+
+        if host is None:
+            self.domain_ips = None
+            return
+
+        if is_ip_address(host):
+            self.domain_ips = [host]
+        elif is_domain(host):
             try:
-                self.domain_ips = list(lookup(self.name))
+                self.domain_ips = list(lookup(host))
             except ResolutionException:
                 self.domain_ips = []
         else:

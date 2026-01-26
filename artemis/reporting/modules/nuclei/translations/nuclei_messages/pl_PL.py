@@ -997,6 +997,12 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "HtmlUtil.escapeRedirect in Liferay Portal 7.2.0 through 7.4.3.18, and older unsupported versions, and Liferay DXP 7.4 before update 19, 7.3 before update 4, 7.2 before fix pack 19, and older unsupported versions can be circumvented by using the 'REPLACEMENT CHARACTER' (U+FFFD), which allows remote attackers to redirect users to arbitrary external URLs via the (1) 'redirect` parameter (2) `FORWARD_URL` parameter, (3) `noSuchEntryRedirect` parameter, and (4) others parameters that rely on HtmlUtil.escapeRedirect.": "Funkcja HtmlUtil.escapeRedirect w systemie Liferay Portal w wersji od 7.2.0 do 7.4.3.18 włącznie i starszych niewspieranych wersjach, a także Liferay DXP 7.4 do aktualizacji 19, 7.3 do aktualizacji 4, 7.2 do poprawek 19 i starszych niewspieranych wersjach, zawiera podatność Open Redirect o identyfikatorze CVE-2024-25608, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie.",
+    "Seowon 130-SLC router lets remote attackers execute commands without authentication as admin users via the router ip & Port(if available) in the request.": "Router Seowon 130-SLC umożliwia atakującemu zdalne wykonanie kodu jako administrator."
+    + RCE_EFFECT_DESCRIPTION,
+    "Exposure of Sensitive Information to an Unauthorized Actor vulnerability in PickPlugins Post Grid Combo – 36+ Gutenberg Blocks.This issue affects Post Grid Combo – 36+ Gutenberg Blocks: from n/a through 2.2.50.": "Wtyczka WordPress o nazwie PickPlugins Post Grid Combo – 36+ Gutenberg Blocks w wersji do 2.2.50 zawiera podatność o identyfikatorze CVE-2023-40211 umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji."
+    + WORDPRESS_UPDATE_HINT,
+    "Apache ActiveMQ default login credentials were discovered.": "Wykryto system Apache ActiveMQ do którego można zalogować się domyślnymi danymi dostępowymi.",
     "Zimbra Collaboration (ZCS) 10.0 and 10.1 contain a local file inclusion caused by improper handling of user-supplied parameters in the RestFilter servlet, letting unauthenticated remote attackers include arbitrary files from WebRoot, exploit requires crafted requests to /h/rest endpoint.": "Zimbra Collaboration Suite (ZCS) w wersjach 10.0 i 10.1 zawiera podatność typu Local File Inclusion o identyfikatorze CVE-2025-68645. Luka ta umożliwia nieuwierzytelnionym atakującym zdalnie dołączenie dowolnych plików z katalogu WebRoot."
     + UPDATE_HINT,
     "D-Link DSL-2888A devices with firmware prior to AU_2.31_V1.1.47ae55 are vulnerable to authentication bypass issues which can lead to remote command execution. An unauthenticated attacker could bypass authentication to access authenticated pages and functionality.": "Urządzenia D-Link DSL-2888A z firmware w wersji poniżej AU_2.31_V1.1.47ae55 umożliwiają atakującemu ominięcie uwierzytelniania a w konsekwencji zdalne wykonanie kodu."
@@ -2341,4 +2347,5 @@ TRANSLATIONS = {
     "VMware vCloud Director panel was detected": "Wykryto panel VMware vCloud Director.",
     "VMware vCloud Director panel was detected.": "Wykryto panel VMware vCloud Director.",
     "Gotify login panel was detected.": "Wykryto panel logowania systemu Gotify.",
+    "Kronos Workforce Central login panel was detected.": "Wykryto panel Kronos Workforce Central.",
 }

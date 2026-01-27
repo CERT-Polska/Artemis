@@ -2352,4 +2352,5 @@ TRANSLATIONS = {
     "VMware vCloud Director panel was detected.": "Wykryto panel VMware vCloud Director.",
     "Gotify login panel was detected.": "Wykryto panel logowania systemu Gotify.",
     "Kronos Workforce Central login panel was detected.": "Wykryto panel Kronos Workforce Central.",
+    "Application Management Panel was detected.": "Wykryto Application Management Panel.",
 }

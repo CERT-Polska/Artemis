@@ -997,7 +997,9 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
-    "PDF Signer 3.0 is susceptible to a template injection which allows code execution, due to improper cookie handling and an improper CSRF implementation. An attacker can execute code on the server in the context of the web server.": "PDF Signer w wersji 3.0 zawiera podatność Template Injection umożliwiającą atakującemu zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
+    "PDF Signer 3.0 is susceptible to a template injection which allows code execution, due to improper cookie handling and an improper CSRF implementation. An attacker can execute code on the server in the context of the web server.": "PDF Signer w wersji 3.0 zawiera podatność Template Injection umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Zimbra Collaboration Suite (ZCS) before 8.8.15 Patch 7 is susceptible to server-side request forgery when WebEx zimlet is installed and zimlet JSP is enabled.": "Zimbra Collaboration Suite (ZCS) w wersji poniżej 8.8.15 Patch 7 zawiera podatność Server-Side Request Forgery (o identyfikatorze CVE-2020-7796) umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej, jeśli WebEx zimlet jest zainstalowany, a zimlet JSP - włączone",
     "Detected the presence of a .credentials file and extracts sensitive authentication tokens, passwords, or API keys.": "Wykryto plik .credentials zawierający tokeny dostępowe, klucze API lub hasła."
     + DATA_HIDE_HINT,

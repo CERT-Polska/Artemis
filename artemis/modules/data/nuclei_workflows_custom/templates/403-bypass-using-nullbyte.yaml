@@ -26,6 +26,7 @@ http:
         dsl:
           - "status_code >= 200"
           - "status_code < 300"
+          - "len(body) >= 200"
           - "!contains(body, '<title>Request Rejected</title>')"
           - "!contains(body, '<TITLE>Unauthorized Request Blocked</TITLE>')"
         condition: and

@@ -4,7 +4,7 @@ msgid ""
 "can be bought, then takeover is possible."
 msgstr ""
 "Skonfigurowana domena ma rekord CNAME, ale domena docelowa nie istnieje. "
-"Jest subdomena, na którą wskazuje rekord CNAME, może zostać zakupiona przez atakującego, "
+"Jeśli subdomena na którą wskazuje rekord CNAME, może zostać zakupiona przez atakującego, "
 "umożliwia to przejęcie subdomeny."
 
 msgid ""

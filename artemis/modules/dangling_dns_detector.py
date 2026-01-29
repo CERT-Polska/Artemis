@@ -19,6 +19,7 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.domains import is_subdomain
 from artemis.module_base import ArtemisBase
 
 
@@ -157,12 +158,15 @@ class DanglingDnsDetector(ArtemisBase):
             return True
         return False
 
-    def _is_cname_dangling(self, record: Rdata) -> bool | None:
+    def _is_cname_dangling(self, record: Rdata, parent_domain: str) -> bool | None:
         if not hasattr(record, "rdtype") or record.rdtype != rdatatype.CNAME:
             return None
 
         cname_target_types = [rdatatype.A, rdatatype.AAAA, rdatatype.TXT]
         cname_target = record.target.to_text()  # type: ignore[attr-defined]
+
+        if is_subdomain(cname_target, parent_domain):
+            return False
 
         dangling = True
         for record_type in cname_target_types:
@@ -183,7 +187,7 @@ class DanglingDnsDetector(ArtemisBase):
             answers = dns.resolver.resolve(domain, rdatatype.CNAME, raise_on_no_answer=False)
             if answers.rrset is not None:
                 for record in answers:
-                    dangling = self._is_cname_dangling(record)
+                    dangling = self._is_cname_dangling(record, parent_domain=domain)
                     if dangling:
                         result.append(
                             {

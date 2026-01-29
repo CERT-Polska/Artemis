@@ -16,8 +16,6 @@ class DanglingDnsReporter(Reporter):
 
     @staticmethod
     def create_reports(task_result: Dict[str, Any], language: Language) -> List[Report]:
-        return []  # Temporarily disabling reporting until the % of FP is decreased
-
         if task_result["headers"]["receiver"] != "dangling_dns_detector":
             return []
 
@@ -29,7 +27,7 @@ class DanglingDnsReporter(Reporter):
 
         result = []
         for item in task_result["result"]:
-            if item["record"] in (rdatatype.A, rdatatype.AAAA, rdatatype.CNAME):
+            if item["record"] == rdatatype.CNAME:
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -42,7 +40,7 @@ class DanglingDnsReporter(Reporter):
                         timestamp=task_result["created_at"],
                     )
                 )
-            elif item["record"] == rdatatype.NS:
+            elif item["record"] in (rdatatype.NS, rdatatype.A, rdatatype.AAAA):
                 continue
             else:
                 raise ValueError(f"Dns value record {item['record']} is not implemented.")

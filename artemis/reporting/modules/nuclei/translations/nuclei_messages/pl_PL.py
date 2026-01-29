@@ -997,6 +997,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "Zimbra Collaboration Suite (ZCS) before 8.8.15 Patch 7 is susceptible to server-side request forgery when WebEx zimlet is installed and zimlet JSP is enabled.": "Zimbra Collaboration Suite (ZCS) w wersji poniżej 8.8.15 Patch 7 zawiera podatność Server-Side Request Forgery (o identyfikatorze CVE-2020-7796) umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej, jeśli WebEx zimlet jest zainstalowany, a zimlet JSP - włączone",
     "Detected the presence of a .credentials file and extracts sensitive authentication tokens, passwords, or API keys.": "Wykryto plik .credentials zawierający tokeny dostępowe, klucze API lub hasła."
     + DATA_HIDE_HINT,
     "Jenkins GitHub Plugin 1.29.1 and earlier is susceptible to server-side request forgery via GitHubTokenCredentialsCreator.java, which allows attackers to leverage attacker-specified credentials IDs obtained through another method and capture the credentials stored in Jenkins.": "Jenkins GitHub plugin w wersji 1.29.1 i wcześniejszych zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2018-1000600 umożliwiającą atakującemu dostęp do danych dostępowych w przypadku, gdy zna ich identyfikator.",
@@ -2351,4 +2352,5 @@ TRANSLATIONS = {
     "VMware vCloud Director panel was detected.": "Wykryto panel VMware vCloud Director.",
     "Gotify login panel was detected.": "Wykryto panel logowania systemu Gotify.",
     "Kronos Workforce Central login panel was detected.": "Wykryto panel Kronos Workforce Central.",
+    "Application Management Panel was detected.": "Wykryto Application Management Panel.",
 }

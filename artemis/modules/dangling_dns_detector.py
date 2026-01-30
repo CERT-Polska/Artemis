@@ -167,6 +167,8 @@ class DanglingDnsDetector(ArtemisBase):
 
         if is_subdomain(cname_target, parent_domain):
             return False
+        if is_subdomain(parent_domain, cname_target):
+            return False
 
         dangling = True
         for record_type in cname_target_types:

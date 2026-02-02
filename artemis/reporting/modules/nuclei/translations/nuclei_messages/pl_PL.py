@@ -2357,4 +2357,5 @@ TRANSLATIONS = {
     "Kronos Workforce Central login panel was detected.": "Wykryto panel Kronos Workforce Central.",
     "Application Management Panel was detected.": "Wykryto Application Management Panel.",
     "[no description] http/exposed-panels/national-instruments/ni-web-based-panel.yaml": "Wykryto panel National Instruments.",
+    "Hangfire Dashboard panel was detected.": "Wykryto panel Hangfire Dashboard.",
 }

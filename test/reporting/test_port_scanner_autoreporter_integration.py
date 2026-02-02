@@ -19,6 +19,7 @@ class PortScannerAutoreporterIntegrationTest(BaseReportingTest):
                     asset_type=AssetType.OPEN_PORT,
                     name="test-old-wordpress:80",
                     additional_type="http",
-                )
+                ),
+                Asset(asset_type=AssetType.DOMAIN, name="test-old-wordpress"),
             ],
         )

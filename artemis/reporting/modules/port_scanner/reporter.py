@@ -130,4 +130,9 @@ class PortScannerReporter(Reporter):
                         additional_type=service,
                     )
                 )
+                result.append(
+                    Asset(
+                        asset_type=AssetType.DOMAIN if "domain" in task_result["payload"] else AssetType.IP, name=host
+                    )
+                )
         return result

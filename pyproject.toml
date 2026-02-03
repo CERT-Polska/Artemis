@@ -26,6 +26,7 @@ authorized_licenses = [
     "PSF-2.0",
     "the unlicense (unlicense)",
     "Apache-2.0 AND BSD-2-Clause",
+    "MPL-2.0 AND MIT",
 ]
 
 [tool.liccheck.authorized_packages]

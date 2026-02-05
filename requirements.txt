@@ -56,3 +56,5 @@ urllib3==2.6.3
 uvicorn==0.40.0
 validators==0.35.0
 whoisdomain==1.20260106.1
+pdbpp==0.11.7
+watchdog==6.0.0

@@ -12,6 +12,11 @@ class YamlProcessor(ABC):
 
 class LocalBuildStrategy(YamlProcessor):
     def process(self, data: Any) -> Any:
+
+        for service in data["services"]:
+            data["services"][service]["stdin_open"] = True
+            data["services"][service]["tty"] = True
+
         if data["x-artemis-build-or-image"].get("image"):
             del data["x-artemis-build-or-image"]["image"]
             data["x-artemis-build-or-image"]["build"] = {"context": ".", "dockerfile": "docker/Dockerfile"}
@@ -81,10 +86,10 @@ class FileProcessor:
 
 if __name__ == "__main__":
 
-    input_yaml_file = "docker-compose.yaml"
-    output_yaml_file = "docker-compose.dev.yaml"
-
-    processor = FileProcessor(input_yaml_file, output_yaml_file)
+    processor = FileProcessor(
+        input_file="docker-compose.yaml",
+        output_file="docker-compose.dev.yaml",
+    )
     processor.set_data()
 
     processor.process_file(LocalBuildStrategy())

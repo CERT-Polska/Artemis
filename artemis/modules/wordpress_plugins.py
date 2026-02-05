@@ -63,10 +63,8 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "wow-carousel-for-divi-lite",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "bold-page-builder",
     "coming-soon",
     "famethemes-demo-importer",
-    "gallery-block-lightbox",
     "icon-element",
     "link-manager",
     "login-logo",

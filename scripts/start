@@ -6,6 +6,8 @@ exists() {
     [ -e "$1" ]
 }
 
+. scripts/check_docker_compose
+
 if ! exists .env; then
     cp env.example .env
     ENV_MESSAGE="\e[1mThe .env file has been created. You can access it later to configure any settings you want to change according to https://artemis-scanner.readthedocs.io/en/latest/user-guide/configuration.html .\e[0m"
@@ -13,6 +15,47 @@ else
     ENV_MESSAGE=""
 fi
 
+
+MODE="production"
+SINGLE_WORKER_MODE=false
+POSITIONAL_ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --mode=*)
+      MODE="${arg#*=}"
+      ;;
+    --single-worker)
+      SINGLE_WORKER_MODE=true
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$arg")
+      ;;
+  esac
+done
+
+set -- "${POSITIONAL_ARGS[@]}"
+
+echo "Starting Artemis in $MODE mode..."
+
+DOCKER_CONFIGS=$(scripts/find_docker_compose_files --mode='production')
+
+if [ "$MODE" = "development" ]; then
+
+    if [ ! -d venv ]; then
+        python3 -m venv venv
+    fi
+
+    . venv/bin/activate
+
+    pip install PyYAML==6.0.1
+
+    python3 scripts/create_development_docker_compose.py -i $DOCKER_CONFIGS
+fi
+
+DOCKER_CONFIGS_STRING=$(scripts/find_docker_compose_files --mode=$MODE --docker-compose-string)
+
+echo "Using docker compose files: $DOCKER_CONFIGS_STRING"
 
 if [[ $(uname -m) != "arm"* ]]; then
     PROFILE='--profile not-arm'
@@ -22,43 +65,61 @@ else
     PROFILE=
 fi
 
-if exists Artemis-modules-extra; then
-    ADDITIONAL_OPTIONS=--scale=karton-sqlmap=10
+
+SCALE_ARGS=()
+
+if [ "$SINGLE_WORKER_MODE" = true ]; then
+    SCALE_ARGS+=(
+        --scale=karton-identifier=1
+        --scale=karton-port_scanner=1
+        --scale=karton-wordpress_plugins=1
+        --scale=karton-nuclei=1
+        --scale=karton-bruter=1
+        --scale=karton-sqlmap=1
+    )
 else
-    ADDITIONAL_OPTIONS=
+    SCALE_ARGS+=(
+        --scale=karton-identifier=3
+        --scale=karton-port_scanner=5
+        --scale=karton-wordpress_plugins=5
+        --scale=karton-nuclei=1
+        --scale=karton-bruter=10
+    )
+
+    if exists Artemis-modules-extra; then
+        SCALE_ARGS+=(--scale=karton-sqlmap=10)
+    else
+        SCALE_ARGS+=(--scale=karton-sqlmap=1)
+    fi
 fi
 
-./scripts/run_docker_compose stop
+
+docker compose $DOCKER_CONFIGS_STRING stop
 
 docker pull certpl/artemis:latest
 
-./scripts/run_docker_compose $PROFILE up -d --remove-orphans --build \
-    --scale=karton-identifier=3 \
-    --scale=karton-port_scanner=5 \
-    --scale=karton-wordpress_plugins=5 \
-    --scale=karton-nuclei=10 \
-    --scale=karton-bruter=10 \
-    $ADDITIONAL_OPTIONS
+docker compose $DOCKER_CONFIGS_STRING $PROFILE up -d --remove-orphans --build $SCALE_ARGS
+
 
 if [ $? -eq 0 ]; then
     echo "Waiting for Artemis to start..."
     for i in `seq 1 120`; do
-        if [ "`./scripts/run_docker_compose ps -q web --status running`" != "" ]; then
+        if [ "`docker compose $DOCKER_CONFIGS_STRING ps -q web --status running`" != "" ]; then
             break
         fi
     done
 
-    if [ "`./scripts/run_docker_compose ps -q web --status running`" == "" ]; then
+    if [ "`docker compose $DOCKER_CONFIGS_STRING ps -q web --status running`" == "" ]; then
         echo "Artemis web container doesn't appear to have started. Run ./scripts/run_docker_compose logs to view the logs."
     else
-        ./scripts/run_docker_compose run --no-deps --entrypoint=bash karton-logger /wait-for-it.sh -q -t 60 web:5000
+        docker compose $DOCKER_CONFIGS_STRING run --no-deps --entrypoint=bash karton-logger /wait-for-it.sh -q -t 60 web:5000
 
         echo "Artemis started in the background. Browse to http://127.0.0.1:5000 and scan!"
         echo
         echo "To view the logs, use:"
-        echo "./scripts/run_docker_compose logs  # this will print all logs"
-        echo "./scripts/run_docker_compose logs  -f # this will print all logs and start printing any new logs as they appear"
-        echo "./scripts/run_docker_compose logs  --tail=0 -f # this will start printing any new logs as they appear"
+        echo "./scripts/run_docker_compose logs # this will print all logs"
+        echo "./scripts/run_docker_compose logs -f # this will print all logs and start printing any new logs as they appear"
+        echo "./scripts/run_docker_compose logs --tail=0 -f # this will start printing any new logs as they appear"
     fi
 fi
 

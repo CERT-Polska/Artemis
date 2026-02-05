@@ -43,4 +43,4 @@ automatically when building the report messages.
 After modifying the translations, restart Artemis **in developer mode** so that the Docker images will be built
 locally and your changes will be included:
 
-``./scripts/start_dev``
+``./scripts/start --mode=development``

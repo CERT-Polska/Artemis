@@ -2,5 +2,7 @@
 
 cd $(dirname $0)/..
 
+. scripts/check_docker_compose
+
 ./scripts/run_docker_compose build --quiet autoreporter
 ./scripts/run_docker_compose run autoreporter python3 -m artemis.reporting.export.main "$@"

@@ -1,4 +1,5 @@
 import argparse
+import os
 from abc import ABC, abstractmethod
 from typing import Any, List
 
@@ -104,9 +105,8 @@ if __name__ == "__main__":
 
     for input_file in args.input:
 
-        index = input_file.rfind(".")
-        extension = input_file[index + 1 :]
-        output_file = f"{input_file[:index]}.dev.{extension}"
+        path, extension = os.path.splitext(input_file)
+        output_file = f"{path}.dev{extension}"
 
         processor = FileProcessor(
             input_file=input_file,
@@ -120,10 +120,9 @@ if __name__ == "__main__":
         processor.process_file(WebCommandStrategy())
 
         if input_file == "docker-compose.yaml":
-
             processor.process_file(VolumeDevelopStrategy())
 
-            processor.process_file(LocalBuildContainersStrategy())
+        processor.process_file(LocalBuildContainersStrategy())
 
         processor.process_file(PostgresOpenPortsStrategy())
 

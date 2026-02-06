@@ -34,8 +34,6 @@ for arg in "$@"; do
   esac
 done
 
-set -- "${POSITIONAL_ARGS[@]}"
-
 echo "Starting Artemis in $MODE mode..."
 
 DOCKER_CONFIGS=$(scripts/find_docker_compose_files --mode='production')

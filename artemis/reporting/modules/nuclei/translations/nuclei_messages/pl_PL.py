@@ -997,6 +997,8 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "Exposed Cacti log files (cacti.log) were detected. These files contain system statistics, error messages, and potentially sensitive information. They can also be used in log poisoning attacks.": "Wykryto dziennik zdarzeń Cacti (cacti.log). Może on zawierać statystyki systemowe, komunikaty o błędach i potencjalnie informacje wrażliwe.",
+    "Couchbase Server versions 4.0.0, 4.1.0, 4.1.1, 4.5.0, 4.5.1, 4.6.0-4.6.5, 5.0.0, 5.1.1, 5.5.0, and 5.5.1 contain insecure permissions for the projector and indexer REST endpoints caused by unauthenticated access, letting attackers access administrative APIs without authentication, exploit requires no special conditions.": "Couchbase Server w wersjach 4.0.0, 4.1.0, 4.1.1, 4.5.0, 4.5.1, 4.6.0-4.6.5, 5.0.0, 5.1.1, 5.5.0 i 5.5.1 zawiera podatność o identyfikatorze CVE-2020-9039 umożliwiającą atakującemu nieuprawniony dostęp do API administracyjnych.",
     "n8n is an open source workflow automation platform. Versions starting with 1.65.0 and below 1.121.0 enable an attacker to access files on the underlying server through execution of certain form-based workflows. A vulnerable workflow could grant access to an unauthenticated remote attacker, resulting in exposure of sensitive information stored on the system and may enable further compromise depending on deployment configuration and workflow usage. This issue is fixed in version 1.121.0.": "n8n w wersji od 1.56.0 poniżej 1.121.0 zawiera podatność o identyfikatorze CVE-2026-21858 umożliwiającą atakującemu odczyt dowolnych plików z dysku."
     + UPDATE_HINT,
     "Carel pCOWeb HVAC BACnet Gateway 2.1.0 contains an unauthenticated arbitrary file disclosure caused by improper verification of the 'file' GET parameter in logdownload.cgi, letting attackers disclose sensitive files via directory traversal, exploit requires no authentication.": "Carel pCOWeb HVAC BACnet Gateway w wersji 2.1.0 i potencjalnie wcześniejszych zawiera podatność Arbitrary File Disclosure o identyfikatorze CVE-2022-37122, umożliwiającą atakującemu odczyt dowolnych plików z dysku."
@@ -2371,4 +2373,6 @@ TRANSLATIONS = {
     "Application Management Panel was detected.": "Wykryto Application Management Panel.",
     "[no description] http/exposed-panels/national-instruments/ni-web-based-panel.yaml": "Wykryto panel National Instruments.",
     "Hangfire Dashboard panel was detected.": "Wykryto panel Hangfire Dashboard.",
+    "A fancy, easy-to-use and reactive self-hosted docker compose.yaml stack-oriented manager": "Wykryto panel Dockge.",
+    "Detects cgit web interface for Git repositories. cgit is a hyperfast web frontend for Git repositories written in C. It provides a web-based interface to browse Git repositories, view commits, diffs, and files. cgit is designed to be publicly accessible for open source projects. However, detecting cgit instances": "Wykryto system cgit",
 }

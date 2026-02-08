@@ -926,7 +926,7 @@
   "forget-about-shortcode-buttons": "readme.txt",
   "wp-yandex-metrika": "readme.txt",
   "spicebox": "readme.txt",
-  "reviews-feed": "readme.txt",
+  "reviews-feed": "README.txt",
   "vod-infomaniak": "readme.txt",
   "wp-user-avatars": "readme.txt",
   "rara-one-click-demo-import": "readme.txt",

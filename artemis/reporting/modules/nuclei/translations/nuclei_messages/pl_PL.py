@@ -2375,4 +2375,5 @@ TRANSLATIONS = {
     "Hangfire Dashboard panel was detected.": "Wykryto panel Hangfire Dashboard.",
     "A fancy, easy-to-use and reactive self-hosted docker compose.yaml stack-oriented manager": "Wykryto panel Dockge.",
     "Detects cgit web interface for Git repositories. cgit is a hyperfast web frontend for Git repositories written in C. It provides a web-based interface to browse Git repositories, view commits, diffs, and files. cgit is designed to be publicly accessible for open source projects. However, detecting cgit instances": "Wykryto system cgit",
+    "Detected LibreChat login panel. LibreChat is an open-source, self-hosted AI chat interface.":"Wykryto panel logowania LibreChat.",
 }

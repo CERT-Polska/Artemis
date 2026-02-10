@@ -1,3 +1,5 @@
+import argparse
+import os
 from abc import ABC, abstractmethod
 from typing import Any, List
 
@@ -12,7 +14,12 @@ class YamlProcessor(ABC):
 
 class LocalBuildStrategy(YamlProcessor):
     def process(self, data: Any) -> Any:
-        if data["x-artemis-build-or-image"].get("image"):
+
+        for service in data["services"]:
+            data["services"][service]["stdin_open"] = True
+            data["services"][service]["tty"] = True
+
+        if data.get("x-artemis-build-or-image") and data["x-artemis-build-or-image"].get("image"):
             del data["x-artemis-build-or-image"]["image"]
             data["x-artemis-build-or-image"]["build"] = {"context": ".", "dockerfile": "docker/Dockerfile"}
             return data
@@ -81,21 +88,43 @@ class FileProcessor:
 
 if __name__ == "__main__":
 
-    input_yaml_file = "docker-compose.yaml"
-    output_yaml_file = "docker-compose.dev.yaml"
+    parser = argparse.ArgumentParser(
+        description="Transform docker-compose files to development versions",
+    )
 
-    processor = FileProcessor(input_yaml_file, output_yaml_file)
-    processor.set_data()
+    parser.add_argument(
+        "-i",
+        "--input",
+        nargs="+",
+        required=False,
+        default=["docker-compose.yaml"],
+        help="Input docker-compose YAML files",
+    )
 
-    processor.process_file(LocalBuildStrategy())
+    args = parser.parse_args()
 
-    processor.process_file(WebCommandStrategy())
+    for input_file in args.input:
 
-    processor.process_file(VolumeDevelopStrategy())
+        path, extension = os.path.splitext(input_file)
+        output_file = f"{path}.dev{extension}"
 
-    processor.process_file(LocalBuildContainersStrategy())
+        processor = FileProcessor(
+            input_file=input_file,
+            output_file=output_file,
+        )
 
-    processor.process_file(PostgresOpenPortsStrategy())
+        processor.set_data()
+
+        processor.process_file(LocalBuildStrategy())
+
+        processor.process_file(WebCommandStrategy())
+
+        if input_file == "docker-compose.yaml":
+            processor.process_file(VolumeDevelopStrategy())
+
+        processor.process_file(LocalBuildContainersStrategy())
+
+        processor.process_file(PostgresOpenPortsStrategy())
 
     # We used to change "restart" to "no". We know, though, that some users use Artemis in development
     # version for actual scanning. Because the containers restart after a given number of scanning tasks,

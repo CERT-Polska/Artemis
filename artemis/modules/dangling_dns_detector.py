@@ -205,8 +205,8 @@ class DanglingDnsDetector(ArtemisBase):
             main_domain = get_main_domain(cname_target)
             if main_domain:
                 response = dns_query(main_domain, rdatatype.NS)
-                ns_records = [r.to_text() for r in response] if response else []
-                if not self._is_saas_namespace(ns_records):
+                ns_records = [r.to_text() for r in response] if response else None
+                if ns_records and not self._is_saas_namespace(ns_records):
                     # It's more likely a misconfiguration rather than dangling cname record
                     dangling = False
 

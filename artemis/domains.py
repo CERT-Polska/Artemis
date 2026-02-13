@@ -21,6 +21,10 @@ def is_main_domain(domain: str) -> bool:
     return PUBLIC_SUFFIX_LIST.privatesuffix(domain) == domain  # type: ignore
 
 
+def get_main_domain(domain: str) -> str | None:
+    return PUBLIC_SUFFIX_LIST.privatesuffix(domain)  # type: ignore
+
+
 def is_subdomain(candidate: str, parent_domain: str, allow_equal: bool = True) -> bool:
     candidate = candidate.strip(".").lower()
     parent_domain = parent_domain.strip(".").lower()

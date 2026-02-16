@@ -997,6 +997,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "A vulnerability in PAN-OS management interface allows authentication bypass through path confusion between Nginx and Apache handlers.The issue occurs due to differences in path processing between Nginx and Apache, where double URL encoding combined with directory traversal can bypass authentication checks enforced by X-pan-AuthCheck header.": "Podatność w interfejsie zarządzania PAN-OS umożliwia atakującemu ominięcie uwierzytelniania. Podatności nadano identyfikator CVE-2025-0108.",
     "Moodle versions 3.10 to 3.10.3, 3.9 to 3.9.6, 3.8 to 3.8.8 contain a reflected XSS and open redirect caused by insufficient sanitization of the redirect URI in the LTI authorization endpoint, letting attackers execute scripts or redirect users maliciously, exploit requires crafted URL with malicious redirect URI.": "Moodle w wersji od 3.10 do 3.10.3, od 3.9 do 3.9.6 i od 3.8 do 3.8.8 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + " oraz podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie. Podatności nadano identyfikator CVE-2021-32478."

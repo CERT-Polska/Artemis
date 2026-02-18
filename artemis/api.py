@@ -119,7 +119,7 @@ def add(
     else:
         module_runtime_configurations = {}
 
-    create_tasks(
+    task_ids = create_tasks(
         targets,
         tag,
         disabled_modules=disabled_modules,
@@ -128,7 +128,7 @@ def add(
         module_runtime_configurations=module_runtime_configurations,
     )
 
-    return {"ok": True}
+    return {"ok": True, "ids": task_ids}
 
 
 @router.get("/analyses", dependencies=[Depends(verify_api_token)])

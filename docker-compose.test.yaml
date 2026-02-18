@@ -251,5 +251,10 @@ services:
     volumes:
       - ./test/data/sql_injection_mysql/:/var/www/html/
 
+  test-nginx-with-sni-tls:
+    build:
+      context: test/images/nginx-with-sni-tls
+      dockerfile: Dockerfile
+
 volumes:
   data-test:

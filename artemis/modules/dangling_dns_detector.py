@@ -19,7 +19,7 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
-from artemis.domains import is_subdomain
+from artemis.domains import get_main_domain, is_subdomain
 from artemis.module_base import ArtemisBase
 
 
@@ -158,6 +158,24 @@ class DanglingDnsDetector(ArtemisBase):
             return True
         return False
 
+    def _is_saas_namespace(self, ns_records: list[str]) -> bool:
+        SAAS_NS_PATTERNS = [
+            "azure-dns",
+            "awsdns",
+            "herokudns",
+            "github",
+            "cloudflare",
+            "vercel",
+            "netlify",
+            "fastly",
+        ]
+
+        for ns in ns_records:
+            for pattern in SAAS_NS_PATTERNS:
+                if pattern in ns.lower():
+                    return True
+        return False
+
     def _is_cname_dangling(self, record: Rdata, parent_domain: str) -> bool | None:
         if not hasattr(record, "rdtype") or record.rdtype != rdatatype.CNAME:
             return None
@@ -181,6 +199,16 @@ class DanglingDnsDetector(ArtemisBase):
                 if answer.rdtype == record_type:
                     dangling = False
                     break
+
+        if dangling:
+            # check against the main domain
+            main_domain = get_main_domain(cname_target)
+            if main_domain:
+                response = dns_query(main_domain, rdatatype.NS)
+                ns_records = [r.to_text() for r in response] if response else None
+                if ns_records and not self._is_saas_namespace(ns_records):
+                    # It's more likely a misconfiguration rather than dangling cname record
+                    dangling = False
 
         return dangling
 

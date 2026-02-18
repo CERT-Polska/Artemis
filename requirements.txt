@@ -1,15 +1,15 @@
 aiofiles==25.1.0
 aiohttp==3.13.3
-alembic==1.18.3
+alembic==1.18.4
 anytree==2.13.0
 Babel==2.18.0
 beautifulsoup4==4.14.3
 certifi==2026.1.4
 chardet==5.2.0
 click==8.3.1
-cryptography==46.0.4
+cryptography==46.0.5
 dnspython==2.8.0
-fastapi==0.128.0
+fastapi==0.129.0
 fastapi-csrf-protect==1.0.7
 Flask==3.1.2
 freezegun==1.5.5
@@ -49,7 +49,7 @@ six==1.17.0
 termcolor==3.3.0
 timeout-decorator==0.5.0
 tqdm==4.67.2
-typer==0.21.1
+typer==0.23.1
 typing-extensions==4.15.0
 unittest-parallel==1.7.6
 urllib3==2.6.3

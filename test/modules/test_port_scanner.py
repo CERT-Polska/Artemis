@@ -50,7 +50,7 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.run_task(task_domain)
         call_ip, call_domain = self.mock_db.save_task_result.call_args_list
         self.assertEqual(
-            call_ip.kwargs["status_reason"], "Found ports: 443 (service: https ssl: False, version: nginx/1.29.0)"
+            call_ip.kwargs["status_reason"], "Found ports: 443 (service: http ssl: False, version: nginx/1.29.0)"
         )
         self.assertEqual(
             call_domain.kwargs["status_reason"], "Found ports: 443 (service: http ssl: True, version: nginx/1.29.0)"

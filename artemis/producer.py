@@ -19,7 +19,9 @@ def create_tasks(
     priority: Optional[TaskPriority] = None,
     requests_per_second_override: Optional[float] = None,
     module_runtime_configurations: Optional[Dict[str, Dict[str, Any]]] = None,
-) -> None:
+) -> List[str]:
+    """Create tasks for given URIs and return their IDs."""
+    task_ids = []
     for uri in {uri.lower() for uri in uris}:
         task = Task({"type": TaskType.NEW})
         task.add_payload("data", uri)
@@ -42,3 +44,6 @@ def create_tasks(
         db.save_scheduled_task(task)
         db.save_tag(tag)
         producer.send_task(task)
+        task_ids.append(task.uid)
+
+    return task_ids

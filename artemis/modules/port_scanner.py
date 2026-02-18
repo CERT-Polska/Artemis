@@ -76,9 +76,6 @@ SSL_CONTEXT = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 SSL_CONTEXT.check_hostname = False
 SSL_CONTEXT.verify_mode = ssl.CERT_NONE
 
-# list of ports used in additional tls_handshake against domains
-TLS_PORTS_TO_CHECK = [443, 8443, 9443, 993, 995, 465, 990]
-
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class PortScanner(ArtemisBase):
@@ -259,7 +256,7 @@ class PortScanner(ArtemisBase):
                 all_results[host] = scan_results.get(host, {})
 
                 for port, result in all_results[host].items():
-                    if task.headers["type"] == TaskType.DOMAIN and int(port) in TLS_PORTS_TO_CHECK:
+                    if task.headers["type"] == TaskType.DOMAIN:
                         # we want to perform tls_hadnshake if target is a domain cause TLS can be hostname dependent (SNI)
                         # ip deduplication therefore can lead to false negatives
                         result["ssl"] = self.tls_handshake(ip=host, port=int(port), domain=target)

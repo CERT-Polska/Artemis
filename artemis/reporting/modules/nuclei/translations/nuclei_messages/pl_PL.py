@@ -997,7 +997,12 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "Adminer <= 5.4.1 contains a denial of service caused by lack of origin validation in version check endpoint, letting attackers trigger server errors via crafted POST requests, exploit requires no special privileges.": "Adminer <= 5.4.1 zawiera podatność Denial of Service o identyfikatorze CVE-2026-25892, umożliwiającą atakującemu przerwanie działania usługi.",
+    "http/vulnerabilities/code42/code42-log4j-rce.yaml": "Wykryto komponent Code42 zawierający podatność log4j umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
     "A vulnerability in PAN-OS management interface allows authentication bypass through path confusion between Nginx and Apache handlers.The issue occurs due to differences in path processing between Nginx and Apache, where double URL encoding combined with directory traversal can bypass authentication checks enforced by X-pan-AuthCheck header.": "Podatność w interfejsie zarządzania PAN-OS umożliwia atakującemu ominięcie uwierzytelniania. Podatności nadano identyfikator CVE-2025-0108.",
+    "WordPress plugin 10Web Photo Gallery versions before 1.5.55 contains a SQL injection caused by unvalidated input in the 'bwg_search_x' parameter in frontend/models/model.php, letting attackers execute arbitrary SQL commands, exploit requires attacker to control the 'bwg_search_x' parameter.": "Wtyczka WordPress o nazwie 10Web Photo Gallery w wersji poniżej 1.5.55 zawiera podatność SQL Injection o identyfikatorze CVE-2021-24139, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
     "Moodle versions 3.10 to 3.10.3, 3.9 to 3.9.6, 3.8 to 3.8.8 contain a reflected XSS and open redirect caused by insufficient sanitization of the redirect URI in the LTI authorization endpoint, letting attackers execute scripts or redirect users maliciously, exploit requires crafted URL with malicious redirect URI.": "Moodle w wersji od 3.10 do 3.10.3, od 3.9 do 3.9.6 i od 3.8 do 3.8.8 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + " oraz podatność Open Redirect, umożliwiającą atakującemu spreparowanie linku w Państwa domenie który przekierowuje do dowolnej innej strony, w tym np. zawierającej szkodliwe oprogramowanie. Podatności nadano identyfikator CVE-2021-32478."
@@ -2382,4 +2387,5 @@ TRANSLATIONS = {
     "Detects cgit web interface for Git repositories. cgit is a hyperfast web frontend for Git repositories written in C. It provides a web-based interface to browse Git repositories, view commits, diffs, and files. cgit is designed to be publicly accessible for open source projects. However, detecting cgit instances": "Wykryto system cgit",
     "Detected LibreChat login panel. LibreChat is an open-source, self-hosted AI chat interface.": "Wykryto panel logowania LibreChat.",
     "Checkmarx login panel was detected.": "Wykryto panel systemu Checkmarx.",
+    "FlexNet Operations was detected — a software monetization platform.": "Wykryto panel FlexNet Operations.",
 }

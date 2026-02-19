@@ -36,7 +36,7 @@ services:
       POSTMAN_MAIL_TO: artemis@localhost.com
 
       REQUESTS_PER_SECOND: 0
-      CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
+      CUSTOM_PORT_SCANNER_PORTS: 21,80,443,6379
       NUCLEI_CHECK_TEMPLATE_LIST: False
     env_file: env.test
     volumes:
@@ -250,6 +250,11 @@ services:
     command: systemctl start apache2.service
     volumes:
       - ./test/data/sql_injection_mysql/:/var/www/html/
+
+  test-nginx-with-sni-tls:
+    build:
+      context: test/images/nginx-with-sni-tls
+      dockerfile: Dockerfile
 
 volumes:
   data-test:

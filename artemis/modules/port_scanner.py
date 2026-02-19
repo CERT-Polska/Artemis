@@ -2,6 +2,8 @@
 import collections
 import json
 import os
+import socket
+import ssl
 import subprocess
 import time
 from dataclasses import dataclass
@@ -69,6 +71,10 @@ else:
     PORTS_SET_SHORT = load_ports("ports-artemis-short.txt")
 
 PORTS = sorted(list(PORTS_SET))
+
+SSL_CONTEXT = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+SSL_CONTEXT.check_hostname = False
+SSL_CONTEXT.verify_mode = ssl.CERT_NONE
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
@@ -208,6 +214,20 @@ class PortScanner(ArtemisBase):
                 self.cache.set(target_ip, json.dumps(result.get(target_ip, {})).encode("utf-8"))
         return result
 
+    def tls_handshake(
+        self,
+        ip: str,
+        port: int,
+        domain: str,
+        timeout: float = 3.0,
+    ) -> bool:
+        try:
+            with socket.create_connection((ip, port), timeout=timeout) as sock:
+                with SSL_CONTEXT.wrap_socket(sock, server_hostname=domain):
+                    return True
+        except Exception:
+            return False
+
     def run_multiple(self, tasks: List[Task]) -> None:
         hosts_per_task = {}
         hosts: List[str] = []
@@ -236,6 +256,10 @@ class PortScanner(ArtemisBase):
                 all_results[host] = scan_results.get(host, {})
 
                 for port, result in all_results[host].items():
+                    if task.headers["type"] == TaskType.DOMAIN:
+                        # we want to perform tls_hadnshake if target is a domain cause TLS can be hostname dependent (SNI)
+                        # ip deduplication therefore can lead to false negatives
+                        result["ssl"] = self.tls_handshake(ip=host, port=int(port), domain=target)
                     new_task = Task(
                         {
                             "type": TaskType.SERVICE,

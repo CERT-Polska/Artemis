@@ -997,6 +997,7 @@ TRANSLATIONS = {
     + REFLECTED_XSS_DESCRIPTION
     + " (i potencjalnie inne podatności). "
     + UPDATE_HINT,
+    "GUDE 2301 and 2302 default administrator login credentials (admin:admin) were detected.": "GUDE 2301 i 2302 umożliwia logowanie domyślnymi danymi logowania (admin:admin).",
     "A SQL Server dump file was found": "Wykryto plik zrzutu danych systemu SQL Server.",
     "Adminer <= 5.4.1 contains a denial of service caused by lack of origin validation in version check endpoint, letting attackers trigger server errors via crafted POST requests, exploit requires no special privileges.": "Adminer <= 5.4.1 zawiera podatność Denial of Service o identyfikatorze CVE-2026-25892, umożliwiającą atakującemu przerwanie działania usługi.",
     "http/vulnerabilities/code42/code42-log4j-rce.yaml": "Wykryto komponent Code42 zawierający podatność log4j umożliwiającą atakującemu zdalne wykonanie kodu."

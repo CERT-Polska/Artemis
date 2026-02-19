@@ -16,7 +16,7 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
 
     def setUp(self) -> None:
         # list of templates used in tests
-        patcher = patch(
+        self.patcher = patch(
             "artemis.config.Config.Modules.Nuclei.DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
             [
                 "http/exposed-panels/phpmyadmin-panel.yaml",
@@ -26,7 +26,8 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
                 "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml",
             ],
         )
-        patcher.start()
+        self.patcher.start()
+        self.addCleanup(self.patcher.stop)
 
         return super().setUp()
 

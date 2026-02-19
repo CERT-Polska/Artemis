@@ -70,7 +70,7 @@ class NucleiTest(ArtemisModuleTestCase):
         )
 
 
-class NucleiSingleTemplateTest(ArtemisModuleTestCase):
+class NucleiShortTemplateListTest(ArtemisModuleTestCase):
     # Tests with template list shortened to speed up test runtime
 
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
@@ -78,7 +78,7 @@ class NucleiSingleTemplateTest(ArtemisModuleTestCase):
 
     def setUp(self) -> None:
         # list of templates used in tests
-        patcher = patch(
+        self.patcher = patch(
             "artemis.config.Config.Modules.Nuclei.DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
             [
                 "http/cves/2020/CVE-2020-28976.yaml",
@@ -87,7 +87,8 @@ class NucleiSingleTemplateTest(ArtemisModuleTestCase):
                 "dast/vulnerabilities/xss/reflected-xss.yaml",
             ],
         )
-        patcher.start()
+        self.patcher.start()
+        self.addCleanup(self.patcher.stop)
 
         return super().setUp()
 

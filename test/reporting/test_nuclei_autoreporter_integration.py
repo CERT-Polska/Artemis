@@ -1,4 +1,5 @@
 from test.base import BaseReportingTest
+from unittest.mock import patch
 
 from artemis.modules.nuclei import Nuclei
 from artemis.reporting.base.asset import Asset
@@ -12,6 +13,22 @@ from artemis.reporting.base.reporters import (
 
 class NucleiAutoreporterIntegrationTest(BaseReportingTest):
     karton_class = Nuclei  # type: ignore
+
+    def setUp(self) -> None:
+        # list of templates used in tests
+        patcher = patch(
+            "artemis.config.Config.Modules.Nuclei.DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
+            [
+                "http/exposed-panels/phpmyadmin-panel.yaml",
+                "http/exposed-panels/wordpress-login.yaml",
+                "dast/vulnerabilities/lfi/lfi-keyed.yaml",
+                "dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml",
+                "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml",
+            ],
+        )
+        patcher.start()
+
+        return super().setUp()
 
     def test_reporting(self) -> None:
         data = self.obtain_http_task_result("nuclei", "test-phpmyadmin-easy-password")

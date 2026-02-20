@@ -91,3 +91,5 @@ To remove all data, use:
 .. code-block:: console
 
    ./scripts/run_docker_compose down --volumes
+   - :ref:`REST API <rest-scan-example>`
+

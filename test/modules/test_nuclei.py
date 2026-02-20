@@ -80,7 +80,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
     def setUp(self) -> None:
         # list of templates used in tests
         self.patcher = patch(
-            "artemis.config.Config.Modules.Nuclei.DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
+            "artemis.config.Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
             [
                 "http/cves/2020/CVE-2020-28976.yaml",
                 "http/vulnerabilities/generic/top-xss-params.yaml",

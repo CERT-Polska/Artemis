@@ -579,12 +579,12 @@ class Config:
                 ),
                 cast=decouple.Csv(str),
             )
-            DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN: Annotated[
+            OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN: Annotated[
                 List[str],
                 "Comma-separated list of Nuclei templates to be executed. If provided it will override standard list of templates to be "
-                "executed. Should be used for testing/debuging purpose. Templates defined in NUCLEI_ADDITIONAL_TEMPLATES will be executed alongside.",
+                "executed. Should be rather used for testing/debuging purpose. Templates defined in NUCLEI_ADDITIONAL_TEMPLATES will be executed alongside.",
             ] = get_config(
-                "DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
+                "OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
                 default=",".join([]),
                 cast=decouple.Csv(str),
             )

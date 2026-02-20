@@ -17,7 +17,7 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
     def setUp(self) -> None:
         # list of templates used in tests
         self.patcher = patch(
-            "artemis.config.Config.Modules.Nuclei.DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
+            "artemis.config.Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
             [
                 "http/exposed-panels/phpmyadmin-panel.yaml",
                 "http/exposed-panels/wordpress-login.yaml",

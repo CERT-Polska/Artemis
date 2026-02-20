@@ -114,8 +114,8 @@ class Nuclei(ArtemisBase):
         return NucleiConfiguration(severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
 
     def _should_scan_template(self, template: str) -> bool:
-        if Config.Modules.Nuclei.DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN:
-            return template in Config.Modules.Nuclei.DEBUG_STANDARD_NUCLEI_TEMPLATES_TO_RUN
+        if Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN:
+            return template in Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN
         return template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
 
     def __init__(self, *args: Any, **kwargs: Any):

@@ -209,6 +209,13 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-js_vuln_detector:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.js_vuln_detector"
+    env_file: .env
+    restart: always
+    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-ip_lookup:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.ip_lookup"

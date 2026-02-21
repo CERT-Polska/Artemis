@@ -1,0 +1,337 @@
+{
+  "jquery": {
+    "bowername": [
+      "jquery"
+    ],
+    "extractors": {
+      "filename": [
+        "jquery[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "filecontent": [
+        "\\*!? jQuery JavaScript Library v?([0-9][0-9.a-zA-Z_\\-]*)",
+        "\\*!? jQuery v?([0-9][0-9.a-zA-Z_\\-]*)",
+        "jQuery\\s+v([0-9][0-9.a-zA-Z_\\-]*)"
+      ],
+      "uri": [
+        "jquery[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "hashes": {}
+    },
+    "vulnerabilities": [
+      {
+        "below": "1.9.0",
+        "severity": "medium",
+        "identifiers": {
+          "CVE": [
+            "CVE-2011-4969"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2011-4969"
+        ]
+      },
+      {
+        "below": "1.12.0",
+        "atOrAbove": "1.11.1",
+        "severity": "medium",
+        "identifiers": {
+          "CVE": [
+            "CVE-2015-9251"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2015-9251"
+        ]
+      },
+      {
+        "below": "3.4.0",
+        "atOrAbove": "1.0.3",
+        "severity": "medium",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-11358"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2019-11358"
+        ]
+      },
+      {
+        "below": "3.5.0",
+        "severity": "medium",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-11022",
+            "CVE-2020-11023"
+          ]
+        },
+        "info": [
+          "https://blog.jquery.com/2020/04/10/jquery-3-5-0-released/"
+        ]
+      }
+    ]
+  },
+  "bootstrap": {
+    "bowername": [
+      "bootstrap"
+    ],
+    "extractors": {
+      "filename": [
+        "bootstrap[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "filecontent": [
+        "Bootstrap v([0-9][0-9.a-zA-Z_\\-]*)",
+        "\\* Bootstrap v([0-9][0-9.a-zA-Z_\\-]*)"
+      ],
+      "uri": [
+        "bootstrap[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "hashes": {}
+    },
+    "vulnerabilities": [
+      {
+        "below": "3.4.0",
+        "atOrAbove": "3.0.0",
+        "severity": "medium",
+        "identifiers": {
+          "CVE": [
+            "CVE-2018-14041",
+            "CVE-2018-14042"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2018-14041"
+        ]
+      },
+      {
+        "below": "4.3.1",
+        "atOrAbove": "4.0.0",
+        "severity": "medium",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-8331"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2019-8331"
+        ]
+      },
+      {
+        "below": "3.4.1",
+        "atOrAbove": "3.0.0",
+        "severity": "medium",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-8331"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2019-8331"
+        ]
+      }
+    ]
+  },
+  "lodash": {
+    "bowername": [
+      "lodash"
+    ],
+    "extractors": {
+      "filename": [
+        "lodash[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "filecontent": [
+        "lodash\\s+([0-9][0-9.a-zA-Z_\\-]*)",
+        "@license Lodash <https://lodash.com/>\\s+Copyright.*?\\s+<https://lodash.com/>\\s+Released under.*?\\s+([0-9][0-9.a-zA-Z_\\-]*)"
+      ],
+      "uri": [
+        "lodash[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "hashes": {}
+    },
+    "vulnerabilities": [
+      {
+        "below": "4.17.21",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2021-23337",
+            "CVE-2020-28500"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2021-23337"
+        ]
+      },
+      {
+        "below": "4.17.19",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-8203"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2020-8203"
+        ]
+      },
+      {
+        "below": "4.17.12",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-10744"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2019-10744"
+        ]
+      },
+      {
+        "below": "4.17.11",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2018-3721",
+            "CVE-2019-1010266"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2018-3721"
+        ]
+      }
+    ]
+  },
+  "angularjs": {
+    "bowername": [
+      "angularjs",
+      "angular"
+    ],
+    "extractors": {
+      "filename": [
+        "angular(?:js)?[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "filecontent": [
+        "@license AngularJS v([0-9][0-9.a-zA-Z_\\-]*)",
+        "AngularJS\\s+v([0-9][0-9.a-zA-Z_\\-]*)"
+      ],
+      "uri": [
+        "angular(?:js)?[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "hashes": {}
+    },
+    "vulnerabilities": [
+      {
+        "below": "1.6.0",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2016-9879"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2016-9879"
+        ]
+      },
+      {
+        "below": "1.8.0",
+        "severity": "medium",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-7676"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2020-7676"
+        ]
+      }
+    ]
+  },
+  "moment.js": {
+    "bowername": [
+      "moment"
+    ],
+    "extractors": {
+      "filename": [
+        "moment[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "filecontent": [
+        "moment\\.version\\s*=\\s*['\"]([0-9][0-9.a-zA-Z_\\-]*)['\"]",
+        "\\/\\*!\\s+moment\\.js\\s+version\\s*:\\s*([0-9][0-9.a-zA-Z_\\-]*)"
+      ],
+      "uri": [
+        "moment[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "hashes": {}
+    },
+    "vulnerabilities": [
+      {
+        "below": "2.29.2",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2022-24785"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2022-24785"
+        ]
+      },
+      {
+        "below": "2.29.4",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2022-31129"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2022-31129"
+        ]
+      },
+      {
+        "below": "2.19.3",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2017-18214"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2017-18214"
+        ]
+      }
+    ]
+  },
+  "underscore.js": {
+    "bowername": [
+      "underscore"
+    ],
+    "extractors": {
+      "filename": [
+        "underscore[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "filecontent": [
+        "\\/\\/ Underscore\\.js\\s+([0-9][0-9.a-zA-Z_\\-]*)"
+      ],
+      "uri": [
+        "underscore[._-]([0-9]+(?:\\.[0-9]+)+)"
+      ],
+      "hashes": {}
+    },
+    "vulnerabilities": [
+      {
+        "below": "1.12.1",
+        "atOrAbove": "1.3.2",
+        "severity": "high",
+        "identifiers": {
+          "CVE": [
+            "CVE-2021-23358"
+          ]
+        },
+        "info": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2021-23358"
+        ]
+      }
+    ]
+  }
+}

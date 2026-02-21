@@ -1,0 +1,25 @@
+{% if "vulnerable_js_library" in data.contains_type %}
+    <li>{% trans %}We identified vulnerable JavaScript libraries loaded by the page:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "vulnerable_js_library" %}
+                    {% for finding in report.additional_data.findings %}
+                        <li>
+                            {{ report.target }}: {{ finding.library }} {{ finding.detected_version }}
+                            {% if finding.cves %}({{ ", ".join(finding.cves) }}){% endif %}
+                            — <a href="{{ finding.script_url }}">{{ finding.script_url }}</a>
+                        </li>
+                    {% endfor %}
+                    {{ report_meta(report) }}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                These JavaScript libraries have known security vulnerabilities (such as cross-site
+                scripting, prototype pollution, or denial-of-service). Please upgrade each affected
+                library to the latest stable release.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

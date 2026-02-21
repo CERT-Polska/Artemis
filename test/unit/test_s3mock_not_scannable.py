@@ -7,6 +7,7 @@ scan target: the classifier must reject it, and the subdomain brute-forcer
 must not have it in its wordlist (which would cause "s3mock.<real-domain>"
 DNS queries to reach external resolvers).
 """
+
 import os
 import unittest
 
@@ -28,9 +29,7 @@ class TestS3MockNotScannable(unittest.TestCase):
         If it did, every scanned domain would trigger a DNS lookup for
         "s3mock.<domain>", leaking to external nameservers (see #2310).
         """
-        wordlist_dir = os.path.join(
-            os.path.dirname(__file__), "..", "..", "artemis", "modules", "data", "subdomains"
-        )
+        wordlist_dir = os.path.join(os.path.dirname(__file__), "..", "..", "artemis", "modules", "data", "subdomains")
         for filename in os.listdir(wordlist_dir):
             filepath = os.path.join(wordlist_dir, filename)
             with open(filepath) as fh:
@@ -56,9 +55,7 @@ class TestS3MockNotScannable(unittest.TestCase):
         """
         import yaml
 
-        compose_path = os.path.join(
-            os.path.dirname(__file__), "..", "..", "docker-compose.yaml"
-        )
+        compose_path = os.path.join(os.path.dirname(__file__), "..", "..", "docker-compose.yaml")
         with open(compose_path) as fh:
             compose = yaml.safe_load(fh)
 
@@ -84,4 +81,3 @@ class TestS3MockNotScannable(unittest.TestCase):
                     "expansion for internal hostnames like 's3mock' (issue #2310)."
                 ),
             )
-

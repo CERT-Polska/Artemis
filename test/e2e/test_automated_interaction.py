@@ -44,7 +44,9 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
                     ],
                 },
                 headers={"X-API-Token": "api-token"},
-            ).json().get("ok", False),
+            )
+            .json()
+            .get("ok", False),
         )
 
         analyses = requests.get(BACKEND_URL + "api/analyses", headers={"X-API-Token": "api-token"}).json()

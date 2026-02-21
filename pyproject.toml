@@ -24,6 +24,7 @@ authorized_licenses = [
     "mit",
     "python software foundation",
     "PSF-2.0",
+    "MIT AND PSF-2.0",
     "the unlicense (unlicense)",
     "Apache-2.0 AND BSD-2-Clause",
     "MPL-2.0 AND MIT",

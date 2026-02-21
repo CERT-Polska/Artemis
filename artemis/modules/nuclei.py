@@ -113,6 +113,11 @@ class Nuclei(ArtemisBase):
         """
         return NucleiConfiguration(severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
 
+    def _should_scan_template(self, template: str) -> bool:
+        if Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN:
+            return template in Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN
+        return template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
@@ -186,7 +191,7 @@ class Nuclei(ArtemisBase):
 
                 self._template_lists[name] = []
                 for template in template_list:
-                    if template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
+                    if self._should_scan_template(template):
                         self._template_lists[name].append(template)
 
             self._template_lists["custom"] = Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES
@@ -198,7 +203,7 @@ class Nuclei(ArtemisBase):
                 # Skipping CSP bypass templates as it's enough to detect an XSS
                 # Skipping CVEs as they're too specific to be run on every link
                 if template.startswith("dast/")
-                and template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP
+                and self._should_scan_template(template)
                 and "/csp-bypass/" not in template
                 and "/cve" not in template
             ]

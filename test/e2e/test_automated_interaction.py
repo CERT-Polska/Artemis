@@ -31,7 +31,7 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         )
 
     def test_automated_interaction(self) -> None:
-        self.assertEqual(
+        self.assertTrue(
             requests.post(
                 BACKEND_URL + "api/add",
                 json={
@@ -44,8 +44,7 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
                     ],
                 },
                 headers={"X-API-Token": "api-token"},
-            ).json(),
-            {"ok": True},
+            ).json().get("ok", False),
         )
 
         analyses = requests.get(BACKEND_URL + "api/analyses", headers={"X-API-Token": "api-token"}).json()

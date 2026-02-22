@@ -1,9 +1,7 @@
 import datetime
-import json
 from typing import Annotated, Any, Dict, List, Optional
 
 import aiohttp
-import requests
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend
@@ -252,7 +250,7 @@ async def post_build_html_message(language: str = Body(), data: Dict[str, Any] =
             },
         ) as response:
             response.raise_for_status()
-            return await response.json()
+            return await response.json()  # type: ignore
 
 
 @router.post("/export", dependencies=[Depends(verify_api_token)])

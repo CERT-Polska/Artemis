@@ -39,3 +39,27 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     def test_get_subdomains_from_gau(self) -> None:
         result = self.karton.get_subdomains_from_gau("cert.pl")
         self.assertTrue("vortex.cert.pl" in result)
+
+    def test_subfinder_all_is_superset_of_all_recursive(self) -> None:
+
+        domains = ["cert.pl", "ci.drakvuf.cert.pl", "vortex.cert.pl"]
+
+        for domain in domains:
+            # Old behavior (with -recursive)
+            recursive_result = self.karton.get_subdomains_from_tool(
+                "subfinder",
+                ["-d", domain, "-silent", "-all", "-recursive"],
+                domain,
+            ) or set()
+
+            # New behavior (without -recursive)
+            all_result = self.karton.get_subdomains_from_subfinder(domain) or set()
+
+            missing = recursive_result - all_result
+
+            self.assertEqual(
+                missing,
+                set(),
+                f"For domain {domain} recursive result is not a subset of all result. "
+                f"Missing entries: {missing}",
+            )

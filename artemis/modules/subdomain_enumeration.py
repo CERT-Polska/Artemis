@@ -141,7 +141,7 @@ class SubdomainEnumeration(ArtemisBase):
             return None
 
     def get_subdomains_from_subfinder(self, domain: str) -> Optional[Set[str]]:
-        return self.get_subdomains_from_tool("subfinder", ["-d", domain, "-silent", "-all", "-recursive"], domain)
+        return self.get_subdomains_from_tool("subfinder", ["-d", domain, "-silent", "-all"], domain)
 
     def get_subdomains_from_gau(self, domain: str) -> Optional[Set[str]]:
         return self.get_subdomains_from_tool(

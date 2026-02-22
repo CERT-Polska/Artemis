@@ -35,12 +35,16 @@ def direct_dns_query(
         return None
 
 
-def dns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.Answer | None:
-    try:
-        resolver = dns.resolver.Resolver()
-        return resolver.resolve(target, record_type)
-    except Exception:
-        return None
+def dns_query(
+    target: str, record_type: rdatatype.RdataType, retries: int = 3, delay: float = 1.0
+) -> dns.resolver.Answer | None:
+    resolver = dns.resolver.Resolver()
+    for _ in range(retries):
+        try:
+            return resolver.resolve(target, record_type)
+        except Exception:
+            time.sleep(delay)
+    return None
 
 
 def ip_exists(ip: str, timeout: int = 5) -> bool:

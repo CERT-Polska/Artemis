@@ -53,13 +53,32 @@ class TestS3MockNotScannable(unittest.TestCase):
         dns_opt: [ndots:0] so that the short hostname 's3mock' is resolved
         as an absolute name rather than being expanded with the host's DNS
         search domains (#2310).
+
+        The test is skipped (rather than failing) when docker-compose.yaml
+        cannot be found in the directory tree above this file, which happens
+        in CI environments where tests are mounted at a path that doesn't
+        include the repo root (e.g. /opt/test/).
         """
+        import pathlib
+
         import yaml
 
-        compose_path = os.path.join(
-            os.path.dirname(__file__), "..", "..", "docker-compose.yaml"
-        )
-        with open(compose_path) as fh:
+        # Walk upward from this file to find the repo root that contains
+        # docker-compose.yaml.  We stop at the filesystem root.
+        compose_path = None
+        for parent in pathlib.Path(__file__).resolve().parents:
+            candidate = parent / "docker-compose.yaml"
+            if candidate.is_file():
+                compose_path = candidate
+                break
+
+        if compose_path is None:
+            self.skipTest(
+                "docker-compose.yaml not present in the directory tree above "
+                "this test file; skipping compose dns_opt guard test."
+            )
+
+        with compose_path.open() as fh:
             compose = yaml.safe_load(fh)
 
         artemis_image = "certpl/artemis"

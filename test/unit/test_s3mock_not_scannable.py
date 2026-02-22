@@ -9,7 +9,10 @@ DNS queries to reach external resolvers).
 """
 
 import os
+import pathlib
 import unittest
+
+import yaml
 
 from artemis.domains import is_domain
 
@@ -58,10 +61,6 @@ class TestS3MockNotScannable(unittest.TestCase):
         in CI environments where tests are mounted at a path that doesn't
         include the repo root (e.g. /opt/test/).
         """
-        import pathlib
-
-        import yaml
-
         # Walk upward from this file to find the repo root that contains
         # docker-compose.yaml.  We stop at the filesystem root.
         compose_path = None
@@ -102,3 +101,4 @@ class TestS3MockNotScannable(unittest.TestCase):
                     "expansion for internal hostnames like 's3mock' (issue #2310)."
                 ),
             )
+

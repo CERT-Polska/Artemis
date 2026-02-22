@@ -1,18 +1,42 @@
-Adding Scans via REST API
-=========================
+Full REST API Workflow
+======================
 
-Get your API token from user profile at: http://localhost:5000
+Configuration
+-------------
 
-Example:
+API_TOKEN is configured in `.env` (see :ref:`Configuration <configuration>`).
+
+Adding a Scan
+-------------
 
 .. code-block:: bash
 
     curl -X POST http://localhost:5000/api/add \
-      -H "X-Api-Token: YOUR_API_TOKEN" \
+      -H "X-Api-Token: $API_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
         "enabled_modules": ["mail_dns_scanner"],
         "targets": ["example.com"]
       }'
 
-Response includes scan ID. View results at: /scans/{scan_id}.
+Response:
+.. code-block:: json
+
+    {"scan_id": "abc123"}
+
+Check Scan Status
+-----------------
+
+.. code-block:: bash
+
+    curl -H "X-Api-Token: $API_TOKEN" \
+      http://localhost:5000/api/scans/abc123
+
+Get Report
+----------
+
+.. code-block:: bash
+
+    curl -H "X-Api-Token: $API_TOKEN" \
+      http://localhost:5000/api/scans/abc123/report/html \
+      -o report.html

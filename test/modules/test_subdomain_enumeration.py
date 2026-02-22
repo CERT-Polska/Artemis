@@ -51,11 +51,14 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
 
         for domain in domains:
             # Old behavior (with -recursive)
-            recursive_result = self.karton.get_subdomains_from_tool(
-                "subfinder",
-                ["-d", domain, "-silent", "-all", "-recursive"],
-                domain,
-            ) or set()
+            recursive_result = (
+                self.karton.get_subdomains_from_tool(
+                    "subfinder",
+                    ["-d", domain, "-silent", "-all", "-recursive"],
+                    domain,
+                )
+                or set()
+            )
 
             # New behavior (without -recursive)
             all_result = self.karton.get_subdomains_from_subfinder(domain) or set()
@@ -65,6 +68,5 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
             self.assertEqual(
                 missing,
                 set(),
-                f"For domain {domain} recursive result is not a subset of all result. "
-                f"Missing entries: {missing}",
+                f"For domain {domain} recursive result is not a subset of all result. " f"Missing entries: {missing}",
             )

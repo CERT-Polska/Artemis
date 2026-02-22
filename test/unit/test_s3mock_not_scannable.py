@@ -101,4 +101,3 @@ class TestS3MockNotScannable(unittest.TestCase):
                     "expansion for internal hostnames like 's3mock' (issue #2310)."
                 ),
             )
-

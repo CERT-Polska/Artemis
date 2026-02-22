@@ -41,8 +41,13 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
         self.assertTrue("vortex.cert.pl" in result)
 
     def test_subfinder_all_is_superset_of_all_recursive(self) -> None:
-
-        domains = ["cert.pl", "ci.drakvuf.cert.pl", "vortex.cert.pl"]
+        """
+        Make sure our assumptions about subfinder are correct - that skipping the `-recursive` option
+        just enables all modules (not only the recursive ones), but doesn't change the behavior of the
+        recursive modules (i.e. doesn't make them non-recursive). We check this by checking that the
+        set of subdomains returned by `subfinder -all` contains all subdomains returned by `subfinder -all -recursive`.
+        """
+        domains = ["cert.pl", "nask.pl", "example.com", "badssl.com"]
 
         for domain in domains:
             # Old behavior (with -recursive)

@@ -129,18 +129,26 @@ class WordpressPluginsReporter(Reporter):
     @staticmethod
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """See the docstring in the Reporter class."""
+
+        def actual_target(report: Report) -> str:
+            if "redirect_url" in report.additional_data and report.additional_data["redirect_url"]:
+                if not isinstance(report.additional_data["redirect_url"], str):
+                    raise TypeError("redirect_url must be a string")
+                return report.additional_data["redirect_url"]
+            return report.target
+
         return {
             WordpressPluginsReporter.CLOSED_WORDPRESS_PLUGIN: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
-                    "target": get_url_normal_form(report.target),
+                    "target": get_url_normal_form(actual_target(report)),
                     "slug": report.additional_data["slug"],
                 }
             ),
             WordpressPluginsReporter.WORDPRESS_OUTDATED_PLUGIN_THEME: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
-                    "target": get_url_normal_form(report.target),
+                    "target": get_url_normal_form(actual_target(report)),
                     "object_type": report.additional_data["type"],
                     "object_slug": report.additional_data["slug"],
                     "object_version": report.additional_data["version"],

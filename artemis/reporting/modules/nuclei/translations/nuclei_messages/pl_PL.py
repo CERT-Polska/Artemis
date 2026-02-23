@@ -22,6 +22,8 @@ BUG_FIX_HINT = " Rekomendujemy poprawienie tego błędu, a także sprawdzenie, c
 
 DATA_HIDE_HINT = " Rekomendujemy, aby takie dane nie były dostępne publicznie."
 
+RESOURCES_HIDE_HINT = " Rekomendujemy, aby takie zasoby nie były dostępne publicznie."
+
 REFLECTED_XSS_DESCRIPTION = "Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który, po kliknięciu przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikacja treści)."
 
 DIRECTORY_INDEX_HINT = "Taka konfiguracja może w niektórych przypadkach stworzyć ryzyko wycieku wrażliwych danych. Nawet jeśli w podanych wyżej folderach nie ma wrażliwych danych, zaobserwowana konfiguracja może oznaczać, że serwer wyświetla listingi również innych katalogów. Jeśli nie jest to działanie celowe, to rekomendujemy konfigurację serwera tak, aby listing plików nie był publicznie dostępny."
@@ -624,11 +626,23 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The Integrate Google Drive plugin for WordPress is vulnerable to unauthorized access due to a missing capability check on several REST API endpoints in versions up to, and including, 1.1.99. This makes it possible for unauthenticated attackers to perform a wide variety of operations, such as moving files, creating folders, copying details, and much more.": "Wtyczka WordPress o nazwie Integrate Google Drive w wersjach do 1.1.99 zawiera podatność umożliwiającą atakującemu nieuprawnione wykonywanie operacji takich jak np. pobieranie informacji, przenoszenie plików itp."
     + WORDPRESS_UPDATE_HINT,
-    "http/misconfiguration/installer/webcalendar-install.yaml": "Wykryto dostępny publicznie instalator systemu WebCalendar, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
-    "Detects exposed CMS Made Simple Installation page.": "Wykryto dostępny publicznie instalator systemu CMS Made Simple, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
-    "Drupal Install panel exposed.": "Wykryto dostępny publicznie instalator systemu Drupal, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
+    "http/misconfiguration/installer/webcalendar-install.yaml": "Wykryto dostępny publicznie instalator systemu WebCalendar, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem."
+    + RESOURCES_HIDE_HINT,
+    "Detects exposed CMS Made Simple Installation page.": "Wykryto dostępny publicznie instalator systemu CMS Made Simple, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem."
+    + RESOURCES_HIDE_HINT,
+    "Drupal Install panel exposed.": "Wykryto dostępny publicznie instalator systemu Drupal, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem."
+    + RESOURCES_HIDE_HINT,
     "A source code disclosure vulnerability in a web server caused by improper handling of multiple requests in quick succession, leading to the server treating requested files as static files instead of executing scripts.": "Serwer deweloperski udostępniany przez język programowania PHP w wersjach do 7.4.21 włącznie zawiera podatność umożliwiającą atakującemu nieuprawniony odczyt kodu źródłowego."
     + UPDATE_HINT,
+    "Vtiger CRM is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny instalator systemu Vtiger CRM, co wynika z błędnej konfiguracji i może umożliwić osobie nieuprawnionej ponowną instalację lub modyfikację ustawień systemu, a w konsekwencji przejęcie nad nim kontroli."
+    + RESOURCES_HIDE_HINT,
+    "n8n versions >= 0.123.0 and < 1.121.3 contain a critical authenticated remote code execution vulnerability via arbitrary file write. An authenticated user can exploit the Git node to overwrite critical files and execute untrusted code on the n8n server, potentially leading to full system compromise. The vulnerability affects both self-hosted and n8n Cloud instances.": "Wersje n8n >= 0.123.0 oraz < 1.121.3 zawierają krytyczną podatność umożliwiającą zdalne wykonanie kodu po uwierzytelnieniu, umożliwiającą zapis dowolnych plików."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress Classifieds Plugin before 4.3 contains a SQL injection caused by improper sanitization and escaping of parameters in an AJAX action, letting unauthenticated attackers execute arbitrary SQL commands, exploit requires the premium module to be active.": "Wtyczka WordPress Classifieds Plugin w wersjach wcześniejszych niż 4.3 zawiera podatność typu SQL Injection spowodowaną nieprawidłową walidacją i filtrowaniem parametrów w akcji AJAX. Umożliwia to nieuwierzytelnionemu atakującemu wykonywanie dowolnych zapytań SQL, w tym pobranie całej zawartości bazy danych. Wykorzystanie podatności wymaga aktywnego modułu premium."
+    + WORDPRESS_UPDATE_HINT,
+    "Tutor LMS – eLearning and online course solution plugin for WordPress [all versions up to 2.6.1] contains a time-based SQL Injection caused by insufficient escaping on the question_id parameter in SQL queries, letting authenticated attackers with subscriber or higher access extract sensitive information, exploit requires attacker to be authenticated with subscriber or higher privileges.": "Wtyczka Tutor LMS dla WordPress (wszystkie wersje do 2.6.1 włącznie) zawiera podatność typu time-based SQL Injection. Umożliwia to uwierzytelnionemu atakującemu z uprawnieniami subskrybenta pozyskanie wrażliwych informacji z bazy danych."
+    + WORDPRESS_UPDATE_HINT,
     "GoIP-1 GSM is vulnerable to local file inclusion because input passed thru the 'content' or 'sidebar' GET parameter in 'frame.html' or 'frame.A100.html' is not properly sanitized before being used to read files. This can be exploited by an unauthenticated attacker to read arbitrary files on the affected system.": "Wykryto, że GoIP-1 GSM zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "Execution After Redirect happens when after emitting a Location header that redirects the user, some other code is executed. This may lead to data leak or application compromise.": "Wykryto podatność Execution After Redirect, czyli sytuację, gdy serwer, pomimo przekierowania użytkownika na inny adres, kontynuuje wykonanie skryptu. Może to doprowadzić do wycieku wrażliwych danych lub uzyskania przez atakującego nieuprawnionego dostępu do aplikacji.",
     "[no description] http/misconfiguration/django-debug-detect.yaml": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
@@ -2248,6 +2262,7 @@ TRANSLATIONS = {
     "Untangle Administrator is a centralized web-based management console that allows administrators to efficiently configure, monitor, and control various network security and filtering features provided by the Untangle NG Firewall, ensuring robust network protection and policy enforcement.": "Wykryto panel Untangle Administrator.",
     "An Opencast Admin panel was discovered. Opencast is a free and open source solution for automated video capture and distribution at scale.": "Wykryto panel administracyjny Opencast.",
     "An OpenWebUI panel was detected": "Wykryto panel OpenWebUI.",
+    "OpenWebUI was detected - a platform for running AI on your own terms": "Wykryto panel OpenWebUI.",
     "Vaultwarden products was detected.": "Wykryto panel Vaultwarden.",
     "Reolink panel was discovered.": "Wykryto panel Reolink",
     "Reposilite products was detected.": "Wykryto panel systemu Reposilite.",

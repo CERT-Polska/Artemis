@@ -5,7 +5,7 @@ anytree==2.13.0
 Babel==2.18.0
 beautifulsoup4==4.14.3
 certifi==2026.1.4
-chardet==5.2.0
+chardet==6.0.0.post1
 click==8.3.1
 cryptography==46.0.5
 dnspython==2.8.0

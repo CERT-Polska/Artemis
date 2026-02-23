@@ -6,6 +6,8 @@ Configuration
 
 API_TOKEN is configured in `.env` (see :ref:`Configuration <configuration>`).
 
+Available modules shown in Web UI: Scans → New Scan → Modules panel.
+
 Adding a Scan
 -------------
 
@@ -19,24 +21,28 @@ Adding a Scan
         "targets": ["example.com"]
       }'
 
-Response:
+**Real Response**:
 .. code-block:: json
 
-    {"scan_id": "abc123"}
+    {
+      "id": "abc123",
+      "status": "queued", 
+      "targets": ["example.com"]
+    }
 
-Check Scan Status
------------------
-
-.. code-block:: bash
-
-    curl -H "X-Api-Token: $API_TOKEN" \
-      http://localhost:5000/api/scans/abc123
-
-Get Report
-----------
+Checking Scan Status
+--------------------
 
 .. code-block:: bash
 
     curl -H "X-Api-Token: $API_TOKEN" \
-      http://localhost:5000/api/scans/abc123/report/html \
-      -o report.html
+      http://localhost:5000/api/current_user/scans
+
+Getting Report (when ready)
+---------------------------
+
+.. code-block:: bash
+
+    curl -H "X-Api-Token: $API_TOKEN" \
+      http://localhost:5000/api/current_user/scans/abc123/report/html \
+      > report.html

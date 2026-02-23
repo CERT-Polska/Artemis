@@ -142,22 +142,28 @@ class SubdomainEnumeration(ArtemisBase):
 
     def get_subdomains_from_subfinder(self, domain: str) -> Optional[Set[str]]:
         """
-        In practice, the -all and -all -recursive flags can return slightly different outputs depending on timing and provider rate limits. 
+        In practice, the -all and -all -recursive flags can return slightly different outputs depending on timing and provider rate limits.
         Running subfinder twice and merging the results helps reduce the chance of missing subdomains.
         """
         # Run with -all
-        all_result = self.get_subdomains_from_tool(
-            "subfinder",
-            ["-d", domain, "-silent", "-all"],
-            domain,
-        ) or set()
+        all_result = (
+            self.get_subdomains_from_tool(
+                "subfinder",
+                ["-d", domain, "-silent", "-all"],
+                domain,
+            )
+            or set()
+        )
 
         # Run with -all -recursive
-        recursive_result = self.get_subdomains_from_tool(
-            "subfinder",
-            ["-d", domain, "-silent", "-all", "-recursive"],
-            domain,
-        ) or set()
+        recursive_result = (
+            self.get_subdomains_from_tool(
+                "subfinder",
+                ["-d", domain, "-silent", "-all", "-recursive"],
+                domain,
+            )
+            or set()
+        )
 
         # Merge both results
         return all_result.union(recursive_result)

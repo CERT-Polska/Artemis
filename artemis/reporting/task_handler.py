@@ -31,12 +31,12 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
     if report_generation_task.skip_previously_exported:
         previous_reports_directory = tempfile.mkdtemp()
         # We want to treat only the reports visible from web as already known
-        for report_generation_task in db.list_report_generation_tasks():
-            if report_generation_task.output_location:
+        for existing_task in db.list_report_generation_tasks():
+            if existing_task.output_location:
                 shutil.copy(
-                    Path(report_generation_task.output_location) / "advanced" / "output.json",
+                    Path(existing_task.output_location) / "advanced" / "output.json",
                     Path(previous_reports_directory)
-                    / (hashlib.sha256(report_generation_task.output_location.encode("ascii")).hexdigest() + ".json"),
+                    / (hashlib.sha256(existing_task.output_location.encode("ascii")).hexdigest() + ".json"),
                 )
     else:
         previous_reports_directory = None

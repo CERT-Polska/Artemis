@@ -634,7 +634,7 @@ TRANSLATIONS = {
     + RESOURCES_HIDE_HINT,
     "A source code disclosure vulnerability in a web server caused by improper handling of multiple requests in quick succession, leading to the server treating requested files as static files instead of executing scripts.": "Serwer deweloperski udostępniany przez język programowania PHP w wersjach do 7.4.21 włącznie zawiera podatność umożliwiającą atakującemu nieuprawniony odczyt kodu źródłowego."
     + UPDATE_HINT,
-    "Vtiger CRM is susceptible to the Installation page exposure due to misconfiguration.": "„Wykryto publicznie dostępny instalator systemu Vtiger CRM, co wynika z błędnej konfiguracji i może umożliwić osobie nieuprawnionej ponowną instalację lub modyfikację ustawień systemu, a w konsekwencji przejęcie nad nim kontroli."
+    "Vtiger CRM is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny instalator systemu Vtiger CRM, co wynika z błędnej konfiguracji i może umożliwić osobie nieuprawnionej ponowną instalację lub modyfikację ustawień systemu, a w konsekwencji przejęcie nad nim kontroli."
     + RESOURCES_HIDE_HINT,
     "n8n versions >= 0.123.0 and < 1.121.3 contain a critical authenticated remote code execution vulnerability via arbitrary file write. An authenticated user can exploit the Git node to overwrite critical files and execute untrusted code on the n8n server, potentially leading to full system compromise. The vulnerability affects both self-hosted and n8n Cloud instances.": "Wersje n8n >= 0.123.0 oraz < 1.121.3 zawierają krytyczną podatność umożliwiającą zdalne wykonanie kodu po uwierzytelnieniu, umożliwiającą zapis dowolnych plików."
     + RCE_EFFECT_DESCRIPTION

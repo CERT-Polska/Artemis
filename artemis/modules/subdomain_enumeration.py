@@ -141,6 +141,10 @@ class SubdomainEnumeration(ArtemisBase):
             return None
 
     def get_subdomains_from_subfinder(self, domain: str) -> Optional[Set[str]]:
+        """
+        In practice, the -all and -all -recursive flags can return slightly different outputs depending on timing and provider rate limits. 
+        Running subfinder twice and merging the results helps reduce the chance of missing subdomains.
+        """
         # Run with -all
         all_result = self.get_subdomains_from_tool(
             "subfinder",

@@ -11,6 +11,9 @@ FRONTEND_PATH = Path(__file__).resolve().parents[2] / "artemis" / "frontend.py"
 class TestFrontendNoBlockingIO(unittest.TestCase):
     """Static analysis tests ensuring frontend.py doesn't use blocking requests in async functions."""
 
+    source: str
+    tree: ast.Module
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.source = FRONTEND_PATH.read_text()

@@ -31,6 +31,20 @@ SEVERITY_OVERRIDES = {
 }
 
 
+def _truncate_poc(s: str | None) -> str | None:
+    if s is None:
+        return None
+    try:
+        max_len = Config.Modules.Nuclei.NUCLEI_POC_MAX_LENGTH
+    except Exception:
+        max_len = 200
+    if not max_len or max_len <= 0:
+        return s
+    if len(s) <= max_len:
+        return s
+    return s[:max_len] + "...[truncated]"
+
+
 class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
     NUCLEI_EXPOSED_PANEL = ReportType("nuclei_exposed_panel")
@@ -130,7 +144,7 @@ class NucleiReporter(Reporter):
                             "matched_at": vulnerability["matched-at"],
                             "template_name": template,
                             "original_template_name": original_template_name,
-                            "curl_command": vulnerability.get("curl-command", None),
+                            "curl_command": _truncate_poc(vulnerability.get("curl-command", None)),
                         },
                         timestamp=task_result["created_at"],
                     )
@@ -167,9 +181,11 @@ class NucleiReporter(Reporter):
                         additional_data={
                             "is_url_without_query_fragment": _is_url_without_query_fragment(matched_at),
                             "hostname": matched_at_parsed.hostname,
-                            "path_query_fragment": matched_at_parsed.path
-                            + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
-                            + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else ""),
+                            "path_query_fragment": _truncate_poc(
+                                matched_at_parsed.path
+                                + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
+                                + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else "")
+                            ),
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
                                 template, description, language
@@ -179,7 +195,7 @@ class NucleiReporter(Reporter):
                             "matched_at": matched_at,
                             "template_name": template,
                             "original_template_name": original_template_name,
-                            "curl_command": vulnerability.get("curl-command", None),
+                            "curl_command": _truncate_poc(vulnerability.get("curl-command", None)),
                         },
                         timestamp=task_result["created_at"],
                     )

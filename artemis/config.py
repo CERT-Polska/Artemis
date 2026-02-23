@@ -899,6 +899,11 @@ class Config:
                 "NUCLEI_CHUNK_SIZE is 200, three calls will be made with 200 templates each.",
             ] = get_config("NUCLEI_CHUNK_SIZE", default=200, cast=int)
 
+            NUCLEI_POC_MAX_LENGTH: Annotated[
+                int,
+                "Maximum length (in characters) of PoC URL/command stored in reports. Set to 0 to keep full content.",
+            ] = get_config("NUCLEI_POC_MAX_LENGTH", default=200, cast=int)
+
         class PlaceholderPageContent:
             ENABLE_PLACEHOLDER_PAGE_DETECTOR: Annotated[
                 bool,

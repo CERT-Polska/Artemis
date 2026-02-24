@@ -50,8 +50,10 @@ class ResourceLock:
     @staticmethod
     def release_all_locks(logger: Logger) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            for lock in LOCKS_TO_SUSTAIN:
+            for lock in list(LOCKS_TO_SUSTAIN.keys()):
                 logger.info(f"Releasing lock: {lock} -> {LOCKS_TO_SUSTAIN[lock]}")
+                REDIS.delete(lock)
+            LOCKS_TO_SUSTAIN.clear()
 
     def acquire(self) -> None:
         """

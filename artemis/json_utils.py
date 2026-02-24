@@ -9,7 +9,7 @@ from sqlalchemy.orm import InstanceState  # type: ignore
 
 class JSONEncoderAdditionalTypes(json.JSONEncoder):
     def default(self, o: Any) -> Any:
-        if dataclasses.is_dataclass(o):
+        if dataclasses.is_dataclass(o) and not isinstance(o, type):
             return dataclasses.asdict(o)
         if isinstance(o, datetime.datetime):
             return o.isoformat()

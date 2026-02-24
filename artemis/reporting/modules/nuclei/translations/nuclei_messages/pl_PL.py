@@ -2410,4 +2410,5 @@ TRANSLATIONS = {
     "Detected LibreChat login panel. LibreChat is an open-source, self-hosted AI chat interface.": "Wykryto panel logowania LibreChat.",
     "Checkmarx login panel was detected.": "Wykryto panel systemu Checkmarx.",
     "FlexNet Operations was detected — a software monetization platform.": "Wykryto panel FlexNet Operations.",
+    "Bitbucket panel was detected. Bitbucket is a Git-based source code repository hosting service owned by Atlassian, providing CI/CD and collaboration features.": "Wykryto panel systemu Bitbucket.",
 }

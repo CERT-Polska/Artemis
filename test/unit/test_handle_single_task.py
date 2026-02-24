@@ -4,7 +4,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from artemis.reporting.task_handler import handle_single_task
 
@@ -33,12 +33,11 @@ class FakeReportGenerationTask:
         self.output_location = output_location
 
 
-class TestHandleSingleTaskNoVariableShadowing(unittest.TestCase):
-    """Regression tests ensuring handle_single_task uses the original task's
-    parameters (tag, language, etc.) rather than a shadowed loop variable
-    from db.list_report_generation_tasks()."""
+class TestHandleSingleTask(unittest.TestCase):
+    """Tests for handle_single_task ensuring export() receives the correct
+    task parameters under different configurations."""
 
-    def _create_fake_output_dir(self, tag="some-tag"):
+    def _create_fake_output_dir(self):
         """Create a temporary directory that mimics a report output with an output.json."""
         output_dir = tempfile.mkdtemp()
         advanced_dir = os.path.join(output_dir, "advanced")
@@ -49,31 +48,25 @@ class TestHandleSingleTaskNoVariableShadowing(unittest.TestCase):
 
     @patch("artemis.reporting.task_handler.export")
     @patch("artemis.reporting.task_handler.db")
-    def test_export_called_with_original_task_params_when_skip_previously_exported(self, mock_db, mock_export):
-        """When skip_previously_exported=True, the export() call must use the
-        original task's tag/language/etc., NOT the last item from
-        db.list_report_generation_tasks()."""
+    def test_export_uses_task_params_when_skip_previously_exported_true(self, mock_db, mock_export):
+        """When skip_previously_exported=True and other tasks exist in the DB,
+        export() should be called with the current task's parameters."""
 
         mock_export.return_value = Path("/tmp/fake-output")
 
-        # The task the operator actually requested
-        original_task = FakeReportGenerationTask(
+        task = FakeReportGenerationTask(
             tag="org-A",
             language="pl_PL",
             custom_template_arguments={"key": "value"},
             skip_previously_exported=True,
             skip_hooks=True,
             skip_suspicious_reports=True,
-            include_only_results_since=None,
         )
 
-        # A different task that exists in the DB — this is what the old buggy
-        # code would have used after the for-loop shadowed the variable.
         other_output_dir = self._create_fake_output_dir()
         other_task = FakeReportGenerationTask(
             tag="org-B",
             language="en_US",
-            custom_template_arguments={},
             skip_previously_exported=False,
             skip_hooks=False,
             skip_suspicious_reports=False,
@@ -82,9 +75,8 @@ class TestHandleSingleTaskNoVariableShadowing(unittest.TestCase):
 
         mock_db.list_report_generation_tasks.return_value = [other_task]
 
-        handle_single_task(original_task)
+        handle_single_task(task)
 
-        # Verify export() was called with the ORIGINAL task's parameters
         mock_export.assert_called_once()
         call_kwargs = mock_export.call_args[1]
         self.assertEqual(call_kwargs["tag"], "org-A")
@@ -95,61 +87,55 @@ class TestHandleSingleTaskNoVariableShadowing(unittest.TestCase):
 
     @patch("artemis.reporting.task_handler.export")
     @patch("artemis.reporting.task_handler.db")
-    def test_export_called_with_original_task_params_multiple_existing_tasks(self, mock_db, mock_export):
-        """Same as above but with multiple existing tasks in the DB, ensuring
-        the last one doesn't leak into export()."""
+    def test_export_uses_task_params_when_skip_previously_exported_false(self, mock_db, mock_export):
+        """When skip_previously_exported=False, export() should be called with
+        the task's parameters and no previous reports should be queried."""
 
         mock_export.return_value = Path("/tmp/fake-output")
 
-        original_task = FakeReportGenerationTask(
-            tag="my-target-tag",
-            language="en_US",
-            skip_previously_exported=True,
-            skip_hooks=False,
-            skip_suspicious_reports=True,
-        )
-
-        existing_tasks = []
-        for i in range(3):
-            output_dir = self._create_fake_output_dir()
-            existing_tasks.append(
-                FakeReportGenerationTask(
-                    tag=f"wrong-tag-{i}",
-                    language="pl_PL",
-                    skip_hooks=True,
-                    skip_suspicious_reports=False,
-                    output_location=output_dir,
-                )
-            )
-
-        mock_db.list_report_generation_tasks.return_value = existing_tasks
-
-        handle_single_task(original_task)
-
-        call_kwargs = mock_export.call_args[1]
-        self.assertEqual(call_kwargs["tag"], "my-target-tag")
-        self.assertFalse(call_kwargs["skip_hooks"])
-        self.assertTrue(call_kwargs["skip_suspicious_reports"])
-
-    @patch("artemis.reporting.task_handler.export")
-    @patch("artemis.reporting.task_handler.db")
-    def test_export_called_correctly_when_skip_previously_exported_false(self, mock_db, mock_export):
-        """When skip_previously_exported=False, the loop is never entered and
-        the original params should still be used (baseline sanity check)."""
-
-        mock_export.return_value = Path("/tmp/fake-output")
-
-        original_task = FakeReportGenerationTask(
+        task = FakeReportGenerationTask(
             tag="baseline-tag",
             language="en_US",
             skip_previously_exported=False,
         )
 
-        handle_single_task(original_task)
+        handle_single_task(task)
 
         mock_db.list_report_generation_tasks.assert_not_called()
         call_kwargs = mock_export.call_args[1]
         self.assertEqual(call_kwargs["tag"], "baseline-tag")
+        self.assertIsNone(call_kwargs["previous_reports_directory"])
+
+    @patch("artemis.reporting.task_handler.export")
+    @patch("artemis.reporting.task_handler.db")
+    def test_export_uses_task_params_when_no_existing_tasks_in_db(self, mock_db, mock_export):
+        """When skip_previously_exported=True but the DB has no other tasks,
+        export() should still be called with the current task's parameters
+        and an empty previous reports directory."""
+
+        mock_export.return_value = Path("/tmp/fake-output")
+
+        task = FakeReportGenerationTask(
+            tag="only-task",
+            language="pl_PL",
+            custom_template_arguments={"foo": "bar"},
+            skip_previously_exported=True,
+            skip_hooks=False,
+            skip_suspicious_reports=True,
+        )
+
+        mock_db.list_report_generation_tasks.return_value = []
+
+        handle_single_task(task)
+
+        mock_export.assert_called_once()
+        call_kwargs = mock_export.call_args[1]
+        self.assertEqual(call_kwargs["tag"], "only-task")
+        self.assertEqual(call_kwargs["language"].value, "pl_PL")
+        self.assertEqual(call_kwargs["custom_template_arguments"], {"foo": "bar"})
+        self.assertFalse(call_kwargs["skip_hooks"])
+        self.assertTrue(call_kwargs["skip_suspicious_reports"])
+        self.assertIsNotNone(call_kwargs["previous_reports_directory"])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,49 @@
+{% if "graphql_introspection_enabled" in data.contains_type or "graphql_debug_interface_exposed" in data.contains_type or "graphql_batch_query_supported" in data.contains_type or "graphql_field_suggestions_enabled" in data.contains_type %}
+    <li>{% trans %}We identified GraphQL security misconfigurations:{% endtrans %}
+        <ul>
+            {% if "graphql_introspection_enabled" in data.contains_type %}
+                {% for report in data.reports %}
+                    {% if report.report_type == "graphql_introspection_enabled" %}
+                        <li>
+                            {% trans endpoint=report.additional_data.endpoint, num_types=report.additional_data.num_types_exposed %}GraphQL introspection is enabled at {{ endpoint }}, exposing {{ num_types }} schema types. This allows attackers to map the entire API structure. We recommend disabling introspection in production.{% endtrans %}
+                            {% if report.additional_data.custom_types_sample %}
+                                {% trans %}Exposed types include:{% endtrans %} {{ report.additional_data.custom_types_sample | join(', ') }}.
+                            {% endif %}
+                            {{ report_meta(report) }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if "graphql_debug_interface_exposed" in data.contains_type %}
+                {% for report in data.reports %}
+                    {% if report.report_type == "graphql_debug_interface_exposed" %}
+                        <li>
+                            {% trans endpoint=report.additional_data.endpoint, interface_type=report.additional_data.interface_type %}A GraphQL debug interface ({{ interface_type }}) is exposed at {{ endpoint }}. Debug interfaces should be disabled in production environments.{% endtrans %}
+                            {{ report_meta(report) }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if "graphql_batch_query_supported" in data.contains_type %}
+                {% for report in data.reports %}
+                    {% if report.report_type == "graphql_batch_query_supported" %}
+                        <li>
+                            {% trans endpoint=report.additional_data.endpoint %}The GraphQL endpoint at {{ endpoint }} supports batch queries, which can be used as a Denial of Service amplification vector. We recommend implementing batch query limits.{% endtrans %}
+                            {{ report_meta(report) }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if "graphql_field_suggestions_enabled" in data.contains_type %}
+                {% for report in data.reports %}
+                    {% if report.report_type == "graphql_field_suggestions_enabled" %}
+                        <li>
+                            {% trans endpoint=report.additional_data.endpoint %}The GraphQL endpoint at {{ endpoint }} leaks field names via suggestion messages in error responses (e.g. "Did you mean...?"). This allows attackers to enumerate the schema even when introspection is disabled. We recommend disabling field suggestions.{% endtrans %}
+                            {{ report_meta(report) }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </li>
+{% endif %}

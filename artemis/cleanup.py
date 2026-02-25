@@ -83,7 +83,9 @@ def _cleanup_scheduled_tasks() -> None:
     logger.info("Found %d analyses", len(finished_analyses_ids_set))
 
     kept_analyses = 0
+    karton_existing_tasks = 0
     for task in karton_backend.iter_all_tasks():
+        karton_existing_tasks += 1
         if task.root_uid in finished_analyses_ids_set:
             finished_analyses_ids_set.remove(task.root_uid)
             has_unfinished_analyses = True
@@ -92,6 +94,7 @@ def _cleanup_scheduled_tasks() -> None:
     if not has_unfinished_analyses and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:
         raise AssertionError("Did not found unfinished analyses during cleanup.")
 
+    logger.info("Iterated over %d karton tasks", karton_existing_tasks)
     finished_analyses_ids = list(finished_analyses_ids_set)
     if finished_analyses_ids:
         # introducing batches to not overwhelm database

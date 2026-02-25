@@ -107,7 +107,8 @@ def _cleanup_scheduled_tasks() -> None:
 
             logger.debug("Cleaned up ScheduledTask table for analyses: %s", ",".join(analysis_ids))
         logger.info(
-            "Removed %d rows in ScheduleTask table for %d analyses; kept %d analyses.",
+            "Removed %d rows in ScheduleTask table for %d finished analyses. "
+            "Number of remaining unfinished analyses: %d.",
             removed_rows,
             len(finished_analyses_ids),
             kept_analyses,

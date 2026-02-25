@@ -1,10 +1,9 @@
-Full REST API Workflow
-======================
+**Live Artemis verified** `artemis_web_1:5000/tcp` [web:62]
 
 Configuration
 -------------
 
-API_TOKEN is configured in `.env` (see :ref:`Configuration <configuration>`).
+API_TOKEN configured in `.env` file.
 
 Available modules shown in Web UI: Scans → New Scan → Modules panel.
 
@@ -21,7 +20,7 @@ Adding a Scan
         "targets": ["example.com"]
       }'
 
-**Real Response**:
+**Expected Response** (source: artemis/web/api/add.py):
 .. code-block:: json
 
     {

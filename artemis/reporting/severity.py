@@ -79,6 +79,10 @@ SEVERITY_MAP = {
     ReportType("bad_certificate_names"): Severity.LOW,
     ReportType("no_https_redirect"): Severity.LOW,
     ReportType("api_vulnerability"): Severity.MEDIUM,
+    ReportType("graphql_introspection_enabled"): Severity.MEDIUM,
+    ReportType("graphql_debug_interface_exposed"): Severity.MEDIUM,
+    ReportType("graphql_batch_query_supported"): Severity.LOW,
+    ReportType("graphql_field_suggestions_enabled"): Severity.LOW,
     ReportType(
         "dangling_dns_record"
     ): Severity.MEDIUM,  # High if it's not a FP, but there is a significant percentage of unexploitable reports

@@ -1,13 +1,11 @@
-x-artemis-build-or-image:
-  &artemis-build-or-image
+x-artemis-build-or-image: &artemis-build-or-image
   image: certpl/artemis:latest
 
-x-logging:
-  &logging
+x-logging: &logging
   logging:
-      options:
-        max-size: "20m"
-        max-file: "1"
+    options:
+      max-size: "20m"
+      max-file: "1"
 
 services:
   redis:
@@ -69,7 +67,8 @@ services:
     <<: [*logging, *artemis-build-or-image]
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     command: "python3 -m artemis.metrics"
 
   autoarchiver:
@@ -95,39 +94,51 @@ services:
     command: "python3 -m artemis.modules.api_scanner"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-admin_panel_login_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.admin_panel_login_bruter"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.bruter"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-classifier:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.classifier"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-dangling-dns-detector:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.dangling_dns_detector"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-dashboard:
     <<: *logging
-    command: ["/wait-for-dependencies.sh", "karton-dashboard", "run", "--host", "0.0.0.0"]
+    command:
+      [
+        "/wait-for-dependencies.sh",
+        "karton-dashboard",
+        "run",
+        "--host",
+        "0.0.0.0",
+      ]
     env_file: .env
     image: certpl/karton-dashboard:f719024c3387bab39c21f890af369afb5943d3cf
     restart: always
@@ -144,112 +155,139 @@ services:
     command: "python3 -m artemis.modules.device_identifier"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-directory_index:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.directory_index"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-dns_scanner:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.dns_scanner"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-domain_expiration_scanner:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.domain_expiration_scanner"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-drupal_scanner:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.drupal_scanner"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-example:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.example"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-ftp_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.ftp_bruter"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-graphql_scanner:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.graphql_scanner"
+    env_file: .env
+    restart: always
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-http_service_to_url:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.http_service_to_url"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-humble:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.humble"
     env_file: .env
     restart: always
-    volumes: [ "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/" ]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-identifier:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.webapp_identifier"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-ip_lookup:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.ip_lookup"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-joomla_extensions:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.joomla_extensions"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-joomla_scanner:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.joomla_scanner"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-logger:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.karton_logger"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/", "./karton-logs/:/karton-logs"]
+    volumes:
+      [
+        "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/",
+        "./karton-logs/:/karton-logs",
+      ]
 
   karton-mail_dns_scanner:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.mail_dns_scanner"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-mysql_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.mysql_bruter"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-nuclei:
     <<: [*logging, *artemis-build-or-image]
@@ -266,39 +304,45 @@ services:
     command: "python3 -m artemis.modules.port_scanner"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-postgresql_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.postgresql_bruter"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-removed_domain_existing_vhost:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.removed_domain_existing_vhost"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-reverse_dns:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.reverse_dns_lookup"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-robots:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.robots"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-scripts_unregistered_domains:
     <<: [*logging, *artemis-build-or-image]
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     env_file: .env
     restart: always
     command: "python3 -m artemis.modules.scripts_unregistered_domains"
@@ -308,28 +352,32 @@ services:
     command: "python3 -m artemis.modules.shodan_vulns"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-sql_injection_detector:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.sql_injection_detector"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-ssh_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.ssh_bruter"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-subdomain_enumeration:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.subdomain_enumeration"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-system:
     <<: *logging
@@ -351,35 +399,40 @@ services:
     command: "python3 -m artemis.modules.vcs"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-wordpress_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.wordpress_bruter"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-wordpress_plugins:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.wordpress_plugins"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-wp_scanner:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.wp_scanner"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   karton-lfi_detector:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.lfi_detector"
     env_file: .env
     restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+    volumes:
+      ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
   test-service-with-exposed-apache-config:
     image: php:7.4-apache

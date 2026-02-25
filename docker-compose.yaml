@@ -188,13 +188,6 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  karton-http_service_to_url:
-    <<: [*logging, *artemis-build-or-image]
-    command: "python3 -m artemis.modules.http_service_to_url"
-    env_file: .env
-    restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
   karton-humble:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.humble"

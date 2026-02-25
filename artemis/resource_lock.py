@@ -42,13 +42,30 @@ end
 """
 )
 
+# Lua script for atomic check-and-expire: only refreshes the TTL if the value matches the caller's lock ID.
+# This prevents sustain_locks() from stealing a lock that has expired and been re-acquired by another process.
+SUSTAIN_LOCK_SCRIPT = REDIS.register_script(
+    """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("expire", KEYS[1], ARGV[2])
+else
+    return 0
+end
+"""
+)
+
 
 def sustain_locks() -> None:
     while True:
         try:
             with LOCKS_TO_SUSTAIN_LOCK:
+                lost_locks = []
                 for key, value in LOCKS_TO_SUSTAIN.items():
-                    REDIS.set(key, value, ex=LOCK_HEARTBEAT_TIMEOUT)
+                    if not SUSTAIN_LOCK_SCRIPT(keys=[key], args=[value, LOCK_HEARTBEAT_TIMEOUT]):
+                        lost_locks.append(key)
+                for key in lost_locks:
+                    sustain_locks_logger.warning("Lock %s lost (expired or acquired by another process), removing from sustain list", key)
+                    del LOCKS_TO_SUSTAIN[key]
         except Exception:
             sustain_locks_logger.exception("Error while sustaining locks")
         time.sleep(1)

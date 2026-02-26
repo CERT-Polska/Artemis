@@ -320,7 +320,8 @@ class DB:
             headers_string=" ".join([key + " " + value for key, value in task.headers.items()]),
         )
 
-        del to_save["task"]["status"]  # at the moment of saving it's "started", which will be misleading
+        # at the moment of saving it's "started", which will be misleading
+        del to_save["task"]["status"]  # type: ignore[union-attr]
 
         if isinstance(data, BaseModel):
             to_save["result"] = data.dict()

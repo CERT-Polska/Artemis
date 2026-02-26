@@ -4,10 +4,10 @@ import os
 import urllib
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from zipfile import ZipFile
 
-import requests
+import aiohttp
 from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
@@ -45,7 +45,7 @@ def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
     return result
 
 
-def whitelist_proxy_response_headers(headers: requests.structures.CaseInsensitiveDict[str]) -> Dict[str, str]:
+def whitelist_proxy_response_headers(headers: Any) -> Dict[str, str]:
     result = {}
     for header in headers:
         if header.lower() in [
@@ -429,26 +429,34 @@ def get_queue(request: Request) -> Response:
 
 @router.api_route("/karton-dashboard/{path:path}", methods=["GET", "POST"], include_in_schema=False)
 async def karton_dashboard(request: Request, path: str) -> Response:
-    response = requests.request(
-        url="http://karton-dashboard:5000/karton-dashboard/" + path,
-        method=request.method,
-        allow_redirects=False,
-        headers={"connection": "close", **whitelist_proxy_request_headers(request.headers)},
-    )
-    return Response(
-        content=response.content,
-        status_code=response.status_code,
-        headers=whitelist_proxy_response_headers(response.headers),
-    )
+    async with aiohttp.ClientSession() as session:
+        async with session.request(
+            method=request.method,
+            url="http://karton-dashboard:5000/karton-dashboard/" + path,
+            allow_redirects=False,
+            headers={"connection": "close", **whitelist_proxy_request_headers(request.headers)},
+            timeout=aiohttp.ClientTimeout(total=30),
+        ) as response:
+            content = await response.read()
+            return Response(
+                content=content,
+                status_code=response.status,
+                headers=whitelist_proxy_response_headers(response.headers),
+            )
 
 
 @router.api_route("/metrics", methods=["GET"], include_in_schema=False)
 async def prometheus(request: Request) -> Response:
-    response = requests.get(url="http://metrics:9000/")
-    return Response(
-        content=response.content,
-        status_code=response.status_code,
-    )
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            url="http://metrics:9000/",
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as response:
+            content = await response.read()
+            return Response(
+                content=content,
+                status_code=response.status,
+            )
 
 
 @router.get("/analysis/{root_id}", include_in_schema=False)

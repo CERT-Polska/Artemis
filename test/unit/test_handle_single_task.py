@@ -1,11 +1,12 @@
-import hashlib
 import json
 import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from typing import Any, Optional, cast
+from unittest.mock import MagicMock, patch
 
+from artemis.db import ReportGenerationTask
 from artemis.reporting.task_handler import handle_single_task
 
 
@@ -14,15 +15,15 @@ class FakeReportGenerationTask:
 
     def __init__(
         self,
-        tag="default-tag",
-        language="en_US",
-        custom_template_arguments=None,
-        skip_previously_exported=False,
-        skip_hooks=False,
-        skip_suspicious_reports=False,
-        include_only_results_since=None,
-        output_location=None,
-    ):
+        tag: str = "default-tag",
+        language: str = "en_US",
+        custom_template_arguments: Optional[dict[str, Any]] = None,
+        skip_previously_exported: bool = False,
+        skip_hooks: bool = False,
+        skip_suspicious_reports: bool = False,
+        include_only_results_since: Optional[str] = None,
+        output_location: Optional[str] = None,
+    ) -> None:
         self.tag = tag
         self.language = language
         self.custom_template_arguments = custom_template_arguments or {}
@@ -33,11 +34,15 @@ class FakeReportGenerationTask:
         self.output_location = output_location
 
 
+def _as_task(fake: FakeReportGenerationTask) -> ReportGenerationTask:
+    return cast(ReportGenerationTask, fake)
+
+
 class TestHandleSingleTask(unittest.TestCase):
     """Tests for handle_single_task ensuring export() receives the correct
     task parameters under different configurations."""
 
-    def _create_fake_output_dir(self):
+    def _create_fake_output_dir(self) -> str:
         """Create a temporary directory that mimics a report output with an output.json."""
         output_dir = tempfile.mkdtemp()
         advanced_dir = os.path.join(output_dir, "advanced")
@@ -48,7 +53,9 @@ class TestHandleSingleTask(unittest.TestCase):
 
     @patch("artemis.reporting.task_handler.export")
     @patch("artemis.reporting.task_handler.db")
-    def test_export_uses_task_params_when_skip_previously_exported_true(self, mock_db, mock_export):
+    def test_export_uses_task_params_when_skip_previously_exported_true(
+        self, mock_db: MagicMock, mock_export: MagicMock
+    ) -> None:
         """When skip_previously_exported=True and other tasks exist in the DB,
         export() should be called with the current task's parameters."""
 
@@ -75,7 +82,7 @@ class TestHandleSingleTask(unittest.TestCase):
 
         mock_db.list_report_generation_tasks.return_value = [other_task]
 
-        handle_single_task(task)
+        handle_single_task(_as_task(task))
 
         mock_export.assert_called_once()
         call_kwargs = mock_export.call_args[1]
@@ -87,7 +94,9 @@ class TestHandleSingleTask(unittest.TestCase):
 
     @patch("artemis.reporting.task_handler.export")
     @patch("artemis.reporting.task_handler.db")
-    def test_export_uses_task_params_when_skip_previously_exported_false(self, mock_db, mock_export):
+    def test_export_uses_task_params_when_skip_previously_exported_false(
+        self, mock_db: MagicMock, mock_export: MagicMock
+    ) -> None:
         """When skip_previously_exported=False, export() should be called with
         the task's parameters and no previous reports should be queried."""
 
@@ -99,7 +108,7 @@ class TestHandleSingleTask(unittest.TestCase):
             skip_previously_exported=False,
         )
 
-        handle_single_task(task)
+        handle_single_task(_as_task(task))
 
         mock_db.list_report_generation_tasks.assert_not_called()
         call_kwargs = mock_export.call_args[1]
@@ -108,7 +117,9 @@ class TestHandleSingleTask(unittest.TestCase):
 
     @patch("artemis.reporting.task_handler.export")
     @patch("artemis.reporting.task_handler.db")
-    def test_export_uses_task_params_when_no_existing_tasks_in_db(self, mock_db, mock_export):
+    def test_export_uses_task_params_when_no_existing_tasks_in_db(
+        self, mock_db: MagicMock, mock_export: MagicMock
+    ) -> None:
         """When skip_previously_exported=True but the DB has no other tasks,
         export() should still be called with the current task's parameters
         and an empty previous reports directory."""
@@ -126,7 +137,7 @@ class TestHandleSingleTask(unittest.TestCase):
 
         mock_db.list_report_generation_tasks.return_value = []
 
-        handle_single_task(task)
+        handle_single_task(_as_task(task))
 
         mock_export.assert_called_once()
         call_kwargs = mock_export.call_args[1]

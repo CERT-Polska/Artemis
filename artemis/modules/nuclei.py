@@ -251,7 +251,6 @@ class Nuclei(ArtemisBase):
         requests_per_second_per_host: List[int] = []
 
         def _finish_current_second() -> None:
-            nonlocal requests_per_second_per_host
             nonlocal current_second_host_requests
 
             requests_per_second_per_host.extend(current_second_host_requests.values())

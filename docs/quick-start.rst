@@ -16,13 +16,21 @@ following command in your terminal in the ``Artemis`` directory:
 
 .. code-block:: console
 
-   ./scripts/start
+   ./scripts/start --mode=<production|development>
+
+
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 
 The above command will automatically create a ``.env`` file with default settings if it doesn't exist. You can edit this file later to configure various settings, including customizing the user-agent by setting the ``CUSTOM_USER_AGENT`` variable, as well as other relevant parameters.
 
 We strongly recommend setting the ``CUSTOM_USER_AGENT`` and configuring rate-limiting for scanning (more information here: :doc:`user-guide/cooperation-with-scanned-entities`). For a complete list of configuration variables and their descriptions, please refer to the :doc:`user-guide/configuration` section in the documentation.
+
+
+.. note ::
+
+   Setting the mode to ``development`` provides you with some quality of life changes when developing project, e.g. enables use of pdb in the containers,
+   opens postgres container port to your machine, starts web container in hot reload and mounts working directory to volumes of Karton workers
 
 **We recommend you to add additional Artemis modules from** https://github.com/CERT-Polska/Artemis-modules-extra/ -
 these modules haven't been included in core due to licensing reasons, but provide additional features such
@@ -41,7 +49,7 @@ the Artemis directory** and run ``./scripts/start``.
 
 **If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in** ``./scripts/start``
 (e.g. by changing ``--scale=karton-bruter=5`` to ``--scale=karton-bruter=20``). By default
-some modules are spawned in a couple of instances, but you may want more of them.
+some modules are spawned in a couple of instances, but you may want more of them. You can also pass the ``--single-worker`` parameter to the script to limit the number of each Karton worker to one. This is useful for development, testing, or running on machines with limited resources.
 
 For the full list of available configuration options you may set in the ``.env`` file, see :doc:`user-guide/configuration`.
 
@@ -84,10 +92,10 @@ To turn off Artemis (without removing the scan results and pending tasks), use:
 
 .. code-block:: console
 
-   ./scripts/run_docker_compose down
+   ./scripts/run_docker_compose --mode=<production|development> down
 
 To remove all data, use:
 
 .. code-block:: console
 
-   ./scripts/run_docker_compose down --volumes
+   ./scripts/run_docker_compose --mode=<production|development> down --volumes

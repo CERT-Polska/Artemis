@@ -56,7 +56,6 @@ class WebappIdentifier(ArtemisBase):
 
     def _process(self, current_task: Task, url: str) -> None:
         application = self._identify(url)
-        print("AAAA", self.http_get(url))
 
         new_task = Task(
             {

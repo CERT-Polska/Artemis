@@ -182,5 +182,51 @@ class TestResourceLockBasics(unittest.TestCase):
         mock_script.assert_called_with(keys=["lock-ctx"], args=[lid])
 
 
+class TestIsAcquiredAndIsOwned(unittest.TestCase):
+    """Verify is_acquired() and is_owned() semantics."""
+
+    def setUp(self) -> None:
+        with LOCKS_TO_SUSTAIN_LOCK:
+            LOCKS_TO_SUSTAIN.clear()
+
+    def tearDown(self) -> None:
+        with LOCKS_TO_SUSTAIN_LOCK:
+            LOCKS_TO_SUSTAIN.clear()
+
+    @patch("artemis.resource_lock.REDIS")
+    def test_is_acquired_true_when_any_holder(self, mock_redis: MagicMock) -> None:
+        """is_acquired() returns True if the key exists, regardless of who holds it."""
+        mock_redis.get.return_value = b"some-other-uuid"
+        lock = ResourceLock("lock-target", max_tries=1)
+        self.assertTrue(lock.is_acquired())
+
+    @patch("artemis.resource_lock.REDIS")
+    def test_is_acquired_false_when_free(self, mock_redis: MagicMock) -> None:
+        mock_redis.get.return_value = None
+        lock = ResourceLock("lock-target", max_tries=1)
+        self.assertFalse(lock.is_acquired())
+
+    @patch("artemis.resource_lock.REDIS")
+    def test_is_owned_true_when_value_matches_lid(self, mock_redis: MagicMock) -> None:
+        """is_owned() returns True only when the stored value matches self.lid."""
+        lock = ResourceLock("lock-target", max_tries=1)
+        mock_redis.get.return_value = lock.lid.encode()
+        self.assertTrue(lock.is_owned())
+
+    @patch("artemis.resource_lock.REDIS")
+    def test_is_owned_false_when_held_by_another(self, mock_redis: MagicMock) -> None:
+        """is_owned() returns False when another process holds the lock."""
+        lock = ResourceLock("lock-target", max_tries=1)
+        mock_redis.get.return_value = b"different-uuid"
+        self.assertFalse(lock.is_owned())
+
+    @patch("artemis.resource_lock.REDIS")
+    def test_is_owned_false_when_free(self, mock_redis: MagicMock) -> None:
+        """is_owned() returns False when the key does not exist."""
+        lock = ResourceLock("lock-target", max_tries=1)
+        mock_redis.get.return_value = None
+        self.assertFalse(lock.is_owned())
+
+
 if __name__ == "__main__":
     unittest.main()

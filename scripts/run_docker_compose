@@ -2,7 +2,20 @@
 
 cd $(dirname $0)/..
 
-DOCKER_CONFIGS_STRING="$(scripts/find_docker_compose_files --mode=production --docker-compose-string) "
-DOCKER_CONFIGS_STRING+="$(scripts/find_docker_compose_files --mode=development --docker-compose-string)"
 
-docker compose $DOCKER_CONFIGS_STRING $ADDITIONAL_DOCKER_COMPOSE_OPTIONS "$@"
+MODE="production"
+ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --mode=*)
+      MODE="${arg#*=}"
+      ;;
+    *)
+      ARGS+=("$arg")
+      ;;
+  esac
+done
+
+DOCKER_CONFIGS_STRING="$(scripts/find_docker_compose_files --mode=$MODE --docker-compose-string)"
+docker compose $DOCKER_CONFIGS_STRING $ADDITIONAL_DOCKER_COMPOSE_OPTIONS "${ARGS[@]}"

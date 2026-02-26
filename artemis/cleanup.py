@@ -14,7 +14,7 @@ logger = utils.build_logger(__name__)
 
 DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS = 3
 DELAY_BETWEEN_CLEANUPS__SECONDS = 4 * 3600
-OLD_MODULES = ["dalfox"]
+OLD_MODULES = ["dalfox", "http_service_to_url"]
 
 db = DB()
 

@@ -5,7 +5,7 @@ from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 from karton.core.task import TaskState
 
-BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "http_service_to_url", "webapp_identifier", "IPLookup"]
+BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "webapp_identifier", "IPLookup"]
 
 
 def get_binds_that_can_be_disabled() -> List[KartonBind]:

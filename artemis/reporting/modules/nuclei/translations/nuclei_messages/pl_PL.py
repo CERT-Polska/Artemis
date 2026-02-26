@@ -2411,4 +2411,5 @@ TRANSLATIONS = {
     "Checkmarx login panel was detected.": "Wykryto panel systemu Checkmarx.",
     "FlexNet Operations was detected — a software monetization platform.": "Wykryto panel FlexNet Operations.",
     "Bitbucket panel was detected. Bitbucket is a Git-based source code repository hosting service owned by Atlassian, providing CI/CD and collaboration features.": "Wykryto panel systemu Bitbucket.",
+    "Detects Monsta FTP web-based file manager interface.": "Wykryto interfejs managera plików Monsta FTP.",
 }

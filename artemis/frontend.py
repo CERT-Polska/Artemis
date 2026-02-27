@@ -327,7 +327,7 @@ async def post_export(
 @router.get("/remove-finished-analyses", include_in_schema=False)
 def get_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     return csrf.csrf_form_template_response(
-        "/remove_finished_analyses.jinja2",
+        "remove_finished_analyses.jinja2",
         {
             "request": request,
         },
@@ -348,7 +348,7 @@ async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProt
 @router.get("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
 def get_remove_pending_tasks(request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()) -> Response:
     return csrf.csrf_form_template_response(
-        "/remove_pending_tasks.jinja2",
+        "remove_pending_tasks.jinja2",
         {
             "analysis_id": analysis_id,
             "analysed_object": db.get_analysis_by_id(analysis_id)["target"],  # type: ignore
@@ -402,7 +402,7 @@ async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
 @router.get("/restart-crashed-tasks", include_in_schema=False)
 def get_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     return csrf.csrf_form_template_response(
-        "/restart_crashed_tasks.jinja2",
+        "restart_crashed_tasks.jinja2",
         {
             "request": request,
         },

@@ -110,10 +110,6 @@ class ResourceLock:
         """Check whether *any* process currently holds this lock (key exists in Redis)."""
         return REDIS.get(self.res_name) is not None
 
-    def is_owned(self) -> bool:
-        """Check whether *this* instance currently holds the lock (value matches self.lid)."""
-        return REDIS.get(self.res_name) == self.lid.encode()
-
     def release(self) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
             if self.res_name in LOCKS_TO_SUSTAIN:

@@ -11,28 +11,28 @@
             <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_add_form') }}" href="{{ request.url_for('get_add_form') }}">Add targets</a>
+                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_add_form').path }}" href="{{ request.url_for('get_add_form') }}">Add targets</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_root') }}" href="{{ request.url_for('get_root') }}">View targets</a>
+                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_root').path }}" href="{{ request.url_for('get_root') }}">View targets</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_results') }}" href="{{ request.url_for('get_results') }}?task_filter=interesting">View raw task results</a>
+                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_results').path }}" href="{{ request.url_for('get_results') }}?task_filter=interesting">View raw task results</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_export_form') }}" href="{{ request.url_for('get_export_form') }}">Export reports</a>
+                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_export_form').path }}" href="{{ request.url_for('get_export_form') }}">Export reports</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_exports') }}" href="{{ request.url_for('get_exports') }}">View exported reports</a>
+                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_exports').path }}" href="{{ request.url_for('get_exports') }}">View exported reports</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_queue') }}" href="{{ request.url_for('get_queue') }}">Task queue</a>
+                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_queue').path }}" href="{{ request.url_for('get_queue') }}">Task queue</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_restart_crashed_tasks') }}" href="{{ request.url_for('get_restart_crashed_tasks') }}">Restart crashed tasks</a>
+                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_restart_crashed_tasks').path }}" href="{{ request.url_for('get_restart_crashed_tasks') }}">Restart crashed tasks</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('api_docs_information') }}" href="{{ request.url_for('api_docs_information') }}">API</a>
+                        <a class="nav-link {{ 'active' if request.url.path == request.url_for('api_docs_information').path }}" href="{{ request.url_for('api_docs_information') }}">API</a>
                     </li>
                 </ul>
             </div>

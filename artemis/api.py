@@ -196,7 +196,7 @@ def archive_tag(tag: str) -> Dict[str, bool]:
 
 
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
-def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]:
+def get_exports(request: Request, tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]:
     """List all exports. An export is a request to create human-readable messages that may be sent to scanned entities."""
     return [
         ReportGenerationTaskModel(
@@ -208,7 +208,7 @@ def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskMo
             language=task.language,
             include_only_results_since=task.include_only_results_since,
             skip_previously_exported=task.skip_previously_exported,
-            zip_url=f"/api/export/download-zip/{task.id}" if task.output_location else None,
+            zip_url=str(request.url_for("download_zip", id=task.id)) if task.output_location else None,
             error=task.error,
             alerts=task.alerts,
         )
@@ -224,9 +224,9 @@ def is_blocklisted(domain: str) -> bool:
 
 # This is a redirect so that we have an entry in api docs
 @router.get("/export/download-zip/{id}", dependencies=[Depends(verify_api_token)])
-def download_zip(id: int) -> RedirectResponse:
+def download_zip(request: Request, id: int) -> RedirectResponse:
     """Download a zip file containing an export - all messages that can be sent to scanned entities + additional data such as statistics."""
-    return RedirectResponse(f"/export/download-zip/{id}")
+    return RedirectResponse(str(request.url_for("export_download_zip", id=id)))
 
 
 @router.post("/export/delete/{id}", dependencies=[Depends(verify_api_token)])
@@ -318,7 +318,7 @@ def get_analyses_table(
         "draw": draw,
         "recordsTotal": result.records_count_total,
         "recordsFiltered": result.records_count_filtered,
-        "data": [render_analyses_table_row(entry) for entry in entries],
+        "data": [render_analyses_table_row(request, entry) for entry in entries],
     }
 
 
@@ -357,7 +357,7 @@ def get_task_results_table(
         "draw": draw,
         "recordsTotal": result.records_count_total,
         "recordsFiltered": result.records_count_filtered,
-        "data": [render_task_table_row(task) for task in result.data],
+        "data": [render_task_table_row(request, task) for task in result.data],
     }
 
 

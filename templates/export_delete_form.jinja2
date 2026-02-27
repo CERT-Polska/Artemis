@@ -10,7 +10,7 @@
         <b>Tag</b>: {{  task.tag }}<br/>
         <b>Comment</b>: {{  task.comment }}
     </p>
-    <form action="/export/confirm-delete/{{ task.id }}" method="post" class="w-100">
+    <form action="{{ request.url_for('post_export_delete', id=task.id) }}" method="post" class="w-100">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
         <input type="submit" class="btn btn-danger" value="Delete" />
     </form>

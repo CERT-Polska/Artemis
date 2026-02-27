@@ -6,7 +6,6 @@ from unittest.mock import MagicMock, patch
 from artemis.resource_lock import (
     LOCKS_TO_SUSTAIN,
     LOCKS_TO_SUSTAIN_LOCK,
-    RELEASE_LOCK_SCRIPT,
     FailedToAcquireLockException,
     ResourceLock,
 )

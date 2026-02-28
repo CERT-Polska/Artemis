@@ -119,7 +119,7 @@ Please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/la
 ## Contributing
 Contributions are welcome! We will appreciate both ideas for new Artemis modules (added as [GitHub issues](https://github.com/CERT-Polska/Artemis/issues)) as well as pull requests with new modules or code improvements.
 
-However obvious it may seem we kindly remind you that by contributing to Artemis you agree that the BSD 3-Clause License shall apply to your input automatically, without the need for any additional declarations to be made.
+However obvious it may seem, we kindly remind you that by contributing to Artemis, you agree that the BSD 3-Clause License shall apply to your input automatically, without the need for any additional declarations to be made.
 
 ### Development
 

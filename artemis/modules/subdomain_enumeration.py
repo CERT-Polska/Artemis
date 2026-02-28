@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 import binascii
+import hashlib
 import os
 import time
 import urllib.parse
+from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Set
 
+import requests
 from karton.core import Consumer, Task
 from karton.core.config import Config as KartonConfig
 from publicsuffixlist import PublicSuffixList
 
-from artemis import load_risk_class
+from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.db import DB
@@ -20,6 +23,25 @@ from artemis.task_utils import get_ip_range, has_ip_range
 from artemis.utils import check_output_log_on_error, throttle_request
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
+
+
+# Number of random subdomains to probe when detecting wildcard DNS.
+WILDCARD_NUM_PROBES = 10
+
+# Fraction of random probes that must resolve for wildcard to be declared.
+WILDCARD_DETECTION_THRESHOLD = 0.8
+
+
+@dataclass
+class WildcardDNSInfo:
+    """Holds the result of wildcard DNS detection for a domain."""
+
+    is_wildcard: bool = False
+    wildcard_ips: Set[str] = field(default_factory=set)
+    # HTTP baseline from a random (non-existent) probe subdomain.
+    http_baseline_status: Optional[int] = None
+    http_baseline_body_hash: Optional[str] = None
+    http_baseline_content_length: Optional[int] = None
 
 
 class UnableToObtainSubdomainsException(Exception):
@@ -176,6 +198,140 @@ class SubdomainEnumeration(ArtemisBase):
             input=domain.encode("idna"),
         )
 
+    # ------------------------------------------------------------------
+    # Wildcard DNS detection
+    # ------------------------------------------------------------------
+
+    def _detect_wildcard_dns(self, domain: str) -> WildcardDNSInfo:
+        """Resolve several random subdomains to decide whether *domain* uses wildcard DNS.
+
+        Returns a `WildcardDNSInfo` with ``is_wildcard=True`` when at least
+        ``WILDCARD_DETECTION_THRESHOLD`` of the probes resolve successfully.
+        """
+        info = WildcardDNSInfo()
+        resolved_count = 0
+
+        for _ in range(WILDCARD_NUM_PROBES):
+            random_label = binascii.hexlify(os.urandom(5)).decode("ascii")
+            probe = f"{random_label}.{domain}"
+            try:
+                ips = lookup(probe)
+                if ips:
+                    resolved_count += 1
+                    info.wildcard_ips.update(ips)
+            except ResolutionException:
+                pass
+
+        if resolved_count >= WILDCARD_NUM_PROBES * WILDCARD_DETECTION_THRESHOLD:
+            info.is_wildcard = True
+            self.log.info(
+                "Wildcard DNS detected for %s (%d/%d probes resolved, IPs: %s)",
+                domain,
+                resolved_count,
+                WILDCARD_NUM_PROBES,
+                info.wildcard_ips,
+            )
+        else:
+            self.log.info(
+                "No wildcard DNS for %s (%d/%d probes resolved)",
+                domain,
+                resolved_count,
+                WILDCARD_NUM_PROBES,
+            )
+
+        return info
+
+    def _build_wildcard_http_baseline(self, domain: str, info: WildcardDNSInfo) -> None:
+        """Fetch an HTTP response for a random (non-existent) subdomain and store
+        the status code, body hash and content length on *info*.
+
+        This baseline is later used to tell apart real vhosts from wildcard
+        catch-all pages.
+        """
+        random_label = binascii.hexlify(os.urandom(5)).decode("ascii")
+        probe = f"{random_label}.{domain}"
+
+        for scheme in ("http", "https"):
+            try:
+                response = http_requests.get(f"{scheme}://{probe}")
+                info.http_baseline_status = response.status_code
+                body = (
+                    response.content_bytes if isinstance(response.content_bytes, bytes) else response.content.encode()
+                )
+                info.http_baseline_body_hash = hashlib.sha256(body).hexdigest()
+                info.http_baseline_content_length = len(body)
+                self.log.info(
+                    "Wildcard HTTP baseline for %s: status=%s hash=%s length=%s",
+                    domain,
+                    info.http_baseline_status,
+                    info.http_baseline_body_hash,
+                    info.http_baseline_content_length,
+                )
+                return
+            except requests.RequestException:
+                continue
+            except Exception:
+                self.log.exception("Unexpected error fetching wildcard HTTP baseline for %s://%s", scheme, probe)
+                continue
+
+        self.log.info("Could not build HTTP baseline for wildcard domain %s (no HTTP response)", domain)
+
+    def _is_wildcard_response(self, subdomain: str, wildcard_info: WildcardDNSInfo) -> bool:
+        """Return ``True`` if *subdomain* appears to be a wildcard-only response.
+
+        The check is two-layered:
+        1. **DNS**: if the subdomain resolves to IPs that are **not** a subset of
+           the known wildcard IPs it is considered unique and kept.
+        2. **HTTP**: if the resolved IPs *are* all wildcard IPs, we fetch the HTTP
+           response and compare it to the baseline.  A matching response means the
+           subdomain is just the wildcard catch-all page.
+        """
+        # --- Layer 1: DNS comparison ---
+        try:
+            subdomain_ips = lookup(subdomain)
+        except ResolutionException:
+            # If we cannot even resolve the subdomain, keep it — downstream
+            # modules will decide what to do.
+            return False
+
+        if not subdomain_ips:
+            return False
+
+        if not subdomain_ips.issubset(wildcard_info.wildcard_ips):
+            # Subdomain points to IPs outside the wildcard set → unique.
+            return False
+
+        # --- Layer 2: HTTP content comparison ---
+        if wildcard_info.http_baseline_body_hash is None:
+            # We have no HTTP baseline (server didn't respond for the probe),
+            # so we can only rely on DNS.  Since all IPs match the wildcard
+            # set, treat it as wildcard.
+            return True
+
+        for scheme in ("http", "https"):
+            try:
+                response = http_requests.get(f"{scheme}://{subdomain}")
+                body = (
+                    response.content_bytes if isinstance(response.content_bytes, bytes) else response.content.encode()
+                )
+                body_hash = hashlib.sha256(body).hexdigest()
+
+                if response.status_code != wildcard_info.http_baseline_status:
+                    return False  # different status → unique
+                if body_hash != wildcard_info.http_baseline_body_hash:
+                    return False  # different content → unique
+
+                # Status and body match the baseline → wildcard.
+                return True
+            except requests.RequestException:
+                continue
+            except Exception:
+                self.log.exception("Unexpected error checking wildcard HTTP for %s://%s", scheme, subdomain)
+                continue
+
+        # Could not get HTTP response for the subdomain — be safe and keep it.
+        return False
+
     def get_subdomains_by_dns_brute_force(self, domain: str) -> Optional[Set[str]]:
         # The rationale here is to filter wildcard DNS configurations. If someone has configured their
         # DNS server to return something for all subdomains, we don't want to produce a large list of subdomains.
@@ -251,8 +407,14 @@ class SubdomainEnumeration(ArtemisBase):
             self.db.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 
+        # --- Wildcard DNS detection (runs once, shared across all tools) ---
+        wildcard_info = self._detect_wildcard_dns(domain)
+        if wildcard_info.is_wildcard:
+            self._build_wildcard_http_baseline(domain, wildcard_info)
+
         valid_subdomains = set()
         existing_subdomains = set()
+        wildcard_skipped_subdomains: Set[str] = set()
 
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
@@ -281,6 +443,10 @@ class SubdomainEnumeration(ArtemisBase):
                     self.log.info("Subdomain returned that we should filter: %s", subdomain)
                     continue
                 if subdomain in valid_subdomains:
+                    continue
+                if wildcard_info.is_wildcard and self._is_wildcard_response(subdomain, wildcard_info):
+                    self.log.info("Skipping wildcard subdomain: %s", subdomain)
+                    wildcard_skipped_subdomains.add(subdomain)
                     continue
                 valid_subdomains_from_tool.add(subdomain)
 
@@ -332,6 +498,8 @@ class SubdomainEnumeration(ArtemisBase):
                 data={
                     "valid_subdomains": list(sorted(valid_subdomains)),
                     "existing_subdomains": list(sorted(existing_subdomains)),
+                    "wildcard_dns_detected": wildcard_info.is_wildcard,
+                    "wildcard_subdomains_skipped": list(sorted(wildcard_skipped_subdomains)),
                 },
             )
         else:

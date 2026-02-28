@@ -66,7 +66,7 @@ To start a locally modified version of Artemis, run:
 ```commandline
  ./scripts/start_dev
 ```
-This script automatically copies the example environment file (env.example) to .env if it doesn't exist. You can then configure the settings in the .env file according to your needs. This includes customizing the user-agent by setting the CUSTOM_USER_AGENT variable, as well as other relevant parameters. For a complete list of configuration variables and their descriptions, please refer to the [Configuration section in the documentation](https://artemis-scanner.readthedocs.io/en/latest/user-guide/configuration.html).
+This script automatically copies the example environment file (`env.example`) to `.env` if it doesn't exist. You can then configure the settings in the .env file according to your needs. This includes customizing the user-agent by setting the CUSTOM_USER_AGENT variable, as well as other relevant parameters. For a complete list of configuration variables and their descriptions, please refer to the [Configuration section in the documentation](https://artemis-scanner.readthedocs.io/en/latest/user-guide/configuration.html).
 
 The Artemis image is then built locally (from the code you are developing) not downloaded from Docker Hub.
 For `web`, you will also be able to see the results of code modifications on the page without reloading the entire container.
@@ -119,7 +119,7 @@ Please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/la
 ## Contributing
 Contributions are welcome! We will appreciate both ideas for new Artemis modules (added as [GitHub issues](https://github.com/CERT-Polska/Artemis/issues)) as well as pull requests with new modules or code improvements.
 
-However obvious it may seem we kindly remind you that by contributing to Artemis you agree that the BSD 3-Clause License shall apply to your input automatically, without the need for any additional declarations to be made.
+However obvious it may seem, we kindly remind you that by contributing to Artemis, you agree that the BSD 3-Clause License shall apply to your input automatically, without the need for any additional declarations to be made.
 
 ### Development
 

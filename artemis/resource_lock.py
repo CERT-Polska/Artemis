@@ -1,3 +1,4 @@
+import logging
 import sys
 import threading
 import time
@@ -9,6 +10,8 @@ from uuid import uuid4
 from redis import Redis
 
 from artemis.config import Config
+
+sustain_locks_logger = logging.getLogger(__name__)
 
 
 class FailedToAcquireLockException(Exception):
@@ -27,12 +30,44 @@ LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
+# Lua script for atomic check-and-delete: only deletes the key if its value matches the caller's lock ID.
+# This prevents a holder from releasing a lock that has expired and been re-acquired by another process.
+RELEASE_LOCK_SCRIPT = REDIS.register_script(
+    """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("del", KEYS[1])
+else
+    return 0
+end
+"""
+)
+
+# Lua script for atomic check-and-expire: only refreshes the TTL if the value matches the caller's lock ID.
+# This prevents sustain_locks() from stealing a lock that has expired and been re-acquired by another process.
+SUSTAIN_LOCK_SCRIPT = REDIS.register_script(
+    """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("expire", KEYS[1], ARGV[2])
+else
+    return 0
+end
+"""
+)
+
 
 def sustain_locks() -> None:
     while True:
-        with LOCKS_TO_SUSTAIN_LOCK:
-            for key, value in LOCKS_TO_SUSTAIN.items():
-                REDIS.set(key, value, ex=LOCK_HEARTBEAT_TIMEOUT)
+        try:
+            with LOCKS_TO_SUSTAIN_LOCK:
+                lost_locks = []
+                for key, value in LOCKS_TO_SUSTAIN.items():
+                    if not SUSTAIN_LOCK_SCRIPT(keys=[key], args=[value, LOCK_HEARTBEAT_TIMEOUT]):
+                        lost_locks.append(key)
+                for key in lost_locks:
+                    sustain_locks_logger.warning("Lock %s lost (expired or acquired by another process), removing from sustain list", key)
+                    del LOCKS_TO_SUSTAIN[key]
+        except Exception:
+            sustain_locks_logger.exception("Error while sustaining locks")
         time.sleep(1)
 
 
@@ -50,9 +85,9 @@ class ResourceLock:
     @staticmethod
     def release_all_locks(logger: Logger) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            for lock in list(LOCKS_TO_SUSTAIN.keys()):
-                logger.info(f"Releasing lock: {lock} -> {LOCKS_TO_SUSTAIN[lock]}")
-                REDIS.delete(lock)
+            for lock, lid in list(LOCKS_TO_SUSTAIN.items()):
+                logger.info(f"Releasing lock: {lock} -> {lid}")
+                RELEASE_LOCK_SCRIPT(keys=[lock], args=[lid])
             LOCKS_TO_SUSTAIN.clear()
 
     def acquire(self) -> None:
@@ -72,13 +107,14 @@ class ResourceLock:
         raise FailedToAcquireLockException()
 
     def is_acquired(self) -> bool:
+        """Check whether *any* process currently holds this lock (key exists in Redis)."""
         return REDIS.get(self.res_name) is not None
 
     def release(self) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
             if self.res_name in LOCKS_TO_SUSTAIN:
                 del LOCKS_TO_SUSTAIN[self.res_name]
-        REDIS.delete(self.res_name)
+        RELEASE_LOCK_SCRIPT(keys=[self.res_name], args=[self.lid])
 
     def __enter__(self) -> None:
         self.acquire()

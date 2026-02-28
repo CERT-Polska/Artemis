@@ -999,7 +999,8 @@ TRANSLATIONS = {
     "WordPress White Label CMS plugin before 2.2.9 contains a reflected cross-site scripting vulnerability. It does not sanitize and validate the wlcms[_login_custom_js] parameter before outputting it back in the response while previewing.": "Wtyczka WordPress o nazwie White Label CMS w wersji poniżej 2.2.9 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "Digital Watchdog DW Spectrum Server 4.2.0.32842 allows attackers to access sensitive infromation via a crafted API call.": "Digital Watchdog DW Spectrum Server 4.2.0.32842 zawiera podatność o identyfikatorze CVE-2022-34534 umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji takich jak np. konfiguracja sieci." + UPDATE_HINT,
+    "Digital Watchdog DW Spectrum Server 4.2.0.32842 allows attackers to access sensitive infromation via a crafted API call.": "Digital Watchdog DW Spectrum Server 4.2.0.32842 zawiera podatność o identyfikatorze CVE-2022-34534 umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji takich jak np. konfiguracja sieci."
+    + UPDATE_HINT,
     "Sophos SG UTMA WebAdmin is susceptible to a remote code execution vulnerability in versions before v9.705 MR5, v9.607 MR7, and v9.511 MR11.": "Sophos SG UTMA WebAdmin w wersji poniżej v9.705 MR5, v9.607 MR7 i v9.511 MR11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,

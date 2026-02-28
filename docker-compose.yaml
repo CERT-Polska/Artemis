@@ -1,6 +1,15 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
   image: certpl/artemis:latest
+  # Prevent NDOTS-based DNS search domain expansion for short hostnames such as
+  # "s3mock", "redis", "postgres".  Without this, a host whose /etc/resolv.conf
+  # contains e.g. "search corp.example.com" causes every DNS lookup for "s3mock"
+  # to first try "s3mock.corp.example.com" against the *external* nameserver,
+  # generating hundreds-of-thousands of spurious DNS queries per day (see #2310).
+  # ndots:0 means every name is treated as absolute, so search domains are never
+  # appended; Docker's embedded DNS (127.0.0.11) still resolves service names.
+  dns_opt:
+    - ndots:0
 
 x-logging:
   &logging
@@ -131,6 +140,10 @@ services:
     env_file: .env
     image: certpl/karton-dashboard:f719024c3387bab39c21f890af369afb5943d3cf
     restart: always
+    # Prevent NDOTS-based DNS search expansion – see the note on the
+    # x-artemis-build-or-image anchor above (#2310).
+    dns_opt:
+      - ndots:0
     volumes:
       - type: bind
         source: ./docker/karton.ini
@@ -184,13 +197,6 @@ services:
   karton-ftp_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.ftp_bruter"
-    env_file: .env
-    restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
-  karton-http_service_to_url:
-    <<: [*logging, *artemis-build-or-image]
-    command: "python3 -m artemis.modules.http_service_to_url"
     env_file: .env
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -337,6 +343,10 @@ services:
     command: ["karton-system", "--setup-bucket", "--gc-interval", "14400"]
     env_file: .env
     image: "certpl/karton-system:v5.3.3"
+    # Prevent NDOTS-based DNS search expansion – see the note on the
+    # x-artemis-build-or-image anchor above (#2310).
+    dns_opt:
+      - ndots:0
     volumes:
       - type: bind
         source: ./docker/karton.ini

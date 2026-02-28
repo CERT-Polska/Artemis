@@ -713,7 +713,7 @@ class ArtemisBase(Karton):
                                 self.db.save_task_result(
                                     task=task, status=TaskStatus.ERROR, data=traceback.format_exc()
                                 )
-                                raise
+                            raise
             finally:
                 for task in task_group:
                     if Config.Data.SAVE_LOGS_IN_DATABASE:

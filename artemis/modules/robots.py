@@ -98,17 +98,6 @@ class RobotsScanner(ArtemisBase):
                                 has_directory_index=True,
                             )
                         )
-
-                    new_task = Task(
-                        {
-                            "type": TaskType.URL,
-                        },
-                        payload={
-                            "url": full_url,
-                            "content": content,
-                        },
-                    )
-                    self.add_task(current_task, new_task)
         return found_urls
 
     def download_robots(self, current_task: Task, url: str) -> RobotsResult:

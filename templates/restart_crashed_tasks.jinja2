@@ -3,7 +3,7 @@
 {% block main %}
     <h1>Restart all crashed tasks</h1>
 
-    <form method="POST" action="/restart-crashed-tasks">
+    <form method="POST" action="{{ request.url_for('post_restart_crashed_tasks') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
         <input type="submit" class="btn btn-primary" value="restart" />

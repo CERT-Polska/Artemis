@@ -79,6 +79,8 @@
                         <td>
                             {%  if report_generation_task.status == "pending" %}
                                 <span class="badge bg-warning">pending</span>
+                            {%  elif report_generation_task.status == "in_progress" %}
+                                <span class="badge bg-info">in progress</span>
                             {%  elif report_generation_task.status == "done" %}
                                 <span class="badge bg-success">done</span>
                             {%  elif report_generation_task.status == "failed" %}

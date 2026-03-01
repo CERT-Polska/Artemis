@@ -28,7 +28,7 @@ from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.orm import declarative_base, sessionmaker  # type: ignore
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import select, text
+from sqlalchemy.sql.expression import or_, select, text
 from sqlalchemy.types import TypeDecorator
 
 from artemis.binds import TaskStatus
@@ -163,6 +163,7 @@ class TaskResult(Base):  # type: ignore
 
 class ReportGenerationTaskStatus(str, enum.Enum):
     PENDING = "pending"
+    IN_PROGRESS = "in_progress"
     DONE = "done"
     FAILED = "failed"
 
@@ -201,6 +202,7 @@ class ReportGenerationTask(Base):  # type: ignore
     skip_hooks = Column(Boolean)
     skip_suspicious_reports = Column(Boolean)
     custom_template_arguments = Column(JSON)
+    started_at = Column(DateTime, nullable=True)
     output_location = Column(String, nullable=True)
     error = Column(String, nullable=True)
     alerts = Column(JSON, nullable=True)
@@ -554,13 +556,31 @@ class DB:
     def task_to_dict(self, task: Task) -> Dict[str, Any]:
         return task.to_dict()
 
-    def take_single_report_generation_task(self) -> Optional[ReportGenerationTask]:
+    def take_single_report_generation_task(
+        self, stale_timeout: datetime.timedelta = datetime.timedelta(hours=1)
+    ) -> Optional[ReportGenerationTask]:
         with self.session() as session:
-            return (  # type: ignore
+            now = datetime.datetime.utcnow()
+            stale_cutoff = now - stale_timeout
+
+            task = (
                 session.query(ReportGenerationTask)
-                .filter(ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value)
+                .filter(
+                    or_(
+                        ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value,
+                        (ReportGenerationTask.status == ReportGenerationTaskStatus.IN_PROGRESS.value)
+                        & (ReportGenerationTask.started_at < stale_cutoff),
+                    )
+                )
+                .with_for_update(skip_locked=True)
                 .first()
             )
+            if task:
+                task.status = ReportGenerationTaskStatus.IN_PROGRESS.value
+                task.started_at = now
+                session.commit()
+                session.expunge(task)
+            return task  # type: ignore
 
     def save_report_generation_task_results(
         self,

@@ -53,3 +53,10 @@
 /gitlab/users/sign_in
 /login/auth
 /index.php/login
+# Grafana
+/grafana/login
+/api/login
+# Portainer (JSON API)
+/api/auth
+# Traefik dashboard
+/dashboard/

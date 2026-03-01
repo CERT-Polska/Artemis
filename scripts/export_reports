@@ -2,5 +2,20 @@
 
 cd $(dirname $0)/..
 
-./scripts/run_docker_compose build --quiet autoreporter
-./scripts/run_docker_compose run autoreporter python3 -m artemis.reporting.export.main "$@"
+. scripts/check_docker_compose
+
+MODE="production"
+ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --mode=*)
+      MODE="${arg#*=}"
+      ;;
+    *)
+      ARGS+=("$arg")
+      ;;
+  esac
+done
+./scripts/run_docker_compose --mode=$MODE build --quiet autoreporter
+./scripts/run_docker_compose --mode=$MODE run autoreporter python3 -m artemis.reporting.export.main "${ARGS[@]}"

@@ -1,15 +1,5 @@
 #!/bin/bash
 
-if [ ! -d venv ]
-then
-    python3 -m venv venv
-fi
-
-. venv/bin/activate
-
-pip install PyYAML==6.0.1
-
-cd $(dirname $0)/..
-python3 scripts/create_development_docker_compose.py
-
-ADDITIONAL_DOCKER_COMPOSE_OPTIONS="-f docker-compose.dev.yaml" ./scripts/start
+# depreciated way to start artemis meant to be a backward compatibility way for open source users to start project
+# delete it after some time
+. scripts/start --mode=development

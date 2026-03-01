@@ -163,6 +163,7 @@ class TaskResult(Base):  # type: ignore
 
 class ReportGenerationTaskStatus(str, enum.Enum):
     PENDING = "pending"
+    IN_PROGRESS = "in_progress"
     DONE = "done"
     FAILED = "failed"
 
@@ -556,11 +557,17 @@ class DB:
 
     def take_single_report_generation_task(self) -> Optional[ReportGenerationTask]:
         with self.session() as session:
-            return (  # type: ignore
+            task = (
                 session.query(ReportGenerationTask)
                 .filter(ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value)
                 .first()
             )
+            if task:
+                task.status = ReportGenerationTaskStatus.IN_PROGRESS.value
+                session.add(task)
+                session.commit()
+                session.expunge(task)
+            return task  # type: ignore
 
     def save_report_generation_task_results(
         self,

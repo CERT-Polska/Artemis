@@ -1,12 +1,14 @@
 import collections
 import json
+import logging
 import os
+import subprocess
 import urllib.parse
 from typing import Any, Callable, Counter, Dict, List
 
 from artemis.config import Config
 from artemis.domains import is_domain
-from artemis.modules.nuclei import EXPOSED_PANEL_TEMPLATE_PATH_PREFIX
+from artemis.modules.nuclei import EXPOSED_PANEL_TEMPLATE_PATH_PREFIX, NUCLEI_TEMPLATES_LOCATION
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
@@ -16,6 +18,9 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.exceptions import TranslationNotFoundException
+from artemis.reporting.modules.nuclei.poc_url_utils import (
+    minimize_nuclei_matched_at_url,
+)
 from artemis.reporting.utils import (
     add_protocol_if_needed,
     get_target_url,
@@ -37,6 +42,33 @@ class NucleiReporter(Reporter):
 
     with open(Config.Modules.Nuclei.NUCLEI_TEMPLATE_GROUPS_FILE) as f:
         GROUPS = json.load(f)
+
+    @staticmethod
+    def _verify_with_nuclei(url: str, template_id: str) -> bool:
+        try:
+            command = [
+                "nuclei",
+                "-disable-update-check",
+                "-u",
+                url,
+                "-t",
+                os.path.join(NUCLEI_TEMPLATES_LOCATION, template_id),
+                "-dast",
+                "-fuzzing-mode",
+                "multiple",
+                "-jsonl",
+                "-silent",
+            ]
+            result = subprocess.check_output(command, stderr=subprocess.DEVNULL)
+            return bool(result.strip())
+        except FileNotFoundError:
+            # If nuclei isn't available (e.g. in some local dev envs), fail open
+            # to preserve the minimized URL so reporting doesn't break.
+            logging.getLogger(__name__).warning("Nuclei binary not found, skipping URL verification")
+            return True
+        except subprocess.CalledProcessError as e:
+            logging.getLogger(__name__).warning("Nuclei verification failed on %s: %s", url, e)
+            return False
 
     @staticmethod
     def get_alerts(all_reports: List[Report], false_positive_threshold: int = 3) -> List[str]:
@@ -145,7 +177,13 @@ class NucleiReporter(Reporter):
                 #
                 # We want to restrict this behavior only to services on empty path (e.g. redis://some-domain:6379) because
                 # if the path is nonempty, it may contain an exploit that may get filtered by e-mail filters.
-                matched_at = add_protocol_if_needed(vulnerability.get("matched-at", target))
+                matched_at = minimize_nuclei_matched_at_url(
+                    add_protocol_if_needed(vulnerability.get("matched-at", target)),
+                    fuzzing_parameter=vulnerability.get("fuzzing_parameter", None),
+                    verify_url_fn=lambda url: NucleiReporter._verify_with_nuclei(
+                        url, template_id=original_template_name
+                    ),
+                )
                 if _is_url_without_path_query_fragment(matched_at) and get_host_from_url(target) == get_host_from_url(
                     matched_at
                 ):

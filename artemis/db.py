@@ -229,6 +229,36 @@ class PaginatedResults:
     data: List[Dict[str, Any]]
 
 
+class PeriodicScan(Base):  # type: ignore
+    """
+    Represents a periodic (recurring) scan schedule.
+    When enabled, the scheduler service will automatically create scan tasks at the configured interval.
+
+    :ivar id: Unique identifier for the periodic scan.
+    :ivar targets: Newline-separated list of targets to scan.
+    :ivar tag: Optional tag to group analyses.
+    :ivar disabled_modules: Comma-separated list of disabled modules.
+    :ivar interval_hours: How often (in hours) to re-scan.
+    :ivar priority: Task priority (normal, high, low).
+    :ivar enabled: Whether this periodic scan is active.
+    :ivar last_run_at: When the scan was last triggered.
+    :ivar next_run_at: When the scan should next be triggered.
+    :ivar created_at: When this periodic scan was created.
+    """
+
+    __tablename__ = "periodic_scan"
+    id = Column(Integer, primary_key=True)
+    targets = Column(String, nullable=False)
+    tag = Column(String, index=True, nullable=True)
+    disabled_modules = Column(String, nullable=True)
+    interval_hours = Column(Integer, nullable=False)
+    priority = Column(String, nullable=False, server_default="normal")
+    enabled = Column(Boolean, nullable=False, server_default="true", index=True)
+    last_run_at = Column(DateTime, nullable=True)
+    next_run_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+
+
 class TagArchiveRequest(Base):  # type: ignore
     __tablename__ = "tag_archive_request"
     id = Column(Integer, primary_key=True)
@@ -718,6 +748,77 @@ class DB:
             tag_archive_requests = session.query(TagArchiveRequest).filter(TagArchiveRequest.tag == tag)
             for tag_archive_request in tag_archive_requests:
                 session.delete(tag_archive_request)
+                session.commit()
+
+    def create_periodic_scan(
+        self,
+        targets: str,
+        interval_hours: int,
+        tag: Optional[str] = None,
+        disabled_modules: Optional[str] = None,
+        priority: str = "normal",
+    ) -> int:
+        next_run_at = datetime.datetime.utcnow()
+        periodic_scan = PeriodicScan(
+            targets=targets,
+            tag=tag,
+            disabled_modules=disabled_modules or "",
+            interval_hours=interval_hours,
+            priority=priority,
+            enabled=True,
+            next_run_at=next_run_at,
+        )
+        with self.session() as session:
+            session.add(periodic_scan)
+            session.commit()
+            return periodic_scan.id  # type: ignore
+
+    def list_periodic_scans(self) -> List[Dict[str, Any]]:
+        with self.session() as session:
+            return [self._strip_internal_db_info(item.__dict__) for item in session.query(PeriodicScan).order_by(PeriodicScan.created_at.desc())]
+
+    def get_periodic_scan(self, scan_id: int) -> Optional[Dict[str, Any]]:
+        with self.session() as session:
+            item = session.query(PeriodicScan).get(scan_id)
+            if item:
+                return self._strip_internal_db_info(item.__dict__)
+            return None
+
+    def update_periodic_scan_enabled(self, scan_id: int, enabled: bool) -> None:
+        with self.session() as session:
+            scan = session.query(PeriodicScan).get(scan_id)
+            if scan:
+                scan.enabled = enabled
+                session.add(scan)
+                session.commit()
+
+    def delete_periodic_scan(self, scan_id: int) -> None:
+        with self.session() as session:
+            scan = session.query(PeriodicScan).get(scan_id)
+            if scan:
+                session.delete(scan)
+                session.commit()
+
+    def get_due_periodic_scans(self) -> List[Dict[str, Any]]:
+        """Return periodic scans that are enabled and due (next_run_at <= now)."""
+        now = datetime.datetime.utcnow()
+        with self.session() as session:
+            return [
+                self._strip_internal_db_info(item.__dict__)
+                for item in session.query(PeriodicScan).filter(
+                    PeriodicScan.enabled == True,  # noqa: E712
+                    PeriodicScan.next_run_at <= now,
+                )
+            ]
+
+    def mark_periodic_scan_as_run(self, scan_id: int) -> None:
+        now = datetime.datetime.utcnow()
+        with self.session() as session:
+            scan = session.query(PeriodicScan).get(scan_id)
+            if scan:
+                scan.last_run_at = now
+                scan.next_run_at = now + datetime.timedelta(hours=scan.interval_hours)
+                session.add(scan)
                 session.commit()
 
 

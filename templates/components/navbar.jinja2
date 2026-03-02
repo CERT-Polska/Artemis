@@ -14,6 +14,9 @@
                         <a class="nav-link {{ 'active' if request.path == '/add' }}" href="/add">Add targets</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.path.startswith('/periodic-scans') }}" href="/periodic-scans">Periodic scans</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.path == '/' }}" href="/">View targets</a>
                     </li>
                     <li class="nav-item">

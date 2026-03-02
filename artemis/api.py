@@ -280,6 +280,69 @@ async def post_export(
     }
 
 
+@router.post("/periodic-scans", dependencies=[Depends(verify_api_token)])
+def create_periodic_scan(
+    targets: List[str],
+    interval_hours: int = Body(),
+    tag: Optional[str] = Body(default=None),
+    disabled_modules: Optional[List[str]] = Body(default=None),
+    enabled_modules: Optional[List[str]] = Body(default=None),
+    priority: str = Body(default="normal"),
+) -> Dict[str, Any]:
+    """Create a periodic scan schedule. Targets will be re-scanned automatically at the given interval."""
+    if disabled_modules and enabled_modules:
+        raise HTTPException(
+            status_code=400, detail="It's not possible to set both disabled_modules and enabled_modules."
+        )
+
+    for task in targets:
+        if not Classifier.is_supported(task):
+            raise HTTPException(status_code=400, detail=f"Invalid target: {task}")
+
+    if interval_hours < 1:
+        raise HTTPException(status_code=400, detail="interval_hours must be at least 1.")
+
+    identities_that_can_be_disabled = set([bind.identity for bind in get_binds_that_can_be_disabled()])
+
+    if enabled_modules:
+        disabled_modules = list(identities_that_can_be_disabled - set(enabled_modules))
+    elif not disabled_modules:
+        disabled_modules = Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT
+
+    scan_id = db.create_periodic_scan(
+        targets="\n".join(targets),
+        interval_hours=interval_hours,
+        tag=tag,
+        disabled_modules=",".join(disabled_modules),
+        priority=priority,
+    )
+    return {"ok": True, "id": scan_id}
+
+
+@router.get("/periodic-scans", dependencies=[Depends(verify_api_token)])
+def list_periodic_scans() -> List[Dict[str, Any]]:
+    """List all periodic scan schedules."""
+    return db.list_periodic_scans()
+
+
+@router.delete("/periodic-scans/{scan_id}", dependencies=[Depends(verify_api_token)])
+def delete_periodic_scan(scan_id: int) -> Dict[str, bool]:
+    """Delete a periodic scan schedule."""
+    if not db.get_periodic_scan(scan_id):
+        raise HTTPException(status_code=404, detail="Periodic scan not found")
+    db.delete_periodic_scan(scan_id)
+    return {"ok": True}
+
+
+@router.patch("/periodic-scans/{scan_id}", dependencies=[Depends(verify_api_token)])
+def update_periodic_scan(scan_id: int, enabled: bool = Body()) -> Dict[str, bool]:
+    """Enable or disable a periodic scan schedule."""
+    if not db.get_periodic_scan(scan_id):
+        raise HTTPException(status_code=404, detail="Periodic scan not found")
+    db.update_periodic_scan_enabled(scan_id, enabled)
+    return {"ok": True}
+
+
 @router.get("/analyses-table", include_in_schema=False)
 def get_analyses_table(
     request: Request,

@@ -74,6 +74,12 @@ services:
     env_file: .env
     restart: always
 
+  periodic-scan-scheduler:
+    <<: [*logging, *artemis-build-or-image]
+    command: "bash -c 'alembic upgrade head && python3 -m artemis.periodic_scan_scheduler'"
+    env_file: .env
+    restart: always
+
   metrics:
     <<: [*logging, *artemis-build-or-image]
     env_file: .env

@@ -1,0 +1,16 @@
+{% extends "components/base.jinja2" %}
+{% block main %}
+    <h1>Delete periodic scan</h1>
+    <p>
+        Are you sure you want to delete the periodic scan for
+        <strong>{{ scan.targets.split('\n')[0] }}{% if scan.targets.split('\n')|length > 1 %} (+{{ scan.targets.split('\n')|length - 1 }} more targets){% endif %}</strong>{% if scan.tag %} (tag: {{ scan.tag }}){% endif %}?
+    </p>
+    <p>
+        This action cannot be undone. Already-running scans will not be affected.
+    </p>
+    <form action="/periodic-scans/delete/{{ scan.id }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <input type="submit" class="btn btn-danger" value="Delete">
+        <a class="btn btn-secondary" href="/periodic-scans">Cancel</a>
+    </form>
+{% endblock %}

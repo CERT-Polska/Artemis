@@ -64,6 +64,7 @@ SEVERITY_MAP = {
     ReportType("exposed_phpinfo"): Severity.LOW,
     ReportType("nuclei_exposed_panel"): Severity.LOW,
     ReportType("missing_security_headers"): Severity.LOW,
+    ReportType("server_info_disclosure"): Severity.LOW,
     # This is a fake "vulnerability" from an example module
     ReportType("url_has_even_number_of_characters"): Severity.LOW,
     # These modules are not available in core Artemis for licensing reasons, but let's

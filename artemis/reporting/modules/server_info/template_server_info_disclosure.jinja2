@@ -1,0 +1,27 @@
+{% if "server_info_disclosure" in data.contains_type %}
+    <li>{% trans %}We identified that the following servers or technologies disclose version information via HTTP headers:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "server_info_disclosure" %}
+                    <li>
+                        {{ report.target }}:
+                        <ul>
+                        {% for item in report.additional_data.detected %}
+                            <li>{{ item.name }}{% if item.version %} {{ item.version }}{% endif %} ({{ item.category }}, header: {{ item.header }})</li>
+                        {% endfor %}
+                        </ul>
+                    </li>
+                    {{ report_meta(report) }}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                Exposing server software and version information through HTTP headers helps
+                attackers identify the technology stack and find version-specific
+                vulnerabilities. Consider removing or obfuscating the Server, X-Powered-By,
+                and similar headers.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

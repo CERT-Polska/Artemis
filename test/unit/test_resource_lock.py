@@ -11,12 +11,10 @@ from artemis.resource_lock import (
 )
 
 
-class TestReleaseAllLocks(unittest.TestCase):
-    """Tests for ResourceLock.release_all_locks — the safety-net method called
-    at the start of every worker iteration to clean up leaked locks."""
+class ResourceLockTestBase(unittest.TestCase):
+    """Common setup: clears shared LOCKS_TO_SUSTAIN before and after each test."""
 
     def setUp(self) -> None:
-        # Clean state before each test
         with LOCKS_TO_SUSTAIN_LOCK:
             LOCKS_TO_SUSTAIN.clear()
         self.logger = logging.getLogger("test_resource_lock")
@@ -24,6 +22,11 @@ class TestReleaseAllLocks(unittest.TestCase):
     def tearDown(self) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
             LOCKS_TO_SUSTAIN.clear()
+
+
+class TestReleaseAllLocks(ResourceLockTestBase):
+    """Tests for ResourceLock.release_all_locks — the safety-net method called
+    at the start of every worker iteration to clean up leaked locks."""
 
     @patch("artemis.resource_lock.RELEASE_LOCK_SCRIPT")
     def test_release_all_locks_deletes_redis_keys(self, mock_script: MagicMock) -> None:
@@ -119,16 +122,8 @@ class TestReleaseAllLocks(unittest.TestCase):
         self.assertEqual(errors, [], f"Thread safety errors: {errors}")
 
 
-class TestResourceLockBasics(unittest.TestCase):
+class TestResourceLockBasics(ResourceLockTestBase):
     """Verify that normal acquire/release still works correctly after the fix."""
-
-    def setUp(self) -> None:
-        with LOCKS_TO_SUSTAIN_LOCK:
-            LOCKS_TO_SUSTAIN.clear()
-
-    def tearDown(self) -> None:
-        with LOCKS_TO_SUSTAIN_LOCK:
-            LOCKS_TO_SUSTAIN.clear()
 
     @patch("artemis.resource_lock.REDIS")
     def test_acquire_adds_to_sustain_dict(self, mock_redis: MagicMock) -> None:
@@ -181,16 +176,8 @@ class TestResourceLockBasics(unittest.TestCase):
         mock_script.assert_called_with(keys=["lock-ctx"], args=[lid])
 
 
-class TestIsAcquired(unittest.TestCase):
+class TestIsAcquired(ResourceLockTestBase):
     """Verify is_acquired() semantics."""
-
-    def setUp(self) -> None:
-        with LOCKS_TO_SUSTAIN_LOCK:
-            LOCKS_TO_SUSTAIN.clear()
-
-    def tearDown(self) -> None:
-        with LOCKS_TO_SUSTAIN_LOCK:
-            LOCKS_TO_SUSTAIN.clear()
 
     @patch("artemis.resource_lock.REDIS")
     def test_is_acquired_true_when_any_holder(self, mock_redis: MagicMock) -> None:
@@ -204,7 +191,6 @@ class TestIsAcquired(unittest.TestCase):
         mock_redis.get.return_value = None
         lock = ResourceLock("lock-target", max_tries=1)
         self.assertFalse(lock.is_acquired())
-
 
 
 if __name__ == "__main__":

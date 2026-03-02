@@ -2374,6 +2374,8 @@ TRANSLATIONS = {
     "Nagios XI login panel was detected.": "Wykryto panel Nagios XI.",
     "Netdata panel was discovered.": "Wykryto panel Netdata.",
     "OpenVPN Admin login panel was detected.": "Wykryto administracyjny panel logowania OpenVPN.",
+    "openvpn-monitor was discovered. OpenVPN Monitor is a simple python program to generate html that displays the status of an OpenVPN server, including all its current connections.": "Wykryto panel OpenVPN Monitor.",
+    "Delta Controls admin login panel was detected.": "Wykryto administracyjny panel logowania Delta Controls.",
     "Clave login panel was detected.": "Wykryto panel logowania systemu Clave.",
     "Zammad is an open source helpdesk and customer support system that provides ticket management, live chat, and knowledge base functionality. This template detects exposed Zammad installations.": "Wykryto panel systemu Zammad.",
     "AXWAY Secure Transport Web Client panel was detected.": "wykryto panel AXWAY Secure Transport Web Client.",

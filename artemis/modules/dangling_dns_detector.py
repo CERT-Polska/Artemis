@@ -164,7 +164,7 @@ class DanglingDnsDetector(ArtemisBase):
 
     def _is_saas_namespace(self, ns_records: list[str]) -> bool:
         # Detect SAAS providers with multi-tenant DNS namespaces to avoid false positives
-        # (E.g: username.github.io)
+        # We want to still report record like e.g: username.github.io
         SAAS_NS_PATTERNS = [
             "azure-dns",
             "awsdns",
@@ -212,10 +212,12 @@ class DanglingDnsDetector(ArtemisBase):
                     break
 
         if dangling and cname_target_zone:
+            # If the zone has valid NS records and is not SaaS-managed,
+            # treat it as misconfiguration instead of marking as dangling.
+            # Purpose is to reduce number of FP.
             response = dns_query(cname_target_zone, rdatatype.NS)
             ns_records = [r.to_text() for r in response] if response else None
             if ns_records and not self._is_saas_namespace(ns_records):
-                # It's more likely a misconfiguration rather than dangling cname record
                 dangling = False
 
         return dangling

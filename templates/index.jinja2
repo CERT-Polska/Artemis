@@ -19,17 +19,17 @@
             </thead>
         </table>
         <p>
-            <a class="btn btn-primary" href="/results?task_filter=interesting">Show results for all targets</a>
+            <a class="btn btn-primary" href="{{ request.url_for('get_results') }}?task_filter=interesting">Show results for all targets</a>
 
             {% if has_finished_analyses %}
-                <a class="btn btn-success" href="/remove-finished-analyses">Remove finished analyses</a>
+                <a class="btn btn-success" href="{{ request.url_for('get_remove_finished_analyses') }}">Remove finished analyses</a>
             {% endif %}
         </p>
         <p>
-            Hint: Browse to the <a href="/queue">task queue</a> to see how the tasks are progressing.
+            Hint: Browse to the <a href="{{ request.url_for('get_queue') }}">task queue</a> to see how the tasks are progressing.
         </p>
     {% else %}
-        No targets have yet been analysed. <a href="/add">Analyze targets.</a>
+        No targets have yet been analysed. <a href="{{ request.url_for('get_add_form') }}">Analyze targets.</a>
     {% endif %}
 
 {% endblock %}

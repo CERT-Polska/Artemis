@@ -318,7 +318,7 @@ def get_analyses_table(
         "draw": draw,
         "recordsTotal": result.records_count_total,
         "recordsFiltered": result.records_count_filtered,
-        "data": [render_analyses_table_row(entry) for entry in entries],
+        "data": [render_analyses_table_row(request, entry) for entry in entries],
     }
 
 
@@ -357,7 +357,7 @@ def get_task_results_table(
         "draw": draw,
         "recordsTotal": result.records_count_total,
         "recordsFiltered": result.records_count_filtered,
-        "data": [render_task_table_row(task) for task in result.data],
+        "data": [render_task_table_row(request, task) for task in result.data],
     }
 
 

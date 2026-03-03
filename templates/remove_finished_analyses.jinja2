@@ -5,12 +5,12 @@
 
     <p>
         This will remove the finished analyses (with the <b>done</b> badge) from the table on the homepage. The
-        corresponding task results will still be in the database and you will still be able to <a href="/export">export
-        them</a> or view them on the <a href="/results?task_filter=interesting">all task results</a> list.
+        corresponding task results will still be in the database and you will still be able to <a href="{{ request.url_for('get_export_form') }}">export
+        them</a> or view them on the <a href="{{ request.url_for('get_results') }}?task_filter=interesting">all task results</a> list.
     </p>
     <p>
 
-    <form method="POST" action="/remove-finished-analyses">
+    <form method="POST" action="{{ request.url_for('post_remove_finished_analyses') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
         <input type="submit" class="btn btn-primary" value="Remove" />

@@ -435,7 +435,7 @@ async def karton_dashboard(request: Request, path: str) -> Response:
             url="http://karton-dashboard:5000/karton-dashboard/" + path,
             allow_redirects=False,
             headers={"connection": "close", **whitelist_proxy_request_headers(request.headers)},
-            timeout=aiohttp.ClientTimeout(total=30),
+            timeout=aiohttp.ClientTimeout(total=600),
         ) as response:
             content = await response.read()
             return Response(

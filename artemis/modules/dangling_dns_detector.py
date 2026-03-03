@@ -163,6 +163,8 @@ class DanglingDnsDetector(ArtemisBase):
         return False
 
     def _is_saas_namespace(self, ns_records: list[str]) -> bool:
+        # Detect SAAS providers with multi-tenant DNS namespaces to avoid false positives
+        # We want to still report record like e.g: username.github.io
         SAAS_NS_PATTERNS = [
             "azure-dns",
             "awsdns",
@@ -186,6 +188,11 @@ class DanglingDnsDetector(ArtemisBase):
 
         cname_target_types = [rdatatype.A, rdatatype.AAAA, rdatatype.TXT]
         cname_target = record.target.to_text()  # type: ignore[attr-defined]
+        cname_target_zone = get_main_domain(cname_target)
+
+        if cname_target_zone in Config.Modules.DanglingDnsDetector.DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP:
+            # we want to ensure to not reports popular cname targets like e.g: sipdir.online.lync.com
+            return False
 
         if is_subdomain(cname_target, parent_domain):
             return False
@@ -204,15 +211,14 @@ class DanglingDnsDetector(ArtemisBase):
                     dangling = False
                     break
 
-        if dangling:
-            # check against the main domain
-            main_domain = get_main_domain(cname_target)
-            if main_domain:
-                response = dns_query(main_domain, rdatatype.NS)
-                ns_records = [r.to_text() for r in response] if response else None
-                if ns_records and not self._is_saas_namespace(ns_records):
-                    # It's more likely a misconfiguration rather than dangling cname record
-                    dangling = False
+        if dangling and cname_target_zone:
+            # If the zone has valid NS records and is not SaaS-managed,
+            # treat it as misconfiguration instead of marking as dangling.
+            # Purpose is to reduce number of FP.
+            response = dns_query(cname_target_zone, rdatatype.NS)
+            ns_records = [r.to_text() for r in response] if response else None
+            if ns_records and not self._is_saas_namespace(ns_records):
+                dangling = False
 
         return dangling
 

@@ -77,7 +77,6 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
             for r in reports
             if r.additional_data.get("matched_at")
             and "?" in r.additional_data["matched_at"]
-            and "lfi-keyed" in r.additional_data.get("template_name", "")
         ]
 
         self.assertGreater(len(dast_reports), 0, "Expected at least one DAST report with a query-string URL")

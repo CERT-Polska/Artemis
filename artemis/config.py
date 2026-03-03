@@ -35,7 +35,7 @@ class Config:
         SAVE_LOGS_IN_DATABASE: Annotated[
             bool,
             """
-            Whether Artemis should save task logs in the database to be viewed in the UI. Turn it off to save space in the databaee.
+            Whether Artemis should save task logs in the database to be viewed in the UI. Turn it off to save space in the database.
             """,
         ] = get_config("SAVE_LOGS_IN_DATABASE", default=True, cast=bool)
 

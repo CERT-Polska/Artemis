@@ -190,6 +190,130 @@ async def post_add(
         )
 
 
+@router.get("/periodic-scans", include_in_schema=False)
+def get_periodic_scans(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+    return csrf.csrf_form_template_response(
+        "periodic_scans.jinja2",
+        {
+            "request": request,
+            "periodic_scans": db.list_periodic_scans(),
+        },
+        csrf_protect,
+    )
+
+
+@router.get("/periodic-scans/add", include_in_schema=False)
+def get_add_periodic_scan_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+    binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
+
+    return csrf.csrf_form_template_response(
+        "add_periodic_scan.jinja2",
+        {
+            "request": request,
+            "binds": binds,
+            "priority": TaskPriority.NORMAL.value,
+            "priorities": list(TaskPriority),
+            "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
+        },
+        csrf_protect,
+    )
+
+
+@router.post("/periodic-scans/add", include_in_schema=False)
+@csrf.validate_csrf
+async def post_add_periodic_scan(
+    request: Request,
+    targets: str = Form(),
+    interval_hours: int = Form(),
+    tag: Optional[str] = Form(None),
+    priority: Optional[str] = Form(None),
+    choose_modules_to_enable: Optional[bool] = Form(None),
+    csrf_protect: CsrfProtect = Depends(),
+) -> Response:
+    disabled_modules: list[str] = []
+
+    if choose_modules_to_enable:
+        async with request.form() as form:
+            for bind in get_binds_that_can_be_disabled():
+                if f"module_enabled_{bind.identity}" not in form:
+                    disabled_modules.append(bind.identity)
+
+    total_list: list[str] = []
+    if targets:
+        targets = targets.strip()
+        total_list += (x.strip() for x in targets.split("\n"))
+
+    validation_messages = []
+    for task in total_list:
+        if not Classifier.is_supported(task):
+            validation_messages.append(
+                f"{task} is not supported - Artemis supports domains, IPs or IPv4 ranges."
+            )
+
+    if interval_hours < 1:
+        validation_messages.append("Interval must be at least 1 hour.")
+
+    if validation_messages:
+        binds = sorted(get_binds_that_can_be_disabled(), key=lambda bind: bind.identity.lower())
+        return csrf.csrf_form_template_response(
+            "add_periodic_scan.jinja2",
+            {
+                "validation_message": ", ".join(validation_messages),
+                "request": request,
+                "binds": binds,
+                "priority": priority,
+                "priorities": list(TaskPriority),
+                "tasks": total_list,
+                "tag": tag or "",
+                "interval_hours": interval_hours,
+                "disabled_modules": disabled_modules,
+                "modules_disabled_by_default": Config.Miscellaneous.MODULES_DISABLED_BY_DEFAULT,
+            },
+            csrf_protect,
+        )
+
+    db.create_periodic_scan(
+        targets="\n".join(total_list),
+        interval_hours=interval_hours,
+        tag=tag,
+        disabled_modules=",".join(disabled_modules),
+        priority=priority or "normal",
+    )
+    return RedirectResponse("/periodic-scans", status_code=303)
+
+
+@router.get("/periodic-scans/delete/{scan_id}", include_in_schema=False)
+def get_delete_periodic_scan(request: Request, scan_id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
+    scan = db.get_periodic_scan(scan_id)
+    if not scan:
+        raise HTTPException(status_code=404, detail="Periodic scan not found")
+    return csrf.csrf_form_template_response(
+        "delete_periodic_scan.jinja2",
+        {
+            "request": request,
+            "scan": scan,
+        },
+        csrf_protect,
+    )
+
+
+@router.post("/periodic-scans/delete/{scan_id}", include_in_schema=False)
+@csrf.validate_csrf
+async def post_delete_periodic_scan(request: Request, scan_id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
+    db.delete_periodic_scan(scan_id)
+    return RedirectResponse("/periodic-scans", status_code=303)
+
+
+@router.post("/periodic-scans/toggle/{scan_id}", include_in_schema=False)
+@csrf.validate_csrf
+async def post_toggle_periodic_scan(request: Request, scan_id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
+    scan = db.get_periodic_scan(scan_id)
+    if not scan:
+        raise HTTPException(status_code=404, detail="Periodic scan not found")
+    db.update_periodic_scan_enabled(scan_id, not scan["enabled"])
+    return RedirectResponse("/periodic-scans", status_code=303)
+
+
 @router.get("/exports", include_in_schema=False)
 def get_exports(request: Request) -> Response:
     return templates.TemplateResponse(

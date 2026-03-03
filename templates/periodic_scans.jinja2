@@ -1,0 +1,70 @@
+{% extends "components/base.jinja2" %}
+{% block main %}
+    <h1>Periodic scans</h1>
+    <p>
+        Periodic scans automatically re-scan your targets at a configured interval.
+    </p>
+
+    <a class="btn btn-primary mb-3" href="/periodic-scans/add">Add periodic scan</a>
+
+    {% if periodic_scans %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Created at</th>
+                    <th scope="col">Targets</th>
+                    <th scope="col">Tag</th>
+                    <th scope="col">Interval</th>
+                    <th scope="col">Priority</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Last run</th>
+                    <th scope="col">Next run</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in periodic_scans %}
+                    <tr>
+                        <td>{{ scan.created_at.strftime('%Y-%m-%d %H:%M') if scan.created_at else 'N/A' }}</td>
+                        <td>
+                            <span data-bs-toggle="tooltip" title="{{ scan.targets }}">
+                                {{ scan.targets.split('\n')[0] }}{% if scan.targets.split('\n')|length > 1 %} (+{{ scan.targets.split('\n')|length - 1 }} more){% endif %}
+                            </span>
+                        </td>
+                        <td>{{ scan.tag or '' }}</td>
+                        <td>Every {{ scan.interval_hours }}h</td>
+                        <td>{{ scan.priority }}</td>
+                        <td>
+                            {% if scan.enabled %}
+                                <span class="badge bg-success">Enabled</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Disabled</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ scan.last_run_at.strftime('%Y-%m-%d %H:%M') if scan.last_run_at else 'Never' }}</td>
+                        <td>{{ scan.next_run_at.strftime('%Y-%m-%d %H:%M') if scan.next_run_at else 'N/A' }}</td>
+                        <td>
+                            <form action="/periodic-scans/toggle/{{ scan.id }}" method="post" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+                                <button type="submit" class="btn btn-sm {% if scan.enabled %}btn-warning{% else %}btn-success{% endif %}">
+                                    {% if scan.enabled %}Disable{% else %}Enable{% endif %}
+                                </button>
+                            </form>
+                            <a class="btn btn-sm btn-danger" href="/periodic-scans/delete/{{ scan.id }}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No periodic scans configured yet.</p>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}

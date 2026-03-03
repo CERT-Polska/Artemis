@@ -1,7 +1,9 @@
 import unittest
 import urllib.parse
 
-from artemis.reporting.modules.nuclei.poc_url_utils import minimize_nuclei_matched_at_url
+from artemis.reporting.modules.nuclei.poc_url_utils import (
+    minimize_nuclei_matched_at_url,
+)
 
 
 def _params(url: str) -> dict[str, list[str]]:

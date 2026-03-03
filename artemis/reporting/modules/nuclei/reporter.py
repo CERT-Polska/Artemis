@@ -8,7 +8,10 @@ from typing import Any, Callable, Counter, Dict, List
 
 from artemis.config import Config
 from artemis.domains import is_domain
-from artemis.modules.nuclei import EXPOSED_PANEL_TEMPLATE_PATH_PREFIX, NUCLEI_TEMPLATES_LOCATION
+from artemis.modules.nuclei import (
+    EXPOSED_PANEL_TEMPLATE_PATH_PREFIX,
+    NUCLEI_TEMPLATES_LOCATION,
+)
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language

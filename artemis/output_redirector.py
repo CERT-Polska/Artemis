@@ -30,7 +30,11 @@ class OutputRedirector:
             fd = stream.fileno()
             stream.flush()
             os.dup2(self._stream_copy[fd].fileno(), fd)
+            self._stream_copy[fd].close()
+        if self._tee.stdin:
+            self._tee.stdin.close()
         self._tee.kill()
+        self._tee.wait()
 
     def get_output(self) -> bytes:
         self._output_collector_file.seek(0)

@@ -35,7 +35,7 @@ class Config:
         SAVE_LOGS_IN_DATABASE: Annotated[
             bool,
             """
-            Whether Artemis should save task logs in the database to be viewed in the UI. Turn it off to save space in the databaee.
+            Whether Artemis should save task logs in the database to be viewed in the UI. Turn it off to save space in the database.
             """,
         ] = get_config("SAVE_LOGS_IN_DATABASE", default=True, cast=bool)
 
@@ -366,6 +366,20 @@ class Config:
             )
             DANGLING_DNS_DELAY_STEP: Annotated[int, "Number of seconds for incremental step for retries."] = get_config(
                 "DANGLING_DNS_DELAY_STEP", default=600, cast=int
+            )
+            DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP: Annotated[
+                list[str],
+                "The list of known DNS zone records to skip. In case of those zone names we are sure that they are not claimable.",
+            ] = get_config(
+                "DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP",
+                default=",".join(
+                    [
+                        "lync.com",
+                        "microsoft.com",
+                        "google.com",
+                    ]
+                ),
+                cast=decouple.Csv(str),
             )
 
         class DNSScanner:

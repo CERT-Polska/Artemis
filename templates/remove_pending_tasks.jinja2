@@ -3,7 +3,7 @@
 {% block main %}
     <h1>Remove pending tasks</h1>
 
-    <form method="POST" action="/analysis/remove-pending-tasks/{{ analysis_id }}">
+    <form method="POST" action="{{ request.url_for('post_remove_pending_tasks', analysis_id=analysis_id) }}">
         <div class="alert alert-info">
             You are about remove pending tasks from the analysis of <tt>{{ analysed_object }}</tt>.
             <b>Tasks currently running will finish.</b>

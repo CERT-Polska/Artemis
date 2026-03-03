@@ -86,6 +86,9 @@ TRANSLATIONS = {
     "ProfilePress WordPress plugin  is susceptible to a vulnerability in the user registration component in the ~/src/Classes/RegistrationAuth.php file that makes it possible for users to register on sites as an administrator.": "Wtyczka WordPress o nazwie ProfilePress zawiera podatność umożliwiającą rejestrację jako administrator."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "WordPress Member Hero plugin through 1.0.9 is susceptible to remote code execution. The plugin lacks authorization checks and does not validate the a request parameter in an AJAX action, allowing an attacker to call arbitrary PHP functions with no arguments. An attacker can thus execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Wtyczka WordPress Member Hero w wersjach do 1.0.9 zawiera podatność umożliwiającą zdalne wykonanie kodu o identyfikatorze CVE-2022-0885."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "The Paid Memberships Pro WordPress Plugin, version < 2.9.8, is affected by an unauthenticated SQL injection vulnerability in the 'code' parameter of the '/pmpro/v1/order' REST route.": "Wtyczka WordPress o nazwie Paid Memberships Pro w wersji poniżej 2.9.8 zawiera podatność SQL Injection, co umożliwia pobranie całej zawartości bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "WordPress Paid Memberships Pro plugin before 2.9.8 contains a blind SQL injection vulnerability in the 'code' parameter of the /pmpro/v1/order REST route. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie Paid Memberships Pro w wersji poniżej 2.9.8 zawiera podatność Blind SQL Injection, co umożliwia pobranie całej zawartości bazy danych."
@@ -999,6 +1002,12 @@ TRANSLATIONS = {
     "WordPress White Label CMS plugin before 2.2.9 contains a reflected cross-site scripting vulnerability. It does not sanitize and validate the wlcms[_login_custom_js] parameter before outputting it back in the response while previewing.": "Wtyczka WordPress o nazwie White Label CMS w wersji poniżej 2.2.9 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Apache Tomcat from versions 8.5.0 to 8.5.93, 9.0.0-M1 to 9.0.81, 10.1.0-M1 to 10.1.13, and 11.0.0-M1 to 11.0.0-M11 contain an improper input validation caused by incorrect parsing of HTTP trailer headers, letting attackers craft headers to cause request smuggling, exploit requires sending malicious trailer headers.": "Apache Tomcat od wersji 8.5.0 do 8.5.93, od 9.0.0-M1 do 9.0.81, od 10.1.0-M1 do 10.1.13 i od 11.0.0-M1 do 11.0.0-M11 zawiera podatność HTTP Request Smuggling o identyfikatorze CVE-2023-45648 umożliwiającą atakującemu nieuprawniony dostęp do informacji."
+    + UPDATE_HINT,
+    "Digital Watchdog DW Spectrum Server 4.2.0.32842 allows attackers to access sensitive infromation via a crafted API call.": "Digital Watchdog DW Spectrum Server 4.2.0.32842 zawiera podatność o identyfikatorze CVE-2022-34534 umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji takich jak np. konfiguracja sieci."
+    + UPDATE_HINT,
+    "WordPress Backup Migration plugin versions up to 1.3.6 contain a path traversal and file validation issue in handle_downloading function, letting unauthenticated attackers download backup files containing sensitive information.": "Wtyczka WordPress o nazwie Backup Migration w wersji do 1.3.6 zawiera podatność o identyfikatorze CVE-2023-6266 umożliwiającą atakującemu odczyt plików kopii zapasowych, zawierających wrażliwe informacje."
+    + WORDPRESS_UPDATE_HINT,
     "Sophos SG UTMA WebAdmin is susceptible to a remote code execution vulnerability in versions before v9.705 MR5, v9.607 MR7, and v9.511 MR11.": "Sophos SG UTMA WebAdmin w wersji poniżej v9.705 MR5, v9.607 MR7 i v9.511 MR11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -2368,6 +2377,8 @@ TRANSLATIONS = {
     "Nagios XI login panel was detected.": "Wykryto panel Nagios XI.",
     "Netdata panel was discovered.": "Wykryto panel Netdata.",
     "OpenVPN Admin login panel was detected.": "Wykryto administracyjny panel logowania OpenVPN.",
+    "openvpn-monitor was discovered. OpenVPN Monitor is a simple python program to generate html that displays the status of an OpenVPN server, including all its current connections.": "Wykryto panel OpenVPN Monitor.",
+    "Delta Controls admin login panel was detected.": "Wykryto administracyjny panel logowania Delta Controls.",
     "Clave login panel was detected.": "Wykryto panel logowania systemu Clave.",
     "Zammad is an open source helpdesk and customer support system that provides ticket management, live chat, and knowledge base functionality. This template detects exposed Zammad installations.": "Wykryto panel systemu Zammad.",
     "AXWAY Secure Transport Web Client panel was detected.": "wykryto panel AXWAY Secure Transport Web Client.",

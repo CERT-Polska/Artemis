@@ -369,7 +369,7 @@ class Config:
             )
             DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP: Annotated[
                 list[str],
-                "The list of known DNS zone records to skip.",
+                "The list of known DNS zone records to skip. In case of those zone names we are sure that they are not claimable.",
             ] = get_config(
                 "DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP",
                 default=",".join(

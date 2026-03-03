@@ -163,6 +163,8 @@ class DanglingDnsDetector(ArtemisBase):
         return False
 
     def _is_saas_namespace(self, ns_records: list[str]) -> bool:
+        # Detect SAAS providers with multi-tenant DNS namespaces to avoid false positives
+        # (E.g: username.github.io)
         SAAS_NS_PATTERNS = [
             "azure-dns",
             "awsdns",

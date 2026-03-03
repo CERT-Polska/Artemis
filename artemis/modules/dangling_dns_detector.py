@@ -191,6 +191,7 @@ class DanglingDnsDetector(ArtemisBase):
         cname_target_zone = get_main_domain(cname_target)
 
         if cname_target_zone in Config.Modules.DanglingDnsDetector.DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP:
+            # we want to ensure to not reports popular cname targets like e.g: sipdir.online.lync.com
             return False
 
         if is_subdomain(cname_target, parent_domain):

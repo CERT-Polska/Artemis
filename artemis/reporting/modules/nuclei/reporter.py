@@ -30,6 +30,8 @@ from artemis.utils import get_host_from_url
 
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
 
+logger = logging.getLogger(__name__)
+
 SEVERITY_OVERRIDES = {
     "http/exposures/logs/": "medium",
     "http/misconfiguration/server-status.yaml": "medium",
@@ -60,14 +62,19 @@ class NucleiReporter(Reporter):
                 "-silent",
             ]
             result = subprocess.check_output(command, stderr=subprocess.DEVNULL)
-            return bool(result.strip())
+            for line in result.strip().splitlines():
+                try:
+                    hit = json.loads(line)
+                    if hit.get("matched-at"):
+                        return True
+                except json.JSONDecodeError:
+                    continue
+            return False
         except FileNotFoundError:
-            # If nuclei isn't available (e.g. in some local dev envs), fail open
-            # to preserve the minimized URL so reporting doesn't break.
-            logging.getLogger(__name__).warning("Nuclei binary not found, skipping URL verification")
-            return True
+            logger.warning("Nuclei binary not found, skipping URL verification")
+            return False
         except subprocess.CalledProcessError as e:
-            logging.getLogger(__name__).warning("Nuclei verification failed on %s: %s", url, e)
+            logger.warning("Nuclei verification failed on %s: %s", url, e)
             return False
 
     @staticmethod

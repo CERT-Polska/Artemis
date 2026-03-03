@@ -367,6 +367,20 @@ class Config:
             DANGLING_DNS_DELAY_STEP: Annotated[int, "Number of seconds for incremental step for retries."] = get_config(
                 "DANGLING_DNS_DELAY_STEP", default=600, cast=int
             )
+            DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP: Annotated[
+                list[str],
+                "The list of known DNS zone records to skip.",
+            ] = get_config(
+                "DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP",
+                default=",".join(
+                    [
+                        "lync.com",
+                        "microsoft.com",
+                        "google.com",
+                    ]
+                ),
+                cast=decouple.Csv(str),
+            )
 
         class DNSScanner:
             ZONE_TRANSFER_SIZE_REPORTING_THRESHOLD: Annotated[

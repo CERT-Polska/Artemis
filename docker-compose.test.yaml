@@ -101,6 +101,12 @@ services:
       - ./test/data/robots/default.conf:/etc/nginx/conf.d/default.conf
       - ./test/data/robots/:/usr/share/nginx/html/
 
+  test-leak-scanner-service:
+    image: nginx:latest
+    volumes:
+      - ./test/data/leak_scanner/default.conf:/etc/nginx/conf.d/default.conf
+      - ./test/data/leak_scanner/:/usr/share/nginx/html/
+
   test-php-easy-admin-password:
     image: php:8.0-apache
     volumes:

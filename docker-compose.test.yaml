@@ -124,12 +124,12 @@ services:
   test-ftp-server-with-easy-password:
     image: stilliard/pure-ftpd:latest
     environment:
-        - FTP_USER_NAME=admin
-        - FTP_USER_PASS=12345
-        - FTP_USER_HOME=/dev/shm
+      - FTP_USER_NAME=admin
+      - FTP_USER_PASS=12345
+      - FTP_USER_HOME=/dev/shm
 
   test-old-joomla:
-    image: joomla:4.0.5-php8.0-apache  # this is an old image on purpose
+    image: joomla:4.0.5-php8.0-apache # this is an old image on purpose
     environment:
       JOOMLA_DB_HOST: test-old-joomla-mysql
       JOOMLA_DB_PASSWORD: example
@@ -255,6 +255,13 @@ services:
     build:
       context: test/images/nginx-with-sni-tls
       dockerfile: Dockerfile
+
+  test-grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
 
 volumes:
   data-test:

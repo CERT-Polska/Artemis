@@ -13,6 +13,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
+from artemis.utils import check_output_log_on_error
 
 # Document extensions to scan. This list will grow as more check types
 # are added (e.g. .docx, .xlsx, .pptx for metadata leaks).
@@ -66,7 +67,7 @@ class LeakScanner(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def _discover_document_urls(self, base_url: str) -> List[str]:
+    def _discover_documents_via_crawl(self, base_url: str, max_documents: int) -> List[str]:
         """BFS crawl the website to discover document URLs.
 
         Follows same-domain links up to LEAK_SCANNER_CRAWL_DEPTH levels,
@@ -74,7 +75,6 @@ class LeakScanner(ArtemisBase):
         """
         max_depth = Config.Modules.LeakScanner.LEAK_SCANNER_CRAWL_DEPTH
         max_pages = Config.Modules.LeakScanner.LEAK_SCANNER_MAX_PAGES_TO_CRAWL
-        max_documents = Config.Modules.LeakScanner.LEAK_SCANNER_MAX_DOCUMENTS_TO_CHECK
 
         base_hostname = urllib.parse.urlparse(base_url).hostname
 
@@ -124,6 +124,40 @@ class LeakScanner(ArtemisBase):
                             return document_urls
                     elif depth + 1 <= max_depth:
                         queue.append((new_url, depth + 1))
+
+        return document_urls
+
+    def _discover_documents_via_gau(self, domain: str) -> Set[str]:
+        """Query gau for archived document URLs from Wayback Machine and Common Crawl."""
+        try:
+            result = check_output_log_on_error(["gau"], self.log, input=domain.encode("idna"))
+            urls: Set[str] = set()
+            for line in result.decode().splitlines():
+                line = line.strip()
+                if line and _is_document_url(line):
+                    urls.add(line)
+            return urls
+        except Exception:
+            self.log.exception(f"Unable to obtain document URLs from gau for {domain}")
+            return set()
+
+    def _discover_document_urls(self, base_url: str) -> List[str]:
+        """Discover document URLs using both BFS crawling and gau."""
+        max_documents = Config.Modules.LeakScanner.LEAK_SCANNER_MAX_DOCUMENTS_TO_CHECK
+        base_hostname = urllib.parse.urlparse(base_url).hostname
+
+        crawl_urls = self._discover_documents_via_crawl(base_url, max_documents)
+        seen: Set[str] = set(crawl_urls)
+        document_urls = list(crawl_urls)
+
+        if base_hostname:
+            gau_urls = self._discover_documents_via_gau(base_hostname)
+            for url in gau_urls:
+                if url not in seen and len(document_urls) < max_documents:
+                    parsed = urllib.parse.urlparse(url)
+                    if parsed.hostname == base_hostname:
+                        document_urls.append(url)
+                        seen.add(url)
 
         return document_urls
 

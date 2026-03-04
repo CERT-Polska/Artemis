@@ -402,7 +402,7 @@ class Config:
             LEAK_SCANNER_MAX_PAGES_TO_CRAWL: Annotated[
                 int,
                 "Maximum number of HTML pages to fetch while crawling for documents.",
-            ] = get_config("LEAK_SCANNER_MAX_PAGES_TO_CRAWL", default=100, cast=int)
+            ] = get_config("LEAK_SCANNER_MAX_PAGES_TO_CRAWL", default=1000, cast=int)
 
             LEAK_SCANNER_MAX_DOCUMENTS_TO_CHECK: Annotated[
                 int,

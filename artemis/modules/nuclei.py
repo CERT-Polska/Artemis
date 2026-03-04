@@ -32,7 +32,9 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
     NucleiConfiguration,
     SeverityThreshold,
 )
-from artemis.reporting.modules.nuclei.poc_url_utils import minimize_nuclei_matched_at_url
+from artemis.reporting.modules.nuclei.poc_url_utils import (
+    minimize_nuclei_matched_at_url,
+)
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,

@@ -4,7 +4,7 @@ import urllib.parse
 from typing import Callable, Optional
 
 
-def _build_single_param_url(parsed: urllib.parse.ParseResult, param_name: str, param_values: list) -> str:
+def _build_single_param_url(parsed: urllib.parse.ParseResult, param_name: str, param_values: list[str]) -> str:
     useful_params = {param_name: param_values}
     new_query = urllib.parse.urlencode(
         useful_params,

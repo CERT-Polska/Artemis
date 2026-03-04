@@ -22,7 +22,7 @@ from artemis.utils import check_output_log_on_error
 
 
 def load_ports(file_name: str) -> Set[int]:
-    with open(os.path.join(os.path.dirname(__file__), "data", file_name)) as f:
+    with open(os.path.join(os.path.dirname(__file__), "data", file_name), encoding="utf-8") as f:
         ports = ",".join([line for line in f if not line.startswith("#")])
 
     result: Set[int] = set()

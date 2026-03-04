@@ -246,7 +246,10 @@ class WordpressPlugins(ArtemisBase):
             if plugin["slug"] not in PLUGINS_BAD_VERSION_IN_README
         ]
         self._top_plugin_slugs = [plugin["slug"] for plugin in self._top_plugins]
-        with open(os.path.join(os.path.dirname(__file__), "data", "wordpress_plugin_readme_file_names.txt")) as f:
+        with open(
+            os.path.join(os.path.dirname(__file__), "data", "wordpress_plugin_readme_file_names.txt"),
+            encoding="utf-8",
+        ) as f:
             self._readme_file_names = json.load(f)
 
     def _get_plugins_from_homepage(self, url: str) -> List[Dict[str, Any]]:

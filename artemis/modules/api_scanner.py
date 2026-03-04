@@ -58,7 +58,7 @@ class APIScanner(ArtemisBase):
                     "openapi" in response.text.lower() or "swagger" in response.text.lower()
                 ):
                     temp_file = f"/tmp/api_spec_{os.urandom(8).hex()}"
-                    with open(temp_file, "w") as f:
+                    with open(temp_file, "wb") as f:
                         f.write(response.content)
 
                     # Validate the spec
@@ -99,7 +99,7 @@ class APIScanner(ArtemisBase):
 
         subprocess.call(offat_cmd)
 
-        with open(output_file) as f:
+        with open(output_file, encoding="utf-8") as f:
             file_contents = f.read()
 
         report: Dict[str, Any] = json.loads(file_contents)

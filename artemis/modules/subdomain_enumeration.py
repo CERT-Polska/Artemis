@@ -48,9 +48,10 @@ class SubdomainEnumeration(ArtemisBase):
         subdomains_to_brute_force_set = set()
         base_subdomain_lists_path = os.path.join(os.path.dirname(__file__), "data", "subdomains")
         for file_name in os.listdir(base_subdomain_lists_path):
-            for line in open(os.path.join(base_subdomain_lists_path, file_name)):
-                if not line.startswith("#"):
-                    subdomains_to_brute_force_set.add(line.strip())
+            with open(os.path.join(base_subdomain_lists_path, file_name), encoding="utf-8") as f:
+                for line in f:
+                    if not line.startswith("#"):
+                        subdomains_to_brute_force_set.add(line.strip())
         self._subdomains_to_brute_force = list(subdomains_to_brute_force_set)
 
         with self.lock:

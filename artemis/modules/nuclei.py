@@ -3,6 +3,7 @@ import collections
 import enum
 import itertools
 import json
+import logging
 import os
 import random
 import shutil
@@ -31,6 +32,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
     NucleiConfiguration,
     SeverityThreshold,
 )
+from artemis.reporting.modules.nuclei.poc_url_utils import minimize_nuclei_matched_at_url
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
@@ -41,6 +43,41 @@ EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
 NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
+
+logger = logging.getLogger(__name__)
+
+
+def _verify_with_nuclei(url: str, template_id: str) -> bool:
+    try:
+        command = [
+            "nuclei",
+            "-disable-update-check",
+            "-u",
+            url,
+            "-t",
+            os.path.join(NUCLEI_TEMPLATES_LOCATION, template_id),
+            "-dast",
+            "-fuzzing-mode",
+            "multiple",
+            "-jsonl",
+            "-silent",
+        ]
+        result = subprocess.check_output(command, stderr=subprocess.DEVNULL)
+        for line in result.strip().splitlines():
+            try:
+                hit = json.loads(line)
+                if hit.get("matched-at"):
+                    return True
+            except json.JSONDecodeError:
+                continue
+        return False
+    except FileNotFoundError:
+        logger.warning("Nuclei binary not found, skipping URL verification")
+        return False
+    except subprocess.CalledProcessError as e:
+        logger.warning("Nuclei verification failed on %s: %s", url, e)
+        return False
+
 
 # It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {
@@ -660,6 +697,12 @@ class Nuclei(ArtemisBase):
             messages = []
 
             for finding in findings_per_task[task.uid]:
+                if "matched-at" in finding:
+                    finding["matched-at"] = minimize_nuclei_matched_at_url(
+                        finding["matched-at"],
+                        fuzzing_parameter=finding.get("fuzzing_parameter"),
+                        verify_url_fn=lambda url: _verify_with_nuclei(url, finding["template-id"]),
+                    )
                 result.append(finding)
                 messages.append(
                     f"[{finding['info']['severity']}] {finding.get('matched-at', None) or finding.get('url')}: {finding['info'].get('name')} {finding['info'].get('description', '')}"

@@ -1,5 +1,4 @@
 from test.base import ArtemisModuleTestCase
-from unittest.mock import MagicMock
 
 from karton.core import Task
 

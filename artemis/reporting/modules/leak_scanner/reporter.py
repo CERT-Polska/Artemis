@@ -24,19 +24,26 @@ class LeakScannerReporter(Reporter):
             return []
 
         reports = []
-        for pdf_data in task_result["result"].get("pdfs_with_leaked_data", []):
-            reports.append(
-                Report(
-                    top_level_target=get_top_level_target(task_result),
-                    target=pdf_data["url"],
-                    report_type=LeakScannerReporter.LEAKED_SENSITIVE_DATA,
-                    timestamp=task_result["created_at"],
-                    additional_data={
-                        "leaked_items": pdf_data["leaked_items"],
-                        "num_leaked_items": len(pdf_data["leaked_items"]),
-                    },
+        for doc_data in task_result["result"].get("documents_with_findings", []):
+            # Flatten findings from all checks into a single list
+            all_items = []
+            for check_name, items in doc_data.get("findings", {}).items():
+                for item in items:
+                    all_items.append({**item, "check": check_name})
+
+            if all_items:
+                reports.append(
+                    Report(
+                        top_level_target=get_top_level_target(task_result),
+                        target=doc_data["url"],
+                        report_type=LeakScannerReporter.LEAKED_SENSITIVE_DATA,
+                        timestamp=task_result["created_at"],
+                        additional_data={
+                            "leaked_items": all_items,
+                            "num_leaked_items": len(all_items),
+                        },
+                    )
                 )
-            )
         return reports
 
     @staticmethod

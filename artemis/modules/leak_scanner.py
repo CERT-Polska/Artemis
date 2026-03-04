@@ -1,24 +1,64 @@
 #!/usr/bin/env python3
 import urllib.parse
-from typing import Any, Dict, List
+from collections import deque
+from typing import Any, Callable, Dict, List, Set, Tuple
 
+import requests
 import xray
+from bs4 import BeautifulSoup
 from karton.core import Task
 
-from artemis import load_risk_class
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
+
+# Document extensions to scan. This list will grow as more check types
+# are added (e.g. .docx, .xlsx, .pptx for metadata leaks).
+DOCUMENT_EXTENSIONS = [".pdf"]
+
+# Type for a check function: takes file bytes, returns list of findings.
+CheckFunction = Callable[[bytes], List[Dict[str, Any]]]
+
+
+def _check_bad_redaction(file_bytes: bytes) -> List[Dict[str, Any]]:
+    """Check a PDF for improperly redacted/censored content using x-ray."""
+    findings = xray.inspect(file_bytes)
+    leaked_items: List[Dict[str, Any]] = []
+    if findings:
+        for page_num, items in findings.items():
+            for item in items:
+                leaked_items.append(
+                    {
+                        "page": page_num,
+                        "bbox": list(item["bbox"]),
+                        "text": item["text"],
+                    }
+                )
+    return leaked_items
+
+
+# Registry of checks to run against downloaded documents.
+# Each entry is (check_name, applicable_extensions, check_function).
+# To add a new check, append to this list.
+DOCUMENT_CHECKS: List[Tuple[str, List[str], CheckFunction]] = [
+    ("bad_redaction", [".pdf"], _check_bad_redaction),
+]
+
+
+def _is_document_url(url: str) -> bool:
+    """Check if a URL points to a document we want to scan."""
+    path_lower = urllib.parse.urlparse(url).path.lower()
+    return any(path_lower.endswith(ext) for ext in DOCUMENT_EXTENSIONS)
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class LeakScanner(ArtemisBase):
     """
-    Scans websites for PDFs with bad censorship/redaction attempts
-    (e.g. black rectangles that can be removed to reveal hidden text).
-    Uses the x-ray library to detect improperly redacted content.
+    Scans websites for documents with data leaks such as bad censorship/redaction
+    attempts (e.g. black rectangles that can be removed to reveal hidden text).
+    Crawls the website up to a configurable depth to discover document URLs.
     """
 
     identity = "leak_scanner"
@@ -26,71 +66,121 @@ class LeakScanner(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def _discover_pdf_urls(self, base_url: str) -> List[str]:
-        """Crawl the website and return URLs that point to PDF files."""
-        all_links = get_links_and_resources_on_same_domain(base_url)
-        pdf_urls = []
-        for link in all_links:
-            parsed = urllib.parse.urlparse(link)
-            if parsed.path.lower().endswith(".pdf"):
-                pdf_urls.append(link)
-        return pdf_urls[: Config.Modules.LeakScanner.LEAK_SCANNER_MAX_PDFS_TO_CHECK]
+    def _discover_document_urls(self, base_url: str) -> List[str]:
+        """BFS crawl the website to discover document URLs.
 
-    def _scan_pdf(self, pdf_url: str) -> Dict[str, Any]:
-        """Download a PDF and scan it for bad redaction using x-ray."""
+        Follows same-domain links up to LEAK_SCANNER_CRAWL_DEPTH levels,
+        visiting at most LEAK_SCANNER_MAX_PAGES_TO_CRAWL pages.
+        """
+        max_depth = Config.Modules.LeakScanner.LEAK_SCANNER_CRAWL_DEPTH
+        max_pages = Config.Modules.LeakScanner.LEAK_SCANNER_MAX_PAGES_TO_CRAWL
+        max_documents = Config.Modules.LeakScanner.LEAK_SCANNER_MAX_DOCUMENTS_TO_CHECK
+
+        base_hostname = urllib.parse.urlparse(base_url).hostname
+
+        visited: Set[str] = set()
+        document_urls: List[str] = []
+        queue: deque = deque([(base_url, 0)])
+        visited.add(base_url)
+        pages_crawled = 0
+
+        while queue and pages_crawled < max_pages and len(document_urls) < max_documents:
+            current_url, depth = queue.popleft()
+
+            if _is_document_url(current_url):
+                continue
+
+            pages_crawled += 1
+
+            try:
+                response = http_requests.get(current_url)
+            except requests.exceptions.RequestException:
+                continue
+
+            if response.status_code != 200:
+                continue
+
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            for tag in soup.find_all():
+                for attribute in ["src", "href"]:
+                    if attribute not in tag.attrs:
+                        continue
+
+                    new_url = urllib.parse.urljoin(current_url, tag[attribute])
+                    new_url = new_url.split("#")[0]
+                    new_url_parsed = urllib.parse.urlparse(new_url)
+
+                    if new_url_parsed.hostname != base_hostname:
+                        continue
+
+                    if new_url in visited:
+                        continue
+                    visited.add(new_url)
+
+                    if _is_document_url(new_url):
+                        document_urls.append(new_url)
+                        if len(document_urls) >= max_documents:
+                            return document_urls
+                    elif depth + 1 <= max_depth:
+                        queue.append((new_url, depth + 1))
+
+        return document_urls
+
+    def _scan_document(self, document_url: str) -> Dict[str, Any]:
+        """Download a document and run all applicable checks against it."""
         response = self.http_get(
-            pdf_url,
-            max_size=Config.Modules.LeakScanner.LEAK_SCANNER_MAX_PDF_SIZE_BYTES,
+            document_url,
+            max_size=Config.Modules.LeakScanner.LEAK_SCANNER_MAX_DOCUMENT_SIZE_BYTES,
         )
 
         if response.status_code != 200:
-            self.log.info(f"Skipping {pdf_url}: HTTP {response.status_code}")
+            self.log.info(f"Skipping {document_url}: HTTP {response.status_code}")
             return {}
 
-        pdf_bytes = response.content_bytes
+        file_bytes = response.content_bytes
+        path_lower = urllib.parse.urlparse(document_url).path.lower()
 
-        try:
-            findings = xray.inspect(pdf_bytes)
-        except Exception as e:
-            self.log.warning(f"x-ray failed on {pdf_url}: {e}")
-            return {}
+        all_findings: Dict[str, List[Dict[str, Any]]] = {}
+        for check_name, applicable_extensions, check_fn in DOCUMENT_CHECKS:
+            if not any(path_lower.endswith(ext) for ext in applicable_extensions):
+                continue
+            try:
+                findings = check_fn(file_bytes)
+            except Exception as e:
+                self.log.warning(f"Check '{check_name}' failed on {document_url}: {e}")
+                continue
+            if findings:
+                all_findings[check_name] = findings
 
-        leaked_items: List[Dict[str, Any]] = []
-        if findings:
-            for page_num, items in findings.items():
-                for item in items:
-                    leaked_items.append(
-                        {
-                            "page": page_num,
-                            "bbox": list(item["bbox"]),
-                            "text": item["text"],
-                        }
-                    )
-
-        if leaked_items:
-            return {"url": pdf_url, "leaked_items": leaked_items}
+        if all_findings:
+            return {"url": document_url, "findings": all_findings}
         return {}
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
         self.log.info(f"LeakScanner scanning {url}")
 
-        pdf_urls = self._discover_pdf_urls(url)
-        self.log.info(f"Found {len(pdf_urls)} PDF URL(s) on {url}")
+        document_urls = self._discover_document_urls(url)
+        self.log.info(f"Found {len(document_urls)} document URL(s) on {url}")
 
-        pdfs_with_leaked_data: List[Dict[str, Any]] = []
-        for pdf_url in pdf_urls:
-            self.log.info(f"Scanning PDF: {pdf_url}")
-            result = self._scan_pdf(pdf_url)
+        documents_with_findings: List[Dict[str, Any]] = []
+        for document_url in document_urls:
+            self.log.info(f"Scanning document: {document_url}")
+            result = self._scan_document(document_url)
             if result:
-                pdfs_with_leaked_data.append(result)
+                documents_with_findings.append(result)
 
-        if pdfs_with_leaked_data:
+        if documents_with_findings:
             status = TaskStatus.INTERESTING
-            num_total_leaks = sum(len(pdf["leaked_items"]) for pdf in pdfs_with_leaked_data)
+            num_total_findings = sum(
+                len(items)
+                for doc in documents_with_findings
+                for items in doc["findings"].values()
+            )
             status_reason = (
-                f"Found {num_total_leaks} leaked sensitive data item(s) "
-                f"in {len(pdfs_with_leaked_data)} PDF(s) with bad redaction"
+                f"Found {num_total_findings} leaked sensitive data item(s) "
+                f"in {len(documents_with_findings)} document(s) with issues"
             )
         else:
             status = TaskStatus.OK
@@ -101,8 +191,8 @@ class LeakScanner(ArtemisBase):
             status=status,
             status_reason=status_reason,
             data={
-                "pdfs_checked": len(pdf_urls),
-                "pdfs_with_leaked_data": pdfs_with_leaked_data,
+                "documents_checked": len(document_urls),
+                "documents_with_findings": documents_with_findings,
             },
         )
 

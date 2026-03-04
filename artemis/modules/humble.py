@@ -3,6 +3,7 @@ import dataclasses
 import json
 import os
 import subprocess
+from pathlib import Path
 from typing import Any, Dict, List
 
 from karton.core import Task
@@ -119,7 +120,7 @@ class Humble(ArtemisBase):
             .removeprefix("\n Analyzing URL and saving the report, please wait ...\n\n\n Report saved to ")
             .removesuffix("\n")
         )
-        data_str = open(filename, "r").read()
+        data_str = Path(filename).read_text(encoding="utf-8")
 
         # cleanup file
         os.unlink(filename)

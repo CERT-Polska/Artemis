@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import binascii
-import json
 import os
 import time
+import json
+import yaml
 import urllib.parse
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
-import yaml
 from karton.core import Consumer, Task
 from karton.core.config import Config as KartonConfig
 from publicsuffixlist import PublicSuffixList

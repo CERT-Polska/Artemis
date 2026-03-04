@@ -256,16 +256,6 @@ class Nuclei(ArtemisBase):
             requests_per_second_per_host.extend(current_second_host_requests.values())
             current_second_host_requests = collections.defaultdict(int)
 
-        for line in stderr_lines:
-            try:
-                data = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-
-            if "duration" in data and "requests" in data:  # stats line
-                _finish_current_second()
-            elif "address" in data:  # request info line
-                current_second_host_requests[data["address"].split(":")[0]] += 1
         _finish_current_second()
 
         try:
@@ -413,17 +403,12 @@ class Nuclei(ArtemisBase):
                     # the trailing slash matters.
                     command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER.strip("/")])
 
-                if scan_using == ScanUsing.TEMPLATES:
-                    # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
-                    # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
-                    for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
-                        if template in chunk:
-                            command.append("-it")
-                            command.append(template)
-
                 for target in targets:
                     command.append("-target")
                     command.append(target)
+
+                command.append("--debug")
+                command.append("--verbose")
 
                 self.log.debug("Running command: %s", " ".join(command))
 
@@ -439,6 +424,8 @@ class Nuclei(ArtemisBase):
 
                 stdout_utf8 = stdout.decode("utf-8", errors="ignore")
                 stderr_utf8 = stderr.decode("utf-8", errors="ignore")
+                self.log.info(stdout_utf8)
+                self.log.info(stderr_utf8)
 
                 stdout_utf8_lines = stdout_utf8.split("\n")
                 stderr_utf8_lines = stderr_utf8.split("\n")
@@ -518,11 +505,6 @@ class Nuclei(ArtemisBase):
 
         findings = self._scan(
             templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
-        )
-        findings.extend(
-            self._scan(
-                self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
-            )
         )
 
         # DAST scanning

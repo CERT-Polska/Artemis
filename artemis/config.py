@@ -705,37 +705,7 @@ class Config:
                 "a significant number of false positives.",
             ] = get_config(
                 "NUCLEI_ADDITIONAL_TEMPLATES",
-                default=",".join(
-                    [
-                        "http/exposures/configs/phpinfo-files.yaml",
-                        "http/exposures/configs/dompdf-config.yaml",
-                        "http/exposures/configs/ftp-credentials-exposure.yaml",
-                        "http/exposures/configs/prometheus-metrics.yaml",
-                        "http/exposures/files/core-dump.yaml",
-                        "http/exposures/files/ds-store-file.yaml",
-                        "http/exposures/logs/roundcube-log-disclosure.yaml",
-                        "network/detection/rtsp-detect.yaml",
-                        "http/miscellaneous/defaced-website-detect.yaml",
-                        "http/misconfiguration/directory-listing-no-host-header.yaml",
-                        "http/misconfiguration/django-debug-detect.yaml",
-                        "http/misconfiguration/mixed-active-content.yaml",
-                        "http/misconfiguration/mysql-history.yaml",
-                        "http/misconfiguration/elasticsearch.yaml",
-                        "http/misconfiguration/proxy/open-proxy-external.yaml",
-                        "http/misconfiguration/server-status-localhost.yaml",
-                        "http/misconfiguration/server-status.yaml",
-                        "http/misconfiguration/shell-history.yaml",
-                        "http/misconfiguration/springboot/springboot-auditevents.yaml",
-                        "http/misconfiguration/springboot/springboot-dump.yaml",
-                        "http/misconfiguration/springboot/springboot-env.yaml",
-                        "http/misconfiguration/springboot/springboot-httptrace.yaml",
-                        "http/misconfiguration/springboot/springboot-logfile.yaml",
-                        "http/misconfiguration/springboot/springboot-threaddump.yaml",
-                        "http/misconfiguration/springboot/springboot-trace.yaml",
-                        "http/vulnerabilities/generic/basic-xss-prober.yaml",
-                        "http/vulnerabilities/generic/xss-fuzz.yaml",
-                    ]
-                ),
+                default=",".join([]),
                 cast=decouple.Csv(str),
             )
 

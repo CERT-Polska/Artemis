@@ -17,21 +17,24 @@ from artemis.module_base import ArtemisBase
 from artemis.password_utils import get_passwords
 from artemis.task_utils import get_target_url
 
-COMMON_USERNAMES = ["admin"]
+COMMON_USERNAMES: List[str] = ["admin"]
 
 
 def read_file(file: IO[str]) -> List[str]:
     return [line.strip() for line in file if not line.startswith("#")]
 
 
+COMMON_FAILURE_MESSAGES: List[str]
 with open(
     os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_failure_messages.txt")
 ) as f:
     COMMON_FAILURE_MESSAGES = read_file(f)
 
+LOGOUT_MESSAGES: List[str]
 with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "logout_messages.txt")) as f:
     LOGOUT_MESSAGES = read_file(f)
 
+COMMON_LOGIN_PATHS: List[str]
 with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_login_paths.txt")) as f:
     COMMON_LOGIN_PATHS = read_file(f)
 

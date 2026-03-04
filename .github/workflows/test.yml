@@ -12,5 +12,11 @@ jobs:
         uses: actions/checkout@v6
       - name: set RUNNING_ON_GITHUB in env.test
         run: echo RUNNING_ON_GITHUB=1 >> env.test
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
       - name: run tests
-        run: ./scripts/test
+        run: |
+          ./scripts/test
+          sleep 300

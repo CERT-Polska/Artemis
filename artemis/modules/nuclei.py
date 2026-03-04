@@ -49,7 +49,7 @@ NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
 logger = logging.getLogger(__name__)
 
 
-def _verify_with_nuclei(url: str, template_id: str) -> bool:
+def _verify_with_nuclei(url: str, template_path: str) -> bool:
     try:
         command = [
             "nuclei",
@@ -57,7 +57,7 @@ def _verify_with_nuclei(url: str, template_id: str) -> bool:
             "-u",
             url,
             "-t",
-            os.path.join(NUCLEI_TEMPLATES_LOCATION, template_id),
+            template_path,
             "-dast",
             "-fuzzing-mode",
             "multiple",
@@ -700,10 +700,14 @@ class Nuclei(ArtemisBase):
 
             for finding in findings_per_task[task.uid]:
                 if "matched-at" in finding:
+                    template_path = finding.get(
+                        "template-path",
+                        os.path.join(NUCLEI_TEMPLATES_LOCATION, finding["template-id"]),
+                    )
                     finding["matched-at"] = minimize_nuclei_matched_at_url(
                         finding["matched-at"],
                         fuzzing_parameter=finding.get("fuzzing_parameter"),
-                        verify_url_fn=lambda url: _verify_with_nuclei(url, finding["template-id"]),
+                        verify_url_fn=lambda url: _verify_with_nuclei(url, template_path),
                     )
                 result.append(finding)
                 messages.append(

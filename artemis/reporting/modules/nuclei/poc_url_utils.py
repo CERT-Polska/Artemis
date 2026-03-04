@@ -19,7 +19,7 @@ def minimize_nuclei_matched_at_url(
     url: str,
     fuzzing_parameter: Optional[str] = None,
     verify_url_fn: Optional[Callable[[str], bool]] = None,
-    params_threshold: int = 4,
+    params_threshold: int = 2,
 ) -> str:
     """Return a short, still-working PoC URL from a Nuclei matched-at URL.
 

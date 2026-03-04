@@ -32,7 +32,6 @@
         No targets have yet been analysed. <a href="{{ request.url_for('get_add_form') }}">Analyze targets.</a>
     {% endif %}
 
-    <!-- Modal for Remove Pending Tasks Confirmation -->
     <div class="modal" tabindex="-1" role="dialog" id="remove-pending-tasks-modal" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -57,7 +56,6 @@
         </div>
     </div>
 
-    <!-- Modal for Remove All Finished Analyses Confirmation -->
     <div class="modal" tabindex="-1" role="dialog" id="remove-finished-analyses-modal" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -102,7 +100,6 @@
             table.on('draw.dt', function () {
                 $('[data-bs-toggle="tooltip"]').tooltip();
 
-                // Handle remove pending tasks modal
                 $('.remove-pending-tasks-link').off('click').on('click', function() {
                     const analysisId = $(this).data('analysis-id');
                     const analysisTarget = $(this).data('analysis-target');

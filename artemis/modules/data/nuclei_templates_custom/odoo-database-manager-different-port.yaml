@@ -23,8 +23,7 @@ info:
 http:
   - method: GET
     path:
-      - '{{BaseURL}}/web/database/manager'
-      - 'http://{{Host}}:8069/web/database/manager'
+      - '/web/database/manager'
 
     matchers-condition: and
     matchers:

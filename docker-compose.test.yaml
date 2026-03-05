@@ -10,6 +10,7 @@ services:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
       - ./test/:/opt/test/
+      - ./docs/:/opt/docs/
       - ./docker/karton.ini:/etc/karton/karton.ini
       - data-test:/data/
 
@@ -43,6 +44,7 @@ services:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
       - ./test/:/opt/test/
+      - ./docs/:/opt/docs/
       - ./docker/karton.ini:/etc/karton/karton.ini
 
   test-redis:

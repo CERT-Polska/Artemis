@@ -1064,7 +1064,10 @@ class Config:
 
             SUBFINDER_PROVIDER_CONFIG: Annotated[
                 str,
-                "Subfinder provider configuration in JSON format. Used to generate provider-config.yaml dynamically.",
+                "Subfinder provider configuration in JSON format. "
+                "Used to generate provider-config.yaml dynamically. "
+                "Example: "
+                '\'{"github": ["key1", "key2"], "virustotal": ["key"]}\'',
             ] = get_config("SUBFINDER_API_KEYS", default="")
 
             GAU_ADDITIONAL_OPTIONS: Annotated[

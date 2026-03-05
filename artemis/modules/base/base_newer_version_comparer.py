@@ -21,7 +21,7 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         )
 
         endoflife_data_path = Path(self.endoflife_data_folder) / "products" / (self.software_name + ".md")
-        with open(endoflife_data_path, "r") as f:
+        with open(endoflife_data_path, "r", encoding="utf-8") as f:
             self.endoflife_data = next(yaml.load_all(f, yaml.SafeLoader))
 
     def _parse_version(self, version: str) -> semver.VersionInfo:

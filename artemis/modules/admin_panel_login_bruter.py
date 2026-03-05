@@ -26,16 +26,23 @@ def read_file(file: IO[str]) -> List[str]:
 
 COMMON_FAILURE_MESSAGES: List[str]
 with open(
-    os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_failure_messages.txt")
+    os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_failure_messages.txt"),
+    encoding="utf-8",
 ) as f:
     COMMON_FAILURE_MESSAGES = read_file(f)
 
 LOGOUT_MESSAGES: List[str]
-with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "logout_messages.txt")) as f:
+with open(
+    os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "logout_messages.txt"),
+    encoding="utf-8",
+) as f:
     LOGOUT_MESSAGES = read_file(f)
 
 COMMON_LOGIN_PATHS: List[str]
-with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_login_paths.txt")) as f:
+with open(
+    os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_login_paths.txt"),
+    encoding="utf-8",
+) as f:
     COMMON_LOGIN_PATHS = read_file(f)
 
 

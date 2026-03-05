@@ -1,16 +1,15 @@
+import json
 import re
-import time
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
+from typing import Any, Dict, Optional
 
 import requests
-
-from artemis.karton_utils import get_binds_that_can_be_disabled
 
 API_TOKEN = "api-token"
 DOCS_PATH = "docs/api/rest-api.rst"
 
 
-def extract_curl_commands(filepath: str) -> dict:
+def extract_curl_commands(filepath: str) -> Dict[str, str]:
     """Extract curl commands from the documentation, keyed by their comment identifier.
 
     Each curl command in the docs is preceded by a comment like:
@@ -20,7 +19,7 @@ def extract_curl_commands(filepath: str) -> dict:
     with open(filepath, "r") as f:
         content = f.read()
 
-    commands = {}
+    commands: Dict[str, str] = {}
     # Match code blocks containing curl commands with their preceding comment identifiers
     # The pattern matches: "# <identifier>\n   curl ..." inside code-block:: bash sections
     pattern = r"# (rest-api-[\w-]+)\n\s+(curl\s+.*?)(?=\n\n|\n\.\.|$)"
@@ -33,7 +32,9 @@ def extract_curl_commands(filepath: str) -> dict:
     return commands
 
 
-def run_curl_via_requests(curl_cmd: str, api_token: str, base_url: str, analysis_id: str = None) -> requests.Response:
+def run_curl_via_requests(
+    curl_cmd: str, api_token: str, base_url: str, analysis_id: Optional[str] = None
+) -> requests.Response:
     """Parse a curl command string and execute it using the requests library.
 
     Replaces $API_TOKEN with the actual token and localhost:5000 with the test backend URL.
@@ -54,13 +55,13 @@ def run_curl_via_requests(curl_cmd: str, api_token: str, base_url: str, analysis
         method = "DELETE"
 
     # Extract URL
-    url_match = re.search(r'(https?://\S+)', curl_cmd.replace('"', " ").replace("'", " "))
+    url_match = re.search(r"(https?://\S+)", curl_cmd.replace('"', " ").replace("'", " "))
     if not url_match:
         raise ValueError(f"Could not extract URL from curl command: {curl_cmd}")
     url = url_match.group(1).rstrip("'\"")
 
     # Extract headers
-    headers = {}
+    headers: Dict[str, str] = {}
     for header_match in re.finditer(r'-H\s+"([^"]+)"', curl_cmd):
         key, _, value = header_match.group(1).partition(": ")
         headers[key] = value
@@ -69,11 +70,9 @@ def run_curl_via_requests(curl_cmd: str, api_token: str, base_url: str, analysis
         headers[key] = value
 
     # Extract JSON body
-    json_data = None
+    json_data: Optional[Dict[str, Any]] = None
     data_match = re.search(r"-d\s+'(\{.*?\})'", curl_cmd, re.DOTALL)
     if data_match:
-        import json
-
         json_data = json.loads(data_match.group(1))
 
     # Handle -L (follow redirects) and -o (output file) flags
@@ -120,7 +119,6 @@ class RestApiDocExamplesTestCase(BaseE2ETestCase):
         self.assertTrue(result.get("ok"), f"POST /api/add did not return ok: {result}")
         self.assertIn("ids", result)
         self.assertEqual(len(result["ids"]), 1)
-        analysis_id = result["ids"][0]
 
         # --- Step 2: List analyses ---
         response = run_curl_via_requests(commands["rest-api-list-analyses"], API_TOKEN, BACKEND_URL)

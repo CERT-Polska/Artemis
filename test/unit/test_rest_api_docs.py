@@ -9,7 +9,7 @@ import json
 import os
 import re
 import unittest
-from typing import Dict, List, Set, Tuple
+from typing import Dict, Set, Tuple
 
 REPO_ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 DOCS_PATH = os.path.join(REPO_ROOT, "docs", "api", "rest-api.rst")
@@ -150,8 +150,7 @@ class TestRestApiDocumentation(unittest.TestCase):
             self.assertIn(
                 cmd_id,
                 self.commands,
-                f"Expected curl command '{cmd_id}' not found in docs. "
-                f"Found: {sorted(self.commands.keys())}",
+                f"Expected curl command '{cmd_id}' not found in docs. " f"Found: {sorted(self.commands.keys())}",
             )
 
     def test_all_documented_endpoints_exist_in_source(self) -> None:
@@ -160,9 +159,7 @@ class TestRestApiDocumentation(unittest.TestCase):
             method, path, headers, body = parse_curl_command(curl_cmd)
             normalized_path = normalize_path_for_matching(path)
 
-            matching_routes = [
-                (m, p) for m, p in self.routes if m == method and p == normalized_path
-            ]
+            matching_routes = [(m, p) for m, p in self.routes if m == method and p == normalized_path]
             self.assertTrue(
                 len(matching_routes) > 0,
                 f"Documented command '{cmd_id}' references {method} {path} "

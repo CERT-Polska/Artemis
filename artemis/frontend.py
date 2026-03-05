@@ -342,7 +342,10 @@ async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProt
     def _remove_finished_analyses() -> None:
         karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
         for analysis in db.list_analysis():
-            if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
+            if (
+                analysis["id"] not in karton_state.analyses
+                or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0
+            ):
                 db.delete_analysis(analysis["id"])
 
     await asyncio.to_thread(_remove_finished_analyses)

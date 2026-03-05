@@ -27,12 +27,12 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["data"]["results"][0]["password"], "admin")
         self.assertEqual(call.kwargs["data"]["results"][0]["indicators"], ["logout_link", "no_failure_messages"])
 
-    def test_json_api_login(self) -> None:
-        """Test that JSON API login works against a panel with no HTML form (e.g. Grafana, Portainer style)."""
+    def test_grafana_json_login(self) -> None:
+        """Test that JSON API login works against a real Grafana instance (no HTML form)."""
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-json-login-panel",
+                "host": "test-grafana",
                 "port": 3000,
             },
         )

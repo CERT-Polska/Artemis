@@ -87,7 +87,8 @@ class LFIDetector(ArtemisBase):
             ]:
                 for payload in payloads:
                     param_batch = []
-                    for i, param in enumerate(parameters + URL_PARAMS):
+                    total_params = parameters + URL_PARAMS
+                    for i, param in enumerate(total_params):
                         param_batch.append(param)
                         url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
 
@@ -95,7 +96,7 @@ class LFIDetector(ArtemisBase):
                         # length (as longer URLs may be unsupported by the servers).
                         #
                         # We can't have constant chunk size as the payloads have varied length.
-                        if len(url_with_payload) >= 1600 or i == len(URL_PARAMS) - 1:
+                        if len(url_with_payload) >= 1600 or i == len(total_params) - 1:
                             response = self.http_get(url_with_payload)
 
                             if indicator := self.contains_lfi_indicator(original_response, response):

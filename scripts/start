@@ -66,20 +66,7 @@ fi
 
 SCALE_ARGS=()
 
-if [ "$SINGLE_WORKER_MODE" = true ]; then
-    SCALE_ARGS+=(
-        --scale=karton-identifier=1
-        --scale=karton-port_scanner=1
-        --scale=karton-wordpress_plugins=1
-        --scale=karton-nuclei=1
-        --scale=karton-bruter=1
-    )
-
-    if exists Artemis-modules-extra; then
-        SCALE_ARGS+=(--scale=karton-sqlmap=1)
-    fi
-
-else
+if [ "$SINGLE_WORKER_MODE" != true ]; then
     SCALE_ARGS+=(
         --scale=karton-identifier=3
         --scale=karton-port_scanner=5

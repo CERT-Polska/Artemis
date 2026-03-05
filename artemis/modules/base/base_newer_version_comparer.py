@@ -25,8 +25,7 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
             shutil.rmtree(self.endoflife_data_folder, ignore_errors=True)
             raise RuntimeError(
-                f"Failed to clone endoflife data repository: {e}. "
-                "Check network connectivity to github.com."
+                f"Failed to clone endoflife data repository: {e}. " "Check network connectivity to github.com."
             ) from e
 
         endoflife_data_path = Path(self.endoflife_data_folder) / "products" / (self.software_name + ".md")

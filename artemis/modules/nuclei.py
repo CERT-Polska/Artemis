@@ -228,9 +228,7 @@ class Nuclei(ArtemisBase):
 
         self._nuclei_templates_or_workflows_to_skip_probabilistically_set = set()
         if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
-            with open(
-                Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE, encoding="utf-8"
-            ) as f:
+            with open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE, encoding="utf-8") as f:
                 for line in f:
                     self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
 

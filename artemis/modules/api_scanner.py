@@ -58,7 +58,7 @@ class APIScanner(ArtemisBase):
                     "openapi" in response.text.lower() or "swagger" in response.text.lower()
                 ):
                     temp_file = f"/tmp/api_spec_{os.urandom(8).hex()}"
-                    with open(temp_file, "wb") as f:
+                    with open(temp_file, "w") as f:
                         f.write(response.content)
 
                     # Validate the spec

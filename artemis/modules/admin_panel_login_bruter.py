@@ -5,7 +5,6 @@ import random
 import urllib.parse
 from typing import IO, List, Optional, Tuple
 
-
 import requests
 from bs4 import BeautifulSoup
 from karton.core import Task
@@ -282,7 +281,9 @@ class AdminPanelLoginBruter(ArtemisBase):
                             binascii.hexlify(os.urandom(16)).decode("ascii"),
                         )
 
-                        if not (result_good_password and has_login_mechanism_fake_password and not result_fake_password):
+                        if not (
+                            result_good_password and has_login_mechanism_fake_password and not result_fake_password
+                        ):
                             rechecked = False
                             break
 

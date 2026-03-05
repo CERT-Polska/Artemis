@@ -81,7 +81,7 @@ if not Config.Miscellaneous.API_TOKEN:
 
 
 @router.get("/", include_in_schema=False)
-def get_root(request: Request) -> Response:
+def get_root(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
     has_finished_analyses = False
 
@@ -91,7 +91,7 @@ def get_root(request: Request) -> Response:
         if analysis["id"] not in num_pending_tasks or num_pending_tasks[analysis["id"]] == 0:
             has_finished_analyses = True
 
-    return templates.TemplateResponse(
+    return csrf.csrf_form_template_response(
         "index.jinja2",
         {
             "request": request,
@@ -100,6 +100,7 @@ def get_root(request: Request) -> Response:
             "api_url": str(request.url_for("get_analyses_table")),
             "num_active_tasks": sum(num_pending_tasks.values()),
         },
+        csrf_protect,
     )
 
 
@@ -191,13 +192,14 @@ async def post_add(
 
 
 @router.get("/exports", include_in_schema=False)
-def get_exports(request: Request) -> Response:
-    return templates.TemplateResponse(
+def get_exports(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+    return csrf.csrf_form_template_response(
         "exports.jinja2",
         {
             "request": request,
             "report_generation_tasks": db.list_report_generation_tasks(),
         },
+        csrf_protect,
     )
 
 
@@ -208,19 +210,6 @@ def get_export_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> 
         {
             "request": request,
             "languages": list(Language),
-        },
-        csrf_protect,
-    )
-
-
-@router.get("/export/delete/{id}", include_in_schema=False)
-def export_delete_form(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
-    task = db.get_report_generation_task(id)
-    return csrf.csrf_form_template_response(
-        "export_delete_form.jinja2",
-        {
-            "request": request,
-            "task": task,
         },
         csrf_protect,
     )
@@ -324,17 +313,6 @@ async def post_export(
     return RedirectResponse(request.url_for("get_exports"), status_code=303)
 
 
-@router.get("/remove-finished-analyses", include_in_schema=False)
-def get_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
-    return csrf.csrf_form_template_response(
-        "remove_finished_analyses.jinja2",
-        {
-            "request": request,
-        },
-        csrf_protect,
-    )
-
-
 @router.post("/remove-finished-analyses", include_in_schema=False)
 @csrf.validate_csrf
 async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
@@ -343,19 +321,6 @@ async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProt
         if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
             db.delete_analysis(analysis["id"])
     return RedirectResponse(request.url_for("get_root"), status_code=303)
-
-
-@router.get("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
-def get_remove_pending_tasks(request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()) -> Response:
-    return csrf.csrf_form_template_response(
-        "remove_pending_tasks.jinja2",
-        {
-            "analysis_id": analysis_id,
-            "analysed_object": db.get_analysis_by_id(analysis_id)["target"],  # type: ignore
-            "request": request,
-        },
-        csrf_protect,
-    )
 
 
 @router.post("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)

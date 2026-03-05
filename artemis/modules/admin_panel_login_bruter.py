@@ -122,7 +122,9 @@ class AdminPanelLoginBruter(ArtemisBase):
                     input_name = input_tag.get("name")
                     input_value = input_tag.get("value", "")
                     if input_name:
-                        if (
+                        if input_tag.get("type", "").lower() == "hidden":
+                            form_data[input_name] = input_value
+                        elif (
                             "user" in input_name.lower()
                             or "name" in input_name.lower()
                             or "usr" in input_name.lower()

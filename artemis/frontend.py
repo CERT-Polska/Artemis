@@ -1,3 +1,4 @@
+import asyncio
 import glob
 import json
 import os
@@ -316,10 +317,16 @@ async def post_export(
 @router.post("/remove-finished-analyses", include_in_schema=False)
 @csrf.validate_csrf
 async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
-    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
-    for analysis in db.list_analysis():
-        if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
-            db.delete_analysis(analysis["id"])
+    def _remove_finished_analyses() -> None:
+        karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+        for analysis in db.list_analysis():
+            if (
+                analysis["id"] not in karton_state.analyses
+                or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0
+            ):
+                db.delete_analysis(analysis["id"])
+
+    await asyncio.to_thread(_remove_finished_analyses)
     return RedirectResponse(request.url_for("get_root"), status_code=303)
 
 
@@ -328,19 +335,19 @@ async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProt
 async def post_remove_pending_tasks(
     request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()
 ) -> Response:
-    db.mark_analysis_as_stopped(analysis_id)
+    def _remove_pending_tasks() -> None:
+        db.mark_analysis_as_stopped(analysis_id)
+        backend = KartonBackend(config=KartonConfig())
+        for task in backend.get_all_tasks():
+            if task.root_uid == analysis_id:
+                backend.delete_task(task)
 
-    backend = KartonBackend(config=KartonConfig())
-
-    for task in backend.get_all_tasks():
-        if task.root_uid == analysis_id:
-            backend.delete_task(task)
-
+    await asyncio.to_thread(_remove_pending_tasks)
     return RedirectResponse(request.url_for("get_root"), status_code=303)
 
 
 @router.get("/analysis/get-pending-tasks/{analysis_id}", include_in_schema=False)
-async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
+def get_pending_tasks(request: Request, analysis_id: str) -> Response:
     analysis = db.get_analysis_by_id(analysis_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -378,7 +385,7 @@ def get_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depe
 @router.post("/restart-crashed-tasks", include_in_schema=False)
 @csrf.validate_csrf
 async def post_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
-    restart_crashed_tasks()
+    await asyncio.to_thread(restart_crashed_tasks)
     return RedirectResponse(request.url_for("get_root"), status_code=303)
 
 

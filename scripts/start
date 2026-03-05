@@ -64,16 +64,16 @@ else
 fi
 
 
-SCALE_ARGS=()
+SCALE_ARGS=""
 
 if [ "$SINGLE_WORKER_MODE" != true ]; then
-    SCALE_ARGS+=(
+    SCALE_ARGS+="
         --scale=karton-identifier=3
         --scale=karton-port_scanner=5
         --scale=karton-wordpress_plugins=5
         --scale=karton-nuclei=1
         --scale=karton-bruter=10
-    )
+    "
 
     if exists Artemis-modules-extra; then
         SCALE_ARGS+=(--scale=karton-sqlmap=10)

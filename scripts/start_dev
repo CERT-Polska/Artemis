@@ -2,4 +2,4 @@
 
 # depreciated way to start artemis meant to be a backward compatibility way for open source users to start project
 # delete it after some time
-. scripts/start --mode=development
+. scripts/start --mode=development $@

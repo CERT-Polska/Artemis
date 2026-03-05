@@ -71,6 +71,33 @@ class LFIDetector(ArtemisBase):
                 return description
         return None
 
+    def minimize_parameters(
+        self, url: str, params: List[str], payload: str, original_response: HTTPResponse
+    ) -> List[str]:
+        """
+        Try to find the minimal set of parameters that still triggers LFI. Currently minimizes to single parameters only.
+        Falls back to original params if none work individually.
+        """
+        minimal_params: List[str] = []
+
+        for param in params:
+            test_url = self.create_url_with_batch_payload(url, [param], payload)
+            response = self.http_get(test_url)
+
+            if self.contains_lfi_indicator(original_response, response):
+                minimal_params.append(param)
+
+        if minimal_params:
+            self.log.debug(
+                "LFI parameter minimization: %s -> %s",
+                params,
+                minimal_params,
+            )
+            return minimal_params
+
+        # fallback if no single param triggers LFI
+        return params
+
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         """Scan URLs for LFI vulnerabilities."""
         messages: List[Dict[str, Any]] = []
@@ -100,12 +127,26 @@ class LFIDetector(ArtemisBase):
                             response = self.http_get(url_with_payload)
 
                             if indicator := self.contains_lfi_indicator(original_response, response):
+
+                                minimal_params = self.minimize_parameters(
+                                    current_url,
+                                    param_batch,
+                                    payload,
+                                    original_response,
+                                )
+
+                                minimal_url = self.create_url_with_batch_payload(
+                                    current_url,
+                                    minimal_params,
+                                    payload,
+                                )
+
                                 messages.append(
                                     {
-                                        "url": url_with_payload,
+                                        "url": minimal_url,
                                         "headers": {},
                                         "matched_indicator": indicator,
-                                        "statement": vulnerability_to_message[vulnerability] + " " + url_with_payload,
+                                        "statement": vulnerability_to_message[vulnerability] + " " + minimal_url,
                                         "code": vulnerability.value,
                                     }
                                 )

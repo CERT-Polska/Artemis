@@ -95,7 +95,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                         verify=False,
                     )
                 )
-                if not post_response:
+                if post_response is None:
                     continue
 
                 if post_response.status_code in (200, 400, 401, 403, 422):
@@ -222,7 +222,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                     self.log.debug(f"Error submitting to {form_url}: {e}")
                     continue
 
-                if not post_response:
+                if post_response is None:
                     continue
 
                 indicators = []

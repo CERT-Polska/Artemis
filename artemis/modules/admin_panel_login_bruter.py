@@ -35,6 +35,13 @@ with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bru
 with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_login_paths.txt")) as f:
     COMMON_LOGIN_PATHS = read_file(f)
 
+# JSON-only API login endpoints that do not respond to GET with 200 (POST-only).
+# These are always tried regardless of discovery, because check_url(GET) would fail.
+JSON_API_PATHS = [
+    "/api/login",   # Grafana
+    "/api/auth",    # Portainer and other tools
+]
+
 
 class AdminPanelLoginBruterResult(BaseModel):
     url: str
@@ -159,7 +166,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         try:
             response = self.throttle_request(lambda: http_requests.request("get", login_url, session=session))
             if not response or response.status_code != 200:
-                return (False, None)
+                # GET failed — the path may still be a JSON-only API endpoint;
+                # attempt JSON login before giving up.
+                return self._try_json_login(session, login_url, username, password)
 
             original_cookies = session.cookies.get_dict()  # type: ignore
             soup = BeautifulSoup(response.text, "html.parser")
@@ -265,7 +274,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         results = []
         credential_pairs = set()
         for path in login_paths:
-            for username, password in itertools.product(COMMON_USERNAMES, get_passwords(task)):
+            credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
+            random.shuffle(credentials)
+            for username, password in credentials:
                 login_mechanism_found, result = self.brute_force_login_path(base_url, path, username, password)
                 if result:
                     self.log.info("Checking whether %s:%s indeed works", username, password)
@@ -307,6 +318,12 @@ class AdminPanelLoginBruter(ArtemisBase):
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
         login_paths = self.discover_login_paths(url)
+
+        # Always include known JSON-only API paths that won't pass the GET check.
+        for path in JSON_API_PATHS:
+            if path not in login_paths:
+                login_paths.append(path)
+
         random.shuffle(login_paths)
 
         results = self.scan(current_task, url, login_paths)

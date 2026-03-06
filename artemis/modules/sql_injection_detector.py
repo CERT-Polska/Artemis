@@ -1,7 +1,5 @@
 import datetime
-import random
 import re
-import urllib
 from enum import Enum
 from timeit import default_timer as timer
 from typing import Any, Dict, List, Optional
@@ -12,18 +10,12 @@ import requests
 from karton.core import Task
 
 from artemis import load_risk_class
-from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import (
-    get_injectable_parameters,
-    get_links_and_resources_on_same_domain,
-)
+from artemis.crawling import get_injectable_parameters
 from artemis.http_requests import HTTPResponse
-from artemis.module_base import ArtemisBase
 from artemis.modules.data.parameters import URL_PARAMS
-from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
+from artemis.modules.injection_detector_base import InjectionDetectorBase
 from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES
-from artemis.task_utils import get_target_url
 
 
 class Statements(Enum):
@@ -34,41 +26,18 @@ class Statements(Enum):
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
-class SqlInjectionDetector(ArtemisBase):
+class SqlInjectionDetector(InjectionDetectorBase):
     """
     Module for detecting SQL injection and time-based SQL injection vulnerabilities.
     """
 
-    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "sql_injection_detector"
-    filters = [
-        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
-    ]
-
-    @staticmethod
-    def _strip_query_string(url: str) -> str:
-        url_parsed = urllib.parse.urlparse(url)
-        return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
-
-    def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any], payload: str) -> str:
-        assignments = {key: payload for key in param_batch}
-        concatenation = "&" if self.is_url_with_parameters(url) else "?"
-
-        url_with_payload = f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
-
-        return url_with_payload
 
     @staticmethod
     def change_sleep_to_0(payload: str) -> str:
         # This is to replace sleep(5) with sleep(0) so that we inject an empty sleep instead of keeping the variable
         # empty as keeping it empty may trigger different, faster code paths.
         return payload.replace(f"({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})", "(0)")
-
-    @staticmethod
-    def is_url_with_parameters(url: str) -> bool:
-        if re.search("/?/*=", url):
-            return True
-        return False
 
     @staticmethod
     def change_url_params(url: str, payload: str, param_batch: tuple[Any]) -> str:
@@ -126,18 +95,16 @@ class SqlInjectionDetector(ArtemisBase):
             headers.update({key: value + payload})
         return headers
 
-    @staticmethod
-    def create_status_reason(message: Any) -> str:
+    def create_status_reason(self, messages: List[Dict[str, Any]]) -> str:
         status_reason = []
-        for injection_message in message:
+        for injection_message in messages:
             status_reason.append(f"{injection_message.get('url')}: {injection_message.get('statement')}")
         return ", ".join(set(status_reason))
 
-    @staticmethod
-    def create_data(message: Any) -> Dict[str, List[str] | dict[str, Any]]:
-        message = list(more_itertools.unique_everseen(message))
-        data = {
-            "result": message,
+    def create_data(self, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
+        messages = list(more_itertools.unique_everseen(messages))
+        return {
+            "result": messages,
             "statements": {
                 "sql_injection": Statements.sql_injection.value,
                 "sql_time_based_injection": Statements.sql_time_based_injection.value,
@@ -145,7 +112,6 @@ class SqlInjectionDetector(ArtemisBase):
                 "headers_time_based_sql_injection": Statements.headers_time_based_sql_injection.value,
             },
         }
-        return data
 
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
@@ -345,34 +311,6 @@ class SqlInjectionDetector(ArtemisBase):
                         return message
 
         return message
-
-    def run(self, current_task: Task) -> None:
-        url = get_target_url(current_task)
-
-        links = get_links_and_resources_on_same_domain(url)
-        links.append(url)
-        links = list(set(links) | set([self._strip_query_string(link) for link in links]))
-
-        links = [
-            link.split("#")[0]
-            for link in links
-            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-        ]
-
-        random.shuffle(links)
-
-        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
-
-        if message:
-            status = TaskStatus.INTERESTING
-            status_reason = self.create_status_reason(message=message)
-        else:
-            status = TaskStatus.OK
-            status_reason = None
-
-        data = self.create_data(message=message)
-
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 
 
 if __name__ == "__main__":

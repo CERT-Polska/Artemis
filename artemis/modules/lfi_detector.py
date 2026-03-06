@@ -1,27 +1,18 @@
-import random
-import re
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse, urlunparse
 
 from karton.core import Task
 
 from artemis import load_risk_class
-from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import (
-    get_injectable_parameters,
-    get_links_and_resources_on_same_domain,
-)
+from artemis.crawling import get_injectable_parameters
 from artemis.http_requests import HTTPResponse
-from artemis.module_base import ArtemisBase
 from artemis.modules.data.lfi_detector.lfi_detector_data import (
     LFI_PAYLOADS,
     RCE_PAYLOADS,
 )
 from artemis.modules.data.parameters import URL_PARAMS
-from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
-from artemis.task_utils import get_target_url
+from artemis.modules.injection_detector_base import InjectionDetectorBase
 
 
 class LFIFindings(Enum):
@@ -36,28 +27,15 @@ vulnerability_to_message = {
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
-class LFIDetector(ArtemisBase):
+class LFIDetector(InjectionDetectorBase):
     """
     Module for detecting Local File Inclusion (LFI) vulnerabilities.
     """
 
-    num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "lfi_detector"
-    filters = [
-        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
-    ]
 
-    def _strip_query_string(self, url: str) -> str:
-        url_parsed = urlparse(url)
-        return urlunparse(url_parsed._replace(query="", fragment=""))
-
-    def create_url_with_batch_payload(self, url: str, param_batch: List[str], payload: str) -> str:
-        assignments = {key: payload for key in param_batch}
-        concatenation = "&" if self.is_url_with_parameters(url) else "?"
-        return f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
-
-    def is_url_with_parameters(self, url: str) -> bool:
-        return bool(re.search(r"/?/*=", url))
+    def _pre_run_check(self, current_task: Task) -> bool:
+        return self.check_connection_to_base_url_and_save_error(current_task)
 
     def contains_lfi_indicator(self, original_response: HTTPResponse, response: HTTPResponse) -> Optional[str]:
         """Check if the response contains indicators of LFI."""
@@ -114,35 +92,11 @@ class LFIDetector(ArtemisBase):
 
         return messages
 
-    def run(self, current_task: Task) -> None:
-        """Run the LFI detection module."""
-        if self.check_connection_to_base_url_and_save_error(current_task):
-            url = get_target_url(current_task)
+    def create_status_reason(self, messages: List[Dict[str, Any]]) -> str:
+        return ", ".join([m["statement"] for m in messages])
 
-            links = get_links_and_resources_on_same_domain(url)
-            links.append(url)
-            links = list(set(links) | set([self._strip_query_string(link) for link in links]))
-
-            links = [
-                link.split("#")[0]
-                for link in links
-                if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-            ]
-
-            random.shuffle(links)
-
-            messages = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
-
-            if messages:
-                status = TaskStatus.INTERESTING
-                status_reason = ", ".join([m["statement"] for m in messages])
-            else:
-                status = TaskStatus.OK
-                status_reason = None
-
-            data = {"result": messages, "statements": {e.value: e.name for e in LFIFindings}}
-
-            self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
+    def create_data(self, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
+        return {"result": messages, "statements": {e.value: e.name for e in LFIFindings}}
 
 
 if __name__ == "__main__":

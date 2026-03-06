@@ -1,11 +1,8 @@
 import datetime
-import random
 import re
-import urllib
 from enum import Enum
 from timeit import default_timer as timer
 from typing import Any, Dict, List, Optional
-from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
 
 import more_itertools
 import requests
@@ -14,14 +11,18 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import (
-    get_injectable_parameters,
-    get_links_and_resources_on_same_domain,
-)
+from artemis.crawling import get_injectable_parameters
 from artemis.http_requests import HTTPResponse
+from artemis.injection_utils import (
+    change_url_params,
+    collect_urls_to_scan,
+    create_scan_result_data,
+    create_status_reason,
+    create_url_with_batch_payload,
+    is_url_with_parameters,
+)
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.parameters import URL_PARAMS
-from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url
 
@@ -46,55 +47,10 @@ class SqlInjectionDetector(ArtemisBase):
     ]
 
     @staticmethod
-    def _strip_query_string(url: str) -> str:
-        url_parsed = urllib.parse.urlparse(url)
-        return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
-
-    def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any], payload: str) -> str:
-        assignments = {key: payload for key in param_batch}
-        concatenation = "&" if self.is_url_with_parameters(url) else "?"
-
-        url_with_payload = f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
-
-        return url_with_payload
-
-    @staticmethod
     def change_sleep_to_0(payload: str) -> str:
         # This is to replace sleep(5) with sleep(0) so that we inject an empty sleep instead of keeping the variable
         # empty as keeping it empty may trigger different, faster code paths.
         return payload.replace(f"({Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD})", "(0)")
-
-    @staticmethod
-    def is_url_with_parameters(url: str) -> bool:
-        if re.search("/?/*=", url):
-            return True
-        return False
-
-    @staticmethod
-    def change_url_params(url: str, payload: str, param_batch: tuple[Any]) -> str:
-        parsed_url = urlparse(url)
-        query_params = parse_qs(parsed_url.query)
-        params = list(query_params.keys())
-        new_query_params = {}
-        assignments = {key: payload for key in param_batch}
-
-        for param in params:
-            new_query_params[param] = [payload]
-
-        new_query_string = urlencode(new_query_params, doseq=True)
-        new_url = urlunparse(
-            (
-                parsed_url.scheme,
-                parsed_url.netloc,
-                parsed_url.path,
-                parsed_url.params,
-                new_query_string,
-                parsed_url.fragment,
-            )
-        )
-        concatenation = "&" if SqlInjectionDetector.is_url_with_parameters(new_url) else "?"
-        new_url = f"{new_url}" + concatenation + "&".join([f"{key}={value}" for key, value in assignments.items()])
-        return unquote(new_url)
 
     def measure_request_time(self, url: str, **kwargs: Dict[str, Any]) -> float:
         start = timer()
@@ -126,27 +82,6 @@ class SqlInjectionDetector(ArtemisBase):
             headers.update({key: value + payload})
         return headers
 
-    @staticmethod
-    def create_status_reason(message: Any) -> str:
-        status_reason = []
-        for injection_message in message:
-            status_reason.append(f"{injection_message.get('url')}: {injection_message.get('statement')}")
-        return ", ".join(set(status_reason))
-
-    @staticmethod
-    def create_data(message: Any) -> Dict[str, List[str] | dict[str, Any]]:
-        message = list(more_itertools.unique_everseen(message))
-        data = {
-            "result": message,
-            "statements": {
-                "sql_injection": Statements.sql_injection.value,
-                "sql_time_based_injection": Statements.sql_time_based_injection.value,
-                "headers_sql_injection": Statements.headers_sql_injection.value,
-                "headers_time_based_sql_injection": Statements.headers_time_based_sql_injection.value,
-            },
-        }
-        return data
-
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
 
@@ -167,12 +102,12 @@ class SqlInjectionDetector(ArtemisBase):
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
 
             for param_batch in more_itertools.batched(parameters + URL_PARAMS, 75):
-                if self.is_url_with_parameters(current_url):
+                if is_url_with_parameters(current_url):
                     for error_payload in sql_injection_error_payloads:
-                        url_with_payload = self.change_url_params(
+                        url_with_payload = change_url_params(
                             url=current_url, payload=error_payload, param_batch=param_batch
                         )
-                        url_without_payload = self.change_url_params(
+                        url_without_payload = change_url_params(
                             url=current_url, payload=not_error_payload, param_batch=param_batch
                         )
 
@@ -195,10 +130,10 @@ class SqlInjectionDetector(ArtemisBase):
                                 return message
 
                     for sleep_payload in sql_injection_sleep_payloads:
-                        url_with_no_sleep_payload = self.change_url_params(
+                        url_with_no_sleep_payload = change_url_params(
                             url=current_url, payload=self.change_sleep_to_0(sleep_payload), param_batch=param_batch
                         )
-                        url_with_sleep_payload = self.change_url_params(
+                        url_with_sleep_payload = change_url_params(
                             url=current_url, payload=sleep_payload, param_batch=param_batch
                         )
 
@@ -229,10 +164,10 @@ class SqlInjectionDetector(ArtemisBase):
                                 return message
 
                 for error_payload in sql_injection_error_payloads:
-                    url_with_payload = self.create_url_with_batch_payload(
+                    url_with_payload = create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=error_payload
                     )
-                    url_with_no_payload = self.create_url_with_batch_payload(
+                    url_with_no_payload = create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=not_error_payload
                     )
 
@@ -256,10 +191,10 @@ class SqlInjectionDetector(ArtemisBase):
 
                 for sleep_payload in sql_injection_sleep_payloads:
                     flags = []
-                    url_with_sleep_payload = self.create_url_with_batch_payload(
+                    url_with_sleep_payload = create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=sleep_payload
                     )
-                    url_with_no_sleep_payload = self.create_url_with_batch_payload(
+                    url_with_no_sleep_payload = create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=self.change_sleep_to_0(sleep_payload)
                     )
 
@@ -349,28 +284,19 @@ class SqlInjectionDetector(ArtemisBase):
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
 
-        links = get_links_and_resources_on_same_domain(url)
-        links.append(url)
-        links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+        links = collect_urls_to_scan(url)
 
-        links = [
-            link.split("#")[0]
-            for link in links
-            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-        ]
-
-        random.shuffle(links)
-
-        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
+        message = self.scan(urls=links, task=current_task)
+        message = list(more_itertools.unique_everseen(message))
 
         if message:
             status = TaskStatus.INTERESTING
-            status_reason = self.create_status_reason(message=message)
+            status_reason = create_status_reason(message)
         else:
             status = TaskStatus.OK
             status_reason = None
 
-        data = self.create_data(message=message)
+        data = create_scan_result_data(message, Statements)
 
         self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 

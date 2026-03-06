@@ -1,0 +1,42 @@
+id: unauthenticated-socks-proxy
+
+info:
+  name: Unauthenticated SOCKS Proxy
+  author: navya-anand
+  severity: medium
+  description: Detects SOCKS proxy services that allow unauthenticated connections.
+  reference:
+    - https://datatracker.ietf.org/doc/html/rfc1928
+  classification:
+    cwe-id: CWE-284
+  tags: proxy,socks,misconfiguration,network
+
+network:
+  - host:
+      - "{{Hostname}}:1080"
+      - "{{Hostname}}:1081"
+      - "{{Hostname}}:1082"
+      - "{{Hostname}}:1085"
+      - "{{Hostname}}:2080"
+      - "{{Hostname}}:9050"
+      - "{{Hostname}}:9051"
+      - "{{Hostname}}:10808"
+
+    inputs:
+      - data: "\x05\x01\x00"
+        read: 2
+
+    matchers-condition: or
+    matchers:
+
+      # SOCKS5 no authentication
+      - type: regex
+        part: body
+        regex:
+          - "^\x05\x00"
+
+      # SOCKS4 success response
+      - type: regex
+        part: body
+        regex:
+          - "^\x00\x5a"

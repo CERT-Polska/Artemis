@@ -182,7 +182,7 @@ async def post_add(
             csrf_protect,
         )
 
-    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
+    await asyncio.to_thread(create_tasks, total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:
         return RedirectResponse(request.url_for("get_root"), status_code=303)
     else:

@@ -38,8 +38,8 @@ with open(os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bru
 # JSON-only API login endpoints that do not respond to GET with 200 (POST-only).
 # These are always tried regardless of discovery, because check_url(GET) would fail.
 JSON_API_PATHS = [
-    "/api/login",   # Grafana
-    "/api/auth",    # Portainer and other tools
+    "/api/login",  # Grafana
+    "/api/auth",  # Portainer and other tools
 ]
 
 

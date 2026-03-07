@@ -82,6 +82,8 @@ SEVERITY_MAP = {
     ReportType(
         "dangling_dns_record"
     ): Severity.MEDIUM,  # High if it's not a FP, but there is a significant percentage of unexploitable reports
+    ReportType("cors_misconfiguration"): Severity.MEDIUM,
+    ReportType("exposed_secrets_in_js"): Severity.HIGH,
 }
 
 if Config.Reporting.ADDITIONAL_SEVERITY_FILE:

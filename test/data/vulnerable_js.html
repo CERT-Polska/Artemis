@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page – Vulnerable JavaScript Libraries</title>
+    <!--
+        This fixture page is used by test/modules/test_js_vuln_detector.py.
+        It intentionally loads jQuery 1.12.0, which is known to be vulnerable
+        to CVE-2020-11022 / CVE-2020-11023.
+    -->
+    <script src="/js/jquery-1.12.0.min.js"></script>
+    <script src="/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/js/app.js"></script>
+</head>
+<body>
+    <p>Test page for vulnerable JS library detection.</p>
+</body>
+</html>

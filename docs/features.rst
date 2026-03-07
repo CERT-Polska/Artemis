@@ -14,6 +14,7 @@ Artemis includes:
  - Wordpress/Joomla/Drupal/WordPress plugin version check,
  - a check for VCS folders (e.g. ``.git``),
  - a check for enabled directory index,
+ - detection of vulnerable client-side JavaScript libraries (e.g. jQuery, Bootstrap, Lodash) using the `Retire.js <https://retirejs.github.io/retire.js/>`_ vulnerability database,
  - port scanning,
  - metrics export for Prometheus (including data such as number of processed or crashed tasks): http://127.0.0.1:5000/metrics
  - easy extensibility via plug-and-play modules,

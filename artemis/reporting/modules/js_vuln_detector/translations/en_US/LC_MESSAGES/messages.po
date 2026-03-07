@@ -1,0 +1,10 @@
+#: artemis/reporting/modules/js_vuln_detector/template_vulnerable_js_library.jinja2:2
+msgid "We identified vulnerable JavaScript libraries loaded by the page:"
+msgstr ""
+
+#: artemis/reporting/modules/js_vuln_detector/template_vulnerable_js_library.jinja2:14
+msgid ""
+"These JavaScript libraries have known security vulnerabilities (such as "
+"cross-site scripting, prototype pollution, or denial-of-service). Please "
+"upgrade each affected library to the latest stable release."
+msgstr ""

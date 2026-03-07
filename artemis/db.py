@@ -556,21 +556,27 @@ class DB:
 
     def take_single_report_generation_task(self) -> Optional[ReportGenerationTask]:
         with self.session() as session:
-            return (  # type: ignore
+            task = (
                 session.query(ReportGenerationTask)
                 .filter(ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value)
                 .first()
             )
+            if task:
+                session.expunge(task)
+            return task  # type: ignore
 
     def save_report_generation_task_results(
         self,
-        task: ReportGenerationTask,
+        task_id: int,
         status: ReportGenerationTaskStatus,
         output_location: Optional[str] = None,
         error: Optional[str] = None,
         alerts: Optional[List[str]] = None,
     ) -> None:
         with self.session() as session:
+            task = session.query(ReportGenerationTask).get(task_id)
+            if not task:
+                return
             task.status = status.value
             if output_location:
                 task.output_location = output_location
@@ -578,7 +584,6 @@ class DB:
                 task.error = error
             if alerts:
                 task.alerts = alerts
-            session.add(task)
             session.commit()
 
     def create_report_generation_task(
@@ -609,7 +614,10 @@ class DB:
 
     def get_report_generation_task(self, id: int) -> Optional[ReportGenerationTask]:
         with self.session() as session:
-            return session.query(ReportGenerationTask).filter(ReportGenerationTask.id == id).first()  # type: ignore
+            task = session.query(ReportGenerationTask).filter(ReportGenerationTask.id == id).first()
+            if task:
+                session.expunge(task)
+            return task  # type: ignore
 
     def list_report_generation_tasks(self, tag_prefix: Optional[str] = None) -> List[ReportGenerationTask]:
         with self.session() as session:
@@ -619,7 +627,10 @@ class DB:
                     raise NotImplementedError()
 
                 query = query.filter(ReportGenerationTask.tag.like(tag_prefix + "%"))
-            return list(query.order_by(ReportGenerationTask.created_at.desc()))
+            tasks = list(query.order_by(ReportGenerationTask.created_at.desc()))
+            for task in tasks:
+                session.expunge(task)
+            return tasks
 
     def delete_report_generation_task(self, id: int) -> None:
         with self.session() as session:

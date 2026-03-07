@@ -163,6 +163,7 @@ class TaskResult(Base):  # type: ignore
 
 class ReportGenerationTaskStatus(str, enum.Enum):
     PENDING = "pending"
+    IN_PROGRESS = "in_progress"
     DONE = "done"
     FAILED = "failed"
 
@@ -556,11 +557,33 @@ class DB:
 
     def take_single_report_generation_task(self) -> Optional[ReportGenerationTask]:
         with self.session() as session:
-            return (  # type: ignore
+            task = (
                 session.query(ReportGenerationTask)
                 .filter(ReportGenerationTask.status == ReportGenerationTaskStatus.PENDING.value)
                 .first()
             )
+            if task:
+                task.status = ReportGenerationTaskStatus.IN_PROGRESS.value
+                session.commit()
+            return task  # type: ignore
+
+    def recover_stuck_in_progress_tasks(self) -> int:
+        """Mark any in-progress report generation tasks as failed.
+
+        This handles the case where the worker crashed mid-task (e.g. OOM-kill),
+        leaving the task stuck in 'in_progress' forever. Called at startup.
+        """
+        with self.session() as session:
+            stuck_tasks = (
+                session.query(ReportGenerationTask)
+                .filter(ReportGenerationTask.status == ReportGenerationTaskStatus.IN_PROGRESS.value)
+                .all()
+            )
+            for task in stuck_tasks:
+                task.status = ReportGenerationTaskStatus.FAILED.value
+                task.error = "Worker crashed during report generation (recovered at startup)"
+            session.commit()
+            return len(stuck_tasks)
 
     def save_report_generation_task_results(
         self,

@@ -2,18 +2,15 @@ from test.base import ArtemisModuleTestCase
 from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
-# from jinja2 import Template
 
 
 class TestTaskTemplate(ArtemisModuleTestCase):
     @patch("artemis.templating.templates.get_template")
     def test_task_template_with_breadcrumb_navigation(self, mock_get_template: Mock) -> None:
         """Test that task template renders breadcrumb navigation correctly"""
-        # Mock template
         mock_template = Mock()
         mock_get_template.return_value = mock_template
 
-        # Test data with task path
         task_data: Dict[str, Any] = {
             "id": "current-task-id",
             "task": {
@@ -44,7 +41,6 @@ class TestTaskTemplate(ArtemisModuleTestCase):
             },
         ]
 
-        # Mock template rendering
         mock_template.render.return_value = """
         <h4>Full Task Path</h4>
         <ol class="breadcrumb">
@@ -57,14 +53,12 @@ class TestTaskTemplate(ArtemisModuleTestCase):
         </ol>
         """
 
-        # Render template
         from artemis.templating import templates
 
         rendered = templates.get_template("task.jinja2").render(
             request=Mock(), task=task_data, task_path=task_path, referer="/", pretty_printed='{"test": "data"}'
         )
 
-        # Verify breadcrumb elements exist
         self.assertIn("Full Task Path", rendered)
         self.assertIn("breadcrumb", rendered)
         self.assertIn("root-task-id", rendered)
@@ -80,17 +74,14 @@ class TestTaskTemplate(ArtemisModuleTestCase):
             "target_string": "example.com",
         }
 
-        # Test with empty path
         empty_path: List[Dict[str, Any]] = []
 
-        # Should render without errors
         from artemis.templating import templates
 
         rendered = templates.get_template("task.jinja2").render(
             request=Mock(), task=task_data, task_path=empty_path, referer="/", pretty_printed="{}"
         )
 
-        # Should still have the Full Task Path section
         self.assertIn("Full Task Path", rendered)
         self.assertIn("breadcrumb", rendered)
 
@@ -113,7 +104,6 @@ class TestTaskTemplate(ArtemisModuleTestCase):
             request=Mock(), task=task_data, task_path=[], referer="/", pretty_printed='{"error": "details"}'
         )
 
-        # Verify existing elements are present
         self.assertIn("Task results", rendered)
         self.assertIn("test-task-id", rendered)
         self.assertIn("nuclei", rendered)

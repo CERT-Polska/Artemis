@@ -453,20 +453,20 @@ class DB:
                     return None
         except NoResultFound:
             return None
-#recursively fetch parent tasks
-    def get_task_path(self, task_uid: str) -> List[TaskResult]:  
-        """Get the full path from root task to the given task"""  
-        path = []  
-        current_uid = task_uid  
-        
-        while current_uid:  
-            task_result = self.get_task_by_id(current_uid)  
-            if not task_result:  
-                break  
-            path.append(task_result)  
-            current_uid = task_result.task.get('parent_uid')  
-        
-        return list(reversed(path))  
+
+    def get_task_path(self, task_uid: str) -> List[Dict[str, Any]]:
+        """Get the full path from root task to the given task"""
+        path = []
+        current_uid = task_uid
+
+        while current_uid:
+            task_result = self.get_task_by_id(current_uid)
+            if not task_result:
+                break
+            path.append(task_result)
+            current_uid = task_result.get("task", {}).get("parent_uid")
+
+        return list(reversed(path))
 
     def delete_analysis(self, id: str) -> None:
         with self.session() as session:

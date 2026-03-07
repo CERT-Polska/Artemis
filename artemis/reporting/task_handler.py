@@ -67,6 +67,10 @@ def report_mem() -> None:
 
 
 def main() -> None:
+    recovered = db.recover_stuck_in_progress_tasks()
+    if recovered:
+        logger.warning("Recovered %d report generation task(s) stuck in 'in_progress' state from a previous crash", recovered)
+
     while True:
         task = db.take_single_report_generation_task()
 

@@ -1,0 +1,18 @@
+#: artemis/reporting/modules/leak_scanner/template_leaked_sensitive_data.jinja2:2
+msgid "The following PDF documents contain improperly redacted (censored) sensitive data that can be extracted:"
+msgstr ""
+
+#: artemis/reporting/modules/leak_scanner/template_leaked_sensitive_data.jinja2:8
+msgid "hidden item(s) found beneath redaction overlays"
+msgstr ""
+
+#: artemis/reporting/modules/leak_scanner/template_leaked_sensitive_data.jinja2:14
+msgid ""
+"The listed PDF documents contain text hidden beneath visual overlays "
+"(such as black rectangles) used for censorship. This text can be "
+"extracted by removing the overlay objects, potentially exposing "
+"sensitive personal data, confidential information, or other protected "
+"content. We recommend re-creating these documents with proper "
+"redaction that permanently removes the underlying text rather than "
+"merely covering it."
+msgstr ""

@@ -405,6 +405,29 @@ class Config:
                 cast=decouple.Csv(str, delimiter=","),
             )
 
+        class LeakScanner:
+            LEAK_SCANNER_CRAWL_DEPTH: Annotated[
+                int,
+                "Maximum crawling depth when discovering documents on a website. "
+                "Depth 1 means only the initial page is checked; depth 3 means links "
+                "are followed up to 3 levels deep.",
+            ] = get_config("LEAK_SCANNER_CRAWL_DEPTH", default=3, cast=int)
+
+            LEAK_SCANNER_MAX_PAGES_TO_CRAWL: Annotated[
+                int,
+                "Maximum number of HTML pages to fetch while crawling for documents.",
+            ] = get_config("LEAK_SCANNER_MAX_PAGES_TO_CRAWL", default=1000, cast=int)
+
+            LEAK_SCANNER_MAX_DOCUMENTS_TO_CHECK: Annotated[
+                int,
+                "Maximum number of documents (PDFs, etc.) to download and scan per website.",
+            ] = get_config("LEAK_SCANNER_MAX_DOCUMENTS_TO_CHECK", default=100, cast=int)
+
+            LEAK_SCANNER_MAX_DOCUMENT_SIZE_BYTES: Annotated[
+                int,
+                "Maximum size of a single document to download for scanning (in bytes).",
+            ] = get_config("LEAK_SCANNER_MAX_DOCUMENT_SIZE_BYTES", default=5 * 1024 * 1024, cast=int)
+
         class Nuclei:
             NUCLEI_TEMPLATE_LISTS: Annotated[
                 str,

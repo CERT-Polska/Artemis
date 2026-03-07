@@ -1062,6 +1062,14 @@ class Config:
                 "Time to sleep between retries for subdomain enumeration in seconds.",
             ] = get_config("SUBDOMAIN_ENUMERATION_SLEEP_TIME_SECONDS", default=60, cast=int)
 
+            SUBFINDER_PROVIDER_CONFIG: Annotated[
+                str,
+                "Subfinder provider configuration in JSON format. "
+                "Used to generate provider-config.yaml dynamically. "
+                "Example: "
+                '\'{"github": ["key1", "key2"], "virustotal": ["key"]}\'',
+            ] = get_config("SUBFINDER_API_KEYS", default="")
+
             GAU_ADDITIONAL_OPTIONS: Annotated[
                 List[str],
                 "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",

@@ -34,6 +34,18 @@
             <a href="/task/{{task.parent_uid}}">{{task.task.parent_uid}}</a>
         </dd>
     {% endif %}
+    
+  {#display the full path:#}
+  <h4>Full Task Path</h4>  
+  <ol class="breadcrumb">  
+  {% for ancestor in task_path %}  
+      <li class="breadcrumb-item">  
+          <a href="/task/{{ancestor.id}}">  
+              {{ancestor.task.headers.type}} - {{ancestor.target_string}}  
+          </a>  
+      </li>  
+  {% endfor %}  
+  </ol>
 
     <dt class="col-3">Analysis</dt>
     <dd class="col-9">

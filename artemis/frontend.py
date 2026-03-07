@@ -496,6 +496,9 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
+    # this line to fetch the full task path  
+    task_path = db.get_task_path(task_id) 
+    
     return templates.TemplateResponse(
         "task.jinja2",
         {
@@ -503,5 +506,6 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
             "task": task,
             "referer": referer,
             "pretty_printed": json.dumps(task, indent=4, cls=JSONEncoderAdditionalTypes),
+            "task_path": task_path,  # this to pass the path to template 
         },
     )

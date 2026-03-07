@@ -174,7 +174,13 @@ def get_task_results(
         analysis_id=analysis_id,
         task_filter=TaskFilter.INTERESTING if only_interesting else None,
     ).data
-
+#Add an endpoint to retrieve the full path
+@router.get("/api/task/{task_uid}/path", dependencies=[Depends(verify_api_token)])  
+def get_task_path(task_uid: str):  
+    """Get the full path from root task to the given task"""  
+    db = DB()  
+    path = db.get_task_path(task_uid)  
+    return {"path": [task.task for task in path]}
 
 @router.post("/stop-and-delete-analysis", dependencies=[Depends(verify_api_token)])
 def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:

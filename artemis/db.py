@@ -183,6 +183,7 @@ class ReportGenerationTask(Base):  # type: ignore
     :ivar skip_hooks: Whether to skip hooks during report generation.
     :ivar skip_suspicious_reports: Whether to skip suspicious reports.
     :ivar custom_template_arguments: Custom arguments for the report template.
+    :ivar started_at: Timestamp when the task started processing (set when claimed by a worker).
     :ivar output_location: Output location for the report.
     :ivar error: Error message, if any.
     :ivar alerts: Alerts associated with the report generation task.
@@ -202,6 +203,7 @@ class ReportGenerationTask(Base):  # type: ignore
     skip_hooks = Column(Boolean)
     skip_suspicious_reports = Column(Boolean)
     custom_template_arguments = Column(JSON)
+    started_at = Column(DateTime, nullable=True)
     output_location = Column(String, nullable=True)
     error = Column(String, nullable=True)
     alerts = Column(JSON, nullable=True)
@@ -564,24 +566,34 @@ class DB:
             )
             if task:
                 task.status = ReportGenerationTaskStatus.IN_PROGRESS.value
+                task.started_at = datetime.datetime.utcnow()
                 session.commit()
             return task  # type: ignore
 
-    def recover_stuck_in_progress_tasks(self) -> int:
-        """Mark any in-progress report generation tasks as failed.
+    def recover_stuck_in_progress_tasks(self, timeout_hours: int = 3) -> int:
+        """Mark in-progress report generation tasks as failed if they have exceeded the timeout.
 
         This handles the case where the worker crashed mid-task (e.g. OOM-kill),
-        leaving the task stuck in 'in_progress' forever. Called at startup.
+        leaving the task stuck in 'in_progress' forever. Only tasks that have been
+        running longer than ``timeout_hours`` are recovered, so that a normal
+        restart (e.g. deployment) does not falsely fail a legitimately running task.
         """
+        cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=timeout_hours)
         with self.session() as session:
             stuck_tasks = (
                 session.query(ReportGenerationTask)
-                .filter(ReportGenerationTask.status == ReportGenerationTaskStatus.IN_PROGRESS.value)
+                .filter(
+                    ReportGenerationTask.status == ReportGenerationTaskStatus.IN_PROGRESS.value,
+                    ReportGenerationTask.started_at < cutoff,
+                )
                 .all()
             )
             for task in stuck_tasks:
                 task.status = ReportGenerationTaskStatus.FAILED.value
-                task.error = "Worker crashed during report generation (recovered at startup)"
+                task.error = (
+                    f"Task exceeded the maximum allowed runtime of {timeout_hours}h "
+                    "and was marked as failed (likely caused by a worker crash)"
+                )
             session.commit()
             return len(stuck_tasks)
 

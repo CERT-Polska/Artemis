@@ -66,12 +66,27 @@ def report_mem() -> None:
     )
 
 
+RECOVERY_CHECK_INTERVAL_SECONDS = 60
+
+
 def main() -> None:
     recovered = db.recover_stuck_in_progress_tasks()
     if recovered:
-        logger.warning("Recovered %d report generation task(s) stuck in 'in_progress' state from a previous crash", recovered)
+        logger.warning("Recovered %d report generation task(s) stuck in 'in_progress' state", recovered)
+
+    last_recovery_check = time.monotonic()
 
     while True:
+        # Periodically recover tasks that exceeded the timeout while the worker is running.
+        # This handles the case where a crash left a task in_progress and the current worker
+        # instance was started long after the crash.
+        now = time.monotonic()
+        if now - last_recovery_check >= RECOVERY_CHECK_INTERVAL_SECONDS:
+            recovered = db.recover_stuck_in_progress_tasks()
+            if recovered:
+                logger.warning("Recovered %d report generation task(s) that exceeded the timeout", recovered)
+            last_recovery_check = now
+
         task = db.take_single_report_generation_task()
 
         if task:

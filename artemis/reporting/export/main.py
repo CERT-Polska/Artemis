@@ -103,7 +103,9 @@ def build_message_template_and_print_path(environment: Environment, output_dir: 
     return message_template
 
 
-def install_translations_and_print_path(language: Language, environment: Environment, output_dir: Path, silent: bool) -> None:
+def install_translations_and_print_path(
+    language: Language, environment: Environment, output_dir: Path, silent: bool
+) -> None:
     translations_file_name = output_dir / "advanced" / "translations.po"
     compiled_translations_file_name = output_dir / "advanced" / "compiled_translations.mo"
     install_translations(language, environment, translations_file_name, compiled_translations_file_name)

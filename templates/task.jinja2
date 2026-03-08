@@ -41,7 +41,7 @@
   {% for ancestor in task_path %}
       <li class="breadcrumb-item">
           <a href="/task/{{ancestor.id}}">
-              {{ancestor.task.headers.type}} - {{ancestor.target_string}}
+             {{ancestor.receiver}} on {{ancestor.target_string}}  
           </a>
       </li>
   {% endfor %}

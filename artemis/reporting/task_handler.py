@@ -10,6 +10,7 @@ import traceback
 from pathlib import Path
 
 import psutil
+
 from artemis import utils
 from artemis.config import Config
 from artemis.db import DB, ReportGenerationTask, ReportGenerationTaskStatus
@@ -78,7 +79,9 @@ def main() -> None:
                     task.custom_template_arguments,
                 )
                 if Config.Miscellaneous.LOG_LEVEL == "DEBUG":
-                    faulthandler.dump_traceback_later(timeout=DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS, repeat=True)
+                    faulthandler.dump_traceback_later(
+                        timeout=DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS, repeat=True
+                    )
                 report_mem()
                 try:
                     output_location = handle_single_task(task)

@@ -45,6 +45,13 @@ with open(
 ) as f:
     COMMON_LOGIN_PATHS = read_file(f)
 
+# JSON-only API login endpoints that do not respond to GET with 200 (POST-only).
+# These are always tried regardless of discovery, because check_url(GET) would fail.
+JSON_API_PATHS = [
+    "/api/login",  # Grafana
+    "/api/auth",  # Portainer and other tools
+]
+
 
 class AdminPanelLoginBruterResult(BaseModel):
     url: str
@@ -76,6 +83,71 @@ class AdminPanelLoginBruter(ArtemisBase):
             self.log.debug(f"Error checking URL {url}: {e}")
             return False
 
+    def _try_json_login(
+        self, session: requests.Session, login_url: str, username: str, password: str
+    ) -> Tuple[bool, Optional[AdminPanelLoginBruterResult]]:
+        """Try JSON API login for panels that don't use HTML forms (e.g. Grafana, Portainer)."""
+        payloads = [
+            {"user": username, "password": password},  # Grafana style
+            {"username": username, "password": password},  # Portainer / Generic style
+        ]
+
+        self.log.debug("Trying JSON POST to %s", login_url)
+        is_json_api = False
+
+        for payload in payloads:
+            try:
+                post_response = self.throttle_request(
+                    lambda: session.post(
+                        login_url,
+                        json=payload,
+                        timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
+                        verify=False,
+                    )
+                )
+                if post_response is None:
+                    continue
+
+                if post_response.status_code in (200, 400, 401, 403, 422):
+                    content_type = post_response.headers.get("Content-Type", "").lower()
+                    if "application/json" in content_type:
+                        is_json_api = True
+
+                if post_response.status_code != 200:
+                    continue
+
+                try:
+                    data = post_response.json()
+                except ValueError:
+                    data = {}
+
+                # Look for common success tokens in JSON response
+                # Grafana: {"message": "Logged in"}, Portainer: {"jwt": "..."}
+                has_token = (
+                    "token" in data
+                    or "jwt" in data
+                    or (isinstance(data.get("message"), str) and data.get("message", "").lower() == "logged in")
+                )
+                has_error = "error" in data or data.get("status", "") == "error"
+
+                if has_token and not has_error:
+                    self.log.info(
+                        "successful JSON API brute force on %s username=%s password=%s", login_url, username, password
+                    )
+                    return (
+                        True,
+                        AdminPanelLoginBruterResult(
+                            url=login_url,
+                            username=username,
+                            password=password,
+                            indicators=["json_api_token"],
+                        ),
+                    )
+            except requests.RequestException as e:
+                self.log.debug("Error submitting JSON to %s: %s", login_url, e)
+
+        return (is_json_api, None)
+
     def discover_login_paths(self, base_url: str) -> List[str]:
         """
         Discovers common admin login paths by checking predefined URLs.
@@ -93,17 +165,20 @@ class AdminPanelLoginBruter(ArtemisBase):
         self, base_url: str, login_path: str, username: str, password: str
     ) -> Tuple[bool, Optional[AdminPanelLoginBruterResult]]:
         """
-        Attempts to brute-force a login form at the given path using provided credentials.
+        Attempts to brute-force a single login path.
+        Returns a tuple: (login_mechanism_found, AdminPanelLoginBruterResult)
         """
         self.log.info("Trying %s:%s on %s/%s", username, password, base_url, login_path.lstrip("/"))
         login_url = urllib.parse.urljoin(base_url, login_path)
         session = requests.session()
-        login_form_found = False
+        login_mechanism_found = False
 
         try:
             response = self.throttle_request(lambda: http_requests.request("get", login_url, session=session))
             if not response or response.status_code != 200:
-                return (False, None)
+                # GET failed — the path may still be a JSON-only API endpoint;
+                # attempt JSON login before giving up.
+                return self._try_json_login(session, login_url, username, password)
 
             original_cookies = session.cookies.get_dict()  # type: ignore
             soup = BeautifulSoup(response.text, "html.parser")
@@ -143,7 +218,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                     continue
                 else:
                     self.log.info("Found username/pwd in form on %s, proceeding", login_url)
-                    login_form_found = True
+                    login_mechanism_found = True
 
                 try:
                     self.log.info("Post data: %s", form_data)
@@ -159,7 +234,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                     self.log.debug(f"Error submitting to {form_url}: {e}")
                     continue
 
-                if not post_response:
+                if post_response is None:
                     continue
 
                 indicators = []
@@ -198,7 +273,11 @@ class AdminPanelLoginBruter(ArtemisBase):
         except Exception as e:
             self.log.warning(f"Error during brute force on {login_url}: {e}")
 
-        return (login_form_found, None)
+        if not login_mechanism_found:
+            # No HTML form found — try JSON API login (e.g. Grafana, Portainer)
+            return self._try_json_login(session, login_url, username, password)
+
+        return (login_mechanism_found, None)
 
     def scan(self, task: Task, base_url: str, login_paths: List[str]) -> List[AdminPanelLoginBruterResult]:
         """
@@ -207,8 +286,10 @@ class AdminPanelLoginBruter(ArtemisBase):
         results = []
         credential_pairs = set()
         for path in login_paths:
-            for username, password in itertools.product(COMMON_USERNAMES, get_passwords(task)):
-                login_form_found, result = self.brute_force_login_path(base_url, path, username, password)
+            credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
+            random.shuffle(credentials)
+            for username, password in credentials:
+                login_mechanism_found, result = self.brute_force_login_path(base_url, path, username, password)
                 if result:
                     self.log.info("Checking whether %s:%s indeed works", username, password)
                     rechecked = True
@@ -216,14 +297,16 @@ class AdminPanelLoginBruter(ArtemisBase):
                         _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
                         # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
                         # positive.
-                        has_login_form_fake_password, result_fake_password = self.brute_force_login_path(
+                        has_login_mechanism_fake_password, result_fake_password = self.brute_force_login_path(
                             base_url,
                             path,
                             "this-username-should-not-exist",
                             binascii.hexlify(os.urandom(16)).decode("ascii"),
                         )
 
-                        if not (result_good_password and has_login_form_fake_password and not result_fake_password):
+                        if not (
+                            result_good_password and has_login_mechanism_fake_password and not result_fake_password
+                        ):
                             rechecked = False
                             break
 
@@ -234,7 +317,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                     else:
                         self.log.info("rechecked - doesn't work")
 
-                if not login_form_found:  # not worth trying all other credential pairs
+                if not login_mechanism_found:  # not worth trying all other credential pairs
                     break
 
         if len(credential_pairs) > 1:
@@ -247,6 +330,12 @@ class AdminPanelLoginBruter(ArtemisBase):
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
         login_paths = self.discover_login_paths(url)
+
+        # Always include known JSON-only API paths that won't pass the GET check.
+        for path in JSON_API_PATHS:
+            if path not in login_paths:
+                login_paths.append(path)
+
         random.shuffle(login_paths)
 
         results = self.scan(current_task, url, login_paths)

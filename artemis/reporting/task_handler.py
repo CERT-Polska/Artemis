@@ -100,6 +100,51 @@ def main() -> None:
             if Config.Miscellaneous.LOG_LEVEL == "DEBUG":
                 faulthandler.cancel_dump_traceback_later()
             report_mem()
+        try:
+            task = db.take_single_report_generation_task()
+
+            if task:
+                logger.info(
+                    "Took reporting task: skip_previously_exported=%s tag=%s language=%s custom_template_arguments=%s",
+                    task.skip_previously_exported,
+                    task.tag,
+                    task.language,
+                    task.custom_template_arguments,
+                )
+                if Config.Miscellaneous.LOG_LEVEL == "DEBUG":
+                    faulthandler.dump_traceback_later(
+                        timeout=DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS, repeat=True
+                    )
+                report_mem()
+                try:
+                    output_location = handle_single_task(task)
+                    with open(output_location / "advanced" / "output.json") as output_file:
+                        output_data = json.load(output_file)
+                        alerts = output_data["alerts"]
+
+                    db.save_report_generation_task_results(
+                        task, ReportGenerationTaskStatus.DONE, output_location=str(output_location), alerts=alerts
+                    )
+                    logger.info("Reporting task succeeded")
+                except Exception:
+                    logger.exception("Reporting task failed")
+
+                    try:
+                        db.save_report_generation_task_results(
+                            task, ReportGenerationTaskStatus.FAILED, error=traceback.format_exc()
+                        )
+                    except Exception:
+                        # Catch all exceptions (not just ObjectDeletedError) to prevent
+                        # crashing the main loop. This covers both the case where someone
+                        # called /export/delete (ObjectDeletedError) and transient DB
+                        # errors (OperationalError, etc.).
+                        logger.exception("Failed to save error status for reporting task")
+
+                if Config.Miscellaneous.LOG_LEVEL == "DEBUG":
+                    faulthandler.cancel_dump_traceback_later()
+                report_mem()
+        except Exception:
+            logger.exception("Error in report generation main loop, will retry")
 
         time.sleep(1)
 

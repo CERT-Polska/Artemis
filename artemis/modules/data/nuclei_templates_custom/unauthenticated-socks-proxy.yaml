@@ -1,0 +1,91 @@
+id: unauthenticated-socks-proxy
+
+info:
+  name: Unauthenticated SOCKS Proxy
+  author: navya-anand
+  severity: medium
+  description: |
+    Detects SOCKS proxy services that allow unauthenticated connections.
+    Supports detection of both SOCKS5 and SOCKS4 proxies.
+
+    SOCKS5 detection:
+    Sends a SOCKS5 greeting requesting "no authentication".
+    If the proxy responds with version 0x05 and method 0x00,
+    it indicates the proxy allows unauthenticated access.
+
+    SOCKS4 detection:
+    Sends a SOCKS4 CONNECT request. A response starting with
+    0x00 0x5a indicates the request was granted.
+
+  reference:
+    - https://datatracker.ietf.org/doc/html/rfc1928
+    - https://datatracker.ietf.org/doc/html/rfc1929
+    - https://datatracker.ietf.org/doc/html/rfc1928#section-3
+    - https://datatracker.ietf.org/doc/html/rfc1928#section-6
+
+  classification:
+    cwe-id: CWE-284
+
+  metadata:
+    max-request: 1
+
+  tags: proxy,socks,socks4,socks5,misconfiguration,network
+
+network:
+
+  # =============================
+  # SOCKS5 Detection
+  # =============================
+  - host:
+      - "{{Hostname}}"
+      - "{{Hostname}}:1080"
+      - "{{Hostname}}:1081"
+      - "{{Hostname}}:1082"
+      - "{{Hostname}}:1085"
+      - "{{Hostname}}:2080"
+      - "{{Hostname}}:9050"
+      - "{{Hostname}}:9051"
+      - "{{Hostname}}:10808"
+
+    inputs:
+      # SOCKS5 greeting:
+      # version (0x05), number of auth methods (1), method: no auth (0x00)
+      - data: "\x05\x01\x00"
+        read: 2
+
+    matchers:
+      # \x05\x00 = SOCKS5 version, no-auth method accepted
+      - type: word
+        part: raw
+        words:
+          - "\x05\x00"
+        encoding: hex
+
+  # =============================
+  # SOCKS4 Detection
+  # =============================
+  - host:
+      - "{{Hostname}}"
+      - "{{Hostname}}:1080"
+      - "{{Hostname}}:1081"
+      - "{{Hostname}}:1082"
+      - "{{Hostname}}:1085"
+      - "{{Hostname}}:2080"
+      - "{{Hostname}}:9050"
+      - "{{Hostname}}:9051"
+      - "{{Hostname}}:10808"
+
+    inputs:
+      # SOCKS4 CONNECT request:
+      # version (0x04), command CONNECT (0x01),
+      # port 80 (0x0050), IP 127.0.0.1, null user-id terminator
+      - data: "\x04\x01\x00\x50\x7F\x00\x00\x01\x00"
+        read: 8
+
+    matchers:
+      # \x00\x5a = SOCKS4 request granted
+      - type: word
+        part: raw
+        words:
+          - "\x00\x5a"
+        encoding: hex

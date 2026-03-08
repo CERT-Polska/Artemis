@@ -3,7 +3,6 @@ from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
 
-
 class TestTaskTemplate(ArtemisModuleTestCase):
     @patch("artemis.templating.templates.get_template")
     def test_task_template_with_breadcrumb_navigation(self, mock_get_template: Mock) -> None:

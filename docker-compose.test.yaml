@@ -29,6 +29,7 @@ services:
       SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback"
 
       SQL_INJECTION_STOP_ON_FIRST_MATCH: False
+      ORM_INJECTION_STOP_ON_FIRST_MATCH: False
 
       NUCLEI_INTERACTSH_SERVER: https://interactsh.lab.cert.pl
 
@@ -73,6 +74,27 @@ services:
     image: mysql:5.6
     environment:
       MYSQL_ROOT_PASSWORD: root
+
+  orm-injection-test-postgres:
+    image: postgres
+    restart: always
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: artemis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  test-flask-with-orm-injection-postgres:
+    build:
+      context: .
+      dockerfile: test/data/orm_injection_postgres/Dockerfile
+    command: python app.py
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@orm-injection-test-postgres:5432/artemis
+    volumes:
+      - ./test/data/orm_injection_postgres/:/app/
+    depends_on:
+      - orm-injection-test-postgres
 
   test-dast-vuln-app:
     build:

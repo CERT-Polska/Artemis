@@ -1,0 +1,4 @@
+flask==3.1.1
+sqlalchemy==2.0.43
+psycopg2-binary==2.9.10
+

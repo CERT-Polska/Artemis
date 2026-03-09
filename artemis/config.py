@@ -330,6 +330,12 @@ class Config:
             ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=10, cast=int)
 
         class APIScanner:
+            API_SPEC_MAX_SIZE: Annotated[
+                int,
+                "Maximum size in bytes for downloading OpenAPI/Swagger specification files. "
+                "The default CONTENT_PREFIX_SIZE (100KB) is too small for most real-world API specs.",
+            ] = get_config("API_SPEC_MAX_SIZE", default=5 * 1024 * 1024, cast=int)
+
             ONLY_GET_REQUESTS: Annotated[
                 bool,
                 "If set to True, API scanner will only use GET requests to scan. If to False, a more intrusive scan "

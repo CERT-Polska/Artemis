@@ -286,7 +286,7 @@ class Nuclei(ArtemisBase):
         url_parsed = urllib.parse.urlparse(url)
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
-    def _get_requests_per_second_statistics(sef, stderr_lines: List[str]) -> str:
+    def _get_requests_per_second_statistics(self, stderr_lines: List[str]) -> str:
         current_second_host_requests: Dict[str, int] = collections.defaultdict(int)
         requests_per_second_per_host: List[int] = []
 

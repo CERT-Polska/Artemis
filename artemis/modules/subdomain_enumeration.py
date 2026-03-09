@@ -200,6 +200,11 @@ class SubdomainEnumeration(ArtemisBase):
         if has_ip_range(current_task):
             # In practice, there are too many subdomains such as 1.2.3.4.hosting-provider.net.
             # returned via reverse DNS to perform subdomain enumeration on all of them.
+            self.db.save_task_result(
+                task=current_task,
+                status=TaskStatus.SKIPPED,
+                status_reason="IP range detected - skipping subdomain enumeration to prevent excessive results",
+            )
             return
 
         domain = current_task.get_payload("domain").lower()
@@ -214,7 +219,7 @@ class SubdomainEnumeration(ArtemisBase):
                     "scanned targets may result in scanning too much. Quitting."
                 )
                 self.log.warning(message)
-                self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, status_reason=message)
+                self.db.save_task_result(task=current_task, status=TaskStatus.SKIPPED, status_reason=message)
                 return
 
         encoded_domain = domain.encode("idna").decode("utf-8")
@@ -223,7 +228,7 @@ class SubdomainEnumeration(ArtemisBase):
             self.log.info(
                 "SubdomainEnumeration has already been performed for %s. Skipping further enumeration.", domain
             )
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            self.db.save_task_result(task=current_task, status=TaskStatus.SKIPPED)
             return
 
         valid_subdomains = set()

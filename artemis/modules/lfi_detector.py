@@ -88,7 +88,7 @@ class LFIDetector(ArtemisBase):
                 minimal_params.append(param)
 
         if minimal_params:
-            self.log.debug(
+            self.log.info(
                 "LFI parameter minimization: %s -> %s",
                 params,
                 minimal_params,

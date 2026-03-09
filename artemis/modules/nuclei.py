@@ -164,19 +164,59 @@ class Nuclei(ArtemisBase):
         # so we don't need to do every time we start the module.
         kev_directory = "/known-exploited-vulnerabilities/"
         if os.path.exists(kev_directory) and os.path.getctime(kev_directory) < time.time() - UPDATE_INTERVAL:
+            kev_backup = kev_directory.rstrip("/") + ".bak/"
+            if os.path.exists(kev_backup):
+                shutil.rmtree(kev_backup, ignore_errors=True)
+            shutil.copytree(kev_directory, kev_backup)
             shutil.rmtree(kev_directory, ignore_errors=True)
-            subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
+            try:
+                subprocess.check_call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
+            except subprocess.CalledProcessError:
+                self.log.error("Failed to clone KEV repository, restoring previous version")
+                if os.path.exists(kev_backup):
+                    shutil.copytree(kev_backup, kev_directory)
+            finally:
+                if os.path.exists(kev_backup):
+                    shutil.rmtree(kev_backup, ignore_errors=True)
 
         with self.lock:
             template_directory = "/root/nuclei-templates/"
+            nuclei_config_directory = "/root/.config/nuclei/"
             if (
                 os.path.exists(template_directory)
                 and os.path.getctime(template_directory) < time.time() - UPDATE_INTERVAL
             ):
-                shutil.rmtree(template_directory, ignore_errors=True)
-                shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
+                template_backup = template_directory.rstrip("/") + ".bak/"
+                config_backup = nuclei_config_directory.rstrip("/") + ".bak/"
+                if os.path.exists(template_backup):
+                    shutil.rmtree(template_backup, ignore_errors=True)
+                if os.path.exists(config_backup):
+                    shutil.rmtree(config_backup, ignore_errors=True)
+                shutil.copytree(template_directory, template_backup)
+                if os.path.exists(nuclei_config_directory):
+                    shutil.copytree(nuclei_config_directory, config_backup)
 
-            subprocess.call(["nuclei", "-update-templates"])
+                shutil.rmtree(template_directory, ignore_errors=True)
+                shutil.rmtree(nuclei_config_directory, ignore_errors=True)
+
+                try:
+                    subprocess.check_call(["nuclei", "-update-templates"])
+                except subprocess.CalledProcessError:
+                    self.log.error("Failed to update nuclei templates, restoring previous version")
+                    if os.path.exists(template_backup):
+                        shutil.copytree(template_backup, template_directory)
+                    if os.path.exists(config_backup):
+                        shutil.copytree(config_backup, nuclei_config_directory)
+                finally:
+                    if os.path.exists(template_backup):
+                        shutil.rmtree(template_backup, ignore_errors=True)
+                    if os.path.exists(config_backup):
+                        shutil.rmtree(config_backup, ignore_errors=True)
+            else:
+                try:
+                    subprocess.check_call(["nuclei", "-update-templates"])
+                except subprocess.CalledProcessError:
+                    self.log.error("Failed to update nuclei templates")
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
 

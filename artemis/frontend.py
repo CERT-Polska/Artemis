@@ -182,7 +182,7 @@ async def post_add(
             csrf_protect,
         )
 
-    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
+    await asyncio.to_thread(create_tasks, total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:
         return RedirectResponse(request.url_for("get_root"), status_code=303)
     else:
@@ -271,7 +271,7 @@ def view_export(request: Request, id: int) -> Response:
 @router.post("/export/confirm-delete/{id}", include_in_schema=False)
 @csrf.validate_csrf
 async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
-    db.delete_report_generation_task(id)
+    await asyncio.to_thread(db.delete_report_generation_task, id)
     return RedirectResponse(request.url_for("get_exports"), status_code=303)
 
 
@@ -305,7 +305,8 @@ async def post_export(
     language: Optional[str] = Form(None),
     skip_previously_exported: Optional[str] = Form(None),
 ) -> Response:
-    db.create_report_generation_task(
+    await asyncio.to_thread(
+        db.create_report_generation_task,
         skip_previously_exported=skip_previously_exported == "yes",
         tag=tag,
         comment=comment,

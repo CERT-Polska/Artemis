@@ -60,7 +60,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "pdf-viewer-for-elementor",
     "scheduled-post-trigger",
     "testimonial-slider-and-showcase",
-    "wow-carousel-for-divi-lite",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",

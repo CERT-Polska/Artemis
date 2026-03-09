@@ -33,6 +33,16 @@
                                     an attacker to extract secret values letter-by-letter.
                                 {% endtrans %}
                             {% endif %}
+
+                            {% if message.headers %}
+                                <br>
+                                <strong>{% trans %}Headers used{% endtrans %}:</strong>
+                                <ul>
+                                {% for key, value in message.headers.items() %}
+                                    <li>{{ key }}: {{ value }}</li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
                         </li>
                     {% endfor %}
                 {% endif %}

@@ -130,13 +130,14 @@ class SqlInjectionDetector(ArtemisBase):
     def create_status_reason(message: Any) -> str:
         status_reason = []
         for injection_message in message:
-            base_reason = f"{injection_message.get('url')}: {injection_message.get('statement')}"
-            
-            headers_used = injection_message.get('headers')
-            if headers_used:
+            statement = injection_message.get("statement", "")
+            base_reason = f"{injection_message.get('url')}: {statement}"
+
+            headers_used = injection_message.get("headers")
+            if headers_used and "through HTTP Headers" in statement:
                 headers_text = ", ".join([f"{k}: {v}" for k, v in headers_used.items()])
                 base_reason += f" (Headers used: {headers_text})"
-                
+
             status_reason.append(base_reason)
         return ", ".join(set(status_reason))
 

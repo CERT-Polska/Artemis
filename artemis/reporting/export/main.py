@@ -54,15 +54,23 @@ def nl2br(eval_ctx: EvalContext, value: str) -> Union[Markup, str]:
     return Markup(result)
 
 
-environment = Environment(
-    loader=BaseLoader(),
-    extensions=["jinja2.ext.i18n"],
-    undefined=StrictUndefined,
-    trim_blocks=True,
-    lstrip_blocks=True,
-    autoescape=select_autoescape(default=True),
-)
-environment.filters["nl2br"] = nl2br
+def create_environment() -> Environment:
+    """Create a new Jinja2 environment instance.
+
+    Each caller gets its own environment to avoid thread-safety issues when
+    install_gettext_translations() is called concurrently from the API thread
+    and the report-generation thread.
+    """
+    env = Environment(
+        loader=BaseLoader(),
+        extensions=["jinja2.ext.i18n"],
+        undefined=StrictUndefined,
+        trim_blocks=True,
+        lstrip_blocks=True,
+        autoescape=select_autoescape(default=True),
+    )
+    env.filters["nl2br"] = nl2br
+    return env
 
 
 def unwrap(html: str) -> str:
@@ -81,7 +89,7 @@ def unwrap(html: str) -> str:
     return soup.renderContents().decode("utf-8", "ignore")
 
 
-def build_message_template_and_print_path(output_dir: Path, silent: bool) -> Template:
+def build_message_template_and_print_path(environment: Environment, output_dir: Path, silent: bool) -> Template:
     output_message_template_file_name = output_dir / "advanced" / "message_template.jinja2"
 
     message_template_content = build_message_template()
@@ -95,7 +103,9 @@ def build_message_template_and_print_path(output_dir: Path, silent: bool) -> Tem
     return message_template
 
 
-def install_translations_and_print_path(language: Language, output_dir: Path, silent: bool) -> None:
+def install_translations_and_print_path(
+    language: Language, environment: Environment, output_dir: Path, silent: bool
+) -> None:
     translations_file_name = output_dir / "advanced" / "translations.po"
     compiled_translations_file_name = output_dir / "advanced" / "compiled_translations.mo"
     install_translations(language, environment, translations_file_name, compiled_translations_file_name)
@@ -193,12 +203,13 @@ def export(
     os.makedirs(output_dir)
     os.makedirs(output_dir / "advanced")
 
-    install_translations_and_print_path(language, output_dir, silent)
+    environment = create_environment()
+    install_translations_and_print_path(language, environment, output_dir, silent)
 
     if not skip_hooks:
         run_export_hooks(output_dir, export_data, silent)
 
-    message_template = build_message_template_and_print_path(output_dir, silent)
+    message_template = build_message_template_and_print_path(environment, output_dir, silent)
     _build_messages_and_print_path(message_template, export_data, output_dir, silent)
     _dump_export_data_and_print_path(export_data, output_dir, silent)
 

@@ -9,6 +9,7 @@ from fastapi import APIRouter, Body, FastAPI
 from artemis.reporting.base.language import Language
 from artemis.reporting.export.main import (
     build_message_template_and_print_path,
+    create_environment,
     install_translations_and_print_path,
 )
 
@@ -25,8 +26,9 @@ async def post_build_html_message(language: str = Body(), data: Dict[str, Any] =
     """
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.makedirs(Path(tmp_dir) / "advanced")
-        message_template = build_message_template_and_print_path(Path(tmp_dir), silent=True)
-        install_translations_and_print_path(Language(language), Path(tmp_dir), silent=True)
+        environment = create_environment()
+        install_translations_and_print_path(Language(language), environment, Path(tmp_dir), silent=True)
+        message_template = build_message_template_and_print_path(environment, Path(tmp_dir), silent=True)
         return message_template.render({"data": data})
 
 

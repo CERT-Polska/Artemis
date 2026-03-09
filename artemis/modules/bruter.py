@@ -92,7 +92,7 @@ class Bruter(ArtemisBase):
                     full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS
                 )
             except Exception:
-                pass
+                self.log.warning("Failed to scan URL %s", full_url)
 
         self.log.info("bruter finished")
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we

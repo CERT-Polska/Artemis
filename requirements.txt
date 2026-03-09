@@ -34,7 +34,7 @@ publicsuffixlist==1.0.2.20260228
 pydantic==2.12.5
 PyMySQL==1.1.2
 python-decouple==3.8
-pytz==2025.2
+pytz==2026.1.post1
 PyYAML==6.0.3
 redis==7.3.0
 requests==2.32.5

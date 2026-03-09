@@ -39,6 +39,7 @@ from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
+    directory_backup,
 )
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
@@ -164,20 +165,12 @@ class Nuclei(ArtemisBase):
         # so we don't need to do every time we start the module.
         kev_directory = "/known-exploited-vulnerabilities/"
         if os.path.exists(kev_directory) and os.path.getctime(kev_directory) < time.time() - UPDATE_INTERVAL:
-            kev_backup = kev_directory.rstrip("/") + ".bak/"
-            if os.path.exists(kev_backup):
-                shutil.rmtree(kev_backup, ignore_errors=True)
-            shutil.copytree(kev_directory, kev_backup)
-            shutil.rmtree(kev_directory, ignore_errors=True)
             try:
-                subprocess.check_call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
+                with directory_backup(kev_directory, logger=self.log):
+                    shutil.rmtree(kev_directory, ignore_errors=True)
+                    subprocess.check_call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
             except subprocess.CalledProcessError:
-                self.log.error("Failed to clone KEV repository, restoring previous version")
-                if os.path.exists(kev_backup):
-                    shutil.copytree(kev_backup, kev_directory)
-            finally:
-                if os.path.exists(kev_backup):
-                    shutil.rmtree(kev_backup, ignore_errors=True)
+                self.log.error("Failed to clone KEV repository, restored previous version")
 
         with self.lock:
             template_directory = "/root/nuclei-templates/"
@@ -186,32 +179,13 @@ class Nuclei(ArtemisBase):
                 os.path.exists(template_directory)
                 and os.path.getctime(template_directory) < time.time() - UPDATE_INTERVAL
             ):
-                template_backup = template_directory.rstrip("/") + ".bak/"
-                config_backup = nuclei_config_directory.rstrip("/") + ".bak/"
-                if os.path.exists(template_backup):
-                    shutil.rmtree(template_backup, ignore_errors=True)
-                if os.path.exists(config_backup):
-                    shutil.rmtree(config_backup, ignore_errors=True)
-                shutil.copytree(template_directory, template_backup)
-                if os.path.exists(nuclei_config_directory):
-                    shutil.copytree(nuclei_config_directory, config_backup)
-
-                shutil.rmtree(template_directory, ignore_errors=True)
-                shutil.rmtree(nuclei_config_directory, ignore_errors=True)
-
                 try:
-                    subprocess.check_call(["nuclei", "-update-templates"])
+                    with directory_backup(template_directory, nuclei_config_directory, logger=self.log):
+                        shutil.rmtree(template_directory, ignore_errors=True)
+                        shutil.rmtree(nuclei_config_directory, ignore_errors=True)
+                        subprocess.check_call(["nuclei", "-update-templates"])
                 except subprocess.CalledProcessError:
-                    self.log.error("Failed to update nuclei templates, restoring previous version")
-                    if os.path.exists(template_backup):
-                        shutil.copytree(template_backup, template_directory)
-                    if os.path.exists(config_backup):
-                        shutil.copytree(config_backup, nuclei_config_directory)
-                finally:
-                    if os.path.exists(template_backup):
-                        shutil.rmtree(template_backup, ignore_errors=True)
-                    if os.path.exists(config_backup):
-                        shutil.rmtree(config_backup, ignore_errors=True)
+                    self.log.error("Failed to update nuclei templates, restored previous version")
             else:
                 try:
                     subprocess.check_call(["nuclei", "-update-templates"])

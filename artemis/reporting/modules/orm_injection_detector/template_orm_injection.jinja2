@@ -1,0 +1,30 @@
+{% if "orm_injection:core" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are vulnerable to ORM injection:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "orm_injection:core" %}
+                    {% for message in report.additional_data.result %}
+                        <li>
+                            {{ message.url }}
+                            {% if message.code == report.additional_data.statements.orm_injection %}
+                                {% trans trimmed %}
+                                    : that means, that untrusted user data appears to be injected into ORM-built database queries.
+                                {% endtrans %}
+                            {% elif message.code == report.additional_data.statements.headers_orm_injection %}
+                                {% trans trimmed %}
+                                    : ORM injection through HTTP Headers, which means attacker-controlled headers may affect ORM query execution.
+                                {% endtrans %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                This can lead to unauthorized database reads or other dangerous query manipulations.
+                Make sure user input is validated and always bound safely in ORM query APIs.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

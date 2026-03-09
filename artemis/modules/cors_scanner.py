@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from karton.core import Task
 
-from artemis import load_risk_class
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
@@ -18,18 +18,65 @@ class CORSFinding:
     acao_header: str
     acac_header: Optional[str]
     request_method: str
+    details: Optional[str] = None
+
+
+THIRD_PARTY_TRUST_DOMAINS = [
+    "github.io",
+    "herokuapp.com",
+    "repl.it",
+    "replit.dev",
+    "netlify.app",
+    "vercel.app",
+    "surge.sh",
+    "glitch.me",
+    "firebaseapp.com",
+    "web.app",
+    "azurewebsites.net",
+    "cloudfront.net",
+    "pages.dev",
+    "workers.dev",
+    "fly.dev",
+    "render.com",
+    "onrender.com",
+    "railway.app",
+    "gitpod.io",
+    "codepen.io",
+    "jsbin.com",
+    "jsfiddle.net",
+]
+
+DANGEROUS_METHODS = {"PUT", "DELETE", "PATCH"}
+SENSITIVE_HEADERS = {"authorization", "x-api-key", "x-csrf-token", "cookie"}
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class CORSScanner(ArtemisBase):
     """
     Checks for CORS misconfigurations that could allow unauthorized cross-origin access.
+    Tests simple requests, preflight OPTIONS, and POST methods against crafted origins
+    including special character bypasses and third-party domain trust checks.
     """
 
     identity = "cors_scanner"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
+
+    def _send_options(self, url: str, origin: str) -> Optional[http_requests.HTTPResponse]:
+        try:
+            return http_requests.request(
+                "options",
+                url,
+                requests_per_second=self.requests_per_second_for_current_tasks,
+                headers={
+                    "Origin": origin,
+                    "Access-Control-Request-Method": "PUT",
+                    "Access-Control-Request-Headers": "Authorization, X-Custom-Header",
+                },
+            )
+        except Exception:
+            return None
 
     def _check_cors_simple(self, url: str, origin: str) -> Optional[CORSFinding]:
         try:
@@ -39,20 +86,61 @@ class CORSScanner(ArtemisBase):
 
         return self._analyze_cors_headers(response.headers, origin, "GET")
 
-    def _check_cors_preflight(self, url: str, origin: str) -> Optional[CORSFinding]:
+    def _check_cors_post(self, url: str, origin: str) -> Optional[CORSFinding]:
         try:
-            response = self.http_get(
-                url,
-                headers={
-                    "Origin": origin,
-                    "Access-Control-Request-Method": "PUT",
-                    "Access-Control-Request-Headers": "X-Custom-Header, Authorization",
-                },
-            )
+            response = self.http_post(url, headers={"Origin": origin})
         except Exception:
             return None
 
-        return self._analyze_cors_headers(response.headers, origin, "OPTIONS")
+        return self._analyze_cors_headers(response.headers, origin, "POST")
+
+    def _check_cors_preflight(self, url: str, origin: str) -> Optional[CORSFinding]:
+        response = self._send_options(url, origin)
+        if response is None:
+            return None
+
+        finding = self._analyze_cors_headers(response.headers, origin, "OPTIONS")
+        if finding:
+            return finding
+
+        return self._check_preflight_permissions(response.headers, origin)
+
+    def _check_preflight_permissions(
+        self, headers: Dict[str, str], origin: str
+    ) -> Optional[CORSFinding]:
+        acao = headers.get("Access-Control-Allow-Origin", "")
+        if not acao or (acao != "*" and acao != origin):
+            return None
+
+        acam = headers.get("Access-Control-Allow-Methods", "")
+        if acam:
+            allowed_methods = {m.strip().upper() for m in acam.split(",")}
+            dangerous_allowed = allowed_methods & DANGEROUS_METHODS
+            if dangerous_allowed:
+                return CORSFinding(
+                    issue="dangerous_methods_allowed",
+                    origin_sent=origin,
+                    acao_header=acao,
+                    acac_header=headers.get("Access-Control-Allow-Credentials"),
+                    request_method="OPTIONS",
+                    details=f"Methods: {', '.join(sorted(dangerous_allowed))}",
+                )
+
+        acah = headers.get("Access-Control-Allow-Headers", "")
+        if acah:
+            allowed_headers = {h.strip().lower() for h in acah.split(",")}
+            sensitive_allowed = allowed_headers & SENSITIVE_HEADERS
+            if sensitive_allowed:
+                return CORSFinding(
+                    issue="sensitive_headers_allowed",
+                    origin_sent=origin,
+                    acao_header=acao,
+                    acac_header=headers.get("Access-Control-Allow-Credentials"),
+                    request_method="OPTIONS",
+                    details=f"Headers: {', '.join(sorted(sensitive_allowed))}",
+                )
+
+        return None
 
     def _analyze_cors_headers(
         self, headers: Dict[str, str], origin: str, request_method: str
@@ -63,7 +151,6 @@ class CORSScanner(ArtemisBase):
         if not acao:
             return None
 
-        # Browsers block this combination, but its presence indicates misconfiguration
         if acao == "*" and acac.lower() == "true":
             return CORSFinding(
                 issue="wildcard_with_credentials",
@@ -82,7 +169,6 @@ class CORSScanner(ArtemisBase):
                 request_method=request_method,
             )
 
-        # Null origin exploitable via sandboxed iframes, data: URIs, file: protocol
         if acao == "null" and origin == "null" and acac.lower() == "true":
             return CORSFinding(
                 issue="null_origin_with_credentials",
@@ -93,6 +179,57 @@ class CORSScanner(ArtemisBase):
             )
 
         return None
+
+    def _check_vary_origin(self, url: str) -> Optional[CORSFinding]:
+        try:
+            resp1 = self.http_get(url, headers={"Origin": "https://test-a.example.com"})
+        except Exception:
+            return None
+
+        acao = resp1.headers.get("Access-Control-Allow-Origin", "")
+        if not acao or acao == "*":
+            return None
+
+        if acao == "https://test-a.example.com":
+            vary = resp1.headers.get("Vary", "")
+            if "origin" not in vary.lower():
+                return CORSFinding(
+                    issue="missing_vary_origin",
+                    origin_sent="https://test-a.example.com",
+                    acao_header=acao,
+                    acac_header=resp1.headers.get("Access-Control-Allow-Credentials"),
+                    request_method="GET",
+                    details="Response reflects origin but missing Vary: Origin header (cache poisoning risk)",
+                )
+
+        return None
+
+    def _check_third_party_trust(self, url: str) -> List[CORSFinding]:
+        findings: List[CORSFinding] = []
+        for domain in THIRD_PARTY_TRUST_DOMAINS:
+            origin = f"https://attacker.{domain}"
+            try:
+                response = self.http_get(url, headers={"Origin": origin})
+            except Exception:
+                continue
+
+            acao = response.headers.get("Access-Control-Allow-Origin", "")
+            acac = response.headers.get("Access-Control-Allow-Credentials", "")
+
+            if acao == origin:
+                findings.append(
+                    CORSFinding(
+                        issue="third_party_domain_trusted",
+                        origin_sent=origin,
+                        acao_header=acao,
+                        acac_header=acac if acac else None,
+                        request_method="GET",
+                        details=f"Trusts user-controlled hosting on {domain}",
+                    )
+                )
+                break
+
+        return findings
 
     def _generate_test_origins(self, url: str) -> List[Dict[str, str]]:
         parsed = urllib.parse.urlparse(url)
@@ -105,6 +242,9 @@ class CORSScanner(ArtemisBase):
             {"name": "prefix_match_bypass", "origin": f"{scheme}://{hostname}.evil.com"},
             {"name": "suffix_match_bypass", "origin": f"{scheme}://evil{hostname}"},
             {"name": "subdomain_bypass", "origin": f"{scheme}://attacker.{hostname}"},
+            {"name": "unescaped_dot_bypass", "origin": f"{scheme}://evil{hostname.replace('.', 'X', 1)}"},
+            {"name": "underscore_bypass", "origin": f"{scheme}://{hostname}_.evil.com"},
+            {"name": "backtick_bypass", "origin": f"{scheme}://{hostname}`.evil.com"},
         ]
 
         if scheme == "https":
@@ -132,24 +272,30 @@ class CORSScanner(ArtemisBase):
         seen_issues: set = set()
 
         for test in self._generate_test_origins(url):
-            finding = self._check_cors_simple(url, test["origin"])
-            if finding:
-                dedup_key = f"{finding.issue}:{finding.origin_sent}"
-                if dedup_key not in seen_issues:
-                    seen_issues.add(dedup_key)
-                    findings.append(dataclasses.asdict(finding))
-                    self.log.info(f"CORS issue found: {finding.issue} on {url} with origin {test['origin']} (GET)")
+            for check_fn in (self._check_cors_simple, self._check_cors_post, self._check_cors_preflight):
+                finding = check_fn(url, test["origin"])
+                if finding:
+                    dedup_key = f"{finding.issue}:{finding.origin_sent}"
+                    if dedup_key not in seen_issues:
+                        seen_issues.add(dedup_key)
+                        findings.append(dataclasses.asdict(finding))
+                        self.log.info(
+                            f"CORS issue found: {finding.issue} on {url} "
+                            f"with origin {test['origin']} ({finding.request_method})"
+                        )
 
-            preflight_finding = self._check_cors_preflight(url, test["origin"])
-            if preflight_finding:
-                dedup_key = f"{preflight_finding.issue}:{preflight_finding.origin_sent}"
-                if dedup_key not in seen_issues:
-                    seen_issues.add(dedup_key)
-                    findings.append(dataclasses.asdict(preflight_finding))
-                    self.log.info(
-                        f"CORS issue found: {preflight_finding.issue} on {url} "
-                        f"with origin {test['origin']} (OPTIONS)"
-                    )
+        vary_finding = self._check_vary_origin(url)
+        if vary_finding:
+            dedup_key = f"{vary_finding.issue}:{vary_finding.origin_sent}"
+            if dedup_key not in seen_issues:
+                seen_issues.add(dedup_key)
+                findings.append(dataclasses.asdict(vary_finding))
+
+        for tp_finding in self._check_third_party_trust(url):
+            dedup_key = f"{tp_finding.issue}:{tp_finding.origin_sent}"
+            if dedup_key not in seen_issues:
+                seen_issues.add(dedup_key)
+                findings.append(dataclasses.asdict(tp_finding))
 
         if findings:
             status = TaskStatus.INTERESTING

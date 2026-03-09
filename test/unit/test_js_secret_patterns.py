@@ -12,7 +12,6 @@ class JSSecretPatternsTest(unittest.TestCase):
 
     def test_aws_access_key_matches(self) -> None:
         pattern = self._find_pattern("AWS Access Key ID")
-        # AKIA + 16 uppercase alphanumeric = 20 chars, needs non-alnum boundary
         self.assertTrue(pattern.regex.search('"AKIAIOSFODNN7EXAMPLE"'))
         self.assertTrue(pattern.regex.search('var key = "ASIA1234567890ABCDEF";'))
 
@@ -64,7 +63,6 @@ class JSSecretPatternsTest(unittest.TestCase):
 
     def test_slack_webhook_matches(self) -> None:
         pattern = self._find_pattern("Slack Webhook URL")
-        # Built dynamically to avoid GitHub push protection false positive
         webhook = "https://hooks.slack.com/services/" + "TEXAMPLE1" + "/BEXAMPLE1" + "/FAKE0example0webhook0key"
         self.assertTrue(pattern.regex.search(webhook))
 
@@ -90,9 +88,16 @@ class JSSecretPatternsTest(unittest.TestCase):
         pattern = self._find_pattern("GitHub Fine-Grained Token")
         self.assertIsNone(pattern.regex.search("github_xxx_ABCDEFGHIJKLMNOPQRSTUVab"))
 
+    def test_gitlab_token_matches(self) -> None:
+        pattern = self._find_pattern("GitLab Token")
+        self.assertTrue(pattern.regex.search("glpat-ABCDEFghijklmnopqrst"))
+
+    def test_gitlab_token_rejects_wrong_prefix(self) -> None:
+        pattern = self._find_pattern("GitLab Token")
+        self.assertIsNone(pattern.regex.search("glxxx-ABCDEFghijklmnopqrst"))
+
     def test_stripe_secret_key_matches(self) -> None:
         pattern = self._find_pattern("Stripe Secret Key")
-        # Built dynamically to avoid GitHub push protection false positive
         self.assertTrue(pattern.regex.search("sk_" + "live_00TESTFAKE00EXAMPLEKEY00"))
         self.assertTrue(pattern.regex.search("sk_" + "test_00TESTFAKE00EXAMPLEKEY00"))
 
@@ -190,9 +195,96 @@ class JSSecretPatternsTest(unittest.TestCase):
         pattern = self._find_pattern("Hardcoded Password")
         self.assertIsNone(pattern.regex.search('var name = "supersecretpassword123"'))
 
-    def test_no_uuid_pattern_exists(self) -> None:
+    # New pattern tests
+
+    def test_shopify_token_matches(self) -> None:
+        pattern = self._find_pattern("Shopify Access Token")
+        self.assertTrue(pattern.regex.search("shpat_" + "0123456789abcdef0123456789abcdef"))
+
+    def test_shopify_token_rejects_wrong_prefix(self) -> None:
+        pattern = self._find_pattern("Shopify Access Token")
+        self.assertIsNone(pattern.regex.search("shpxx_0123456789abcdef0123456789abcdef"))
+
+    def test_digitalocean_token_matches(self) -> None:
+        pattern = self._find_pattern("DigitalOcean Token")
+        self.assertTrue(pattern.regex.search("dop_v1_" + "a" * 64))
+
+    def test_digitalocean_token_rejects_short(self) -> None:
+        pattern = self._find_pattern("DigitalOcean Token")
+        self.assertIsNone(pattern.regex.search("dop_v1_short"))
+
+    def test_discord_webhook_matches(self) -> None:
+        pattern = self._find_pattern("Discord Webhook URL")
+        self.assertTrue(pattern.regex.search(
+            "https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnop"
+        ))
+        self.assertTrue(pattern.regex.search(
+            "https://discordapp.com/api/webhooks/123456789012345678/abcdefghijklmnop"
+        ))
+
+    def test_discord_webhook_rejects_wrong_domain(self) -> None:
+        pattern = self._find_pattern("Discord Webhook URL")
+        self.assertIsNone(pattern.regex.search(
+            "https://notdiscord.com/api/webhooks/123456789012345678/abcdefghijklmnop"
+        ))
+
+    def test_sentry_dsn_matches(self) -> None:
+        pattern = self._find_pattern("Sentry DSN")
+        self.assertTrue(pattern.regex.search(
+            "https://abc123def456@o123456.ingest.sentry.io/1234567"
+        ))
+
+    def test_sentry_dsn_rejects_wrong_format(self) -> None:
+        pattern = self._find_pattern("Sentry DSN")
+        self.assertIsNone(pattern.regex.search("https://sentry.io/1234567"))
+
+    def test_database_uri_matches(self) -> None:
+        pattern = self._find_pattern("Database Connection URI")
+        self.assertTrue(pattern.regex.search("mongodb+srv://user:pass@cluster.example.net/db"))
+        self.assertTrue(pattern.regex.search("postgresql://admin:secret@db.example.com:5432/mydb"))
+        self.assertTrue(pattern.regex.search("redis://default:password@redis.example.com:6379"))
+
+    def test_database_uri_rejects_short(self) -> None:
+        pattern = self._find_pattern("Database Connection URI")
+        self.assertIsNone(pattern.regex.search("redis://x"))
+
+    def test_new_relic_key_matches(self) -> None:
+        pattern = self._find_pattern("New Relic Key")
+        self.assertTrue(pattern.regex.search("NRII-ABCDEFghijklmnopqrstuv"))
+
+    def test_new_relic_key_rejects_short(self) -> None:
+        pattern = self._find_pattern("New Relic Key")
+        self.assertIsNone(pattern.regex.search("NRII-short"))
+
+    def test_cloudinary_url_matches(self) -> None:
+        pattern = self._find_pattern("Cloudinary URL")
+        self.assertTrue(pattern.regex.search("cloudinary://123456789012345:abcdefghijk@mycloud"))
+
+    def test_facebook_token_matches(self) -> None:
+        pattern = self._find_pattern("Facebook Access Token")
+        self.assertTrue(pattern.regex.search("EAACEdEose0cBA" + "abcdef1234567890"))
+
+    def test_facebook_token_rejects_wrong_prefix(self) -> None:
+        pattern = self._find_pattern("Facebook Access Token")
+        self.assertIsNone(pattern.regex.search("EAAXXXose0cBAabcdef"))
+
+    def test_teams_webhook_matches(self) -> None:
+        pattern = self._find_pattern("Microsoft Teams Webhook")
+        self.assertTrue(pattern.regex.search(
+            "https://outlook.webhook.office.com/webhookb2/abc@def/IncomingWebhook/ghijklmnop"
+        ))
+
+    def test_firebase_config_matches(self) -> None:
+        pattern = self._find_pattern("Firebase Config API Key")
+        js = """firebaseConfig = {
+            apiKey: 'AIzaSyA1234567890abcdefghijklmnopqrstuv',
+            authDomain: 'myapp.firebaseapp.com'
+        }"""
+        self.assertTrue(pattern.regex.search(js))
+
+    def test_heroku_key_exists(self) -> None:
         names = [p.name for p in SECRET_PATTERNS]
-        self.assertNotIn("Heroku API Key", names)
+        self.assertIn("Heroku API Key", names)
 
     def test_all_patterns_have_valid_severity(self) -> None:
         for pattern in SECRET_PATTERNS:
@@ -208,5 +300,5 @@ class JSSecretPatternsTest(unittest.TestCase):
         self.assertEqual(len(names), len(set(names)))
 
     def test_pattern_count(self) -> None:
-        self.assertGreaterEqual(len(SECRET_PATTERNS), 15)
-        self.assertLessEqual(len(SECRET_PATTERNS), 30)
+        self.assertGreaterEqual(len(SECRET_PATTERNS), 25)
+        self.assertLessEqual(len(SECRET_PATTERNS), 40)

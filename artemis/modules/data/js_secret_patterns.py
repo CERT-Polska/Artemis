@@ -1,5 +1,5 @@
 # Regex patterns for detecting secrets in JavaScript files.
-# Sourced from SecretFinder, Gitleaks, and TruffleHog rule sets,
+# Sourced from SecretFinder, Gitleaks, TruffleHog, and jsmon.sh rule sets,
 # curated for low false-positive rates in web-facing JS.
 
 import re
@@ -59,11 +59,15 @@ SECRET_PATTERNS: List[SecretPattern] = [
         severity="high",
     ),
     SecretPattern(
+        name="GitLab Token",
+        regex=re.compile(r"glpat-[0-9a-zA-Z\-_]{20}"),
+        severity="high",
+    ),
+    SecretPattern(
         name="Stripe Secret Key",
         regex=re.compile(r"sk_(?:live|test)_[0-9a-zA-Z]{24,99}"),
         severity="high",
     ),
-    # pk_ keys are intentionally public, but their presence alongside sk_ keys is suspicious
     SecretPattern(
         name="Stripe Publishable Key",
         regex=re.compile(r"pk_(?:live|test)_[0-9a-zA-Z]{24,99}"),
@@ -115,6 +119,95 @@ SECRET_PATTERNS: List[SecretPattern] = [
             r"""(?:password|passwd|pwd|secret|api_?key|apikey|api_?secret|access_?token|auth_?token)"""
             r"""[\s]*[=:]+[\s]*["'][^"'\s]{8,}["']""",
             re.IGNORECASE,
+        ),
+        severity="medium",
+    ),
+    SecretPattern(
+        name="OpenAI API Key",
+        regex=re.compile(r"sk-[A-Za-z0-9]{20}T3BlbkFJ[A-Za-z0-9]{20}"),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Shopify Access Token",
+        regex=re.compile(r"shpat_[0-9a-fA-F]{32}"),
+        severity="high",
+    ),
+    SecretPattern(
+        name="DigitalOcean Token",
+        regex=re.compile(r"dop_v1_[a-z0-9]{64}"),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Telegram Bot Token",
+        regex=re.compile(r"\d{9,10}:[a-zA-Z0-9_-]{35}"),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Discord Bot Token",
+        regex=re.compile(r"[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}"),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Discord Webhook URL",
+        regex=re.compile(r"https://discord(?:app)?\.com/api/webhooks/[0-9]+/[a-zA-Z0-9_-]+"),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Sentry DSN",
+        regex=re.compile(r"https://[a-zA-Z0-9]+@[a-z0-9]+\.ingest\.sentry\.io/\d+"),
+        severity="medium",
+    ),
+    SecretPattern(
+        name="Algolia API Key",
+        regex=re.compile(
+            r"""(?:algolia|application)_?(?:api)?_?key[\s]*[=:]+[\s]*["'][a-zA-Z0-9]{10,}["']""",
+            re.IGNORECASE,
+        ),
+        severity="medium",
+    ),
+    SecretPattern(
+        name="Cloudinary URL",
+        regex=re.compile(r"cloudinary://[0-9]{15}:[a-zA-Z0-9]+@[a-zA-Z]+"),
+        severity="high",
+    ),
+    SecretPattern(
+        name="New Relic Key",
+        regex=re.compile(r"NRII-[a-zA-Z0-9]{20,}"),
+        severity="medium",
+    ),
+    SecretPattern(
+        name="Heroku API Key",
+        regex=re.compile(
+            r"""(?:heroku)[\s]*[=:]+[\s]*["'][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}["']""",
+            re.IGNORECASE,
+        ),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Database Connection URI",
+        regex=re.compile(
+            r"(?:mongodb(?:\+srv)?|postgres(?:ql)?|mysql|redis)://[^\s'\"]{10,}",
+            re.IGNORECASE,
+        ),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Microsoft Teams Webhook",
+        regex=re.compile(
+            r"https://[a-z]+\.webhook\.office\.com/webhookb2/[a-zA-Z0-9@\-]+/[^\s'\"]{10,}"
+        ),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Facebook Access Token",
+        regex=re.compile(r"EAACEdEose0cBA[0-9A-Za-z]+"),
+        severity="high",
+    ),
+    SecretPattern(
+        name="Firebase Config API Key",
+        regex=re.compile(
+            r"""firebaseConfig\s*=\s*\{[^}]*apiKey\s*:\s*['"][^'"]+['"]""",
+            re.DOTALL,
         ),
         severity="medium",
     ),

@@ -1,9 +1,14 @@
 import unittest
+from unittest.mock import MagicMock
 
 from artemis.modules.js_secret_scanner import (
+    ENV_VAR_PATTERN,
     FALSE_POSITIVE_VALUES,
+    INTERNAL_URL_PATTERN,
     JSSecretScanner,
     MAX_JS_FILES_TO_SCAN,
+    SOURCEMAP_COMMENT_PATTERN,
+    WEBPACK_CHUNK_PATTERN,
 )
 
 
@@ -138,7 +143,6 @@ class JSSecretScannerUnitTest(unittest.TestCase):
 
     def test_scan_finds_stripe_secret_key(self) -> None:
         scanner = self._make_scanner()
-        # Built dynamically to avoid GitHub push protection false positive
         js = 'Stripe("' + "sk_" + "live_00TESTFAKE00EXAMPLEKEY00" + '");'
         findings = scanner._scan_js_content("https://example.com/app.js", js, set())
         names = [f["pattern_name"] for f in findings]
@@ -164,6 +168,34 @@ class JSSecretScannerUnitTest(unittest.TestCase):
         findings = scanner._scan_js_content("https://example.com/app.js", js, set())
         names = [f["pattern_name"] for f in findings]
         self.assertIn("SendGrid API Key", names)
+
+    def test_scan_finds_gitlab_token(self) -> None:
+        scanner = self._make_scanner()
+        js = 'const token = "glpat-ABCDEFghijklmnopqrst";'
+        findings = scanner._scan_js_content("https://example.com/app.js", js, set())
+        names = [f["pattern_name"] for f in findings]
+        self.assertIn("GitLab Token", names)
+
+    def test_scan_finds_shopify_token(self) -> None:
+        scanner = self._make_scanner()
+        js = 'const token = "shpat_' + "0123456789abcdef0123456789abcdef" + '";'
+        findings = scanner._scan_js_content("https://example.com/app.js", js, set())
+        names = [f["pattern_name"] for f in findings]
+        self.assertIn("Shopify Access Token", names)
+
+    def test_scan_finds_discord_webhook(self) -> None:
+        scanner = self._make_scanner()
+        js = 'var hook = "https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnop";'
+        findings = scanner._scan_js_content("https://example.com/app.js", js, set())
+        names = [f["pattern_name"] for f in findings]
+        self.assertIn("Discord Webhook URL", names)
+
+    def test_scan_finds_database_uri(self) -> None:
+        scanner = self._make_scanner()
+        js = 'const db = "mongodb+srv://user:pass@cluster0.example.mongodb.net/mydb";'
+        findings = scanner._scan_js_content("https://example.com/app.js", js, set())
+        names = [f["pattern_name"] for f in findings]
+        self.assertIn("Database Connection URI", names)
 
     def test_scan_no_secrets_in_clean_code(self) -> None:
         scanner = self._make_scanner()
@@ -276,3 +308,149 @@ class JSSecretScannerUnitTest(unittest.TestCase):
     def test_false_positive_values_are_lowercase(self) -> None:
         for val in FALSE_POSITIVE_VALUES:
             self.assertEqual(val, val.lower())
+
+    # Source map detection tests
+
+    def test_sourcemap_comment_pattern_matches(self) -> None:
+        self.assertTrue(SOURCEMAP_COMMENT_PATTERN.search("//# sourceMappingURL=app.js.map"))
+        self.assertTrue(SOURCEMAP_COMMENT_PATTERN.search("//@ sourceMappingURL=bundle.js.map"))
+
+    def test_sourcemap_comment_pattern_extracts_url(self) -> None:
+        match = SOURCEMAP_COMMENT_PATTERN.search("//# sourceMappingURL=app.js.map")
+        self.assertEqual(match.group(1), "app.js.map")
+
+    def test_check_source_map_with_comment(self) -> None:
+        scanner = self._make_scanner()
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.headers = {"Content-Type": "application/json"}
+        mock_response.content = '{"version": 3, "sources": ["app.ts"]}'
+        scanner.http_get = MagicMock(return_value=mock_response)
+
+        js_content = 'var x = 1;\n//# sourceMappingURL=app.js.map'
+        findings = scanner._check_source_map("https://example.com/app.js", js_content)
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]["pattern_name"], "Exposed Source Map")
+
+    def test_check_source_map_fallback_probe(self) -> None:
+        scanner = self._make_scanner()
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.headers = {"Content-Type": "application/json"}
+        mock_response.content = '{"version": 3}'
+        scanner.http_get = MagicMock(return_value=mock_response)
+
+        js_content = 'var x = 1;'
+        findings = scanner._check_source_map("https://example.com/app.js", js_content)
+        self.assertEqual(len(findings), 1)
+
+    def test_check_source_map_404_no_finding(self) -> None:
+        scanner = self._make_scanner()
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_response.headers = {"Content-Type": "text/html"}
+        mock_response.content = "<html>Not Found</html>"
+        scanner.http_get = MagicMock(return_value=mock_response)
+
+        js_content = 'var x = 1;'
+        findings = scanner._check_source_map("https://example.com/app.js", js_content)
+        self.assertEqual(len(findings), 0)
+
+    def test_check_source_map_data_uri_skipped(self) -> None:
+        scanner = self._make_scanner()
+        scanner.http_get = MagicMock()
+
+        js_content = '//# sourceMappingURL=data:application/json;base64,abc123'
+        findings = scanner._check_source_map("https://example.com/app.js", js_content)
+        self.assertEqual(len(findings), 0)
+        scanner.http_get.assert_not_called()
+
+    # Webpack chunk discovery tests
+
+    def test_webpack_chunk_pattern_matches(self) -> None:
+        self.assertTrue(WEBPACK_CHUNK_PATTERN.search('__webpack_require__("./src/app.js")'))
+        self.assertTrue(WEBPACK_CHUNK_PATTERN.search('"static/js/chunk-abc123.js"'))
+        self.assertTrue(WEBPACK_CHUNK_PATTERN.search('"chunks/vendor.js"'))
+
+    def test_discover_webpack_chunks(self) -> None:
+        scanner = self._make_scanner()
+        js = '''
+        __webpack_require__("./src/utils.js");
+        "static/js/chunk-abc.js"
+        '''
+        chunks = scanner._discover_webpack_chunks("https://example.com/app.js", js)
+        self.assertTrue(len(chunks) > 0)
+
+    def test_discover_webpack_chunks_limit(self) -> None:
+        scanner = self._make_scanner()
+        js = "\n".join(f'"static/js/chunk-{i}.js"' for i in range(20))
+        chunks = scanner._discover_webpack_chunks("https://example.com/app.js", js)
+        self.assertLessEqual(len(chunks), 5)
+
+    # Environment variable exposure tests
+
+    def test_env_var_pattern_matches(self) -> None:
+        self.assertTrue(ENV_VAR_PATTERN.search("process.env.API_KEY"))
+        self.assertTrue(ENV_VAR_PATTERN.search("NEXT_PUBLIC_API_URL"))
+        self.assertTrue(ENV_VAR_PATTERN.search("REACT_APP_SECRET"))
+        self.assertTrue(ENV_VAR_PATTERN.search("VITE_API_KEY"))
+
+    def test_env_var_pattern_skips_node_env(self) -> None:
+        self.assertIsNone(ENV_VAR_PATTERN.search("process.env.NODE_ENV"))
+
+    def test_detect_env_var_exposure(self) -> None:
+        scanner = self._make_scanner()
+        js = 'const url = process.env.API_SECRET_KEY;'
+        findings = scanner._detect_env_var_exposure("https://example.com/app.js", js, set())
+        self.assertTrue(len(findings) > 0)
+        self.assertEqual(findings[0]["pattern_name"], "Environment Variable Exposure")
+
+    def test_detect_env_var_deduplicates(self) -> None:
+        scanner = self._make_scanner()
+        js = 'var a = process.env.API_KEY; var b = process.env.API_KEY;'
+        global_seen: set = set()
+        findings = scanner._detect_env_var_exposure("https://example.com/app.js", js, global_seen)
+        self.assertEqual(len(findings), 1)
+
+    # Internal URL detection tests
+
+    def test_internal_url_pattern_matches(self) -> None:
+        self.assertTrue(INTERNAL_URL_PATTERN.search("https://api.internal.example.com"))
+        self.assertTrue(INTERNAL_URL_PATTERN.search("https://dev.api.example.com"))
+        self.assertTrue(INTERNAL_URL_PATTERN.search("https://staging.app.example.com"))
+        self.assertTrue(INTERNAL_URL_PATTERN.search("http://localhost:3000"))
+
+    def test_internal_url_pattern_no_false_positive(self) -> None:
+        self.assertIsNone(INTERNAL_URL_PATTERN.search("https://www.example.com"))
+        self.assertIsNone(INTERNAL_URL_PATTERN.search("https://api.example.com"))
+
+    def test_detect_internal_urls(self) -> None:
+        scanner = self._make_scanner()
+        js = 'const api = "https://staging.api.example.com/v1";'
+        findings = scanner._detect_internal_urls("https://example.com/app.js", js, set())
+        self.assertTrue(len(findings) > 0)
+        self.assertEqual(findings[0]["pattern_name"], "Internal URL Exposure")
+
+    def test_detect_internal_urls_deduplicates(self) -> None:
+        scanner = self._make_scanner()
+        js = 'var a = "http://localhost:8080"; var b = "http://localhost:8080";'
+        global_seen: set = set()
+        findings = scanner._detect_internal_urls("https://example.com/app.js", js, global_seen)
+        self.assertEqual(len(findings), 1)
+
+    # External JS scanning with chunks
+
+    def test_scan_external_js_deduplicates_urls(self) -> None:
+        scanner = self._make_scanner()
+        mock_response = MagicMock()
+        mock_response.content = 'var x = 1;'
+        mock_response.headers = {"Content-Type": "application/javascript"}
+        mock_response.status_code = 404
+        scanner.http_get = MagicMock(return_value=mock_response)
+
+        scanned: set = set()
+        scanner._scan_external_js("https://example.com/app.js", set(), scanned)
+        first_call_count = scanner.http_get.call_count
+
+        scanner._scan_external_js("https://example.com/app.js", set(), scanned)
+        self.assertEqual(scanner.http_get.call_count, first_call_count)

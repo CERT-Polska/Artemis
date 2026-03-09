@@ -77,11 +77,38 @@ VENDOR_PATH_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
+INTERNAL_URL_PATTERN = re.compile(
+    r"""https?://[a-z0-9.-]+\.(?:internal|local|corp|intranet)\.[a-z]{2,}"""
+    r"""|https?://(?:dev|staging|test|preprod|uat)\.[a-z0-9.-]+\.[a-z]{2,}"""
+    r"""|https?://localhost:[0-9]{2,5}""",
+    re.IGNORECASE,
+)
+
+ENV_VAR_PATTERN = re.compile(
+    r"""(?:process\.env\.(?!NODE_ENV)[A-Z_]{3,}"""
+    r"""|NEXT_PUBLIC_[A-Z_]{3,}"""
+    r"""|REACT_APP_[A-Z_]{3,}"""
+    r"""|VITE_[A-Z_]{3,}"""
+    r"""|NUXT_PUBLIC_[A-Z_]{3,})""",
+)
+
+SOURCEMAP_COMMENT_PATTERN = re.compile(r"//[#@]\s*sourceMappingURL\s*=\s*(\S+)")
+
+WEBPACK_CHUNK_PATTERN = re.compile(
+    r"""(?:"""
+    r"""(?:__webpack_require__|webpackJsonp)\s*\(\s*["']([^"']+)["']"""
+    r"""|["'](?:static/js|chunks?)/([a-zA-Z0-9._-]+\.js)["']"""
+    r"""|\.src\s*=\s*[a-z]+\s*\+\s*["']([^"']+\.js)["']"""
+    r""")""",
+    re.IGNORECASE,
+)
+
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class JSSecretScanner(ArtemisBase):
     """
     Scans JavaScript files for hardcoded secrets such as API keys, tokens, and credentials.
+    Also detects exposed source maps, webpack chunks, internal URLs, and environment variable leaks.
     """
 
     identity = "js_secret_scanner"
@@ -110,7 +137,6 @@ class JSSecretScanner(ArtemisBase):
             if parsed.scheme not in ("http", "https"):
                 continue
 
-            # Strip query string and fragment for deduplication
             normalized = urllib.parse.urlunparse(
                 (parsed.scheme, parsed.netloc, parsed.path, "", "", "")
             )
@@ -141,6 +167,120 @@ class JSSecretScanner(ArtemisBase):
 
         return False
 
+    def _discover_webpack_chunks(self, url: str, js_content: str) -> List[str]:
+        chunk_urls: List[str] = []
+        base_url = url.rsplit("/", 1)[0] + "/" if "/" in url else url + "/"
+
+        for match in WEBPACK_CHUNK_PATTERN.finditer(js_content):
+            chunk_path = match.group(1) or match.group(2) or match.group(3)
+            if not chunk_path:
+                continue
+            chunk_url = urllib.parse.urljoin(base_url, chunk_path)
+            if chunk_url not in chunk_urls:
+                chunk_urls.append(chunk_url)
+
+        return chunk_urls[:5]
+
+    def _check_source_map(self, js_url: str, js_content: str) -> List[Dict[str, Any]]:
+        findings: List[Dict[str, Any]] = []
+
+        map_match = SOURCEMAP_COMMENT_PATTERN.search(js_content)
+        if map_match:
+            map_ref = map_match.group(1)
+            if map_ref.startswith("data:"):
+                return findings
+
+            map_url = urllib.parse.urljoin(js_url, map_ref)
+            try:
+                map_response = self.http_get(map_url)
+                content_type = map_response.headers.get("Content-Type", "")
+                if (
+                    map_response.status_code == 200
+                    and ("json" in content_type or map_response.content.strip().startswith("{"))
+                ):
+                    findings.append(
+                        {
+                            "pattern_name": "Exposed Source Map",
+                            "severity": "medium",
+                            "js_url": js_url,
+                            "matched_text_redacted": map_url[:60] + "..." if len(map_url) > 60 else map_url,
+                            "match_start": map_match.start(),
+                        }
+                    )
+            except Exception:
+                pass
+        else:
+            map_url = js_url + ".map"
+            try:
+                map_response = self.http_get(map_url)
+                content_type = map_response.headers.get("Content-Type", "")
+                if (
+                    map_response.status_code == 200
+                    and ("json" in content_type or map_response.content.strip().startswith("{"))
+                ):
+                    findings.append(
+                        {
+                            "pattern_name": "Exposed Source Map",
+                            "severity": "medium",
+                            "js_url": js_url,
+                            "matched_text_redacted": map_url[:60] + "..." if len(map_url) > 60 else map_url,
+                            "match_start": 0,
+                        }
+                    )
+            except Exception:
+                pass
+
+        return findings
+
+    def _detect_env_var_exposure(self, js_url: str, content: str, global_seen: Set[str]) -> List[Dict[str, Any]]:
+        findings: List[Dict[str, Any]] = []
+
+        for match in ENV_VAR_PATTERN.finditer(content):
+            var_name = match.group(0)
+            dedup_key = f"env_var_exposure:{var_name}"
+            if dedup_key in global_seen:
+                continue
+            global_seen.add(dedup_key)
+
+            findings.append(
+                {
+                    "pattern_name": "Environment Variable Exposure",
+                    "severity": "medium",
+                    "js_url": js_url,
+                    "matched_text_redacted": var_name,
+                    "match_start": match.start(),
+                }
+            )
+
+        return findings
+
+    def _detect_internal_urls(self, js_url: str, content: str, global_seen: Set[str]) -> List[Dict[str, Any]]:
+        findings: List[Dict[str, Any]] = []
+
+        for match in INTERNAL_URL_PATTERN.finditer(content):
+            matched_url = match.group(0)
+            dedup_key = f"internal_url:{matched_url}"
+            if dedup_key in global_seen:
+                continue
+            global_seen.add(dedup_key)
+
+            if len(matched_url) > 16:
+                redacted = matched_url[:12] + "..." + matched_url[-4:]
+            else:
+                redacted = matched_url[:8] + "..."
+
+            findings.append(
+                {
+                    "pattern_name": "Internal URL Exposure",
+                    "severity": "medium",
+                    "js_url": js_url,
+                    "matched_text_redacted": redacted,
+                    "match_start": match.start(),
+                }
+            )
+
+        return findings
+
     def _scan_js_content(self, js_url: str, content: str, global_seen: Set[str]) -> List[Dict[str, Any]]:
         findings: List[Dict[str, Any]] = []
 
@@ -151,7 +291,6 @@ class JSSecretScanner(ArtemisBase):
                 if len(matched_text) < MIN_SECRET_LENGTH:
                     continue
 
-                # Extract the innermost quoted value if present, otherwise strip outer quotes
                 core_value = matched_text
                 for quote in ('"', "'"):
                     last_start = core_value.rfind(quote)
@@ -209,6 +348,61 @@ class JSSecretScanner(ArtemisBase):
             inline_findings = self._scan_js_content(inline_label, script_content, global_seen)
             findings.extend(inline_findings)
 
+            env_findings = self._detect_env_var_exposure(inline_label, script_content, global_seen)
+            findings.extend(env_findings)
+
+            url_findings = self._detect_internal_urls(inline_label, script_content, global_seen)
+            findings.extend(url_findings)
+
+        return findings
+
+    def _scan_external_js(
+        self, js_url: str, global_seen: Set[str], scanned_urls: Set[str]
+    ) -> List[Dict[str, Any]]:
+        if js_url in scanned_urls:
+            return []
+        scanned_urls.add(js_url)
+
+        findings: List[Dict[str, Any]] = []
+
+        try:
+            js_response = self.http_get(js_url)
+            js_content = js_response.content
+
+            if not js_content:
+                return []
+
+            content_type = js_response.headers.get("Content-Type", "")
+            if content_type and "html" in content_type.lower() and "javascript" not in content_type.lower():
+                self.log.debug(f"Skipping {js_url}: Content-Type is {content_type}")
+                return []
+
+            file_findings = self._scan_js_content(js_url, js_content, global_seen)
+            findings.extend(file_findings)
+
+            env_findings = self._detect_env_var_exposure(js_url, js_content, global_seen)
+            findings.extend(env_findings)
+
+            url_findings = self._detect_internal_urls(js_url, js_content, global_seen)
+            findings.extend(url_findings)
+
+            sourcemap_findings = self._check_source_map(js_url, js_content)
+            for sf in sourcemap_findings:
+                dedup_key = f"sourcemap:{sf['matched_text_redacted']}"
+                if dedup_key not in global_seen:
+                    global_seen.add(dedup_key)
+                    findings.extend([sf])
+
+            chunk_urls = self._discover_webpack_chunks(js_url, js_content)
+            for chunk_url in chunk_urls:
+                if len(findings) >= MAX_FINDINGS_PER_TARGET:
+                    break
+                chunk_findings = self._scan_external_js(chunk_url, global_seen, scanned_urls)
+                findings.extend(chunk_findings)
+
+        except Exception:
+            self.log.debug(f"Failed to fetch JS file: {js_url}")
+
         return findings
 
     def run(self, current_task: Task) -> None:
@@ -217,6 +411,7 @@ class JSSecretScanner(ArtemisBase):
 
         all_findings: List[Dict[str, Any]] = []
         global_seen: Set[str] = set()
+        scanned_urls: Set[str] = set()
 
         try:
             response = self.http_get(url)
@@ -243,24 +438,8 @@ class JSSecretScanner(ArtemisBase):
                 self.log.info(f"Reached max findings limit ({MAX_FINDINGS_PER_TARGET}), stopping scan")
                 break
 
-            try:
-                js_response = self.http_get(js_url)
-                js_content = js_response.content
-
-                if not js_content:
-                    continue
-
-                # Skip responses that are clearly not JavaScript (e.g., HTML error pages)
-                content_type = js_response.headers.get("Content-Type", "")
-                if content_type and "html" in content_type.lower() and "javascript" not in content_type.lower():
-                    self.log.debug(f"Skipping {js_url}: Content-Type is {content_type}")
-                    continue
-
-                file_findings = self._scan_js_content(js_url, js_content, global_seen)
-                all_findings.extend(file_findings)
-            except Exception:
-                self.log.debug(f"Failed to fetch JS file: {js_url}")
-                continue
+            js_findings = self._scan_external_js(js_url, global_seen, scanned_urls)
+            all_findings.extend(js_findings)
 
         all_findings = all_findings[:MAX_FINDINGS_PER_TARGET]
 
@@ -281,7 +460,7 @@ class JSSecretScanner(ArtemisBase):
             status_reason=status_reason,
             data={
                 "findings": all_findings,
-                "js_files_scanned": len(js_urls),
+                "js_files_scanned": len(scanned_urls),
                 "inline_scripts_scanned": True,
             },
         )

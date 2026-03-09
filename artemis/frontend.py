@@ -496,7 +496,6 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    # this line to fetch the full task path
     task_path = db.get_task_path(task_id)
 
     return templates.TemplateResponse(

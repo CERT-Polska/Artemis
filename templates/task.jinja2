@@ -3,6 +3,18 @@
 <div class="bs-component" style="padding-top: 100px">
   <h3 class="text-center">Task results {{ task.id }} (running {{task.task['headers']['receiver']}} on {{ task.target_string }})</h3>
 
+{#display the full path:#}
+  <h4>Full Task Path</h4>
+  <ol class="breadcrumb">
+  {% for ancestor in task_path %}
+      <li class="breadcrumb-item">
+          <a href="/task/{{ancestor.id}}">
+              {{ancestor.task.headers.type}} - {{ancestor.target_string}}
+          </a>
+      </li>
+  {% endfor %}
+  </ol>
+
   {% if task.status_reason %}
       <div class="alert alert-primary">
           {{ task.status_reason }}
@@ -34,18 +46,6 @@
             <a href="/task/{{task.parent_uid}}">{{task.task.parent_uid}}</a>
         </dd>
     {% endif %}
-
-  {#display the full path:#}
-  <h4>Full Task Path</h4>
-  <ol class="breadcrumb">
-  {% for ancestor in task_path %}
-      <li class="breadcrumb-item">
-          <a href="/task/{{ancestor.id}}">
-              {{ancestor.task.headers.type}} - {{ancestor.target_string}}
-          </a>
-      </li>
-  {% endfor %}
-  </ol>
 
     <dt class="col-3">Analysis</dt>
     <dd class="col-9">

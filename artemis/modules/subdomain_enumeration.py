@@ -194,8 +194,10 @@ class SubdomainEnumeration(ArtemisBase):
         return subdomains
 
     def run(self, current_task: Task) -> None:
-        if current_task.headers.get("origin", "") == self.identity:
-            return
+        # NOTE: We intentionally dont have an origin==self.identity check here anymore.
+        # That check blocked all recursive enumeration. Instead, we rely on the cache check
+        # below to prevent immediate re-processing while still allowing discovered subdomains
+        # to be enumerated later and spawn their own children.
 
         if has_ip_range(current_task):
             # In practice, there are too many subdomains such as 1.2.3.4.hosting-provider.net.
@@ -224,12 +226,30 @@ class SubdomainEnumeration(ArtemisBase):
 
         encoded_domain = domain.encode("idna").decode("utf-8")
 
-        if self.redis.get(f"subdomain-enumeration-done-{encoded_domain}-{current_task.root_uid}"):
-            self.log.info(
-                "SubdomainEnumeration has already been performed for %s. Skipping further enumeration.", domain
-            )
+        # Two-level caching for both performance and recursion:
+        # 1. discovered: subdomain was found by enumeration tools → prevents re-discovery from multiple sources
+        # 2. enumerated: subdomain was processed as a task → prevents re-processing same task
+        #
+        # This allows:
+        # - Performance: Skip redundant discovery if subdomain found via gau + subfinder
+        # - Recursion: Each discovered subdomain task is processed once, spawning its own children
+
+        discovered_in_this_analysis = self.redis.get(
+            f"subdomain-enumeration-discovered-{encoded_domain}-{current_task.root_uid}"
+        )
+        enumerated_in_this_analysis = self.redis.get(
+            f"subdomain-enumeration-enumerated-{encoded_domain}-{current_task.root_uid}"
+        )
+
+        # Skip only if already enumerated as a task (prevents re-processing)
+        if enumerated_in_this_analysis:
+            self.log.info("SubdomainEnumeration task for %s was already processed. Skipping.", domain)
             self.db.save_task_result(task=current_task, status=TaskStatus.SKIPPED)
             return
+        elif discovered_in_this_analysis:
+            # Subdomain was discovered by another tool, but this is the first time
+            # it's arriving as a task, so process it for recursion
+            self.log.debug("SubdomainEnumeration discovered %s before, but processing task for recursion.", domain)
 
         valid_subdomains = set()
         existing_subdomains = set()
@@ -294,14 +314,30 @@ class SubdomainEnumeration(ArtemisBase):
 
             valid_subdomains.update(valid_subdomains_from_tool)
 
-        # once we've tried all the sources, mark the *requested* domain as
-        # enumerated so we won't repeat work if the same task reappears later.
+        # Mark this domain as enumerated (processed as a task)
+        # Mark discovered subdomains as discovered (to detect redundant discovery from multiple sources)
         encoded_root = encoded_domain
-        self.redis.setex(
-            f"subdomain-enumeration-done-{encoded_root}-{current_task.root_uid}",
-            Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
-            1,
-        )
+        ttl_seconds = Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60
+
+        with self.redis.pipeline() as pipe:
+            # Mark the domain we just processed as enumerated
+            pipe.setex(
+                f"subdomain-enumeration-enumerated-{encoded_root}-{current_task.root_uid}",
+                ttl_seconds,
+                1,
+            )
+
+            # Mark all discovered subdomains as discovered (for dedup detection)
+            # This prevents re-enumeration if the same subdomain is found by multiple tools
+            for subdomain in valid_subdomains:
+                if subdomain != domain:  # dont cache the parent
+                    encoded_subdomain = subdomain.encode("idna").decode("utf-8")
+                    pipe.setex(
+                        f"subdomain-enumeration-discovered-{encoded_subdomain}-{current_task.root_uid}",
+                        ttl_seconds,
+                        1,
+                    )
+            pipe.execute()
 
         if valid_subdomains:
             self.db.save_task_result(

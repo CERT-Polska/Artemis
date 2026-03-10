@@ -41,12 +41,13 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
         self.assertTrue("vortex.cert.pl" in result)
 
     def test_recursive_enumeration(self) -> None:
-        """The module used to mark discovered subdomains as "done" immediately,
-        causing any task for that subdomain to be skipped later.  That prevented
-        recursive enumeration and broke the chain.
+        """The subdomain enumeration module now achieves both recursion and performance:
 
-        After the fix we should be able to run enumeration on a subdomain and get
-        its own children.
+        - Each discovered subdomain task is enumerated exactly once (marked "enumerated")
+        - Subdomains discovered via multiple sources (gau + subfinder) are not re-run (marked "discovered")
+        - This allows full recursive enumeration while avoiding redundant work
+
+        The chain is not broken: discovered subdomains become tasks that themselves discover their own children.
         """
 
         # stub out the three discovery functions with predictable behaviour

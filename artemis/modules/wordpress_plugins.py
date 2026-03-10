@@ -62,7 +62,7 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "testimonial-slider-and-showcase",
     "wow-carousel-for-divi-lite",
 ]
- PLUGINS_BAD_VERSION_IN_README = [
+PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "disable-wordpress-updates",
     "famethemes-demo-importer",
@@ -79,6 +79,7 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "wp-migrate-db",
     "zapier",
 ]
+
 
 def strip_trailing_zeros(version: Optional[str]) -> Optional[str]:
     if not version:

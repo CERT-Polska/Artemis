@@ -1,4 +1,4 @@
-"""Unit test to verify that REST API documentation references real API endpoints.
+"""Test to verify that REST API documentation references real API endpoints.
 
 This test extracts curl commands from docs/api/rest-api.rst, parses the URL paths
 from each command, and validates that every documented endpoint exists as a route

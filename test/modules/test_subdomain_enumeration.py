@@ -57,9 +57,9 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
                 return {"bar.foo.example.com"}
             return set()
 
-        self.karton.get_subdomains_from_subfinder = fake_subfinder  # type: ignore[attr-defined]
-        self.karton.get_subdomains_from_gau = lambda d: set()  # type: ignore[attr-defined]
-        self.karton.get_subdomains_by_dns_brute_force = lambda d: set()  # type: ignore[attr-defined]
+        self.karton.get_subdomains_from_subfinder = fake_subfinder
+        self.karton.get_subdomains_from_gau = lambda d: set()
+        self.karton.get_subdomains_by_dns_brute_force = lambda d: set()
 
         # run enumeration on the top‑level domain
         task = Task(

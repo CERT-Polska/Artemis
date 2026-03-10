@@ -1,4 +1,5 @@
-x-artemis-build-or-image: &artemis-build-or-image
+x-artemis-build-or-image:
+  &artemis-build-or-image
   image: certpl/artemis:latest
 
 x-logging: &logging

@@ -689,11 +689,12 @@ class Nuclei(ArtemisBase):
             for finding in findings_unmatched:
                 found = False
                 for task in tasks:
-                    if finding["host"].split(":")[0] == get_target_host(task).split(":")[0]:
+                    if finding.get("host", "").split(":")[0] == get_target_host(task).split(":")[0]:
                         findings_per_task[task.uid].append(finding)
                         found = True
                         break
-                assert found, "Cannot match finding: %s" % finding
+                if not found:
+                    self.log.warning("Cannot match finding to any task, skipping: %s", finding)
 
         for task in tasks:
             result = []

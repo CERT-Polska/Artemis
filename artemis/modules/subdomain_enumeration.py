@@ -267,6 +267,11 @@ class SubdomainEnumeration(ArtemisBase):
         if has_ip_range(current_task):
             # In practice, there are too many subdomains such as 1.2.3.4.hosting-provider.net.
             # returned via reverse DNS to perform subdomain enumeration on all of them.
+            self.db.save_task_result(
+                task=current_task,
+                status=TaskStatus.SKIPPED,
+                status_reason="IP range detected - skipping subdomain enumeration to prevent excessive results",
+            )
             return
 
         domain = current_task.get_payload("domain").lower()
@@ -281,7 +286,7 @@ class SubdomainEnumeration(ArtemisBase):
                     "scanned targets may result in scanning too much. Quitting."
                 )
                 self.log.warning(message)
-                self.db.save_task_result(task=current_task, status=TaskStatus.ERROR, status_reason=message)
+                self.db.save_task_result(task=current_task, status=TaskStatus.SKIPPED, status_reason=message)
                 return
 
         encoded_domain = domain.encode("idna").decode("utf-8")
@@ -290,7 +295,7 @@ class SubdomainEnumeration(ArtemisBase):
             self.log.info(
                 "SubdomainEnumeration has already been performed for %s. Skipping further enumeration.", domain
             )
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            self.db.save_task_result(task=current_task, status=TaskStatus.SKIPPED)
             return
 
         valid_subdomains = set()
@@ -326,17 +331,6 @@ class SubdomainEnumeration(ArtemisBase):
                     continue
                 valid_subdomains_from_tool.add(subdomain)
 
-            # Batch mark subdomains as done in Redis using a pipeline
-            with self.redis.pipeline() as pipe:
-                for subdomain in valid_subdomains_from_tool:
-                    encoded_subdomain = subdomain.encode("idna").decode("utf-8")
-                    pipe.setex(
-                        f"subdomain-enumeration-done-{encoded_subdomain}-{current_task.root_uid}",
-                        Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
-                        1,
-                    )
-                pipe.execute()
-
             # We save the task as soon as we have results from a single tool so that other kartons can do something.
             for subdomain in valid_subdomains_from_tool:
                 if subdomain != domain:  # ensure we are not adding the parent domain again
@@ -366,6 +360,15 @@ class SubdomainEnumeration(ArtemisBase):
                     self.add_task(current_task, task)
 
             valid_subdomains.update(valid_subdomains_from_tool)
+
+        # once we've tried all the sources, mark the *requested* domain as
+        # enumerated so we won't repeat work if the same task reappears later.
+        encoded_root = encoded_domain
+        self.redis.setex(
+            f"subdomain-enumeration-done-{encoded_root}-{current_task.root_uid}",
+            Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
+            1,
+        )
 
         if valid_subdomains:
             self.db.save_task_result(

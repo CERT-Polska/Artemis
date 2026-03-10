@@ -455,6 +455,20 @@ class DB:
         except NoResultFound:
             return None
 
+    def get_task_path(self, task_uid: str) -> List[Dict[str, Any]]:
+        """Get the full path from root task to the given task"""
+        path = []
+        current_uid = task_uid
+
+        while current_uid:
+            task_result = self.get_task_by_id(current_uid)
+            if not task_result:
+                break
+            path.append(task_result)
+            current_uid = task_result.get("task", {}).get("parent_uid")
+
+        return list(reversed(path))
+
     def delete_analysis(self, id: str) -> None:
         with self.session() as session:
             analysis = session.query(Analysis).get(id)

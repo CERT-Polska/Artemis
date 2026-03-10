@@ -176,6 +176,14 @@ def get_task_results(
     ).data
 
 
+@router.get("/api/task/{task_uid}/path", dependencies=[Depends(verify_api_token)])
+def get_task_path(task_uid: str) -> Dict[str, Any]:
+    """Get the full path from root task to the given task"""
+    db = DB()
+    path = db.get_task_path(task_uid)
+    return {"path": path}
+
+
 @router.post("/stop-and-delete-analysis", dependencies=[Depends(verify_api_token)])
 def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
     backend = KartonBackend(config=KartonConfig())

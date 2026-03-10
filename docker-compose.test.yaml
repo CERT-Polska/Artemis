@@ -130,7 +130,6 @@ services:
       - FTP_USER_NAME=admin
       - FTP_USER_PASS=12345
       - FTP_USER_HOME=/dev/shm
-
   test-old-joomla:
     image: joomla:4.0.5-php8.0-apache # this is an old image on purpose
     environment:

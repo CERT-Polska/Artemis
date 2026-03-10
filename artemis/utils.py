@@ -52,7 +52,9 @@ def directory_backup(*directories: str, logger: logging.Logger) -> Generator[Non
     except Exception:
         logger.error("Operation failed, restoring backups for: %s", ", ".join(directories))
         for directory, backup in backups:
-            if os.path.exists(backup) and not os.path.exists(directory):
+            if os.path.exists(backup):
+                if os.path.exists(directory):
+                    shutil.rmtree(directory, ignore_errors=True)
                 shutil.copytree(backup, directory)
         raise
     finally:

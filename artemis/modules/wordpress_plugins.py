@@ -62,13 +62,14 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "testimonial-slider-and-showcase",
     "wow-carousel-for-divi-lite",
 ]
-PLUGINS_BAD_VERSION_IN_README = [
+ PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "disable-wordpress-updates",
     "famethemes-demo-importer",
     "icon-element",
     "link-manager",
     "login-logo",
+    "master-addons",
     "official-statcounter-plugin-for-wordpress",
     "page-or-post-clone",
     "rafflepress",
@@ -78,7 +79,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "wp-migrate-db",
     "zapier",
 ]
-
 
 def strip_trailing_zeros(version: Optional[str]) -> Optional[str]:
     if not version:

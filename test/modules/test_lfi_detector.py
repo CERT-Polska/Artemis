@@ -24,8 +24,7 @@ class LFIDetectorTestCase(ArtemisModuleTestCase):
 
             self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
             self.assertIn(
-                "It appears that this URL is vulnerable to LFI: "
-                "http://test-apache-with-lfi-and-rce:80/page.php?id=",
+                "It appears that this URL is vulnerable to LFI: " "http://test-apache-with-lfi-and-rce:80/page.php?id=",
                 call.kwargs["status_reason"],
             )
 
@@ -34,8 +33,7 @@ class LFIDetectorTestCase(ArtemisModuleTestCase):
                 call.kwargs["status_reason"],
             )
             self.assertIn(
-                "It appears that this URL is vulnerable to RCE: "
-                "http://test-apache-with-lfi-and-rce:80/page.php?id=",
+                "It appears that this URL is vulnerable to RCE: " "http://test-apache-with-lfi-and-rce:80/page.php?id=",
                 call.kwargs["status_reason"],
             )
 

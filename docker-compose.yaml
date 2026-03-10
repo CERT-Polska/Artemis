@@ -323,6 +323,13 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-ssh_bad_keys:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.ssh_bad_keys"
+    env_file: .env
+    restart: always
+    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-ssh_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.ssh_bruter"

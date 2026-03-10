@@ -191,6 +191,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-ssh-with-bad-key:
+    build:
+      context: test/data/ssh_bad_keys
+      dockerfile: Dockerfile
+
   test-ssh-with-easy-password:
     image: lscr.io/linuxserver/openssh-server:latest
     environment:

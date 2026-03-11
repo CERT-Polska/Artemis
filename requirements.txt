@@ -3,6 +3,7 @@ aiohttp==3.13.3
 alembic==1.18.4
 anytree==2.13.0
 Babel==2.18.0
+badkeys==0.0.17
 beautifulsoup4==4.14.3
 certifi==2026.2.25
 chardet==7.0.1

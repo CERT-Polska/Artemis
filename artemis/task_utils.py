@@ -29,14 +29,10 @@ def get_target_host(task: Task) -> str:
         return payload
 
     if task_type == TaskType.SUSPECTED_DANGLING_IP:
-        # Payload for suspected dangling ip has changed and now it should contain IP, but old tasks do not have it
-        # Get ip if possible, otherwise fallback to domain
-        # FIXME: to be removed in future
-        if "ip" in task.payload:
-            payload = task.get_payload(TaskType.IP)
-            assert isinstance(payload, str)
-            return payload
-        payload = task.get_payload(TaskType.DOMAIN)
+        payload = task.get_payload(TaskType.IP)
+        if not payload:
+            # fallback to last_domain
+            payload = task.get_payload("last_domain")
         assert isinstance(payload, str)
         return payload
 

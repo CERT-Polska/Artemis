@@ -131,6 +131,8 @@ class DanglingDnsDetector(ArtemisBase):
                 # we remove domain from payload and add ip
                 # last_domain is removed from deduplication logic, so we will store domain there
                 ip = self.get_ip_from_domain(domain)
+                if not ip:
+                    self.log.info("Couldn't resolve domain %s to ip. Dropping rescheduling.", domain)
                 new_payload["ip"] = ip
                 if "domain" in new_payload:
                     new_payload["last_domain"] = new_payload["domain"]
@@ -332,16 +334,17 @@ class DanglingDnsDetector(ArtemisBase):
                 pass
         return ip_records_alive
 
-    def get_ip_from_domain(self, domain: str) -> str | None:
-        try:
-            answers = dns.resolver.resolve(domain, rdatatype.A, raise_on_no_answer=False)
-            if answers.rrset is not None:
-                for record in answers:
-                    if hasattr(record, "rdtype") and record.rdtype == rdatatype.A:
-                        return record.address  # type: ignore[attr-defined, no-any-return]
+    def get_ip_from_domain(self, domain: str, retries: int = 5) -> str | None:
+        for _ in range(retries):
+            try:
+                answers = dns.resolver.resolve(domain, rdatatype.A, raise_on_no_answer=False)
+                if answers.rrset is not None:
+                    for record in answers:
+                        if hasattr(record, "rdtype") and record.rdtype == rdatatype.A:
+                            return record.address  # type: ignore[attr-defined, no-any-return]
 
-        except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
-            return None
+            except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
+                time.sleep(1.0)
 
         return None
 

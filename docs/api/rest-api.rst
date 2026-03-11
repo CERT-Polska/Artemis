@@ -250,10 +250,8 @@ Stop and delete an analysis
 .. code-block:: bash
 
    # rest-api-stop-analysis
-   curl -s -X POST http://localhost:5000/api/stop-and-delete-analysis \
-     -H "Content-Type: application/json" \
-     -H "X-API-Token: $API_TOKEN" \
-     -d '{"analysis_id": "<analysis-id>"}'
+   curl -s -X POST "http://localhost:5000/api/stop-and-delete-analysis?analysis_id=<analysis-id>" \
+     -H "X-API-Token: $API_TOKEN"
 
 **Response:**
 

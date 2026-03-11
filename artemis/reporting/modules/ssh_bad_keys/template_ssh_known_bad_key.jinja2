@@ -8,7 +8,8 @@
                             {% for bk in report.additional_data.bad_keys %}
                                 <li>
                                     {% trans %}key type:{% endtrans %} {{ bk.key_type }},
-                                    {% trans %}matched:{% endtrans %} {{ bk.subtest }}
+                                    {% trans %}matched:{% endtrans %} {{ bk.subtest }},
+                                    {% trans %}fingerprint:{% endtrans %} {{ bk.key_fingerprint }}
                                 </li>
                             {% endfor %}
                         </ul>

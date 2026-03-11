@@ -2,7 +2,8 @@
 import contextlib
 import io
 import socket
-from typing import Dict, List
+import subprocess
+from typing import Any, Dict, List
 
 import badkeys  # type: ignore[import-not-found]
 import paramiko
@@ -46,6 +47,11 @@ class SSHBadKeys(ArtemisBase):
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.SSH.value},
     ]
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+
+        subprocess.call(["badkeys", "--update-bl"])
 
     def _get_host_keys(self, host: str, port: int) -> List[Dict[str, str]]:
         """Connect to SSH server and retrieve all host key types.

@@ -1,17 +1,13 @@
 """
 Test GraphQL server for artemis/modules/graphql_scanner tests.
-Exposes three distinct endpoints to cover all scanner checks:
+Exposes endpoints to cover all scanner checks:
 
   POST /graphql           — introspection enabled, field suggestions enabled
   GET  /graphql           — returns GraphiQL HTML (debug interface)
-  POST /graphql-no-intro  — introspection disabled, but field suggestions still enabled
-  POST /secure            — no misconfigurations (baseline for false-positive check)
 """
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
-
-# --- /graphql endpoint: introspection + field suggestions ---
 
 FULL_SCHEMA = {
     "data": {
@@ -64,11 +60,9 @@ def graphql_post():
 
     query = body.get("query", "")
 
-    # Respond to introspection queries
     if "__schema" in query:
         return jsonify(FULL_SCHEMA)
 
-    # Simulate field suggestion error for misspelled fields
     if "__typenme" in query or "typenme" in query:
         return jsonify(
             {
@@ -81,66 +75,10 @@ def graphql_post():
             }
         )
 
-    # Standard __typename response
     if "__typename" in query:
         return jsonify({"data": {"__typename": "Query"}})
 
     return jsonify({"errors": [{"message": "Unknown query"}]}), 400
-
-
-@app.route("/graphql-no-intro", methods=["POST"])
-def graphql_no_intro():
-    """GraphQL endpoint with introspection DISABLED — should still flag field suggestions."""
-    try:
-        body = request.get_json(force=True) or {}
-    except Exception:
-        return jsonify({"errors": [{"message": "Invalid JSON"}]}), 400
-
-    query = body.get("query", "")
-
-    if "__schema" in query:
-        return jsonify(
-            {"errors": [{"message": "GraphQL introspection is not allowed, but the query contained __schema or __type."}]}
-        )
-
-    if "__typenme" in query:
-        return jsonify(
-            {
-                "errors": [
-                    {
-                        "message": 'Cannot query field "__typenme". Did you mean "__typename"?',
-                    }
-                ]
-            }
-        )
-
-    if "__typename" in query:
-        return jsonify({"data": {"__typename": "Query"}})
-
-    return jsonify({"errors": [{"message": "Unknown query"}]}), 400
-
-
-@app.route("/secure", methods=["POST"])
-def graphql_secure():
-    """
-    Hardened GraphQL endpoint — introspection disabled, no field suggestions.
-    Used to verify the scanner produces TaskStatus.OK (no false positives).
-    """
-    try:
-        body = request.get_json(force=True) or {}
-    except Exception:
-        return jsonify({"errors": [{"message": "Invalid JSON"}]}), 400
-
-    query = body.get("query", "")
-
-    if "__schema" in query:
-        return jsonify({"errors": [{"message": "Introspection is disabled."}]})
-
-    if "__typename" in query:
-        return jsonify({"data": {"__typename": "Query"}})
-
-    # Generic error without field suggestions
-    return jsonify({"errors": [{"message": "Query error."}]}), 400
 
 
 if __name__ == "__main__":

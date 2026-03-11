@@ -12,7 +12,6 @@ from artemis.reporting.utils import get_target_url, get_top_level_target
 class GraphQLScannerReporter(Reporter):
     GRAPHQL_INTROSPECTION_ENABLED = ReportType("graphql_introspection_enabled")
     GRAPHQL_DEBUG_INTERFACE_EXPOSED = ReportType("graphql_debug_interface_exposed")
-    GRAPHQL_BATCH_QUERY_SUPPORTED = ReportType("graphql_batch_query_supported")
     GRAPHQL_FIELD_SUGGESTIONS_ENABLED = ReportType("graphql_field_suggestions_enabled")
 
     @staticmethod
@@ -57,19 +56,6 @@ class GraphQLScannerReporter(Reporter):
                     additional_data={
                         "endpoint": result["debug_interface"]["endpoint"],
                         "interface_type": result["debug_interface"]["interface_type"],
-                    },
-                )
-            )
-
-        if "batch_queries" in result:
-            reports.append(
-                Report(
-                    top_level_target=top_level_target,
-                    target=target,
-                    report_type=GraphQLScannerReporter.GRAPHQL_BATCH_QUERY_SUPPORTED,
-                    timestamp=timestamp,
-                    additional_data={
-                        "endpoint": result["batch_queries"]["endpoint"],
                     },
                 )
             )

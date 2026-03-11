@@ -1,4 +1,4 @@
-{% if "graphql_introspection_enabled" in data.contains_type or "graphql_debug_interface_exposed" in data.contains_type or "graphql_batch_query_supported" in data.contains_type or "graphql_field_suggestions_enabled" in data.contains_type %}
+{% if "graphql_introspection_enabled" in data.contains_type or "graphql_debug_interface_exposed" in data.contains_type or "graphql_field_suggestions_enabled" in data.contains_type %}
     <li>{% trans %}We identified GraphQL security misconfigurations:{% endtrans %}
         <ul>
             {% if "graphql_introspection_enabled" in data.contains_type %}
@@ -19,16 +19,6 @@
                     {% if report.report_type == "graphql_debug_interface_exposed" %}
                         <li>
                             {% trans endpoint=report.additional_data.endpoint, interface_type=report.additional_data.interface_type %}A GraphQL debug interface ({{ interface_type }}) is exposed at {{ endpoint }}. Debug interfaces should be disabled in production environments.{% endtrans %}
-                            {{ report_meta(report) }}
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-            {% if "graphql_batch_query_supported" in data.contains_type %}
-                {% for report in data.reports %}
-                    {% if report.report_type == "graphql_batch_query_supported" %}
-                        <li>
-                            {% trans endpoint=report.additional_data.endpoint %}The GraphQL endpoint at {{ endpoint }} supports batch queries, which can be used as a Denial of Service amplification vector. We recommend implementing batch query limits.{% endtrans %}
                             {{ report_meta(report) }}
                         </li>
                     {% endif %}

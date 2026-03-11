@@ -81,7 +81,6 @@ SEVERITY_MAP = {
     ReportType("api_vulnerability"): Severity.MEDIUM,
     ReportType("graphql_introspection_enabled"): Severity.MEDIUM,
     ReportType("graphql_debug_interface_exposed"): Severity.MEDIUM,
-    ReportType("graphql_batch_query_supported"): Severity.LOW,
     ReportType("graphql_field_suggestions_enabled"): Severity.LOW,
     ReportType(
         "dangling_dns_record"

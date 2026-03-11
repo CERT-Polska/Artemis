@@ -85,6 +85,13 @@ services:
     volumes:
       - ./test/data/flask_vulnerable_api/:/app/
 
+  test-graphql-server:
+    build:
+      context: .
+      dockerfile: test/data/graphql_server/Dockerfile
+    volumes:
+      - ./test/data/graphql_server/:/app/
+
   test-service-with-exposed-apache-config:
     image: php:7.4-apache
     volumes:

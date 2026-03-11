@@ -1,4 +1,4 @@
-import datetime
+
 import random
 import re
 import urllib
@@ -106,7 +106,7 @@ class SqlInjectionDetector(ArtemisBase):
         except requests.exceptions.Timeout:
             return Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
 
-        return datetime.timedelta(seconds=timer() - start).seconds
+        return timer() - start
 
     def contains_error(self, url: str, response: Optional[HTTPResponse]) -> str | None:
         if response is None:

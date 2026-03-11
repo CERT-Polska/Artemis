@@ -12,6 +12,3 @@ msgstr ""
 #: artemis/reporting/modules/ssh_bad_keys/template_ssh_known_bad_key.jinja2:11
 msgid "fingerprint:"
 msgstr ""
-
-#~ msgid "matched:"
-#~ msgstr ""

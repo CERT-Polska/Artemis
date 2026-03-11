@@ -125,8 +125,13 @@ def get_task_target(task: Task) -> str:
     result = None
     if task.headers["type"] == TaskType.NEW:
         result = task.payload.get("data", None)
-    elif task.headers["type"] == TaskType.IP or task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP:
+    elif task.headers["type"] == TaskType.IP:
         result = task.payload.get("ip", None)
+    elif task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP:
+        result = task.payload.get("ip", None)
+        if not result:
+            # fallback to last_domain
+            result = task.payload.get("last_domain", None)
     elif task.headers["type"] == TaskType.DOMAIN or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
         result = task.payload.get("domain", None)
     elif task.headers["type"] == TaskType.WEBAPP:

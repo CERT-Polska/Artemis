@@ -360,7 +360,7 @@ class DanglingDnsDetector(ArtemisBase):
             whois_data = IPWhois(ip).lookup_whois()
         except HTTPLookupError as e:
             if any(
-                token in e
+                token in str(e)
                 for token in (
                     "429",
                     "too many requests",
@@ -371,7 +371,9 @@ class DanglingDnsDetector(ArtemisBase):
                 )
             ):
                 self.log.info("Quota exceeded for whois query for %s", ip)
-                return False
+            else:
+                self.log.warning("Whois lookup failed for %s: %s", ip, e)
+            return False
 
         descriptions: list[str] = []
         if "asn_description" in whois_data and whois_data["asn_description"]:

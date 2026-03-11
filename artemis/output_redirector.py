@@ -33,8 +33,11 @@ class OutputRedirector:
             self._stream_copy[fd].close()
         if self._tee.stdin:
             self._tee.stdin.close()
-        self._tee.kill()
-        self._tee.wait()
+        try:
+            self._tee.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            self._tee.kill()
+            self._tee.wait()
 
     def get_output(self) -> bytes:
         self._output_collector_file.seek(0)

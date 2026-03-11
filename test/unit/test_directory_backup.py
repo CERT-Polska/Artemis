@@ -36,6 +36,23 @@ class TestDirectoryBackup(unittest.TestCase):
         with open(os.path.join(d, "a.txt")) as f:
             self.assertEqual(f.read(), "hello")
 
+    def test_successful_overwrite_persists(self) -> None:
+        """On success modified content persists and the backup is not restored."""
+        d = self._make_dir("origdir", {"a.txt": "original", "b.txt": "keep"})
+
+        with directory_backup(d, logger=self.logger):
+            with open(os.path.join(d, "a.txt"), "w") as f:
+                f.write("updated")
+            os.remove(os.path.join(d, "b.txt"))
+            with open(os.path.join(d, "c.txt"), "w") as f:
+                f.write("new file")
+
+        with open(os.path.join(d, "a.txt")) as f:
+            self.assertEqual(f.read(), "updated")
+        self.assertFalse(os.path.exists(os.path.join(d, "b.txt")))
+        with open(os.path.join(d, "c.txt")) as f:
+            self.assertEqual(f.read(), "new file")
+
     def test_restores_on_exception(self) -> None:
         """On failure the original directory is restored from backup."""
         d = self._make_dir("origdir", {"a.txt": "original"})

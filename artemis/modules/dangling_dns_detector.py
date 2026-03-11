@@ -133,6 +133,7 @@ class DanglingDnsDetector(ArtemisBase):
                 ip = self.get_ip_from_domain(domain)
                 if not ip:
                     self.log.info("Couldn't resolve domain %s to ip. Dropping rescheduling.", domain)
+                    return False
                 new_payload["ip"] = ip
                 if "domain" in new_payload:
                     new_payload["last_domain"] = new_payload["domain"]

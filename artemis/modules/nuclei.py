@@ -39,6 +39,7 @@ from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
+    directory_backup,
 )
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
@@ -164,19 +165,32 @@ class Nuclei(ArtemisBase):
         # so we don't need to do every time we start the module.
         kev_directory = "/known-exploited-vulnerabilities/"
         if os.path.exists(kev_directory) and os.path.getctime(kev_directory) < time.time() - UPDATE_INTERVAL:
-            shutil.rmtree(kev_directory, ignore_errors=True)
-            subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
+            try:
+                with directory_backup(kev_directory, logger=self.log):
+                    shutil.rmtree(kev_directory, ignore_errors=True)
+                    subprocess.check_call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
+            except subprocess.CalledProcessError:
+                self.log.error("Failed to clone KEV repository, restored previous version")
 
         with self.lock:
             template_directory = "/root/nuclei-templates/"
+            nuclei_config_directory = "/root/.config/nuclei/"
             if (
                 os.path.exists(template_directory)
                 and os.path.getctime(template_directory) < time.time() - UPDATE_INTERVAL
             ):
-                shutil.rmtree(template_directory, ignore_errors=True)
-                shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
-
-            subprocess.call(["nuclei", "-update-templates"])
+                try:
+                    with directory_backup(template_directory, nuclei_config_directory, logger=self.log):
+                        shutil.rmtree(template_directory, ignore_errors=True)
+                        shutil.rmtree(nuclei_config_directory, ignore_errors=True)
+                        subprocess.check_call(["nuclei", "-update-templates"])
+                except subprocess.CalledProcessError:
+                    self.log.error("Failed to update nuclei templates, restored previous version")
+            else:
+                try:
+                    subprocess.check_call(["nuclei", "-update-templates"])
+                except subprocess.CalledProcessError:
+                    self.log.error("Failed to update nuclei templates")
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
 

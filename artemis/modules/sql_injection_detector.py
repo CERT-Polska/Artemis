@@ -50,7 +50,7 @@ class SqlInjectionDetector(ArtemisBase):
         url_parsed = urllib.parse.urlparse(url)
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
-    def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any], payload: str) -> str:
+    def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any, ...], payload: str) -> str:
         assignments = {key: payload for key in param_batch}
         concatenation = "&" if self.is_url_with_parameters(url) else "?"
 
@@ -71,7 +71,7 @@ class SqlInjectionDetector(ArtemisBase):
         return False
 
     @staticmethod
-    def change_url_params(url: str, payload: str, param_batch: tuple[Any]) -> str:
+    def change_url_params(url: str, payload: str, param_batch: tuple[Any, ...]) -> str:
         parsed_url = urlparse(url)
         query_params = parse_qs(parsed_url.query)
         params = list(query_params.keys())
@@ -118,6 +118,81 @@ class SqlInjectionDetector(ArtemisBase):
                 self.log.debug("Matched error: %s on %s", message, url)
                 return message
         return None
+
+    def minimize_parameters_error_based(
+        self, url: str, params: List[str], error_payload: str, not_error_payload: str, use_change_url_params: bool
+    ) -> List[str]:
+        """
+        Try to find the minimal set of parameters that still triggers error-based SQLi. Currently minimizes to single
+        parameters only. Falls back to original params if none work individually.
+        """
+        minimal_params: List[str] = []
+
+        for param in params:
+            single_batch = (param,)
+            if use_change_url_params:
+                url_with = self.change_url_params(url=url, payload=error_payload, param_batch=single_batch)
+                url_without = self.change_url_params(url=url, payload=not_error_payload, param_batch=single_batch)
+            else:
+                url_with = self.create_url_with_batch_payload(url=url, param_batch=single_batch, payload=error_payload)
+                url_without = self.create_url_with_batch_payload(
+                    url=url, param_batch=single_batch, payload=not_error_payload
+                )
+
+            error = self.contains_error(url_with, self.forgiving_http_get(url_with))
+            if not self.contains_error(url_without, self.forgiving_http_get(url_without)) and error:
+                minimal_params.append(param)
+
+        if minimal_params:
+            self.log.info(
+                "SQLi error-based parameter minimization: %s -> %s",
+                params,
+                minimal_params,
+            )
+            return minimal_params
+
+        # fallback if no single param triggers SQLi
+        return params
+
+    def minimize_parameters_time_based(
+        self, url: str, params: List[str], sleep_payload: str, use_change_url_params: bool
+    ) -> List[str]:
+        """
+        Try to find the minimal set of parameters that still triggers time-based SQLi. Currently minimizes to single
+        parameters only. Falls back to original params if none work individually.
+        """
+        minimal_params: List[str] = []
+        no_sleep_payload = self.change_sleep_to_0(sleep_payload)
+
+        for param in params:
+            single_batch = (param,)
+            if use_change_url_params:
+                url_with = self.change_url_params(url=url, payload=sleep_payload, param_batch=single_batch)
+                url_without = self.change_url_params(url=url, payload=no_sleep_payload, param_batch=single_batch)
+            else:
+                url_with = self.create_url_with_batch_payload(url=url, param_batch=single_batch, payload=sleep_payload)
+                url_without = self.create_url_with_batch_payload(
+                    url=url, param_batch=single_batch, payload=no_sleep_payload
+                )
+
+            if (
+                self.measure_request_time(url_without)
+                < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
+                and self.measure_request_time(url_with)
+                >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
+            ):
+                minimal_params.append(param)
+
+        if minimal_params:
+            self.log.info(
+                "SQLi time-based parameter minimization: %s -> %s",
+                params,
+                minimal_params,
+            )
+            return minimal_params
+
+        # fallback if no single param triggers SQLi
+        return params
 
     @staticmethod
     def create_headers(payload: str) -> dict[str, str]:
@@ -182,9 +257,19 @@ class SqlInjectionDetector(ArtemisBase):
                             not self.contains_error(url_without_payload, self.forgiving_http_get(url_without_payload))
                             and error
                         ):
+                            minimal_params = self.minimize_parameters_error_based(
+                                current_url,
+                                list(param_batch),
+                                error_payload,
+                                not_error_payload,
+                                use_change_url_params=True,
+                            )
+                            minimal_url = self.change_url_params(
+                                url=current_url, payload=error_payload, param_batch=tuple(minimal_params)
+                            )
                             message.append(
                                 {
-                                    "url": url_with_payload,
+                                    "url": minimal_url,
                                     "headers": {},
                                     "matched_error": error,
                                     "message": "It appears that this URL is vulnerable to SQL injection",
@@ -217,9 +302,18 @@ class SqlInjectionDetector(ArtemisBase):
                                 break
 
                         if all(flags):
+                            minimal_params = self.minimize_parameters_time_based(
+                                current_url,
+                                list(param_batch),
+                                sleep_payload,
+                                use_change_url_params=True,
+                            )
+                            minimal_url = self.change_url_params(
+                                url=current_url, payload=sleep_payload, param_batch=tuple(minimal_params)
+                            )
                             message.append(
                                 {
-                                    "url": url_with_sleep_payload,
+                                    "url": minimal_url,
                                     "headers": {},
                                     "statement": "It appears that this URL is vulnerable to time-based SQL injection",
                                     "code": Statements.sql_time_based_injection.value,
@@ -242,9 +336,19 @@ class SqlInjectionDetector(ArtemisBase):
                         not self.contains_error(url_with_no_payload, self.forgiving_http_get(url_with_no_payload))
                         and error
                     ):
+                        minimal_params = self.minimize_parameters_error_based(
+                            current_url,
+                            list(param_batch),
+                            error_payload,
+                            not_error_payload,
+                            use_change_url_params=False,
+                        )
+                        minimal_url = self.create_url_with_batch_payload(
+                            url=current_url, param_batch=tuple(minimal_params), payload=error_payload
+                        )
                         message.append(
                             {
-                                "url": url_with_payload,
+                                "url": minimal_url,
                                 "headers": {},
                                 "matched_error": error,
                                 "statement": "It appears that this URL is vulnerable to SQL injection",
@@ -277,9 +381,18 @@ class SqlInjectionDetector(ArtemisBase):
                             break
 
                     if all(flags):
+                        minimal_params = self.minimize_parameters_time_based(
+                            current_url,
+                            list(param_batch),
+                            sleep_payload,
+                            use_change_url_params=False,
+                        )
+                        minimal_url = self.create_url_with_batch_payload(
+                            url=current_url, param_batch=tuple(minimal_params), payload=sleep_payload
+                        )
                         message.append(
                             {
-                                "url": url_with_sleep_payload,
+                                "url": minimal_url,
                                 "headers": {},
                                 "statement": "It appears that this URL is vulnerable to time-based SQL injection",
                                 "code": Statements.sql_time_based_injection.value,

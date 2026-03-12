@@ -157,20 +157,25 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage:80/xss\.php\?.*?"
             r"Reflected Cross-Site Scripting",
         )
+   # Skip HTTP connectivity check since SOCKS proxy does not speak HTTP
     def test_socks_proxy_detection(self) -> None:
-        task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
-            payload={
-                "host": "test-service-with-exposed-apache-config",
-                "port": 80,
-            },
-        )
+        with patch(
+            "artemis.module_base.ArtemisBase.check_connection_to_base_url_and_save_error",
+            return_value=True,
+        ):
+            task = Task(
+                {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+                payload={
+                    "host": "test-socks-open-proxy",
+                    "port": 1080,
+                },
+            )
 
-        self.run_task(task)
+            self.run_task(task)
 
-        (call,) = self.mock_db.save_task_result.call_args_list
+            (call,) = self.mock_db.save_task_result.call_args_list
 
-        self.assertIn(
-            call.kwargs["status"],
-            [TaskStatus.OK, TaskStatus.INTERESTING],
-        )
+            self.assertIn(
+                call.kwargs["status"],
+                [TaskStatus.OK, TaskStatus.INTERESTING],
+            )

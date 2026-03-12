@@ -1,5 +1,6 @@
 import random
 from test.base import KartonBackendMockWithRedis
+from unittest.mock import patch
 
 from karton.core import Task
 from karton.core.test import ConfigMock, KartonTestCase
@@ -69,7 +70,8 @@ class FlakyModuleRaisingExceptionTest(KartonTestCase):
         )
         test_db = TestDB()
         test_db.delete_task_results()
-        self.run_task(task)
+        with patch("random.randint", return_value=95):
+            self.run_task(task)
         result = test_db.get_single_task_result()
         self.assertEqual(result["status"], "INTERESTING")
         self.assertEqual(result["status_reason"], "Found a vulnerability")
@@ -89,7 +91,8 @@ class FlakyModuleSavingErrorTest(KartonTestCase):
         )
         test_db = TestDB()
         test_db.delete_task_results()
-        self.run_task(task)
+        with patch("random.randint", return_value=95):
+            self.run_task(task)
         result = test_db.get_single_task_result()
         self.assertEqual(result["status"], "INTERESTING")
         self.assertEqual(result["status_reason"], "Found a vulnerability")

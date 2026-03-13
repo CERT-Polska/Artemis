@@ -25,7 +25,9 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-php-easy-admin-password:80/index.php")
         self.assertEqual(call.kwargs["data"]["results"][0]["username"], "admin")
         self.assertEqual(call.kwargs["data"]["results"][0]["password"], "admin")
-        self.assertEqual(call.kwargs["data"]["results"][0]["indicators"], ["logout_link", "no_failure_messages"])
+        self.assertEqual(
+            call.kwargs["data"]["results"][0]["indicators"], ["redirect", "logout_link", "no_failure_messages"]
+        )
 
     def test_grafana_json_login(self) -> None:
         """Test that JSON API login works against a real Grafana instance (no HTML form)."""

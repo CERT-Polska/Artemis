@@ -161,6 +161,31 @@ class AdminPanelLoginBruter(ArtemisBase):
                 found_paths.append(path)
         return found_paths
 
+    def detect_redirect(self, response: requests.Response, login_url: str) -> bool:
+        """
+        Detects if a redirect occurred that likely indicates a successful login.
+        """
+        login_path = urllib.parse.urlparse(login_url).path.rstrip("/")
+
+        # Case 1: redirect not followed
+        if response.status_code in (301, 302, 303, 307, 308):
+            location = response.headers.get("Location")
+            if location:
+                final_url = urllib.parse.urljoin(login_url, location)
+                final_path = urllib.parse.urlparse(final_url).path.rstrip("/")
+
+                if final_path and final_path != login_path:
+                    return True
+
+        # Case 2: redirect followed automatically
+        if response.url:
+            final_path = urllib.parse.urlparse(response.url).path.rstrip("/")
+
+            if final_path and final_path != login_path:
+                return True
+
+        return False
+
     def brute_force_login_path(
         self, base_url: str, login_path: str, username: str, password: str
     ) -> Tuple[bool, Optional[AdminPanelLoginBruterResult]]:
@@ -237,7 +262,12 @@ class AdminPanelLoginBruter(ArtemisBase):
                 if post_response is None:
                     continue
 
+                redirect_detected = self.detect_redirect(post_response, form_url)
+
                 indicators = []
+
+                if redirect_detected:
+                    indicators.append("redirect")
 
                 new_cookies = session.cookies.get_dict()  # type: ignore
                 if len(new_cookies) > len(original_cookies):
@@ -250,7 +280,10 @@ class AdminPanelLoginBruter(ArtemisBase):
                     msg.lower() in post_response.text.lower() and msg.lower() not in response.text.lower()
                     for msg in COMMON_FAILURE_MESSAGES
                 )
-                if not failure_detected:
+
+                positive_signal = redirect_detected or "logout_link" in indicators or "session_cookie" in indicators
+
+                if not failure_detected and positive_signal:
                     indicators.append("no_failure_messages")
                     login_success = True
                 else:

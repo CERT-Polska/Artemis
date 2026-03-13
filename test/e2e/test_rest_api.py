@@ -7,26 +7,29 @@ These tests call the live API directly and should break when the API code change
 
 import time
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
+from typing import Any, Dict, Optional
 
 import requests
 
 API_TOKEN = "api-token"
-HEADERS = {"X-API-Token": API_TOKEN, "Content-Type": "application/json"}
-AUTH_HEADER = {"X-API-Token": API_TOKEN}
+HEADERS: Dict[str, str] = {"X-API-Token": API_TOKEN, "Content-Type": "application/json"}
+AUTH_HEADER: Dict[str, str] = {"X-API-Token": API_TOKEN}
 REQUEST_TIMEOUT = 10
 
 
 def api_request(
     method: str,
     path: str,
-    headers: dict = AUTH_HEADER,
-    json: dict = None,
-    params: dict = None,
+    headers: Optional[Dict[str, str]] = None,
+    json: Optional[Dict[str, Any]] = None,
+    params: Optional[Dict[str, str]] = None,
     retries: int = 3,
 ) -> requests.Response:
     """Make an API request with retries to handle transient connection issues."""
-    last_exc = None
-    for attempt in range(retries):
+    if headers is None:
+        headers = AUTH_HEADER
+    last_exc: Optional[Exception] = None
+    for _attempt in range(retries):
         try:
             response = requests.request(
                 method,
@@ -166,7 +169,7 @@ class RestApiTestCase(BaseE2ETestCase):
     def test_api_token_required(self) -> None:
         """Verify that API endpoints return 401 without a valid token."""
         invalid_headers = {"X-API-Token": "invalid-token", "Content-Type": "application/json"}
-        endpoints = [
+        endpoints: list[tuple[str, str, Optional[Dict[str, Any]]]] = [
             ("POST", "api/add", {"targets": ["example.com"]}),
             ("GET", "api/analyses", None),
             ("GET", "api/num-queued-tasks", None),

@@ -1,0 +1,24 @@
+{% if "cors_misconfiguration" in data.contains_type %}
+    <li>{% trans %}The following addresses have CORS (Cross-Origin Resource Sharing) misconfigurations:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "cors_misconfiguration" %}
+                    <li>
+                        {{ report.target }}
+                        {% for finding in report.additional_data.findings %}
+                            ({{ finding.issue }}: Origin={{ finding.origin_sent }}, Access-Control-Allow-Origin={{ finding.acao_header }})
+                        {% endfor %}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                CORS misconfigurations may allow malicious websites to read sensitive data from your
+                application on behalf of your users. We recommend restricting the Access-Control-Allow-Origin
+                header to only trusted domains and avoiding the use of wildcard (*) with credentials.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

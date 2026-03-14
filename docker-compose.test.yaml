@@ -77,8 +77,6 @@ services:
   test-socks-open-proxy:
     build:
       context: ./test/data/socks_open_proxy
-    ports:
-      - "1080"
 
   test-dast-vuln-app:
     build:

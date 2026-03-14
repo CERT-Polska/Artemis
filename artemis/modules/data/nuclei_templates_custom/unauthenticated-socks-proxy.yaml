@@ -27,65 +27,33 @@ info:
     cwe-id: CWE-284
 
   metadata:
-    max-request: 1
+    max-request: 2
 
   tags: proxy,socks,socks4,socks5,misconfiguration,network
 
-network:
-
-  # =============================
+tcp:
   # SOCKS5 Detection
-  # =============================
   - host:
       - "{{Hostname}}"
-      - "{{Hostname}}:1080"
-      - "{{Hostname}}:1081"
-      - "{{Hostname}}:1082"
-      - "{{Hostname}}:1085"
-      - "{{Hostname}}:2080"
-      - "{{Hostname}}:9050"
-      - "{{Hostname}}:9051"
-      - "{{Hostname}}:10808"
-
+    port: "1080,1081,1082,1085,2080,9050,9051,10808"
     inputs:
-      # SOCKS5 greeting:
-      # version (0x05), number of auth methods (1), method: no auth (0x00)
-      - data: "\x05\x01\x00"
-        read: 2
-
+      - data: "050100"
+        type: hex
+    read-size: 2
     matchers:
-      # \x05\x00 = SOCKS5 version, no-auth method accepted
-      - type: word
-        part: raw
-        words:
-          - "\x05\x00"
-        encoding: hex
+      - type: binary
+        binary:
+          - "0500"
 
-  # =============================
   # SOCKS4 Detection
-  # =============================
   - host:
       - "{{Hostname}}"
-      - "{{Hostname}}:1080"
-      - "{{Hostname}}:1081"
-      - "{{Hostname}}:1082"
-      - "{{Hostname}}:1085"
-      - "{{Hostname}}:2080"
-      - "{{Hostname}}:9050"
-      - "{{Hostname}}:9051"
-      - "{{Hostname}}:10808"
-
+    port: "1080,1081,1082,1085,2080,9050,9051,10808"
     inputs:
-      # SOCKS4 CONNECT request:
-      # version (0x04), command CONNECT (0x01),
-      # port 80 (0x0050), IP 127.0.0.1, null user-id terminator
-      - data: "\x04\x01\x00\x50\x7F\x00\x00\x01\x00"
-        read: 8
-
+      - data: "040100507F00000100"
+        type: hex
+    read-size: 8
     matchers:
-      # \x00\x5a = SOCKS4 request granted
-      - type: word
-        part: raw
-        words:
-          - "\x00\x5a"
-        encoding: hex
+      - type: binary
+        binary:
+          - "005A"

@@ -1,5 +1,4 @@
 from test.base import ArtemisModuleTestCase
-from unittest import skip
 from unittest.mock import patch
 
 from karton.core import Task
@@ -86,7 +85,6 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
                 "http/vulnerabilities/generic/top-xss-params.yaml",
                 "http/vulnerabilities/generic/xss-fuzz.yaml",
                 "dast/vulnerabilities/xss/reflected-xss.yaml",
-		"network/unauthenticated-socks-proxy.yaml",
             ],
         )
         self.patcher.start()
@@ -111,7 +109,6 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             "[medium] http://test-php-403-bypass:80: 403 Forbidden Bypass Detection with Headers Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).\n",
         )
 
-    @skip("Reason: failing on GH CI")
     def test_interactsh(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
@@ -157,7 +154,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage:80/xss\.php\?.*?"
             r"Reflected Cross-Site Scripting",
         )
-   # Skip HTTP connectivity check since SOCKS proxy does not speak HTTP
+    
     def test_socks_proxy_detection(self) -> None:
         with patch(
             "artemis.module_base.ArtemisBase.check_connection_to_base_url_and_save_error",
@@ -169,13 +166,20 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
                     "host": "test-socks-open-proxy",
                     "port": 1080,
                 },
+                payload_persistent={
+                    "module_runtime_configurations": {
+                        "nuclei": {"severity_threshold": "medium_and_above"}
+                    }
+                },
             )
 
             self.run_task(task)
 
             (call,) = self.mock_db.save_task_result.call_args_list
 
-            self.assertIn(
-                call.kwargs["status"],
-                [TaskStatus.OK, TaskStatus.INTERESTING],
+            self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+
+            self.assertRegex(
+                call.kwargs["status_reason"],
+                r"[Uu]nauthenticated.SOCKS",
             )

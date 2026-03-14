@@ -706,6 +706,7 @@ class ArtemisBase(Karton):
                             break
 
                     except Exception:
+                        output += output_redirector.get_output()
                         if i < self.num_retries - 1:
                             self.log.exception("Task(s) failed, retrying (try %d/%d)", i + 1, self.num_retries)
                         else:

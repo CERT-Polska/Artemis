@@ -54,7 +54,11 @@ msgstr ""
 "to 'a'. Pozwoli to atakujacemu poznać zawartość całej bazy danych znak po"
 " znaku."
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:43
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:39
+msgid "Headers used"
+msgstr ""
+
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:53
 msgid ""
 "These vulnerabilities can lead to serious security breaches, including "
 "user data leaks and potential database manipulation. The vulnerability "

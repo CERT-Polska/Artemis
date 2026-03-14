@@ -154,10 +154,10 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage:80/xss\.php\?.*?"
             r"Reflected Cross-Site Scripting",
         )
-    
+
     def test_socks_proxy_detection(self) -> None:
         with patch(
-        # Skip HTTP connectivity check since SOCKS proxy does not speak HTTP    
+            # Skip HTTP connectivity check since SOCKS proxy does not speak HTTP
             "artemis.module_base.ArtemisBase.check_connection_to_base_url_and_save_error",
             return_value=True,
         ):
@@ -168,9 +168,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
                     "port": 1080,
                 },
                 payload_persistent={
-                    "module_runtime_configurations": {
-                        "nuclei": {"severity_threshold": "medium_and_above"}
-                    }
+                    "module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}
                 },
             )
 

@@ -73,7 +73,7 @@ services:
     image: mysql:5.6
     environment:
       MYSQL_ROOT_PASSWORD: root
-    
+
   test-socks-open-proxy:
     build:
       context: ./test/data/socks_open_proxy

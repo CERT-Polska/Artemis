@@ -707,7 +707,9 @@ class Nuclei(ArtemisBase):
                         findings_per_task[task.uid].append(finding)
                         found = True
                         break
-                assert found, "Cannot match finding: %s" % finding
+                if not found:
+                    self.log.warning("Cannot match finding to any task, assigning to first task: %s", finding)
+                    findings_per_task[tasks[0].uid].append(finding)
 
         for task in tasks:
             result = []

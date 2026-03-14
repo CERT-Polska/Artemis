@@ -2,6 +2,7 @@ from test.base import ArtemisModuleTestCase
 from typing import NamedTuple
 
 from karton.core import Task
+from retry import retry
 
 from artemis.binds import TaskType
 from artemis.modules.subdomain_enumeration import SubdomainEnumeration
@@ -35,7 +36,8 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     def test_get_subdomains_from_subfinder(self) -> None:
         result = self.karton.get_subdomains_from_subfinder("cert.pl")
         self.assertTrue("ci.drakvuf.cert.pl" in result)
-
+    
+    @retry(tries=3, delay=10)
     def test_get_subdomains_from_gau(self) -> None:
         result = self.karton.get_subdomains_from_gau("cert.pl")
         self.assertTrue("vortex.cert.pl" in result)

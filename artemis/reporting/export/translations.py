@@ -8,16 +8,17 @@ from typing import Any
 from jinja2 import Environment
 
 from artemis.reporting.base.language import Language
-from artemis.reporting.exceptions import TranslationNotFoundException
+from artemis.reporting.exceptions import record_missing_translation
 
 
 class TranslationRaiseException(gettext.GNUTranslations):
-    """This class is used instead of GNUTranslations and raises exception when a message is not found,
-    so that we don't allow untranslated strings into the messages."""
+    """This class is used instead of GNUTranslations and collects missing translations
+    so that all of them can be reported at once instead of crashing on the first one."""
 
     class _TranslationAlwaysRaiseException(gettext.GNUTranslations):
         def gettext(self, message: str) -> str:
-            raise TranslationNotFoundException(f"Unable to translate '{message}'")
+            record_missing_translation(f"Unable to translate '{message}'")
+            return message
 
         def ngettext(self, *args: Any) -> Any:
             raise NotImplementedError()

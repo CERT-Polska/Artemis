@@ -157,6 +157,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
     
     def test_socks_proxy_detection(self) -> None:
         with patch(
+        # Skip HTTP connectivity check since SOCKS proxy does not speak HTTP    
             "artemis.module_base.ArtemisBase.check_connection_to_base_url_and_save_error",
             return_value=True,
         ):

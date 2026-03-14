@@ -187,7 +187,7 @@ class SqlInjectionDetector(ArtemisBase):
                                     "url": url_with_payload,
                                     "headers": {},
                                     "matched_error": error,
-                                    "message": "It appears that this URL is vulnerable to SQL injection",
+                                    "statement": "It appears that this URL is vulnerable to SQL injection",
                                     "code": Statements.sql_injection.value,
                                 }
                             )
@@ -307,7 +307,6 @@ class SqlInjectionDetector(ArtemisBase):
                             "matched_error": error,
                             "statement": "It appears that this URL is vulnerable to SQL injection through HTTP Headers",
                             "code": Statements.headers_sql_injection.value,
-                            "headers": headers,
                         }
                     )
                     if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
@@ -338,7 +337,6 @@ class SqlInjectionDetector(ArtemisBase):
                             "headers": headers,
                             "statement": "It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers",
                             "code": Statements.headers_time_based_sql_injection.value,
-                            "headers": headers,
                         }
                     )
                     if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:

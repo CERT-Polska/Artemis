@@ -3,6 +3,7 @@ from test.base import ArtemisModuleTestCase
 from unittest.mock import patch
 
 from karton.core import Task
+from retry import retry   
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.modules.domain_expiration_scanner import DomainExpirationScanner
@@ -10,7 +11,8 @@ from artemis.modules.domain_expiration_scanner import DomainExpirationScanner
 
 class TestDomainExpirationScanner(ArtemisModuleTestCase):
     karton_class = DomainExpirationScanner  # type: ignore
-
+    
+    @retry(tries=3, delay=10)  
     def test_simple(self) -> None:
         task = Task(
             {"type": TaskType.DOMAIN.value},

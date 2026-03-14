@@ -17,7 +17,7 @@ from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
-from artemis.reporting.exceptions import TranslationNotFoundException
+from artemis.reporting.exceptions import record_missing_translation
 from artemis.reporting.utils import (
     add_protocol_if_needed,
     get_target_url,
@@ -231,10 +231,11 @@ class NucleiReporter(Reporter):
                 return translations_nuclei_messages_pl_PL.TRANSLATIONS[description]
             if template_name in translations_nuclei_messages_pl_PL.TRANSLATIONS:
                 return translations_nuclei_messages_pl_PL.TRANSLATIONS[template_name]
-            raise TranslationNotFoundException(
+            record_missing_translation(
                 f"Unable to find translation for message '{description}' (template_name: {template_name}). "
                 f"You may add in in artemis/reporting/modules/nuclei/translations/nuclei_messages/"
             )
+            return description
         else:
             raise NotImplementedError()
 

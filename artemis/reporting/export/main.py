@@ -27,6 +27,11 @@ from artemis.db import DB
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.templating import build_message_template
+from artemis.reporting.exceptions import (
+    TranslationNotFoundException,
+    clear_missing_translations,
+    get_missing_translations,
+)
 from artemis.reporting.export.common import OUTPUT_LOCATION
 from artemis.reporting.export.custom_template_arguments import (
     parse_custom_template_arguments,
@@ -175,6 +180,8 @@ def export(
     skip_suspicious_reports: bool = False,
     include_only_results_since: Optional[datetime.datetime] = None,
 ) -> Path:
+    clear_missing_translations()
+
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
     blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
@@ -231,6 +238,14 @@ def export(
     if not silent:
         for alert in export_data.alerts:
             print(termcolor.colored("ALERT:" + alert, color="red"))
+
+    missing = get_missing_translations()
+    if missing:
+        message = f"Found {len(missing)} missing translation(s):\n"
+        for entry in sorted(missing):
+            message += f"  - {entry}\n"
+        raise TranslationNotFoundException(message)
+
     return output_dir
 
 

@@ -8,6 +8,11 @@ fi
 
 docker compose -f docker-compose.test.yaml down --remove-orphans
 
+# Create test volumes if they don't exist
+docker volume create artemis_data-test-redis 2>/dev/null || true
+docker volume create artemis_data-test-postgres 2>/dev/null || true
+docker volume create artemis_data-test-mongodb 2>/dev/null || true
+
 # Let's first start everything except the test container and perform relevant setup
 docker compose -f docker-compose.test.yaml up -d --build --scale test=0 --scale=test-e2e=0
 
@@ -48,9 +53,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-docker volume rm artemis_data-test-redis
-docker volume rm artemis_data-test-postgres
-docker volume rm artemis_data-test-mongodb
+docker volume rm artemis_data-test-redis 2>/dev/null || true
+docker volume rm artemis_data-test-postgres 2>/dev/null || true
+docker volume rm artemis_data-test-mongodb 2>/dev/null || true
+
+# Recreate test volumes for e2e tests
+docker volume create artemis_data-test-redis 2>/dev/null || true
+docker volume create artemis_data-test-postgres 2>/dev/null || true
+docker volume create artemis_data-test-mongodb 2>/dev/null || true
 
 # Let's first start everything except the test container and perform relevant setup
 docker compose \
@@ -63,7 +73,20 @@ docker compose \
     --scale test=0 \
     --scale test-e2e=0
 
-# Now we are ready to start the tests
+# Wait for the backend web service to be available
+echo "Waiting for web service to be ready..."
+for i in {1..120}; do
+    if docker compose \
+        -f docker-compose.test.yaml \
+        -f docker-compose.yaml \
+        -f docker-compose.test-e2e.yaml \
+        exec -T web curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/ | grep -q "200\|302\|404"; then
+        echo "Web service is ready!"
+        break
+    fi
+    echo "Waiting for web service... ($i/120)"
+    sleep 1
+done
 docker compose \
     -f docker-compose.test.yaml \
     -f docker-compose.yaml \

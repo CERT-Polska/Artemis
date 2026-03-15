@@ -17,7 +17,6 @@ from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.orm_injection_data import ORM_LOOKUP_SUFFIXES, SENSITIVE_FIELD_PROBES
 from artemis.task_utils import get_target_url
 
-
 UNLIKELY_VALUE = "ZZZXQQIMPOSSIBLE99"
 
 
@@ -70,13 +69,9 @@ class OrmInjectionDetector(ArtemisBase):
         merged = {k: v[0] if isinstance(v, list) else v for k, v in existing_params.items()}
         merged.update(params)
         new_query = urlencode(merged)
-        return urlunparse(
-            (parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_query, parsed.fragment)
-        )
+        return urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_query, parsed.fragment))
 
-    def _test_lookup_suffix(
-        self, base_url: str, param_name: str, suffix: str, likely_value: str
-    ) -> bool:
+    def _test_lookup_suffix(self, base_url: str, param_name: str, suffix: str, likely_value: str) -> bool:
         # Sends two requests: one with a value likely to match records and one with a value
         # unlikely to match. If the responses differ, the ORM is processing the suffix.
         param_with_suffix = f"{param_name}{suffix}"

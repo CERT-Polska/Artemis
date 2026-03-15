@@ -3,7 +3,11 @@ from typing import Any, Dict, List, Tuple
 
 from flask import Flask, Response, jsonify, request
 from sqlalchemy import Column, Integer, String, create_engine
-from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from sqlalchemy.orm import (  # type: ignore[attr-defined]
+    Session,
+    declarative_base,
+    sessionmaker,
+)
 
 app = Flask(__name__)
 
@@ -16,7 +20,7 @@ SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
 
-class User(Base):  # type: ignore[misc]
+class User(Base):  # type: ignore[valid-type,misc]
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -27,7 +31,7 @@ class User(Base):  # type: ignore[misc]
 
 
 ALLOWED_ORM_LOOKUPS = {
-    "exact": lambda col: col.__eq__,  # type: ignore[arg-type]
+    "exact": lambda col: col.__eq__,
     "iexact": lambda col: lambda v: col.ilike(v),
     "contains": lambda col: lambda v: col.contains(v),
     "icontains": lambda col: lambda v: col.ilike(f"%{v}%"),
@@ -59,7 +63,7 @@ def parse_orm_params(params: Dict[str, str]) -> List[Any]:
             field_name, lookup = parts
             if field_name in columns and lookup in ALLOWED_ORM_LOOKUPS:
                 col = columns[field_name]
-                filter_fn = ALLOWED_ORM_LOOKUPS[lookup](col)
+                filter_fn = ALLOWED_ORM_LOOKUPS[lookup](col)  # type: ignore[no-untyped-call]
                 filters.append(filter_fn(value))
                 continue
 

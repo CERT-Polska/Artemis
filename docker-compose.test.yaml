@@ -264,6 +264,7 @@ services:
     build:
       context: .
       dockerfile: test/data/orm_injection/Dockerfile
+    restart: on-failure
     volumes:
       - ./test/data/orm_injection/:/app/
 

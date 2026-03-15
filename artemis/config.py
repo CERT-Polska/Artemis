@@ -1113,6 +1113,12 @@ class Config:
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
             ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=30, cast=int)
 
+        class OrmInjectionDetector:
+            ORM_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to stop scanning after the first ORM injection finding.",
+            ] = get_config("ORM_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+
         class SqlInjectionDetector:
             SQL_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
                 bool,

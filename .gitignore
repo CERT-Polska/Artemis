@@ -147,3 +147,6 @@ cython_debug/
 docker-compose.dev.yaml
 karton-logs
 output
+
+# Artemis additional modules
+Artemis-modules-extra

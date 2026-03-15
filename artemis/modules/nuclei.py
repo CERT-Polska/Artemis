@@ -3,6 +3,7 @@ import collections
 import enum
 import itertools
 import json
+import logging
 import os
 import random
 import shutil
@@ -31,16 +32,55 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
     NucleiConfiguration,
     SeverityThreshold,
 )
+from artemis.reporting.modules.nuclei.poc_url_utils import (
+    minimize_nuclei_matched_at_url,
+)
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
+    directory_backup,
 )
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
 NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
+
+logger = logging.getLogger(__name__)
+
+
+def _verify_with_nuclei(url: str, template_path: str) -> bool:
+    try:
+        command = [
+            "nuclei",
+            "-disable-update-check",
+            "-u",
+            url,
+            "-t",
+            template_path,
+            "-dast",
+            "-fuzzing-mode",
+            "multiple",
+            "-jsonl",
+            "-silent",
+        ]
+        result = subprocess.check_output(command, stderr=subprocess.DEVNULL)
+        for line in result.strip().splitlines():
+            try:
+                hit = json.loads(line)
+                if hit.get("matched-at"):
+                    return True
+            except json.JSONDecodeError:
+                continue
+        return False
+    except FileNotFoundError:
+        logger.warning("Nuclei binary not found, skipping URL verification")
+        return False
+    except subprocess.CalledProcessError as e:
+        logger.warning("Nuclei verification failed on %s: %s", url, e)
+        return False
+
 
 # It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {
@@ -125,19 +165,32 @@ class Nuclei(ArtemisBase):
         # so we don't need to do every time we start the module.
         kev_directory = "/known-exploited-vulnerabilities/"
         if os.path.exists(kev_directory) and os.path.getctime(kev_directory) < time.time() - UPDATE_INTERVAL:
-            shutil.rmtree(kev_directory, ignore_errors=True)
-            subprocess.call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
+            try:
+                with directory_backup(kev_directory, logger=self.log):
+                    shutil.rmtree(kev_directory, ignore_errors=True)
+                    subprocess.check_call(["git", "clone", "https://github.com/Ostorlab/KEV/", kev_directory])
+            except subprocess.CalledProcessError:
+                self.log.error("Failed to clone KEV repository, restored previous version")
 
         with self.lock:
             template_directory = "/root/nuclei-templates/"
+            nuclei_config_directory = "/root/.config/nuclei/"
             if (
                 os.path.exists(template_directory)
                 and os.path.getctime(template_directory) < time.time() - UPDATE_INTERVAL
             ):
-                shutil.rmtree(template_directory, ignore_errors=True)
-                shutil.rmtree("/root/.config/nuclei/", ignore_errors=True)
-
-            subprocess.call(["nuclei", "-update-templates"])
+                try:
+                    with directory_backup(template_directory, nuclei_config_directory, logger=self.log):
+                        shutil.rmtree(template_directory, ignore_errors=True)
+                        shutil.rmtree(nuclei_config_directory, ignore_errors=True)
+                        subprocess.check_call(["nuclei", "-update-templates"])
+                except subprocess.CalledProcessError:
+                    self.log.error("Failed to update nuclei templates, restored previous version")
+            else:
+                try:
+                    subprocess.check_call(["nuclei", "-update-templates"])
+                except subprocess.CalledProcessError:
+                    self.log.error("Failed to update nuclei templates")
 
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
 
@@ -228,8 +281,9 @@ class Nuclei(ArtemisBase):
 
         self._nuclei_templates_or_workflows_to_skip_probabilistically_set = set()
         if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
-            for line in open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE):
-                self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
+            with open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE, encoding="utf-8") as f:
+                for line in f:
+                    self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
 
     def _get_links(self, url: str) -> List[str]:
         links = get_links_and_resources_on_same_domain(url)
@@ -246,7 +300,7 @@ class Nuclei(ArtemisBase):
         url_parsed = urllib.parse.urlparse(url)
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
-    def _get_requests_per_second_statistics(sef, stderr_lines: List[str]) -> str:
+    def _get_requests_per_second_statistics(self, stderr_lines: List[str]) -> str:
         current_second_host_requests: Dict[str, int] = collections.defaultdict(int)
         requests_per_second_per_host: List[int] = []
 
@@ -649,7 +703,7 @@ class Nuclei(ArtemisBase):
             for finding in findings_unmatched:
                 found = False
                 for task in tasks:
-                    if finding["host"].split(":")[0] == get_target_host(task).split(":")[0]:
+                    if finding.get("host", "").split(":")[0] == get_target_host(task).split(":")[0]:
                         findings_per_task[task.uid].append(finding)
                         found = True
                         break
@@ -660,6 +714,16 @@ class Nuclei(ArtemisBase):
             messages = []
 
             for finding in findings_per_task[task.uid]:
+                if "matched-at" in finding:
+                    template_path = finding.get(
+                        "template-path",
+                        os.path.join(NUCLEI_TEMPLATES_LOCATION, finding["template-id"]),
+                    )
+                    finding["matched-at"] = minimize_nuclei_matched_at_url(
+                        finding["matched-at"],
+                        fuzzing_parameter=finding.get("fuzzing_parameter"),
+                        verify_url_fn=lambda url: _verify_with_nuclei(url, template_path),
+                    )
                 result.append(finding)
                 messages.append(
                     f"[{finding['info']['severity']}] {finding.get('matched-at', None) or finding.get('url')}: {finding['info'].get('name')} {finding['info'].get('description', '')}"

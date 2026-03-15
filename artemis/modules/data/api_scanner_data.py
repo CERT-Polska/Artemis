@@ -1,7 +1,7 @@
 from os.path import dirname
 from typing import Dict, List
 
-with open(f"{dirname(__file__)}/swagger.txt", "r") as f:
+with open(f"{dirname(__file__)}/swagger.txt", "r", encoding="utf-8") as f:
     COMMON_SPEC_PATHS: List[str] = f.read().splitlines()
     COMMON_SPEC_PATHS = [payload.strip() for payload in COMMON_SPEC_PATHS if not payload.startswith("#")]
 

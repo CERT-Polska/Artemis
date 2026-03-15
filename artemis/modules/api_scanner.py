@@ -53,7 +53,7 @@ class APIScanner(ArtemisBase):
         for path in COMMON_SPEC_PATHS:
             try_url = base_url.rstrip("/") + "/" + path
             try:
-                response = http_requests.get(try_url)
+                response = http_requests.get(try_url, max_size=Config.Modules.APIScanner.API_SPEC_MAX_SIZE)
                 if response.status_code == 200 and (
                     "openapi" in response.text.lower() or "swagger" in response.text.lower()
                 ):
@@ -99,7 +99,7 @@ class APIScanner(ArtemisBase):
 
         subprocess.call(offat_cmd)
 
-        with open(output_file) as f:
+        with open(output_file, encoding="utf-8") as f:
             file_contents = f.read()
 
         report: Dict[str, Any] = json.loads(file_contents)

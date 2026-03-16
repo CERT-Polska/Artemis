@@ -190,15 +190,26 @@ class PortScanner(ArtemisBase):
 
             for ip in found_ports:
                 for port_str in found_ports[ip]:
-                    try:
-                        output = self.throttle_request(
-                            lambda _ip=ip, _port_str=port_str: check_output_log_on_error(
-                                ["fingerprintx", "--json"], self.log, input=f"{_ip}:{_port_str}".encode("ascii")
-                            ).strip()
-                        )
-                    except subprocess.CalledProcessError:
-                        self.log.exception("Unable to fingerprint %s:%s", ip, port_str)
-                        output = b""
+                    output = b""
+                    max_retries = 3
+                    for attempt in range(1, max_retries + 1):
+                        try:
+                            output = self.throttle_request(
+                                lambda _ip=ip, _port_str=port_str: check_output_log_on_error(
+                                    ["fingerprintx", "--json"], self.log, input=f"{_ip}:{_port_str}".encode("ascii")
+                                ).strip()
+                            )
+                        except subprocess.CalledProcessError:
+                            self.log.warning(
+                                "fingerprintx attempt %d/%d failed for %s:%s", attempt, max_retries, ip, port_str
+                            )
+                            output = b""
+
+                        if output:
+                            break
+
+                        if attempt < max_retries:
+                            time.sleep(0.5)
 
                     if output:
                         data = json.loads(output)
@@ -213,9 +224,10 @@ class PortScanner(ArtemisBase):
                             result[ip] = {}
                         result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
                     else:
-                        # Fingerprintx failed or returned no result — probe for HTTP as fallback
+                        # All fingerprintx retries exhausted — probe for HTTP as fallback
                         self.log.info(
-                            "Fingerprintx returned no result for %s:%s, attempting HTTP fallback", ip, port_str
+                            "fingerprintx returned no result for %s:%s after %d attempts, attempting HTTP fallback",
+                            ip, port_str, max_retries,
                         )
                         detected = False
                         for scheme in ["https", "http"]:
@@ -238,8 +250,9 @@ class PortScanner(ArtemisBase):
                             except requests.RequestException:
                                 continue
                         if not detected:
-                            self.log.info(
-                                "HTTP fallback failed for %s:%s, skipping unidentifiable port", ip, port_str
+                            self.log.warning(
+                                "Could not identify service on %s:%s after retries and HTTP fallback, skipping port",
+                                ip, port_str,
                             )
 
             self.log.info(f"fingerprinting of {new_target_ips} took {time.time() - time_start} seconds")

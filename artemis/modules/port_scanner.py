@@ -192,28 +192,55 @@ class PortScanner(ArtemisBase):
                 for port_str in found_ports[ip]:
                     try:
                         output = self.throttle_request(
-                            lambda: check_output_log_on_error(
-                                ["fingerprintx", "--json"], self.log, input=f"{ip}:{port_str}".encode("ascii")
+                            lambda _ip=ip, _port_str=port_str: check_output_log_on_error(
+                                ["fingerprintx", "--json"], self.log, input=f"{_ip}:{_port_str}".encode("ascii")
                             ).strip()
                         )
                     except subprocess.CalledProcessError:
-                        self.log.exception("Unable to fingerprint %s", line)
-                        continue
+                        self.log.exception("Unable to fingerprint %s:%s", ip, port_str)
+                        output = b""
 
-                    if not output:
-                        continue
+                    if output:
+                        data = json.loads(output)
+                        port = int(data["port"])
+                        ssl = data["tls"]
+                        service = data["protocol"]
+                        version = data.get("version", None) or data.get("metadata", {}).get("fingerprint", None) or "N/A"
+                        if ssl:
+                            service = service.rstrip("s")
 
-                    data = json.loads(output)
-                    port = int(data["port"])
-                    ssl = data["tls"]
-                    service = data["protocol"]
-                    version = data.get("version", None) or data.get("metadata", {}).get("fingerprint", None) or "N/A"
-                    if ssl:
-                        service = service.rstrip("s")
-
-                    if ip not in result:
-                        result[ip] = {}
-                    result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
+                        if ip not in result:
+                            result[ip] = {}
+                        result[ip][str(port)] = self.PortResult(service, ssl, version).__dict__
+                    else:
+                        # Fingerprintx failed or returned no result — probe for HTTP as fallback
+                        self.log.info(
+                            "Fingerprintx returned no result for %s:%s, attempting HTTP fallback", ip, port_str
+                        )
+                        detected = False
+                        for scheme in ["https", "http"]:
+                            try:
+                                requests.head(
+                                    f"{scheme}://{ip}:{port_str}/",
+                                    timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
+                                    verify=False,
+                                )
+                                if ip not in result:
+                                    result[ip] = {}
+                                result[ip][port_str] = self.PortResult(
+                                    "http", scheme == "https", "N/A"
+                                ).__dict__
+                                self.log.info(
+                                    "HTTP fallback succeeded for %s:%s (scheme=%s)", ip, port_str, scheme
+                                )
+                                detected = True
+                                break
+                            except requests.RequestException:
+                                continue
+                        if not detected:
+                            self.log.info(
+                                "HTTP fallback failed for %s:%s, skipping unidentifiable port", ip, port_str
+                            )
 
             self.log.info(f"fingerprinting of {new_target_ips} took {time.time() - time_start} seconds")
 

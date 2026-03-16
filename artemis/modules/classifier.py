@@ -232,6 +232,9 @@ class Classifier(ArtemisBase):
             data = json.loads(output)
             ssl = data["tls"]
             service = data["protocol"]
+
+            if service.lower().startswith("socks"):
+                service = "socks"
             if ssl:
                 # If the service is a SSL service, fingerprintx will append s (e.g. `https`) to the end of the name
                 service = service.rstrip("s")

@@ -90,6 +90,9 @@ class ArtemisBase(Karton):
     _forgiven_http_requests_max: int = 10
 
     def __init__(self, db: Optional[DB] = None, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
+        if os.path.exists(os.path.join(os.path.dirname(__file__), "..", "config", "custom.yaml")):  
+            self.log.info("Loading configuration from config.yaml")
+
         super().__init__(*args, **kwargs)
         self.cache = RedisCache(REDIS, self.identity)
         self.lock = ResourceLock(res_name=self.identity)

@@ -13,6 +13,29 @@ else
     ENV_MESSAGE=""
 fi
 
+if ! exists custom.yaml; then  
+    cat > custom.yaml << 'EOF'  
+# Artemis YAML Configuration  
+# This file contains configuration overrides  
+# Values here take priority over .env file and defaults  
+  
+# Essential settings  
+POSTGRES_CONN_STR: "postgresql://postgres:postgres@postgres/artemis"  
+CUSTOM_USER_AGENT: "Artemis Scanner - contact@example.com"  
+  
+# Rate limiting  
+LOCK_SCANNED_TARGETS: true  
+REQUESTS_PER_SECOND: 1  
+  
+# Example: Nuclei templates to skip (easier to manage than comma-separated strings)  
+NUCLEI_TEMPLATES_TO_SKIP:  
+  - "http/exposures/configs/exposed-svn.yaml"  
+  - "http/exposures/configs/git-config.yaml"  
+EOF  
+    YAML_MESSAGE="\e[1mA custom.yaml file has been created. You can edit it to configure settings using YAML syntax for easier management of complex configurations like template lists.\e[0m"  
+else  
+    YAML_MESSAGE=""  
+fi
 
 if [[ $(uname -m) != "arm"* ]]; then
     PROFILE='--profile not-arm'
@@ -62,7 +85,7 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-echo -e $ENV_MESSAGE
+echo -e $ENV_MESSAGE$YAML_MESSAGE
 
 (
     source .env

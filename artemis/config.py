@@ -1,6 +1,7 @@
 import os
 from typing import Annotated, Any, List, Optional, get_type_hints
-
+import yaml  
+from pathlib import Path
 import decouple
 
 from artemis.modules.runtime_configuration.nuclei_configuration import (
@@ -9,8 +10,27 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 
 DEFAULTS = {}
 
+def load_yaml_config():  
+    """Load configuration from YAML file."""  
+    yaml_path = Path(__file__).parent / "config.yaml" 
+    if yaml_path.exists():  
+        with open(yaml_path) as f:  
+            return yaml.safe_load(f)  
+    return {}  
+  
+YAML_CONFIG = load_yaml_config()
 
 def get_config(name: str, **kwargs) -> Any:  # type: ignore
+    if name in YAML_CONFIG:  
+        yaml_value = YAML_CONFIG[name]  
+
+        if name == "PLACEHOLDER_PAGE_CONTENT_FILENAME" and yaml_value:  
+            if not os.path.isabs(yaml_value):  
+                return os.path.join(os.path.dirname(__file__), yaml_value) 
+        if yaml_value == "":  
+            return ""  
+            
+        return yaml_value
     if "default" in kwargs:
         DEFAULTS[name] = kwargs["default"]
     return decouple.config(name, **kwargs)

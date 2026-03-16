@@ -24,6 +24,10 @@ def on_config_inited(_1: Any, _2: Any) -> None:
 
 
 def print_docs_for_class(cls: type, output_file: IO[str], depth: int = 0) -> None:
+    if depth == 0:  
+        output_file.write("YAML Configuration\n")  
+        output_file.write("==================\n\n")  
+        output_file.write("Configuration can be overridden using config.yaml file.\n\n")  
     if depth > 0:
         output_file.write(cls.__name__ + "\n")
 

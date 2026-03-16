@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Set
 import requests
 from karton.core import Task
 
-from artemis import load_risk_class
+from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -232,10 +232,9 @@ class PortScanner(ArtemisBase):
                         detected = False
                         for scheme in ["https", "http"]:
                             try:
-                                requests.head(
+                                http_requests.request(
+                                    "head",
                                     f"{scheme}://{ip}:{port_str}/",
-                                    timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
-                                    verify=False,
                                 )
                                 if ip not in result:
                                     result[ip] = {}
@@ -247,7 +246,7 @@ class PortScanner(ArtemisBase):
                                 )
                                 detected = True
                                 break
-                            except requests.RequestException:
+                            except Exception:
                                 continue
                         if not detected:
                             self.log.warning(

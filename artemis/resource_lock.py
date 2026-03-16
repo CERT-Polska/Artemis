@@ -30,6 +30,18 @@ LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
+# Lua script for atomic check-and-delete: only deletes the key if its value matches the caller's lock ID.
+# This prevents a process from releasing a lock that was re-acquired by a different process.
+_RELEASE_SCRIPT = REDIS.register_script(
+    """
+    if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("del", KEYS[1])
+    else
+        return 0
+    end
+    """
+)
+
 
 def sustain_locks() -> None:
     while True:
@@ -56,9 +68,9 @@ class ResourceLock:
     @staticmethod
     def release_all_locks(logger: Logger) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            for lock in list(LOCKS_TO_SUSTAIN.keys()):
-                logger.info(f"Releasing lock: {lock} -> {LOCKS_TO_SUSTAIN[lock]}")
-                REDIS.delete(lock)
+            for lock_name, lock_lid in list(LOCKS_TO_SUSTAIN.items()):
+                logger.info(f"Releasing lock: {lock_name} -> {lock_lid}")
+                _RELEASE_SCRIPT(keys=[lock_name], args=[lock_lid])
             LOCKS_TO_SUSTAIN.clear()
 
     def acquire(self) -> None:
@@ -84,7 +96,9 @@ class ResourceLock:
         with LOCKS_TO_SUSTAIN_LOCK:
             if self.res_name in LOCKS_TO_SUSTAIN:
                 del LOCKS_TO_SUSTAIN[self.res_name]
-        REDIS.delete(self.res_name)
+        # Atomically check that we still own the lock before deleting, so we never
+        # release a lock that was re-acquired by a different process/object.
+        _RELEASE_SCRIPT(keys=[self.res_name], args=[self.lid])
 
     def __enter__(self) -> None:
         self.acquire()

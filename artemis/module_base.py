@@ -349,53 +349,72 @@ class ArtemisBase(Karton):
         tasks, locks, num_task_removed_from_queue = self._take_and_lock_tasks(self.task_max_batch_size)
         self._log_tasks(tasks)
 
-        for task in tasks:
-            increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
+        in_progress_incremented_for: list = []
+        try:
+            for task in tasks:
+                increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
+                in_progress_incremented_for.append(task)
 
-        requests_per_second_overrides = [
-            task.payload_persistent.get("requests_per_second_override")
-            for task in tasks
-            if "requests_per_second_override" in task.payload_persistent
-        ]
+            requests_per_second_overrides = [
+                task.payload_persistent.get("requests_per_second_override")
+                for task in tasks
+                if "requests_per_second_override" in task.payload_persistent
+            ]
 
-        for task in tasks:
-            destination = self._get_scan_destination(task)
-            for key, value in self._scan_speed_overrides.items():
-                try:
-                    ipaddress.ip_address(destination)
-                except ValueError:
-                    continue
+            for task in tasks:
+                destination = self._get_scan_destination(task)
+                for key, value in self._scan_speed_overrides.items():
+                    try:
+                        ipaddress.ip_address(destination)
+                    except ValueError:
+                        continue
 
-                if ipaddress.ip_address(destination) in ipaddress.ip_network(key):
-                    requests_per_second_overrides.append(value)
+                    if ipaddress.ip_address(destination) in ipaddress.ip_network(key):
+                        requests_per_second_overrides.append(value)
 
-        self.requests_per_second_for_current_tasks = min(  # type: ignore
-            requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
-        )
-
-        if requests_per_second_overrides:
-            self.log.info("Setting requests per second to %f", self.requests_per_second_for_current_tasks)
-
-        if len(tasks):
-            time_start = time.time()
-            self.internal_process_multiple(tasks)
-            self.log.info(
-                "Took %.02fs to perform %d tasks by module %s",
-                time.time() - time_start,
-                len(tasks),
-                self.identity,
+            self.requests_per_second_for_current_tasks = min(  # type: ignore
+                requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
             )
 
-        for task in tasks:
-            increase_analysis_num_finished_tasks(REDIS, task.root_uid)
-            increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
+            if requests_per_second_overrides:
+                self.log.info("Setting requests per second to %f", self.requests_per_second_for_current_tasks)
 
-        for lock in locks:
-            if lock:
-                lock.release()
+            if len(tasks):
+                time_start = time.time()
+                self.internal_process_multiple(tasks)
+                self.log.info(
+                    "Took %.02fs to perform %d tasks by module %s",
+                    time.time() - time_start,
+                    len(tasks),
+                    self.identity,
+                )
 
-        if resource_lock:
-            resource_lock.release()
+            for task in tasks:
+                increase_analysis_num_finished_tasks(REDIS, task.root_uid)
+                increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
+        except Exception:
+            self.log.exception(
+                "Exception in _single_iteration after dequeuing %d tasks, re-queuing", len(tasks)
+            )
+            for task in in_progress_incremented_for:
+                try:
+                    increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
+                except Exception:
+                    self.log.exception("Failed to decrement in-progress counter for task %s", task.uid)
+            for task in tasks:
+                try:
+                    self.backend.set_task_status(task, KartonTaskState.SPAWNED)
+                    self.backend.produce_routed_task(self.identity, task)
+                    self.log.info("Re-queued task %s", task.uid)
+                except Exception:
+                    self.log.exception("Failed to re-queue task %s - task may be lost", task.uid)
+        finally:
+            for lock in locks:
+                if lock:
+                    lock.release()
+
+            if resource_lock:
+                resource_lock.release()
 
         return num_task_removed_from_queue
 

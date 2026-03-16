@@ -86,11 +86,11 @@ HUMBLE_HEADERS_TO_REPORT: ["Content-Security-Policy", "Strict-Transport-Security
 # - Nuclei
 NUCLEI_TEMPLATE_LISTS: "known_exploited_vulnerabilities, log_exposures, exposed_panels"
 NUCLEI_SEVERITY_THRESHOLD: "high_and_above"
-NUCLEI_INTERACTSH_SERVER: null  
-NUCLEI_CHECK_TEMPLATE_LIST: true  
-NUCLEI_SECONDS_PER_REQUEST_ON_RETRY: 0.1  
-NUCLEI_TEMPLATE_GROUPS_FILE: "/opt/artemis/modules/data/nuclei_template_groups.json"  
-NUCLEI_MAX_BATCH_SIZE: 10  
+NUCLEI_INTERACTSH_SERVER: null
+NUCLEI_CHECK_TEMPLATE_LIST: true
+NUCLEI_SECONDS_PER_REQUEST_ON_RETRY: 0.1
+NUCLEI_TEMPLATE_GROUPS_FILE: "/opt/artemis/modules/data/nuclei_template_groups.json"
+NUCLEI_MAX_BATCH_SIZE: 10
 NUCLEI_TEMPLATES_TO_SKIP:
   # We have a separate module for that checking whethet the repository is a copy of a public one
   - "http/exposures/configs/exposed-svn.yaml"
@@ -491,8 +491,8 @@ WORDPRESS_VERSION_AGE_DAYS: 90
 DOMAIN_EXPIRATION_TIMEFRAME_DAYS: 30
 
 # - SqlInjectionDetector
-SQL_INJECTION_STOP_ON_FIRST_MATCH: true 
-SQL_INJECTION_NUM_RETRIES_TIME_BASED: 10 
+SQL_INJECTION_STOP_ON_FIRST_MATCH: true
+SQL_INJECTION_NUM_RETRIES_TIME_BASED: 10
 SQL_INJECTION_TIME_THRESHOLD: 5
 
 # - LFIDetector

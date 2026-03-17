@@ -127,8 +127,13 @@ class SqlInjectionDetector(ArtemisBase):
         return self.create_url_with_batch_payload(url=url, param_batch=param_batch, payload=payload)
 
     def minimize_parameters(
-        self, url: str, params: List[str], payload: str, use_change_url_params: bool,
-        minimization_mode: Literal["error", "time"], baseline_payload: Optional[str] = None
+        self,
+        url: str,
+        params: List[str],
+        payload: str,
+        use_change_url_params: bool,
+        minimization_mode: Literal["error", "time"],
+        baseline_payload: Optional[str] = None,
     ) -> List[str]:
         """
         Try to find the minimal set of parameters that still triggers SQLi. Currently minimizes to single parameters only.

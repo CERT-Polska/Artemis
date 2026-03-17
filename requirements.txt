@@ -6,7 +6,7 @@ Babel==2.18.0
 badkeys==0.0.17
 beautifulsoup4==4.14.3
 certifi==2026.2.25
-chardet==7.0.1
+chardet==7.1.0
 click==8.3.1
 cryptography==46.0.5
 dnspython==2.8.0
@@ -31,7 +31,7 @@ paramiko==4.0.0
 prometheus-client==0.24.1
 psutil==7.2.2
 psycopg2-binary==2.9.11
-publicsuffixlist==1.0.2.20260307
+publicsuffixlist==1.0.2.20260311
 pydantic==2.12.5
 PyMySQL==1.1.2
 python-decouple==3.8
@@ -54,6 +54,6 @@ typer==0.24.1
 typing-extensions==4.15.0
 unittest-parallel==1.7.6
 urllib3==2.6.3
-uvicorn==0.41.0
+uvicorn==0.42.0
 validators==0.35.0
 whoisdomain==1.20260106.1

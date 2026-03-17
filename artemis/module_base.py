@@ -706,6 +706,7 @@ class ArtemisBase(Karton):
                             break
 
                     except Exception:
+                        output += output_redirector.get_output()
                         if i < self.num_retries - 1:
                             self.log.exception("Task(s) failed, retrying (try %d/%d)", i + 1, self.num_retries)
                         else:
@@ -748,16 +749,12 @@ class ArtemisBase(Karton):
             result = task.payload["data"]
         elif task.headers["type"] == TaskType.IP:
             result = task.payload["ip"]
-        elif task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP and "ip" in task.payload:
-            # Payload for suspected dangling ip has changed and now it should contain IP, but old tasks do not have it
-            # Get ip if possible, otherwise fallback to domain in next condition
-            # FIXME: to be removed in future
+        elif task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP:
             result = task.payload["ip"]
-        elif (
-            task.headers["type"] == TaskType.DOMAIN
-            or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST
-            or task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP
-        ):
+            if not result:
+                # fallback to last_domain
+                result = task.payload["last_domain"]
+        elif task.headers["type"] == TaskType.DOMAIN or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
             # This is an approximation. Sometimes, when we scan domain, we actually scan the IP the domain
             # resolves to (e.g. in port_scan karton), sometimes the domain itself (e.g. the DNS kartons) or
             # even the MX servers. Therefore this will not map 1:1 to the actual host being scanned.

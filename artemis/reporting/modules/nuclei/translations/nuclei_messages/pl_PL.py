@@ -86,6 +86,9 @@ TRANSLATIONS = {
     "ProfilePress WordPress plugin  is susceptible to a vulnerability in the user registration component in the ~/src/Classes/RegistrationAuth.php file that makes it possible for users to register on sites as an administrator.": "Wtyczka WordPress o nazwie ProfilePress zawiera podatność umożliwiającą rejestrację jako administrator."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "WordPress Member Hero plugin through 1.0.9 is susceptible to remote code execution. The plugin lacks authorization checks and does not validate the a request parameter in an AJAX action, allowing an attacker to call arbitrary PHP functions with no arguments. An attacker can thus execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Wtyczka WordPress Member Hero w wersjach do 1.0.9 zawiera podatność umożliwiającą zdalne wykonanie kodu o identyfikatorze CVE-2022-0885."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "The Paid Memberships Pro WordPress Plugin, version < 2.9.8, is affected by an unauthenticated SQL injection vulnerability in the 'code' parameter of the '/pmpro/v1/order' REST route.": "Wtyczka WordPress o nazwie Paid Memberships Pro w wersji poniżej 2.9.8 zawiera podatność SQL Injection, co umożliwia pobranie całej zawartości bazy danych."
     + WORDPRESS_UPDATE_HINT,
     "WordPress Paid Memberships Pro plugin before 2.9.8 contains a blind SQL injection vulnerability in the 'code' parameter of the /pmpro/v1/order REST route. An attacker can possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site.": "Wtyczka WordPress o nazwie Paid Memberships Pro w wersji poniżej 2.9.8 zawiera podatność Blind SQL Injection, co umożliwia pobranie całej zawartości bazy danych."
@@ -994,6 +997,11 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "phpinfo() is susceptible to resource exposure in unprotected composer vendor folders via phpfastcache/phpfastcache.": "Wykryto błędną konfigurację narzędzia phpfastcache zawierającą publicznie dostępny plik phpinfo, udostępniający informacje o konfiguracji serwera. "
     + DATA_HIDE_HINT,
+    "WordPress Backup Migration plugin versions up to 1.3.6 contain a path traversal and file validation issue in handle_downloading function, letting unauthenticated attackers download backup files containing sensitive information.": "Wtyczka WordPress o nazwie Backup Migration w wersji do 1.3.6 zawiera podatność Local File Inclusion o identyfikatorze CVE-2023-6266, umożliwiającą odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "Roundcube Webmail before 1.5.12 and 1.6.x before 1.6.12 are vulnerable to stored Cross-Site Scripting (XSS)": "Roundcube Webmail w wersjach poniżej 1.5.12 oraz 1.6.x poniżej 1.6.12 zawiera podatność Cross-Site Scripting umożliwiającą spreparowanie e-maila, który wykona dowolne skrypty JavaScript w skrzynce odbiorcy. Podatności nadano identyfikator CVE-2025-68461."
+    + UPDATE_HINT,
+    "Electrolink transmitters store credentials in clear-text. Use of these credentials could allow an attacker to access the system.": "Nadajniki Electrolink zawierają podatność o identyfikatorze CVE-2024-3742 polegającą na przechowywaniu danych uwierzytelniających w postaci jawnego tekstu. Użycie tych danych umożliwia nieautoryzowany dostęp do systemu.",
     "GNU Bash through 4.3 processes trailing strings after function definitions in the values of environment variables, which allows remote attackers to execute arbitrary code via a crafted environment, as demonstrated by vectors involving the ForceCommand feature in OpenSSH sshd, the mod_cgi and mod_cgid modules in the Apache HTTP Server, scripts executed by unspecified DHCP clients, and other situations in which setting the environment occurs across a privilege boundary from Bash execution, aka ShellShock.": "Wykryto powłokę Bash w wersji do 4.3 zawierającą podatność ShellShock, umożliwiającą atakującemu zdalne wykonanie kodu. "
     + UPDATE_HINT,
     "WordPress White Label CMS plugin before 2.2.9 contains a reflected cross-site scripting vulnerability. It does not sanitize and validate the wlcms[_login_custom_js] parameter before outputting it back in the response while previewing.": "Wtyczka WordPress o nazwie White Label CMS w wersji poniżej 2.2.9 zawiera podatność "
@@ -1003,8 +1011,6 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Digital Watchdog DW Spectrum Server 4.2.0.32842 allows attackers to access sensitive infromation via a crafted API call.": "Digital Watchdog DW Spectrum Server 4.2.0.32842 zawiera podatność o identyfikatorze CVE-2022-34534 umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji takich jak np. konfiguracja sieci."
     + UPDATE_HINT,
-    "WordPress Backup Migration plugin versions up to 1.3.6 contain a path traversal and file validation issue in handle_downloading function, letting unauthenticated attackers download backup files containing sensitive information.": "Wtyczka WordPress o nazwie Backup Migration w wersji do 1.3.6 zawiera podatność o identyfikatorze CVE-2023-6266 umożliwiającą atakującemu odczyt plików kopii zapasowych, zawierających wrażliwe informacje."
-    + WORDPRESS_UPDATE_HINT,
     "Sophos SG UTMA WebAdmin is susceptible to a remote code execution vulnerability in versions before v9.705 MR5, v9.607 MR7, and v9.511 MR11.": "Sophos SG UTMA WebAdmin w wersji poniżej v9.705 MR5, v9.607 MR7 i v9.511 MR11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
@@ -2420,4 +2426,7 @@ TRANSLATIONS = {
     "FlexNet Operations was detected — a software monetization platform.": "Wykryto panel FlexNet Operations.",
     "Bitbucket panel was detected. Bitbucket is a Git-based source code repository hosting service owned by Atlassian, providing CI/CD and collaboration features.": "Wykryto panel systemu Bitbucket.",
     "Detects Monsta FTP web-based file manager interface.": "Wykryto interfejs managera plików Monsta FTP.",
+    "Dokploy login panel was detected.": "Wykryto panel Dokploy.",
+    "Brother printer web interface and management panel was detected. This template identifies exposed Brother printer panels that may be accessible without authentication.": "Wykryto panel zarządzania drukarki Brother.",
+    "openvpn-monitor was discovered. OpenVPN Monitor is a simple python program to generate html that displays the status of an OpenVPN server, including all its current connections.": "Wykryto panel OpenVPN Monitor.",
 }

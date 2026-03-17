@@ -16,6 +16,7 @@ from artemis.module_base import ArtemisBase
 from artemis.modules.data.api_scanner_data import COMMON_SPEC_PATHS, VULN_DETAILS_MAP
 from artemis.sql_injection_data import SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url
+from artemis.utils import check_output_log_on_error
 
 
 class APIResult(BaseModel):
@@ -42,18 +43,18 @@ class APIScanner(ArtemisBase):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         if not os.path.exists("/offat"):
-            subprocess.call(["git", "clone", "https://github.com/OWASP/OFFAT", "/offat"])
+            subprocess.check_call(["git", "clone", "https://github.com/OWASP/OFFAT", "/offat"])
             patch_file_path = os.path.join(os.path.dirname(__file__), "data/offat/offat_artemis.patch")
-            subprocess.call(["git", "-C", "/offat", "apply", patch_file_path])
+            subprocess.check_call(["git", "-C", "/offat", "apply", patch_file_path])
 
-        subprocess.call(["pip", "install", "-e", "/offat/src"])
+        subprocess.check_call(["pip", "install", "-e", "/offat/src"])
 
     def discover_spec(self, base_url: str) -> Tuple[str, ...]:
         """Try to discover OpenAPI/Swagger specification from common paths."""
         for path in COMMON_SPEC_PATHS:
             try_url = base_url.rstrip("/") + "/" + path
             try:
-                response = http_requests.get(try_url)
+                response = http_requests.get(try_url, max_size=Config.Modules.APIScanner.API_SPEC_MAX_SIZE)
                 if response.status_code == 200 and (
                     "openapi" in response.text.lower() or "swagger" in response.text.lower()
                 ):
@@ -76,7 +77,7 @@ class APIScanner(ArtemisBase):
         return "", ""
 
     def scan(self, target_api_specification: str) -> Dict[str, Any]:
-        output_file = "/tmp/output.json"
+        output_file = f"/tmp/offat_output_{os.urandom(8).hex()}.json"
 
         offat_cmd = [
             "offat",
@@ -97,14 +98,19 @@ class APIScanner(ArtemisBase):
         if self.requests_per_second_for_current_tasks:
             offat_cmd.extend(["-rl", str(self.requests_per_second_for_current_tasks)])
 
-        subprocess.call(offat_cmd)
+        try:
+            check_output_log_on_error(offat_cmd, self.log)
 
-        with open(output_file) as f:
-            file_contents = f.read()
+            with open(output_file, encoding="utf-8") as f:
+                file_contents = f.read()
 
-        report: Dict[str, Any] = json.loads(file_contents)
-        os.unlink(output_file)
-        return report
+            report: Dict[str, Any] = json.loads(file_contents)
+            return report
+        finally:
+            try:
+                os.unlink(output_file)
+            except FileNotFoundError:
+                pass
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)

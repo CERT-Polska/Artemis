@@ -33,7 +33,7 @@ if Config.Modules.Bruter.BRUTER_FILE_LIST not in ["full", "short"]:
     )
 
 for file_name in os.listdir(CHOSEN_BRUTER_LISTS_PATH):
-    with open(os.path.join(CHOSEN_BRUTER_LISTS_PATH, file_name)) as f:
+    with open(os.path.join(CHOSEN_BRUTER_LISTS_PATH, file_name), encoding="utf-8") as f:
         for item in read_paths_from_file(f):
             FILENAMES_TO_SCAN.add(item)
 
@@ -92,7 +92,7 @@ class Bruter(ArtemisBase):
                     full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS
                 )
             except Exception:
-                pass
+                self.log.warning("Failed to scan URL %s", full_url)
 
         self.log.info("bruter finished")
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we

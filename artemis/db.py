@@ -69,7 +69,6 @@ class ScheduledTask(Base):  # type: ignore
 
     :ivar analysis_id: Unique identifier for the analysis associated with this scheduled task.
     :ivar deduplication_data: Hash used for deduplication of scheduled tasks.
-    :ivar deduplication_data_original: Original string used for deduplication.
     :ivar task_id: Unique identifier for the underlying task.
     :ivar created_at: Timestamp when the scheduled task was created.
     """
@@ -78,11 +77,10 @@ class ScheduledTask(Base):  # type: ignore
     created_at = Column(DateTime, server_default=text("NOW()"))
     analysis_id = Column(String, primary_key=True)
     # The purpose of this column is to be able to quickly find identical scheduled tasks. Therefore
-    # we convert them to a string form (deduplication_data_original, created by the
+    # we convert them to a string form (created by the
     # _get_task_deduplication_data method) and store the hash of the string in the indexed
     # deduplication_data column (because PostgreSQL limits the max length of indexed column).
     deduplication_data = Column(String, primary_key=True)
-    deduplication_data_original = Column(String)
     task_id = Column(String)
 
 
@@ -478,7 +476,6 @@ class DB:
             "analysis_id": task.root_uid,
             # PostgreSQL limits the length of string if it's an indexed column
             "deduplication_data": hashlib.sha256(self._get_task_deduplication_data(task).encode("utf-8")).hexdigest(),
-            "deduplication_data_original": self._get_task_deduplication_data(task),
         }
 
         statement = postgres_insert(ScheduledTask).values([created_task])

@@ -44,7 +44,7 @@ It is possible to rate-limit the scanning. This feature is disabled by default. 
  - ``REQUESTS_PER_SECOND`` - e.g. when set to 0.5, Artemis will strive to make no more than
    one HTTP/MySQL connect/... request per two seconds for any IP from each module,
  - ``SCANNING_PACKETS_PER_SECOND`` - this configures the port scanning speed. For example, when set to 5, Artemis will strive to send no more than
-   5 port scanning packets per seconds to any IP.
+   5 port scanning packets per second to any IP.
 
 For CERT PL scans, the settings are:
 

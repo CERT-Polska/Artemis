@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from fastapi import Depends, FastAPI
-from starlette.testclient import TestClient
+from fastapi.testclient import TestClient
 
 from artemis.api import verify_api_token
 from artemis.config import Config

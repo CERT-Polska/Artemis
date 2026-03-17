@@ -1,5 +1,8 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
   image: certpl/artemis:latest
   # Prevent NDOTS-based DNS search domain expansion for short hostnames such as
   # "s3mock", "redis", "postgres".  Without this, a host whose /etc/resolv.conf
@@ -246,6 +249,13 @@ services:
   karton-mail_dns_scanner:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.mail_dns_scanner"
+    env_file: .env
+    restart: always
+    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-socks_detector:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.socks_detector"
     env_file: .env
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]

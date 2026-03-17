@@ -223,6 +223,25 @@ class Classifier(ArtemisBase):
                 return
 
             if not output:
+                # fingerprintx doesn't support SOCKS detection - fall back for port 1080
+                if port == 1080:
+                    self.log.info("Port 1080 not identified by fingerprintx, assuming SOCKS proxy")
+                    new_task = Task(
+                        {
+                            "type": TaskType.SERVICE,
+                            "service": Service.SOCKS,
+                        },
+                        payload={"host": host, "port": port, "ssl": False},
+                        payload_persistent={
+                            f"original_{host_type}": host,
+                            "original_target": original_target,
+                        },
+                    )
+                    self.add_task(current_task, new_task)
+                    self.db.save_task_result(
+                        task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]}
+                    )
+                    return
                 self.log.exception("Unable to fingerprint %s", data)
                 self.db.save_task_result(
                     task=current_task, status=TaskStatus.ERROR, status_reason="Unable to fingerprint: %s" % data

@@ -14,7 +14,7 @@ def create_test_app() -> FastAPI:
     app = FastAPI()
 
     @app.get("/test", dependencies=[Depends(verify_api_token)])
-    def test_endpoint():
+    def test_endpoint() -> dict[str, str]:
         return {"status": "ok"}
 
     return app

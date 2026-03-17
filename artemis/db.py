@@ -239,7 +239,9 @@ class DB:
         self.logger = build_logger(__name__)
 
         self._engine = create_engine(
-            Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
+            Config.Data.POSTGRES_CONN_STR,
+            json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes),
+            pool_pre_ping=True,
         )
         self.session = sessionmaker(bind=self._engine)
 
@@ -723,7 +725,9 @@ class TestDB:
         self.logger = build_logger(__name__)
 
         self._engine = create_engine(
-            Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
+            Config.Data.POSTGRES_CONN_STR,
+            json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes),
+            pool_pre_ping=True,
         )
         self.session = sessionmaker(bind=self._engine)
 

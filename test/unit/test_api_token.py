@@ -1,11 +1,18 @@
+import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-from fastapi import Depends, FastAPI
-from fastapi.testclient import TestClient
+# The artemis.api module imports artemis.producer, which initializes a global Producer instance.
+# This instance attempts to connect to Redis on import. During unit tests, Redis might not be available
+# at the expected 'redis' hostname (it's 'test-redis' in docker-compose.test.yaml), causing
+# ImportError. To avoid this, we mock artemis.producer before importing artemis.api.
+sys.modules["artemis.producer"] = MagicMock()
 
-from artemis.api import verify_api_token
-from artemis.config import Config
+from fastapi import Depends, FastAPI  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+
+from artemis.api import verify_api_token  # noqa: E402
+from artemis.config import Config  # noqa: E402
 
 TEST_TOKEN = "test-secret-token"
 

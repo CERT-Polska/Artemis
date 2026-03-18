@@ -1,5 +1,6 @@
 # type: ignore
 from test.base import ArtemisModuleTestCase
+from unittest.mock import patch
 
 from karton.core import Task
 
@@ -137,3 +138,35 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
                 url_to_headers_vuln, http_requests.get(url_to_headers_vuln, headers={"User-Agent": "'"})
             )
         )
+
+
+class SqlInjectionParameterMinimizationTestCase(ArtemisModuleTestCase):
+    karton_class = SqlInjectionDetector
+
+    def test_minimize_parameters_caps_error_mode(self) -> None:
+        params = ["a", "b", "c", "d", "e", "f", "g"]
+
+        def mocked_create_url(url: str, payload: str, param_batch: tuple[str, ...], use_change_url_params: bool) -> str:
+            return f"{param_batch[0]}::{payload}"
+
+        def mocked_contains_error(url: str, response: object) -> str | None:
+            param_name, payload = url.split("::", maxsplit=1)
+            if payload == "'\"" and param_name in {"a", "b", "c", "d", "e", "f"}:
+                return "error"
+            return None
+
+        with patch("artemis.config.Config.Modules.SqlInjectionDetector") as mocked_config:
+            mocked_config.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN = 5
+            with patch.object(self.karton, "_create_injected_url", side_effect=mocked_create_url):
+                with patch.object(self.karton, "contains_error", side_effect=mocked_contains_error):
+                    with patch.object(self.karton, "forgiving_http_get", return_value=None):
+                        minimal_params = self.karton.minimize_parameters(
+                            url="http://example.com/login",
+                            params=params,
+                            payload="'\"",
+                            baseline_payload="-1",
+                            use_change_url_params=True,
+                            minimization_mode="error",
+                        )
+
+        self.assertEqual(minimal_params, ["a", "b", "c", "d", "e"])

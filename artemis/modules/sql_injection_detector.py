@@ -137,7 +137,8 @@ class SqlInjectionDetector(ArtemisBase):
     ) -> List[str]:
         """
         Try to find the minimal set of parameters that still triggers SQLi. Currently minimizes to single parameters only.
-        Falls back to original params if none work individually.
+        Falls back to original params if none work individually. When minimized parameters are found,
+        the result is capped to SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN.
         """
         if minimization_mode == "error" and baseline_payload is None:
             raise ValueError("baseline_payload is required for error-based minimization")
@@ -175,14 +176,17 @@ class SqlInjectionDetector(ArtemisBase):
                 minimal_params.append(param)
 
         if minimal_params:
+            capped_minimal_params = minimal_params[
+                : Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN
+            ]
             mode_label = "error-based" if minimization_mode == "error" else "time-based"
             self.log.info(
                 "SQLi %s parameter minimization: %s -> %s",
                 mode_label,
                 params,
-                minimal_params,
+                capped_minimal_params,
             )
-            return minimal_params
+            return capped_minimal_params
 
         # fallback if no single param triggers SQLi
         return params

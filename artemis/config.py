@@ -1117,6 +1117,10 @@ class Config:
                 bool,
                 "Whether to display only the first SQL injection and stop scanning.",
             ] = get_config("SQL_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN: Annotated[
+                int,
+                "Maximum number of parameters kept after SQLi parameter minimization.",
+            ] = get_config("SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN", default=5, cast=int)
             SQL_INJECTION_NUM_RETRIES_TIME_BASED: Annotated[
                 int,
                 "How many times to re-check whether long request duration with inject (and short without inject) is indeed a vulnerability or a random fluctuation ",

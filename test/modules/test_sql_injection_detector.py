@@ -5,6 +5,7 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.injection_utils import is_url_with_parameters
 from artemis.modules.sql_injection_detector import SqlInjectionDetector
 
 
@@ -40,8 +41,8 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         url_with_payload = "http://test-apache-with-sql-injection-postgres:80?id=3"
         current_url = "http://test-apache-with-sql-injection-postgres:80"
 
-        self.assertTrue(self.karton_class.is_url_with_parameters(url_with_payload))
-        self.assertFalse(self.karton_class.is_url_with_parameters(current_url))
+        self.assertTrue(is_url_with_parameters(url_with_payload))
+        self.assertFalse(is_url_with_parameters(current_url))
 
     def test_measure_request_time(self) -> None:
         current_url = "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id=1"
@@ -105,8 +106,8 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         current_url = "http://test-apache-with-sql-injection-mysql"
         url_with_payload = "http://test-apache-with-sql-injection-mysql?id=3"
 
-        self.assertTrue(self.karton_class.is_url_with_parameters(url_with_payload))
-        self.assertFalse(self.karton_class.is_url_with_parameters(current_url))
+        self.assertTrue(is_url_with_parameters(url_with_payload))
+        self.assertFalse(is_url_with_parameters(current_url))
 
     def test_measure_request_time(self) -> None:
         current_url = "http://test-apache-with-sql-injection-mysql/sql_injection.php?id=5"

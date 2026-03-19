@@ -37,7 +37,7 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.assertEqual(call2.kwargs["status_reason"], "Found ports: 6379 (service: redis ssl: False, version: N/A)")
 
     def test_http_detection(self) -> None:
-        """Full pipeline (naabu → fingerprintx/fallback → result) detects HTTP on test-nginx."""
+        """Full pipeline (naabu → fingerprintx → result) detects HTTP on test-nginx."""
         task = Task(
             {"type": TaskType.DOMAIN},
             payload={TaskType.DOMAIN: "test-nginx"},
@@ -50,20 +50,37 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.assertEqual(port_data["80"]["service"], "http")
         self.assertFalse(port_data["80"]["ssl"])
 
-    def test_non_http_service_detected(self) -> None:
-        """Full pipeline correctly identifies non-HTTP services (redis) via fingerprintx."""
+    def test_retry_and_fallback_both_fail_port_skipped(self) -> None:
+        """End-to-end: unknown protocol triggers retry + fallback, port is skipped.
+
+        test-tcp-raw is a real TCP server that speaks no known protocol.
+        - naabu detects port 80 as open
+        - fingerprintx retries 3 times, cannot identify the protocol
+        - HTTP fallback tries HTTPS then HTTP, both fail (not an HTTP service)
+        - port is correctly skipped — no results reported
+
+        Log assertions verify each stage actually executes, guarding against
+        vacuous passes (e.g. naabu not finding the port due to a race).
+        """
         task = Task(
-            {"type": TaskType.IP},
-            payload={TaskType.IP: gethostbyname("test-redis")},
+            {"type": TaskType.DOMAIN},
+            payload={TaskType.DOMAIN: "test-tcp-raw"},
         )
-        self.run_task(task)
+        with self.assertLogs("port_scanner", level="INFO") as log_cm:
+            self.run_task(task)
+
         (call,) = self.mock_db.save_task_result.call_args_list
-        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        port_data = list(call.kwargs["data"].values())[0]
-        self.assertIn("6379", port_data)
-        self.assertEqual(port_data["6379"]["service"], "redis")
-        # Redis is not HTTP — fallback should not have overridden fingerprintx
-        self.assertFalse(port_data["6379"]["ssl"])
+        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+        self.assertIsNone(call.kwargs["status_reason"])
+
+        # Verify retries were exhausted and fallback was triggered
+        fallback_msgs = [m for m in log_cm.output if "attempting HTTP fallback" in m]
+        self.assertTrue(fallback_msgs, "Expected fingerprintx retries to exhaust and trigger HTTP fallback")
+        self.assertIn("after 3 attempts", fallback_msgs[0])
+
+        # Verify fallback failed and port was explicitly skipped
+        skip_msgs = [m for m in log_cm.output if "skipping port" in m]
+        self.assertTrue(skip_msgs, "Expected port to be skipped after fallback failure")
 
     def test_no_ssl_against_sni(self) -> None:
         host = gethostbyname("test-nginx-with-sni-tls")

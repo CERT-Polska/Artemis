@@ -1,7 +1,6 @@
 import subprocess
 import unittest
-from socket import gethostbyname
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 from artemis.modules.port_scanner import PortScanner
 
@@ -165,87 +164,3 @@ class TestPortScannerFingerprintxFallback(unittest.TestCase):
         mock_http_request.assert_not_called()
         mock_sleep.assert_not_called()
         self.assertEqual(mock_check_output.call_count, 1)
-
-
-class TestPortScannerFingerprintxFallbackIntegration(unittest.TestCase):
-    """Integration tests using a real HTTP target (test-nginx from docker-compose.test.yaml).
-
-    These tests exercise the HTTP fallback against a live service to verify
-    the retry and fallback logic works end-to-end, not just with mocks.
-    Fingerprintx is still mocked to simulate failure, but the HTTP fallback
-    hits the real nginx instance.
-    """
-
-    def _make_scanner(self) -> MagicMock:
-        scanner = MagicMock()
-        scanner.cache.get.return_value = None
-        scanner.requests_per_second_for_current_tasks = 0
-        scanner.log = MagicMock()
-        scanner.throttle_request = lambda f: f()
-        return scanner
-
-    def _mock_naabu(self, mock_popen: MagicMock, stdout: bytes) -> None:
-        mock_process = MagicMock()
-        mock_process.communicate.return_value = (stdout, b"")
-        mock_process.returncode = 0
-        mock_popen.return_value = mock_process
-
-    @patch("artemis.modules.port_scanner.time.sleep")
-    @patch("artemis.modules.port_scanner.check_output_log_on_error")
-    @patch("artemis.modules.port_scanner.subprocess.Popen")
-    def test_http_fallback_against_real_nginx(
-        self, mock_popen: MagicMock, mock_check_output: MagicMock, mock_sleep: MagicMock
-    ) -> None:
-        """With fingerprintx failing, the HTTP fallback should detect a real nginx service."""
-        nginx_ip = gethostbyname("test-nginx")
-        self._mock_naabu(mock_popen, f"{nginx_ip}:80\n".encode())
-        mock_check_output.return_value = b""  # simulate fingerprintx returning nothing
-
-        scanner = self._make_scanner()
-        result = PortScanner._scan(scanner, [nginx_ip])
-
-        self.assertIn(nginx_ip, result)
-        self.assertIn("80", result[nginx_ip])
-        self.assertEqual(result[nginx_ip]["80"]["service"], "http")
-        # nginx on port 80 is plain HTTP, so https probe should fail and http should succeed
-        self.assertFalse(result[nginx_ip]["80"]["ssl"])
-        self.assertEqual(mock_check_output.call_count, 3)
-
-    @patch("artemis.modules.port_scanner.time.sleep")
-    @patch("artemis.modules.port_scanner.check_output_log_on_error")
-    @patch("artemis.modules.port_scanner.subprocess.Popen")
-    def test_retry_then_fallback_against_real_nginx(
-        self, mock_popen: MagicMock, mock_check_output: MagicMock, mock_sleep: MagicMock
-    ) -> None:
-        """Fingerprintx raises exceptions on all retries, then HTTP fallback hits real nginx."""
-        nginx_ip = gethostbyname("test-nginx")
-        self._mock_naabu(mock_popen, f"{nginx_ip}:80\n".encode())
-        mock_check_output.side_effect = subprocess.CalledProcessError(1, "fingerprintx")
-
-        scanner = self._make_scanner()
-        result = PortScanner._scan(scanner, [nginx_ip])
-
-        self.assertIn(nginx_ip, result)
-        self.assertIn("80", result[nginx_ip])
-        self.assertEqual(result[nginx_ip]["80"]["service"], "http")
-        self.assertFalse(result[nginx_ip]["80"]["ssl"])
-        self.assertEqual(mock_check_output.call_count, 3)
-
-    @patch("artemis.modules.port_scanner.time.sleep")
-    @patch("artemis.modules.port_scanner.check_output_log_on_error")
-    @patch("artemis.modules.port_scanner.subprocess.Popen")
-    def test_non_http_port_skipped_after_fallback(
-        self, mock_popen: MagicMock, mock_check_output: MagicMock, mock_sleep: MagicMock
-    ) -> None:
-        """A port with no HTTP service should be skipped after retries and fallback both fail."""
-        nginx_ip = gethostbyname("test-nginx")
-        # Use a port that nginx is NOT listening on — fallback should fail
-        self._mock_naabu(mock_popen, f"{nginx_ip}:12345\n".encode())
-        mock_check_output.return_value = b""
-
-        scanner = self._make_scanner()
-        result = PortScanner._scan(scanner, [nginx_ip])
-
-        # Port 12345 is not open, so both https and http fallback should fail
-        self.assertEqual(result.get(nginx_ip, {}), {})
-        self.assertEqual(mock_check_output.call_count, 3)

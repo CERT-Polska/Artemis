@@ -71,13 +71,18 @@ class OrmInjectionDetector(ArtemisBase):
         new_query = urlencode(merged)
         return urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_query, parsed.fragment))
 
-    def _test_lookup_suffix(self, base_url: str, param_name: str, suffix: str, likely_value: str) -> bool:
+    def _test_lookup_suffix(self, original_url: str, param_name: str, suffix: str, likely_value: str) -> bool:
         # Sends two requests: one with a value likely to match records and one with a value
         # unlikely to match. If the responses differ, the ORM is processing the suffix.
         param_with_suffix = f"{param_name}{suffix}"
 
-        url_likely = self._build_url_with_params(base_url, {param_with_suffix: likely_value})
-        url_unlikely = self._build_url_with_params(base_url, {param_with_suffix: UNLIKELY_VALUE})
+        # Preserve sibling query params, replacing only the param under test
+        parsed = urlparse(original_url)
+        siblings = {k: v[0] for k, v in parse_qs(parsed.query).items() if k != param_name}
+        base = self._strip_query_string(original_url)
+
+        url_likely = self._build_url_with_params(base, {**siblings, param_with_suffix: likely_value})
+        url_unlikely = self._build_url_with_params(base, {**siblings, param_with_suffix: UNLIKELY_VALUE})
 
         response_likely = self.forgiving_http_get(url_likely)
         response_unlikely = self.forgiving_http_get(url_unlikely)
@@ -85,9 +90,9 @@ class OrmInjectionDetector(ArtemisBase):
         if not self._responses_differ(response_likely, response_unlikely):
             return False
 
-        # Double-check: the baseline (original URL without the suffix param) should differ
+        # Double-check: the baseline (original URL as-is) should differ
         # from at least one of the above to confirm the suffix is actually being processed
-        baseline_response = self.forgiving_http_get(base_url)
+        baseline_response = self.forgiving_http_get(original_url)
         baseline_text = self._get_response_text(baseline_response)
         likely_text = self._get_response_text(response_likely)
         unlikely_text = self._get_response_text(response_unlikely)
@@ -128,7 +133,7 @@ class OrmInjectionDetector(ArtemisBase):
                     else:
                         likely_value = original_value
 
-                    if self._test_lookup_suffix(base_url, param_name, suffix, likely_value):
+                    if self._test_lookup_suffix(current_url, param_name, suffix, likely_value):
                         self.log.info("Matched ORM lookup: %s%s on %s", param_name, suffix, current_url)
                         message.append(
                             {
@@ -153,6 +158,14 @@ class OrmInjectionDetector(ArtemisBase):
                 response_unlikely = self.forgiving_http_get(url_with_unlikely)
 
                 if self._responses_differ(response_probe, response_unlikely):
+                    # Baseline check: confirm the endpoint actually processes the param
+                    # (not just returning dynamic content)
+                    baseline_response = self.forgiving_http_get(base_url)
+                    baseline_text = self._get_response_text(baseline_response)
+                    probe_text = self._get_response_text(response_probe)
+                    unlikely_text = self._get_response_text(response_unlikely)
+                    if baseline_text == probe_text and baseline_text == unlikely_text:
+                        continue
                     self.log.info("Matched ORM sensitive field: %s on %s", param_with_lookup, base_url)
                     message.append(
                         {

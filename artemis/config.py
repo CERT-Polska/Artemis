@@ -1135,6 +1135,10 @@ class Config:
                 bool,
                 "Whether to display only the first LFI and stop scanning.",
             ] = get_config("LFI_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            LFI_MINIMAL_PARAMS_MAX_LEN: Annotated[
+                int,
+                "Maximum number of parameters kept after LFI parameter minimization.",
+            ] = get_config("LFI_MINIMAL_PARAMS_MAX_LEN", default=5, cast=int)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

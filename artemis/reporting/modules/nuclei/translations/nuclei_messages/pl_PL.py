@@ -998,7 +998,7 @@ TRANSLATIONS = {
     "phpinfo() is susceptible to resource exposure in unprotected composer vendor folders via phpfastcache/phpfastcache.": "Wykryto błędną konfigurację narzędzia phpfastcache zawierającą publicznie dostępny plik phpinfo, udostępniający informacje o konfiguracji serwera. "
     + DATA_HIDE_HINT,
     "Dify v1.6.0 contains a server side request forgery caused by improper validation in controllers.console.remote_files.RemoteFileUploadApi, letting attackers make arbitrary requests from the server, exploit requires network access.": "Dify w wersji 1.6.0 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2025-56520, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej.",
-    MongoDB was able to be accessed with no password. Note that MongoDB does not require a password by default.": "MongoDB jest dostępny bez uwierzytelniania, umożliwiając dostęp do danych bez hasła.",
+    "MongoDB was able to be accessed with no password. Note that MongoDB does not require a password by default.": "MongoDB jest dostępny bez uwierzytelniania, umożliwiając dostęp do danych bez hasła.",
     "By leaking a target device's serial number, a remote attacker can generate the target device's default administrator password. The target device may leak its serial number via unauthenticated HTTP, HTTPS, IPP, SNMP, or PJL requests.": "Urządzenie zawiera podatność o identyfikatorze CVE-2024-51978, umożliwiającą atakującemu uzyskanie domyślnych danych logowania administratora."
     + DEFAULT_CREDENTIALS_HINT,
     "Jenkins is susceptible to a remote code execution vulnerability due to accessible script functionality.": "Jenkins zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."

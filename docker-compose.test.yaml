@@ -109,6 +109,11 @@ services:
     volumes:
       - ./test/data/php_easy_admin_password/:/var/www/html/
 
+  test-php-redirect-login:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_redirect_login/:/var/www/html
+
   test-php-mock-CVE-2020-28976:
     image: php:8.0-apache
     volumes:

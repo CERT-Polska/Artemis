@@ -467,6 +467,11 @@ class DB:
             session.delete(task_result)
             session.commit()
 
+    def delete_task_results_by_ids(self, ids: List[str]) -> None:
+        with self.session() as session:
+            session.execute(delete(TaskResult).where(TaskResult.id.in_(ids)))
+            session.commit()
+
     def save_scheduled_task(self, task: Task) -> bool:
         """
         Saves a scheduled task and returns True if it didn't exist in the database.

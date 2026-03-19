@@ -9,9 +9,11 @@ from karton.core import Task
 
 from artemis import http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.config import Config
 from artemis.domains import is_domain
 from artemis.ip_utils import to_ip_range
 from artemis.module_base import ArtemisBase
+from artemis.socks_probe import probe_socks
 from artemis.utils import check_output_log_on_error
 
 ASN_REGEX = "[aA][sS][0-9][0-9]*"
@@ -223,25 +225,23 @@ class Classifier(ArtemisBase):
                 return
 
             if not output:
-                # fingerprintx doesn't support SOCKS detection - fall back for port 1080
-                if port == 1080:
-                    self.log.info("Port 1080 not identified by fingerprintx, assuming SOCKS proxy")
-                    new_task = Task(
-                        {
-                            "type": TaskType.SERVICE,
-                            "service": Service.SOCKS,
-                        },
-                        payload={"host": host, "port": port, "ssl": False},
-                        payload_persistent={
-                            f"original_{host_type}": host,
-                            "original_target": original_target,
-                        },
-                    )
-                    self.add_task(current_task, new_task)
-                    self.db.save_task_result(
-                        task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]}
-                    )
-                    return
+                if port in Config.Modules.PortScanner.SOCKS_PROBE_PORTS:
+                    socks_version = probe_socks(host, port, timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS)
+                    if socks_version:
+                        self.log.info("Port %d confirmed as SOCKS%d via handshake", port, socks_version)
+                        new_task = Task(
+                            {"type": TaskType.SERVICE, "service": Service.SOCKS},
+                            payload={"host": host, "port": port, "ssl": False},
+                            payload_persistent={
+                                f"original_{host_type}": host,
+                                "original_target": original_target,
+                            },
+                        )
+                        self.add_task(current_task, new_task)
+                        self.db.save_task_result(
+                            task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]}
+                        )
+                        return
                 self.log.exception("Unable to fingerprint %s", data)
                 self.db.save_task_result(
                     task=current_task, status=TaskStatus.ERROR, status_reason="Unable to fingerprint: %s" % data

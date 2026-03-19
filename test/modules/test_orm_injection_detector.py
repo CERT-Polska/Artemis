@@ -41,3 +41,19 @@ class OrmInjectionDetectorTestCase(ArtemisModuleTestCase):
         # Check that findings are from /search, not /safe
         for finding in call.kwargs["data"]["result"]:
             self.assertNotIn("/safe", finding["url"])
+
+    def test_lookup_suffix_with_existing_lookup_param_preserves_siblings_and_baseline(self) -> None:
+        """Verify sibling params are preserved when testing ORM suffixes."""
+        original_url = "http://test-flask-with-orm-injection:5000/search?username=admin&is_admin=1"
+        matched = self.karton._test_lookup_suffix(original_url, "username", "__exact", "admin")
+        self.assertTrue(matched)
+
+    def test_scan_with_raw_parameter_and_sibling_params(self) -> None:
+        """Scan should detect ORM injection with sibling params present."""
+        url = "http://test-flask-with-orm-injection:5000/search?username=admin&is_admin=1"
+        findings = self.karton.scan(
+            [url],
+            Task({"type": TaskType.SERVICE.value, "service": Service.HTTP.value}, payload={}),
+        )
+        self.assertTrue(findings)
+        self.assertTrue(any(finding["url"] == url for finding in findings))

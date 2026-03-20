@@ -259,11 +259,6 @@ services:
     volumes:
       - ./test/data/sql_injection_mysql/:/var/www/html/
 
-  test-tcp-raw:
-    build:
-      context: test/images/tcp-raw
-      dockerfile: Dockerfile
-
   test-nginx-with-sni-tls:
     build:
       context: test/images/nginx-with-sni-tls

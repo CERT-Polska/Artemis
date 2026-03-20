@@ -1,5 +1,6 @@
 from socket import gethostbyname
 from test.base import ArtemisModuleTestCase
+from unittest.mock import patch
 
 from karton.core import Task
 
@@ -50,37 +51,45 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.assertEqual(port_data["80"]["service"], "http")
         self.assertFalse(port_data["80"]["ssl"])
 
-    def test_retry_and_fallback_both_fail_port_skipped(self) -> None:
-        """End-to-end: unknown protocol triggers retry + fallback, port is skipped.
+    def test_fingerprintx_fails_fallback_detects_http(self) -> None:
+        """fingerprintx failure → retry exhaustion → HTTP fallback → successful detection.
 
-        test-tcp-raw is a real TCP server that speaks no known protocol.
+        Uses test-nginx (a real HTTP service) with fingerprintx patched to
+        always return empty output. This forces the fallback path while keeping
+        naabu port discovery and HTTP probing fully real.
+
+        Validates the complete flow:
         - naabu detects port 80 as open
-        - fingerprintx retries 3 times, cannot identify the protocol
-        - HTTP fallback tries HTTPS then HTTP, both fail (not an HTTP service)
-        - port is correctly skipped — no results reported
-
-        Log assertions verify each stage actually executes, guarding against
-        vacuous passes (e.g. naabu not finding the port due to a race).
+        - fingerprintx retries 3 times and "fails" (mocked to return b"")
+        - HTTP fallback makes a real HEAD request to nginx and succeeds
+        - port 80 is reported as service=http
         """
         task = Task(
             {"type": TaskType.DOMAIN},
-            payload={TaskType.DOMAIN: "test-tcp-raw"},
+            payload={TaskType.DOMAIN: "test-nginx"},
         )
-        with self.assertLogs("port_scanner", level="INFO") as log_cm:
-            self.run_task(task)
+        with patch("artemis.modules.port_scanner.check_output_log_on_error", return_value=b""):
+            with self.assertLogs("port_scanner", level="INFO") as log_cm:
+                self.run_task(task)
 
         (call,) = self.mock_db.save_task_result.call_args_list
-        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
-        self.assertIsNone(call.kwargs["status_reason"])
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+
+        port_data = list(call.kwargs["data"].values())[0]
+        self.assertIn("80", port_data)
+        self.assertEqual(port_data["80"]["service"], "http")
+        self.assertFalse(port_data["80"]["ssl"])
 
         # Verify retries were exhausted and fallback was triggered
         fallback_msgs = [m for m in log_cm.output if "attempting HTTP fallback" in m]
         self.assertTrue(fallback_msgs, "Expected fingerprintx retries to exhaust and trigger HTTP fallback")
         self.assertIn("after 3 attempts", fallback_msgs[0])
 
-        # Verify fallback failed and port was explicitly skipped
+        # Verify fallback succeeded (no "skipping port" message)
+        success_msgs = [m for m in log_cm.output if "HTTP fallback succeeded" in m]
+        self.assertTrue(success_msgs, "Expected HTTP fallback to successfully detect the service")
         skip_msgs = [m for m in log_cm.output if "skipping port" in m]
-        self.assertTrue(skip_msgs, "Expected port to be skipped after fallback failure")
+        self.assertFalse(skip_msgs, "Port should not be skipped when fallback succeeds")
 
     def test_no_ssl_against_sni(self) -> None:
         host = gethostbyname("test-nginx-with-sni-tls")

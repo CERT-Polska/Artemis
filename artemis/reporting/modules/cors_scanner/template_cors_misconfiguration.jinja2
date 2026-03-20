@@ -1,0 +1,29 @@
+{% if "cors_misconfiguration" in data.contains_type %}
+    <li>{% trans %}The following addresses have a CORS misconfiguration that allows arbitrary external websites to read authenticated responses:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "cors_misconfiguration" %}
+                    <li>
+                        {{ report.target }} — {% trans %}reflected origins:{% endtrans %} {{ report.additional_data.reflected_origins | join(", ") }}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                A CORS (Cross-Origin Resource Sharing) misconfiguration was detected. The server reflects
+                arbitrary Origin headers in its Access-Control-Allow-Origin response while also setting
+                Access-Control-Allow-Credentials: true. This means any website can make authenticated
+                cross-origin requests and read the responses, potentially stealing sensitive user data.
+            {% endtrans %}
+        </p>
+        <p>
+            {% trans trimmed %}
+                We recommend configuring CORS to only allow specific trusted origins. Do not reflect
+                arbitrary Origin headers. If cross-origin credentials are not needed, remove the
+                Access-Control-Allow-Credentials header.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

@@ -59,8 +59,8 @@ class SSHBruter(ArtemisBase):
 
         result = SSHBruterResult()
         for username, password in BRUTE_CREDENTIALS:
+            client = paramiko.client.SSHClient()
             try:
-                client = paramiko.client.SSHClient()
                 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 self.log.info(
                     "Attempting connect: hostname=%s, port=%s, username=%s, password=%s", host, port, username, password
@@ -72,7 +72,6 @@ class SSHBruter(ArtemisBase):
                     lambda: client.connect(hostname=host, port=port, username=username, password=password)
                 )
                 result.credentials.append((username, password))
-                client.close()
             except (
                 paramiko.AuthenticationException,
                 paramiko.BadHostKeyException,
@@ -82,6 +81,8 @@ class SSHBruter(ArtemisBase):
                 paramiko.ssh_exception.SSHException,
             ):
                 pass
+            finally:
+                client.close()
 
         if result.credentials:
             status = TaskStatus.INTERESTING

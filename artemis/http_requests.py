@@ -116,24 +116,27 @@ def request(
             headers=headers,
         )
 
-        # Handling situations where the response is very long, which is not handled by requests timeout
-        result = b""
-        # Sometimes the returned chunks are significantly shorter than max_size, therefore we iterate until
-        # we run out of chunks or we complete a result of expected size.
-        for item in response.iter_content(max_size):
-            result += item
+        try:
+            # Handling situations where the response is very long, which is not handled by requests timeout
+            result = b""
+            # Sometimes the returned chunks are significantly shorter than max_size, therefore we iterate until
+            # we run out of chunks or we complete a result of expected size.
+            for item in response.iter_content(max_size):
+                result += item
 
-            if len(result) >= max_size:
-                break
+                if len(result) >= max_size:
+                    break
 
-        return HTTPResponse(
-            status_code=response.status_code,
-            content_bytes=result[:max_size],
-            encoding=response.encoding if response.encoding else "utf-8",
-            is_redirect=bool(response.history),
-            url=response.url,
-            headers=response.headers,
-        )
+            return HTTPResponse(
+                status_code=response.status_code,
+                content_bytes=result[:max_size],
+                encoding=response.encoding if response.encoding else "utf-8",
+                is_redirect=bool(response.history),
+                url=response.url,
+                headers=response.headers,
+            )
+        finally:
+            response.close()
 
     return throttle_request(_internal_request, requests_per_second)  # type: ignore
 

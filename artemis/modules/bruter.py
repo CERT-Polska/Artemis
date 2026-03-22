@@ -127,20 +127,6 @@ class Bruter(ArtemisBase):
                 checked_paths=list(FILENAMES_TO_SCAN),
             )
 
-        for found_url in found_urls:
-            url = found_url.url[len(base_url) + 1 :]
-
-            new_task = Task(
-                {
-                    "type": TaskType.URL,
-                },
-                payload={
-                    "url": found_url.url,
-                    "content": results[found_url.url].content,
-                },
-            )
-            self.add_task(task, new_task)
-
         return BruterResult(
             content_404=dummy_content,
             too_many_urls_detected=False,

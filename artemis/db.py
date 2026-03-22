@@ -469,7 +469,7 @@ class DB:
 
     def delete_task_results_by_ids(self, ids: List[str]) -> None:
         with self.session() as session:
-            session.execute(delete(TaskResult).where(TaskResult.id.in_(ids)))
+            session.execute(delete(TaskResult).where(TaskResult.id.in_(ids)))  # type: ignore
             session.commit()
 
     def save_scheduled_task(self, task: Task) -> bool:

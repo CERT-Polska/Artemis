@@ -22,6 +22,8 @@ BUG_FIX_HINT = " Rekomendujemy poprawienie tego błędu, a także sprawdzenie, c
 
 DATA_HIDE_HINT = " Rekomendujemy, aby takie dane nie były dostępne publicznie."
 
+RESOURCES_HIDE_HINT = " Rekomendujemy, aby takie zasoby nie były dostępne publicznie."
+
 REFLECTED_XSS_DESCRIPTION = "Cross-Site Scripting, umożliwiającą atakującemu spreparowanie linku, który, po kliknięciu przez administratora, wykona dowolną akcję z jego uprawnieniami (taką jak np. modyfikacja treści)."
 
 DIRECTORY_INDEX_HINT = "Taka konfiguracja może w niektórych przypadkach stworzyć ryzyko wycieku wrażliwych danych. Nawet jeśli w podanych wyżej folderach nie ma wrażliwych danych, zaobserwowana konfiguracja może oznaczać, że serwer wyświetla listingi również innych katalogów. Jeśli nie jest to działanie celowe, to rekomendujemy konfigurację serwera tak, aby listing plików nie był publicznie dostępny."
@@ -82,6 +84,9 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
     "ProfilePress WordPress plugin  is susceptible to a vulnerability in the user registration component in the ~/src/Classes/RegistrationAuth.php file that makes it possible for users to register on sites as an administrator.": "Wtyczka WordPress o nazwie ProfilePress zawiera podatność umożliwiającą rejestrację jako administrator."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress Member Hero plugin through 1.0.9 is susceptible to remote code execution. The plugin lacks authorization checks and does not validate the a request parameter in an AJAX action, allowing an attacker to call arbitrary PHP functions with no arguments. An attacker can thus execute malware, obtain sensitive information, modify data, and/or gain full control over a compromised system without entering necessary credentials.": "Wtyczka WordPress Member Hero w wersjach do 1.0.9 zawiera podatność umożliwiającą zdalne wykonanie kodu o identyfikatorze CVE-2022-0885."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
     "The Paid Memberships Pro WordPress Plugin, version < 2.9.8, is affected by an unauthenticated SQL injection vulnerability in the 'code' parameter of the '/pmpro/v1/order' REST route.": "Wtyczka WordPress o nazwie Paid Memberships Pro w wersji poniżej 2.9.8 zawiera podatność SQL Injection, co umożliwia pobranie całej zawartości bazy danych."
@@ -624,11 +629,23 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The Integrate Google Drive plugin for WordPress is vulnerable to unauthorized access due to a missing capability check on several REST API endpoints in versions up to, and including, 1.1.99. This makes it possible for unauthenticated attackers to perform a wide variety of operations, such as moving files, creating folders, copying details, and much more.": "Wtyczka WordPress o nazwie Integrate Google Drive w wersjach do 1.1.99 zawiera podatność umożliwiającą atakującemu nieuprawnione wykonywanie operacji takich jak np. pobieranie informacji, przenoszenie plików itp."
     + WORDPRESS_UPDATE_HINT,
-    "http/misconfiguration/installer/webcalendar-install.yaml": "Wykryto dostępny publicznie instalator systemu WebCalendar, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
-    "Detects exposed CMS Made Simple Installation page.": "Wykryto dostępny publicznie instalator systemu CMS Made Simple, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
-    "Drupal Install panel exposed.": "Wykryto dostępny publicznie instalator systemu Drupal, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem. Rekomendujemy, aby takie zasoby nie były dostępne publicznie.",
+    "http/misconfiguration/installer/webcalendar-install.yaml": "Wykryto dostępny publicznie instalator systemu WebCalendar, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem."
+    + RESOURCES_HIDE_HINT,
+    "Detects exposed CMS Made Simple Installation page.": "Wykryto dostępny publicznie instalator systemu CMS Made Simple, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem."
+    + RESOURCES_HIDE_HINT,
+    "Drupal Install panel exposed.": "Wykryto dostępny publicznie instalator systemu Drupal, dający atakującemu możliwość wprowadzenia własnej konfiguracji i przejęcia kontroli nad systemem."
+    + RESOURCES_HIDE_HINT,
     "A source code disclosure vulnerability in a web server caused by improper handling of multiple requests in quick succession, leading to the server treating requested files as static files instead of executing scripts.": "Serwer deweloperski udostępniany przez język programowania PHP w wersjach do 7.4.21 włącznie zawiera podatność umożliwiającą atakującemu nieuprawniony odczyt kodu źródłowego."
     + UPDATE_HINT,
+    "Vtiger CRM is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto publicznie dostępny instalator systemu Vtiger CRM, co wynika z błędnej konfiguracji i może umożliwić osobie nieuprawnionej ponowną instalację lub modyfikację ustawień systemu, a w konsekwencji przejęcie nad nim kontroli."
+    + RESOURCES_HIDE_HINT,
+    "n8n versions >= 0.123.0 and < 1.121.3 contain a critical authenticated remote code execution vulnerability via arbitrary file write. An authenticated user can exploit the Git node to overwrite critical files and execute untrusted code on the n8n server, potentially leading to full system compromise. The vulnerability affects both self-hosted and n8n Cloud instances.": "Wersje n8n >= 0.123.0 oraz < 1.121.3 zawierają krytyczną podatność umożliwiającą zdalne wykonanie kodu po uwierzytelnieniu, umożliwiającą zapis dowolnych plików."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress Classifieds Plugin before 4.3 contains a SQL injection caused by improper sanitization and escaping of parameters in an AJAX action, letting unauthenticated attackers execute arbitrary SQL commands, exploit requires the premium module to be active.": "Wtyczka WordPress Classifieds Plugin w wersjach wcześniejszych niż 4.3 zawiera podatność typu SQL Injection spowodowaną nieprawidłową walidacją i filtrowaniem parametrów w akcji AJAX. Umożliwia to nieuwierzytelnionemu atakującemu wykonywanie dowolnych zapytań SQL, w tym pobranie całej zawartości bazy danych. Wykorzystanie podatności wymaga aktywnego modułu premium."
+    + WORDPRESS_UPDATE_HINT,
+    "Tutor LMS – eLearning and online course solution plugin for WordPress [all versions up to 2.6.1] contains a time-based SQL Injection caused by insufficient escaping on the question_id parameter in SQL queries, letting authenticated attackers with subscriber or higher access extract sensitive information, exploit requires attacker to be authenticated with subscriber or higher privileges.": "Wtyczka Tutor LMS dla WordPress (wszystkie wersje do 2.6.1 włącznie) zawiera podatność typu time-based SQL Injection. Umożliwia to uwierzytelnionemu atakującemu z uprawnieniami subskrybenta pozyskanie wrażliwych informacji z bazy danych."
+    + WORDPRESS_UPDATE_HINT,
     "GoIP-1 GSM is vulnerable to local file inclusion because input passed thru the 'content' or 'sidebar' GET parameter in 'frame.html' or 'frame.A100.html' is not properly sanitized before being used to read files. This can be exploited by an unauthenticated attacker to read arbitrary files on the affected system.": "Wykryto, że GoIP-1 GSM zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "Execution After Redirect happens when after emitting a Location header that redirects the user, some other code is executed. This may lead to data leak or application compromise.": "Wykryto podatność Execution After Redirect, czyli sytuację, gdy serwer, pomimo przekierowania użytkownika na inny adres, kontynuuje wykonanie skryptu. Może to doprowadzić do wycieku wrażliwych danych lub uzyskania przez atakującego nieuprawnionego dostępu do aplikacji.",
     "[no description] http/misconfiguration/django-debug-detect.yaml": "Wykryto system Django w konfiguracji debug. Upublicznienie systemu w takiej konfiguracji może umożliwić atakującemu poznanie informacji na temat działania aplikacji lub jej konfiguracji.",
@@ -980,10 +997,39 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "phpinfo() is susceptible to resource exposure in unprotected composer vendor folders via phpfastcache/phpfastcache.": "Wykryto błędną konfigurację narzędzia phpfastcache zawierającą publicznie dostępny plik phpinfo, udostępniający informacje o konfiguracji serwera. "
     + DATA_HIDE_HINT,
+    "Grafana versions 8.0.0-beta1 through 8.3.0 are vulnerable to a local directory traversal, allowing access to local files.": "Grafana w wersjach od 8.0.0-beta1 do 8.3.0 zawiera podatność Local File Inclusion o identyfikatorze CVE-2021-43798, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "The Database for Contact Form 7, WPforms, Elementor forms plugin for WordPress is vulnerable to PHP Object Injection in all versions up to and including 1.4.7.": "Wtyczka WordPress o nazwie Database for Contact Form 7, WPforms, Elementor forms w wersjach do 1.4.7 zawiera podatność PHP Object Injection o identyfikatorze CVE-2026-2599."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "XWiki is vulnerable to Hibernate Query Language (HQL) injection in the wiki and space search REST API starting in version 4.3-milestone-1 and prior to versions 16.10.9, 17.4.2, and 17.5.0.": "System XWiki w wersjach od 4.3-milestone-1 do poniżej 16.10.9, 17.4.2 i 17.5.0 zawiera podatność SQL Injection o identyfikatorze CVE-2025-52472, umożliwiającą atakującemu odczyt danych z bazy danych."
+    + UPDATE_HINT,
+    "Appwrite through 1.2.1 is susceptible to server-side request forgery via the component /v1/avatars/favicon.": "System Appwrite w wersjach do 1.2.1 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2023-27159, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
+    + UPDATE_HINT,
+    "Dify v1.6.0 contains a server side request forgery caused by improper validation in controllers.console.remote_files.RemoteFileUploadApi, letting attackers make arbitrary requests from the server, exploit requires network access.": "Dify w wersji 1.6.0 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2025-56520, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej.",
+    "MongoDB was able to be accessed with no password. Note that MongoDB does not require a password by default.": "MongoDB jest dostępny bez uwierzytelniania, umożliwiając dostęp do danych bez hasła.",
+    "By leaking a target device's serial number, a remote attacker can generate the target device's default administrator password. The target device may leak its serial number via unauthenticated HTTP, HTTPS, IPP, SNMP, or PJL requests.": "Urządzenie zawiera podatność o identyfikatorze CVE-2024-51978, umożliwiającą atakującemu uzyskanie domyślnych danych logowania administratora."
+    + DEFAULT_CREDENTIALS_HINT,
+    "Jenkins is susceptible to a remote code execution vulnerability due to accessible script functionality.": "Jenkins zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "The LearnPress - WordPress LMS Plugin plugin for WordPress is vulnerable to SQL Injection via the 'c_only_fields' parameter of the /wp-json/learnpress/v1/courses REST API endpoint in all versions up to, and including, 4.2.7 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for unauthenticated attackers to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database.": "Wtyczka WordPress o nazwie LearnPress - WordPress LMS Plugin w wersjach do 4.2.7 włącznie zawiera podatność SQL Injection o identyfikatorze CVE-2024-8522, umożliwiającą atakującemu odczyt danych z bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "A vulnerability in the VPN web server of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software and Cisco Secure Firewall Threat Defense (FTD) Software could allow an unauthenticated, remote attacker to access restricted URL endpoints that are related to remote access VPN that should otherwise be inaccessible without authentication. This vulnerability is due to improper validation of user-supplied input in HTTP(S) requests.": "Cisco Secure Firewall Adaptive Security Appliance (ASA) Software oraz Cisco Secure Firewall Threat Defense (FTD) Software zawiera podatność o identyfikatorze CVE-2025-20362, umożliwiającą atakującemu dostęp do chronionych zasobów.",
+    'Roundcube Webmail before 1.5.12 and 1.6.x before 1.6.12 are vulnerable to stored Cross-Site Scripting (XSS)\nthrough SVG animate tags. The rcube_washtml sanitizer in dumpHtml() blocks animate elements when\nattributeName equals "href", but the attribute_value() comparison does not normalize XML namespace prefixes.\nAn attacker can use attributeName="xlink:href" to bypass the check, delivering unsanitized javascript: URIs\nin the values attribute directly into the rendered email DOM.': "Roundcube Webmail w wersjach poniżej 1.5.12 oraz 1.6.x poniżej 1.6.12 zawiera podatność Cross-Site Scripting o identyfikatorze CVE-2025-68461, umożliwiającą atakującemu wykonanie kodu w przeglądarce odbiorcy wiadomości e-mail."
+    + UPDATE_HINT,
+    "WordPress Backup Migration plugin versions up to 1.3.6 contain a path traversal and file validation issue in handle_downloading function, letting unauthenticated attackers download backup files containing sensitive information.": "Wtyczka WordPress o nazwie Backup Migration w wersji do 1.3.6 zawiera podatność Local File Inclusion o identyfikatorze CVE-2023-6266, umożliwiającą odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "Roundcube Webmail before 1.5.12 and 1.6.x before 1.6.12 are vulnerable to stored Cross-Site Scripting (XSS)": "Roundcube Webmail w wersjach poniżej 1.5.12 oraz 1.6.x poniżej 1.6.12 zawiera podatność Cross-Site Scripting umożliwiającą spreparowanie e-maila, który wykona dowolne skrypty JavaScript w skrzynce odbiorcy. Podatności nadano identyfikator CVE-2025-68461."
+    + UPDATE_HINT,
+    "Electrolink transmitters store credentials in clear-text. Use of these credentials could allow an attacker to access the system.": "Nadajniki Electrolink zawierają podatność o identyfikatorze CVE-2024-3742 polegającą na przechowywaniu danych uwierzytelniających w postaci jawnego tekstu. Użycie tych danych umożliwia nieautoryzowany dostęp do systemu.",
     "GNU Bash through 4.3 processes trailing strings after function definitions in the values of environment variables, which allows remote attackers to execute arbitrary code via a crafted environment, as demonstrated by vectors involving the ForceCommand feature in OpenSSH sshd, the mod_cgi and mod_cgid modules in the Apache HTTP Server, scripts executed by unspecified DHCP clients, and other situations in which setting the environment occurs across a privilege boundary from Bash execution, aka ShellShock.": "Wykryto powłokę Bash w wersji do 4.3 zawierającą podatność ShellShock, umożliwiającą atakującemu zdalne wykonanie kodu. "
     + UPDATE_HINT,
     "WordPress White Label CMS plugin before 2.2.9 contains a reflected cross-site scripting vulnerability. It does not sanitize and validate the wlcms[_login_custom_js] parameter before outputting it back in the response while previewing.": "Wtyczka WordPress o nazwie White Label CMS w wersji poniżej 2.2.9 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
+    "Apache Tomcat from versions 8.5.0 to 8.5.93, 9.0.0-M1 to 9.0.81, 10.1.0-M1 to 10.1.13, and 11.0.0-M1 to 11.0.0-M11 contain an improper input validation caused by incorrect parsing of HTTP trailer headers, letting attackers craft headers to cause request smuggling, exploit requires sending malicious trailer headers.": "Apache Tomcat od wersji 8.5.0 do 8.5.93, od 9.0.0-M1 do 9.0.81, od 10.1.0-M1 do 10.1.13 i od 11.0.0-M1 do 11.0.0-M11 zawiera podatność HTTP Request Smuggling o identyfikatorze CVE-2023-45648 umożliwiającą atakującemu nieuprawniony dostęp do informacji."
+    + UPDATE_HINT,
+    "Digital Watchdog DW Spectrum Server 4.2.0.32842 allows attackers to access sensitive infromation via a crafted API call.": "Digital Watchdog DW Spectrum Server 4.2.0.32842 zawiera podatność o identyfikatorze CVE-2022-34534 umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji takich jak np. konfiguracja sieci."
     + UPDATE_HINT,
     "Sophos SG UTMA WebAdmin is susceptible to a remote code execution vulnerability in versions before v9.705 MR5, v9.607 MR7, and v9.511 MR11.": "Sophos SG UTMA WebAdmin w wersji poniżej v9.705 MR5, v9.607 MR7 i v9.511 MR11 zawiera podatność umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
@@ -1124,6 +1170,8 @@ TRANSLATIONS = {
     + UPDATE_HINT
     + " Więcej informacji: https://moje.cert.pl/komunikaty/2025/61/krytyczna-podatnosc-w-react-server-components-oraz-innych-aplikacjach-z-tym-rozwiazaniem/",
     "ECShop 4.1.0 has SQL injection vulnerability, which can be exploited by attackers to obtain sensitive information.": "ECShop w wersji 4.1.0 i potencjalnie wcześniejszych zawiera podatność SQL Injection, umożliwiającą atakującemu pobranie danych z bazy danych."
+    + UPDATE_HINT,
+    "Jinfornet Jreport 15.6 is vulnerable to local file incluion via the Jreport Help function in the SendFileServlet. Exploitaiton allows remote unauthenticated users to view any files on the Operating System with Application services user permission. This vulnerability affects Windows and Unix operating systems.": "Jinfonet JReport 15.6 zawiera podatność typu Local File Inclusion. Podatność umożliwia nieuwierzytelnionym użytkownikom odczyt dowolnych plików w systemie."
     + UPDATE_HINT,
     "Themewinter Eventin contains a path traversal caused by relative path manipulation, letting attackers access arbitrary files on the server, exploit requires no specific privileges or user interaction.": "Themewinter Eventin zawiera podatność Path Traversal o identyfikatorze CVE-2025-47445 umożliwiającą atakującemu odczyt dowolnych plików z dysku.",
     "IBM Data Risk Manager 2.0.1, 2.0.2, 2.0.3, 2.0.4, 2.0.5, and 2.0.6 contains a default password for an IDRM administrative account. A remote attacker could exploit this vulnerability to login and execute arbitrary code on the system with root privileges. IBM X-Force ID- 180534.": "IBM Data Risk Manager w wersji 2.0.1 do 2.0.6 zawiera domyślne hasło konta administracyjnego umożliwiające logowanie i dostęp administracyjny do systemu. Podatność ma identyfikator CVE-2020-4429.",
@@ -2248,6 +2296,7 @@ TRANSLATIONS = {
     "Untangle Administrator is a centralized web-based management console that allows administrators to efficiently configure, monitor, and control various network security and filtering features provided by the Untangle NG Firewall, ensuring robust network protection and policy enforcement.": "Wykryto panel Untangle Administrator.",
     "An Opencast Admin panel was discovered. Opencast is a free and open source solution for automated video capture and distribution at scale.": "Wykryto panel administracyjny Opencast.",
     "An OpenWebUI panel was detected": "Wykryto panel OpenWebUI.",
+    "OpenWebUI was detected - a platform for running AI on your own terms": "Wykryto panel OpenWebUI.",
     "Vaultwarden products was detected.": "Wykryto panel Vaultwarden.",
     "Reolink panel was discovered.": "Wykryto panel Reolink",
     "Reposilite products was detected.": "Wykryto panel systemu Reposilite.",
@@ -2351,6 +2400,8 @@ TRANSLATIONS = {
     "Nagios XI login panel was detected.": "Wykryto panel Nagios XI.",
     "Netdata panel was discovered.": "Wykryto panel Netdata.",
     "OpenVPN Admin login panel was detected.": "Wykryto administracyjny panel logowania OpenVPN.",
+    "openvpn-monitor was discovered. OpenVPN Monitor is a simple python program to generate html that displays the status of an OpenVPN server, including all its current connections.": "Wykryto panel OpenVPN Monitor.",
+    "Delta Controls admin login panel was detected.": "Wykryto administracyjny panel logowania Delta Controls.",
     "Clave login panel was detected.": "Wykryto panel logowania systemu Clave.",
     "Zammad is an open source helpdesk and customer support system that provides ticket management, live chat, and knowledge base functionality. This template detects exposed Zammad installations.": "Wykryto panel systemu Zammad.",
     "AXWAY Secure Transport Web Client panel was detected.": "wykryto panel AXWAY Secure Transport Web Client.",
@@ -2393,4 +2444,10 @@ TRANSLATIONS = {
     "Detected LibreChat login panel. LibreChat is an open-source, self-hosted AI chat interface.": "Wykryto panel logowania LibreChat.",
     "Checkmarx login panel was detected.": "Wykryto panel systemu Checkmarx.",
     "FlexNet Operations was detected — a software monetization platform.": "Wykryto panel FlexNet Operations.",
+    "Bitbucket panel was detected. Bitbucket is a Git-based source code repository hosting service owned by Atlassian, providing CI/CD and collaboration features.": "Wykryto panel systemu Bitbucket.",
+    "Detects Monsta FTP web-based file manager interface.": "Wykryto interfejs managera plików Monsta FTP.",
+    "Dokploy login panel was detected.": "Wykryto panel Dokploy.",
+    "Brother printer web interface and management panel was detected. This template identifies exposed Brother printer panels that may be accessible without authentication.": "Wykryto panel zarządzania drukarki Brother.",
+    "openvpn-monitor was discovered. OpenVPN Monitor is a simple python program to generate html that displays the status of an OpenVPN server, including all its current connections.": "Wykryto panel OpenVPN Monitor.",
+    "Detects the presence of FileCatalyst file transfer solution login panel": "Wykryto panel FileCatalyst.",
 }

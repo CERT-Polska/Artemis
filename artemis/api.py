@@ -1,8 +1,8 @@
+import asyncio
 import datetime
-import json
 from typing import Annotated, Any, Dict, List, Optional
 
-import requests
+import aiohttp
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from karton.core.backend import KartonBackend
@@ -241,7 +241,7 @@ def download_zip(id: int) -> RedirectResponse:
 @router.post("/export/delete/{id}", dependencies=[Depends(verify_api_token)])
 async def post_export_delete(id: int) -> Dict[str, Any]:
     """Delete an export."""
-    db.delete_report_generation_task(id)
+    await asyncio.to_thread(db.delete_report_generation_task, id)
     return {
         "ok": True,
     }
@@ -250,15 +250,16 @@ async def post_export_delete(id: int) -> Dict[str, Any]:
 @router.post("/build-html-message", dependencies=[Depends(verify_api_token)])
 async def post_build_html_message(language: str = Body(), data: Dict[str, Any] = Body()) -> str:
     """Renders a custom list of vulnerabilities as HTML."""
-    return json.loads(  # type: ignore
-        requests.post(
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
+        async with session.post(
             "http://autoreporter:5000/api/build-html-message",
             json={
                 "language": language,
                 "data": data,
             },
-        ).text
-    )
+        ) as response:
+            response.raise_for_status()
+            return await response.json()  # type: ignore
 
 
 @router.post("/export", dependencies=[Depends(verify_api_token)])
@@ -273,7 +274,8 @@ async def post_export(
     skip_suspicious_reports: bool = Body(False),
 ) -> Dict[str, Any]:
     """Create a new export. An export is a request to create human-readable messages that may be sent to scanned entities."""
-    db.create_report_generation_task(
+    await asyncio.to_thread(
+        db.create_report_generation_task,
         skip_previously_exported=skip_previously_exported,
         tag=tag,
         comment=comment,
@@ -326,7 +328,7 @@ def get_analyses_table(
         "draw": draw,
         "recordsTotal": result.records_count_total,
         "recordsFiltered": result.records_count_filtered,
-        "data": [render_analyses_table_row(entry) for entry in entries],
+        "data": [render_analyses_table_row(request, entry) for entry in entries],
     }
 
 
@@ -365,7 +367,7 @@ def get_task_results_table(
         "draw": draw,
         "recordsTotal": result.records_count_total,
         "recordsFiltered": result.records_count_filtered,
-        "data": [render_task_table_row(task) for task in result.data],
+        "data": [render_task_table_row(request, task) for task in result.data],
     }
 
 

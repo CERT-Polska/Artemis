@@ -13,15 +13,13 @@ DATABASE = "/tmp/test.db"
 def init_db() -> None:
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-    c.execute(
-        """
+    c.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
             password TEXT
         )
-    """
-    )
+    """)
     c.execute("INSERT INTO users (username, password) VALUES ('admin', 'supersecret')")
     c.execute("INSERT INTO users (username, password) VALUES ('guest', 'guest123')")
     conn.commit()

@@ -2,6 +2,7 @@ import gettext
 import os
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -63,31 +64,39 @@ def install_translations(
             with open(translation_path, "r") as translation_file:
                 all_translations_file.write(translation_file.read() + "\n")
 
-    os.makedirs(f"{language.value}/LC_MESSAGES", exist_ok=True)
-
-    pybabel_compiled_path = f"{language.value}/LC_MESSAGES/messages.mo"
-
-    subprocess.call(
-        [
-            "pybabel",
-            "compile",
-            "-f",
-            "--input",
-            save_translations_to,
-            "--output",
-            pybabel_compiled_path,
-        ],
-        stderr=subprocess.DEVNULL,  # suppress a misleading message where compiled translations will be saved
-    )
-
     if language == Language.en_US:  # type: ignore
         # For English we allow untranslated strings
         class_ = gettext.GNUTranslations
     else:
         class_ = TranslationRaiseException
 
-    environment.install_gettext_translations(  # type: ignore
-        gettext.translation(domain="messages", localedir=".", languages=[language.value], class_=class_)
-    )
+    # Use a per-call temporary directory for the intermediate .mo file so that
+    # concurrent callers (the report-generation thread and the API thread) do
+    # not clobber each other's compiled output.  Previously, a shared relative
+    # path ``{language}/LC_MESSAGES/messages.mo`` was used, which caused a race
+    # condition when both threads called install_translations simultaneously.
+    with tempfile.TemporaryDirectory() as tmp_localedir:
+        lc_messages_dir = os.path.join(tmp_localedir, language.value, "LC_MESSAGES")
+        os.makedirs(lc_messages_dir)
+        pybabel_compiled_path = os.path.join(lc_messages_dir, "messages.mo")
 
-    shutil.copy(pybabel_compiled_path, save_compiled_translations_to)
+        returncode = subprocess.call(
+            [
+                "pybabel",
+                "compile",
+                "-f",
+                "--input",
+                save_translations_to,
+                "--output",
+                pybabel_compiled_path,
+            ],
+            stderr=subprocess.DEVNULL,  # suppress a misleading message where compiled translations will be saved
+        )
+        if returncode != 0:
+            raise RuntimeError(f"pybabel compile failed with exit code {returncode} for input {save_translations_to}")
+
+        environment.install_gettext_translations(  # type: ignore
+            gettext.translation(domain="messages", localedir=tmp_localedir, languages=[language.value], class_=class_)
+        )
+
+        shutil.copy(pybabel_compiled_path, save_compiled_translations_to)

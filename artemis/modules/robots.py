@@ -62,11 +62,11 @@ class RobotsScanner(ArtemisBase):
                 current_group.user_agents.append(agent_match.group(1))
             elif allow_path := self._parse_rule(line, RE_ALLOW):
                 if len(current_group.user_agents) == 0:
-                    raise ValueError("'allow' rule before startgroupline")
+                    raise ValueError("'allow' rule before start group line")
                 current_group.allow.append(allow_path)
             elif disallow_path := self._parse_rule(line, RE_DISALLOW):
                 if len(current_group.user_agents) == 0:
-                    raise ValueError("'disallow' rule before startgroupline")
+                    raise ValueError("'disallow' rule before start group line")
                 current_group.disallow.append(disallow_path)
 
         if len(current_group.user_agents) > 0:
@@ -98,17 +98,6 @@ class RobotsScanner(ArtemisBase):
                                 has_directory_index=True,
                             )
                         )
-
-                    new_task = Task(
-                        {
-                            "type": TaskType.URL,
-                        },
-                        payload={
-                            "url": full_url,
-                            "content": content,
-                        },
-                    )
-                    self.add_task(current_task, new_task)
         return found_urls
 
     def download_robots(self, current_task: Task, url: str) -> RobotsResult:

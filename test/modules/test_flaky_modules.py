@@ -60,7 +60,7 @@ class FlakyModuleRaisingExceptionTest(KartonTestCase):
     karton_class = FlakyModuleRaisingException  # type: ignore
 
     def test_raising_exception(self) -> None:
-        self.karton = self.karton_class(  # type: ignore
+        self.karton = self.karton_class(
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=DB()  # type: ignore
         )
         task = Task(
@@ -80,7 +80,7 @@ class FlakyModuleSavingErrorTest(KartonTestCase):
     karton_class = FlakyModuleSavingError  # type: ignore
 
     def test_saving_error(self) -> None:
-        self.karton = self.karton_class(  # type: ignore
+        self.karton = self.karton_class(
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=DB()  # type: ignore
         )
         task = Task(

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import subprocess
+import sys
 
 from karton.core import Task
 
@@ -25,7 +26,7 @@ class JoomlaExtensions(ArtemisBase):
         url = current_task.get_payload("url")
 
         command = [
-            "python",
+            sys.executable,
             "/joomla-scanner/myscanner.py",
             "-u",
             url,

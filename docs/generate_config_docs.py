@@ -50,11 +50,6 @@ def print_docs_for_class(cls: type, output_file: IO[str], depth: int = 0) -> Non
         else:
             default_str = ""
 
-        output_file.write(
-            textwrap.dedent(
-                f"""
+        output_file.write(textwrap.dedent(f"""
                     {variable_name}\n{default_str}{doc}
-                """.strip()
-            )
-            + "\n\n"
-        )
+                """.strip()) + "\n\n")

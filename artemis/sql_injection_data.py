@@ -1,6 +1,8 @@
+from typing import Dict, List
+
 from artemis.config import Config
 
-SQL_ERROR_MESSAGES = [
+SQL_ERROR_MESSAGES: List[str] = [
     "SQL syntax.{0,200}?MySQL",
     "Warning.{0,200}?\\Wmysqli?_",
     "MySQLSyntaxErrorException",
@@ -185,7 +187,7 @@ SQL_ERROR_MESSAGES = [
     "\\[(Virtuoso Driver|Virtuoso iODBC Driver)\\]\\[Virtuoso Server\\]",
 ]
 
-HEADERS = {
+HEADERS: Dict[str, str] = {
     "Accept": "application/xml, application/json, text/plain, text/html",
     "Accept-Encoding": "acceptencoding",
     "Accept-Language": "acceptlanguage",

@@ -47,6 +47,7 @@ semver==3.0.4
 setuptools==80.10.2
 shodan==1.31.0
 six==1.17.0
+starlette==0.52.1
 termcolor==3.3.0
 timeout-decorator==0.5.0
 tqdm==4.67.2

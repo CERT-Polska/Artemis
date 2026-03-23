@@ -25,14 +25,10 @@ The module will utilize a hybrid approach of tool integration and custom logic:
     - **Harbor/Docker Registry**: Perform a safe, unauthenticated `list/pull` of a manifest to confirm actual data exposure.
     - **ArgoCD**: Check for unauthenticated access to the Redis cache or API credential leaks (`CVE-2025-55190`).
 
-## High-Precision & False Positive Mitigation
-To maintain Artemis's reputation for zero-spam:
 
 ### Confirmation-First Reporting
 Findings will only be reported as "Interesting" if the active verification step confirms an insecure state. Simple "Panel Exposed" findings will be kept as low-severity or informational, depending on the environment.
 
-### Performance Optimization
-By identifying the service first, we reduce the total number of requests by orders of magnitude compared to running all Nuclei templates on all targets. This makes the "Infrastructure Auditor" suitable for large-scale scanning without significant performance degradation.
 
 ## Risk Assessment
 - **Critical**: Unauthenticated RCE or full administrative control (e.g., Jenkins Script Console, ArgoCD Cluster Admin).

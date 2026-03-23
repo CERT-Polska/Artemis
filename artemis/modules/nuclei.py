@@ -334,7 +334,7 @@ class Nuclei(ArtemisBase):
             requests_per_second_per_host_99_percentile = None
 
         return (
-            "Max requests per second for a single host: %s, 75 percentile %s, 95 percentile %s, 99 percentile %s, request exceeding 1s %s"
+            "Max requests per second for a single host: %s, 75 percentile %s, 95 percentile %s, 99 percentile %s, number of requests per second exceeding 1 %s"
             % (
                 max(requests_per_second_per_host) if requests_per_second_per_host else None,
                 requests_per_second_per_host_75_percentile,

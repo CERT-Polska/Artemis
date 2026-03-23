@@ -997,6 +997,15 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "phpinfo() is susceptible to resource exposure in unprotected composer vendor folders via phpfastcache/phpfastcache.": "Wykryto błędną konfigurację narzędzia phpfastcache zawierającą publicznie dostępny plik phpinfo, udostępniający informacje o konfiguracji serwera. "
     + DATA_HIDE_HINT,
+    "Grafana versions 8.0.0-beta1 through 8.3.0 are vulnerable to a local directory traversal, allowing access to local files.": "Grafana w wersjach od 8.0.0-beta1 do 8.3.0 zawiera podatność Local File Inclusion o identyfikatorze CVE-2021-43798, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "The Database for Contact Form 7, WPforms, Elementor forms plugin for WordPress is vulnerable to PHP Object Injection in all versions up to and including 1.4.7.": "Wtyczka WordPress o nazwie Database for Contact Form 7, WPforms, Elementor forms w wersjach do 1.4.7 zawiera podatność PHP Object Injection o identyfikatorze CVE-2026-2599."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "XWiki is vulnerable to Hibernate Query Language (HQL) injection in the wiki and space search REST API starting in version 4.3-milestone-1 and prior to versions 16.10.9, 17.4.2, and 17.5.0.": "System XWiki w wersjach od 4.3-milestone-1 do poniżej 16.10.9, 17.4.2 i 17.5.0 zawiera podatność SQL Injection o identyfikatorze CVE-2025-52472, umożliwiającą atakującemu odczyt danych z bazy danych."
+    + UPDATE_HINT,
+    "Appwrite through 1.2.1 is susceptible to server-side request forgery via the component /v1/avatars/favicon.": "System Appwrite w wersjach do 1.2.1 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2023-27159, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
+    + UPDATE_HINT,
     "Dify v1.6.0 contains a server side request forgery caused by improper validation in controllers.console.remote_files.RemoteFileUploadApi, letting attackers make arbitrary requests from the server, exploit requires network access.": "Dify w wersji 1.6.0 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2025-56520, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej.",
     "MongoDB was able to be accessed with no password. Note that MongoDB does not require a password by default.": "MongoDB jest dostępny bez uwierzytelniania, umożliwiając dostęp do danych bez hasła.",
     "By leaking a target device's serial number, a remote attacker can generate the target device's default administrator password. The target device may leak its serial number via unauthenticated HTTP, HTTPS, IPP, SNMP, or PJL requests.": "Urządzenie zawiera podatność o identyfikatorze CVE-2024-51978, umożliwiającą atakującemu uzyskanie domyślnych danych logowania administratora."

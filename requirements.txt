@@ -6,7 +6,7 @@ Babel==2.18.0
 badkeys==0.0.17
 beautifulsoup4==4.14.3
 certifi==2026.2.25
-chardet==7.1.0
+chardet==7.2.0
 click==8.3.1
 cryptography==46.0.5
 dnspython==2.8.0

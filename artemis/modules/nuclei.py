@@ -333,11 +333,15 @@ class Nuclei(ArtemisBase):
             requests_per_second_per_host_95_percentile = None
             requests_per_second_per_host_99_percentile = None
 
-        return "Max requests per second for a single host: %s, 75 percentile %s, 95 percentile %s, 99 percentile %s" % (
-            max(requests_per_second_per_host) if requests_per_second_per_host else None,
-            requests_per_second_per_host_75_percentile,
-            requests_per_second_per_host_95_percentile,
-            requests_per_second_per_host_99_percentile,
+        return (
+            "Max requests per second for a single host: %s, 75 percentile %s, 95 percentile %s, 99 percentile %s, request exceeding 1s %s"
+            % (
+                max(requests_per_second_per_host) if requests_per_second_per_host else None,
+                requests_per_second_per_host_75_percentile,
+                requests_per_second_per_host_95_percentile,
+                requests_per_second_per_host_99_percentile,
+                sum(1 for x in requests_per_second_per_host if x > 1),
+            )
         )
 
     def _scan(
@@ -509,8 +513,9 @@ class Nuclei(ArtemisBase):
 
                 if "context deadline exceeded" in stdout_utf8 + stderr_utf8:
                     self.log.info(
-                        "Detected %d occurencies of 'context deadline exceeded'",
+                        "Detected %d occurencies of 'context deadline exceeded' for %d milisecond_per_request.",
                         (stdout_utf8 + stderr_utf8).count("context deadline exceeded"),
+                        milliseconds_per_request,
                     )
                     new_milliseconds_per_request_candidates = [
                         item for item in milliseconds_per_request_candidates if item > milliseconds_per_request
@@ -522,6 +527,10 @@ class Nuclei(ArtemisBase):
                         self.log.info("Can't retry with longer timeout")
 
                 else:
+                    self.log.info(
+                        "Detected 0 occurencies of 'context deadline exceeded' for %d milisecond_per_request.",
+                        milliseconds_per_request,
+                    )
                     break
 
         findings = []

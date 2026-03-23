@@ -93,9 +93,7 @@ def install_translations(
             stderr=subprocess.DEVNULL,  # suppress a misleading message where compiled translations will be saved
         )
         if returncode != 0:
-            raise RuntimeError(
-                f"pybabel compile failed with exit code {returncode} for input {save_translations_to}"
-            )
+            raise RuntimeError(f"pybabel compile failed with exit code {returncode} for input {save_translations_to}")
 
         environment.install_gettext_translations(  # type: ignore
             gettext.translation(domain="messages", localedir=tmp_localedir, languages=[language.value], class_=class_)

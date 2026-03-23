@@ -77,6 +77,12 @@ docker compose \
     -f docker-compose.test.yaml \
     -f docker-compose.yaml \
     -f docker-compose.test-e2e.yaml \
+    logs web
+
+docker compose \
+    -f docker-compose.test.yaml \
+    -f docker-compose.yaml \
+    -f docker-compose.test-e2e.yaml \
     down \
     --remove-orphans
 

@@ -170,5 +170,5 @@ if __name__ == "__main__":
             )
             LOGGER.error("Don't worry - all other modules can be used.")
 
-            with open(no_pdns_config_message_printed_filename, "w"):
+            with open(no_pdns_config_message_printed_filename, "w", encoding="utf-8"):
                 pass

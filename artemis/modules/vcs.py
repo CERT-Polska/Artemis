@@ -63,7 +63,7 @@ class VCSScanner(ArtemisBase):
         configs: List[VCSConfig] = [
             VCSConfig(name="git", path=".git/HEAD", magic=GIT_MAGIC),
             VCSConfig(name="svn", path=".svn/wc.db", magic=SVN_MAGIC),
-            VCSConfig(name="hg", path=".gh/store/00manifest.i", magic=HG_MAGIC),
+            VCSConfig(name="hg", path=".hg/store/00manifest.i", magic=HG_MAGIC),
         ]
         result = {}
         found_vcs_descriptions = []

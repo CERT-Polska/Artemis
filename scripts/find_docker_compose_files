@@ -1,0 +1,60 @@
+#!/bin/bash
+set -e
+
+cd "$(dirname "$0")/.."
+
+MODE="production"
+DOCKER_COMPOSE_STRING=false
+POSITIONAL_ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --mode=*)
+      MODE="${arg#*=}"
+      ;;
+    --docker-compose-string)
+      DOCKER_COMPOSE_STRING=true
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$arg")
+      ;;
+  esac
+done
+
+
+exists() {
+    [ -e "$1" ]
+}
+
+
+BASE_COMPOSE=""
+
+if [ "$DOCKER_COMPOSE_STRING" = "true" ]; then
+    BASE_COMPOSE="-f"
+fi
+
+if [ "$MODE" = "development" ]; then
+    BASE_COMPOSE="$BASE_COMPOSE docker-compose.dev.yaml"
+    YML_BASE_PATH="docker-compose.dev.yml"
+else
+    BASE_COMPOSE="$BASE_COMPOSE docker-compose.yaml"
+    YML_BASE_PATH="docker-compose.yml"
+fi
+
+DOCKER_CONFIGS="$BASE_COMPOSE"
+
+
+files=( */$YML_BASE_PATH )
+for DOCKER_COMPOSE_FILE in "${files[@]}"; do
+
+    [ -e "$DOCKER_COMPOSE_FILE" ] || continue
+
+    if [ "$DOCKER_COMPOSE_STRING" = true ]; then
+        DOCKER_CONFIGS="$DOCKER_CONFIGS -f $DOCKER_COMPOSE_FILE"
+    else
+        DOCKER_CONFIGS="$DOCKER_CONFIGS $DOCKER_COMPOSE_FILE"
+    fi
+done
+
+echo "$DOCKER_CONFIGS"
+export BASE_COMPOSE_FILE="$BASE_COMPOSE"

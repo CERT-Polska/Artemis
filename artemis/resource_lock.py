@@ -12,6 +12,7 @@ from redis import Redis
 from artemis.config import Config
 
 sustain_locks_logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class FailedToAcquireLockException(Exception):
@@ -68,6 +69,10 @@ def sustain_locks() -> None:
                     del LOCKS_TO_SUSTAIN[key]
         except Exception:
             sustain_locks_logger.exception("Error while sustaining locks")
+                for key, value in LOCKS_TO_SUSTAIN.items():
+                    REDIS.set(key, value, ex=LOCK_HEARTBEAT_TIMEOUT)
+        except Exception:
+            logger.exception("Failed to sustain locks, will retry")
         time.sleep(1)
 
 

@@ -1,10 +1,11 @@
 from os.path import dirname
+from typing import Dict, List
 
-with open(f"{dirname(__file__)}/swagger.txt", "r") as f:
-    COMMON_SPEC_PATHS = f.read().splitlines()
+with open(f"{dirname(__file__)}/swagger.txt", "r", encoding="utf-8") as f:
+    COMMON_SPEC_PATHS: List[str] = f.read().splitlines()
     COMMON_SPEC_PATHS = [payload.strip() for payload in COMMON_SPEC_PATHS if not payload.startswith("#")]
 
-VULN_DETAILS_MAP = {
+VULN_DETAILS_MAP: Dict[str, str] = {
     "Endpoint performs HTTP verb which is not documented": "Unsupported HTTP Method",
     "One or more parameter is vulnerable to SQL Injection Attack": "SQL Injection",
     "Endpoint might be vulnerable to SQli": "SQL Injection",

@@ -31,23 +31,23 @@
     {% if task.parent_uid %}
         <dt class="col-3">Parent UID</dt>
         <dd class="col-9">
-            <a href="/task/{{task.parent_uid}}">{{task.task.parent_uid}}</a>
+            <a href="{{ request.url_for('get_task', task_id=task.parent_uid) }}">{{task.task.parent_uid}}</a>
         </dd>
     {% endif %}
 
     <dt class="col-3">Analysis</dt>
     <dd class="col-9">
-      <a href="/analysis/{{task.analysis_id}}">{{task.analysis_id}}</a>
+      <a href="{{ request.url_for('get_analysis', root_id=task.analysis_id) }}">{{task.analysis_id}}</a>
     </dd>
 
     <dt class="col-3">Origin</dt>
     <dd class="col-9">
-      <a href="/karton-dashboard/queue/{{task.task['headers']['origin']}}">{{task.task['headers']['origin']}}</a>
+      <a href="{{ request.url_for('karton_dashboard', path='queue/' + task.task['headers']['origin']) }}">{{task.task['headers']['origin']}}</a>
     </dd>
 
     <dt class="col-3">Receiver</dt>
     <dd class="col-9">
-      <a href="/karton-dashboard/queue/{{task.task['headers']['receiver']}}">{{task.task['headers']['receiver']}}</a>
+      <a href="{{ request.url_for('karton_dashboard', path='queue/' + task.task['headers']['receiver']) }}">{{task.task['headers']['receiver']}}</a>
     </dd>
 
     <dt class="col-3">Headers</dt>

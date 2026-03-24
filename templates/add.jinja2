@@ -13,7 +13,7 @@
     </script>
 
     <h1>Add targets</h1>
-    <form action="/add" method="post" class="w-100">
+    <form action="{{ request.url_for('post_add') }}" method="post" class="w-100">
         {% if validation_message %}
             <div class="alert alert-danger" role="alert">
                 {{ validation_message }}

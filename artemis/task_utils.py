@@ -29,14 +29,10 @@ def get_target_host(task: Task) -> str:
         return payload
 
     if task_type == TaskType.SUSPECTED_DANGLING_IP:
-        # Payload for suspected dangling ip has changed and now it should contain IP, but old tasks do not have it
-        # Get ip if possible, otherwise fallback to domain
-        # FIXME: to be removed in future
-        if "ip" in task.payload:
-            payload = task.get_payload(TaskType.IP)
-            assert isinstance(payload, str)
-            return payload
-        payload = task.get_payload(TaskType.DOMAIN)
+        payload = task.get_payload(TaskType.IP)
+        if not payload:
+            # fallback to last_domain
+            payload = task.get_payload("last_domain")
         assert isinstance(payload, str)
         return payload
 
@@ -129,8 +125,13 @@ def get_task_target(task: Task) -> str:
     result = None
     if task.headers["type"] == TaskType.NEW:
         result = task.payload.get("data", None)
-    elif task.headers["type"] == TaskType.IP or task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP:
+    elif task.headers["type"] == TaskType.IP:
         result = task.payload.get("ip", None)
+    elif task.headers["type"] == TaskType.SUSPECTED_DANGLING_IP:
+        result = task.payload.get("ip", None)
+        if not result:
+            # fallback to last_domain
+            result = task.payload.get("last_domain", None)
     elif task.headers["type"] == TaskType.DOMAIN or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
         result = task.payload.get("domain", None)
     elif task.headers["type"] == TaskType.WEBAPP:

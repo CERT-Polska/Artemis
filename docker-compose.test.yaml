@@ -26,7 +26,7 @@ services:
       RUNNING_TESTS: "true"
 
       # Use only one provider to speed up the tests
-      SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback"
+      SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback --timeout 60"
 
       SQL_INJECTION_STOP_ON_FIRST_MATCH: False
 
@@ -196,6 +196,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-ssh-with-bad-key:
+    build:
+      context: test/data/ssh_bad_keys
+      dockerfile: Dockerfile
+
   test-ssh-with-easy-password:
     image: lscr.io/linuxserver/openssh-server:latest
     environment:
@@ -276,7 +281,7 @@ services:
       interval: 5s
       timeout: 10s
       retries: 12
-      start_period: 30s
+      start_period: 60s
 
 volumes:
   data-test:

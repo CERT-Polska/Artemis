@@ -32,8 +32,7 @@ class WordPressBruter(ArtemisBase):
             for user_entry in users:
                 usernames.append(user_entry["name"])
         except Exception:
-            pass
-
+            self.log.exception("Failed to enumerate WordPress users from %s", url)
         usernames += ["admin", "administrator", "wordpress"]
         usernames = usernames[:MAX_USERNAMES_TO_CHECK]
 

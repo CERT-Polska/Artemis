@@ -64,7 +64,7 @@ The possibility to automatically prepare such reports enabled us to notify entit
 ## Development
 To start a locally modified version of Artemis, run:
 ```commandline
- ./scripts/start_dev
+ ./scripts/start --mode=development
 ```
 This script automatically copies the example environment file (`env.example`) to `.env` if it doesn't exist. You can then configure the settings in the .env file according to your needs. This includes customizing the user-agent by setting the CUSTOM_USER_AGENT variable, as well as other relevant parameters. For a complete list of configuration variables and their descriptions, please refer to the [Configuration section in the documentation](https://artemis-scanner.readthedocs.io/en/latest/user-guide/configuration.html).
 

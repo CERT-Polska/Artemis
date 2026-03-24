@@ -42,8 +42,7 @@ def _save_and_delete_items(old_items: List[Dict[str, Any]], path_suffix: str) ->
 
     LOGGER.info("Saved %s megabytes", os.stat(output_path).st_size / (1024 * 1024 * 1.0))
 
-    for item in old_items:
-        db.delete_task_result(item["id"])
+    db.delete_task_results_by_ids([item["id"] for item in old_items])
 
     LOGGER.info("Deleted %d documents", len(old_items))
 
@@ -87,20 +86,23 @@ def archive_old_results(interesting: bool) -> None:
 
 def main() -> None:
     while True:
-        LOGGER.info("Archiving tags that need to be archived...")
-        for item in db.list_tag_archive_requests(
-            min_age=datetime.datetime.now()
-            - datetime.timedelta(seconds=Config.Data.Autoarchiver.AUTOARCHIVER_TAG_ARCHIVE_MIN_AGE_SECONDS)
-        ):
-            tag = item["tag"]
-            LOGGER.info(f"Archiving tag {tag}")
-            num_items_archived = archive_tag(tag)
-            if num_items_archived == 0:  # maybe more batches
-                db.delete_tag_archive_request(tag)
+        try:
+            LOGGER.info("Archiving tags that need to be archived...")
+            for item in db.list_tag_archive_requests(
+                min_age=datetime.datetime.now()
+                - datetime.timedelta(seconds=Config.Data.Autoarchiver.AUTOARCHIVER_TAG_ARCHIVE_MIN_AGE_SECONDS)
+            ):
+                tag = item["tag"]
+                LOGGER.info(f"Archiving tag {tag}")
+                num_items_archived = archive_tag(tag)
+                if num_items_archived == 0:  # maybe more batches
+                    db.delete_tag_archive_request(tag)
 
-        LOGGER.info("Archiving old results...")
-        archive_old_results(True)
-        archive_old_results(False)
+            LOGGER.info("Archiving old results...")
+            archive_old_results(True)
+            archive_old_results(False)
+        except Exception:
+            LOGGER.exception("Error during archiving, will retry")
 
         LOGGER.info("Sleeping %s seconds", Config.Data.Autoarchiver.AUTOARCHIVER_INTERVAL_SECONDS)
         time.sleep(Config.Data.Autoarchiver.AUTOARCHIVER_INTERVAL_SECONDS)

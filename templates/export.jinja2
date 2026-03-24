@@ -2,7 +2,7 @@
 
 {% block main %}
     <h1>Export reports</h1>
-    <form action="/export" method="post" class="w-100">
+    <form action="{{ request.url_for('post_export') }}" method="post" class="w-100">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
         <div class="form-group mb-3">

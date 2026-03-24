@@ -1,0 +1,209 @@
+Convert the below English vulnerability description into a **single entry** in a Python `TRANSLATIONS` dictionary.
+
+Output format:
+
+```
+"<original description>": "<Polish translation>"
++ OPTIONAL_CONSTANTS,
+```
+
+Rules:
+
+* Preserve the **original English string exactly** as the dictionary key.
+* The translation must be **short, simplified, and standardized**.
+* Ignore implementation details (functions, parameters, exploit mechanics).
+* Focus only on **software, version, vulnerability type, and impact**.
+
+---
+
+# 1. Translation Structure
+
+Use this canonical structure:
+
+```
+<software> w wersji <version range> zawiera podatność <TYPE> [o identyfikatorze CVE-XXXX-XXXX].
+```
+
+Optional impact clause:
+
+```
+..., umożliwiającą atakującemu <impact>.
+```
+
+Examples of impact:
+
+| Vulnerability          | Impact                                              |
+| ---------------------- | --------------------------------------------------- |
+| SQL Injection          | odczyt danych z bazy danych                         |
+| Local File Inclusion   | odczyt dowolnych plików z serwera                   |
+| RCE                    | zdalne wykonanie kodu                               |
+| SSRF                   | wykonywanie żądań HTTP do usług w sieci wewnętrznej |
+| Information Disclosure | dostęp do wrażliwych informacji                     |
+
+Avoid technical exploit explanations.
+
+---
+
+# 2. Version Normalization
+
+Convert version wording:
+
+| English               | Polish               |
+| --------------------- | -------------------- |
+| before X / prior to X | w wersji poniżej X   |
+| <= X                  | w wersji do X        |
+| X–Y                   | w wersjach od X do Y |
+| X and earlier         | X i wcześniejszych   |
+
+---
+
+# 3. Software Naming
+
+Use these conventions:
+
+WordPress plugins:
+
+```
+Wtyczka WordPress o nazwie <PLUGIN>
+```
+
+Generic software:
+
+```
+<Narzędzie / system / serwer> <NAME>
+```
+
+Do **not translate product names**.
+
+---
+
+# 4. CVE Extraction
+
+If a **CVE ID appears anywhere** (including template name):
+
+Include:
+
+```
+o identyfikatorze CVE-XXXX-XXXX
+```
+
+Place it **after the vulnerability type**.
+
+Example:
+
+```
+zawiera podatność SQL Injection o identyfikatorze CVE-2024-2879
+```
+
+---
+
+# 5. Vulnerability Type Mapping
+
+Use consistent names:
+
+| English                     | Polish                        |
+| --------------------------- | ----------------------------- |
+| Remote Code Execution       | zdalne wykonanie kodu         |
+| SQL Injection               | SQL Injection                 |
+| Cross-Site Scripting        | Cross-Site Scripting          |
+| Local File Inclusion        | Local File Inclusion          |
+| Server-Side Request Forgery | Server-Side Request Forgery   |
+| XML External Entity         | XML External Entity injection |
+| Open Redirect               | Open Redirect                 |
+| Request Smuggling           | HTTP Request Smuggling        |
+
+If **reflected XSS** → use the constant instead of manual description.
+
+---
+
+# 6. Constants
+
+Use predefined constants when appropriate.
+
+### RCE
+
+Append:
+
+```
++ RCE_EFFECT_DESCRIPTION
+```
+
+If the upper version bound is included include also:
+
+```
++ UPDATE_HINT
+```
+
+---
+
+### WordPress plugins
+
+Append:
+
+```
++ WORDPRESS_UPDATE_HINT
+```
+
+---
+
+### Generic software vulnerabilities
+
+If the upper version bound is included include also:
+
+```
++ UPDATE_HINT
+```
+
+---
+
+### Default credentials
+
+Append:
+
+```
++ DEFAULT_CREDENTIALS_HINT
+```
+
+---
+
+### Reflected XSS
+
+Use:
+
+```
++ REFLECTED_XSS_DESCRIPTION
++ UPDATE_HINT
+```
+
+---
+
+### Sensitive data exposure
+
+Append:
+
+```
++ DATA_HIDE_HINT
+```
+
+---
+
+# 7. Panel Detection Templates
+
+If the text only indicates **detection of a login/admin panel**, ignore details and output:
+
+```
+"Wykryto panel <PRODUCT>."
+```
+
+No constants.
+
+---
+
+# 8. Style Rules
+
+* One concise sentence.
+* No technical jargon beyond vulnerability type.
+* No exploit explanation.
+* Prefer **generic wording** over detailed translation.
+
+Description to be translated or error message containing this description:

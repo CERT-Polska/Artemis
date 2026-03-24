@@ -34,7 +34,6 @@ def get_ip_prefixes_for_asn(asn: str) -> List[str]:
         raise RIPEAccessException(f"Error connecting to RIPEstat API.\nASN: {asn}\nError code: {response.status_code}")
     except Exception as err:
         raise RIPEAccessException(f"Error connecting to RIPEstat API.\nASN: {asn}\nError: {err}")
-    return None
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)

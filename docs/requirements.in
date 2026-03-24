@@ -1,0 +1,4 @@
+python-decouple
+Sphinx
+sphinx-rtd-theme
+-r ../requirements.in

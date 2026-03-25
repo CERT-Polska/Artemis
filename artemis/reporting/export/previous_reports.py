@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 from pathlib import Path
 from typing import List
@@ -13,7 +14,12 @@ def load_previous_reports(previous_reports_directory: Path) -> List[Report]:
 
     previous_reports: List[Report] = []
     for path in previous_reports_directory.glob("**/*.json"):
-        vulnerability_reports = json.load(open(path))
+        try:
+            with open(path) as f:
+                vulnerability_reports = json.load(f)
+        except json.JSONDecodeError:
+            logging.exception("Failed to parse previous report file %s, treating as empty", path)
+            continue
         for target_data in vulnerability_reports["messages"].values():
             for report in target_data["reports"]:
                 report = Report(**report)

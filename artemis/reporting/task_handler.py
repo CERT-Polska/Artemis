@@ -32,11 +32,17 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
         # We want to treat only the reports visible from web as already known
         for existing_task in db.list_report_generation_tasks():
             if existing_task.output_location:
-                shutil.copy(
-                    Path(existing_task.output_location) / "advanced" / "output.json",
-                    Path(previous_reports_directory)
-                    / (hashlib.sha256(existing_task.output_location.encode("ascii")).hexdigest() + ".json"),
-                )
+                try:
+                    shutil.copy(
+                        Path(existing_task.output_location) / "advanced" / "output.json",
+                        Path(previous_reports_directory)
+                        / (hashlib.sha256(existing_task.output_location.encode("ascii")).hexdigest() + ".json"),
+                    )
+                except FileNotFoundError:
+                    logger.warning(
+                        "Previous export output missing at %s, skipping for deduplication",
+                        existing_task.output_location,
+                    )
     else:
         previous_reports_directory = None
 

@@ -6,6 +6,7 @@ line-length = 120
 
 [tool.liccheck]
 authorized_licenses = [
+    "0bsd",
     "bsd",
     "apache 2.0",
     "Apache-2.0",

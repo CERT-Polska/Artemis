@@ -26,7 +26,7 @@ services:
       RUNNING_TESTS: "true"
 
       # Use only one provider to speed up the tests
-      SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback"
+      SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback --timeout 60"
 
       SQL_INJECTION_STOP_ON_FIRST_MATCH: "false"
 
@@ -108,6 +108,11 @@ services:
     image: php:8.0-apache
     volumes:
       - ./test/data/php_easy_admin_password/:/var/www/html/
+
+  test-php-redirect-login:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_redirect_login/:/var/www/html
 
   test-php-mock-CVE-2020-28976:
     image: php:8.0-apache
@@ -276,7 +281,7 @@ services:
       interval: 5s
       timeout: 10s
       retries: 12
-      start_period: 30s
+      start_period: 60s
 
 volumes:
   data-test:

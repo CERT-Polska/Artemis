@@ -65,9 +65,9 @@ repos:
   hooks:
   - id: pip-compile
     name: pip-compile main
-    args: [requirements.in, -o, requirements.txt]
+    args: [requirements.in, -o, requirements.txt, --no-header]
     files: ^requirements\.(in|txt)$
   - id: pip-compile
     name: pip-compile docs
-    args: [docs/requirements.in, -o, docs/requirements.txt]
+    args: [docs/requirements.in, -o, docs/requirements.txt, --no-header]
     files: ^docs/requirements\.(in|txt)$

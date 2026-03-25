@@ -6,6 +6,7 @@ line-length = 120
 
 [tool.liccheck]
 authorized_licenses = [
+    "0bsd",
     "bsd",
     "apache 2.0",
     "Apache-2.0",
@@ -18,6 +19,7 @@ authorized_licenses = [
     "isc",
     "isc license (iscl)",
     "LGPL-2.1",
+    "LGPL-3.0-or-later",
     "gnu lesser general public license v2 or later (lgplv2+)",
     "gnu library or lesser general public license (lgpl)",
     "mozilla public license 2.0 (mpl 2.0)",

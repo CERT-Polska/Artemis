@@ -1,3 +1,4 @@
+import asyncio
 import glob
 import json
 import os
@@ -81,7 +82,7 @@ if not Config.Miscellaneous.API_TOKEN:
 
 
 @router.get("/", include_in_schema=False)
-def get_root(request: Request) -> Response:
+def get_root(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
     has_finished_analyses = False
 
@@ -91,15 +92,16 @@ def get_root(request: Request) -> Response:
         if analysis["id"] not in num_pending_tasks or num_pending_tasks[analysis["id"]] == 0:
             has_finished_analyses = True
 
-    return templates.TemplateResponse(
+    return csrf.csrf_form_template_response(
         "index.jinja2",
         {
             "request": request,
             "has_analyses": has_analyses,
             "has_finished_analyses": has_finished_analyses,
-            "api_url": "/api/analyses-table",
+            "api_url": str(request.url_for("get_analyses_table")),
             "num_active_tasks": sum(num_pending_tasks.values()),
         },
+        csrf_protect,
     )
 
 
@@ -180,9 +182,9 @@ async def post_add(
             csrf_protect,
         )
 
-    create_tasks(total_list, tag, disabled_modules, TaskPriority(priority))
+    await asyncio.to_thread(create_tasks, total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:
-        return RedirectResponse("/", status_code=301)
+        return RedirectResponse(request.url_for("get_root"), status_code=303)
     else:
         return Response(
             content="OK",
@@ -191,13 +193,14 @@ async def post_add(
 
 
 @router.get("/exports", include_in_schema=False)
-def get_exports(request: Request) -> Response:
-    return templates.TemplateResponse(
+def get_exports(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
+    return csrf.csrf_form_template_response(
         "exports.jinja2",
         {
             "request": request,
             "report_generation_tasks": db.list_report_generation_tasks(),
         },
+        csrf_protect,
     )
 
 
@@ -208,19 +211,6 @@ def get_export_form(request: Request, csrf_protect: CsrfProtect = Depends()) -> 
         {
             "request": request,
             "languages": list(Language),
-        },
-        csrf_protect,
-    )
-
-
-@router.get("/export/delete/{id}", include_in_schema=False)
-def export_delete_form(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
-    task = db.get_report_generation_task(id)
-    return csrf.csrf_form_template_response(
-        "export_delete_form.jinja2",
-        {
-            "request": request,
-            "task": task,
         },
         csrf_protect,
     )
@@ -281,8 +271,8 @@ def view_export(request: Request, id: int) -> Response:
 @router.post("/export/confirm-delete/{id}", include_in_schema=False)
 @csrf.validate_csrf
 async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
-    db.delete_report_generation_task(id)
-    return RedirectResponse("/exports", status_code=301)
+    await asyncio.to_thread(db.delete_report_generation_task, id)
+    return RedirectResponse(request.url_for("get_exports"), status_code=303)
 
 
 @router.get("/export/download-zip/{id}", include_in_schema=False)
@@ -315,47 +305,30 @@ async def post_export(
     language: Optional[str] = Form(None),
     skip_previously_exported: Optional[str] = Form(None),
 ) -> Response:
-    db.create_report_generation_task(
+    await asyncio.to_thread(
+        db.create_report_generation_task,
         skip_previously_exported=skip_previously_exported == "yes",
         tag=tag,
         comment=comment,
         language=Language(language),
     )
-    return RedirectResponse("/exports", status_code=301)
-
-
-@router.get("/remove-finished-analyses", include_in_schema=False)
-def get_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
-    return csrf.csrf_form_template_response(
-        "/remove_finished_analyses.jinja2",
-        {
-            "request": request,
-        },
-        csrf_protect,
-    )
+    return RedirectResponse(request.url_for("get_exports"), status_code=303)
 
 
 @router.post("/remove-finished-analyses", include_in_schema=False)
 @csrf.validate_csrf
 async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
-    karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
-    for analysis in db.list_analysis():
-        if analysis["id"] not in karton_state.analyses or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0:
-            db.delete_analysis(analysis["id"])
-    return RedirectResponse("/", status_code=301)
+    def _remove_finished_analyses() -> None:
+        karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+        for analysis in db.list_analysis():
+            if (
+                analysis["id"] not in karton_state.analyses
+                or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0
+            ):
+                db.delete_analysis(analysis["id"])
 
-
-@router.get("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
-def get_remove_pending_tasks(request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()) -> Response:
-    return csrf.csrf_form_template_response(
-        "/remove_pending_tasks.jinja2",
-        {
-            "analysis_id": analysis_id,
-            "analysed_object": db.get_analysis_by_id(analysis_id)["target"],  # type: ignore
-            "request": request,
-        },
-        csrf_protect,
-    )
+    await asyncio.to_thread(_remove_finished_analyses)
+    return RedirectResponse(request.url_for("get_root"), status_code=303)
 
 
 @router.post("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
@@ -363,19 +336,19 @@ def get_remove_pending_tasks(request: Request, analysis_id: str, csrf_protect: C
 async def post_remove_pending_tasks(
     request: Request, analysis_id: str, csrf_protect: CsrfProtect = Depends()
 ) -> Response:
-    db.mark_analysis_as_stopped(analysis_id)
+    def _remove_pending_tasks() -> None:
+        db.mark_analysis_as_stopped(analysis_id)
+        backend = KartonBackend(config=KartonConfig())
+        for task in backend.get_all_tasks():
+            if task.root_uid == analysis_id:
+                backend.delete_task(task)
 
-    backend = KartonBackend(config=KartonConfig())
-
-    for task in backend.get_all_tasks():
-        if task.root_uid == analysis_id:
-            backend.delete_task(task)
-
-    return RedirectResponse("/", status_code=301)
+    await asyncio.to_thread(_remove_pending_tasks)
+    return RedirectResponse(request.url_for("get_root"), status_code=303)
 
 
 @router.get("/analysis/get-pending-tasks/{analysis_id}", include_in_schema=False)
-async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
+def get_pending_tasks(request: Request, analysis_id: str) -> Response:
     analysis = db.get_analysis_by_id(analysis_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -402,7 +375,7 @@ async def get_pending_tasks(request: Request, analysis_id: str) -> Response:
 @router.get("/restart-crashed-tasks", include_in_schema=False)
 def get_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     return csrf.csrf_form_template_response(
-        "/restart_crashed_tasks.jinja2",
+        "restart_crashed_tasks.jinja2",
         {
             "request": request,
         },
@@ -413,8 +386,8 @@ def get_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depe
 @router.post("/restart-crashed-tasks", include_in_schema=False)
 @csrf.validate_csrf
 async def post_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
-    restart_crashed_tasks()
-    return RedirectResponse("/", status_code=301)
+    await asyncio.to_thread(restart_crashed_tasks)
+    return RedirectResponse(request.url_for("get_root"), status_code=303)
 
 
 @router.get("/queue", include_in_schema=False)
@@ -435,7 +408,7 @@ async def karton_dashboard(request: Request, path: str) -> Response:
             url="http://karton-dashboard:5000/karton-dashboard/" + path,
             allow_redirects=False,
             headers={"connection": "close", **whitelist_proxy_request_headers(request.headers)},
-            timeout=aiohttp.ClientTimeout(total=30),
+            timeout=aiohttp.ClientTimeout(total=600),
         ) as response:
             content = await response.read()
             return Response(
@@ -475,7 +448,9 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
         {
             "request": request,
             "title": f"Analysis of {analysis['target']}",
-            "api_url": "/api/task-results-table?" + urllib.parse.urlencode(api_url_parameters),
+            "api_url": str(request.url_for("get_task_results_table"))
+            + "?"
+            + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },
     )
@@ -492,7 +467,9 @@ def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> R
         {
             "request": request,
             "title": "Results",
-            "api_url": "/api/task-results-table?" + urllib.parse.urlencode(api_url_parameters),
+            "api_url": str(request.url_for("get_task_results_table"))
+            + "?"
+            + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
         },
     )

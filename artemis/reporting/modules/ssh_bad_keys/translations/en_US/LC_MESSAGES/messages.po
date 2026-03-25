@@ -1,0 +1,14 @@
+#: artemis/reporting/modules/ssh_bad_keys/template_ssh_known_bad_key.jinja2:2
+msgid ""
+"The following addresses have SSH servers with known-bad host keys (e.g. "
+"hardcoded vendor keys, keys affected by the Debian OpenSSL PRNG bug "
+"CVE-2008-0166, or other compromised keys):"
+msgstr ""
+
+#: artemis/reporting/modules/ssh_bad_keys/template_ssh_known_bad_key.jinja2:10
+msgid "key type:"
+msgstr ""
+
+#: artemis/reporting/modules/ssh_bad_keys/template_ssh_known_bad_key.jinja2:11
+msgid "fingerprint:"
+msgstr ""

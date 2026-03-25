@@ -1,0 +1,21 @@
+{% if "ssh_known_bad_key" in data.contains_type %}
+    <li>{% trans %}The following addresses have SSH servers with known-bad host keys (e.g. hardcoded vendor keys, keys affected by the Debian OpenSSL PRNG bug CVE-2008-0166, or other compromised keys):{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "ssh_known_bad_key" %}
+                    <li>{{ report.target }}:
+                        <ul>
+                            {% for bk in report.additional_data.bad_keys %}
+                                <li>
+                                    {% trans %}key type:{% endtrans %} {{ bk.key_type }} / {{ bk.check_name }} / {{ bk.subtest }},
+                                    {% trans %}fingerprint:{% endtrans %} {{ bk.key_fingerprint }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}

@@ -5,6 +5,8 @@ import subprocess
 import tempfile
 from typing import Any, List
 
+WAPPALYZER_PATH = "/opt/artemis/modules/utils/wappalyzer/"
+
 
 def run_tech_detection(urls: List[str], logger: logging.Logger) -> Any:
     """
@@ -17,7 +19,9 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Any:
 
     try:
         # Update the Wappalyzer package once
-        subprocess.run(["go", "get", "-u", "./..."], cwd=wappalyzer_path, check=True, capture_output=True)
+        subprocess.run(
+            ["go", "-C", WAPPALYZER_PATH, "get", "-u", "./..."], cwd=wappalyzer_path, check=True, capture_output=True
+        )
 
         with tempfile.NamedTemporaryFile(mode="w") as temp_file:
             for url in urls:

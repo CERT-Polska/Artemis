@@ -20,11 +20,19 @@ info:
     google-query: intitle:"odoo"
   tags: panel,odoo,backup
 
+network:
+  - host:
+      - "{{Hostname}}"
+    port: 8069
+
+    inputs:
+      - data: "\n"
+
 http:
   - method: GET
     path:
-      - '{{BaseURL}}/web/database/manager'
-      - 'http://{{Host}}:8069/web/database/manager'
+      - '/web/database/manager'
+    port: 8069
 
     matchers-condition: and
     matchers:

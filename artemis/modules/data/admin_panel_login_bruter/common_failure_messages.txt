@@ -76,3 +76,7 @@ Invalid Login or password.
 Your credentials are incorrect or do not match any user in the system
 # Discourse
 Incorrect username, email or password.
+# Portainer
+Invalid credentials
+# Netdata
+wrong username or password

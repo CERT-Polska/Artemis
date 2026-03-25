@@ -24,6 +24,7 @@ class LFIDetectorIntegrationTest(BaseReportingTest):
     def test_reporting_lfi_and_rce(self) -> None:
         with patch("artemis.config.Config.Modules.LFIDetector") as mocked_config:
             mocked_config.LFI_STOP_ON_FIRST_MATCH = False
+            mocked_config.LFI_MINIMAL_PARAMS_MAX_LEN = 5
             data = self.obtain_http_task_result("lfi_detector", "test-apache-with-lfi-and-rce")
             message = self.task_result_to_message(data)
 

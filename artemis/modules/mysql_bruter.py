@@ -39,11 +39,20 @@ class MySQLBruter(ArtemisBase):
         result = MySQLBruterResult()
 
         for username, password in BRUTE_CREDENTIALS:
+            conn = None
             try:
-                self.throttle_request(lambda: pymysql.connect(host=host, port=port, user=username, password=password))
+                conn = self.throttle_request(
+                    lambda: pymysql.connect(host=host, port=port, user=username, password=password)
+                )
                 result.credentials.append((username, password))
             except pymysql.err.OperationalError:
                 pass
+            finally:
+                if conn is not None:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
 
         if result.credentials:
             status = TaskStatus.INTERESTING

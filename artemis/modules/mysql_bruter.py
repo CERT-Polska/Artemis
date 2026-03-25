@@ -41,7 +41,9 @@ class MySQLBruter(ArtemisBase):
         for username, password in BRUTE_CREDENTIALS:
             conn = None
             try:
-                conn = self.throttle_request(lambda: pymysql.connect(host=host, port=port, user=username, password=password))
+                conn = self.throttle_request(
+                    lambda: pymysql.connect(host=host, port=port, user=username, password=password)
+                )
                 result.credentials.append((username, password))
             except pymysql.err.OperationalError:
                 pass

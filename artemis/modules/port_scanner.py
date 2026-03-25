@@ -173,10 +173,11 @@ class PortScanner(ArtemisBase):
                 for new_target_ip in new_target_ips:
                     try:
                         with requests.get(
-                            "https://internetdb.shodan.io/" + new_target_ip, timeout=5,
-                            ) as response:
-                                response.raise_for_status()
-                                data = response.json()
+                            "https://internetdb.shodan.io/" + new_target_ip,
+                            timeout=5,
+                        ) as response:
+                            response.raise_for_status()
+                            data = response.json()
                     except (requests.RequestException, ValueError) as e:
                         self.log.warning("Shodan internetdb request failed for %s: %s", new_target_ip, e)
                         continue

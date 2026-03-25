@@ -61,7 +61,7 @@ repos:
   - id: flake8
     args: [artemis]
 - repo: https://github.com/jazzband/pip-tools
-  rev: 7.5.3
+  rev: v7.5.3
   hooks:
   - id: pip-compile
     name: pip-compile main

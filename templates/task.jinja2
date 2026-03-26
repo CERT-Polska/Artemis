@@ -3,18 +3,6 @@
 <div class="bs-component" style="padding-top: 100px">
   <h3 class="text-center">Task results {{ task.id }} (running {{task.task['headers']['receiver']}} on {{ task.target_string }})</h3>
 
-{#display the full path:#}
-  <h4>Full Task Path</h4>
-  <ol class="breadcrumb">
-  {% for ancestor in task_path %}
-      <li class="breadcrumb-item">
-          <a href="/task/{{ancestor.id}}" title="Origin: {{ancestor.task.headers.origin}}, Priority: {{ancestor.task.priority}}">
-              [{{ancestor.task.headers.origin}}] {{ancestor.task.headers.receiver}} ({{ancestor.task.headers.type}}) - {{ancestor.target_string}}
-          </a>
-      </li>
-  {% endfor %}
-  </ol>
-
   {% if task.status_reason %}
       <div class="alert alert-primary">
           {{ task.status_reason }}
@@ -62,38 +50,23 @@
       <a href="{{ request.url_for('karton_dashboard', path='queue/' + task.task['headers']['receiver']) }}">{{task.task['headers']['receiver']}}</a>
     </dd>
 
-            <dt class="col-3">Headers</dt>
-            <dd class="col-9">
-              {% for hdrname, hdrval in task.task['headers'].items() %}
-              {% if hdrname == 'type' %}
-              <span class="badge bg-primary">{{hdrname}}:{{hdrval}}</span>
-              {% elif hdrname == 'kind' %}
-              <span class="badge bg-info">{{hdrname}}:{{hdrval}}</span>
-              {% elif hdrname == 'stage' %}
-              <span class="badge bg-success">{{hdrname}}:{{hdrval}}</span>
-              {% elif hdrname == 'receiver' %}
-              {% else %}
-              <span class="badge bg-secondary">{{hdrname}}:{{hdrval}}</span>
-              {% endif %}
-              {% endfor %}
-            </dd>
-          </dl>
-        </div>
-      </div>
-    </div>
-
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="logsHeading">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#logsCollapse" aria-expanded="false" aria-controls="logsCollapse">
-          Logs
-        </button>
-      </h2>
-      <div id="logsCollapse" class="accordion-collapse collapse" aria-labelledby="logsHeading" data-bs-parent="#taskAccordion">
-        <div class="accordion-body">
-          <pre><code>{{ task.logs }}</code></pre>
-        </div>
-      </div>
-    </div>
-  </div>
+    <dt class="col-3">Headers</dt>
+    <dd class="col-9">
+      {% for hdrname, hdrval in task.task['headers'].items() %}
+      {% if hdrname == 'type' %}
+      <span class="badge bg-primary">{{hdrname}}:{{hdrval}}</span>
+      {% elif hdrname == 'kind' %}
+      <span class="badge bg-info">{{hdrname}}:{{hdrval}}</span>
+      {% elif hdrname == 'stage' %}
+      <span class="badge bg-success">{{hdrname}}:{{hdrval}}</span>
+      {% elif hdrname == 'receiver' %}
+      {% else %}
+      <span class="badge bg-secondary">{{hdrname}}:{{hdrval}}</span>
+      {% endif %}
+      {% endfor %}
+    </dd>
+  </dl>
+  <h4>Logs</h4>
+  <pre><code>{{ task.logs }}</code></pre>
 </div>
 {% endblock %}

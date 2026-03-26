@@ -15,12 +15,21 @@ DEFAULTS = {}
 def load_yaml_config() -> Dict[str, Any]:
     """Load configuration from YAML file."""
     yaml_path = Path(__file__).parent / "config.yaml"
-    if yaml_path.exists():
-        with open(yaml_path) as f:
+    try:
+        if  not yaml_path.exists():
+            return {}
+        with open(yaml_path, "r", encoding="utf-8") as f:
             result = yaml.safe_load(f)
             return cast(Dict[str, Any], result) if result is not None else {}
-    return {}
-
+    except (FileNotFoundError, PermissionError, OSError) as e:
+        print(f"Error reading config file {yaml_path}: {e}")
+        return {}
+    except yaml.YAMLError as e:
+        print(f"Invalid YAML in {yaml_path}: {e}")
+        return {}
+    except Exception as e:
+        print(f"Unexpected error loading config {yaml_path}: {e}")
+        return {}
 
 YAML_CONFIG = load_yaml_config()
 

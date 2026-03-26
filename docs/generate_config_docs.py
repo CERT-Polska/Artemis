@@ -12,6 +12,24 @@ from config import DEFAULTS, Config  # type: ignore # noqa
 from sphinx.application import Sphinx  # type: ignore # noqa
 
 
+def generate_yaml_examples() -> None:
+    """Generate example YAML configuration files."""
+    output_dir = Path(__file__).parents[1]
+
+    with open(output_dir / "config.yaml.example", "w") as f:
+        f.write("# Artemis YAML Configuration Example\n")
+        f.write("# Values here override environment variables\n\n")
+
+        f.write("# Database configuration\n")
+        f.write('POSTGRES_CONN_STR: "postgresql://postgres:postgres@postgres/artemis"\n')
+        f.write('REDIS_CONN_STR: "redis://redis:6379/1"\n\n')
+
+        f.write("# Scanning behavior\n")
+        f.write('CUSTOM_USER_AGENT: "Artemis Scanner - contact@example.com"\n')
+        f.write("LOCK_SCANNED_TARGETS: true\n")
+        f.write("REQUESTS_PER_SECOND: 1.0\n\n")
+
+
 def setup(app: Sphinx) -> None:
     app.connect("config-inited", on_config_inited)
 

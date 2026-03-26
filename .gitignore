@@ -147,3 +147,7 @@ cython_debug/
 docker-compose.dev.yaml
 karton-logs
 output
+
+# Developer-specific configurations
+config.local.yaml
+.env.local

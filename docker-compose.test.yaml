@@ -74,6 +74,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-socks-open-proxy:
+    build:
+      context: ./test/data/socks_open_proxy
+
   test-dast-vuln-app:
     build:
       context: .
@@ -135,7 +139,6 @@ services:
       - FTP_USER_NAME=admin
       - FTP_USER_PASS=12345
       - FTP_USER_HOME=/dev/shm
-
   test-old-joomla:
     image: joomla:4.0.5-php8.0-apache # this is an old image on purpose
     environment:

@@ -970,7 +970,11 @@ class Config:
                 "liable for how you use this source and your compliance with the terms, and NASK is relieved of "
                 "such liability to the fullest extent possible.",
             ] = get_config("ADD_PORTS_FROM_SHODAN_INTERNETDB", default=False, cast=bool)
-
+            SOCKS_PROBE_PORTS: Annotated[
+                List[int],
+                "Comma-separated list of ports to probe for unauthenticated SOCKS proxy access "
+                "when fingerprintx returns no output. Leave empty to disable SOCKS probing. ",
+            ] = get_config("SOCKS_PROBE_PORTS", default="", cast=decouple.Csv(int))
             PORT_SCANNER_TIMEOUT_MILLISECONDS: Annotated[
                 int,
                 "Port scanner: milliseconds to wait before timing out",

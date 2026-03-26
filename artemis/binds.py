@@ -58,6 +58,7 @@ class Service(str, Enum):
     :cvar MYSQL: MySQL service.
     :cvar POSTGRESQL: PostgreSQL service.
     :cvar SSH: SSH service.
+    :cvar SOCKS: SOCKS proxy service.
     """
 
     # Each of the services can have the SSL flag enabled - therefore HTTP covers both HTTP and HTTPS.
@@ -70,6 +71,7 @@ class Service(str, Enum):
     MYSQL = "mysql"
     POSTGRESQL = "postgresql"
     SSH = "ssh"
+    SOCKS = "socks"
 
     @classmethod
     def _missing_(cls, value: object) -> Service:

@@ -17,6 +17,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
+from artemis.socks_probe import probe_socks
 from artemis.task_utils import get_target_host
 from artemis.utils import check_output_log_on_error
 
@@ -201,6 +202,14 @@ class PortScanner(ArtemisBase):
                         continue
 
                     if not output:
+                        if int(port_str) in Config.Modules.PortScanner.SOCKS_PROBE_PORTS:
+                            socks_version = probe_socks(
+                                ip, int(port_str), timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS
+                            )
+                            if socks_version:
+                                if ip not in result:
+                                    result[ip] = {}
+                                result[ip][port_str] = self.PortResult(Service.SOCKS, False, "N/A").__dict__
                         continue
 
                     data = json.loads(output)

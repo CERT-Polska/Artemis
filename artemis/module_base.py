@@ -702,6 +702,14 @@ class ArtemisBase(Karton):
                                 self.log.error(
                                     "Task(s) returned error status, retrying (try %d/%d)", i + 1, self.num_retries
                                 )
+                            elif self.num_retries > 1:
+                                self.log.error(
+                                    "Task(s) still have error status after %d retries, marking as crashed",
+                                    self.num_retries,
+                                )
+                                raise RuntimeError(
+                                    f"Task(s) still have ERROR status after {self.num_retries} retries"
+                                )
                         else:
                             break
 

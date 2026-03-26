@@ -45,3 +45,10 @@ aiofiles = "0.7.0"
 
 # Apache 2 (https://github.com/c0fec0de/anytree), not properly provided in package metadata
 anytree = "2.11.1"
+
+[tool.pip-tools]
+# no-header prevents pip-compile from emitting a Python-version-specific header
+# which would differ between developer machines, CI (Python 3.11), and Dependabot's
+# runner — causing the pre-commit hook to perpetually flag requirements.txt as modified.
+# Dependabot reads this config natively and adds --no-header automatically.
+no-header = true

@@ -148,5 +148,7 @@ docker-compose.dev.yaml
 karton-logs
 output
 
+# Developer-specific configurations
+config.local.yaml
 # Artemis additional modules
 Artemis-modules-extra

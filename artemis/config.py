@@ -13,25 +13,6 @@ DEFAULTS = {}
 
 
 def load_yaml_config() -> Dict[str, Any]:
-<<<<<<< HEAD
-    """Load configuration from YAML file."""
-    yaml_path = Path(__file__).parent / "config.yaml"
-    try:
-        if  not yaml_path.exists():
-            return {}
-        with open(yaml_path, "r", encoding="utf-8") as f:
-            result = yaml.safe_load(f)
-            return cast(Dict[str, Any], result) if result is not None else {}
-    except (FileNotFoundError, PermissionError, OSError) as e:
-        print(f"Error reading config file {yaml_path}: {e}")
-        return {}
-    except yaml.YAMLError as e:
-        print(f"Invalid YAML in {yaml_path}: {e}")
-        return {}
-    except Exception as e:
-        print(f"Unexpected error loading config {yaml_path}: {e}")
-        return {}
-=======
     """Load configuration from YAML file with local override support."""
     config = {}
 
@@ -51,14 +32,13 @@ def load_yaml_config() -> Dict[str, Any]:
     except Exception as e:
         print(f"Unexpected error loading config {base_path}: {e}")
 
-    # Load local override (this will now execute)
     local_path = Path(__file__).parent / "config.local.yaml"
     try:
         if local_path.exists():
             with open(local_path, "r", encoding="utf-8") as f:
                 local_result = yaml.safe_load(f)
                 if local_result:
-                    config.update(local_result)  # Override base config values
+                    config.update(local_result)
     except (FileNotFoundError, PermissionError, OSError) as e:
         print(f"Error reading local config file {local_path}: {e}")
     except yaml.YAMLError as e:
@@ -68,7 +48,6 @@ def load_yaml_config() -> Dict[str, Any]:
 
     return config
 
->>>>>>> commits
 
 YAML_CONFIG = load_yaml_config()
 

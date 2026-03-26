@@ -150,4 +150,3 @@ output
 
 # Developer-specific configurations
 config.local.yaml
-.env.local

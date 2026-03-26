@@ -45,6 +45,13 @@ services:
         CUSTOM_PORT_SCANNER_PORTS: 21,80,6379
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
 
+  karton-sql_injection_detector:
+    <<: *artemis-build
+    env_file: env.test
+    environment:
+      SQL_INJECTION_STOP_ON_FIRST_MATCH: "false"
+    volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+
   karton-system:
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]

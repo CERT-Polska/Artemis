@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import binascii
+import json
 import os
 import time
 import urllib.parse
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
+import yaml
 from karton.core import Consumer, Task
 from karton.core.config import Config as KartonConfig
 from publicsuffixlist import PublicSuffixList
@@ -45,12 +48,15 @@ class SubdomainEnumeration(ArtemisBase):
         # before we migrate the tasks, let's create binds to make sure the new tasks will hit the queue of this module
         self.backend.register_bind(self._bind)
 
+        self._ensure_subfinder_provider_config()
+
         subdomains_to_brute_force_set = set()
         base_subdomain_lists_path = os.path.join(os.path.dirname(__file__), "data", "subdomains")
         for file_name in os.listdir(base_subdomain_lists_path):
-            for line in open(os.path.join(base_subdomain_lists_path, file_name)):
-                if not line.startswith("#"):
-                    subdomains_to_brute_force_set.add(line.strip())
+            with open(os.path.join(base_subdomain_lists_path, file_name), encoding="utf-8") as f:
+                for line in f:
+                    if not line.startswith("#"):
+                        subdomains_to_brute_force_set.add(line.strip())
         self._subdomains_to_brute_force = list(subdomains_to_brute_force_set)
 
         with self.lock:
@@ -98,6 +104,42 @@ class SubdomainEnumeration(ArtemisBase):
                 return True
         return False
 
+    def _ensure_subfinder_provider_config(self) -> None:
+        """
+        Subfinder requires provider configuration to be stored in a file. If configuration is provided via
+        environment variable, generate provider-config.yaml before running subfinder.
+        """
+
+        config = Config.Modules.SubdomainEnumeration.SUBFINDER_PROVIDER_CONFIG
+
+        if not config:
+            return
+
+        try:
+            config_data = json.loads(config)
+        except json.JSONDecodeError:
+            self.log.error("Invalid JSON in SUBFINDER_API_KEYS. Expected JSON format.")
+            return
+
+        config_dir = Path("/root/.config/subfinder")
+
+        try:
+            config_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as e:
+            self.log.error("Failed to create subfinder config directory: %s", e)
+            return
+
+        provider_config = config_dir / "provider-config.yaml"
+
+        try:
+            with open(provider_config, "w") as f:
+                yaml.safe_dump(config_data, f)
+
+            self.log.info("Generated Subfinder provider-config.yaml from Artemis configuration")
+
+        except Exception as e:
+            self.log.error("Failed to write Subfinder provider config: %s", e)
+
     def get_subdomains_with_retry(
         self,
         func: Callable[[str], Optional[Set[str]]],
@@ -141,7 +183,32 @@ class SubdomainEnumeration(ArtemisBase):
             return None
 
     def get_subdomains_from_subfinder(self, domain: str) -> Optional[Set[str]]:
-        return self.get_subdomains_from_tool("subfinder", ["-d", domain, "-silent", "-all", "-recursive"], domain)
+        """
+        In practice, the -all and -all -recursive flags can return slightly different outputs depending on timing and provider rate limits.
+        Running subfinder twice and merging the results helps reduce the chance of missing subdomains.
+        """
+        # Run with -all
+        all_result = (
+            self.get_subdomains_from_tool(
+                "subfinder",
+                ["-d", domain, "-silent", "-all"],
+                domain,
+            )
+            or set()
+        )
+
+        # Run with -all -recursive
+        recursive_result = (
+            self.get_subdomains_from_tool(
+                "subfinder",
+                ["-d", domain, "-silent", "-all", "-recursive"],
+                domain,
+            )
+            or set()
+        )
+
+        # Merge both results
+        return all_result.union(recursive_result)
 
     def get_subdomains_from_gau(self, domain: str) -> Optional[Set[str]]:
         return self.get_subdomains_from_tool(

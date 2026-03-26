@@ -19,28 +19,6 @@ If you are using a non-x86 architecture and see the following message during con
 
 We recommend running Artemis on an x86 machine.
 
-Windows build issues
---------------------
-If you are using Windows and you see the following message during container build:
-
-.. code-block::
-
-    ------
-    RUN cd /nuclei && git apply nuclei-rate-limiting.patch  && cd v2/cmd/nuclei && go build && GOBIN=/usr/local/bin/ go install:
-    #85 2.234 error: corrupt patch at line 7
-
-this may mean that during clone you configured Git to change newlines from Linux (``\n``) to Windows (``\r\n``). Changing
-this setting will fix the problem.
-
-To solve this, run:
-
-.. code-block::
-
-    git config --global core.autocrlf input
-
-This command sets Git to convert line endings to LF on checkout but doesn't convert them when committing files.
-After setting the configuration, you should re-clone your repository to ensure that the line endings are correct in the files.
-
 Shodan module startup issues
 ----------------------------
 

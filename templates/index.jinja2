@@ -19,18 +19,68 @@
             </thead>
         </table>
         <p>
-            <a class="btn btn-primary" href="/results?task_filter=interesting">Show results for all targets</a>
+            <a class="btn btn-primary" href="{{ request.url_for('get_results') }}?task_filter=interesting">Show results for all targets</a>
 
             {% if has_finished_analyses %}
-                <a class="btn btn-success" href="/remove-finished-analyses">Remove finished analyses</a>
+                <a class="btn btn-danger" href="#" data-bs-toggle="modal" data-bs-target="#remove-finished-analyses-modal">Remove finished analyses</a>
             {% endif %}
         </p>
         <p>
-            Hint: Browse to the <a href="/queue">task queue</a> to see how the tasks are progressing.
+            Hint: Browse to the <a href="{{ request.url_for('get_queue') }}">task queue</a> to see how the tasks are progressing.
         </p>
     {% else %}
-        No targets have yet been analysed. <a href="/add">Analyze targets.</a>
+        No targets have yet been analysed. <a href="{{ request.url_for('get_add_form') }}">Analyze targets.</a>
     {% endif %}
+
+    <div class="modal" tabindex="-1" role="dialog" id="remove-pending-tasks-modal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Remove pending tasks</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        You are about to remove pending tasks from the analysis of <code id="modal-analysed-object"></code>.
+                        <b>Tasks currently running will finish.</b>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="remove-pending-tasks-form" method="POST" style="display: inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="remove-finished-analyses-modal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Remove all finished analyses</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        This will remove the finished analyses (with the <b>done</b> badge) from the table on the homepage. The
+                        corresponding task results will still be in the database and you will still be able to
+                        <a href="{{ request.url_for('get_export_form') }}">export them</a> or view them on the
+                        <a href="{{ request.url_for('get_results') }}?task_filter=interesting">all task results</a> list.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="POST" action="{{ request.url_for('post_remove_finished_analyses') }}" style="display: inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 
@@ -49,6 +99,14 @@
 
             table.on('draw.dt', function () {
                 $('[data-bs-toggle="tooltip"]').tooltip();
+
+                $('.remove-pending-tasks-link').off('click').on('click', function() {
+                    const analysisId = $(this).data('analysis-id');
+                    const analysisTarget = $(this).data('analysis-target');
+
+                    $('#modal-analysed-object').text(analysisTarget);
+                    $('#remove-pending-tasks-form').attr('action', '/analysis/remove-pending-tasks/' + analysisId);
+                });
             });
         })
     </script>

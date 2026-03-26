@@ -9,7 +9,7 @@ from artemis.fallback_api_cache import FallbackAPICache
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
-from artemis.reporting.base.normal_form import NormalForm, get_url_normal_form
+from artemis.reporting.base.normal_form import NormalForm
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
@@ -129,18 +129,28 @@ class WordpressPluginsReporter(Reporter):
     @staticmethod
     def get_normal_form_rules() -> Dict[ReportType, Callable[[Report], NormalForm]]:
         """See the docstring in the Reporter class."""
+
+        def target_domain(report: Report) -> str:
+            if "redirect_url" in report.additional_data and report.additional_data["redirect_url"]:
+                if not isinstance(report.additional_data["redirect_url"], str):
+                    raise TypeError("redirect_url must be a string")
+                url = report.additional_data["redirect_url"]
+            else:
+                url = report.target
+            return utils.get_host_from_url(url)
+
         return {
             WordpressPluginsReporter.CLOSED_WORDPRESS_PLUGIN: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
-                    "target": get_url_normal_form(report.target),
+                    "target": target_domain(report),
                     "slug": report.additional_data["slug"],
                 }
             ),
             WordpressPluginsReporter.WORDPRESS_OUTDATED_PLUGIN_THEME: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
-                    "target": get_url_normal_form(report.target),
+                    "target": target_domain(report),
                     "object_type": report.additional_data["type"],
                     "object_slug": report.additional_data["slug"],
                     "object_version": report.additional_data["version"],

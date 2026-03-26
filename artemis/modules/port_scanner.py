@@ -22,7 +22,7 @@ from artemis.utils import check_output_log_on_error
 
 
 def load_ports(file_name: str) -> Set[int]:
-    with open(os.path.join(os.path.dirname(__file__), "data", file_name)) as f:
+    with open(os.path.join(os.path.dirname(__file__), "data", file_name), encoding="utf-8") as f:
         ports = ",".join([line for line in f if not line.startswith("#")])
 
     result: Set[int] = set()
@@ -137,6 +137,7 @@ class PortScanner(ArtemisBase):
                     else []
                 ),
                 stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
             # We don't use `wait()` because of the following warning in the doc:
             #
@@ -145,7 +146,13 @@ class PortScanner(ArtemisBase):
             # communicate() to avoid that.
             stdout, stderr = naabu.communicate()
             if stderr:
-                self.log.info(f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}")
+                self.log.warning(
+                    f"naabu returned the following stderr content: {stderr.decode('utf-8', errors='ignore')}"
+                )
+
+            if naabu.returncode != 0:
+                self.log.error(f"naabu exited with code {naabu.returncode} for targets {new_target_ips}")
+                raise subprocess.CalledProcessError(naabu.returncode, "naabu", stdout, stderr)
 
             self.log.info(f"scanning of {new_target_ips} took {time.time() - time_start} seconds")
 

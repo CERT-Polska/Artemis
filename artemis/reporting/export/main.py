@@ -54,15 +54,23 @@ def nl2br(eval_ctx: EvalContext, value: str) -> Union[Markup, str]:
     return Markup(result)
 
 
-environment = Environment(
-    loader=BaseLoader(),
-    extensions=["jinja2.ext.i18n"],
-    undefined=StrictUndefined,
-    trim_blocks=True,
-    lstrip_blocks=True,
-    autoescape=select_autoescape(default=True),
-)
-environment.filters["nl2br"] = nl2br
+def create_environment() -> Environment:
+    """Create a new Jinja2 environment instance.
+
+    Each caller gets its own environment to avoid thread-safety issues when
+    install_gettext_translations() is called concurrently from the API thread
+    and the report-generation thread.
+    """
+    env = Environment(
+        loader=BaseLoader(),
+        extensions=["jinja2.ext.i18n"],
+        undefined=StrictUndefined,
+        trim_blocks=True,
+        lstrip_blocks=True,
+        autoescape=select_autoescape(default=True),
+    )
+    env.filters["nl2br"] = nl2br
+    return env
 
 
 def unwrap(html: str) -> str:
@@ -81,7 +89,7 @@ def unwrap(html: str) -> str:
     return soup.renderContents().decode("utf-8", "ignore")
 
 
-def build_message_template_and_print_path(output_dir: Path, silent: bool) -> Template:
+def build_message_template_and_print_path(environment: Environment, output_dir: Path, silent: bool) -> Template:
     output_message_template_file_name = output_dir / "advanced" / "message_template.jinja2"
 
     message_template_content = build_message_template()
@@ -95,7 +103,9 @@ def build_message_template_and_print_path(output_dir: Path, silent: bool) -> Tem
     return message_template
 
 
-def install_translations_and_print_path(language: Language, output_dir: Path, silent: bool) -> None:
+def install_translations_and_print_path(
+    language: Language, environment: Environment, output_dir: Path, silent: bool
+) -> None:
     translations_file_name = output_dir / "advanced" / "translations.po"
     compiled_translations_file_name = output_dir / "advanced" / "compiled_translations.mo"
     install_translations(language, environment, translations_file_name, compiled_translations_file_name)
@@ -165,62 +175,67 @@ def export(
     skip_suspicious_reports: bool = False,
     include_only_results_since: Optional[datetime.datetime] = None,
 ) -> Path:
+    original_log_level = CONSOLE_LOG_HANDLER.level
     if silent:
         CONSOLE_LOG_HANDLER.setLevel(level=logging.ERROR)
-    blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
+    try:
+        blocklist = load_blocklist(Config.Miscellaneous.BLOCKLIST_FILE)
 
-    if previous_reports_directory:
-        previous_reports = load_previous_reports(previous_reports_directory)
-    else:
-        previous_reports = []
+        if previous_reports_directory:
+            previous_reports = load_previous_reports(previous_reports_directory)
+        else:
+            previous_reports = []
 
-    db = DB()
-    export_db_connector = DataLoader(
-        db, blocklist, language, tag, silent, include_only_results_since=include_only_results_since
-    )
-    timestamp = datetime.datetime.now()
-    export_data = build_export_data(
-        previous_reports,
-        tag,
-        language,
-        export_db_connector,
-        custom_template_arguments,
-        timestamp,
-        skip_suspicious_reports,
-    )
-    date_str = timestamp.isoformat(timespec="microseconds")
-    output_dir = OUTPUT_LOCATION / str(tag) / date_str
-    os.makedirs(output_dir)
-    os.makedirs(output_dir / "advanced")
+        db = DB()
+        export_db_connector = DataLoader(
+            db, blocklist, language, tag, silent, include_only_results_since=include_only_results_since
+        )
+        timestamp = datetime.datetime.now()
+        export_data = build_export_data(
+            previous_reports,
+            tag,
+            language,
+            export_db_connector,
+            custom_template_arguments,
+            timestamp,
+            skip_suspicious_reports,
+        )
+        date_str = timestamp.isoformat(timespec="microseconds")
+        output_dir = OUTPUT_LOCATION / str(tag) / date_str
+        os.makedirs(output_dir)
+        os.makedirs(output_dir / "advanced")
 
-    install_translations_and_print_path(language, output_dir, silent)
+        environment = create_environment()
+        install_translations_and_print_path(language, environment, output_dir, silent)
 
-    if not skip_hooks:
-        run_export_hooks(output_dir, export_data, silent)
+        if not skip_hooks:
+            run_export_hooks(output_dir, export_data, silent)
 
-    message_template = build_message_template_and_print_path(output_dir, silent)
-    _build_messages_and_print_path(message_template, export_data, output_dir, silent)
-    _dump_export_data_and_print_path(export_data, output_dir, silent)
+        message_template = build_message_template_and_print_path(environment, output_dir, silent)
+        _build_messages_and_print_path(message_template, export_data, output_dir, silent)
+        _dump_export_data_and_print_path(export_data, output_dir, silent)
 
-    print_and_save_stats(export_data, output_dir, silent)
+        print_and_save_stats(export_data, output_dir, silent)
 
-    if silent:
-        print(output_dir)
+        if silent:
+            print(output_dir)
 
-    if verbose and not silent:
-        print_long_unseen_report_types(previous_reports + export_db_connector.reports)
+        if verbose and not silent:
+            print_long_unseen_report_types(previous_reports + export_db_connector.reports)
 
-        print("Available tags (and the counts of raw task results - not to be confused with vulnerabilities):")
-        if None in export_db_connector.tag_stats:
-            print(f"\tEmpty tag: {export_db_connector.tag_stats[None]}")  # type: ignore
+            print("Available tags (and the counts of raw task results - not to be confused with vulnerabilities):")
+            if None in export_db_connector.tag_stats:
+                print(f"\tEmpty tag: {export_db_connector.tag_stats[None]}")  # type: ignore
 
-        for tag in sorted([key for key in export_db_connector.tag_stats.keys() if key]):
-            print(f"\t{tag}: {export_db_connector.tag_stats[tag]}")
+            for tag in sorted([key for key in export_db_connector.tag_stats.keys() if key]):
+                print(f"\t{tag}: {export_db_connector.tag_stats[tag]}")
 
-    if not silent:
-        for alert in export_data.alerts:
-            print(termcolor.colored("ALERT:" + alert, color="red"))
-    return output_dir
+        if not silent:
+            for alert in export_data.alerts:
+                print(termcolor.colored("ALERT:" + alert, color="red"))
+        return output_dir
+    finally:
+        CONSOLE_LOG_HANDLER.setLevel(original_log_level)
 
 
 def export_cli(

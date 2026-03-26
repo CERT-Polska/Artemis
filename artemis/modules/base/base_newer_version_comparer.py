@@ -1,4 +1,5 @@
 import datetime
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -16,12 +17,19 @@ class BaseNewerVersionComparerModule(ArtemisBase):
         super().__init__(*args, **kwargs)
 
         self.endoflife_data_folder = tempfile.mkdtemp()
-        subprocess.call(
-            ["git", "clone", "https://github.com/endoflife-date/endoflife.date", self.endoflife_data_folder]
-        )
+        try:
+            subprocess.check_call(
+                ["git", "clone", "https://github.com/endoflife-date/endoflife.date", self.endoflife_data_folder],
+                timeout=60,
+            )
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            shutil.rmtree(self.endoflife_data_folder, ignore_errors=True)
+            raise RuntimeError(
+                f"Failed to clone endoflife data repository: {e}. " "Check network connectivity to github.com."
+            ) from e
 
         endoflife_data_path = Path(self.endoflife_data_folder) / "products" / (self.software_name + ".md")
-        with open(endoflife_data_path, "r") as f:
+        with open(endoflife_data_path, "r", encoding="utf-8") as f:
             self.endoflife_data = next(yaml.load_all(f, yaml.SafeLoader))
 
     def _parse_version(self, version: str) -> semver.VersionInfo:

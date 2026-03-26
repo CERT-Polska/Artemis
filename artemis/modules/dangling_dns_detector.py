@@ -35,12 +35,16 @@ def direct_dns_query(
         return None
 
 
-def dns_query(target: str, record_type: rdatatype.RdataType) -> dns.resolver.Answer | None:
-    try:
-        resolver = dns.resolver.Resolver()
-        return resolver.resolve(target, record_type)
-    except Exception:
-        return None
+def dns_query(
+    target: str, record_type: rdatatype.RdataType, retries: int = 3, delay: float = 1.0
+) -> dns.resolver.Answer | None:
+    resolver = dns.resolver.Resolver()
+    for _ in range(retries):
+        try:
+            return resolver.resolve(target, record_type)
+        except Exception:
+            time.sleep(delay)
+    return None
 
 
 def ip_exists(ip: str, timeout: int = 5) -> bool:
@@ -127,6 +131,9 @@ class DanglingDnsDetector(ArtemisBase):
                 # we remove domain from payload and add ip
                 # last_domain is removed from deduplication logic, so we will store domain there
                 ip = self.get_ip_from_domain(domain)
+                if not ip:
+                    self.log.info("Couldn't resolve domain %s to ip. Dropping rescheduling.", domain)
+                    return False
                 new_payload["ip"] = ip
                 if "domain" in new_payload:
                     new_payload["last_domain"] = new_payload["domain"]
@@ -159,6 +166,8 @@ class DanglingDnsDetector(ArtemisBase):
         return False
 
     def _is_saas_namespace(self, ns_records: list[str]) -> bool:
+        # Detect SAAS providers with multi-tenant DNS namespaces to avoid false positives
+        # We want to still report record like e.g: username.github.io
         SAAS_NS_PATTERNS = [
             "azure-dns",
             "awsdns",
@@ -182,6 +191,11 @@ class DanglingDnsDetector(ArtemisBase):
 
         cname_target_types = [rdatatype.A, rdatatype.AAAA, rdatatype.TXT]
         cname_target = record.target.to_text()  # type: ignore[attr-defined]
+        cname_target_zone = get_main_domain(cname_target)
+
+        if cname_target_zone in Config.Modules.DanglingDnsDetector.DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP:
+            # we want to ensure to not reports popular cname targets like e.g: sipdir.online.lync.com
+            return False
 
         if is_subdomain(cname_target, parent_domain):
             return False
@@ -200,15 +214,14 @@ class DanglingDnsDetector(ArtemisBase):
                     dangling = False
                     break
 
-        if dangling:
-            # check against the main domain
-            main_domain = get_main_domain(cname_target)
-            if main_domain:
-                response = dns_query(main_domain, rdatatype.NS)
-                ns_records = [r.to_text() for r in response] if response else None
-                if ns_records and not self._is_saas_namespace(ns_records):
-                    # It's more likely a misconfiguration rather than dangling cname record
-                    dangling = False
+        if dangling and cname_target_zone:
+            # If the zone has valid NS records and is not SaaS-managed,
+            # treat it as misconfiguration instead of marking as dangling.
+            # Purpose is to reduce number of FP.
+            response = dns_query(cname_target_zone, rdatatype.NS)
+            ns_records = [r.to_text() for r in response] if response else None
+            if ns_records and not self._is_saas_namespace(ns_records):
+                dangling = False
 
         return dangling
 
@@ -322,16 +335,17 @@ class DanglingDnsDetector(ArtemisBase):
                 pass
         return ip_records_alive
 
-    def get_ip_from_domain(self, domain: str) -> str | None:
-        try:
-            answers = dns.resolver.resolve(domain, rdatatype.A, raise_on_no_answer=False)
-            if answers.rrset is not None:
-                for record in answers:
-                    if hasattr(record, "rdtype") and record.rdtype == rdatatype.A:
-                        return record.address  # type: ignore[attr-defined, no-any-return]
+    def get_ip_from_domain(self, domain: str, retries: int = 5) -> str | None:
+        for _ in range(retries):
+            try:
+                answers = dns.resolver.resolve(domain, rdatatype.A, raise_on_no_answer=False)
+                if answers.rrset is not None:
+                    for record in answers:
+                        if hasattr(record, "rdtype") and record.rdtype == rdatatype.A:
+                            return record.address  # type: ignore[attr-defined, no-any-return]
 
-        except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
-            return None
+            except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.resolver.Timeout):
+                time.sleep(1.0)
 
         return None
 
@@ -350,7 +364,7 @@ class DanglingDnsDetector(ArtemisBase):
             whois_data = IPWhois(ip).lookup_whois()
         except HTTPLookupError as e:
             if any(
-                token in e
+                token in str(e)
                 for token in (
                     "429",
                     "too many requests",
@@ -361,7 +375,9 @@ class DanglingDnsDetector(ArtemisBase):
                 )
             ):
                 self.log.info("Quota exceeded for whois query for %s", ip)
-                return False
+            else:
+                self.log.warning("Whois lookup failed for %s: %s", ip, e)
+            return False
 
         descriptions: list[str] = []
         if "asn_description" in whois_data and whois_data["asn_description"]:

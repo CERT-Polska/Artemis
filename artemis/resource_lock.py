@@ -31,12 +31,29 @@ LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 
+LUA_SUSTAIN_SCRIPT = """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("expire", KEYS[1], ARGV[2])
+else
+    return 0
+end
+"""
+
+LUA_RELEASE_SCRIPT = """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("del", KEYS[1])
+else
+    return 0
+end
+"""
+
+
 def sustain_locks() -> None:
     while True:
         try:
             with LOCKS_TO_SUSTAIN_LOCK:
                 for key, value in LOCKS_TO_SUSTAIN.items():
-                    REDIS.set(key, value, ex=LOCK_HEARTBEAT_TIMEOUT)
+                    REDIS.eval(LUA_SUSTAIN_SCRIPT, 1, key, value, LOCK_HEARTBEAT_TIMEOUT)
         except Exception:
             logger.exception("Failed to sustain locks, will retry")
         time.sleep(1)
@@ -84,7 +101,7 @@ class ResourceLock:
         with LOCKS_TO_SUSTAIN_LOCK:
             if self.res_name in LOCKS_TO_SUSTAIN:
                 del LOCKS_TO_SUSTAIN[self.res_name]
-        REDIS.delete(self.res_name)
+        REDIS.eval(LUA_RELEASE_SCRIPT, 1, self.res_name, self.lid)
 
     def __enter__(self) -> None:
         self.acquire()

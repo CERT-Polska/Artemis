@@ -29,6 +29,7 @@ services:
       SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback --timeout 60"
 
       SQL_INJECTION_STOP_ON_FIRST_MATCH: False
+      ORM_INJECTION_STOP_ON_FIRST_MATCH: False
 
       NUCLEI_INTERACTSH_SERVER: https://interactsh.lab.cert.pl
 
@@ -57,6 +58,15 @@ services:
     shm_size: 256mb
     environment:
       POSTGRES_DB: artemis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  orm-injection-test-postgres:
+    image: postgres
+    restart: always
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
 
@@ -249,6 +259,14 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/data/lfi-rce/:/var/www/html/
+
+  test-flask-with-orm-injection:
+    build:
+      context: .
+      dockerfile: test/data/orm_injection/Dockerfile
+    restart: on-failure
+    volumes:
+      - ./test/data/orm_injection/:/app/
 
   test-apache-with-sql-injection-postgres:
     build:

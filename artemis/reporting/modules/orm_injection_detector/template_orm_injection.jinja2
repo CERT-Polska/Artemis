@@ -1,0 +1,41 @@
+{% if "orm_injection" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are vulnerable to ORM injection:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "orm_injection" %}
+                    {% for message in report.additional_data.result %}
+                        <li>
+                            {{ message.url }}
+                            {% if message.code == report.additional_data.statements.orm_injection %}
+                                :
+                                {% trans trimmed %}
+                                    ORM injection: user input is being passed directly to ORM query methods,
+                                    allowing an attacker to manipulate query logic by appending ORM-specific
+                                    suffixes (e.g. __startswith, __contains, __gt) to parameter names. This
+                                    can be used to extract sensitive data from the database by brute-forcing
+                                    field values character by character.
+                                {% endtrans %}
+                            {% elif message.code == report.additional_data.statements.orm_sensitive_field_access %}
+                                :
+                                {% trans trimmed %}
+                                    ORM sensitive field access: the endpoint allows filtering on sensitive fields
+                                    (such as password hashes, admin flags, or email addresses) through ORM lookup
+                                    parameters. An attacker can use this to enumerate users, extract password hashes,
+                                    or identify privileged accounts.
+                                {% endtrans %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                ORM injection occurs when user input is passed directly to ORM query methods
+                (e.g. Model.objects.filter(**request.GET) in Django). Even though no raw SQL is written,
+                an attacker can manipulate the query logic to access data they should not be able to see.
+                To fix this, validate and whitelist allowed parameter names before passing them to the ORM.
+            {% endtrans %}
+        </p>
+{% endif %}

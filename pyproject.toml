@@ -45,3 +45,6 @@ aiofiles = "0.7.0"
 
 # Apache 2 (https://github.com/c0fec0de/anytree), not properly provided in package metadata
 anytree = "2.11.1"
+
+[tool.pip-tools]
+no-header = true

@@ -1,0 +1,25 @@
+<h2>CORS misconfiguration</h2>
+
+{% if issues|length == 0 %}
+<p>No CORS issues detected.</p>
+{% else %}
+
+<ul>
+
+{% for i in issues %}
+
+<li>
+<strong>{{ i.title }}</strong> ({{ i.severity|upper }})<br>
+<code>{{ i.code }}</code>
+
+{% if i.details %}
+<pre>{{ i.details | tojson(indent=2) }}</pre>
+{% endif %}
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+{% endif %}

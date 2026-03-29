@@ -1,4 +1,3 @@
-from socket import gethostbyname
 from test.base import ArtemisModuleTestCase
 from typing import Any, Dict, List, NamedTuple
 
@@ -48,7 +47,7 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertFalse(Classifier.is_supported("ssh://127.0.0.1"))
 
     def test_parsing(self) -> None:
-        cert_ip = gethostbyname("cert.pl")
+        cert_ip = "188.184.100.20"
 
         entries = [
             TestData(

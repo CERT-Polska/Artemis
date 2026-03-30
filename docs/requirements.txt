@@ -31,7 +31,7 @@ click==8.3.1
 click-plugins==1.1.1.2
 colorama==0.4.6
 coverage==7.13.5
-cryptography==46.0.5
+cryptography==46.0.6
 decorator==5.2.1
 defusedxml==0.7.1
 dkimpy==1.1.8

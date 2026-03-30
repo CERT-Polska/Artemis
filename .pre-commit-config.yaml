@@ -69,5 +69,5 @@ repos:
     files: ^requirements\.(in|txt)$
   - id: pip-compile
     name: pip-compile docs
-    args: [docs/requirements.in, -o, docs/requirements.txt, --no-annotate]
+    args: [docs/requirements.in, -o, docs/requirements.txt]
     files: ^docs/requirements\.(in|txt)$

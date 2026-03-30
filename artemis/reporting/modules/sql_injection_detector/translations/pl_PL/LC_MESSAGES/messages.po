@@ -58,7 +58,7 @@ msgstr ""
 msgid "Headers used:"
 msgstr "Użyte nagłówki:"
 
-#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:51
+#: artemis/reporting/modules/sql_injection_detector/template_sql_injection.jinja2:53
 msgid ""
 "These vulnerabilities can lead to serious security breaches, including "
 "user data leaks and potential database manipulation. The vulnerability "

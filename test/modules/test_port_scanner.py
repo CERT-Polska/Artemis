@@ -78,6 +78,7 @@ class PortScannerTest(ArtemisModuleTestCase):
 
         found_ports = set(call.kwargs["data"][test_ip].keys())
         shodan_only_ports = internetdb_ports - {"80"}
+        self.assertTrue(len(shodan_only_ports) > 0)
 
         self.assertTrue(
             shodan_only_ports,

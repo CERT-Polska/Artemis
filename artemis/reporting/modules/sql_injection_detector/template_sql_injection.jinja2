@@ -37,9 +37,11 @@
                             {% if message.headers %}
                                 <br>
                                 <b>{% trans %}Headers used:{% endtrans %}</b>
-                                {% for key, value in message.headers.items() %}
-                                    {{ key }}: <code>{{ value }}</code>{% if not loop.last %}, {% endif %}
-                                {% endfor %}
+                                <ul>
+                                    {% for key, value in message.headers.items() %}
+                                        <li>{{ key }}: <code>{{ value }}</code></li>
+                                    {% endfor %}
+                                </ul>
                             {% endif %}
                         </li>
                     {% endfor %}

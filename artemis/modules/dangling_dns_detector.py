@@ -53,9 +53,12 @@ def ip_exists(ip: str, timeout: int = 5) -> bool:
             ["ping", "-c", "1", "-W", str(timeout), ip],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            timeout=timeout + 1,
         )
         if result.returncode == 0:
             return True
+    except subprocess.TimeoutExpired:
+        pass
     except Exception:
         pass
 
@@ -65,7 +68,6 @@ def ip_exists(ip: str, timeout: int = 5) -> bool:
                 return True
         except Exception:
             return False
-        return False
 
     ports_to_check = [80, 443, 25, 110, 465, 587]
     with ThreadPoolExecutor(max_workers=len(ports_to_check)) as executor:

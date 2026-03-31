@@ -8,12 +8,16 @@ updates:
     ignore:
       - dependency-name: "python"
         versions: ["4.x"]  # Stick to Python 3.x
+    cooldown:
+      default-days: 7
 
   # Go modules
   - package-ecosystem: "gomod"
     directory: "/docker/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
 
   # Python packages in root
   - package-ecosystem: "pip"
@@ -22,6 +26,8 @@ updates:
       interval: "weekly"
     allow:
       - dependency-name: "*"  # Allow all packages from requirements.txt
+    cooldown:
+      default-days: 7
 
   # Python packages in /docs/
   - package-ecosystem: "pip"
@@ -30,9 +36,13 @@ updates:
       interval: "weekly"
     allow:
       - dependency-name: "*"  # Allow all packages from requirements.txt
+    cooldown:
+      default-days: 7
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7

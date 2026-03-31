@@ -703,6 +703,15 @@ TRANSLATIONS = {
     "WordPress Accessibility Helper plugin before 0.6.0.7 contains a cross-site scripting vulnerability. It does not sanitize and escape the wahi parameter before outputting back its base64 decode value in the page.": "Wtyczka WordPress o nazwie Accessibility Helper w wersji poniżej 0.6.0.7 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "Any guest can perform arbitrary remote code execution through a request to SolrSearch. This impacts the confidentiality, integrity, and availability of the whole XWiki installation. This vulnerability has been patched in XWiki 15.10.11, 16.4.1, and 16.5.0RC1.": "System XWiki w wersjach poniżej 15.10.11, 16.4.1 i 16.5.0RC1 zawiera podatność umożliwiającą zdalne wykonanie kodu o identyfikatorze CVE-2025-24893."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Appwrite through 1.2.1 is susceptible to server-side request forgery via the component /v1/avatars/favicon. An attacker can potentially access network resources and sensitive information via a crafted GET request, thereby also making it possible to modify data and/or execute unauthorized administrative operations in the context of the affected site.": "System Appwrite w wersji do 1.2.1 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2023-27159, umożliwiającą atakującemu dostęp do zasobów sieci wewnętrznej."
+    + UPDATE_HINT,
+    "WP Hotel Booking WordPress plugin before 2.0.8 contains a SQL injection caused by lack of authorization, CSRF checks, and input escaping in a function hooked to admin_init, letting unauthenticated users perform SQL injections, exploit requires no authentication.": "Wtyczka WordPress o nazwie WP Hotel Booking w wersji poniżej 2.0.8 zawiera podatność SQL Injection o identyfikatorze CVE-2023-5652, umożliwiającą atakującemu odczyt danych z bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "Xiaomi Mi WiFi R3G devices before 2.28.23-stable are susceptible to local file inclusion vulnerabilities via a misconfigured NGINX alias, as demonstrated by api-third-party/download/extdisks../etc/config/account. With this vulnerability, the attacker can bypass authentication.": "Urządzenie Xiaomi Mi WiFi R3G w wersji poniżej 2.28.23-stable zawiera podatność Local File Inclusion o identyfikatorze CVE-2019-18371, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
     "WordPress Elementor Website Builder plugin 3.5.5 and prior contains a reflected cross-site scripting vulnerability via the document object model.": "Wtyczka WordPress o nazwie Elementor Website Builder w wersji 3.5.5 i wcześniejszych zawiera podatność Cross-Site Scripting."
     + WORDPRESS_UPDATE_HINT,
     "Multiple compressed backup files were detected.": "Wykryto publicznie dostępny plik kopii zapasowej."
@@ -2457,4 +2466,6 @@ TRANSLATIONS = {
     "Brother printer web interface and management panel was detected. This template identifies exposed Brother printer panels that may be accessible without authentication.": "Wykryto panel zarządzania drukarki Brother.",
     "openvpn-monitor was discovered. OpenVPN Monitor is a simple python program to generate html that displays the status of an OpenVPN server, including all its current connections.": "Wykryto panel OpenVPN Monitor.",
     "Detects the presence of FileCatalyst file transfer solution login panel": "Wykryto panel FileCatalyst.",
+    "IBM Maximo login panel was detected.": "Wykryto panel IBM Maximo.",
+    "Supervisor Dashboard was detected and appeared to be accessible without authentication.": "Wykryto panel Supervisor Dashboard.",
 }

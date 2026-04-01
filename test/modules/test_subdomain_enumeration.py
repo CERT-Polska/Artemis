@@ -1,4 +1,5 @@
 from test.base import ArtemisModuleTestCase
+from retry import retry
 from typing import NamedTuple
 
 from karton.core import Task

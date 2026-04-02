@@ -198,6 +198,55 @@ class SqlInjectionDetector(ArtemisBase):
             headers.update({key: value + payload})
         return headers
 
+    def minimize_headers(
+        self,
+        url: str,
+        headers: dict[str, str],
+        payload: str,
+        minimization_mode: Literal["error", "time"],
+        baseline_payload: Optional[str] = None,
+    ) -> dict[str, str]:
+        """
+        Try to find the minimal set of headers that still triggers SQLi. Currently minimizes to single headers only.
+        Falls back to original headers if none work individually.
+        """
+        if minimization_mode == "error" and baseline_payload is None:
+            raise ValueError("baseline_payload is required for error-based minimization")
+
+        minimal_headers: dict[str, str] = {}
+
+        for header_name, header_value in headers.items():
+            single_header = {header_name: header_value}
+            if minimization_mode == "error":
+                no_effect_header = {header_name: HEADERS[header_name] + (baseline_payload if baseline_payload else "")}
+                error = self.contains_error(url, self.forgiving_http_get(url, headers=single_header))
+                if not self.contains_error(url, self.forgiving_http_get(url, headers=no_effect_header)) and error:
+                    minimal_headers[header_name] = header_value
+                continue
+
+            no_sleep_value = HEADERS[header_name] + self.change_sleep_to_0(payload)
+            no_sleep_header = {header_name: no_sleep_value}
+            if (
+                self.measure_request_time(url, headers=no_sleep_header)
+                < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
+                and self.measure_request_time(url, headers=single_header)
+                >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
+            ):
+                minimal_headers[header_name] = header_value
+
+        if minimal_headers:
+            mode_label = "error-based" if minimization_mode == "error" else "time-based"
+            self.log.info(
+                "SQLi %s header minimization: %s -> %s",
+                mode_label,
+                list(headers.keys()),
+                list(minimal_headers.keys()),
+            )
+            return minimal_headers
+
+        # fallback if no single header triggers SQLi
+        return headers
+
     @staticmethod
     def create_status_reason(message: Any) -> str:
         status_reason = []
@@ -421,10 +470,17 @@ class SqlInjectionDetector(ArtemisBase):
                     )
                     and error
                 ):
+                    minimal_headers = self.minimize_headers(
+                        url=current_url,
+                        headers=headers,
+                        payload=error_payload,
+                        baseline_payload=not_error_payload,
+                        minimization_mode="error",
+                    )
                     message.append(
                         {
                             "url": current_url,
-                            "headers": headers,
+                            "headers": minimal_headers,
                             "matched_error": error,
                             "statement": "It appears that this URL is vulnerable to SQL injection through HTTP Headers",
                             "code": Statements.headers_sql_injection.value,
@@ -452,10 +508,16 @@ class SqlInjectionDetector(ArtemisBase):
                         break
 
                 if all(flags):
+                    minimal_headers = self.minimize_headers(
+                        url=current_url,
+                        headers=headers,
+                        payload=sleep_payload,
+                        minimization_mode="time",
+                    )
                     message.append(
                         {
                             "url": current_url,
-                            "headers": headers,
+                            "headers": minimal_headers,
                             "statement": "It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers",
                             "code": Statements.headers_time_based_sql_injection.value,
                         }

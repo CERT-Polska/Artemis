@@ -201,33 +201,37 @@ class SqlInjectionDetector(ArtemisBase):
     def minimize_headers(
         self,
         url: str,
-        headers: dict[str, str],
+        headers: Dict[str, str],
         payload: str,
         minimization_mode: Literal["error", "time"],
         baseline_payload: Optional[str] = None,
-    ) -> dict[str, str]:
+    ) -> Dict[str, str]:
         """
         Try to find the minimal set of headers that still triggers SQLi. Currently minimizes to single headers only.
-        Falls back to original headers if none work individually.
+        Falls back to original headers if none work individually. When minimized headers are found,
+        the result is capped to SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN.
         """
         if minimization_mode == "error" and baseline_payload is None:
             raise ValueError("baseline_payload is required for error-based minimization")
 
-        minimal_headers: dict[str, str] = {}
+        minimal_headers: Dict[str, str] = {}
+        if minimization_mode == "error":
+            payload_without_effect = baseline_payload if baseline_payload is not None else ""
+        else:
+            payload_without_effect = self.change_sleep_to_0(payload)
 
         for header_name, header_value in headers.items():
             single_header = {header_name: header_value}
+            no_effect_header = {header_name: HEADERS[header_name] + payload_without_effect}
+
             if minimization_mode == "error":
-                no_effect_header = {header_name: HEADERS[header_name] + (baseline_payload if baseline_payload else "")}
                 error = self.contains_error(url, self.forgiving_http_get(url, headers=single_header))
                 if not self.contains_error(url, self.forgiving_http_get(url, headers=no_effect_header)) and error:
                     minimal_headers[header_name] = header_value
                 continue
 
-            no_sleep_value = HEADERS[header_name] + self.change_sleep_to_0(payload)
-            no_sleep_header = {header_name: no_sleep_value}
             if (
-                self.measure_request_time(url, headers=no_sleep_header)
+                self.measure_request_time(url, headers=no_effect_header)
                 < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
                 and self.measure_request_time(url, headers=single_header)
                 >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
@@ -235,14 +239,19 @@ class SqlInjectionDetector(ArtemisBase):
                 minimal_headers[header_name] = header_value
 
         if minimal_headers:
+            capped_minimal_headers = dict(
+                list(minimal_headers.items())[
+                    : Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN
+                ]
+            )
             mode_label = "error-based" if minimization_mode == "error" else "time-based"
             self.log.info(
                 "SQLi %s header minimization: %s -> %s",
                 mode_label,
                 list(headers.keys()),
-                list(minimal_headers.keys()),
+                list(capped_minimal_headers.keys()),
             )
-            return minimal_headers
+            return capped_minimal_headers
 
         # fallback if no single header triggers SQLi
         return headers

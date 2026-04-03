@@ -239,7 +239,9 @@ class DB:
         self.logger = build_logger(__name__)
 
         self._engine = create_engine(
-            Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
+            Config.Data.POSTGRES_CONN_STR,
+            json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes),
+            pool_pre_ping=True,
         )
         self.session = sessionmaker(bind=self._engine)
 
@@ -463,6 +465,11 @@ class DB:
         with self.session() as session:
             task_result = session.query(TaskResult).get(id)
             session.delete(task_result)
+            session.commit()
+
+    def delete_task_results_by_ids(self, ids: List[str]) -> None:
+        with self.session() as session:
+            session.execute(delete(TaskResult).where(TaskResult.id.in_(ids)))  # type: ignore
             session.commit()
 
     def save_scheduled_task(self, task: Task) -> bool:
@@ -723,7 +730,9 @@ class TestDB:
         self.logger = build_logger(__name__)
 
         self._engine = create_engine(
-            Config.Data.POSTGRES_CONN_STR, json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes)
+            Config.Data.POSTGRES_CONN_STR,
+            json_serializer=functools.partial(json.dumps, cls=JSONEncoderAdditionalTypes),
+            pool_pre_ping=True,
         )
         self.session = sessionmaker(bind=self._engine)
 

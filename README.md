@@ -100,6 +100,13 @@ To set up `pre-commit` so that it runs before each commit, use:
 pre-commit install
 ```
 
+### Modifying dependencies
+
+We use `pip-tools` to manage dependencies. To add or update a dependency:
+1. Modify `requirements.in` (or `docs/requirements.in` for documentation dependencies),
+2. Run `pre-commit run pip-compile --all-files` to generate the frozen `requirements.txt` file(s),
+3. Commit both the `.in` and `.txt` files.
+
 ### Building the docs
 
 To build the documentation, use:

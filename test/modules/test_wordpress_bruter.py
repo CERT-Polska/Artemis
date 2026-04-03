@@ -11,7 +11,7 @@ class WordPressBruterTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = WordPressBruter  # type: ignore
 
-    @retry(tries=3)
+    @retry(tries=3, delay=10)
     def test_simple(self) -> None:
         self.setUp()  # @retry() will not rerun setUp
 

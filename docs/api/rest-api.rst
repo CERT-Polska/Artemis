@@ -159,10 +159,8 @@ Use ``POST /api/stop-and-delete-analysis`` to cancel a running scan and remove i
 
 .. code-block:: bash
 
-   curl -s -X POST http://localhost:5000/api/stop-and-delete-analysis \
-      -H "Content-Type: application/json" \
-      -H "X-API-Token: YOUR_API_TOKEN" \
-      -d '{"analysis_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}'
+   curl -s -X POST "http://localhost:5000/api/stop-and-delete-analysis?analysis_id=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" \
+      -H "X-API-Token: YOUR_API_TOKEN"
 
 Response:
 
@@ -258,10 +256,8 @@ Use ``POST /api/archive-tag`` to archive all data associated with a tag:
 
 .. code-block:: bash
 
-   curl -s -X POST http://localhost:5000/api/archive-tag \
-      -H "Content-Type: application/json" \
-      -H "X-API-Token: YOUR_API_TOKEN" \
-      -d '{"tag": "monthly-scan-2025-01"}'
+   curl -s -X POST "http://localhost:5000/api/archive-tag?tag=monthly-scan-2025-01" \
+      -H "X-API-Token: YOUR_API_TOKEN"
 
 Response:
 

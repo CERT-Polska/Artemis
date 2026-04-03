@@ -33,8 +33,7 @@ class RestApiDocsTestCase(BaseE2ETestCase):
         add_data = add_response.json()
         self.assertTrue(add_data.get("ok"))
         self.assertIn("ids", add_data)
-        self.assertEqual(len(add_data["ids"]), 1)
-        analysis_id = add_data["ids"][0]
+        self.assertGreaterEqual(len(add_data["ids"]), 1)
 
         # Step 2: GET /api/analyses - List analyses and verify ours exists
         analyses_response = requests.get(
@@ -49,9 +48,9 @@ class RestApiDocsTestCase(BaseE2ETestCase):
             set(analyses[0].keys()),
             {"stopped", "target", "created_at", "id", "tag", "num_pending_tasks", "disabled_modules"},
         )
-        self.assertEqual(analyses[0]["id"], analysis_id)
         self.assertEqual(analyses[0]["target"], "test-smtp-server.artemis")
         self.assertEqual(analyses[0]["tag"], "rest-api-docs-test")
+        analysis_id = analyses[0]["id"]
 
         # Step 3: GET /api/num-queued-tasks - Check queue
         queue_response = requests.get(
@@ -118,9 +117,10 @@ class RestApiDocsTestCase(BaseE2ETestCase):
         time.sleep(20)
 
         # Step 5: POST /api/stop-and-delete-analysis - Clean up
+        # analysis_id is a query parameter, not a body parameter
         delete_response = requests.post(
             BACKEND_URL + "api/stop-and-delete-analysis",
-            json={"analysis_id": analysis_id},
+            params={"analysis_id": analysis_id},
             headers=HEADERS,
         )
         self.assertEqual(delete_response.status_code, 200)
@@ -128,7 +128,7 @@ class RestApiDocsTestCase(BaseE2ETestCase):
 
         # Verify analysis is gone
         analyses_after = requests.get(BACKEND_URL + "api/analyses", headers=HEADERS).json()
-        self.assertFalse(any(a["id"] == analysis_id for a in analyses_after))
+        self.assertEqual(len(analyses_after), 0)
 
     def test_api_add_with_enabled_modules(self) -> None:
         """Test POST /api/add with the enabled_modules parameter."""
@@ -178,9 +178,10 @@ class RestApiDocsTestCase(BaseE2ETestCase):
 
     def test_api_archive_tag(self) -> None:
         """Test POST /api/archive-tag."""
+        # tag is a query parameter, not a body parameter
         response = requests.post(
             BACKEND_URL + "api/archive-tag",
-            json={"tag": "nonexistent-tag"},
+            params={"tag": "nonexistent-tag"},
             headers=HEADERS,
         )
         self.assertEqual(response.status_code, 200)

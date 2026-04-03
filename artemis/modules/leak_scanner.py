@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import subprocess
 import urllib.parse
 from collections import deque
 from typing import Any, Callable, Dict, List, Set, Tuple
@@ -78,6 +79,9 @@ class LeakScanner(ArtemisBase):
 
         base_hostname = urllib.parse.urlparse(base_url).hostname
 
+        if _is_document_url(base_url):
+            return []
+
         visited: Set[str] = set()
         document_urls: List[str] = []
         queue: deque = deque([(base_url, 0)])
@@ -86,10 +90,6 @@ class LeakScanner(ArtemisBase):
 
         while queue and pages_crawled < max_pages and len(document_urls) < max_documents:
             current_url, depth = queue.popleft()
-
-            if _is_document_url(current_url):
-                continue
-
             pages_crawled += 1
 
             try:
@@ -111,10 +111,7 @@ class LeakScanner(ArtemisBase):
                     new_url = new_url.split("#")[0]
                     new_url_parsed = urllib.parse.urlparse(new_url)
 
-                    if new_url_parsed.hostname != base_hostname:
-                        continue
-
-                    if new_url in visited:
+                    if new_url_parsed.hostname != base_hostname or new_url in visited:
                         continue
                     visited.add(new_url)
 
@@ -137,7 +134,7 @@ class LeakScanner(ArtemisBase):
                 if line and _is_document_url(line):
                     urls.add(line)
             return urls
-        except Exception:
+        except (OSError, subprocess.SubprocessError):
             self.log.exception(f"Unable to obtain document URLs from gau for {domain}")
             return set()
 

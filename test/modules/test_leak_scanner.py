@@ -25,18 +25,13 @@ class LeakScannerTest(ArtemisModuleTestCase):
         self.assertIn("leaked sensitive data", call.kwargs["status_reason"].lower())
 
         data = call.kwargs["data"]
-        self.assertGreater(data["documents_checked"], 0)
+        self.assertEqual(data["documents_checked"], 2)
         self.assertEqual(len(data["documents_with_findings"]), 1)
 
         doc_result = data["documents_with_findings"][0]
         self.assertIn("bad_redaction.pdf", doc_result["url"])
 
-        # Check that findings are grouped by check name
         self.assertIn("bad_redaction", doc_result["findings"])
         leaked_items = doc_result["findings"]["bad_redaction"]
-        self.assertGreater(len(leaked_items), 0)
-
-        # Verify that x-ray actually found the hidden text
-        leaked_texts = [item["text"] for item in leaked_items]
-        found_secret = any("SECRET" in text or "John Doe" in text for text in leaked_texts)
-        self.assertTrue(found_secret, f"Expected to find hidden text but got: {leaked_texts}")
+        self.assertEqual(len(leaked_items), 1)
+        self.assertEqual(leaked_items[0]["text"], "SECRET: John Doe SSN 123-45-6789")

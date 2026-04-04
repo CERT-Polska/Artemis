@@ -87,7 +87,10 @@ click==8.3.1
 click-plugins==1.1.1.2
     # via shodan
 colorama==0.4.6
-    # via shodan
+    # via
+    #   click
+    #   shodan
+    #   tqdm
 coverage==7.13.5
     # via unittest-parallel
 cryptography==46.0.5

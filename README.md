@@ -24,7 +24,7 @@ To chat about Artemis, [join the Discord server](https://discord.gg/GfUW4mZmy9)!
     <img alt="BlackHat" src="static/images/blackhat.png">
 </div>
 
-Artemis was presented at BlackHat USA 2024 in Las Vegas. For more information about Artemis at BlackHat USA [click here](https://www.blackhat.com/us-24/arsenal/schedule/index.html#artemis-modular-vulnerability-scanner-with-automatic-report-generation-39372).
+Artemis was presented at BlackHat USA 2024 in Las Vegas and BlackHat Europe 2025 in London. For more information about Artemis at BlackHat [click here](https://www.blackhat.com/us-24/arsenal/schedule/index.html#artemis-modular-vulnerability-scanner-with-automatic-report-generation-39372) and [here](https://blackhat.com/eu-25/briefings/schedule/index.html#nation-scale-secops-how-cert-pl-scans-poland-48918).
 
 <br/>
 
@@ -37,7 +37,7 @@ The project was also presented at the [71st TF-CSIRT Meeting in Copenhagen](http
 ### Cooperation
 ![Google Summer of Code](static/images/gsoc.png)
 
-Artemis development was supported by Google Summer of Code 2024.
+Artemis development was supported by Google Summer of Code 2024 and 2025.
 
 ## Features
 For an up-to-date list of features, please refer to [the documentation](https://artemis-scanner.readthedocs.io/en/latest/features.html).

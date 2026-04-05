@@ -997,6 +997,7 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "The ProfileGrid – User Profiles, Groups and Communities plugin for WordPress is vulnerable to SQL Injection in versions up to, and including, 5.7.8 due to insufficient escaping on the user supplied 'search' parameter and lack of sufficient preparation on the existing SQL query.": "Wtyczka WordPress o nazwie ProfileGrid – User Profiles, Groups and Communities w wersji do 5.7.8 włącznie zawiera podatność SQL Injection o identyfikatorze CVE-2024-30490, umożliwiającą odczyt danych z bazy danych." + WORDPRESS_UPDATE_HINT,
     "The Quttera Web Malware Scanner WordPress plugin before 3.4.2.1 doesn't restrict access to detailed scan logs, which allows a malicious actor to discover local paths and portions of the site's code": "Wtyczka WordPress o nazwie Quttera Web Malware Scanner w wersji poniżej 3.4.2.1 umożliwia atakującemu pobranie dziennika skanowania i poznanie ścieżek i fragmentów kodu aplikacji."
     + WORDPRESS_UPDATE_HINT,
     "Odoo is a business suite that has features for many business-critical areas, such as e-commerce, billing, or CRM. Versions before the 16.0 release are vulnerable to CVE-2023-1434 and is caused by an incorrect content type being set on an API endpoint.": "System Odoo w wersji poniżej 16.0 zawiera podatność "
@@ -1026,6 +1027,10 @@ TRANSLATIONS = {
     "The Database for Contact Form 7, WPforms, Elementor forms plugin for WordPress is vulnerable to PHP Object Injection in all versions up to and including 1.4.7.": "Wtyczka WordPress o nazwie Database for Contact Form 7, WPforms, Elementor forms w wersjach do 1.4.7 zawiera podatność PHP Object Injection o identyfikatorze CVE-2026-2599."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "XWiki is vulnerable to Hibernate Query Language (HQL) injection in the wiki and space search REST API starting in version 4.3-milestone-1 and prior to versions 16.10.9, 17.4.2, and 17.5.0. The vulnerability allows attackers to inject malicious HQL queries through the orderField parameter, potentially leading to data extraction, authentication bypass, or remote code execution depending on database backend and configuration.": "System XWiki w wersjach od 4.3-milestone-1 do poniżej 16.10.9, 17.4.2 i 17.5.0 zawiera podatność SQL Injection o identyfikatorze CVE-2025-52472, umożliwiającą atakującemu odczyt danych z bazy danych."
+    + UPDATE_HINT,
+    "MongoDB Server contained a flaw in the zlib decompression logic where\nmismatched length fields in compressed protocol headers allowed a read\nof uninitialized heap memory by an unauthenticated client.": "Serwer MongoDB zawierał podatność o identyfikatorze CVE-2025-14847, umożliwiającą dostęp do części pamięci serwera." + DATA_HIDE_HINT,
+    "Apache Struts 2.0.0 through Struts 2.5.25 is susceptible to remote code execution because forced OGNL evaluation, when evaluated on raw user input in tag attributes, may allow it.": "System Apache Struts w wersjach od 2.0.0 do 2.5.25 zawiera podatność zdalnego wykonania kodu o identyfikatorze CVE-2020-17530." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
     "XWiki is vulnerable to Hibernate Query Language (HQL) injection in the wiki and space search REST API starting in version 4.3-milestone-1 and prior to versions 16.10.9, 17.4.2, and 17.5.0.": "System XWiki w wersjach od 4.3-milestone-1 do poniżej 16.10.9, 17.4.2 i 17.5.0 zawiera podatność SQL Injection o identyfikatorze CVE-2025-52472, umożliwiającą atakującemu odczyt danych z bazy danych."
     + UPDATE_HINT,
     "Appwrite through 1.2.1 is susceptible to server-side request forgery via the component /v1/avatars/favicon.": "System Appwrite w wersjach do 1.2.1 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2023-27159, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
@@ -2489,4 +2494,6 @@ TRANSLATIONS = {
     "IBM Maximo login panel was detected.": "Wykryto panel IBM Maximo.",
     "Supervisor Dashboard was detected and appeared to be accessible without authentication.": "Wykryto panel Supervisor Dashboard.",
     "HAL Management Console login panel was discovered.": "Wykryto panel logowania HAL Management Console.",
+    "Allegro RomPager was detected.This toolkit was commonly used in embedded devices such as routers, cameras, and IoT devices, often on historical hardware with possible default credentials.": "Wykryto panel Allegro RomPager, który może być potencjalnie zainstalowany na nieaktualnym urządzeniu lub używać domyślnych danych logowania.",
+    "Woodpecker CI panel was detected. Woodpecker is a community fork of Drone CI, providing a simple yet powerful continuous integration platform.": "Wykryto panel Woodpecker CI.",
 }

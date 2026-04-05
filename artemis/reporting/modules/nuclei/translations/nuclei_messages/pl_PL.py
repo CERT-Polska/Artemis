@@ -997,6 +997,7 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "ZK Framework 9.6.1, 9.6.0.1, 9.5.1.3, 9.0.1.2 and 8.6.4.1 is susceptible to information disclosure. An attacker can access sensitive information via a crafted POST request to the component AuUploader and thereby possibly obtain additional sensitive information, modify data, and/or execute unauthorized operations.": "Framework ZK w wersjach 8.6.4.1, 9.0.1.2, 9.5.1.3, 9.6.0.1 i 9.6.1 zawiera podatność o identyfikatorze CVE-2022-36537, umożliwiającą dostęp do wrażliwych informacji." + DATA_HIDE_HINT,
     "The ProfileGrid – User Profiles, Groups and Communities plugin for WordPress is vulnerable to SQL Injection in versions up to, and including, 5.7.8 due to insufficient escaping on the user supplied 'search' parameter and lack of sufficient preparation on the existing SQL query.": "Wtyczka WordPress o nazwie ProfileGrid – User Profiles, Groups and Communities w wersji do 5.7.8 włącznie zawiera podatność SQL Injection o identyfikatorze CVE-2024-30490, umożliwiającą odczyt danych z bazy danych." + WORDPRESS_UPDATE_HINT,
     "The Quttera Web Malware Scanner WordPress plugin before 3.4.2.1 doesn't restrict access to detailed scan logs, which allows a malicious actor to discover local paths and portions of the site's code": "Wtyczka WordPress o nazwie Quttera Web Malware Scanner w wersji poniżej 3.4.2.1 umożliwia atakującemu pobranie dziennika skanowania i poznanie ścieżek i fragmentów kodu aplikacji."
     + WORDPRESS_UPDATE_HINT,
@@ -2496,4 +2497,5 @@ TRANSLATIONS = {
     "HAL Management Console login panel was discovered.": "Wykryto panel logowania HAL Management Console.",
     "Allegro RomPager was detected.This toolkit was commonly used in embedded devices such as routers, cameras, and IoT devices, often on historical hardware with possible default credentials.": "Wykryto panel Allegro RomPager, który może być potencjalnie zainstalowany na nieaktualnym urządzeniu lub używać domyślnych danych logowania.",
     "Woodpecker CI panel was detected. Woodpecker is a community fork of Drone CI, providing a simple yet powerful continuous integration platform.": "Wykryto panel Woodpecker CI.",
+    "Prometheus Pushgateway panel was detected.": "Wykryto panel Prometheus Pushgateway.",
 }

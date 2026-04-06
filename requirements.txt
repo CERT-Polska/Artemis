@@ -251,7 +251,7 @@ pydantic-settings==2.13.1
     #   fastapi-csrf-protect
     #   openapi-schema-validator
     #   openapi-spec-validator
-pygments==2.19.2
+pygments==2.20.0
     # via rich
 pyleri==1.5.0
     # via checkdmarc

@@ -87,10 +87,7 @@ click==8.3.1
 click-plugins==1.1.1.2
     # via shodan
 colorama==0.4.6
-    # via
-    #   click
-    #   shodan
-    #   tqdm
+    # via shodan
 coverage==7.13.5
     # via unittest-parallel
 cryptography==46.0.5
@@ -294,7 +291,7 @@ referencing==0.37.0
     #   jsonschema-path
     #   jsonschema-specifications
     #   openapi-schema-validator
-requests==2.32.5
+requests==2.33.0
     # via
     #   -r requirements.in
     #   checkdmarc

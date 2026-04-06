@@ -680,6 +680,7 @@ class ArtemisBase(Karton):
 
             output = b""
             try:
+                retries_exhausted_with_errors = False
                 for i in range(self.num_retries):
                     try:
                         output_redirector = OutputRedirector()
@@ -702,6 +703,8 @@ class ArtemisBase(Karton):
                                 self.log.error(
                                     "Task(s) returned error status, retrying (try %d/%d)", i + 1, self.num_retries
                                 )
+                            else:
+                                retries_exhausted_with_errors = True
                         else:
                             break
 
@@ -715,6 +718,14 @@ class ArtemisBase(Karton):
                                     task=task, status=TaskStatus.ERROR, data=traceback.format_exc()
                                 )
                             raise
+
+                if retries_exhausted_with_errors:
+                    self.log.error(
+                        "Task(s) still have error status after %d retries", self.num_retries
+                    )
+                    raise RuntimeError(
+                        f"Task(s) still have ERROR status after {self.num_retries} retries"
+                    )
             finally:
                 for task in task_group:
                     if Config.Data.SAVE_LOGS_IN_DATABASE:

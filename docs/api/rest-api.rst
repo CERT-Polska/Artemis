@@ -30,6 +30,8 @@ Step 1: Add targets to scan
 
 Use ``POST /api/add`` to submit targets for scanning.
 
+.. test-id:: step1-add
+
 .. code-block:: bash
 
    curl -s -X POST http://localhost:5000/api/add \
@@ -67,6 +69,8 @@ Step 2: List analyses
 
 Use ``GET /api/analyses`` to list all analyses (scanned targets).
 
+.. test-id:: step2-list-analyses
+
 .. code-block:: bash
 
    curl -s http://localhost:5000/api/analyses \
@@ -93,6 +97,8 @@ Step 3: Monitor queue
 
 Use ``GET /api/num-queued-tasks`` to check how many tasks are still waiting to be processed.
 
+.. test-id:: step3-num-queued-tasks
+
 .. code-block:: bash
 
    curl -s http://localhost:5000/api/num-queued-tasks \
@@ -108,6 +114,8 @@ The response is a plain integer. When it reaches ``0``, all tasks have been pick
 
 You can also filter by specific module names:
 
+.. test-id:: step3-num-queued-tasks-filtered
+
 .. code-block:: bash
 
    curl -s "http://localhost:5000/api/num-queued-tasks?karton_names=nuclei&karton_names=bruter" \
@@ -117,6 +125,8 @@ Step 4: Retrieve results
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Use ``GET /api/task-results`` to fetch scanning results.
+
+.. test-id:: step4-task-results
 
 .. code-block:: bash
 
@@ -157,6 +167,8 @@ Step 5: Stop and delete an analysis
 
 Use ``POST /api/stop-and-delete-analysis`` to cancel a running scan and remove its data.
 
+.. test-id:: step5-stop-and-delete
+
 .. code-block:: bash
 
    curl -s -X POST "http://localhost:5000/api/stop-and-delete-analysis?analysis_id=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" \
@@ -196,6 +208,8 @@ Response:
    {"ok": true}
 
 **List exports** -- ``GET /api/exports``
+
+.. test-id:: exports-list
 
 .. code-block:: bash
 
@@ -254,6 +268,8 @@ Archiving tags
 
 Use ``POST /api/archive-tag`` to archive all data associated with a tag:
 
+.. test-id:: archive-tag
+
 .. code-block:: bash
 
    curl -s -X POST "http://localhost:5000/api/archive-tag?tag=monthly-scan-2025-01" \
@@ -270,6 +286,8 @@ Checking the blocklist
 
 Use ``GET /api/is-blocklisted/{domain}`` to check whether scanning of a domain is blocked:
 
+.. test-id:: is-blocklisted
+
 .. code-block:: bash
 
    curl -s http://localhost:5000/api/is-blocklisted/example.com \
@@ -285,6 +303,8 @@ Rendering HTML messages
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Use ``POST /api/build-html-message`` to render a custom list of vulnerabilities as HTML:
+
+.. test-id:: build-html-message
 
 .. code-block:: bash
 

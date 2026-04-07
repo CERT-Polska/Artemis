@@ -9,17 +9,16 @@ import requests
 from karton.core import Task
 
 from artemis import load_risk_class
-from artemis.binds import Service, TaskStatus, TaskType
+from artemis.binds import Service, TaskType
 from artemis.config import Config
 from artemis.crawling import get_injectable_parameters
 from artemis.http_requests import HTTPResponse
 from artemis.injection_utils import (
     change_url_params,
     collect_urls_to_scan,
-    create_scan_result_data,
-    create_status_reason,
     create_url_with_batch_payload,
     is_url_with_parameters,
+    process_and_save_scan_results,
 )
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.parameters import URL_PARAMS
@@ -401,16 +400,7 @@ class SqlInjectionDetector(ArtemisBase):
         message = self.scan(urls=links, task=current_task)
         message = list(more_itertools.unique_everseen(message))
 
-        if message:
-            status = TaskStatus.INTERESTING
-            status_reason = create_status_reason(message)
-        else:
-            status = TaskStatus.OK
-            status_reason = None
-
-        data = create_scan_result_data(message, Statements)
-
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
+        process_and_save_scan_results(message, Statements, current_task, self.db)
 
 
 if __name__ == "__main__":

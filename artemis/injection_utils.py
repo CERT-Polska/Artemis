@@ -1,12 +1,18 @@
 import random
 import re
 from enum import Enum
-from typing import Any, Dict, List, Optional, Sequence, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Type
 from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
 
+from karton.core import Task
+
+from artemis.binds import TaskStatus
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
+
+if TYPE_CHECKING:
+    from artemis.db import DB
 
 
 def strip_query_string(url: str) -> str:
@@ -103,3 +109,25 @@ def create_scan_result_data(messages: List[Dict[str, Any]], statements_enum: Typ
         "result": messages,
         "statements": {e.value: e.name for e in statements_enum},
     }
+
+
+def process_and_save_scan_results(
+    messages: List[Dict[str, Any]],
+    statements_enum: Type[Enum],
+    task: Task,
+    db: "DB",
+) -> None:
+    """Process scan results and save them to the database.
+
+    Determines the task status based on whether vulnerabilities were found,
+    creates the status reason and result data, and saves to the database.
+    """
+    if messages:
+        status = TaskStatus.INTERESTING
+        status_reason = create_status_reason(messages)
+    else:
+        status = TaskStatus.OK
+        status_reason = None
+
+    data = create_scan_result_data(messages, statements_enum)
+    db.save_task_result(task=task, status=status, status_reason=status_reason, data=data)

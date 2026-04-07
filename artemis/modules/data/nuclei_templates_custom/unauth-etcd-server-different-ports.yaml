@@ -15,12 +15,23 @@ info:
     shodan-query: product:"etcd"
   tags: tech,k8s,kubernetes,devops,etcd,unauth,anonymous,misconfig
 
+network:
+  - host:
+      - "{{Hostname}}"
+    port:
+      - 2379
+      - 2380
+
+    inputs:
+    - data: "\n"
+
 http:
   - method: GET
     path:
-      - "{{BaseURL}}/v2/keys/"
-      - "http://{{Hostname}}:2379/v2/keys/"
-      - "http://{{Hostname}}:2380/v2/keys/"
+      - "/v2/keys/"
+    port:
+      - 2379
+      - 2380
 
     matchers-condition: and
     matchers:

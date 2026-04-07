@@ -65,5 +65,5 @@ if __name__ == "__main__":
             LOGGER.error("Shodan API key is required to start the Shodan vulnerability module.")
             LOGGER.error("Don't worry - all other modules can be used without this API key.")
 
-            with open(no_api_key_message_printed_filename, "w"):
+            with open(no_api_key_message_printed_filename, "w", encoding="utf-8"):
                 pass

@@ -26,9 +26,9 @@ services:
       RUNNING_TESTS: "true"
 
       # Use only one provider to speed up the tests
-      SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback"
+      SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback --timeout 60"
 
-      SQL_INJECTION_STOP_ON_FIRST_MATCH: False
+      SQL_INJECTION_STOP_ON_FIRST_MATCH: "false"
 
       NUCLEI_INTERACTSH_SERVER: https://interactsh.lab.cert.pl
 
@@ -37,13 +37,16 @@ services:
 
       REQUESTS_PER_SECOND: 0
       CUSTOM_PORT_SCANNER_PORTS: 21,80,443,6379
-      NUCLEI_CHECK_TEMPLATE_LIST: False
+      NUCLEI_CHECK_TEMPLATE_LIST: "false"
     env_file: env.test
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
       - ./test/:/opt/test/
       - ./docker/karton.ini:/etc/karton/karton.ini
+    depends_on:
+      test-grafana:
+        condition: service_healthy
 
   test-redis:
     image: redis:7.0.5
@@ -106,6 +109,11 @@ services:
     volumes:
       - ./test/data/php_easy_admin_password/:/var/www/html/
 
+  test-php-redirect-login:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_redirect_login/:/var/www/html
+
   test-php-mock-CVE-2020-28976:
     image: php:8.0-apache
     volumes:
@@ -124,12 +132,12 @@ services:
   test-ftp-server-with-easy-password:
     image: stilliard/pure-ftpd:latest
     environment:
-        - FTP_USER_NAME=admin
-        - FTP_USER_PASS=12345
-        - FTP_USER_HOME=/dev/shm
+      - FTP_USER_NAME=admin
+      - FTP_USER_PASS=12345
+      - FTP_USER_HOME=/dev/shm
 
   test-old-joomla:
-    image: joomla:4.0.5-php8.0-apache  # this is an old image on purpose
+    image: joomla:4.0.5-php8.0-apache # this is an old image on purpose
     environment:
       JOOMLA_DB_HOST: test-old-joomla-mysql
       JOOMLA_DB_PASSWORD: example
@@ -188,10 +196,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
 
+  test-ssh-with-bad-key:
+    build:
+      context: test/data/ssh_bad_keys
+      dockerfile: Dockerfile
+
   test-ssh-with-easy-password:
     image: lscr.io/linuxserver/openssh-server:latest
     environment:
-      PASSWORD_ACCESS: true
+      PASSWORD_ACCESS: "true"
       USER_PASSWORD: password
       USER_NAME: user
 
@@ -255,6 +268,20 @@ services:
     build:
       context: test/images/nginx-with-sni-tls
       dockerfile: Dockerfile
+
+  test-grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_SECURITY_DISABLE_BRUTE_FORCE_LOGIN_PROTECTION=true
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO /dev/null http://localhost:3000/api/health" ]
+      interval: 5s
+      timeout: 10s
+      retries: 12
+      start_period: 60s
 
 volumes:
   data-test:

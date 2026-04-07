@@ -30,7 +30,7 @@ class DomainExpirationScanner(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         # If the task originated from an IP-based one, that means, that we are scanning a domain that came from reverse DNS search.
-        # Close expiry date of sych domains is not actually related to scanned IP ranges, therefore let's skip it.
+        # Close expiry date of such domains is not actually related to scanned IP ranges, therefore let's skip it.
         if has_ip_range(current_task):
             return
 

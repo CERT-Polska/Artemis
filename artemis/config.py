@@ -330,6 +330,12 @@ class Config:
             ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=10, cast=int)
 
         class APIScanner:
+            API_SPEC_MAX_SIZE: Annotated[
+                int,
+                "Maximum size in bytes for downloading OpenAPI/Swagger specification files. "
+                "The default CONTENT_PREFIX_SIZE (100KB) is too small for most real-world API specs.",
+            ] = get_config("API_SPEC_MAX_SIZE", default=5 * 1024 * 1024, cast=int)
+
             ONLY_GET_REQUESTS: Annotated[
                 bool,
                 "If set to True, API scanner will only use GET requests to scan. If to False, a more intrusive scan "
@@ -366,6 +372,20 @@ class Config:
             )
             DANGLING_DNS_DELAY_STEP: Annotated[int, "Number of seconds for incremental step for retries."] = get_config(
                 "DANGLING_DNS_DELAY_STEP", default=600, cast=int
+            )
+            DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP: Annotated[
+                list[str],
+                "The list of known DNS zone records to skip. In case of those zone names we are sure that they are not claimable.",
+            ] = get_config(
+                "DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP",
+                default=",".join(
+                    [
+                        "lync.com",
+                        "microsoft.com",
+                        "google.com",
+                    ]
+                ),
+                cast=decouple.Csv(str),
             )
 
         class DNSScanner:
@@ -571,6 +591,7 @@ class Config:
                         # Not that severe to spam people
                         "javascript/cves/2023/CVE-2023-48795.yaml",
                         "http/cves/2024/CVE-2024-43919.yaml",
+                        "network/default-login/ftp-weak-credentials.yaml",
                         # We already check for Gitlab
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
                         # Too many FPs
@@ -1048,6 +1069,14 @@ class Config:
                 "Time to sleep between retries for subdomain enumeration in seconds.",
             ] = get_config("SUBDOMAIN_ENUMERATION_SLEEP_TIME_SECONDS", default=60, cast=int)
 
+            SUBFINDER_PROVIDER_CONFIG: Annotated[
+                str,
+                "Subfinder provider configuration in JSON format. "
+                "Used to generate provider-config.yaml dynamically. "
+                "Example: "
+                '\'{"github": ["key1", "key2"], "virustotal": ["key"]}\'',
+            ] = get_config("SUBFINDER_API_KEYS", default="")
+
             GAU_ADDITIONAL_OPTIONS: Annotated[
                 List[str],
                 "Additional command-line options that will be passed to gau (https://github.com/lc/gau).",
@@ -1089,6 +1118,10 @@ class Config:
                 bool,
                 "Whether to display only the first SQL injection and stop scanning.",
             ] = get_config("SQL_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN: Annotated[
+                int,
+                "Maximum number of parameters kept after SQLi parameter minimization.",
+            ] = get_config("SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN", default=5, cast=int)
             SQL_INJECTION_NUM_RETRIES_TIME_BASED: Annotated[
                 int,
                 "How many times to re-check whether long request duration with inject (and short without inject) is indeed a vulnerability or a random fluctuation ",
@@ -1103,6 +1136,10 @@ class Config:
                 bool,
                 "Whether to display only the first LFI and stop scanning.",
             ] = get_config("LFI_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            LFI_MINIMAL_PARAMS_MAX_LEN: Annotated[
+                int,
+                "Maximum number of parameters kept after LFI parameter minimization.",
+            ] = get_config("LFI_MINIMAL_PARAMS_MAX_LEN", default=5, cast=int)
 
     @staticmethod
     def verify_each_variable_is_annotated() -> None:

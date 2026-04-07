@@ -25,4 +25,41 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-php-easy-admin-password:80/index.php")
         self.assertEqual(call.kwargs["data"]["results"][0]["username"], "admin")
         self.assertEqual(call.kwargs["data"]["results"][0]["password"], "admin")
-        self.assertEqual(call.kwargs["data"]["results"][0]["indicators"], ["logout_link", "no_failure_messages"])
+        self.assertEqual(
+            call.kwargs["data"]["results"][0]["indicators"], ["redirect", "logout_link", "no_failure_messages"]
+        )
+
+    def test_redirect_login(self) -> None:
+        """Test that redirect-only login is detected."""
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-php-redirect-login",
+                "port": 80,
+            },
+        )
+
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-php-redirect-login:80/index.php")
+        self.assertEqual(call.kwargs["data"]["results"][0]["username"], "admin")
+        self.assertEqual(call.kwargs["data"]["results"][0]["password"], "admin")
+        self.assertEqual(call.kwargs["data"]["results"][0]["indicators"], ["redirect", "no_failure_messages"])
+
+    def test_grafana_json_login(self) -> None:
+        """Test that JSON API login works against a real Grafana instance (no HTML form)."""
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-grafana",
+                "port": 3000,
+            },
+        )
+
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertEqual(call.kwargs["data"]["results"][0]["username"], "admin")
+        self.assertEqual(call.kwargs["data"]["results"][0]["password"], "admin")
+        self.assertIn("json_api_token", call.kwargs["data"]["results"][0]["indicators"])

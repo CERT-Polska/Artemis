@@ -6,6 +6,7 @@ line-length = 120
 
 [tool.liccheck]
 authorized_licenses = [
+    "0bsd",
     "bsd",
     "apache 2.0",
     "Apache-2.0",
@@ -18,6 +19,7 @@ authorized_licenses = [
     "isc",
     "isc license (iscl)",
     "LGPL-2.1",
+    "LGPL-3.0-or-later",
     "gnu lesser general public license v2 or later (lgplv2+)",
     "gnu library or lesser general public license (lgpl)",
     "mozilla public license 2.0 (mpl 2.0)",
@@ -43,3 +45,10 @@ aiofiles = "0.7.0"
 
 # Apache 2 (https://github.com/c0fec0de/anytree), not properly provided in package metadata
 anytree = "2.11.1"
+
+[tool.pip-tools]
+# no-header prevents pip-compile from emitting a Python-version-specific header
+# which would differ between developer machines, CI (Python 3.11), and Dependabot's
+# runner — causing the pre-commit hook to perpetually flag requirements.txt as modified.
+# Dependabot reads this config natively and adds --no-header automatically.
+no-header = true

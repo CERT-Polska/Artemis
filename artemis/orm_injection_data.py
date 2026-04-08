@@ -1,3 +1,23 @@
+# Common parameter names to probe on endpoints that have no existing query parameters.
+# These are typical names found in Django views, DRF filters, and admin panels.
+COMMON_PARAM_NAMES = [
+    "id",
+    "name",
+    "username",
+    "email",
+    "search",
+    "q",
+    "query",
+    "title",
+    "slug",
+    "status",
+    "type",
+    "page",
+    "order",
+    "sort",
+    "filter",
+]
+
 ORM_LOOKUP_SUFFIXES = [
     "__exact",
     "__iexact",

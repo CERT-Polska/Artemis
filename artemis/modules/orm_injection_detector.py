@@ -14,7 +14,11 @@ from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
-from artemis.orm_injection_data import ORM_LOOKUP_SUFFIXES, SENSITIVE_FIELD_PROBES
+from artemis.orm_injection_data import (
+    COMMON_PARAM_NAMES,
+    ORM_LOOKUP_SUFFIXES,
+    SENSITIVE_FIELD_PROBES,
+)
 from artemis.task_utils import get_target_url
 
 UNLIKELY_VALUE = "ZZZXQQIMPOSSIBLE99"
@@ -28,8 +32,12 @@ class Statements(Enum):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class OrmInjectionDetector(ArtemisBase):
     """
-    Module for detecting basic ORM injection vulnerabilities, currently focused
-    on Django-style query parameter manipulation (the most common case).
+    Module for detecting ORM injection vulnerabilities.
+
+    Detection strategies are split into separate methods per ORM style so that
+    new styles (e.g. SQLAlchemy, Sequelize) can be added independently:
+      - _test_django_style_lookups: Django __lookup suffix injection
+      - _test_django_sensitive_field_probes: Django sensitive field enumeration
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
@@ -50,16 +58,19 @@ class OrmInjectionDetector(ArtemisBase):
         return response.content
 
     def _responses_differ(self, response_a: Optional[HTTPResponse], response_b: Optional[HTTPResponse]) -> bool:
-        text_a = self._get_response_text(response_a)
-        text_b = self._get_response_text(response_b)
-
-        if not text_a and not text_b:
+        if response_a is None or response_b is None:
             return False
 
-        status_a = response_a.status_code if response_a else 0
-        status_b = response_b.status_code if response_b else 0
-        if status_a != status_b:
-            return True
+        # Skip server errors — a 5xx is noise (e.g. the server crashing on an unexpected param),
+        # not evidence of ORM processing. 4xx responses are kept as some apps return e.g. 404
+        # for "no matching records".
+        status_a = response_a.status_code
+        status_b = response_b.status_code
+        if status_a >= 500 or status_b >= 500:
+            return False
+
+        text_a = self._get_response_text(response_a)
+        text_b = self._get_response_text(response_b)
 
         return text_a != text_b
 
@@ -71,6 +82,14 @@ class OrmInjectionDetector(ArtemisBase):
         new_query = urlencode(merged)
         return urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_query, parsed.fragment))
 
+    def _has_dynamic_content(self, url: str) -> bool:
+        """Sends the same request twice to check if the endpoint returns non-deterministic
+        content (e.g. timestamps, random tokens). If it does, differential analysis would
+        produce false positives."""
+        response_a = self.forgiving_http_get(url)
+        response_b = self.forgiving_http_get(url)
+        return self._responses_differ(response_a, response_b)
+
     def _test_lookup_suffix(self, original_url: str, param_name: str, suffix: str, likely_value: str) -> bool:
         # Sends two requests: one with a value likely to match records and one with a value
         # unlikely to match. If the responses differ, the ORM is processing the suffix.
@@ -81,26 +100,99 @@ class OrmInjectionDetector(ArtemisBase):
         siblings = {k: v[0] for k, v in parse_qs(parsed.query).items() if k != param_name}
         base = self._strip_query_string(original_url)
 
+        # Skip endpoints with non-deterministic content to avoid false positives
+        if self._has_dynamic_content(original_url):
+            return False
+
         url_likely = self._build_url_with_params(base, {**siblings, param_with_suffix: likely_value})
         url_unlikely = self._build_url_with_params(base, {**siblings, param_with_suffix: UNLIKELY_VALUE})
 
         response_likely = self.forgiving_http_get(url_likely)
         response_unlikely = self.forgiving_http_get(url_unlikely)
 
-        if not self._responses_differ(response_likely, response_unlikely):
-            return False
+        return self._responses_differ(response_likely, response_unlikely)
 
-        # Double-check: the baseline (original URL as-is) should differ
-        # from at least one of the above to confirm the suffix is actually being processed
-        baseline_response = self.forgiving_http_get(original_url)
-        baseline_text = self._get_response_text(baseline_response)
-        likely_text = self._get_response_text(response_likely)
-        unlikely_text = self._get_response_text(response_unlikely)
+    def _get_django_likely_value(self, suffix: str, original_value: str) -> str:
+        if suffix in ("__startswith", "__istartswith"):
+            return original_value[:1] if original_value else "a"
+        elif suffix in ("__contains", "__icontains"):
+            return original_value[:2] if len(original_value) >= 2 else original_value or "a"
+        elif suffix in ("__endswith", "__iendswith"):
+            return original_value[-1:] if original_value else "a"
+        elif suffix in ("__gt", "__gte"):
+            return "0"
+        elif suffix in ("__lt", "__lte"):
+            return "zzzzzzzzz"
+        elif suffix in ("__exact", "__iexact"):
+            return original_value
+        elif suffix in ("__regex", "__iregex"):
+            return ".*"
+        return original_value
 
-        if baseline_text != likely_text or baseline_text != unlikely_text:
-            return True
+    def _test_django_style_lookups(
+        self, current_url: str, base_url: str, query_params: Dict[str, List[str]]
+    ) -> List[Dict[str, Any]]:
+        """Tests for Django-style ORM injection by appending lookup suffixes (e.g. __contains,
+        __startswith) to existing query parameters and checking for differential responses."""
+        results: List[Dict[str, Any]] = []
 
-        return False
+        for param_name, values in query_params.items():
+            original_value = values[0] if values else ""
+
+            for suffix in ORM_LOOKUP_SUFFIXES:
+                likely_value = self._get_django_likely_value(suffix, original_value)
+
+                if self._test_lookup_suffix(current_url, param_name, suffix, likely_value):
+                    self.log.info("Matched ORM lookup: %s%s on %s", param_name, suffix, current_url)
+                    results.append(
+                        {
+                            "url": current_url,
+                            "parameter": param_name,
+                            "suffix": suffix,
+                            "statement": "It appears that this URL is vulnerable to ORM injection",
+                            "code": Statements.orm_injection.value,
+                        }
+                    )
+                    if Config.Modules.OrmInjectionDetector.ORM_INJECTION_STOP_ON_FIRST_MATCH:
+                        return results
+                    break
+
+        return results
+
+    def _test_django_sensitive_field_probes(self, base_url: str) -> List[Dict[str, Any]]:
+        """Probes for Django-style ORM access to sensitive database fields (e.g. password, is_admin)
+        by injecting field__lookup parameters even on URLs without existing query parameters."""
+        results: List[Dict[str, Any]] = []
+
+        # Skip endpoints with non-deterministic content to avoid false positives
+        if self._has_dynamic_content(base_url):
+            return results
+
+        for field_name, lookup, probe_value in SENSITIVE_FIELD_PROBES:
+            param_with_lookup = f"{field_name}__{lookup}"
+
+            url_with_probe = self._build_url_with_params(base_url, {param_with_lookup: probe_value})
+            url_with_unlikely = self._build_url_with_params(base_url, {param_with_lookup: UNLIKELY_VALUE})
+
+            response_probe = self.forgiving_http_get(url_with_probe)
+            response_unlikely = self.forgiving_http_get(url_with_unlikely)
+
+            if self._responses_differ(response_probe, response_unlikely):
+                self.log.info("Matched ORM sensitive field: %s on %s", param_with_lookup, base_url)
+                results.append(
+                    {
+                        "url": base_url,
+                        "parameter": param_with_lookup,
+                        "suffix": f"__{lookup}",
+                        "statement": "It appears that this URL allows ORM filtering on sensitive fields",
+                        "code": Statements.orm_sensitive_field_access.value,
+                    }
+                )
+                if Config.Modules.OrmInjectionDetector.ORM_INJECTION_STOP_ON_FIRST_MATCH:
+                    return results
+                break
+
+        return results
 
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
@@ -109,76 +201,23 @@ class OrmInjectionDetector(ArtemisBase):
         for current_url in urls:
             parsed = urlparse(current_url)
             query_params = parse_qs(parsed.query)
-
             base_url = self._strip_query_string(current_url)
 
-            for param_name, values in query_params.items():
-                original_value = values[0] if values else ""
+            # Use existing query params if present, otherwise probe with common param names
+            if query_params:
+                params_to_test = query_params
+            else:
+                params_to_test = {name: ["test"] for name in COMMON_PARAM_NAMES}
 
-                for suffix in ORM_LOOKUP_SUFFIXES:
-                    if suffix in ("__startswith", "__istartswith"):
-                        likely_value = original_value[:1] if original_value else "a"
-                    elif suffix in ("__contains", "__icontains"):
-                        likely_value = original_value[:2] if len(original_value) >= 2 else original_value or "a"
-                    elif suffix in ("__endswith", "__iendswith"):
-                        likely_value = original_value[-1:] if original_value else "a"
-                    elif suffix in ("__gt", "__gte"):
-                        likely_value = ""
-                    elif suffix in ("__lt", "__lte"):
-                        likely_value = "zzzzzzzzz"
-                    elif suffix in ("__exact", "__iexact"):
-                        likely_value = original_value
-                    elif suffix in ("__regex", "__iregex"):
-                        likely_value = ".*"
-                    else:
-                        likely_value = original_value
+            lookup_results = self._test_django_style_lookups(current_url, base_url, params_to_test)
+            message.extend(lookup_results)
+            if lookup_results and Config.Modules.OrmInjectionDetector.ORM_INJECTION_STOP_ON_FIRST_MATCH:
+                return message
 
-                    if self._test_lookup_suffix(current_url, param_name, suffix, likely_value):
-                        self.log.info("Matched ORM lookup: %s%s on %s", param_name, suffix, current_url)
-                        message.append(
-                            {
-                                "url": current_url,
-                                "parameter": param_name,
-                                "suffix": suffix,
-                                "statement": "It appears that this URL is vulnerable to ORM injection",
-                                "code": Statements.orm_injection.value,
-                            }
-                        )
-                        if Config.Modules.OrmInjectionDetector.ORM_INJECTION_STOP_ON_FIRST_MATCH:
-                            return message
-                        break
-
-            for field_name, lookup, probe_value in SENSITIVE_FIELD_PROBES:
-                param_with_lookup = f"{field_name}__{lookup}"
-
-                url_with_probe = self._build_url_with_params(base_url, {param_with_lookup: probe_value})
-                url_with_unlikely = self._build_url_with_params(base_url, {param_with_lookup: UNLIKELY_VALUE})
-
-                response_probe = self.forgiving_http_get(url_with_probe)
-                response_unlikely = self.forgiving_http_get(url_with_unlikely)
-
-                if self._responses_differ(response_probe, response_unlikely):
-                    # Baseline check: confirm the endpoint actually processes the param
-                    # (not just returning dynamic content)
-                    baseline_response = self.forgiving_http_get(base_url)
-                    baseline_text = self._get_response_text(baseline_response)
-                    probe_text = self._get_response_text(response_probe)
-                    unlikely_text = self._get_response_text(response_unlikely)
-                    if baseline_text == probe_text and baseline_text == unlikely_text:
-                        continue
-                    self.log.info("Matched ORM sensitive field: %s on %s", param_with_lookup, base_url)
-                    message.append(
-                        {
-                            "url": base_url,
-                            "parameter": param_with_lookup,
-                            "suffix": f"__{lookup}",
-                            "statement": "It appears that this URL allows ORM filtering on sensitive fields",
-                            "code": Statements.orm_sensitive_field_access.value,
-                        }
-                    )
-                    if Config.Modules.OrmInjectionDetector.ORM_INJECTION_STOP_ON_FIRST_MATCH:
-                        return message
-                    break
+            field_results = self._test_django_sensitive_field_probes(base_url)
+            message.extend(field_results)
+            if field_results and Config.Modules.OrmInjectionDetector.ORM_INJECTION_STOP_ON_FIRST_MATCH:
+                return message
 
         return message
 

@@ -61,15 +61,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
 
-  orm-injection-test-postgres:
-    image: postgres
-    restart: always
-    shm_size: 256mb
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-
   sql-injection-test-postgres:
     image: postgres
     restart: always
@@ -260,11 +251,22 @@ services:
     volumes:
       - ./test/data/lfi-rce/:/var/www/html/
 
+  orm-injection-test-postgres:
+    image: postgres
+    restart: always
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
   test-flask-with-orm-injection:
     build:
       context: .
       dockerfile: test/data/orm_injection/Dockerfile
     restart: on-failure
+    depends_on:
+      - orm-injection-test-postgres
     volumes:
       - ./test/data/orm_injection/:/app/
 

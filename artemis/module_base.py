@@ -4,6 +4,7 @@ import fcntl
 import ipaddress
 import json
 import logging
+import os
 import random
 import shutil
 import signal
@@ -96,6 +97,8 @@ class ArtemisBase(Karton):
         self.setup_logger(Config.Miscellaneous.LOG_LEVEL)
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
+        if os.path.exists(os.path.join(os.path.dirname(__file__), "..", "config.yaml")):
+            self.log.info("Loading configuration from config.yaml")
 
         # Initialize configuration
         registry = RuntimeConfigurationRegistry()

@@ -1,7 +1,9 @@
 import os
-from typing import Annotated, Any, List, Optional, get_type_hints
+from pathlib import Path
+from typing import Annotated, Any, Dict, List, Optional, cast, get_type_hints
 
 import decouple
+import yaml
 
 from artemis.modules.runtime_configuration.nuclei_configuration import (
     SeverityThreshold as NucleiSeverityThreshold,
@@ -10,7 +12,57 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 DEFAULTS = {}
 
 
+def load_yaml_config() -> Dict[str, Any]:
+    """Load configuration from YAML file with local override support."""
+    config = {}
+
+    root_dir = Path(__file__).parent.parent
+
+    base_path = root_dir / "config.yaml"
+    try:
+        if base_path.exists():
+            with open(base_path, "r", encoding="utf-8") as f:
+                result = yaml.safe_load(f)
+                if result is not None:
+                    config.update(cast(Dict[str, Any], result))
+    except (FileNotFoundError, PermissionError, OSError) as e:
+        print(f"Error reading config file {base_path}: {e}")
+    except yaml.YAMLError as e:
+        print(f"Invalid YAML in {base_path}: {e}")
+    except Exception as e:
+        print(f"Unexpected error loading config {base_path}: {e}")
+
+    local_path = Path(__file__).parent / "config.local.yaml"
+    try:
+        if local_path.exists():
+            with open(local_path, "r", encoding="utf-8") as f:
+                local_result = yaml.safe_load(f)
+                if local_result:
+                    config.update(local_result)
+    except (FileNotFoundError, PermissionError, OSError) as e:
+        print(f"Error reading local config file {local_path}: {e}")
+    except yaml.YAMLError as e:
+        print(f"Invalid YAML in {local_path}: {e}")
+    except Exception as e:
+        print(f"Unexpected error loading local config {local_path}: {e}")
+
+    return config
+
+
+YAML_CONFIG = load_yaml_config()
+
+
 def get_config(name: str, **kwargs) -> Any:  # type: ignore
+    if name in YAML_CONFIG:
+        yaml_value = YAML_CONFIG[name]
+
+        if name == "PLACEHOLDER_PAGE_CONTENT_FILENAME" and yaml_value:
+            if not os.path.isabs(yaml_value):
+                return os.path.join(os.path.dirname(__file__), yaml_value)
+        if yaml_value == "":
+            return ""
+
+        return yaml_value
     if "default" in kwargs:
         DEFAULTS[name] = kwargs["default"]
     return decouple.config(name, **kwargs)

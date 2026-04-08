@@ -15,6 +15,17 @@ else
     ENV_MESSAGE=""
 fi
 
+if ! exists config.yaml; then
+    cp config.yaml.example config.yaml
+    YAML_MESSAGE="\e[1mThe config.yaml file has been been created. You can access it later to configure YAML settings.\e[0m"
+else
+    YAML_MESSAGE=""
+fi
+
+if ! exists config.local.yaml; then
+    cp config.local.yaml.example config.local.yaml
+    echo "Created config.local.yaml - this file is git-ignored for your personal settings"
+fi
 
 MODE="production"
 SINGLE_WORKER_MODE=false

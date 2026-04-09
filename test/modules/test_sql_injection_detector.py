@@ -217,7 +217,7 @@ class SqlInjectionHeaderMinimizationTestCase(ArtemisModuleTestCase):
 
         with patch("artemis.modules.sql_injection_detector.HEADERS", base_headers):
             with patch("artemis.config.Config.Modules.SqlInjectionDetector") as mocked_config:
-                mocked_config.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN = 5
+                mocked_config.SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN = 5
                 with patch.object(self.karton, "contains_error", side_effect=mocked_contains_error):
                     with patch.object(self.karton, "forgiving_http_get", side_effect=mocked_http_get):
                         minimal_headers = self.karton.minimize_headers(

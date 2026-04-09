@@ -209,7 +209,7 @@ class SqlInjectionDetector(ArtemisBase):
         """
         Try to find the minimal set of headers that still triggers SQLi. Currently minimizes to single headers only.
         Falls back to original headers if none work individually. When minimized headers are found,
-        the result is capped to SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN.
+        the result is capped to SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN.
         """
         if minimization_mode == "error" and baseline_payload is None:
             raise ValueError("baseline_payload is required for error-based minimization")
@@ -241,7 +241,7 @@ class SqlInjectionDetector(ArtemisBase):
         if minimal_headers:
             capped_minimal_headers = dict(
                 list(minimal_headers.items())[
-                    : Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN
+                    : Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN
                 ]
             )
             mode_label = "error-based" if minimization_mode == "error" else "time-based"

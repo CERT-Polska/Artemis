@@ -100,10 +100,6 @@ class OrmInjectionDetector(ArtemisBase):
         siblings = {k: v[0] for k, v in parse_qs(parsed.query).items() if k != param_name}
         base = self._strip_query_string(original_url)
 
-        # Skip endpoints with non-deterministic content to avoid false positives
-        if self._has_dynamic_content(original_url):
-            return False
-
         url_likely = self._build_url_with_params(base, {**siblings, param_with_suffix: likely_value})
         url_unlikely = self._build_url_with_params(base, {**siblings, param_with_suffix: UNLIKELY_VALUE})
 
@@ -135,6 +131,10 @@ class OrmInjectionDetector(ArtemisBase):
         """Tests for Django-style ORM injection by appending lookup suffixes (e.g. __contains,
         __startswith) to existing query parameters and checking for differential responses."""
         results: List[Dict[str, Any]] = []
+
+        # Check once per URL, not per suffix
+        if self._has_dynamic_content(current_url):
+            return results
 
         for param_name, values in query_params.items():
             original_value = values[0] if values else ""

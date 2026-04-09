@@ -15,6 +15,7 @@ from typing import Any, Dict, List
 
 import more_itertools
 from karton.core import Task
+from prometheus_client import Counter, Histogram, start_http_server
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
@@ -46,6 +47,62 @@ EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
 NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
+
+
+METRIC_WORK_UNITS = Counter("nuclei_work_units_total", "Total (targets x templates) processed", ["scan_type"])
+
+METRIC_BATCH_COMMAND_DURATION = Histogram(
+    "nuclei_batch_command_duration_seconds",
+    "Duration per batch",
+    ["scan_type"],
+    buckets=(
+        1,
+        2,
+        5,
+        10,
+        30,
+        60,
+        120,
+        180,
+        240,
+        300,
+        600,
+        900,
+        1200,
+        1800,
+        3600,
+        7200,
+        14400,
+        28800,
+    ),
+)
+
+METRIC_SCAN_DURATION = Histogram(
+    "nuclei_scan_duration_seconds",
+    "Duration per scan",
+    ["scan_type"],
+    buckets=(
+        1,
+        2,
+        5,
+        10,
+        30,
+        60,
+        120,
+        180,
+        240,
+        300,
+        600,
+        900,
+        1200,
+        1800,
+        3600,
+        7200,
+        14400,
+        28800,
+    ),
+)
+
 
 logger = logging.getLogger(__name__)
 
@@ -493,7 +550,12 @@ class Nuclei(ArtemisBase):
                     os.makedirs("/fake-home/nuclei-templates", exist_ok=True)
                     env["HOME"] = "/fake-home/"
 
+                command_start_time = time.time()
                 stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)
+                METRIC_BATCH_COMMAND_DURATION.labels(scan_type=scan_using).observe(time.time() - command_start_time)
+
+                units = len(targets) * len(templates_or_workflows_filtered)
+                METRIC_WORK_UNITS.labels(scan_type=scan_using).inc(units)
 
                 stdout_utf8 = stdout.decode("utf-8", errors="ignore")
                 stderr_utf8 = stderr.decode("utf-8", errors="ignore")
@@ -541,13 +603,15 @@ class Nuclei(ArtemisBase):
                     finding["template"] = finding["template-path"][len(NUCLEI_TEMPLATES_LOCATION) :]
 
                 findings.append(finding)
+        scan_duration = time.time() - time_start
+        METRIC_SCAN_DURATION.labels(scan_type=scan_using).observe(scan_duration)
         self.log.info(
             "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f seconds",
             len(targets),
             targets[:3],
             len(templates_or_workflows_filtered),
             templates_or_workflows_filtered[:3],
-            time.time() - time_start,
+            scan_duration,
         )
 
         return findings
@@ -751,4 +815,5 @@ RuntimeConfigurationRegistry().register_configuration(Nuclei.identity, NucleiCon
 
 
 if __name__ == "__main__":
+    start_http_server(9001)
     Nuclei().loop()

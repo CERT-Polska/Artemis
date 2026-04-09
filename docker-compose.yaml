@@ -260,6 +260,8 @@ services:
   karton-nuclei:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.nuclei"
+    labels:
+      prometheus.port: "9001"
     env_file: .env
     restart: always
     volumes:

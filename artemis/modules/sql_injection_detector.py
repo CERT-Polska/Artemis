@@ -202,7 +202,14 @@ class SqlInjectionDetector(ArtemisBase):
     def create_status_reason(message: Any) -> str:
         status_reason = []
         for injection_message in message:
-            status_reason.append(f"{injection_message.get('url')}: {injection_message.get('statement')}")
+            base_reason = f"{injection_message.get('url')}: {injection_message.get('statement')}"
+
+            headers_used = injection_message.get("headers")
+            if headers_used:
+                headers_text = ", ".join([f"{k}: {v}" for k, v in headers_used.items()])
+                base_reason += f" (Headers used: {headers_text})"
+
+            status_reason.append(base_reason)
         return ", ".join(set(status_reason))
 
     @staticmethod
@@ -270,7 +277,7 @@ class SqlInjectionDetector(ArtemisBase):
                                     "url": minimal_url,
                                     "headers": {},
                                     "matched_error": error,
-                                    "message": "It appears that this URL is vulnerable to SQL injection",
+                                    "statement": "It appears that this URL is vulnerable to SQL injection",
                                     "code": Statements.sql_injection.value,
                                 }
                             )
@@ -421,7 +428,6 @@ class SqlInjectionDetector(ArtemisBase):
                             "matched_error": error,
                             "statement": "It appears that this URL is vulnerable to SQL injection through HTTP Headers",
                             "code": Statements.headers_sql_injection.value,
-                            "headers": headers,
                         }
                     )
                     if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
@@ -452,7 +458,6 @@ class SqlInjectionDetector(ArtemisBase):
                             "headers": headers,
                             "statement": "It appears that this URL is vulnerable to time-based SQL injection through HTTP Headers",
                             "code": Statements.headers_time_based_sql_injection.value,
-                            "headers": headers,
                         }
                     )
                     if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:

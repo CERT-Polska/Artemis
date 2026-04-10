@@ -591,6 +591,7 @@ class Config:
                         # Not that severe to spam people
                         "javascript/cves/2023/CVE-2023-48795.yaml",
                         "http/cves/2024/CVE-2024-43919.yaml",
+                        "network/default-login/ftp-weak-credentials.yaml",
                         # We already check for Gitlab
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
                         # Too many FPs

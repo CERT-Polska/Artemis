@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import hmac
 from typing import Annotated, Any, Dict, List, Optional
 
 import aiohttp
@@ -60,7 +61,7 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
             status_code=401,
             detail="Please fill the API_TOKEN variable in .env in order to use the API",
         )
-    elif x_api_token != Config.Miscellaneous.API_TOKEN:
+    elif not hmac.compare_digest(x_api_token, Config.Miscellaneous.API_TOKEN):
         raise HTTPException(status_code=401, detail="Invalid API token")
 
 

@@ -171,7 +171,16 @@ class PortScanner(ArtemisBase):
 
             if Config.Modules.PortScanner.ADD_PORTS_FROM_SHODAN_INTERNETDB:
                 for new_target_ip in new_target_ips:
-                    data = requests.get("https://internetdb.shodan.io/" + new_target_ip).json()
+                    try:
+                        with requests.get(
+                            "https://internetdb.shodan.io/" + new_target_ip,
+                            timeout=5,
+                        ) as response:
+                            response.raise_for_status()
+                            data = response.json()
+                    except (requests.RequestException, ValueError) as e:
+                        self.log.warning("Shodan internetdb request failed for %s: %s", new_target_ip, e)
+                        continue
                     if "ports" in data:
                         for port in data["ports"]:
                             self.log.info(f"Detected port {port} on {new_target_ip} from Shodan internetdb")

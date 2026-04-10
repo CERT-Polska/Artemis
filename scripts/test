@@ -41,16 +41,11 @@ docker compose -f docker-compose.test.yaml cp test/data/wordpress_easy_password/
 docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mysql bash -c 'mysql --password=example -e "CREATE DATABASE IF NOT EXISTS example";'
 docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mysql bash -c 'mysql --password=example example < /db.sql'
 
-# Now we are ready to start the tests
-docker compose -f docker-compose.test.yaml run test
 
 if [ $? -ne 0 ]; then
     exit 1
 fi
 
-docker volume rm artemis_data-test-redis
-docker volume rm artemis_data-test-postgres
-docker volume rm artemis_data-test-mongodb
 
 # Let's first start everything except the test container and perform relevant setup
 docker compose \

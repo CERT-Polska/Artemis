@@ -91,6 +91,7 @@ class WordpressPluginsReporter(Reporter):
                 "type": item["type"],
                 "slug": item["slug"],
                 "version": item["version"],
+                "cves": item.get("cves", []),
             }
 
             if "redirect_url" in task_result["result"]:

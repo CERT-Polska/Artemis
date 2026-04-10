@@ -10,6 +10,9 @@
                         {% endif %} -
                         {% if report.additional_data.type == "plugin" %} {% trans %}plugin{% endtrans %} {% else %} {% trans %}template{% endtrans %} {% endif %}
                         {{ report.additional_data.slug }} {% trans %}in version{% endtrans %} {{ report.additional_data.version }}
+                        {% if report.additional_data.cves %}
+                            ({% for cve in report.additional_data.cves %}{% if cve.cve %}{{ cve.cve }}{% else %}{{ cve.id }}{% endif %}{% if cve.cvss %} CVSS: {{ cve.cvss }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %})
+                        {% endif %}
 
                         {{ report_meta(report) }}
                     </li>

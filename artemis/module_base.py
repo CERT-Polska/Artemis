@@ -1,4 +1,3 @@
-import os
 import datetime
 import faulthandler
 import fcntl
@@ -6,6 +5,7 @@ import ipaddress
 import json
 import logging
 import multiprocessing
+import os
 import random
 import shutil
 import signal

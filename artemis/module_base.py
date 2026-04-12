@@ -1,9 +1,11 @@
+import os
 import datetime
 import faulthandler
 import fcntl
 import ipaddress
 import json
 import logging
+import multiprocessing
 import random
 import shutil
 import signal
@@ -17,6 +19,7 @@ import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
+from multiprocessing_logging import install_mp_handler
 from redis import Redis
 from requests.exceptions import RequestException
 
@@ -48,6 +51,7 @@ from artemis.utils import throttle_request
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 setup_retrying_resolver()
+install_mp_handler()
 
 
 class UnknownIPException(Exception):
@@ -275,6 +279,21 @@ class ArtemisBase(Karton):
             return False
 
     def loop(self) -> None:
+        def start() -> None:
+            self.single_process_loop()
+
+        num_processes = int(
+            os.environ.get("NUM_WORKERS_PER_CONTAINER_%s" % self.identity.replace("-", "_").upper(), "1")
+        )
+        self.log.info("Starting %d handlers for module %s", num_processes, self.identity)
+
+        if num_processes > 1:
+            for _ in range(num_processes):
+                multiprocessing.Process(target=start).start()
+        else:
+            self.single_process_loop()
+
+    def single_process_loop(self) -> None:
         """
         Differs from the original karton implementation: consumes the tasks in random order, so that
         there is lower chance that multiple tasks associated with the same IP (e.g. coming from subdomain

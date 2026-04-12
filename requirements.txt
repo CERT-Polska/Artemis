@@ -200,6 +200,8 @@ multidict==6.7.1
     # via
     #   aiohttp
     #   yarl
+multiprocessing-logging==0.3.4
+    # via -r requirements.in
 openapi-schema-validator==0.8.1
     # via openapi-spec-validator
 openapi-spec-validator==0.8.4
@@ -359,14 +361,19 @@ typer==0.24.1
 typing-extensions==4.15.0
     # via
     #   -r requirements.in
+    #   aiosignal
     #   alembic
+    #   anyio
     #   beautifulsoup4
     #   cattrs
     #   fastapi
     #   minio
     #   pydantic
     #   pydantic-core
+    #   pyopenssl
+    #   referencing
     #   sqlalchemy
+    #   starlette
     #   typing-inspection
 typing-inspection==0.4.2
     # via

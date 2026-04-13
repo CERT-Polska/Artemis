@@ -13,11 +13,11 @@ jobs:
       contents: write
 
     steps:
+      - run: apk add bash git
       - uses: actions/checkout@v6
         with:
             ref: ${{ github.head_ref }}
 
-      - run: apk add bash
       - run: pip install pip-tools --break-system-packages
       - run: ./scripts/compile-requirements
       - run: pwd

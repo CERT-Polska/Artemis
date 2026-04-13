@@ -8,7 +8,7 @@ jobs:
   compile:
     runs-on: ubuntu-latest
     container:
-      image: alpine:3.20
+      image: python:3.13-alpine
     permissions:
       contents: write
 
@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      - run: apk add python3 py3-pip bash git
+      - run: apk add python3 py3-pip bash 
       - run: pip install pip-tools --break-system-packages
       - run: ./scripts/compile-requirements
       - run: pwd

@@ -1,0 +1,29 @@
+name: Compile requirements
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  compile:
+    runs-on: alpine-3.20
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: pip install pip-tools
+      - run: ./scripts/compile-requirements
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add requirements.txt
+          git diff --cached --quiet || git commit -m "Recompile requirements"
+          git push

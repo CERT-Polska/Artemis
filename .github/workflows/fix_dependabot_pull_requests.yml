@@ -19,6 +19,7 @@ jobs:
         with:
           python-version: "3.13"
 
+      - run: apk add python3 py3-pip
       - run: pip install pip-tools
       - run: ./scripts/compile-requirements
 

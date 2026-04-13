@@ -33,7 +33,7 @@ services:
     image: adobe/s3mock:latest
     environment:
       - initialBuckets=bucket
-    entrypoint: ["sh", "-c", "java -jar s3mock.jar 2>&1 > /dev/null"]
+    entrypoint: ["sh", "-c", "java -jar opt/s3mock.jar 2>&1 > /dev/null"]
 
     deploy:
       resources:

@@ -240,6 +240,31 @@ services:
     volumes:
       - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
 
+  test-service-with-bruteable-files-sql-dumps-replica1:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica2:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica3:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica4:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica5:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
   test-service-with-bruteable-files-htpasswd:
     image: php:7.4-apache
     volumes:

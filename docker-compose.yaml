@@ -59,6 +59,11 @@ services:
     volumes:
       - data-postgres:/var/lib/postgresql/data
 
+  test-service-with-bruteable-files-sql-dumps-replica1:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
   autoreporter:
     <<: [*logging, *artemis-build-or-image]
     command: "bash -c 'alembic upgrade head && python3 -m artemis.reporting.task_handler'"

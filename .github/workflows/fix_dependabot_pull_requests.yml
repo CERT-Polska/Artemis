@@ -6,7 +6,9 @@ on:
 
 jobs:
   compile:
-    runs-on: alpine-3.20
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:3.20
     permissions:
       contents: write
 

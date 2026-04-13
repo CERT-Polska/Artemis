@@ -124,25 +124,6 @@ toml==0.10.2
 tqdm==4.67.3
 typer==0.24.1
 typing-extensions==4.15.0
-<<<<<<< HEAD
-    # via
-    #   -r requirements.in
-    #   aiosignal
-    #   alembic
-    #   anyio
-    #   beautifulsoup4
-    #   cattrs
-    #   fastapi
-    #   minio
-    #   pydantic
-    #   pydantic-core
-    #   pyopenssl
-    #   referencing
-    #   sqlalchemy
-    #   starlette
-    #   typing-inspection
-=======
->>>>>>> main234234234
 typing-inspection==0.4.2
 unittest-parallel==1.7.6
 url-normalize==2.2.1

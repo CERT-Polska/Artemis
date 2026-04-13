@@ -19,11 +19,8 @@ jobs:
             ref: ${{ github.head_ref }}
 
       - run: pip install pip-tools --break-system-packages
-      - run: pwd
-      - run: ls -a
-      - run: ls -a .git
-      - run: tree
       - run: ./scripts/compile-requirements
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Commit changes
         run: |

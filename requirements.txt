@@ -1,364 +1,130 @@
 aioboto3==13.3.0
-    # via karton-core
-aiobotocore[boto3]==2.16.0
-    # via aioboto3
+aiobotocore==2.16.0
 aiofiles==25.1.0
-    # via
-    #   -r requirements.in
-    #   aioboto3
 aiohappyeyeballs==2.6.1
-    # via aiohttp
-aiohttp==3.13.4
-    # via
-    #   -r requirements.in
-    #   aiobotocore
+aiohttp==3.13.5
 aioitertools==0.13.0
-    # via aiobotocore
 aiosignal==1.4.0
-    # via aiohttp
 alembic==1.18.4
-    # via -r requirements.in
 annotated-doc==0.0.4
-    # via
-    #   fastapi
-    #   typer
 annotated-types==0.7.0
-    # via pydantic
 anyio==4.13.0
-    # via starlette
 anytree==2.13.0
-    # via -r requirements.in
 argon2-cffi==25.1.0
-    # via minio
 argon2-cffi-bindings==25.1.0
-    # via argon2-cffi
 attrs==26.1.0
-    # via
-    #   aiohttp
-    #   cattrs
-    #   jsonschema
-    #   referencing
-    #   requests-cache
 babel==2.18.0
-    # via -r requirements.in
 badkeys==0.0.17
-    # via -r requirements.in
 bcrypt==5.0.0
-    # via paramiko
 beautifulsoup4==4.14.3
-    # via -r requirements.in
 blinker==1.9.0
-    # via flask
 boto3==1.35.81
-    # via
-    #   aiobotocore
-    #   karton-core
 botocore==1.35.81
-    # via
-    #   aiobotocore
-    #   boto3
-    #   s3transfer
 cattrs==26.1.0
-    # via requests-cache
 certifi==2026.2.25
-    # via
-    #   -r requirements.in
-    #   minio
-    #   requests
 cffi==2.0.0
-    # via
-    #   argon2-cffi-bindings
-    #   cryptography
-    #   pynacl
 chardet==7.4.0.post2
-    # via -r requirements.in
 charset-normalizer==3.4.6
-    # via requests
 checkdmarc @ git+https://github.com/CERT-Polska/checkdmarc@hotfixes-2025-08-01
-    # via libmailgoose
 click==8.3.1
-    # via
-    #   -r requirements.in
-    #   click-plugins
-    #   flask
-    #   shodan
-    #   typer
-    #   uvicorn
 click-plugins==1.1.1.2
-    # via shodan
 colorama==0.4.6
-    # via shodan
 coverage==7.13.5
-    # via unittest-parallel
 cryptography==46.0.6
-    # via
-    #   -r requirements.in
-    #   badkeys
-    #   checkdmarc
-    #   paramiko
-    #   pyopenssl
 decorator==5.2.1
-    # via retry
 defusedxml==0.7.1
-    # via ipwhois
 dkimpy==1.1.8
-    # via libmailgoose
 dnspython==2.8.0
-    # via
-    #   -r requirements.in
-    #   checkdmarc
-    #   dkimpy
-    #   ipwhois
 expiringdict==1.2.2
-    # via checkdmarc
 fastapi==0.135.2
-    # via -r requirements.in
 fastapi-csrf-protect==1.0.7
-    # via -r requirements.in
 filelock==3.25.2
-    # via tldextract
 flask==3.1.3
-    # via -r requirements.in
 freezegun==1.5.5
-    # via -r requirements.in
 frozenlist==1.8.0
-    # via
-    #   aiohttp
-    #   aiosignal
 gmpy2==2.3.0
-    # via badkeys
-greenlet==3.3.2
-    # via sqlalchemy
 h11==0.16.0
-    # via
-    #   -r requirements.in
-    #   uvicorn
 idna==3.11
-    # via
-    #   -r requirements.in
-    #   anyio
-    #   requests
-    #   tldextract
-    #   url-normalize
-    #   yarl
 importlib-resources==6.5.2
-    # via checkdmarc
 invoke==2.2.1
-    # via paramiko
 ipwhois==1.3.0
-    # via -r requirements.in
 itsdangerous==2.2.0
-    # via
-    #   fastapi-csrf-protect
-    #   flask
 jinja2==3.1.6
-    # via
-    #   -r requirements.in
-    #   flask
 jmespath==1.1.0
-    # via
-    #   boto3
-    #   botocore
 jsonschema==4.24.1
-    # via
-    #   openapi-schema-validator
-    #   openapi-spec-validator
 jsonschema-path==0.4.5
-    # via openapi-spec-validator
 jsonschema-specifications==2025.9.1
-    # via
-    #   jsonschema
-    #   openapi-schema-validator
 karton-core==5.9.1
-    # via -r requirements.in
 lazy-object-proxy==1.12.0
-    # via openapi-spec-validator
 libmailgoose @ git+https://github.com/CERT-Polska/mailgoose@v1.3.15#subdirectory=scan
-    # via -r requirements.in
 liccheck==0.9.2
-    # via -r requirements.in
 mako==1.3.10
-    # via alembic
 markdown==3.10.2
-    # via -r requirements.in
 markdown-it-py==4.0.0
-    # via rich
 markupsafe==3.0.3
-    # via
-    #   -r requirements.in
-    #   flask
-    #   jinja2
-    #   mako
-    #   werkzeug
 mdurl==0.1.2
-    # via markdown-it-py
 minio==7.2.20
-    # via -r requirements.in
 more-itertools==10.8.0
-    # via -r requirements.in
 multidict==6.7.1
-    # via
-    #   aiohttp
-    #   yarl
 multiprocessing-logging==0.3.4
-    # via -r requirements.in
 openapi-schema-validator==0.8.1
-    # via openapi-spec-validator
 openapi-spec-validator==0.8.4
-    # via -r requirements.in
-orjson==3.11.7
-    # via karton-core
+orjson==3.11.8
 packaging==26.0
-    # via -r requirements.in
 paramiko==4.0.0
-    # via -r requirements.in
 pathable==0.5.0
-    # via jsonschema-path
 pem==23.1.0
-    # via checkdmarc
 platformdirs==4.9.4
-    # via requests-cache
 prometheus-client==0.24.1
-    # via -r requirements.in
 propcache==0.4.1
-    # via
-    #   aiohttp
-    #   yarl
 psutil==7.2.2
-    # via -r requirements.in
 psycopg2-binary==2.9.11
-    # via -r requirements.in
 publicsuffixlist==1.0.2.20260328
-    # via
-    #   -r requirements.in
-    #   checkdmarc
 py==1.11.0
-    # via retry
 pycparser==3.0
-    # via cffi
 pycryptodome==3.23.0
-    # via minio
 pydantic==2.12.5
-    # via
-    #   -r requirements.in
-    #   fastapi
-    #   fastapi-csrf-protect
-    #   openapi-schema-validator
-    #   openapi-spec-validator
-    #   pydantic-settings
 pydantic-core==2.41.5
-    # via pydantic
 pydantic-settings==2.13.1
-    # via
-    #   fastapi-csrf-protect
-    #   openapi-schema-validator
-    #   openapi-spec-validator
 pygments==2.20.0
-    # via rich
 pyleri==1.5.0
-    # via checkdmarc
 pymysql==1.1.2
-    # via -r requirements.in
 pynacl==1.5.0
-    # via
-    #   libmailgoose
-    #   paramiko
 pyopenssl==26.0.0
-    # via checkdmarc
 pyspf==2.0.14
-    # via libmailgoose
 python-dateutil==2.9.0.post0
-    # via
-    #   botocore
-    #   freezegun
 python-decouple==3.8
-    # via -r requirements.in
 python-dotenv==1.2.2
-    # via pydantic-settings
 python-multipart==0.0.20
-    # via libmailgoose
 pytz==2026.1.post1
-    # via -r requirements.in
 pyyaml==6.0.3
-    # via
-    #   -r requirements.in
-    #   jsonschema-path
 redis==7.4.0
-    # via
-    #   -r requirements.in
-    #   karton-core
 referencing==0.37.0
-    # via
-    #   jsonschema
-    #   jsonschema-path
-    #   jsonschema-specifications
-    #   openapi-schema-validator
-requests==2.33.0
-    # via
-    #   -r requirements.in
-    #   checkdmarc
-    #   requests-cache
-    #   requests-file
-    #   requests-mock
-    #   shodan
-    #   tldextract
+requests==2.33.1
 requests-cache==1.3.1
-    # via -r requirements.in
 requests-file==3.0.1
-    # via tldextract
 requests-mock==1.12.1
-    # via -r requirements.in
 retry==0.9.2
-    # via -r requirements.in
 rfc3339-validator==0.1.4
-    # via openapi-schema-validator
 rich==14.3.3
-    # via typer
 rpds-py==0.30.0
-    # via
-    #   jsonschema
-    #   referencing
 s3transfer==0.10.4
-    # via boto3
 semantic-version==2.10.0
-    # via liccheck
 semver==3.0.4
-    # via -r requirements.in
 shellingham==1.5.4
-    # via typer
 shodan==1.31.0
-    # via -r requirements.in
 six==1.17.0
-    # via
-    #   -r requirements.in
-    #   python-dateutil
-    #   rfc3339-validator
 soupsieve==2.8.3
-    # via beautifulsoup4
 sqlalchemy==2.0.48
-    # via
-    #   -r requirements.in
-    #   alembic
 starlette==0.52.1
-    # via
-    #   -r requirements.in
-    #   fastapi
-    #   fastapi-csrf-protect
 termcolor==3.3.0
-    # via -r requirements.in
 timeout-decorator==0.5.0
-    # via
-    #   -r requirements.in
-    #   checkdmarc
 tldextract==5.3.1
-    # via shodan
 toml==0.10.2
-    # via liccheck
 tqdm==4.67.3
-    # via -r requirements.in
 typer==0.24.1
-    # via -r requirements.in
 typing-extensions==4.15.0
+<<<<<<< HEAD
     # via
     #   -r requirements.in
     #   aiosignal
@@ -375,40 +141,20 @@ typing-extensions==4.15.0
     #   sqlalchemy
     #   starlette
     #   typing-inspection
+=======
+>>>>>>> main234234234
 typing-inspection==0.4.2
-    # via
-    #   fastapi
-    #   pydantic
-    #   pydantic-settings
 unittest-parallel==1.7.6
-    # via -r requirements.in
 url-normalize==2.2.1
-    # via requests-cache
 urllib3==2.6.3
-    # via
-    #   -r requirements.in
-    #   botocore
-    #   minio
-    #   requests
-    #   requests-cache
 uvicorn==0.42.0
-    # via -r requirements.in
 validators==0.35.0
-    # via
-    #   -r requirements.in
-    #   libmailgoose
 werkzeug==3.1.7
-    # via flask
 whoisdomain==1.20260326.1
-    # via -r requirements.in
 wrapt==1.17.3
-    # via aiobotocore
 xlsxwriter==3.2.9
-    # via shodan
 xmltodict==1.0.4
-    # via checkdmarc
 yarl==1.23.0
-    # via aiohttp
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

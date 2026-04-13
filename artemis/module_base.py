@@ -279,11 +279,11 @@ class ArtemisBase(Karton):
             return False
 
     def loop(self) -> None:
-        raise NotImplementedError()
+        self.single_process_loop(multiprocessing.Value("i", 0))
 
     @classmethod
     def parallel_loop(cls) -> None:
-        task_counter = multiprocessing.Value("task_counter", 0)
+        task_counter = multiprocessing.Value("i", 0)
 
         def start(task_counter: Any) -> None:
             # We need to create separate class instances for them to have separate locks etc
@@ -319,7 +319,7 @@ class ArtemisBase(Karton):
             self.log.info("Binding on: %s", task_filter)
 
         with self.graceful_killer():
-            while not self.shutdown and task_counter < Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
+            while not self.shutdown and task_counter.value < Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break
@@ -327,7 +327,7 @@ class ArtemisBase(Karton):
                 num_tasks_done = self._single_iteration()
 
                 with task_counter.get_lock():
-                    task_counter += num_tasks_done
+                    task_counter.value += num_tasks_done
 
                 if not num_tasks_done:
                     # Prevent busywaiting causing a large load on Redis, but don't wait if we actually

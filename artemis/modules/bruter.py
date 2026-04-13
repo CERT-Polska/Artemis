@@ -164,4 +164,4 @@ class Bruter(ArtemisBase):
 
 
 if __name__ == "__main__":
-    Bruter().parallel_loop()
+    Bruter.parallel_loop()

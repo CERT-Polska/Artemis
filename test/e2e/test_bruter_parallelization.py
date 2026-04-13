@@ -16,10 +16,7 @@ class BruterParallelizationE2ETestCase(BaseE2ETestCase):
         task_results = self.get_task_results()["data"]
         start_times = []
         for task_result in task_results:
-            if (
-                task_result["headers"]["receiver"] == "bruter"
-                and task_result["payload_persistent"]["tag"] == tag
-            ):
+            if task_result["headers"]["receiver"] == "bruter" and task_result["payload_persistent"]["tag"] == tag:
                 num_bruter_results += 1
                 start_times.append(task_results["payload"]["created_at"])
         print("AAAAAA", task_results, start_times, num_bruter_results)

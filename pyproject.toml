@@ -52,3 +52,5 @@ anytree = "2.11.1"
 # runner — causing the pre-commit hook to perpetually flag requirements.txt as modified.
 # Dependabot reads this config natively and adds --no-header automatically.
 no-header = true
+no-annotate = true
+strip-extras = true

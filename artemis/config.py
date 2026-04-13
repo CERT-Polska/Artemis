@@ -244,7 +244,7 @@ class Config:
             "Logging format string (according to the syntax in https://docs.python.org/3/library/logging.html#logrecord-attributes)",
         ] = get_config(
             "LOGGING_FORMAT_STRING",
-            default="[%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
+            default="%(processName)s | [%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
         )
 
         PASSWORD_BRUTER_ADDITIONAL_PASSWORDS: Annotated[

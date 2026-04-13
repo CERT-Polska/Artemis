@@ -25,6 +25,7 @@ Markdown
 MarkupSafe
 minio
 more-itertools
+multiprocessing-logging
 openapi-spec-validator
 packaging
 paramiko

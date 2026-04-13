@@ -4,6 +4,8 @@ import fcntl
 import ipaddress
 import json
 import logging
+import multiprocessing
+import os
 import random
 import shutil
 import signal
@@ -17,6 +19,7 @@ import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
+from multiprocessing_logging import install_mp_handler
 from redis import Redis
 from requests.exceptions import RequestException
 
@@ -48,6 +51,7 @@ from artemis.utils import throttle_request
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 setup_retrying_resolver()
+install_mp_handler()
 
 
 class UnknownIPException(Exception):
@@ -275,6 +279,26 @@ class ArtemisBase(Karton):
             return False
 
     def loop(self) -> None:
+        self.single_process_loop(multiprocessing.Value("i", 0))
+
+    @classmethod
+    def parallel_loop(cls) -> None:
+        task_counter = multiprocessing.Value("i", 0)
+
+        def start(task_counter: Any) -> None:
+            # We need to create separate class instances for them to have separate locks etc
+            cls().single_process_loop(task_counter)
+
+        num_processes = int(
+            os.environ.get("NUM_WORKERS_PER_CONTAINER_%s" % cls.identity.replace("-", "_").upper(), "1")
+        )
+        if num_processes > 1:
+            for _ in range(num_processes):
+                multiprocessing.Process(target=start, args=(task_counter,)).start()
+        else:
+            cls().single_process_loop(task_counter)
+
+    def single_process_loop(self, task_counter: Any) -> None:
         """
         Differs from the original karton implementation: consumes the tasks in random order, so that
         there is lower chance that multiple tasks associated with the same IP (e.g. coming from subdomain
@@ -294,24 +318,24 @@ class ArtemisBase(Karton):
         for task_filter in self.filters:
             self.log.info("Binding on: %s", task_filter)
 
-        task_id = 0
         with self.graceful_killer():
-            while not self.shutdown and task_id < Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
+            while not self.shutdown and task_counter.value < Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break
 
                 num_tasks_done = self._single_iteration()
 
-                task_id += num_tasks_done
+                with task_counter.get_lock():
+                    task_counter.value += num_tasks_done
 
                 if not num_tasks_done:
                     # Prevent busywaiting causing a large load on Redis, but don't wait if we actually
                     # are consuming tasks.
                     time.sleep(self.task_poll_interval_seconds)
 
-        if task_id >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
-            self.log.info("Exiting loop after processing %d tasks", task_id)
+        if task_counter >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
+            self.log.info("Exiting loop after processing %d tasks in all processes", task_counter)
         else:
             self.log.info("Exiting loop, shutdown=%s", self.shutdown)
 

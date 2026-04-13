@@ -1,4 +1,3 @@
-aioboto3==13.3.0
 aiobotocore==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1

@@ -1,3 +1,4 @@
+# Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 FROM python:3.13-alpine3.20
 
 COPY --from=golang:1.24-alpine /usr/local/go/ /usr/local/go/

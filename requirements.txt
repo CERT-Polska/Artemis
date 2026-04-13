@@ -116,7 +116,7 @@ shellingham==1.5.4
 shodan==1.31.0
 six==1.17.0
 soupsieve==2.8.3
-sqlalchemy==2.0.48
+sqlalchemy==2.0.49
 starlette==0.52.1
 termcolor==3.3.0
 timeout-decorator==0.5.0

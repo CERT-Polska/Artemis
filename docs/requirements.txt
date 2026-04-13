@@ -145,7 +145,7 @@ url-normalize==2.2.1
 urllib3==2.6.3
 uvicorn==0.42.0
 validators==0.35.0
-werkzeug==3.1.7
+werkzeug==3.1.8
 whoisdomain==1.20260326.1
 wrapt==1.17.3
 xlsxwriter==3.2.9

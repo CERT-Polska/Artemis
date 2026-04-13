@@ -19,9 +19,11 @@ jobs:
             ref: ${{ github.head_ref }}
 
       - run: pip install pip-tools --break-system-packages
-      - run: ./scripts/compile-requirements
       - run: pwd
       - run: ls -a
+      - run: ls -a .git
+      - run: tree
+      - run: ./scripts/compile-requirements
 
       - name: Commit changes
         run: |

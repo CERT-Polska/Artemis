@@ -7,6 +7,7 @@ on:
 jobs:
   compile:
     runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
     container:
       image: python:3.13-alpine3.20
     permissions:

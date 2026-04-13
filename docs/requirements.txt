@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
@@ -83,7 +83,7 @@ prometheus-client==0.24.1
 propcache==0.4.1
 psutil==7.2.2
 psycopg2-binary==2.9.11
-publicsuffixlist==1.0.2.20260328
+publicsuffixlist==1.0.2.20260403
 py==1.11.0
 pycparser==3.0
 pycryptodome==3.23.0

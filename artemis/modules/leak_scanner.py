@@ -5,7 +5,7 @@ from collections import deque
 from typing import Any, Callable, Dict, List, Set, Tuple
 
 import requests
-import xray
+import xray  # type: ignore
 from bs4 import BeautifulSoup
 from karton.core import Task
 
@@ -84,7 +84,7 @@ class LeakScanner(ArtemisBase):
 
         visited: Set[str] = set()
         document_urls: List[str] = []
-        queue: deque = deque([(base_url, 0)])
+        queue: deque[Tuple[str, int]] = deque([(base_url, 0)])
         visited.add(base_url)
         pages_crawled = 0
 
@@ -205,9 +205,7 @@ class LeakScanner(ArtemisBase):
         if documents_with_findings:
             status = TaskStatus.INTERESTING
             num_total_findings = sum(
-                len(items)
-                for doc in documents_with_findings
-                for items in doc["findings"].values()
+                len(items) for doc in documents_with_findings for items in doc["findings"].values()
             )
             status_reason = (
                 f"Found {num_total_findings} leaked sensitive data item(s) "

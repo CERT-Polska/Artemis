@@ -14,14 +14,13 @@ class BruterParallelizationE2ETestCase(BaseE2ETestCase):
         self.wait_for_tasks_finished()
 
         num_bruter_results = 0
-        task_results = self.get_task_results()["data"]
         start_times = []
-        print("AAAAA", task_results)
-        for task_result in task_results:
-            if task_result["headers"]["receiver"] == "bruter" and task_result["payload_persistent"]["tag"] == tag:
+        for task_result in DB().get_paginated_task_results(0, 1000, []).data:
+            print(task_result)
+            if task_result["task"]["headers"]["receiver"] == "bruter" and task_result["task"]["payload_persistent"]["tag"] == tag:
                 num_bruter_results += 1
                 start_times.append(datetime.datetime.fromisoformat(task_results["payload"]["start_time"]))
-        print("AAAAAA", task_results, start_times, num_bruter_results, DB().get_paginated_task_results(0, 1000, []))
+        print("AAAAAA", start_times, num_bruter_results)
         self.assertEqual(num_bruter_results, 5)
         self.assertTrue(max(start_times) - min(start_times) < datetime.timedelta(seconds=5))
 

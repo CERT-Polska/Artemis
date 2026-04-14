@@ -125,6 +125,6 @@ if __name__ == "__main__":
     while True:
         try:
             cleanup()
-            time.sleep(DELAY_BETWEEN_CLEANUPS__SECONDS)
         except Exception:
             logger.exception("Error during cleanup")
+        time.sleep(DELAY_BETWEEN_CLEANUPS__SECONDS)

@@ -453,15 +453,17 @@ class Nuclei(ArtemisBase):
         if not milliseconds_per_request_initial:
             milliseconds_per_request_initial = 1  # 0 will make Nuclei wait 1 second
 
-        milliseconds_per_request_candidates = [
-            milliseconds_per_request_initial,
-            int(
-                max(
-                    1000 * Config.Modules.Nuclei.NUCLEI_SECONDS_PER_REQUEST_ON_RETRY,
-                    milliseconds_per_request_initial * 2,
-                )
-            ),
-        ]
+        milliseconds_per_request_retry = int(
+            max(
+                1000 * Config.Modules.Nuclei.NUCLEI_SECONDS_PER_REQUEST_ON_RETRY,
+                milliseconds_per_request_initial * 2,
+            )
+        )
+
+        if capped := Config.Modules.Nuclei.NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY > 0:
+            milliseconds_per_request_retry = min(milliseconds_per_request_retry, 1000 * capped)
+
+        milliseconds_per_request_candidates = [milliseconds_per_request_initial, milliseconds_per_request_retry]
 
         if Config.Miscellaneous.CUSTOM_USER_AGENT:
             additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]

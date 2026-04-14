@@ -450,10 +450,17 @@ class Config:
             ] = get_config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
             NUCLEI_SECONDS_PER_REQUEST_ON_RETRY: Annotated[
-                bool,
+                float,
                 "When retrying due to 'context deadline exceeded', each request will take at least max(2 * SECONDS_PER_REQUEST, "
-                "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY).",
+                "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY). See NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY config to set a limit",
             ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.1, cast=float)
+
+            NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY: Annotated[
+                float,
+                "Set to positive value to enable. "
+                "When retrying due to 'context deadline exceeded', each request will take min(max(2 * SECONDS_PER_REQUEST, "
+                "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY), NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY) if enabled.",
+            ] = get_config("NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY", default=2.0, cast=float)
 
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,

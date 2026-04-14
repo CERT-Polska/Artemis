@@ -605,7 +605,7 @@ class ArtemisBase(Karton):
                 "Received %s new tasks - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered])
             )
             for task in tasks_filtered:
-                task.payload["start_time"] = datetime.datetime.utcnow()
+                task.payload["start_time"] = datetime.datetime.utcnow().isoformat()
                 self.backend.set_task_status(task, KartonTaskState.STARTED)
 
             self._run_pre_hooks()

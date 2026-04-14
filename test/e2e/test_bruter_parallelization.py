@@ -20,7 +20,7 @@ class BruterParallelizationE2ETestCase(BaseE2ETestCase):
         for task_result in task_results:
             if task_result["headers"]["receiver"] == "bruter" and task_result["payload_persistent"]["tag"] == tag:
                 num_bruter_results += 1
-                start_times.append(task_results["payload"]["start_time"])
+                start_times.append(datetime.datetime.fromisoformat(task_results["payload"]["start_time"]))
         print("AAAAAA", task_results, start_times, num_bruter_results, DB().get_paginated_task_results(0, 1000, []))
         self.assertEqual(num_bruter_results, 5)
         self.assertTrue(max(start_times) - min(start_times) < datetime.timedelta(seconds=5))

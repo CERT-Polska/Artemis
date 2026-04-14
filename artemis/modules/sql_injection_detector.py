@@ -495,4 +495,4 @@ class SqlInjectionDetector(ArtemisBase):
 
 
 if __name__ == "__main__":
-    SqlInjectionDetector().loop()
+    SqlInjectionDetector.parallel_loop()

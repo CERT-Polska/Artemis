@@ -244,7 +244,7 @@ class Config:
             "Logging format string (according to the syntax in https://docs.python.org/3/library/logging.html#logrecord-attributes)",
         ] = get_config(
             "LOGGING_FORMAT_STRING",
-            default="[%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
+            default="%(processName)s | [%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
         )
 
         PASSWORD_BRUTER_ADDITIONAL_PASSWORDS: Annotated[
@@ -614,6 +614,7 @@ class Config:
                         # Not that severe to spam people
                         "javascript/cves/2023/CVE-2023-48795.yaml",
                         "http/cves/2024/CVE-2024-43919.yaml",
+                        "network/default-login/ftp-weak-credentials.yaml",
                         # We already check for Gitlab
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
                         # Too many FPs

@@ -1,9 +1,7 @@
 module wappalyzer
 
-go 1.24.0
+go 1.25.0
 
-toolchain go1.25.0
+require github.com/projectdiscovery/wappalyzergo v0.2.76
 
-require github.com/projectdiscovery/wappalyzergo v0.2.65
-
-require golang.org/x/net v0.49.0 // indirect
+require golang.org/x/net v0.53.0 // indirect

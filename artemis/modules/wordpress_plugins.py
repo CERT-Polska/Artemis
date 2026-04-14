@@ -16,7 +16,7 @@ from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.crawling import get_links_and_resources_on_same_domain
 from artemis.domains import is_subdomain
-from artemis.fallback_api_cache import FallbackAPICache
+from artemis.fallback_api_cache import FallbackAPICache, InvalidResponseException
 from artemis.module_base import ArtemisBase
 
 # Some readmes are long, longer than the default 100kb
@@ -234,16 +234,24 @@ class WordpressPlugins(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        response = FallbackAPICache.Urls.WORDPRESS_PLUGINS_LIST.value.get()
-        json_response = response.json()
-        self._top_plugins = [
-            {
-                "repository_version": plugin["version"],
-                "slug": plugin["slug"],
-            }
-            for plugin in json_response["plugins"]
-            if plugin["slug"] not in PLUGINS_BAD_VERSION_IN_README
-        ]
+        try:
+            response = FallbackAPICache.Urls.WORDPRESS_PLUGINS_LIST.value.get()
+            json_response = response.json()
+            self._top_plugins = [
+                {
+                    "repository_version": plugin["version"],
+                    "slug": plugin["slug"],
+                }
+                for plugin in json_response.get("plugins", [])
+                if plugin.get("slug") and plugin["slug"] not in PLUGINS_BAD_VERSION_IN_README
+            ]
+        except (InvalidResponseException, ValueError, KeyError, requests.RequestException) as e:
+            self.log.warning(
+                "WORDPRESS_PLUGINS_LIST unavailable at startup (%s); "
+                "continuing without top-plugin list, will rely on per-task lookups.",
+                e,
+            )
+            self._top_plugins = []
         self._top_plugin_slugs = [plugin["slug"] for plugin in self._top_plugins]
         with open(
             os.path.join(os.path.dirname(__file__), "data", "wordpress_plugin_readme_file_names.txt"),

@@ -360,6 +360,13 @@ class DanglingDnsDetector(ArtemisBase):
         filters = ["university", "educational", "academic", "education", "institute of technology"]
 
         ip = self.get_ip_from_domain(domain)
+        if not ip:
+            self.log.info(
+                "Could not resolve %s to an IP for public-entity whois check; "
+                "skipping heuristic and keeping existing findings.",
+                domain,
+            )
+            return False
         try:
             whois_data = IPWhois(ip).lookup_whois()
         except HTTPLookupError as e:

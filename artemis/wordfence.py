@@ -54,7 +54,10 @@ def _get_index() -> Dict[str, List[Dict[str, Any]]]:
                     headers={"Authorization": "Bearer " + Config.Modules.WordPressPlugins.WORDFENCE_API_KEY},
                 )
                 cache.set("data", response.content)
-            _WORDFENCE_INDEX = _build_index(json.loads(cache.get("data")))
+             
+            data = cache.get("data")
+            assert data is not None
+            _WORDFENCE_INDEX = _build_index(json.loads(data))
         logger.info("WordFence index built: %d plugin entries", len(_WORDFENCE_INDEX))
     return _WORDFENCE_INDEX
 

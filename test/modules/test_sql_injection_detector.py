@@ -170,3 +170,62 @@ class SqlInjectionParameterMinimizationTestCase(ArtemisModuleTestCase):
                         )
 
         self.assertEqual(minimal_params, ["a", "b", "c", "d", "e"])
+
+
+class SqlInjectionHeaderMinimizationTestCase(ArtemisModuleTestCase):
+    karton_class = SqlInjectionDetector
+
+    def test_minimize_headers_caps_error_mode(self) -> None:
+        headers = {
+            "Header-A": "val_a'\"",
+            "Header-B": "val_b'\"",
+            "Header-C": "val_c'\"",
+            "Header-D": "val_d'\"",
+            "Header-E": "val_e'\"",
+            "Header-F": "val_f'\"",
+            "Header-G": "val_g'\"",
+        }
+
+        vulnerable_headers = {"Header-A", "Header-B", "Header-C", "Header-D", "Header-E", "Header-F"}
+
+        def mocked_contains_error(url: str, response: object) -> str | None:
+            if response is None:
+                return None
+            header_name = response
+            if header_name in vulnerable_headers:
+                return "error"
+            return None
+
+        def mocked_http_get(url: str, headers: dict[str, str] | None = None) -> str | None:
+            if headers is None:
+                return None
+            header_name = list(headers.keys())[0]
+            header_value = headers[header_name]
+            if "'\"" in header_value:
+                return header_name
+            return None
+
+        base_headers = {
+            "Header-A": "val_a",
+            "Header-B": "val_b",
+            "Header-C": "val_c",
+            "Header-D": "val_d",
+            "Header-E": "val_e",
+            "Header-F": "val_f",
+            "Header-G": "val_g",
+        }
+
+        with patch("artemis.modules.sql_injection_detector.HEADERS", base_headers):
+            with patch("artemis.config.Config.Modules.SqlInjectionDetector") as mocked_config:
+                mocked_config.SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN = 5
+                with patch.object(self.karton, "contains_error", side_effect=mocked_contains_error):
+                    with patch.object(self.karton, "forgiving_http_get", side_effect=mocked_http_get):
+                        minimal_headers = self.karton.minimize_headers(
+                            url="http://example.com/login",
+                            headers=headers,
+                            payload="'\"",
+                            baseline_payload="-1",
+                            minimization_mode="error",
+                        )
+
+        self.assertEqual(list(minimal_headers.keys()), ["Header-A", "Header-B", "Header-C", "Header-D", "Header-E"])

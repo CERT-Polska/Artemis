@@ -1,11 +1,14 @@
 import unittest
+from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
 from artemis.wordfence import _is_version_in_range, get_vulnerabilities_for_plugin
 
 
 class TestIsVersionInRange(unittest.TestCase):
-    def _range(self, from_ver: str, to_ver: str, from_inclusive: bool = True, to_inclusive: bool = True) -> dict:
+    def _range(
+        self, from_ver: str, to_ver: str, from_inclusive: bool = True, to_inclusive: bool = True
+    ) -> Dict[str, Any]:
         return {
             f"{from_ver} - {to_ver}": {
                 "from_version": from_ver,

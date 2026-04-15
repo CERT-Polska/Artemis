@@ -33,7 +33,7 @@ def _build_index(feed: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
                     "title": vuln.get("title", ""),
                     "cve": vuln.get("cve", None),
                     "copyrights": vuln.get("copyrights", None),
-                    "cvss": (vuln.get("cvss_v3") or {}).get("score", None),
+                    "cvss": (vuln.get("cvss") or {}).get("score", None),
                     "affected_versions": software.get("affected_versions", {}),
                     "patched_versions": vuln.get("patched_versions", []),
                 }
@@ -44,15 +44,20 @@ def _build_index(feed: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
 def _get_index() -> Dict[str, List[Dict[str, Any]]]:
     global _WORDFENCE_INDEX
     if _WORDFENCE_INDEX is None:
-        logger.info("Fetching WordFence vulnerability feed from %s", WORDFENCE_PRODUCTION_FEED_URL)
         lock = ResourceLock("wordfence_index")
         with lock:
             cache = RedisCache(REDIS, "wordfence_index", duration=6 * 60 * 60)
-            if not cache.get("data"):
+            if cache.get("data"):
+                logger.info("Geting cached WordFence vulnerability feed")
+            else:
+                logger.info("Fetching WordFence vulnerability feed from %s", WORDFENCE_PRODUCTION_FEED_URL)
                 response = requests.get(
                     WORDFENCE_PRODUCTION_FEED_URL,
                     headers={"Authorization": "Bearer " + Config.Modules.WordPressPlugins.WORDFENCE_API_KEY},
                 )
+                if errors := response.json().get("errors", None):
+                    logger.info("Unable to retrieve WordFence vulnerability feed. Errors: %s", errors)
+                    return {}
                 cache.set("data", response.content)
              
             data = cache.get("data")
@@ -127,6 +132,7 @@ def get_vulnerabilities_for_plugin(slug: str, version: str) -> List[Dict[str, An
                     "title": vuln["title"],
                     "cve": vuln["cve"],
                     "cvss": vuln["cvss"],
+                    "copyrights": vuln["copyrights"],
                     "patched_versions": vuln["patched_versions"],
                 }
             )

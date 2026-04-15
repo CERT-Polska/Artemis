@@ -189,4 +189,4 @@ class LFIDetector(ArtemisBase):
 
 
 if __name__ == "__main__":
-    LFIDetector().loop()
+    LFIDetector.parallel_loop()

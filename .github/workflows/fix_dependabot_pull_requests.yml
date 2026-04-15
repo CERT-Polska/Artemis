@@ -1,0 +1,32 @@
+name: Compile requirements
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    container:
+      image: python:3.13-alpine3.20
+    permissions:
+      contents: write
+
+    steps:
+      - run: apk add bash git
+      - uses: actions/checkout@v6
+        with:
+            ref: ${{ github.head_ref }}
+
+      - run: pip install pip-tools --break-system-packages
+      - run: ./scripts/compile-requirements
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add requirements.txt
+          git diff --cached --quiet || git commit -m "Recompile requirements"
+          git push

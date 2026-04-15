@@ -1,8 +1,8 @@
 aioboto3==13.3.0
-aiobotocore[boto3]==2.16.0
+aiobotocore==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1
-aiohttp==3.13.4
+aiohttp==3.13.5
 aioitertools==0.13.0
 aiosignal==1.4.0
 alabaster==1.0.0
@@ -25,9 +25,9 @@ cattrs==26.1.0
 certifi==2026.2.25
 cffi==2.0.0
 chardet==7.4.0.post2
-charset-normalizer==3.4.6
+charset-normalizer==3.4.7
 checkdmarc @ git+https://github.com/CERT-Polska/checkdmarc@hotfixes-2025-08-01
-click==8.3.1
+click==8.3.2
 click-plugins==1.1.1.2
 colorama==0.4.6
 coverage==7.13.5
@@ -38,19 +38,19 @@ dkimpy==1.1.8
 dnspython==2.8.0
 docutils==0.22.4
 expiringdict==1.2.2
-fastapi==0.135.2
+fastapi==0.135.3
 fastapi-csrf-protect==1.0.7
 filelock==3.25.2
 flask==3.1.3
 freezegun==1.5.5
 frozenlist==1.8.0
 gmpy2==2.3.0
-greenlet==3.3.2
+greenlet==3.4.0
 h11==0.16.0
 idna==3.11
 imagesize==2.0.0
 importlib-resources==6.5.2
-invoke==2.2.1
+invoke==3.0.0
 ipwhois==1.3.0
 itsdangerous==2.2.0
 jinja2==3.1.6
@@ -70,9 +70,10 @@ mdurl==0.1.2
 minio==7.2.20
 more-itertools==10.8.0
 multidict==6.7.1
+multiprocessing-logging==0.3.4
 openapi-schema-validator==0.8.1
 openapi-spec-validator==0.8.4
-orjson==3.11.7
+orjson==3.11.8
 packaging==26.0
 paramiko==4.0.0
 pathable==0.5.0
@@ -82,7 +83,7 @@ prometheus-client==0.24.1
 propcache==0.4.1
 psutil==7.2.2
 psycopg2-binary==2.9.11
-publicsuffixlist==1.0.2.20260328
+publicsuffixlist==1.0.2.20260403
 py==1.11.0
 pycparser==3.0
 pycryptodome==3.23.0
@@ -129,7 +130,7 @@ sphinxcontrib-jquery==4.1
 sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==2.0.0
 sphinxcontrib-serializinghtml==2.0.0
-sqlalchemy==2.0.48
+sqlalchemy==2.0.49
 starlette==0.52.1
 termcolor==3.3.0
 timeout-decorator==0.5.0
@@ -144,7 +145,7 @@ url-normalize==2.2.1
 urllib3==2.6.3
 uvicorn==0.42.0
 validators==0.35.0
-werkzeug==3.1.7
+werkzeug==3.1.8
 whoisdomain==1.20260326.1
 wrapt==1.17.3
 xlsxwriter==3.2.9

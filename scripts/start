@@ -72,7 +72,6 @@ if [ "$SINGLE_WORKER_MODE" != "true" ]; then
         --scale=karton-port_scanner=5
         --scale=karton-wordpress_plugins=5
         --scale=karton-nuclei=1
-        --scale=karton-bruter=10
     "
 
     if exists Artemis-modules-extra; then

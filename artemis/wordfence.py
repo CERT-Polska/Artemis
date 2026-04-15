@@ -4,11 +4,12 @@ from packaging.version import InvalidVersion
 from packaging.version import Version as PkgVersion
 
 from artemis import utils
+from artemis.config import Config
 from artemis.fallback_api_cache import FallbackAPICache
 
 logger = utils.build_logger(__name__)
 
-WORDFENCE_PRODUCTION_FEED_URL = "https://www.wordfence.com/api/intelligence/v2/vulnerabilities/production"
+WORDFENCE_PRODUCTION_FEED_URL = "https://www.wordfence.com/api/intelligence/v3/vulnerabilities/production"
 
 # In-memory index built once per process lifetime: slug -> list of vuln entries
 _WORDFENCE_INDEX: Optional[Dict[str, List[Dict[str, Any]]]] = None
@@ -26,6 +27,7 @@ def _build_index(feed: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
                     "id": vuln.get("id", ""),
                     "title": vuln.get("title", ""),
                     "cve": vuln.get("cve", None),
+                    "copyrights": vuln.get("copyrights", None),
                     "cvss": (vuln.get("cvss_v3") or {}).get("score", None),
                     "affected_versions": software.get("affected_versions", {}),
                     "patched_versions": vuln.get("patched_versions", []),
@@ -38,7 +40,7 @@ def _get_index() -> Dict[str, List[Dict[str, Any]]]:
     global _WORDFENCE_INDEX
     if _WORDFENCE_INDEX is None:
         logger.info("Fetching WordFence vulnerability feed from %s", WORDFENCE_PRODUCTION_FEED_URL)
-        response = FallbackAPICache.get(WORDFENCE_PRODUCTION_FEED_URL, allow_unknown=True)
+        response = requests.get(WORDFENCE_PRODUCTION_FEED_URL, headers={"Authorization": "Bearer " +Config.Modules.WordPressPlugins.WORDFENCE_API_KEY})
         _WORDFENCE_INDEX = _build_index(response.json())
         logger.info("WordFence index built: %d plugin entries", len(_WORDFENCE_INDEX))
     return _WORDFENCE_INDEX

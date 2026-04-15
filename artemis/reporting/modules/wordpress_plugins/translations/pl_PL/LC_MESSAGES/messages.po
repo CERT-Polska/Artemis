@@ -44,7 +44,23 @@ msgstr "szablon"
 msgid "in version"
 msgstr "w wersji"
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:20
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:14
+msgid "Vulnerabilities in the plugin:"
+msgstr "Podatności we wtyczce:"
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:19
+msgid " - description (in English):"
+msgstr " - opis (w języku angielskim):"
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:19
+msgid "severity level (CVSS)"
+msgstr "skala zagrożenia (CVSS)"
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:25
+msgid "Vulnerability data:"
+msgstr "Dane o podatnościach:"
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:36
 msgid ""
 "If a site is not used anymore, we recommend shutting it down to avoid the"
 " risk of exploitation of known vulnerabilities. If it is used, we "

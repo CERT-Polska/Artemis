@@ -35,9 +35,37 @@ msgstr ""
 msgid "in version"
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:20
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:14
+msgid "Vulnerabilities in the plugin:"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:19
+msgid " - description (in English):"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:19
+msgid "severity level (CVSS)"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:25
+msgid "Vulnerability data:"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:36
 msgid ""
 "If a site is not used anymore, we recommend shutting it down to avoid the"
 " risk of exploitation of known vulnerabilities. If it is used, we "
 "recommend enabling WordPress core, plugin and theme updates."
 msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "                                Vulnerability data: "
+#~ "© The MITRE Corporation (<a "
+#~ "href=\"https://www.cve.org/Resources/Media/Archives/OldWebsite/about/termsofuse.html\">license</a>)"
+#~ "\n"
+#~ "                                and Wordfence (<a"
+#~ " href=\"https://www.wordfence.com/wordfence-intelligence-"
+#~ "terms-and-conditions/\">license</a>)\n"
+#~ "                            "
+#~ msgstr ""

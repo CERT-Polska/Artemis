@@ -413,7 +413,7 @@ class WordpressPlugins(ArtemisBase):
         for plugin in outdated_plugins:
             messages.append(f"Outdated plugin found: {plugin['slug']} {plugin['version']}")
 
-            if Config.Modules.WordPressPlugins.WORDFENCE_ENABLED:
+            if Config.Modules.WordPressPlugins.WORDFENCE_API_KEY:
                 cves = get_vulnerabilities_for_plugin(plugin["slug"], plugin["version"])
             else:
                 cves = []

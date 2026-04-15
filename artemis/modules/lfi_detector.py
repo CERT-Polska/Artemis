@@ -1,26 +1,24 @@
-import random
-import re
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse, urlunparse
 
 from karton.core import Task
 
 from artemis import load_risk_class
-from artemis.binds import Service, TaskStatus, TaskType
+from artemis.binds import Service, TaskType
 from artemis.config import Config
-from artemis.crawling import (
-    get_injectable_parameters,
-    get_links_and_resources_on_same_domain,
-)
+from artemis.crawling import get_injectable_parameters
 from artemis.http_requests import HTTPResponse
+from artemis.injection_utils import (
+    collect_urls_to_scan,
+    create_url_with_batch_payload,
+    process_and_save_scan_results,
+)
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.lfi_detector.lfi_detector_data import (
     LFI_PAYLOADS,
     RCE_PAYLOADS,
 )
 from artemis.modules.data.parameters import URL_PARAMS
-from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.task_utils import get_target_url
 
 
@@ -47,18 +45,6 @@ class LFIDetector(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def _strip_query_string(self, url: str) -> str:
-        url_parsed = urlparse(url)
-        return urlunparse(url_parsed._replace(query="", fragment=""))
-
-    def create_url_with_batch_payload(self, url: str, param_batch: List[str], payload: str) -> str:
-        assignments = {key: payload for key in param_batch}
-        concatenation = "&" if self.is_url_with_parameters(url) else "?"
-        return f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
-
-    def is_url_with_parameters(self, url: str) -> bool:
-        return bool(re.search(r"/?/*=", url))
-
     def contains_lfi_indicator(self, original_response: HTTPResponse, response: HTTPResponse) -> Optional[str]:
         """Check if the response contains indicators of LFI."""
         indicators = [
@@ -81,7 +67,7 @@ class LFIDetector(ArtemisBase):
         minimal_params: List[str] = []
 
         for param in params:
-            test_url = self.create_url_with_batch_payload(url, [param], payload)
+            test_url = create_url_with_batch_payload(url, [param], payload)
             response = self.http_get(test_url)
 
             if self.contains_lfi_indicator(original_response, response):
@@ -118,7 +104,7 @@ class LFIDetector(ArtemisBase):
                     total_params = parameters + URL_PARAMS
                     for i, param in enumerate(total_params):
                         param_batch.append(param)
-                        url_with_payload = self.create_url_with_batch_payload(current_url, param_batch, payload)
+                        url_with_payload = create_url_with_batch_payload(current_url, param_batch, payload)
 
                         # The idea of that check is to break down params into chunks that lead to a given maximum URL
                         # length (as longer URLs may be unsupported by the servers).
@@ -136,7 +122,7 @@ class LFIDetector(ArtemisBase):
                                     original_response,
                                 )
 
-                                minimal_url = self.create_url_with_batch_payload(
+                                minimal_url = create_url_with_batch_payload(
                                     current_url,
                                     minimal_params,
                                     payload,
@@ -162,30 +148,11 @@ class LFIDetector(ArtemisBase):
         if self.check_connection_to_base_url_and_save_error(current_task):
             url = get_target_url(current_task)
 
-            links = get_links_and_resources_on_same_domain(url)
-            links.append(url)
-            links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+            links = collect_urls_to_scan(url)
 
-            links = [
-                link.split("#")[0]
-                for link in links
-                if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-            ]
+            messages = self.scan(urls=links, task=current_task)
 
-            random.shuffle(links)
-
-            messages = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
-
-            if messages:
-                status = TaskStatus.INTERESTING
-                status_reason = ", ".join([m["statement"] for m in messages])
-            else:
-                status = TaskStatus.OK
-                status_reason = None
-
-            data = {"result": messages, "statements": {e.value: e.name for e in LFIFindings}}
-
-            self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
+            process_and_save_scan_results(messages, LFIFindings, current_task, self.db)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,15 @@
+import json
 from typing import Any, Dict, List, Optional
 
 import requests
 from packaging.version import InvalidVersion
 from packaging.version import Version as PkgVersion
+from redis import Redis
 
 from artemis import utils
 from artemis.config import Config
+from artemis.redis_cache import RedisCache
+from artemis.resource_lock import ResourceLock
 
 logger = utils.build_logger(__name__)
 
@@ -13,6 +17,7 @@ WORDFENCE_PRODUCTION_FEED_URL = "https://www.wordfence.com/api/intelligence/v3/v
 
 # In-memory index built once per process lifetime: slug -> list of vuln entries
 _WORDFENCE_INDEX: Optional[Dict[str, List[Dict[str, Any]]]] = None
+REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 
 def _build_index(feed: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
@@ -40,11 +45,16 @@ def _get_index() -> Dict[str, List[Dict[str, Any]]]:
     global _WORDFENCE_INDEX
     if _WORDFENCE_INDEX is None:
         logger.info("Fetching WordFence vulnerability feed from %s", WORDFENCE_PRODUCTION_FEED_URL)
-        response = requests.get(
-            WORDFENCE_PRODUCTION_FEED_URL,
-            headers={"Authorization": "Bearer " + Config.Modules.WordPressPlugins.WORDFENCE_API_KEY},
-        )
-        _WORDFENCE_INDEX = _build_index(response.json())
+        lock = ResourceLock("wordfence_index")
+        with lock:
+            cache = RedisCache(REDIS, "wordfence_index", duration=6 * 60 * 60)
+            if not cache.get("data"):
+                response = requests.get(
+                    WORDFENCE_PRODUCTION_FEED_URL,
+                    headers={"Authorization": "Bearer " + Config.Modules.WordPressPlugins.WORDFENCE_API_KEY},
+                )
+                cache.set("data", response.content)
+            _WORDFENCE_INDEX = _build_index(json.loads(cache.get("data")))
         logger.info("WordFence index built: %d plugin entries", len(_WORDFENCE_INDEX))
     return _WORDFENCE_INDEX
 

@@ -1,11 +1,11 @@
 from typing import Any, Dict, List, Optional
 
+import requests
 from packaging.version import InvalidVersion
 from packaging.version import Version as PkgVersion
 
 from artemis import utils
 from artemis.config import Config
-from artemis.fallback_api_cache import FallbackAPICache
 
 logger = utils.build_logger(__name__)
 
@@ -40,7 +40,10 @@ def _get_index() -> Dict[str, List[Dict[str, Any]]]:
     global _WORDFENCE_INDEX
     if _WORDFENCE_INDEX is None:
         logger.info("Fetching WordFence vulnerability feed from %s", WORDFENCE_PRODUCTION_FEED_URL)
-        response = requests.get(WORDFENCE_PRODUCTION_FEED_URL, headers={"Authorization": "Bearer " +Config.Modules.WordPressPlugins.WORDFENCE_API_KEY})
+        response = requests.get(
+            WORDFENCE_PRODUCTION_FEED_URL,
+            headers={"Authorization": "Bearer " + Config.Modules.WordPressPlugins.WORDFENCE_API_KEY},
+        )
         _WORDFENCE_INDEX = _build_index(response.json())
         logger.info("WordFence index built: %d plugin entries", len(_WORDFENCE_INDEX))
     return _WORDFENCE_INDEX

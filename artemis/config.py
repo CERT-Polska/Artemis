@@ -1108,7 +1108,7 @@ class Config:
             ] = get_config("WORDPRESS_SKIP_VERSION_CHECK_ON_LESS_POPULAR_PLUGINS", default=False, cast=bool)
 
             WORDFENCE_API_KEY: Annotated[
-                bool,
+                str,
                 "If set, Artemis will fetch WordFence vulnerability data and enrich wordpress_plugins reports with CVE information.",
             ] = get_config("WORDFENCE_API_KEY", default=None)
 

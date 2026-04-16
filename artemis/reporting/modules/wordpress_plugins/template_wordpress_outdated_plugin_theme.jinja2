@@ -11,20 +11,23 @@
                         {% if report.additional_data.type == "plugin" %} {% trans %}plugin{% endtrans %} {% else %} {% trans %}template{% endtrans %} {% endif %}
                         {{ report.additional_data.slug }} {% trans %}in version{% endtrans %} {{ report.additional_data.version }}
                         {% if report.additional_data.cves %}
+                            <br/>
                             {% trans %}Vulnerabilities in the plugin:{% endtrans %}
                             <ul>
                                 {% for cve in report.additional_data.cves %}
                                     <li>
                                         {% if cve.cve %}{{ cve.cve }}{% else %}{{ cve.id }}{% endif %}
-                                        {% if cve.title %}{% trans %} - description (in English):{% endtrans %}{{ cve.title }}{% endif %}{% if cve.cvss %}, {% trans %}severity level (CVSS){% endtrans %}: {{ cve.cvss }}/10{% endif %}
+                                        {% if cve.title %} - {{ cve.title }}{% endif %}{% if cve.cvss %}, {% trans %}severity level (CVSS){% endtrans %}: {{ cve.cvss }}/10{% endif %}
                                    </li>
                                 {% endfor %}
                             </ul>
                         {% endif %}
                         {% if report.additional_data.cves %}
                             {% trans %}Vulnerability data:{% endtrans %}
-                            {% for copyright in report.additional_data.copyrights %}
-                                <a href="{{ copyright.license_url }}">{{ copyright.notice }}</a>
+                            {% for copyright in report.additional_data.copyrights.values() %}
+                                {% if copyright.license_url and copyright.notice %}
+                                    <a href="{{ copyright.license_url }}">{{ copyright.notice }}</a>{% if not loop.last %}, {% endif %}
+                                {% endif %}
                             {% endfor %}
                         {% endif %}
                         {{ report_meta(report) }}

@@ -77,7 +77,7 @@ class TestGetVulnerabilitiesForPlugin(unittest.TestCase):
             "id": "uuid-1111",
             "title": "XSS in contact-form-7",
             "cve": "CVE-2023-1234",
-            "cvss_v3": {"score": 7.5},
+            "cvss": {"score": 7.5},
             "patched_versions": ["5.8.0"],
             "software": [
                 {
@@ -97,7 +97,7 @@ class TestGetVulnerabilitiesForPlugin(unittest.TestCase):
             "id": "uuid-2222",
             "title": "SQLi in other-plugin",
             "cve": "CVE-2023-9999",
-            "cvss_v3": {"score": 9.8},
+            "cvss": {"score": 9.8},
             "patched_versions": ["3.0.0"],
             "software": [
                 {

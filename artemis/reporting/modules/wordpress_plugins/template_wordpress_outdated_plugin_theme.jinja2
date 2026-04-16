@@ -1,4 +1,5 @@
 {% if "wordpress_outdated_plugin_theme" in data.contains_type %}
+    {% set copyrights_to_display = namespace(data=[]) %}
     <li>{% trans %}The following addresses contain sites with WordPress plugins that are not up-to-date:{% endtrans %}
         <ul>
             {% for report in data.reports %}
@@ -10,13 +11,35 @@
                         {% endif %} -
                         {% if report.additional_data.type == "plugin" %} {% trans %}plugin{% endtrans %} {% else %} {% trans %}template{% endtrans %} {% endif %}
                         {{ report.additional_data.slug }} {% trans %}in version{% endtrans %} {{ report.additional_data.version }}
-
+                        {% if report.additional_data.cves %}
+                            <br/>
+                            {% trans %}Vulnerabilities in the plugin:{% endtrans %}
+                            <ul>
+                                {% for cve in report.additional_data.cves %}
+                                    <li>
+                                        {% if cve.cve %}{{ cve.cve }}{% else %}{{ cve.id }}{% endif %}
+                                        {% if cve.title %} - {{ cve.title }}{% endif %}{% if cve.cvss %}, {% trans %}severity level (CVSS){% endtrans %}: {{ cve.cvss }}/10{% endif %}
+                                   </li>
+                                {% endfor %}
+                            </ul>
+                            {% set copyrights_to_display.data = copyrights_to_display.data + report.additional_data.copyrights %}
+                        {% endif %}
                         {{ report_meta(report) }}
                     </li>
                 {% endif %}
             {% endfor %}
         </ul>
         <p>
+            {% set copyrights_notices_displayed = namespace(data=[]) %}
+            {% if copyrights_to_display.data %}
+                {% trans %}Vulnerability data:{% endtrans %}
+                {% for copyright in copyrights_to_display.data %}
+                    {% if copyright.license_url and copyright.notice and copyright.notice not in copyrights_notices_displayed.data %}
+                        <a href="{{ copyright.license_url }}">{{ copyright.notice }}</a>{% if not loop.last %}, {% endif %}
+                        {% set copyrights_notices_displayed.data = copyrights_notices_displayed.data + [copyright.notice] %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
             {% trans trimmed %}
                 If a site is not used anymore, we recommend shutting it down to avoid the risk of exploitation of
                 known vulnerabilities. If it is used, we recommend enabling WordPress core, plugin and

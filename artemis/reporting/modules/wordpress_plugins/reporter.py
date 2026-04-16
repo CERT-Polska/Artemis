@@ -91,7 +91,15 @@ class WordpressPluginsReporter(Reporter):
                 "type": item["type"],
                 "slug": item["slug"],
                 "version": item["version"],
+                "cves": item.get("cves", []),
+                "copyrights": [],
             }
+
+            for cve in additional_data["cves"]:
+                for key, value in cve["copyrights"].items():
+                    if not isinstance(value, dict):
+                        continue
+                    additional_data["copyrights"].append(value)
 
             if "redirect_url" in task_result["result"]:
                 additional_data["redirect_url"] = task_result["result"]["redirect_url"]

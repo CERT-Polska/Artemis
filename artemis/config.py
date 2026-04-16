@@ -1107,6 +1107,11 @@ class Config:
                 "If this option is set to True, version check for such plugins will not be performed.",
             ] = get_config("WORDPRESS_SKIP_VERSION_CHECK_ON_LESS_POPULAR_PLUGINS", default=False, cast=bool)
 
+            WORDFENCE_API_KEY: Annotated[
+                str,
+                "If set, Artemis will fetch WordFence vulnerability data and enrich wordpress_plugins reports with CVE information.",
+            ] = get_config("WORDFENCE_API_KEY", default=None)
+
         class WordPressScanner:
             WORDPRESS_VERSION_AGE_DAYS: Annotated[
                 int,

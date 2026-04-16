@@ -93,6 +93,13 @@ if Config.Reporting.ADDITIONAL_SEVERITY_FILE:
 
 
 def get_severity(report: Any) -> Severity:
+    if report.report_type == ReportType("wordpress_outdated_plugin_theme") and "cvss" in report.additional_data:
+        if report.additional_data["cvss"] < 4.0:
+            return Severity.LOW
+        if report.additional_data["cvss"] < 7.0:
+            return Severity.MEDIUM
+        return Severity.HIGH
+
     if report.report_type == ReportType("nuclei_vulnerability") and "severity" in report.additional_data:
         nuclei_severity_map = {
             "info": Severity.LOW,

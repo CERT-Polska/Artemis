@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 
 #: artemis/reporting/modules/wordpress_plugins/template_closed_wordpress_plugin.jinja2:7
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:11
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:12
 msgid "plugin"
 msgstr ""
 
@@ -17,27 +17,42 @@ msgid ""
 "vulnerabilities."
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:2
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:3
 msgid ""
 "The following addresses contain sites with WordPress plugins that are not"
 " up-to-date:"
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:9
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:10
 msgid "redirects to"
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:11
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:12
 msgid "template"
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:12
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:13
 msgid "in version"
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:20
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:16
+msgid "Vulnerabilities in the plugin:"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:21
+msgid "severity level (CVSS)"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:35
+msgid "Vulnerability data:"
+msgstr ""
+
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:43
 msgid ""
 "If a site is not used anymore, we recommend shutting it down to avoid the"
 " risk of exploitation of known vulnerabilities. If it is used, we "
 "recommend enabling WordPress core, plugin and theme updates."
 msgstr ""
+
+#~ msgid " - description (in English):"
+#~ msgstr ""

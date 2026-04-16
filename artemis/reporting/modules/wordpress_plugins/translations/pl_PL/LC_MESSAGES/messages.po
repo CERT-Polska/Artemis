@@ -7,7 +7,7 @@ msgstr ""
 "które zostały zamknięte i nie są rozwijane:"
 
 #: artemis/reporting/modules/wordpress_plugins/template_closed_wordpress_plugin.jinja2:7
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:11
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:12
 msgid "plugin"
 msgstr "wtyczka"
 
@@ -24,7 +24,7 @@ msgstr ""
 " jej wyłączenie, aby wyeliminować ryzyko ataku przy użyciu znanych "
 "podatności w zamkniętych wtyczkach."
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:2
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:3
 msgid ""
 "The following addresses contain sites with WordPress plugins that are not"
 " up-to-date:"
@@ -32,35 +32,31 @@ msgstr ""
 "Pod następującymi adresami znajdują się strony z nieaktualnymi wtyczkami "
 "lub szablonami WordPress:"
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:9
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:10
 msgid "redirects to"
 msgstr "przekierowuje do"
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:11
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:12
 msgid "template"
 msgstr "szablon"
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:12
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:13
 msgid "in version"
 msgstr "w wersji"
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:14
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:16
 msgid "Vulnerabilities in the plugin:"
 msgstr "Podatności we wtyczce:"
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:19
-msgid " - description (in English):"
-msgstr " - opis (w języku angielskim):"
-
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:19
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:21
 msgid "severity level (CVSS)"
 msgstr "skala zagrożenia (CVSS)"
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:25
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:35
 msgid "Vulnerability data:"
 msgstr "Dane o podatnościach:"
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:36
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:43
 msgid ""
 "If a site is not used anymore, we recommend shutting it down to avoid the"
 " risk of exploitation of known vulnerabilities. If it is used, we "

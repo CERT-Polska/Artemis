@@ -59,7 +59,7 @@ def _get_index() -> Dict[str, List[Dict[str, Any]]]:
                     logger.info("Unable to retrieve WordFence vulnerability feed. Errors: %s", errors)
                     return {}
                 cache.set("data", response.content)
-             
+
             data = cache.get("data")
             assert data is not None
             _WORDFENCE_INDEX = _build_index(json.loads(data))

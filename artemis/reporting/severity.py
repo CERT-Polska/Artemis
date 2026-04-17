@@ -93,7 +93,11 @@ if Config.Reporting.ADDITIONAL_SEVERITY_FILE:
 
 
 def get_severity(report: Any) -> Severity:
-    if report.report_type == ReportType("wordpress_outdated_plugin_theme") and "cves" in report.additional_data and report.additional_data["cves"]:
+    if (
+        report.report_type == ReportType("wordpress_outdated_plugin_theme")
+        and "cves" in report.additional_data
+        and report.additional_data["cves"]
+    ):
         cvss = max(item.get("cvss", 0) for item in report.additional_data["cves"])
         if cvss < 4.0:
             return Severity.LOW

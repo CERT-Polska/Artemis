@@ -54,6 +54,7 @@ def _get_index() -> Dict[str, List[Dict[str, Any]]]:
                 response = requests.get(
                     WORDFENCE_PRODUCTION_FEED_URL,
                     headers={"Authorization": "Bearer " + Config.Modules.WordPressPlugins.WORDFENCE_API_KEY},
+                    timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
                 )
                 if errors := response.json().get("errors", None):
                     logger.info("Unable to retrieve WordFence vulnerability feed. Errors: %s", errors)

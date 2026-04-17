@@ -96,7 +96,10 @@ class WordpressPluginsReporter(Reporter):
             }
 
             for cve in additional_data["cves"]:
-                for key, value in cve["copyrights"].items():
+                copyrights = cve.get("copyrights") or {}
+                if not isinstance(copyrights, dict):
+                    continue
+                for key, value in copyrights.items():
                     if not isinstance(value, dict):
                         continue
                     additional_data["copyrights"].append(value)

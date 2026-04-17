@@ -460,8 +460,11 @@ class Nuclei(ArtemisBase):
             )
         )
 
-        if capped := Config.Modules.Nuclei.NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY > 0:
-            milliseconds_per_request_retry = min(milliseconds_per_request_retry, 1000 * capped)
+        max_seconds_per_request_on_retry = Config.Modules.Nuclei.NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY
+        if max_seconds_per_request_on_retry > 0:
+            milliseconds_per_request_retry = min(
+                milliseconds_per_request_retry, int(1000 * max_seconds_per_request_on_retry)
+            )
 
         milliseconds_per_request_candidates = [milliseconds_per_request_initial, milliseconds_per_request_retry]
 

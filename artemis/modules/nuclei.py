@@ -559,7 +559,7 @@ class Nuclei(ArtemisBase):
                 stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)
                 METRIC_BATCH_COMMAND_DURATION.labels(scan_type=scan_using).observe(time.time() - command_start_time)
 
-                units = len(targets) * len(templates_or_workflows_filtered)
+                units = len(targets) * len(chunk)
                 METRIC_WORK_UNITS.labels(scan_type=scan_using).inc(units)
 
                 stdout_utf8 = stdout.decode("utf-8", errors="ignore")

@@ -31,13 +31,15 @@
         </ul>
         {% set copyrights_notices_displayed = namespace(data=[]) %}
         {% if copyrights_to_display.data %}
-            {% trans %}Vulnerability data:{% endtrans %}
-            {% for copyright in copyrights_to_display.data %}
-                {% if copyright.license_url and copyright.notice and copyright.notice not in copyrights_notices_displayed.data %}
-                    <a href="{{ copyright.license_url }}">{{ copyright.notice }}</a>
-                    {% set copyrights_notices_displayed.data = copyrights_notices_displayed.data + [copyright.notice] %}
-                {% endif %}
-            {% endfor %}
+            <p>
+                {% trans %}Vulnerability data:{% endtrans %}
+                {% for copyright in copyrights_to_display.data %}
+                    {% if copyright.license_url and copyright.notice and copyright.notice not in copyrights_notices_displayed.data %}
+                        <a href="{{ copyright.license_url }}">{{ copyright.notice }}</a>
+                        {% set copyrights_notices_displayed.data = copyrights_notices_displayed.data + [copyright.notice] %}
+                    {% endif %}
+                {% endfor %}
+            </p>
         {% endif %}
         <p>
             {% trans trimmed %}

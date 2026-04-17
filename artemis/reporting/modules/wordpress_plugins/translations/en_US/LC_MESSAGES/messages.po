@@ -47,7 +47,7 @@ msgstr ""
 msgid "Vulnerability data:"
 msgstr ""
 
-#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:43
+#: artemis/reporting/modules/wordpress_plugins/template_wordpress_outdated_plugin_theme.jinja2:45
 msgid ""
 "If a site is not used anymore, we recommend shutting it down to avoid the"
 " risk of exploitation of known vulnerabilities. If it is used, we "

@@ -36,7 +36,7 @@ class ReverseDNSLookup(ArtemisBase):
             if not api.endswith("/"):
                 api = api + "/"
 
-            response = requests.get(api + ip)
+            response = requests.get(api + ip, timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS)
             json_data = response.json()
             if "hostnames" in json_data:
                 self.log.info(f"Got hosts {json_data['hostnames']} from {api}")

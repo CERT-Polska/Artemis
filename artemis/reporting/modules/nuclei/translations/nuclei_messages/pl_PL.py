@@ -997,6 +997,8 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Detected Brickcom IP cameras was exposed live camera snapshots without authentication via the ONVIF media endpoint.": "Wykryto kamerę IP Brickcom zawierającą podatność umożliwiającą dostęp do klatek z kamery."
+    + DATA_HIDE_HINT,
     "ZK Framework 9.6.1, 9.6.0.1, 9.5.1.3, 9.0.1.2 and 8.6.4.1 is susceptible to information disclosure. An attacker can access sensitive information via a crafted POST request to the component AuUploader and thereby possibly obtain additional sensitive information, modify data, and/or execute unauthorized operations.": "Framework ZK w wersjach 8.6.4.1, 9.0.1.2, 9.5.1.3, 9.6.0.1 i 9.6.1 zawiera podatność o identyfikatorze CVE-2022-36537, umożliwiającą dostęp do wrażliwych informacji."
     + DATA_HIDE_HINT,
     "The ProfileGrid – User Profiles, Groups and Communities plugin for WordPress is vulnerable to SQL Injection in versions up to, and including, 5.7.8 due to insufficient escaping on the user supplied 'search' parameter and lack of sufficient preparation on the existing SQL query.": "Wtyczka WordPress o nazwie ProfileGrid – User Profiles, Groups and Communities w wersji do 5.7.8 włącznie zawiera podatność SQL Injection o identyfikatorze CVE-2024-30490, umożliwiającą odczyt danych z bazy danych."

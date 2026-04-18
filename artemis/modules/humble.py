@@ -100,19 +100,29 @@ class Humble(ArtemisBase):
 
         base_url = get_target_url(current_task)
 
-        data = subprocess.check_output(
-            [
-                "python3",
-                "humble.py",
-                "-u",
-                base_url,
-                "-b",
-                "-o",
-                "json",
-            ],
-            cwd="/humble",
-            stderr=subprocess.DEVNULL,
-        )
+        try:
+            data = subprocess.check_output(
+                [
+                    "python3",
+                    "humble.py",
+                    "-u",
+                    base_url,
+                    "-b",
+                    "-o",
+                    "json",
+                ],
+                cwd="/humble",
+                stderr=subprocess.DEVNULL,
+                timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired:
+            self.log.error("Humble timed out for %s", base_url)
+            self.db.save_task_result(
+                task=current_task,
+                status=TaskStatus.ERROR,
+                status_reason="Humble timed out",
+            )
+            return
 
         # strip boilerplatetext from the output to get the location and filename of the output file
         filename = (

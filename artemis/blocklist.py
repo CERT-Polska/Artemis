@@ -54,7 +54,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         return []
 
     with open(file_path, "r") as file:
-        data = yaml.safe_load(file)
+        data = yaml.safe_load(file) or []
 
     expected_keys = {
         "mode",

@@ -6,6 +6,8 @@ import tempfile
 from typing import Any, List
 
 WAPPALYZER_PATH = "/opt/artemis/modules/utils/wappalyzer/"
+GO_GET_TIMEOUT_SECONDS = 60
+GO_RUN_TIMEOUT_SECONDS = 300
 
 
 def run_tech_detection(urls: List[str], logger: logging.Logger) -> Any:
@@ -20,7 +22,11 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Any:
     try:
         # Update the Wappalyzer package once
         subprocess.run(
-            ["go", "-C", WAPPALYZER_PATH, "get", "-u", "./..."], cwd=wappalyzer_path, check=True, capture_output=True
+            ["go", "-C", WAPPALYZER_PATH, "get", "-u", "./..."],
+            cwd=wappalyzer_path,
+            check=True,
+            capture_output=True,
+            timeout=GO_GET_TIMEOUT_SECONDS,
         )
 
         with tempfile.NamedTemporaryFile(mode="w") as temp_file:
@@ -30,10 +36,12 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Any:
             os.fsync(temp_file.fileno())
 
             wappalyzer_output = subprocess.check_output(
-                ["go", "run", main_go_path, temp_file.name], cwd=wappalyzer_path
+                ["go", "run", main_go_path, temp_file.name],
+                cwd=wappalyzer_path,
+                timeout=GO_RUN_TIMEOUT_SECONDS,
             )
 
         return json.loads(wappalyzer_output)
-    except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, json.JSONDecodeError) as e:
         logger.error(f"Error running technology detection: {e}")
         return {url: [] for url in urls}

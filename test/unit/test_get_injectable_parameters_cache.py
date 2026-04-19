@@ -72,7 +72,7 @@ class TestGetInjectableParametersCache(unittest.TestCase):
         self.assertEqual(mock_get.call_count, 2)
 
     @patch("artemis.crawling.http_requests.get")
-    def test_different_urls_are_cached_independently(self, mock_get: MagicMock) -> None:
+    def test_different_urls_are_cached_independently_success_and_failure(self, mock_get: MagicMock) -> None:
         """Sanity check that the cache is keyed on the URL — a failure for
         one URL must not shadow a successful response for a different one."""
         mock_get.side_effect = [
@@ -81,6 +81,20 @@ class TestGetInjectableParametersCache(unittest.TestCase):
         ]
 
         self.assertEqual(get_injectable_parameters("http://a.example/x"), [])
+        self.assertEqual(get_injectable_parameters("http://b.example/y"), ["email"])
+
+        self.assertEqual(mock_get.call_count, 2)
+
+    @patch("artemis.crawling.http_requests.get")
+    def test_different_urls_are_cached_independently_two_successes(self, mock_get: MagicMock) -> None:
+        """Sanity check that the cache is keyed on the URL — data for
+        one URL must not shadow a response for a different one."""
+        mock_get.side_effect = [
+            _make_response('<html><input name="name"></html>'),
+            _make_response('<html><input name="email"></html>'),
+        ]
+
+        self.assertEqual(get_injectable_parameters("http://a.example/x"), ["name"])
         self.assertEqual(get_injectable_parameters("http://b.example/y"), ["email"])
 
         self.assertEqual(mock_get.call_count, 2)

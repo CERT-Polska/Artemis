@@ -30,7 +30,8 @@ Step 1: Add targets to scan
 
 Use ``POST /api/add`` to submit targets for scanning.
 
-.. test-id:: step1-add
+..
+   test-id:: step1-add
 
 .. code-block:: bash
 
@@ -69,7 +70,8 @@ Step 2: List analyses
 
 Use ``GET /api/analyses`` to list all analyses (scanned targets).
 
-.. test-id:: step2-list-analyses
+..
+   test-id:: step2-list-analyses
 
 .. code-block:: bash
 
@@ -97,7 +99,8 @@ Step 3: Monitor queue
 
 Use ``GET /api/num-queued-tasks`` to check how many tasks are still waiting to be processed.
 
-.. test-id:: step3-num-queued-tasks
+..
+   test-id:: step3-num-queued-tasks
 
 .. code-block:: bash
 
@@ -114,7 +117,8 @@ The response is a plain integer. When it reaches ``0``, all tasks have been pick
 
 You can also filter by specific module names:
 
-.. test-id:: step3-num-queued-tasks-filtered
+..
+   test-id:: step3-num-queued-tasks-filtered
 
 .. code-block:: bash
 
@@ -126,7 +130,8 @@ Step 4: Retrieve results
 
 Use ``GET /api/task-results`` to fetch scanning results.
 
-.. test-id:: step4-task-results
+..
+   test-id:: step4-task-results
 
 .. code-block:: bash
 
@@ -167,7 +172,8 @@ Step 5: Stop and delete an analysis
 
 Use ``POST /api/stop-and-delete-analysis`` to cancel a running scan and remove its data.
 
-.. test-id:: step5-stop-and-delete
+..
+   test-id:: step5-stop-and-delete
 
 .. code-block:: bash
 
@@ -209,7 +215,8 @@ Response:
 
 **List exports** -- ``GET /api/exports``
 
-.. test-id:: exports-list
+..
+   test-id:: exports-list
 
 .. code-block:: bash
 
@@ -268,7 +275,8 @@ Archiving tags
 
 Use ``POST /api/archive-tag`` to archive all data associated with a tag:
 
-.. test-id:: archive-tag
+..
+   test-id:: archive-tag
 
 .. code-block:: bash
 
@@ -286,7 +294,8 @@ Checking the blocklist
 
 Use ``GET /api/is-blocklisted/{domain}`` to check whether scanning of a domain is blocked:
 
-.. test-id:: is-blocklisted
+..
+   test-id:: is-blocklisted
 
 .. code-block:: bash
 
@@ -304,7 +313,8 @@ Rendering HTML messages
 
 Use ``POST /api/build-html-message`` to render a custom list of vulnerabilities as HTML:
 
-.. test-id:: build-html-message
+..
+   test-id:: build-html-message
 
 .. code-block:: bash
 

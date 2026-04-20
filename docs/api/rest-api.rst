@@ -171,29 +171,7 @@ Response:
 - ``analysis_id`` *(string, optional)* -- Filter results by a specific analysis.
 - ``search`` *(string, optional)* -- Search results by keyword.
 
-Step 5: Stop and delete an analysis
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Use ``POST /api/stop-and-delete-analysis`` to cancel a running scan and remove its data.
-
-..
-   test-id:: step5-stop-and-delete
-
-.. code-block:: bash
-
-   curl -s -X POST "http://localhost:5000/api/stop-and-delete-analysis?analysis_id=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" \
-      -H "X-API-Token: YOUR_API_TOKEN"
-
-Response:
-
-.. code-block:: json
-
-   {"ok": true}
-
-Other Endpoints
----------------
-
-Exporting reports
+Step 5: export the reports
 ^^^^^^^^^^^^^^^^^
 
 **Create an export** -- ``POST /api/export``
@@ -207,7 +185,7 @@ Generate human-readable reports from scan results:
       -H "X-API-Token: YOUR_API_TOKEN" \
       -d '{
             "language": "en_US",
-            "skip_previously_exported": true,
+            "skip_previously_exported": false,
             "tag": "monthly-scan-2025-01"
       }'
 
@@ -261,6 +239,12 @@ You can filter by tag prefix using the ``tag_prefix`` query parameter:
    curl -s -L -o report.zip http://localhost:5000/api/export/download-zip/1 \
       -H "X-API-Token: YOUR_API_TOKEN"
 
+The zip file will contain e.g.:
+
+- human-readable HTML reports,
+- JSON vulnerability data,
+- statistics.
+
 **Delete an export** -- ``POST /api/export/delete/{id}``
 
 .. code-block:: bash
@@ -274,10 +258,31 @@ Response:
 
    {"ok": true}
 
+Other Endpoints
+---------------
+Stopping and deleting an analysis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use ``POST /api/stop-and-delete-analysis`` to cancel a running scan (i.e. remove its pending tasks). Tasks currently running will finish and the results will be kept in the database.
+
+..
+   test-id:: step5-stop-and-delete
+
+.. code-block:: bash
+
+   curl -s -X POST "http://localhost:5000/api/stop-and-delete-analysis?analysis_id=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   {"ok": true}
+
 Archiving tags
 ^^^^^^^^^^^^^^
 
-Use ``POST /api/archive-tag`` to archive all data associated with a tag:
+Use ``POST /api/archive-tag`` to archive all scan results associated with a tag (e.g. to save space in the database):
 
 ..
    test-id:: archive-tag
@@ -293,10 +298,12 @@ Response:
 
    {"ok": true}
 
+The archive will be stored as a JSON file on disk.
+
 Checking the blocklist
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Use ``GET /api/is-blocklisted/{domain}`` to check whether scanning of a domain is blocked:
+Use ``GET /api/is-blocklisted/{domain}`` to check whether scanning of a domain is blocklisted:
 
 ..
    test-id:: is-blocklisted
@@ -326,73 +333,3 @@ Use ``POST /api/build-html-message`` to render a custom list of vulnerabilities 
       -H "Content-Type: application/json" \
       -H "X-API-Token: YOUR_API_TOKEN" \
       -d '{"language": "en_US", "data": {}}'
-
-Complete Example: Automated Monthly Scan
-----------------------------------------
-
-The following shell script demonstrates a complete scanning workflow using the REST API:
-
-.. code-block:: bash
-
-   #!/bin/bash
-   set -e
-
-   ARTEMIS_URL="http://localhost:5000"
-   API_TOKEN="YOUR_API_TOKEN"
-   TAG="monthly-scan-$(date +%Y-%m)"
-
-   # Step 1: Submit targets
-   echo "Submitting targets..."
-   RESPONSE=$(curl -s -X POST "$ARTEMIS_URL/api/add" \
-         -H "Content-Type: application/json" \
-         -H "X-API-Token: $API_TOKEN" \
-         -d "{
-            \"targets\": [\"example.com\", \"example.org\"],
-            \"tag\": \"$TAG\"
-         }")
-   echo "Response: $RESPONSE"
-
-   # Step 2: Wait for scanning to complete
-   echo "Waiting for scan to complete..."
-   while true; do
-      QUEUED=$(curl -s "$ARTEMIS_URL/api/num-queued-tasks" \
-         -H "X-API-Token: $API_TOKEN")
-      echo "Queued tasks: $QUEUED"
-      if [ "$QUEUED" -eq 0 ]; then
-         break
-      fi
-      sleep 30
-   done
-
-   # Step 3: Retrieve interesting results
-   echo "Fetching results..."
-   curl -s "$ARTEMIS_URL/api/task-results?only_interesting=true" \
-      -H "X-API-Token: $API_TOKEN" | python3 -m json.tool
-
-   # Step 4: Generate and download a report
-   echo "Creating export..."
-   curl -s -X POST "$ARTEMIS_URL/api/export" \
-      -H "Content-Type: application/json" \
-      -H "X-API-Token: $API_TOKEN" \
-      -d "{
-         \"language\": \"en_US\",
-         \"skip_previously_exported\": true,
-         \"tag\": \"$TAG\"
-      }"
-
-   # Wait for the export to be ready
-   while true; do
-      EXPORTS=$(curl -s "$ARTEMIS_URL/api/exports?tag_prefix=$TAG" \
-         -H "X-API-Token: $API_TOKEN")
-      ZIP_URL=$(echo "$EXPORTS" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data[0].get('zip_url', '') if data else '')")
-      if [ -n "$ZIP_URL" ]; then
-         break
-      fi
-      sleep 10
-   done
-
-   # Download the report
-   echo "Downloading report..."
-   curl -s -L -o "report-$TAG.zip" "$ARTEMIS_URL$ZIP_URL" \
-      -H "X-API-Token: $API_TOKEN"
-   echo "Report saved to report-$TAG.zip"

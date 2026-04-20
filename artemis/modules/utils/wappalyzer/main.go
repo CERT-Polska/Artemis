@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,9 +21,6 @@ const (
 
 var client = &http.Client{
 	Timeout: httpClientTimeout,
-	Transport: &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	},
 }
 
 func scan(url string, wappalyzerClient *wappalyzer.Wappalyze) map[string][]string {

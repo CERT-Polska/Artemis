@@ -10,11 +10,18 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	wappalyzer "github.com/projectdiscovery/wappalyzergo"
 )
 
+const (
+	httpClientTimeout = 30 * time.Second
+	maxResponseBytes  = 10 * 1024 * 1024
+)
+
 var client = &http.Client{
+	Timeout: httpClientTimeout,
 	Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	},
@@ -30,7 +37,7 @@ func scan(url string, wappalyzerClient *wappalyzer.Wappalyze) map[string][]strin
 	}
 	defer resp.Body.Close()
 
-	data, _ := io.ReadAll(resp.Body)
+	data, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 	fingerprints := wappalyzerClient.Fingerprint(resp.Header, data)
 
 	techs := []string{}

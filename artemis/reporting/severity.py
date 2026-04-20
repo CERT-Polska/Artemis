@@ -36,6 +36,7 @@ SEVERITY_MAP = {
     ReportType("exposed_ssh_with_easy_password"): Severity.HIGH,
     ReportType("ssh_known_bad_key"): Severity.HIGH,
     ReportType("sql_injection:core"): Severity.HIGH,
+    ReportType("leaked_sensitive_data"): Severity.MEDIUM,
     ReportType("exposed_log_file"): Severity.MEDIUM,
     ReportType("writable_ftp"): Severity.HIGH,
     ReportType("wordpress_outdated_plugin_theme"): Severity.MEDIUM,
@@ -93,6 +94,18 @@ if Config.Reporting.ADDITIONAL_SEVERITY_FILE:
 
 
 def get_severity(report: Any) -> Severity:
+    if (
+        report.report_type == ReportType("wordpress_outdated_plugin_theme")
+        and "cves" in report.additional_data
+        and report.additional_data["cves"]
+    ):
+        cvss = max(item.get("cvss", 0) for item in report.additional_data["cves"])
+        if cvss < 4.0:
+            return Severity.LOW
+        if cvss < 7.0:
+            return Severity.MEDIUM
+        return Severity.HIGH
+
     if report.report_type == ReportType("nuclei_vulnerability") and "severity" in report.additional_data:
         nuclei_severity_map = {
             "info": Severity.LOW,

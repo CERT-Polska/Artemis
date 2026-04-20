@@ -23,20 +23,17 @@ def _cleanup_tasks_not_in_queues() -> None:
     # Until https://github.com/CERT-Polska/karton/issues/262 gets fixed, let's have our own cleanup routine
     backend = KartonBackend(config=KartonConfig())
 
-    keys = backend.redis.keys()
     tasks = set()
-    for key in keys:
-        if key.startswith("karton.task"):
-            if ":" in key:
-                tasks.add(key.split(":")[1])
-            else:
-                logger.error("Invalid key: %s", key)
+    for key in backend.redis.scan_iter(match="karton.task*"):
+        if ":" in key:
+            tasks.add(key.split(":")[1])
+        else:
+            logger.error("Invalid key: %s", key)
 
     queued_tasks = set()
-    for key in keys:
-        if key.startswith("karton.queue"):
-            for task in backend.redis.lrange(key, 0, -1):
-                queued_tasks.add(task)
+    for key in backend.redis.scan_iter(match="karton.queue*"):
+        for task in backend.redis.lrange(key, 0, -1):
+            queued_tasks.add(task)
 
     num_tasks_cleaned_up = 0
     for item in tasks - queued_tasks:
@@ -125,6 +122,6 @@ if __name__ == "__main__":
     while True:
         try:
             cleanup()
-            time.sleep(DELAY_BETWEEN_CLEANUPS__SECONDS)
         except Exception:
             logger.exception("Error during cleanup")
+        time.sleep(DELAY_BETWEEN_CLEANUPS__SECONDS)

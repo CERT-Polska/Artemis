@@ -54,7 +54,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         return []
 
     with open(file_path, "r") as file:
-        data = yaml.safe_load(file)
+        data = yaml.safe_load(file) or []
 
     expected_keys = {
         "mode",
@@ -137,7 +137,7 @@ def should_block_scanning(
         if item.ip_range:
             if not ip:
                 continue
-            if ipaddress.IPv4Address(ip) not in item.ip_range:
+            if ipaddress.ip_address(ip) not in item.ip_range:
                 continue
 
         if item.until:
@@ -211,7 +211,7 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
             if item.ip_range:
                 if not report.target_ip:
                     continue
-                if ipaddress.IPv4Address(report.target_ip) not in item.ip_range:
+                if ipaddress.ip_address(report.target_ip) not in item.ip_range:
                     continue
 
             if item.until:

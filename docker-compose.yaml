@@ -1,6 +1,6 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
-  image: certpl/artemis:latest
+  image: "${ARTEMIS_BUILD_IMAGE:-certpl/artemis:latest}"
   # Prevent NDOTS-based DNS search domain expansion for short hostnames such as
   # "s3mock", "redis", "postgres".  Without this, a host whose /etc/resolv.conf
   # contains e.g. "search corp.example.com" causes every DNS lookup for "s3mock"
@@ -33,7 +33,7 @@ services:
     image: adobe/s3mock:latest
     environment:
       - initialBuckets=bucket
-    entrypoint: ["sh", "-c", "java -jar s3mock.jar 2>&1 > /dev/null"]
+    entrypoint: ["sh", "-c", "java -jar opt/s3mock.jar 2>&1 > /dev/null"]
 
     deploy:
       resources:
@@ -260,6 +260,8 @@ services:
   karton-nuclei:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.nuclei"
+    labels:
+      prometheus.port: "9001"
     env_file: .env
     restart: always
     volumes:

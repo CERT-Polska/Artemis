@@ -90,7 +90,7 @@ Response:
          "created_at": "2025-01-15T10:30:00",
          "stopped": false,
          "num_pending_tasks": 5,
-         "disabled_modules": []
+         "disabled_modules": "admin_panel_login_bruter,api_scanner,dangling_dns_detector,example,humble,ssh_bruter,xss_scanner",
       }
    ]
 
@@ -122,8 +122,12 @@ You can also filter by specific module names:
 
 .. code-block:: bash
 
-   curl -s "http://localhost:5000/api/num-queued-tasks?karton_names=nuclei&karton_names=bruter" \
-      -H "X-API-Token: YOUR_API_TOKEN"
+  curl \
+    -X GET \
+    -s "http://localhost:5000/api/num-queued-tasks" \
+    -H "Content-Type: application/json" \
+    -H "X-API-Token: YOUR_API_TOKEN" \
+    -d '["nuclei"]'
 
 Step 4: Retrieve results
 ^^^^^^^^^^^^^^^^^^^^^^^^

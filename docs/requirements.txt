@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
@@ -143,7 +143,7 @@ typing-inspection==0.4.2
 unittest-parallel==1.7.6
 url-normalize==2.2.1
 urllib3==2.6.3
-uvicorn==0.42.0
+uvicorn==0.44.0
 validators==0.35.0
 werkzeug==3.1.8
 whoisdomain==1.20260326.1

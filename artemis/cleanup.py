@@ -23,9 +23,6 @@ def _cleanup_tasks_not_in_queues() -> None:
     # Until https://github.com/CERT-Polska/karton/issues/262 gets fixed, let's have our own cleanup routine
     backend = KartonBackend(config=KartonConfig())
 
-    # Use SCAN (non-blocking, cursor-based) instead of KEYS (blocks Redis for
-    # the entire enumeration): this cleanup shares Redis with Karton queues and
-    # ResourceLock, so a blocking scan of the full keyspace stalls every worker.
     tasks = set()
     for key in backend.redis.scan_iter(match="karton.task*"):
         if ":" in key:

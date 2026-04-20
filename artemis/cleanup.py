@@ -23,20 +23,20 @@ def _cleanup_tasks_not_in_queues() -> None:
     # Until https://github.com/CERT-Polska/karton/issues/262 gets fixed, let's have our own cleanup routine
     backend = KartonBackend(config=KartonConfig())
 
-    keys = backend.redis.keys()
+    # Use SCAN (non-blocking, cursor-based) instead of KEYS (blocks Redis for
+    # the entire enumeration): this cleanup shares Redis with Karton queues and
+    # ResourceLock, so a blocking scan of the full keyspace stalls every worker.
     tasks = set()
-    for key in keys:
-        if key.startswith("karton.task"):
-            if ":" in key:
-                tasks.add(key.split(":")[1])
-            else:
-                logger.error("Invalid key: %s", key)
+    for key in backend.redis.scan_iter(match="karton.task*"):
+        if ":" in key:
+            tasks.add(key.split(":")[1])
+        else:
+            logger.error("Invalid key: %s", key)
 
     queued_tasks = set()
-    for key in keys:
-        if key.startswith("karton.queue"):
-            for task in backend.redis.lrange(key, 0, -1):
-                queued_tasks.add(task)
+    for key in backend.redis.scan_iter(match="karton.queue*"):
+        for task in backend.redis.lrange(key, 0, -1):
+            queued_tasks.add(task)
 
     num_tasks_cleaned_up = 0
     for item in tasks - queued_tasks:

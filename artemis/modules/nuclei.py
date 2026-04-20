@@ -495,6 +495,8 @@ class Nuclei(ArtemisBase):
                     "1",
                     "-rate-limit-duration",
                     str(milliseconds_per_request) + "ms",
+                    "-ss",
+                    "host-spray",
                     "-stats-json",
                     "-stats-interval",
                     "1",

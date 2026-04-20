@@ -18,11 +18,6 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Any:
         raise FileNotFoundError(f"Wappalyzer main.go not found at {main_go_path}")
 
     try:
-        # Update the Wappalyzer package once
-        subprocess.run(
-            ["go", "-C", WAPPALYZER_PATH, "get", "-u", "./..."], cwd=wappalyzer_path, check=True, capture_output=True
-        )
-
         with tempfile.NamedTemporaryFile(mode="w") as temp_file:
             for url in urls:
                 temp_file.write(url + "\n")

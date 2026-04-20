@@ -29,13 +29,13 @@ STATIC_PLACEHOLDERS = {
 def extract_curl_blocks(rst_path: str) -> Dict[str, str]:
     """Extract labeled curl code blocks from the RST documentation.
 
-    Looks for ``.. test-id:: <id>`` comments followed by ``.. code-block:: bash``
+    Looks for ``test-id:: <id>`` comments followed by ``.. code-block:: bash``
     directives and returns a mapping of test-id to the extracted curl command.
     """
     with open(rst_path) as f:
         content = f.read()
 
-    pattern = r"\.\. test-id:: (\S+)\s*\n\s*\n\.\. code-block:: bash\s*\n\n((?:   [^\n]*\n)*)"
+    pattern = r"test-id:: (\S+)\s*\n\s*\n\.\. code-block:: bash\s*\n\n((?:   [^\n]*\n)*)"
     blocks: Dict[str, str] = {}
     for match in re.finditer(pattern, content):
         test_id = match.group(1)

@@ -99,7 +99,7 @@ def get_severity(report: Any) -> Severity:
         and "cves" in report.additional_data
         and report.additional_data["cves"]
     ):
-        cvss = max(item.get("cvss", 0) for item in report.additional_data["cves"])
+        cvss = max((item.get("cvss") or 0) for item in report.additional_data["cves"])
         if cvss < 4.0:
             return Severity.LOW
         if cvss < 7.0:

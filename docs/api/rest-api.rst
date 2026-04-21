@@ -1,0 +1,335 @@
+.. _rest-api:
+
+REST API Guide
+==============
+
+Artemis exposes a REST API for programmatic interaction, allowing you to automate scanning workflows such as adding targets, monitoring progress, retrieving results, and exporting reports.
+
+All API endpoints are prefixed with ``/api`` and require authentication via an API token. Interactive API documentation (Swagger UI) is also available at ``/docs`` on your Artemis instance.
+
+Authentication
+--------------
+
+To use the API, set the ``API_TOKEN`` variable in your ``.env`` file (see :doc:`/user-guide/configuration` for details on configuration). All API requests must include this token in the ``X-API-Token`` header.
+
+Requests with a missing or invalid token will receive a ``401`` response:
+
+.. code-block:: bash
+
+   curl -s http://localhost:5000/api/analyses \
+      -H "X-API-Token: invalid-token"
+   {"detail":"Invalid API token"}
+
+Workflow: Adding and Monitoring a Scan
+--------------------------------------
+
+This section walks through the typical API workflow: adding targets, monitoring scan progress, and retrieving results.
+
+Step 1: Add targets to scan
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use ``POST /api/add`` to submit targets for scanning.
+
+..
+   test-id:: step1-add
+
+.. code-block:: bash
+
+   curl -s -X POST http://localhost:5000/api/add \
+      -H "Content-Type: application/json" \
+      -H "X-API-Token: YOUR_API_TOKEN" \
+      -d '{
+         "targets": ["example.com", "example.org"],
+         "tag": "monthly-scan-2025-01"
+      }'
+
+Response:
+
+.. code-block:: json
+
+   {"ok": true, "ids": ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "ffffffff-1111-2222-3333-444444444444"]}
+
+The ``ids`` field contains the analysis IDs for each submitted target. Save these to track progress.
+
+**Parameters:**
+
+- ``targets`` *(required, list of strings)* -- Domains, IPs, IP ranges, or ``host:port`` entries to scan.
+- ``tag`` *(optional, string)* -- A label to group and filter results.
+- ``disabled_modules`` *(optional, list of strings)* -- Module names to skip during scanning.
+- ``enabled_modules`` *(optional, list of strings)* -- If provided, only these modules will run. Cannot be combined with ``disabled_modules``.
+- ``priority`` *(optional, string)* -- Task priority: ``"low"``, ``"normal"`` (default), or ``"high"``.
+- ``requests_per_second_override`` *(optional, float)* -- Override the per-target rate limit.
+- ``module_runtime_configurations`` *(optional, object)* -- Per-module runtime configuration overrides.
+
+.. note::
+
+   Providing both ``disabled_modules`` and ``enabled_modules`` will result in a ``400`` error.
+
+Step 2: List analyses
+^^^^^^^^^^^^^^^^^^^^^
+
+Use ``GET /api/analyses`` to list all analyses (scanned targets).
+
+..
+   test-id:: step2-list-analyses
+
+.. code-block:: bash
+
+   curl -s http://localhost:5000/api/analyses \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   [
+      {
+         "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+         "target": "example.com",
+         "tag": "monthly-scan-2025-01",
+         "created_at": "2025-01-15T10:30:00",
+         "stopped": false,
+         "num_pending_tasks": 5,
+         "disabled_modules": "admin_panel_login_bruter,api_scanner,dangling_dns_detector,example,humble,ssh_bruter,xss_scanner",
+      }
+   ]
+
+Step 3: Monitor queue
+^^^^^^^^^^^^^^^^^^^^^
+
+Use ``GET /api/num-queued-tasks`` to check how many tasks are still waiting to be processed.
+
+..
+   test-id:: step3-num-queued-tasks
+
+.. code-block:: bash
+
+   curl -s http://localhost:5000/api/num-queued-tasks \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: text
+
+   23
+
+The response is a plain integer. When it reaches ``0``, all tasks have been picked up by modules (though some may still be in progress).
+
+You can also filter by specific module names:
+
+..
+   test-id:: step3-num-queued-tasks-filtered
+
+.. code-block:: bash
+
+  curl \
+    -X GET \
+    -s "http://localhost:5000/api/num-queued-tasks" \
+    -H "Content-Type: application/json" \
+    -H "X-API-Token: YOUR_API_TOKEN" \
+    -d '["nuclei"]'
+
+Step 4: Retrieve results
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use ``GET /api/task-results`` to fetch scanning results.
+
+..
+   test-id:: step4-task-results
+
+.. code-block:: bash
+
+   curl -s "http://localhost:5000/api/task-results?only_interesting=true" \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   [
+      {
+         "id": "result-uuid",
+         "created_at": "2025-01-15T10:35:00",
+         "tag": "monthly-scan-2025-01",
+         "receiver": "nuclei",
+         "target_string": "example.com",
+         "status": "INTERESTING",
+         "status_reason": "Found vulnerability: ...",
+         "analysis_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+         "task": {},
+         "result": {},
+         "logs": null,
+         "additional_info": null
+      }
+   ]
+
+**Query parameters:**
+
+- ``only_interesting`` *(bool, default: true)* -- If ``true``, return only results with ``INTERESTING`` status (i.e. findings found by scanning modules).
+- ``page`` *(int, default: 1)* -- Page number for pagination.
+- ``page_size`` *(int, default: 100)* -- Number of results per page.
+- ``analysis_id`` *(string, optional)* -- Filter results by a specific analysis.
+- ``search`` *(string, optional)* -- Search results by keyword.
+
+Step 5: export the reports
+^^^^^^^^^^^^^^^^^
+
+**Create an export** -- ``POST /api/export``
+
+Generate human-readable reports from scan results:
+
+.. code-block:: bash
+
+   curl -s -X POST http://localhost:5000/api/export \
+      -H "Content-Type: application/json" \
+      -H "X-API-Token: YOUR_API_TOKEN" \
+      -d '{
+            "language": "en_US",
+            "skip_previously_exported": false,
+            "tag": "monthly-scan-2025-01"
+      }'
+
+Response:
+
+.. code-block:: json
+
+   {"ok": true}
+
+**List exports** -- ``GET /api/exports``
+
+..
+   test-id:: exports-list
+
+.. code-block:: bash
+
+   curl -s http://localhost:5000/api/exports \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   [
+      {
+         "id": 1,
+         "created_at": "2025-01-15T11:00:00",
+         "comment": null,
+         "tag": "monthly-scan-2025-01",
+         "status": "done",
+         "language": "en_US",
+         "skip_previously_exported": true,
+         "include_only_results_since": null,
+         "zip_url": "/api/export/download-zip/1",
+         "error": null,
+         "alerts": null
+      }
+   ]
+
+You can filter by tag prefix using the ``tag_prefix`` query parameter:
+
+.. code-block:: bash
+
+   curl -s "http://localhost:5000/api/exports?tag_prefix=monthly" \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+**Download an export** -- ``GET /api/export/download-zip/{id}``
+
+.. code-block:: bash
+
+   curl -s -L -o report.zip http://localhost:5000/api/export/download-zip/1 \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+The zip file will contain e.g.:
+
+- human-readable HTML reports,
+- JSON vulnerability data,
+- statistics.
+
+**Delete an export** -- ``POST /api/export/delete/{id}``
+
+.. code-block:: bash
+
+   curl -s -X POST http://localhost:5000/api/export/delete/1 \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   {"ok": true}
+
+Other Endpoints
+---------------
+Stopping and deleting an analysis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use ``POST /api/stop-and-delete-analysis`` to cancel a running scan (i.e. remove its pending tasks). Tasks currently running will finish and the results will be kept in the database.
+
+..
+   test-id:: step5-stop-and-delete
+
+.. code-block:: bash
+
+   curl -s -X POST "http://localhost:5000/api/stop-and-delete-analysis?analysis_id=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   {"ok": true}
+
+Archiving tags
+^^^^^^^^^^^^^^
+
+Use ``POST /api/archive-tag`` to archive all scan results associated with a tag (e.g. to save space in the database):
+
+..
+   test-id:: archive-tag
+
+.. code-block:: bash
+
+   curl -s -X POST "http://localhost:5000/api/archive-tag?tag=monthly-scan-2025-01" \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   {"ok": true}
+
+The archive will be stored as a JSON file on disk.
+
+Checking the blocklist
+^^^^^^^^^^^^^^^^^^^^^^
+
+Use ``GET /api/is-blocklisted/{domain}`` to check whether scanning of a domain is blocklisted:
+
+..
+   test-id:: is-blocklisted
+
+.. code-block:: bash
+
+   curl -s http://localhost:5000/api/is-blocklisted/example.com \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   false
+
+Rendering HTML messages
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Use ``POST /api/build-html-message`` to render a custom list of vulnerabilities as HTML:
+
+..
+   test-id:: build-html-message
+
+.. code-block:: bash
+
+   curl -s -X POST http://localhost:5000/api/build-html-message \
+      -H "Content-Type: application/json" \
+      -H "X-API-Token: YOUR_API_TOKEN" \
+      -d '{"language": "en_US", "data": {}}'

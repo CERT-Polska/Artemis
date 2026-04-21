@@ -61,7 +61,7 @@ class FileLogger(LogConsumer):
                         # Do nothing if failed to acquire the lock
                         continue
                     try:
-                        subprocess.call(["gzip", LOGS_PATH / file_name], timeout=300)
+                        subprocess.call(["gzip", LOGS_PATH / file_name], timeout=3600)
                     except subprocess.TimeoutExpired:
                         pass
 

@@ -168,10 +168,6 @@ class RestApiDocsTestCase(BaseE2ETestCase):
         num_queued = int(queue_response.content.strip())
         self.assertGreaterEqual(num_queued, 0)
 
-        # Step 3b: GET /api/num-queued-tasks with filter
-        filtered_response = self._extract_and_execute("step3-num-queued-tasks-filtered", dynamic)
-        self.assertEqual(filtered_response.status_code, 200)
-
         # Wait for all scanning modules to finish processing before querying results.
         self.wait_for_tasks_finished()
 

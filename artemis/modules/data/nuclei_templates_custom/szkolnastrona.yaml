@@ -1,0 +1,26 @@
+id: szkolnastrona
+
+info:
+  name: SzkolnaStrona RCE
+  description: Vulnerable version of SzkolnaStrona CMS system was detected, which (in Poland) is not recommended to be used by the Government Plenipotentiary for Cybersecurity.
+  author: Kamil Szczurowski Robert Kruczek
+  severity: critical
+  reference:
+    - https://cert.pl/posts/2025/09/CVE-2025-7063/
+    - https://www.gov.pl/web/cyfryzacja/rekomendacja-pelnomocnika-rzadu-ds-cyberbezpieczenstwa-zaprzestanie-korzystania-z-oprogramowania-pad-cms
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/panel/save_photo.php?uploadPermission=1"
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - '{"status":"ok","file":"container"}'
+
+      - type: status
+        status:
+          - 200

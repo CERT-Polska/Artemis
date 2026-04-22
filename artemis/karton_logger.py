@@ -38,8 +38,13 @@ class FileLogger(LogConsumer):
 
     def _rotate_logs(self) -> None:
         for file_name in os.listdir(LOGS_PATH):
-            log_date_str, _ = tuple(file_name.split(".", 1))
-            log_date = datetime.datetime.strptime(log_date_str, LOG_DATE_FORMAT).date()
+            if "." not in file_name:
+                continue
+            log_date_str, _ = file_name.split(".", 1)
+            try:
+                log_date = datetime.datetime.strptime(log_date_str, LOG_DATE_FORMAT).date()
+            except ValueError:
+                continue
 
             if (
                 log_date

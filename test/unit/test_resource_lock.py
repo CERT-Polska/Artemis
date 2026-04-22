@@ -2,10 +2,13 @@ import logging
 import threading
 import unittest
 from unittest.mock import MagicMock, patch
+from uuid import uuid4
 
 from artemis.resource_lock import (
+    _RELEASE_SCRIPT,
     LOCKS_TO_SUSTAIN,
     LOCKS_TO_SUSTAIN_LOCK,
+    REDIS,
     FailedToAcquireLockException,
     ResourceLock,
 )
@@ -27,16 +30,16 @@ class TestReleaseAllLocks(unittest.TestCase):
 
     @patch("artemis.resource_lock.REDIS")
     def test_release_all_locks_deletes_redis_keys(self, mock_redis: MagicMock) -> None:
-        """release_all_locks must call REDIS.delete for every held lock."""
+        """release_all_locks must release only the Redis keys owned by the tracked lock ids."""
         with LOCKS_TO_SUSTAIN_LOCK:
             LOCKS_TO_SUSTAIN["lock-1.2.3.4"] = "uuid-1"
             LOCKS_TO_SUSTAIN["lock-5.6.7.8"] = "uuid-2"
 
         ResourceLock.release_all_locks(self.logger)
 
-        mock_redis.delete.assert_any_call("lock-1.2.3.4")
-        mock_redis.delete.assert_any_call("lock-5.6.7.8")
-        self.assertEqual(mock_redis.delete.call_count, 2)
+        mock_redis.eval.assert_any_call(_RELEASE_SCRIPT, 1, "lock-1.2.3.4", "uuid-1")
+        mock_redis.eval.assert_any_call(_RELEASE_SCRIPT, 1, "lock-5.6.7.8", "uuid-2")
+        self.assertEqual(mock_redis.eval.call_count, 2)
 
     @patch("artemis.resource_lock.REDIS")
     def test_release_all_locks_clears_sustain_dict(self, mock_redis: MagicMock) -> None:
@@ -56,7 +59,7 @@ class TestReleaseAllLocks(unittest.TestCase):
         """Calling release_all_locks with no held locks must not raise."""
         ResourceLock.release_all_locks(self.logger)
 
-        mock_redis.delete.assert_not_called()
+        mock_redis.eval.assert_not_called()
         with LOCKS_TO_SUSTAIN_LOCK:
             self.assertEqual(len(LOCKS_TO_SUSTAIN), 0)
 
@@ -76,7 +79,7 @@ class TestReleaseAllLocks(unittest.TestCase):
         # Simulate the safety-net cleanup
         ResourceLock.release_all_locks(self.logger)
 
-        mock_redis.delete.assert_any_call("lock-leaked-target")
+        mock_redis.eval.assert_any_call(_RELEASE_SCRIPT, 1, "lock-leaked-target", lock.lid)
         with LOCKS_TO_SUSTAIN_LOCK:
             self.assertNotIn("lock-leaked-target", LOCKS_TO_SUSTAIN)
 
@@ -147,7 +150,7 @@ class TestResourceLockBasics(unittest.TestCase):
 
         with LOCKS_TO_SUSTAIN_LOCK:
             self.assertNotIn("lock-test-target", LOCKS_TO_SUSTAIN)
-        mock_redis.delete.assert_called_with("lock-test-target")
+        mock_redis.eval.assert_called_with(_RELEASE_SCRIPT, 1, "lock-test-target", lock.lid)
 
     @patch("artemis.resource_lock.REDIS")
     def test_failed_acquire_raises(self, mock_redis: MagicMock) -> None:
@@ -171,7 +174,38 @@ class TestResourceLockBasics(unittest.TestCase):
 
         with LOCKS_TO_SUSTAIN_LOCK:
             self.assertNotIn("lock-ctx", LOCKS_TO_SUSTAIN)
-        mock_redis.delete.assert_called_with("lock-ctx")
+        _, lid = mock_redis.set.call_args.args[:2]
+        mock_redis.eval.assert_called_with(_RELEASE_SCRIPT, 1, "lock-ctx", lid)
+
+
+class TestResourceLockIntegration(unittest.TestCase):
+    def setUp(self) -> None:
+        with LOCKS_TO_SUSTAIN_LOCK:
+            LOCKS_TO_SUSTAIN.clear()
+        self.res_name = f"lock-integration-{uuid4()}"
+        REDIS.delete(self.res_name)
+
+    def tearDown(self) -> None:
+        with LOCKS_TO_SUSTAIN_LOCK:
+            LOCKS_TO_SUSTAIN.clear()
+        REDIS.delete(self.res_name)
+
+    def test_release_does_not_delete_reacquired_lock(self) -> None:
+        first_lock = ResourceLock(self.res_name, max_tries=1)
+        second_lock = ResourceLock(self.res_name, max_tries=1)
+
+        first_lock.acquire()
+        with LOCKS_TO_SUSTAIN_LOCK:
+            LOCKS_TO_SUSTAIN.pop(self.res_name, None)
+
+        REDIS.delete(self.res_name)
+        second_lock.acquire()
+
+        try:
+            first_lock.release()
+            self.assertEqual(REDIS.get(self.res_name), second_lock.lid.encode())
+        finally:
+            second_lock.release()
 
 
 if __name__ == "__main__":

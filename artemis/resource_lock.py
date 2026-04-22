@@ -31,6 +31,14 @@ LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
+_RELEASE_SCRIPT = """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("del", KEYS[1])
+else
+    return 0
+end
+"""
+
 
 def sustain_locks() -> None:
     while True:
@@ -67,6 +75,10 @@ if hasattr(os, "register_at_fork"):
     os.register_at_fork(after_in_child=_reinit_after_fork_in_child)
 
 
+def _release_lock_if_owned(res_name: str, lid: str) -> None:
+    REDIS.eval(_RELEASE_SCRIPT, 1, res_name, lid)  # type: ignore[no-untyped-call]
+
+
 class ResourceLock:
     def __init__(self, res_name: str, max_tries: Optional[int] = None):
         self.res_name = res_name
@@ -76,10 +88,12 @@ class ResourceLock:
     @staticmethod
     def release_all_locks(logger: Logger) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            for lock in list(LOCKS_TO_SUSTAIN.keys()):
-                logger.info(f"Releasing lock: {lock} -> {LOCKS_TO_SUSTAIN[lock]}")
-                REDIS.delete(lock)
+            locks_to_release = list(LOCKS_TO_SUSTAIN.items())
             LOCKS_TO_SUSTAIN.clear()
+
+        for lock, lid in locks_to_release:
+            logger.info(f"Releasing lock: {lock} -> {lid}")
+            _release_lock_if_owned(lock, lid)
 
     def acquire(self) -> None:
         """
@@ -102,9 +116,8 @@ class ResourceLock:
 
     def release(self) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            if self.res_name in LOCKS_TO_SUSTAIN:
-                del LOCKS_TO_SUSTAIN[self.res_name]
-        REDIS.delete(self.res_name)
+            LOCKS_TO_SUSTAIN.pop(self.res_name, None)
+        _release_lock_if_owned(self.res_name, self.lid)
 
     def __enter__(self) -> None:
         self.acquire()

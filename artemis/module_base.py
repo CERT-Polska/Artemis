@@ -842,7 +842,6 @@ class ArtemisBase(Karton):
     def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
         base_url = get_target_url(task)
         scan_destination = self._get_scan_destination(task)
-        lock = ResourceLock(f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES)
 
         try:
             response = self.http_get(base_url)
@@ -868,9 +867,8 @@ class ArtemisBase(Karton):
                     data={"waf_detected": True},
                 )
                 self.log.info(
-                    f"Unable to connect to base URL: {base_url}: WAF detected, task skipped, releasing lock for {scan_destination}"
+                    f"Unable to connect to base URL: {base_url}: WAF detected, task skipped (destination={scan_destination})"
                 )
-                lock.release()
                 return False
 
             return True
@@ -881,9 +879,8 @@ class ArtemisBase(Karton):
                 status_reason=f"Unable to connect to base URL {base_url}: {repr(e)}, task skipped",
             )
             self.log.info(
-                f"Unable to connect to base URL: {base_url}: {repr(e)}, task skipped, releasing lock for {scan_destination}"
+                f"Unable to connect to base URL: {base_url}: {repr(e)}, task skipped (destination={scan_destination})"
             )
-            lock.release()
             return False
 
     def http_get(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore

@@ -11,7 +11,8 @@ PLACEHOLDER_PAGE_CONTENT_FILENAME = Config.Modules.PlaceholderPageContent.PLACEH
 PLACEHOLDER_PAGE_CONTENT = []
 with open(PLACEHOLDER_PAGE_CONTENT_FILENAME, "r", encoding="utf-8") as file:
     for keyword in file:
-        PLACEHOLDER_PAGE_CONTENT.append(keyword)
+        if keyword.strip():
+            PLACEHOLDER_PAGE_CONTENT.append(keyword)
 
 
 class PlaceholderPageDetector:

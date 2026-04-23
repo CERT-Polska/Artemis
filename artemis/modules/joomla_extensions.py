@@ -10,6 +10,8 @@ from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
 
+JOOMLA_SCANNER_TIMEOUT_SECONDS = 600
+
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
 class JoomlaExtensions(ArtemisBase):
@@ -37,7 +39,19 @@ class JoomlaExtensions(ArtemisBase):
         if self.requests_per_second_for_current_tasks:
             command.extend(["--rate-limit", str(int(self.requests_per_second_for_current_tasks))])
 
-        result = subprocess.check_output(command, cwd="/joomla-scanner").decode("utf-8", errors="ignore")
+        try:
+            result = subprocess.check_output(
+                command, cwd="/joomla-scanner", timeout=JOOMLA_SCANNER_TIMEOUT_SECONDS
+            ).decode("utf-8", errors="ignore")
+        except subprocess.TimeoutExpired:
+            self.log.warning("joomla-scanner timed out after %d seconds for %s", JOOMLA_SCANNER_TIMEOUT_SECONDS, url)
+            self.db.save_task_result(
+                task=current_task,
+                status=TaskStatus.ERROR,
+                status_reason=f"joomla-scanner timed out after {JOOMLA_SCANNER_TIMEOUT_SECONDS} seconds",
+                data={"outdated_extensions": []},
+            )
+            return
 
         self.log.info("joomla-scanner output: %s", result)
         messages = []

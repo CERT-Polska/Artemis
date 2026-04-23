@@ -24,13 +24,13 @@ cattrs==26.1.0
 certifi==2026.2.25
 cffi==2.0.0
 chardet==7.4.0.post2
-charset-normalizer==3.4.6
+charset-normalizer==3.4.7
 checkdmarc @ git+https://github.com/CERT-Polska/checkdmarc@hotfixes-2025-08-01
-click==8.3.1
+click==8.3.2
 click-plugins==1.1.1.2
 colorama==0.4.6
 coverage==7.13.5
-cryptography==46.0.6
+cryptography==46.0.7
 decorator==5.2.1
 defusedxml==0.7.1
 dkimpy==1.1.8
@@ -43,10 +43,11 @@ flask==3.1.3
 freezegun==1.5.5
 frozenlist==1.8.0
 gmpy2==2.3.0
+greenlet==3.4.0
 h11==0.16.0
 idna==3.11
-importlib-resources==6.5.2
-invoke==2.2.1
+importlib-resources==7.1.0
+invoke==3.0.3
 ipwhois==1.3.0
 itsdangerous==2.2.0
 jinja2==3.1.6
@@ -75,7 +76,7 @@ paramiko==4.0.0
 pathable==0.5.0
 pem==23.1.0
 platformdirs==4.9.4
-prometheus-client==0.24.1
+prometheus-client==0.25.0
 propcache==0.4.1
 psutil==7.2.2
 psycopg2-binary==2.9.11
@@ -115,7 +116,7 @@ shellingham==1.5.4
 shodan==1.31.0
 six==1.17.0
 soupsieve==2.8.3
-sqlalchemy==2.0.48
+sqlalchemy==2.0.49
 starlette==0.52.1
 termcolor==3.3.0
 timeout-decorator==0.5.0
@@ -128,9 +129,9 @@ typing-inspection==0.4.2
 unittest-parallel==1.7.6
 url-normalize==2.2.1
 urllib3==2.6.3
-uvicorn==0.42.0
+uvicorn==0.44.0
 validators==0.35.0
-werkzeug==3.1.7
+werkzeug==3.1.8
 whoisdomain==1.20260326.1
 wrapt==1.17.3
 xlsxwriter==3.2.9

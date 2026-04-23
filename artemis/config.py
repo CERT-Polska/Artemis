@@ -450,10 +450,17 @@ class Config:
             ] = get_config("NUCLEI_CHECK_TEMPLATE_LIST", default=True, cast=bool)
 
             NUCLEI_SECONDS_PER_REQUEST_ON_RETRY: Annotated[
-                bool,
+                float,
                 "When retrying due to 'context deadline exceeded', each request will take at least max(2 * SECONDS_PER_REQUEST, "
-                "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY).",
+                "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY). See NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY config to set a limit",
             ] = get_config("NUCLEI_SECONDS_PER_REQUEST_ON_RETRY", default=0.1, cast=float)
+
+            NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY: Annotated[
+                float,
+                "Set to positive value to enable. "
+                "When retrying due to 'context deadline exceeded', each request will take min(max(2 * SECONDS_PER_REQUEST, "
+                "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY), NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY) if enabled.",
+            ] = get_config("NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY", default=2.0, cast=float)
 
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,
@@ -668,6 +675,8 @@ class Config:
                         "http/exposed-panels/casdoor-login.yaml",
                         "http/exposed-panels/openam-panel.yaml",
                         "http/exposed-panels/sonicwall-sslvpn-panel.yaml",
+                        "http/exposed-panels/netscaler-aaa-login.yaml",
+                        "http/exposed-panels/citrix-adc-gateway-panel.yaml",
                         # Online stores, CRMs, chats and ticketing systems - it's a standard practice to have them exposed in a small organization
                         "http/exposed-panels/bitrix-panel.yaml",
                         "http/exposed-panels/dynamicweb-panel.yaml",
@@ -1100,6 +1109,11 @@ class Config:
                 "If this option is set to True, version check for such plugins will not be performed.",
             ] = get_config("WORDPRESS_SKIP_VERSION_CHECK_ON_LESS_POPULAR_PLUGINS", default=False, cast=bool)
 
+            WORDFENCE_API_KEY: Annotated[
+                str,
+                "If set, Artemis will fetch WordFence vulnerability data and enrich wordpress_plugins reports with CVE information.",
+            ] = get_config("WORDFENCE_API_KEY", default=None)
+
         class WordPressScanner:
             WORDPRESS_VERSION_AGE_DAYS: Annotated[
                 int,
@@ -1122,6 +1136,10 @@ class Config:
                 int,
                 "Maximum number of parameters kept after SQLi parameter minimization.",
             ] = get_config("SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN", default=5, cast=int)
+            SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN: Annotated[
+                int,
+                "Maximum number of headers kept after SQLi header minimization.",
+            ] = get_config("SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN", default=5, cast=int)
             SQL_INJECTION_NUM_RETRIES_TIME_BASED: Annotated[
                 int,
                 "How many times to re-check whether long request duration with inject (and short without inject) is indeed a vulnerability or a random fluctuation ",

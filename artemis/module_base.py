@@ -329,13 +329,16 @@ class ArtemisBase(Karton):
                 with task_counter.get_lock():
                     task_counter.value += num_tasks_done
 
+                if num_tasks_done:
+                    self.log.info("Processed %d tasks in all processes", task_counter.value)
+
                 if not num_tasks_done:
                     # Prevent busywaiting causing a large load on Redis, but don't wait if we actually
                     # are consuming tasks.
                     time.sleep(self.task_poll_interval_seconds)
 
-        if task_counter >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
-            self.log.info("Exiting loop after processing %d tasks in all processes", task_counter)
+        if task_counter.value >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
+            self.log.info("Exiting loop after processing %d tasks in all processes", task_counter.value)
         else:
             self.log.info("Exiting loop, shutdown=%s", self.shutdown)
 

@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import threading
 import time
@@ -42,9 +43,28 @@ def sustain_locks() -> None:
         time.sleep(1)
 
 
-LOCK_SUSTAIN_THREAD = threading.Thread(target=sustain_locks)
-LOCK_SUSTAIN_THREAD.daemon = True
-LOCK_SUSTAIN_THREAD.start()
+def _start_sustain_thread() -> None:
+    t = threading.Thread(target=sustain_locks)
+    t.daemon = True
+    t.start()
+
+
+_start_sustain_thread()
+
+
+def _reinit_after_fork_in_child() -> None:
+    # Only the calling thread survives fork(), so the sustain thread started at import
+    # time is gone in the child. Reset the tracked-locks state (the parent still owns
+    # those entries) and start a fresh heartbeat, otherwise acquired locks would silently
+    # expire after LOCK_HEARTBEAT_TIMEOUT seconds.
+    global LOCKS_TO_SUSTAIN, LOCKS_TO_SUSTAIN_LOCK
+    LOCKS_TO_SUSTAIN = dict()
+    LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
+    _start_sustain_thread()
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_reinit_after_fork_in_child)
 
 
 class ResourceLock:

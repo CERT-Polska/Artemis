@@ -39,7 +39,7 @@ def retry(function: Callable[..., Any], function_args: Tuple[Any, ...], function
             function_kwargs,
         )
 
-    if last_exception and not result:
+    if last_exception is not None and result is None:
         raise last_exception
 
     return result

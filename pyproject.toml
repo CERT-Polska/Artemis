@@ -55,3 +55,4 @@ anytree = "2.11.1"
 no-header = true
 no-annotate = true
 strip-extras = true
+quiet = true

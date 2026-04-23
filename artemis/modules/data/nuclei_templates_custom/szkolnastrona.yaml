@@ -1,0 +1,23 @@
+id: szkolnastrona
+
+info:
+  name: SzkolnaStrona RCE
+  description: Vulnerable version of SzkolnaStrona CMS system was detected.
+  author: Kamil Szczurowski Robert Kruczek
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/panel/save_photo.php?uploadPermission=1"
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - '{"status":"ok","file":"container"}'
+
+      - type: status
+        status:
+          - 200

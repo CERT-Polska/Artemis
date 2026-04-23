@@ -19,10 +19,10 @@ class BruterParallelizationE2ETestCase(BaseE2ETestCase):
             print(task_result)
             if task_result["task"]["headers"]["receiver"] == "bruter" and task_result["task"]["payload_persistent"]["tag"] == tag:
                 num_bruter_results += 1
-                start_times.append(datetime.datetime.fromisoformat(task_results["payload"]["start_time"]))
+                start_times.append(datetime.datetime.fromisoformat(task_result["task"]["payload"]["start_time"]))
         print("AAAAAA", start_times, num_bruter_results)
         self.assertEqual(num_bruter_results, 5)
         self.assertTrue(max(start_times) - min(start_times) < datetime.timedelta(seconds=5))
 
         for target in targets:
-            self.assertMessagesContain(tag, "Found URLs: http://%s:80/localhost.sql" % ip)
+            self.assertMessagesContain(tag, "Found URLs: http://%s/localhost.sql" % target)

@@ -45,7 +45,7 @@ def _cleanup_tasks_not_in_queues() -> None:
         task = json.loads(value)
         if (
             datetime.datetime.utcfromtimestamp(task["last_update"])
-            < datetime.datetime.now() - datetime.timedelta(days=DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS)
+            < datetime.datetime.utcnow() - datetime.timedelta(days=DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS)
             or task.get("headers", {}).get("receiver", "") in OLD_MODULES
         ):
             num_tasks_cleaned_up += 1

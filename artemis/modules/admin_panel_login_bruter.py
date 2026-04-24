@@ -126,7 +126,11 @@ class AdminPanelLoginBruter(ArtemisBase):
                 has_token = (
                     "token" in data
                     or "jwt" in data
-                    or (isinstance(data.get("message"), str) and data.get("message", "").lower() == "logged in")
+                    or (
+                        isinstance(data, dict)
+                        and isinstance(data.get("message"), str)
+                        and data.get("message", "").lower() == "logged in"
+                    )
                 )
                 has_error = "error" in data or data.get("status", "") == "error"
 

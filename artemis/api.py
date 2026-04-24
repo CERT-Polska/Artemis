@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import hmac
+import logging
 from typing import Annotated, Any, Dict, List, Optional
 
 import aiohttp
@@ -11,10 +12,12 @@ from karton.core.config import Config as KartonConfig
 from karton.core.task import TaskPriority
 from pydantic import BaseModel
 from redis import Redis
+from redis.exceptions import RedisError
 
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
+from artemis.idempotency import IdempotencyStore
 from artemis.karton_utils import get_binds_that_can_be_disabled, get_num_pending_tasks
 from artemis.module_utils import try_to_import_all_modules
 from artemis.modules.base.runtime_configuration_registry import (
@@ -29,9 +32,12 @@ from artemis.task_utils import (
 )
 from artemis.templating import render_analyses_table_row, render_task_table_row
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 db = DB()
 redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
+idempotency_store = IdempotencyStore(redis)
 try_to_import_all_modules()  # so that the module runtime configurations get registered
 
 
@@ -74,12 +80,81 @@ def add(
     requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
     module_runtime_configurations: Optional[Dict[str, Dict[str, Any]]] = Body(default=None),
+    x_api_token: Annotated[str, Header()] = "",
+    idempotency_key: Annotated[Optional[str], Header()] = None,
 ) -> Dict[str, Any]:
     """Add targets to be scanned.
 
     You can provide per-task module configurations through the module_runtime_configurations parameter.
     These configurations control runtime behavior (like scan aggressiveness) for each module.
+
+    To make this call safe to retry, send an ``Idempotency-Key`` header. The first call with a given
+    key executes and its response is cached for 24h; subsequent calls with the same key and body
+    replay the cached response, concurrent calls get 409 Retry-After, and calls reusing the key
+    with a different body get 409 Conflict.
     """
+    idem_body = {
+        "targets": targets,
+        "tag": tag,
+        "disabled_modules": disabled_modules,
+        "enabled_modules": enabled_modules,
+        "requests_per_second_override": requests_per_second_override,
+        "priority": priority,
+        "module_runtime_configurations": module_runtime_configurations,
+    }
+    if idempotency_key:
+        try:
+            state, cached = idempotency_store.begin(x_api_token, idempotency_key, idem_body)
+        except RedisError as e:
+            logger.warning("idempotency store unavailable, failing open: %s", e)
+            state, cached = "new", None
+        if state == "replay" and cached is not None:
+            return cached
+        if state == "in_flight":
+            raise HTTPException(
+                status_code=409,
+                detail="request with this Idempotency-Key is in progress",
+                headers={"Retry-After": "5"},
+            )
+        if state == "conflict":
+            raise HTTPException(
+                status_code=409,
+                detail="Idempotency-Key reused with a different request body",
+            )
+
+    try:
+        response = _add_impl(
+            targets=targets,
+            tag=tag,
+            disabled_modules=disabled_modules,
+            enabled_modules=enabled_modules,
+            requests_per_second_override=requests_per_second_override,
+            priority=priority,
+            module_runtime_configurations=module_runtime_configurations,
+        )
+    except Exception:
+        if idempotency_key:
+            idempotency_store.abort(x_api_token, idempotency_key)
+        raise
+
+    if idempotency_key and response.get("ok"):
+        try:
+            idempotency_store.finalize(x_api_token, idempotency_key, idem_body, response)
+        except RedisError as e:
+            logger.warning("idempotency finalize failed, response not cached: %s", e)
+
+    return response
+
+
+def _add_impl(
+    targets: List[str],
+    tag: Optional[str],
+    disabled_modules: Optional[List[str]],
+    enabled_modules: Optional[List[str]],
+    requests_per_second_override: Optional[float],
+    priority: str,
+    module_runtime_configurations: Optional[Dict[str, Dict[str, Any]]],
+) -> Dict[str, Any]:
     if disabled_modules and enabled_modules:
         raise HTTPException(
             status_code=400, detail="It's not possible to set both disabled_modules and enabled_modules."

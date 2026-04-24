@@ -24,6 +24,8 @@ After that you should be able to access the Artemis dashboard at ``localhost:500
 
 The above command will automatically create a ``.env`` file with default settings if it doesn't exist. You can edit this file later to configure various settings, including customizing the user-agent by setting the ``CUSTOM_USER_AGENT`` variable, as well as other relevant parameters.
 
+To enable the web interface, set ``FRONTEND_USERNAME`` and ``FRONTEND_PASSWORD`` in ``.env`` - these credentials will be required when logging in at ``localhost:5000``. If they are left empty, the web interface is disabled; the API remains reachable using the ``X-API-Token`` header.
+
 We strongly recommend setting the ``CUSTOM_USER_AGENT`` and configuring rate-limiting for scanning (more information here: :doc:`user-guide/cooperation-with-scanned-entities`). For a complete list of configuration variables and their descriptions, please refer to the :doc:`user-guide/configuration` section in the documentation.
 
 

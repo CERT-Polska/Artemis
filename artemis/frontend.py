@@ -18,7 +18,7 @@ from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority, TaskState
 from starlette.datastructures import Headers
 
-from artemis import csrf
+from artemis import auth, csrf
 from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
@@ -79,6 +79,50 @@ if not Config.Miscellaneous.API_TOKEN:
                 "request": request,
             },
         )
+
+
+@router.get("/login", include_in_schema=False)
+def get_login(request: Request) -> Response:
+    if request.session.get(auth.SESSION_KEY_AUTHENTICATED):
+        return RedirectResponse(request.url_for("get_root"), status_code=303)
+
+    return templates.TemplateResponse(
+        "login.jinja2",
+        {
+            "request": request,
+            "error": None,
+            "credentials_configured": auth.frontend_credentials_configured(),
+        },
+    )
+
+
+# CSRF is intentionally not enforced on /login - the session cookie is SameSite=Strict,
+# which blocks the cross-site form submissions CSRF would defend against.
+@router.post("/login", include_in_schema=False)
+async def post_login(
+    request: Request,
+    username: str = Form(),
+    password: str = Form(),
+) -> Response:
+    if not auth.check_credentials(username, password):
+        return templates.TemplateResponse(
+            "login.jinja2",
+            {
+                "request": request,
+                "error": "Invalid username or password.",
+                "credentials_configured": auth.frontend_credentials_configured(),
+            },
+            status_code=401,
+        )
+
+    request.session[auth.SESSION_KEY_AUTHENTICATED] = True
+    return RedirectResponse(request.url_for("get_root"), status_code=303)
+
+
+@router.post("/logout", include_in_schema=False)
+async def post_logout(request: Request) -> Response:
+    request.session.clear()
+    return RedirectResponse("/login", status_code=303)
 
 
 @router.get("/", include_in_schema=False)

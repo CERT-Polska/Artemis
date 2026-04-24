@@ -12,6 +12,8 @@ from artemis.db import DB, Analysis, ReportGenerationTask, ScheduledTask, TaskRe
 from artemis.utils import build_logger
 
 BACKEND_URL = "http://web:5000/"
+FRONTEND_USERNAME = "testuser"
+FRONTEND_PASSWORD = "testpass"
 NUM_RETRIES = 100
 RETRY_TIME_SECONDS = 2
 
@@ -46,8 +48,15 @@ class BaseE2ETestCase(TestCase):
         for key in backend.redis.keys("karton.queue*"):
             backend.redis.delete(key)
 
+    def _login_frontend(self, session: requests.Session) -> None:
+        session.post(
+            BACKEND_URL + "login",
+            data={"username": FRONTEND_USERNAME, "password": FRONTEND_PASSWORD},
+        )
+
     def submit_tasks(self, tasks: List[str], tag: str) -> None:
         with requests.Session() as s:
+            self._login_frontend(s)
             response = s.get(BACKEND_URL + "add")
             data = response.content
             soup = BeautifulSoup(data, "html.parser")
@@ -65,6 +74,7 @@ class BaseE2ETestCase(TestCase):
 
     def submit_tasks_with_modules_enabled(self, tasks: List[str], tag: str, modules_enabled: List[str]) -> None:
         with requests.Session() as s:
+            self._login_frontend(s)
             data = s.get(BACKEND_URL + "add").content
             soup = BeautifulSoup(data, "html.parser")
             csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
@@ -85,11 +95,13 @@ class BaseE2ETestCase(TestCase):
     def wait_for_tasks_finished(
         self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES
     ) -> None:
-        for retry in range(num_retries):
-            if "pending tasks: 0\n" in requests.get(BACKEND_URL).content.decode("utf-8"):
-                return
-            self._logger.info("There are still pending tasks, retrying")
-            time.sleep(retry_time_seconds)
+        with requests.Session() as s:
+            self._login_frontend(s)
+            for retry in range(num_retries):
+                if "pending tasks: 0\n" in s.get(BACKEND_URL).content.decode("utf-8"):
+                    return
+                self._logger.info("There are still pending tasks, retrying")
+                time.sleep(retry_time_seconds)
 
     def get_task_results(self) -> Dict[str, Any]:
         return requests.get(  # type: ignore
@@ -116,9 +128,11 @@ class BaseE2ETestCase(TestCase):
         self.assertFalse(messages)
 
     def _wait_for_backend(self, retry_time_seconds: float = RETRY_TIME_SECONDS, num_retries: int = NUM_RETRIES) -> None:
+        # The login page bypasses the session check, so it's reachable without
+        # having to first authenticate - perfect for a liveness probe.
         for retry in range(num_retries):
             try:
-                response = requests.get(BACKEND_URL)
+                response = requests.get(BACKEND_URL + "login")
 
                 if response.status_code == 200:
                     return

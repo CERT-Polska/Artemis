@@ -9,6 +9,8 @@ services:
     env_file: env.test
     environment:
       API_TOKEN: api-token
+      FRONTEND_USERNAME: testuser
+      FRONTEND_PASSWORD: testpass
     volumes:
       - data-web:/data
       - ./docker/karton-test.ini:/etc/karton/karton.ini

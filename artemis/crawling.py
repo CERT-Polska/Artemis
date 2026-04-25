@@ -11,7 +11,7 @@ from artemis import http_requests, utils
 
 logger = utils.build_logger(__name__)
 
-WAYBACK_CDX_URL = "http://web.archive.org/cdx/search/cdx"
+WAYBACK_CDX_URL = "https://web.archive.org/cdx/search/cdx"
 WAYBACK_CDX_LIMIT = 5000
 
 

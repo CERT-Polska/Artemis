@@ -213,6 +213,18 @@ class Config:
             "API_TOKEN", default=None
         )
 
+        FRONTEND_USERNAME: Annotated[
+            str,
+            "Username used to log in to the Artemis web interface. Leave empty together with FRONTEND_PASSWORD to "
+            "disable the web interface (the API will still be reachable with X-API-Token).",
+        ] = get_config("FRONTEND_USERNAME", default="")
+
+        FRONTEND_PASSWORD: Annotated[
+            str,
+            "Password used to log in to the Artemis web interface. Leave empty together with FRONTEND_USERNAME to "
+            "disable the web interface (the API will still be reachable with X-API-Token).",
+        ] = get_config("FRONTEND_PASSWORD", default="")
+
         REMOVE_LOGS_AFTER_DAYS: Annotated[int, "After what number of days the logs in karton-logs are removed."] = (
             get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
         )

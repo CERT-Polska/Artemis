@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+from retry import retry
+
 from artemis.crawling import _fetch_wayback_parameters, get_wayback_parameters
 
 
@@ -112,6 +114,7 @@ class TestGetWaybackParametersIntegration(unittest.TestCase):
     def tearDown(self) -> None:
         _fetch_wayback_parameters.cache_clear()
 
+    @retry(tries=3, delay=10)
     def test_real_wayback_cdx_response_format(self) -> None:
         result = get_wayback_parameters("http://google.com/")
         self.assertIsInstance(result, list)

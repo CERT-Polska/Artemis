@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
@@ -110,7 +110,7 @@ requests-file==3.0.1
 requests-mock==1.12.1
 retry==0.9.2
 rfc3339-validator==0.1.4
-rich==14.3.3
+rich==15.0.0
 roman-numerals==4.1.0
 rpds-py==0.30.0
 s3transfer==0.10.4

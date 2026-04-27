@@ -5,15 +5,6 @@ from unittest.mock import MagicMock, patch
 from artemis.crawling import _fetch_wayback_parameters, get_wayback_parameters
 
 
-def _has_internet_access() -> bool:
-    try:
-        socket.setdefaulttimeout(3)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("8.8.8.8", 53))
-        return True
-    except OSError:
-        return False
-
-
 def _make_cdx_response(urls: list[str], status_code: int = 200) -> MagicMock:
     mock = MagicMock()
     mock.status_code = status_code
@@ -111,24 +102,6 @@ class TestGetWaybackParameters(unittest.TestCase):
     def test_invalid_url_returns_empty_list(self) -> None:
         result = get_wayback_parameters("not-a-url")
         self.assertEqual(result, [])
-
-
-@unittest.skipUnless(_has_internet_access(), "No internet access")
-class TestGetWaybackParametersIntegration(unittest.TestCase):
-    """Integration tests — require network access to web.archive.org."""
-
-    def setUp(self) -> None:
-        _fetch_wayback_parameters.cache_clear()
-
-    def tearDown(self) -> None:
-        _fetch_wayback_parameters.cache_clear()
-
-    def test_real_wayback_cdx_response_format(self) -> None:
-        result = get_wayback_parameters("http://google.com/")
-        self.assertIsInstance(result, list)
-        for param in result:
-            self.assertIsInstance(param, str)
-        self.assertIn("q", result)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
@@ -68,7 +68,7 @@ markdown-it-py==4.0.0
 markupsafe==3.0.3
 mdurl==0.1.2
 minio==7.2.20
-more-itertools==10.8.0
+more-itertools==11.0.2
 multidict==6.7.1
 multiprocessing-logging==0.3.4
 openapi-schema-validator==0.8.1

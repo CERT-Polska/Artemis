@@ -71,7 +71,7 @@ multiprocessing-logging==0.3.4
 openapi-schema-validator==0.8.1
 openapi-spec-validator==0.8.4
 orjson==3.11.8
-packaging==26.0
+packaging==26.1
 paramiko==4.0.0
 pathable==0.5.0
 pem==23.1.0

@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
@@ -38,7 +38,7 @@ dkimpy==1.1.8
 dnspython==2.8.0
 docutils==0.22.4
 expiringdict==1.2.2
-fastapi==0.135.3
+fastapi==0.136.0
 fastapi-csrf-protect==1.0.7
 filelock==3.25.2
 flask==3.1.3

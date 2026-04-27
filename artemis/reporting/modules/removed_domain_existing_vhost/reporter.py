@@ -24,13 +24,15 @@ class RemovedDomainExistingVhostReporter(Reporter):
         if not task_result["status"] == "INTERESTING":
             return []
 
+        # payload_persistent.get("original_domain") can return None for tasks that didn't inherit
+        # it through the classifier chain (older rows, third-party seeding, schema migrations).
+        # Guard the "www." concatenation so a missing key doesn't crash the entire export via the
+        # DataLoader, which re-iterates every persisted row on every export.
+        original_domain = task_result["payload_persistent"].get("original_domain")
         if (
             Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_REPORT_ONLY_SUBDOMAINS
-            and task_result["result"]["domain"]
-            in (
-                task_result["payload_persistent"].get("original_domain"),
-                "www." + task_result["payload_persistent"].get("original_domain"),
-            )
+            and original_domain
+            and task_result["result"]["domain"] in (original_domain, "www." + original_domain)
         ):
             return []
 

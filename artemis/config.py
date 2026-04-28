@@ -677,6 +677,7 @@ class Config:
                         "http/exposed-panels/sonicwall-sslvpn-panel.yaml",
                         "http/exposed-panels/netscaler-aaa-login.yaml",
                         "http/exposed-panels/citrix-adc-gateway-panel.yaml",
+                        "http/exposed-panels/globalprotect-panel.yaml",
                         # Online stores, CRMs, chats and ticketing systems - it's a standard practice to have them exposed in a small organization
                         "http/exposed-panels/bitrix-panel.yaml",
                         "http/exposed-panels/dynamicweb-panel.yaml",

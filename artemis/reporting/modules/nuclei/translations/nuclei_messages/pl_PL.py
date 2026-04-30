@@ -997,7 +997,9 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "WSO2 products contain SSRF and reflected XSS vulnerabilities in the deprecated Try-It feature accessible only to administrative users, caused by improper URL validation and direct content reflection, letting attackers trick admins into executing arbitrary JavaScript and querying internal services": "Oprogramowanie WSO2 zawiera podatność Server-Side Request Forgery oraz Cross-Site Scripting o identyfikatorze CVE-2025-5350, umożliwiającą wykonywanie żądań do usług wewnętrznych oraz wykonanie kodu w przeglądarce administratora.",+ REFLECTED_XSS_DESCRIPTION+ UPDATE_HINT,
+    "WSO2 products contain SSRF and reflected XSS vulnerabilities in the deprecated Try-It feature accessible only to administrative users, caused by improper URL validation and direct content reflection, letting attackers trick admins into executing arbitrary JavaScript and querying internal services": "Oprogramowanie WSO2 zawiera podatność Server-Side Request Forgery oraz Cross-Site Scripting o identyfikatorze CVE-2025-5350, umożliwiającą wykonywanie żądań do usług wewnętrznych oraz wykonanie kodu w przeglądarce administratora."
+    + REFLECTED_XSS_DESCRIPTION
+    + UPDATE_HINT,
     "WP Responsive Images plugin for WordPress <= 1.0 contains a path traversal caused by improper sanitization of the 'src' parameter, letting unauthenticated attackers read arbitrary files on the server.": "Wtyczka WordPress o nazwie WP Responsive Images w wersji do 1.0 włącznie zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + WORDPRESS_UPDATE_HINT,
     "WordPress tutor.1.5.3 is vulnerable to local file inclusion.": "Wtyczka WordPress tutor w wersji 1.5.3 i potencjalnie wcześniejszych zawiera podatność umożliwiającą odczyt dowolnych plików z dysku."

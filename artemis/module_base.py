@@ -567,6 +567,10 @@ class ArtemisBase(Karton):
     def run_multiple(self, tasks: List[Task]) -> None:
         raise NotImplementedError()
 
+    def get_batch_group_key(self, _task: Task) -> str | None:
+        """Return a grouping key used when taking a batch of tasks from queue."""
+        return None
+
     def internal_process_multiple(self, tasks: List[Task]) -> None:
         if not tasks:
             return
@@ -738,7 +742,7 @@ class ArtemisBase(Karton):
                 result = self._get_ip_for_locking(host)
             except UnknownIPException:
                 result = host
-        elif task.headers["type"] == TaskType.URL:
+        elif task.headers["type"] == TaskType.URL or task.headers["type"] == TaskType.NUCLEI_TARGET:
             host = urllib.parse.urlparse(task.payload["url"]).hostname
             try:
                 result = self._get_ip_for_locking(host)

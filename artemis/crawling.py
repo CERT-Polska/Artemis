@@ -1,5 +1,8 @@
 import functools
+import subprocess
+import tempfile
 import urllib
+from pathlib import Path
 from typing import List, Tuple
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -68,7 +71,12 @@ def get_injectable_parameters(url: str) -> List[str]:
     except Exception:
         wayback_params = []
 
-    return list(set(html_params + wayback_params))
+    try:
+        paramspider_params = get_paramspider_parameters(url)
+    except Exception:
+        paramspider_params = []
+
+    return list(set(html_params + wayback_params + paramspider_params))
 
 
 @functools.lru_cache(maxsize=1024)
@@ -105,6 +113,39 @@ def get_wayback_parameters(url: str) -> List[str]:
         return list(_fetch_wayback_parameters(domain))
     except Exception:
         logger.exception("Failed to fetch Wayback CDX data for %s", domain)
+        return []
+
+
+@functools.lru_cache(maxsize=1024)
+def _fetch_paramspider_parameters(domain: str) -> Tuple[str, ...]:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_file = Path(tmpdir) / f"{domain}.txt"
+        subprocess.run(
+            ["paramspider", "-d", domain, "--output", str(output_file)],
+            capture_output=True,
+            timeout=60,
+        )
+        if not output_file.exists():
+            return ()
+
+        params: set[str] = set()
+        for line in output_file.read_text().splitlines():
+            try:
+                parsed = urlparse(line.strip())
+                params.update(parse_qs(parsed.query).keys())
+            except IndexError:
+                continue
+        return tuple(params)
+
+
+def get_paramspider_parameters(url: str) -> List[str]:
+    domain = urlparse(url).hostname
+    if not domain:
+        return []
+    try:
+        return list(_fetch_paramspider_parameters(domain))
+    except Exception:
+        logger.exception("Failed to fetch ParamSpider data for %s", domain)
         return []
 
 

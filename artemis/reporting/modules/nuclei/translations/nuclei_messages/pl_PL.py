@@ -997,6 +997,8 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Symfony HttpFoundation component >= 2.0.0 and prior to versions 5.4.50, 6.4.29, and 7.3.7 contains an access control bypass vulnerability. The Request class improperly interprets some PATH_INFO values, producing URL paths without a leading `/`. This allows bypassing access control rules that are built with the `/-prefix` assumption.": "Komponent Symfony HttpFoundation w wersjach od 2.0.0 do poniżej 5.4.50, w gałęzi 6 - 6.4.29, a w gałęzi 7 - do 7.3.7 zawiera podatność o identyfikatorze CVE-2025-64500, umożliwiającą ominięcie mechanizmów kontroli dostępu.",
++ UPDATE_HINT,
     "WSO2 products contain SSRF and reflected XSS vulnerabilities in the deprecated Try-It feature accessible only to administrative users, caused by improper URL validation and direct content reflection, letting attackers trick admins into executing arbitrary JavaScript and querying internal services": "Oprogramowanie WSO2 zawiera podatność Server-Side Request Forgery oraz Cross-Site Scripting o identyfikatorze CVE-2025-5350, umożliwiającą wykonywanie żądań do usług wewnętrznych oraz wykonanie kodu w przeglądarce administratora."
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,

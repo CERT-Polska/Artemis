@@ -997,6 +997,8 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "The plugin does not validate signatures when creating them on the server from user input, allowing unauthenticated users to create arbitrary files and lead to RCE.": "Wtyczka WordPress o nazwie Form Maker by 10Web w wersji poniżej 1.15.20 zawiera podatność zdalnego wykonania kodu o identyfikatorze CVE-2023-4666."+ RCE_EFFECT_DESCRIPTION + WORDPRESS_UPDATE_HINT,
+    "All versions of Confluence Data Center and Server are affected by this unexploited vulnerability. There is no impact to confidentiality as an attacker cannot exfiltrate any instance data.\nAtlassian Cloud sites are not affected by this vulnerability. If your Confluence site is accessed via an atlassian.net domain, it is hosted by Atlassian and is not vulnerable to this issue.": "Wykryto oprogramowanie Confluence Data Center lub Server zawierające podatność bezpieczeństwa o identyfikatorze CVE-2023-22518 umożliwiającą nieuprawnione tworzenie kont administratora.",
     "Symfony HttpFoundation component >= 2.0.0 and prior to versions 5.4.50, 6.4.29, and 7.3.7 contains an access control bypass vulnerability. The Request class improperly interprets some PATH_INFO values, producing URL paths without a leading `/`. This allows bypassing access control rules that are built with the `/-prefix` assumption.": "Komponent Symfony HttpFoundation w wersjach od 2.0.0 do poniżej 5.4.50, w gałęzi 6 - 6.4.29, a w gałęzi 7 - do 7.3.7 zawiera podatność o identyfikatorze CVE-2025-64500, umożliwiającą ominięcie mechanizmów kontroli dostępu."
     + UPDATE_HINT,
     "WSO2 products contain SSRF and reflected XSS vulnerabilities in the deprecated Try-It feature accessible only to administrative users, caused by improper URL validation and direct content reflection, letting attackers trick admins into executing arbitrary JavaScript and querying internal services": "Oprogramowanie WSO2 zawiera podatność Server-Side Request Forgery oraz Cross-Site Scripting o identyfikatorze CVE-2025-5350, umożliwiającą wykonywanie żądań do usług wewnętrznych oraz wykonanie kodu w przeglądarce administratora."
@@ -2535,4 +2537,5 @@ TRANSLATIONS = {
     "Prometheus Pushgateway panel was detected.": "Wykryto panel Prometheus Pushgateway.",
     "ConnectWise Server Backup Manager SE login panel was detected.": "Wykryto panel logowania ConnectWise Server Backup Manager SE.",
     "Sanity Studio panel was detected. Sanity is a headless CMS platform.": "Wykryto panel Sanity Studio.",
+    "Residential Gateway login panel was detected.": "Wykryto panel logowania Residential Gateway.",
 }

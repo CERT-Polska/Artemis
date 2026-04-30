@@ -997,6 +997,14 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "WP Responsive Images plugin for WordPress <= 1.0 contains a path traversal caused by improper sanitization of the 'src' parameter, letting unauthenticated attackers read arbitrary files on the server.": "Wtyczka WordPress o nazwie WP Responsive Images w wersji do 1.0 włącznie zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + WORDPRESS_UPDATE_HINT,
+    "WordPress tutor.1.5.3 is vulnerable to local file inclusion.": "Wtyczka WordPress tutor w wersji 1.5.3 i potencjalnie wcześniejszych zawiera podatność umożliwiającą odczyt dowolnych plików z dysku."
+    + WORDPRESS_UPDATE_HINT,
+    "Contact Form by Supsystic WordPress plugin <= 1.7.36 contains a server-side template injection caused by unsandboxed Twig_Loader_String and cfsPreFill functionality, letting unauthenticated attackers execute arbitrary code remotely via GET parameters.": "Wtyczka WordPress o nazwie Contact Form by Supsystic w wersji do 1.7.36 włącznie zawiera podatność o identyfikatorze CVE-2026-4257, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + WORDPRESS_UPDATE_HINT
+    + RCE_EFFECT_DESCRIPTION,
+    "WidzialniCMS system was detected, which (in Poland) is not recommended to be used by the Government Plenipotentiary for Cybersecurity.": "Wykryto system WidzialniCMS, którego stosowanie (w Polsce) nie jest rekomendowane przez Pełnomocnika Rządu ds. Cyberbezpieczeństwa.",
     "Detected Brickcom IP cameras was exposed live camera snapshots without authentication via the ONVIF media endpoint.": "Wykryto kamerę IP Brickcom zawierającą podatność umożliwiającą dostęp do klatek z kamery."
     + DATA_HIDE_HINT,
     "Franklin Fueling Systems Colibri Controller Module 1.8.19.8580 is susceptible to local file inclusion because of insecure handling of a download function that leads to disclosure of internal files due to path traversal with root privileges.": "Franklin Fueling Systems Colibri Controller Module w wersji 1.8.19.8580 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion o identyfikatorze CVE-2021-46417, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
@@ -2520,4 +2528,5 @@ TRANSLATIONS = {
     "Allegro RomPager was detected.This toolkit was commonly used in embedded devices such as routers, cameras, and IoT devices, often on historical hardware with possible default credentials.": "Wykryto panel Allegro RomPager, który może być potencjalnie zainstalowany na nieaktualnym urządzeniu lub używać domyślnych danych logowania.",
     "Woodpecker CI panel was detected. Woodpecker is a community fork of Drone CI, providing a simple yet powerful continuous integration platform.": "Wykryto panel Woodpecker CI.",
     "Prometheus Pushgateway panel was detected.": "Wykryto panel Prometheus Pushgateway.",
+    "ConnectWise Server Backup Manager SE login panel was detected.": "Wykryto panel logowania ConnectWise Server Backup Manager SE.",
 }

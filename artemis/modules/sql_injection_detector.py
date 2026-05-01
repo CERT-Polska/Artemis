@@ -286,7 +286,7 @@ class SqlInjectionDetector(ArtemisBase):
                 "headers_time_based_sql_injection": Statements.headers_time_based_sql_injection.value,
             },
         }
-        return data
+        return data  # type: ignore
 
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)

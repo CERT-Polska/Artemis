@@ -272,9 +272,13 @@ class SqlInjectionDetector(ArtemisBase):
 
     @staticmethod
     def create_data(message: Any) -> Dict[str, List[str] | dict[str, Any]]:
-        message = list(more_itertools.unique_everseen(message))
+        new_message = []
+        for item in message:
+            if item not in new_message:
+                new_message.append(item)
+
         data = {
-            "result": message,
+            "result": new_message,
             "statements": {
                 "sql_injection": Statements.sql_injection.value,
                 "sql_time_based_injection": Statements.sql_time_based_injection.value,

@@ -997,9 +997,12 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "AWStats 7.6 contains a full path disclosure caused by improper handling of framename and update parameters in awstats.pl, letting remote attackers determine server file paths, exploit requires sending crafted parameters.": "AWStats w wersji 7.6 i potencjalnie wcześniejszych zawiera podatność Information Disclosure o identyfikatorze CVE-2018-10245, umożliwiającą dostęp do informacji o ścieżkach systemowych."+ DATA_HIDE_HINT,
+    "In the module “Step by Step products Pack” (ndk_steppingpack) up to 1.5.6 from NDK Design for PrestaShop, a guest can perform SQL injection in affected versions.": "Moduł PrestaShop Step by Step Products Pack (ndk_steppingpack) w wersji do 1.5.6 zawiera podatność SQL Injection o identyfikatorze CVE-2023-46347, umożliwiającą odczyt danych z bazy danych."+ UPDATE_HINT,
     "The plugin does not validate signatures when creating them on the server from user input, allowing unauthenticated users to create arbitrary files and lead to RCE.": "Wtyczka WordPress o nazwie Form Maker by 10Web w wersji poniżej 1.15.20 zawiera podatność zdalnego wykonania kodu o identyfikatorze CVE-2023-4666."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,
+    "Detects whether Fortinet hotfix FG-IR-26-099 for CVE-2026-35616 is missing by comparing behavioral responses from a certificate-authenticated endpoint. The template sends X-SSL-CLIENT-VERIFY: SUCCESS without certificate material and checks whether this spoofed header changes server behavior.": "Wykryto podatność o identyfikatorze CVE-2026-35616 w urządzeniu Fortinet, umożliwiającą zdalne wykonanie kodu." + RCE_EFFECT_DESCRIPTION + UPDATE_HINT,
     "All versions of Confluence Data Center and Server are affected by this unexploited vulnerability. There is no impact to confidentiality as an attacker cannot exfiltrate any instance data.\nAtlassian Cloud sites are not affected by this vulnerability. If your Confluence site is accessed via an atlassian.net domain, it is hosted by Atlassian and is not vulnerable to this issue.": "Wykryto oprogramowanie Confluence Data Center lub Server zawierające podatność bezpieczeństwa o identyfikatorze CVE-2023-22518 umożliwiającą nieuprawnione tworzenie kont administratora.",
     "Symfony HttpFoundation component >= 2.0.0 and prior to versions 5.4.50, 6.4.29, and 7.3.7 contains an access control bypass vulnerability. The Request class improperly interprets some PATH_INFO values, producing URL paths without a leading `/`. This allows bypassing access control rules that are built with the `/-prefix` assumption.": "Komponent Symfony HttpFoundation w wersjach od 2.0.0 do poniżej 5.4.50, w gałęzi 6 - 6.4.29, a w gałęzi 7 - do 7.3.7 zawiera podatność o identyfikatorze CVE-2025-64500, umożliwiającą ominięcie mechanizmów kontroli dostępu."
     + UPDATE_HINT,
@@ -2544,4 +2547,5 @@ TRANSLATIONS = {
     "ConnectWise Server Backup Manager SE login panel was detected.": "Wykryto panel logowania ConnectWise Server Backup Manager SE.",
     "Sanity Studio panel was detected. Sanity is a headless CMS platform.": "Wykryto panel Sanity Studio.",
     "Residential Gateway login panel was detected.": "Wykryto panel logowania Residential Gateway.",
+    "Flowise panel was detected. Flowise is an open-source drag-and-drop LLM flow builderand AI agent platform. Exposed instances may reveal AI workflow configurations, API keys, and connected data sources.": "Wykryto panel Flowise. Upublicznione instancje mogą udostępniać konfiguracje workflow, klucze API i podłączone źródła danych.",
 }

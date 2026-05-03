@@ -997,7 +997,9 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "The plugin does not validate signatures when creating them on the server from user input, allowing unauthenticated users to create arbitrary files and lead to RCE.": "Wtyczka WordPress o nazwie Form Maker by 10Web w wersji poniżej 1.15.20 zawiera podatność zdalnego wykonania kodu o identyfikatorze CVE-2023-4666."+ RCE_EFFECT_DESCRIPTION + WORDPRESS_UPDATE_HINT,
+    "The plugin does not validate signatures when creating them on the server from user input, allowing unauthenticated users to create arbitrary files and lead to RCE.": "Wtyczka WordPress o nazwie Form Maker by 10Web w wersji poniżej 1.15.20 zawiera podatność zdalnego wykonania kodu o identyfikatorze CVE-2023-4666."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "All versions of Confluence Data Center and Server are affected by this unexploited vulnerability. There is no impact to confidentiality as an attacker cannot exfiltrate any instance data.\nAtlassian Cloud sites are not affected by this vulnerability. If your Confluence site is accessed via an atlassian.net domain, it is hosted by Atlassian and is not vulnerable to this issue.": "Wykryto oprogramowanie Confluence Data Center lub Server zawierające podatność bezpieczeństwa o identyfikatorze CVE-2023-22518 umożliwiającą nieuprawnione tworzenie kont administratora.",
     "Symfony HttpFoundation component >= 2.0.0 and prior to versions 5.4.50, 6.4.29, and 7.3.7 contains an access control bypass vulnerability. The Request class improperly interprets some PATH_INFO values, producing URL paths without a leading `/`. This allows bypassing access control rules that are built with the `/-prefix` assumption.": "Komponent Symfony HttpFoundation w wersjach od 2.0.0 do poniżej 5.4.50, w gałęzi 6 - 6.4.29, a w gałęzi 7 - do 7.3.7 zawiera podatność o identyfikatorze CVE-2025-64500, umożliwiającą ominięcie mechanizmów kontroli dostępu."
     + UPDATE_HINT,
@@ -1012,6 +1014,10 @@ TRANSLATIONS = {
     + WORDPRESS_UPDATE_HINT
     + RCE_EFFECT_DESCRIPTION,
     "WidzialniCMS system was detected, which (in Poland) is not recommended to be used by the Government Plenipotentiary for Cybersecurity.": "Wykryto system WidzialniCMS, którego stosowanie (w Polsce) nie jest rekomendowane przez Pełnomocnika Rządu ds. Cyberbezpieczeństwa.",
+    "phpMyFAQ installation is exposed.": "Wykryto instalator systemu phpMyFAQ - jego obecność umożliwia atakującemu wprowadzenie zmian w konfiguracji systemu.",
+    "Gravity SMTP WordPress plugin <= 2.1.4 contains a sensitive information exposure caused by an unrestricted REST API endpoint at /wp-json/gravitysmtp/v1/tests/mock-data, letting unauthenticated attackers retrieve detailed system configuration data, exploit requires no authentication.": "Wtyczka WordPress o nazwie Gravity SMTP w wersji do 2.1.4 włącznie zawiera podatność Information Disclosure o identyfikatorze CVE-2026-4020, umożliwiającą dostęp do szczegółowych danych o konfiguracji systemu."
+    + WORDPRESS_UPDATE_HINT
+    + DATA_HIDE_HINT,
     "Detected Brickcom IP cameras was exposed live camera snapshots without authentication via the ONVIF media endpoint.": "Wykryto kamerę IP Brickcom zawierającą podatność umożliwiającą dostęp do klatek z kamery."
     + DATA_HIDE_HINT,
     "Franklin Fueling Systems Colibri Controller Module 1.8.19.8580 is susceptible to local file inclusion because of insecure handling of a download function that leads to disclosure of internal files due to path traversal with root privileges.": "Franklin Fueling Systems Colibri Controller Module w wersji 1.8.19.8580 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion o identyfikatorze CVE-2021-46417, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",

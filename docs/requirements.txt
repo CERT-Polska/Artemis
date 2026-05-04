@@ -72,7 +72,7 @@ more-itertools==11.0.2
 multidict==6.7.1
 multiprocessing-logging==0.3.4
 openapi-schema-validator==0.8.1
-openapi-spec-validator==0.8.4
+openapi-spec-validator==0.8.5
 orjson==3.11.8
 packaging==26.1
 paramiko==4.0.0

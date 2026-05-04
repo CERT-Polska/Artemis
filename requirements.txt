@@ -107,7 +107,7 @@ requests-file==3.0.1
 requests-mock==1.12.1
 retry==0.9.2
 rfc3339-validator==0.1.4
-rich==14.3.3
+rich==15.0.0
 rpds-py==0.30.0
 s3transfer==0.10.4
 semantic-version==2.10.0

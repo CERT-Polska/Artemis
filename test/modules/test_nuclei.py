@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from karton.core import Task
 
-from artemis.binds import Service, TaskStatus, TaskType
+from artemis.binds import TaskStatus, TaskType
 from artemis.modules.nuclei import Nuclei
 
 
@@ -13,7 +13,7 @@ class NucleiTest(ArtemisModuleTestCase):
 
     def test_severity_threshold(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-service-with-exposed-apache-config",
                 "port": 80,
@@ -28,7 +28,7 @@ class NucleiTest(ArtemisModuleTestCase):
         self.mock_db.reset_mock()
 
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-service-with-exposed-apache-config",
                 "port": 80,
@@ -43,7 +43,7 @@ class NucleiTest(ArtemisModuleTestCase):
 
     def test_dast_template(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-dast-vuln-app",
                 "port": 5000,
@@ -95,7 +95,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
     def test_403_bypass_workflow(self) -> None:
         # workflows use additional list of templates
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-php-403-bypass",
                 "port": 80,
@@ -111,7 +111,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
 
     def test_interactsh(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-php-mock-CVE-2020-28976",
                 "port": 80,
@@ -130,7 +130,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
 
     def test_links(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-php-xss-but-not-on-homepage",
                 "port": 80,

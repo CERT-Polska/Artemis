@@ -89,7 +89,7 @@ def get_target_url(task: Task) -> str:
         assert isinstance(url, str)
         return url
 
-    if task.headers["service"] != Service.HTTP:
+    if task.headers.get("service") != Service.HTTP and task.headers.get("type") != TaskType.NUCLEI_TARGET:
         raise NotImplementedError
 
     target = get_target_host(task)

@@ -5,7 +5,7 @@ from typing import Annotated, Any, Dict, List, Optional
 
 import aiohttp
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import Response
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.task import TaskPriority
@@ -15,6 +15,7 @@ from redis import Redis
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
+from artemis.frontend import _internal_download_zip as frontend_download_zip
 from artemis.karton_utils import get_binds_that_can_be_disabled, get_num_pending_tasks
 from artemis.module_utils import try_to_import_all_modules
 from artemis.modules.base.runtime_configuration_registry import (
@@ -28,7 +29,6 @@ from artemis.task_utils import (
     get_analysis_num_in_progress_tasks,
 )
 from artemis.templating import render_analyses_table_row, render_task_table_row
-from artemis.frontend import _internal_download_zip as frontend_download_zip
 
 router = APIRouter()
 db = DB()

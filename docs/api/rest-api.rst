@@ -172,7 +172,7 @@ Response:
 - ``search`` *(string, optional)* -- Search results by keyword.
 
 Step 5: export the reports
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Create an export** -- ``POST /api/export``
 

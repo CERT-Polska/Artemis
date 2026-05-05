@@ -11,20 +11,21 @@ First, you need to prepare a machine. The recommended configuration for the scan
 - 2 cores,
 - 30GB of free disk space to store Docker images and scan results.
 
-To start Artemis, clone the ``https://github.com/CERT-Polska/Artemis/`` repository and execute the
-following command in your terminal in the ``Artemis`` directory:
+To start Artemis:
 
-.. code-block:: console
+- clone the ``https://github.com/CERT-Polska/Artemis/`` repository,
+- copy the ``.env.example`` file to ``.env``,
+- set ``FRONTEND_USERNAME`` and ``FRONTEND_PASSWORD`` in ``.env`` (these credentials will be required when logging in at ``localhost:5000``)
+- execute the following command in your terminal in the ``Artemis`` directory:
 
-   ./scripts/start --mode=<production|development>
+  .. code-block:: console
 
+     ./scripts/start --mode=<production|development>
 
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
 
 The above command will automatically create a ``.env`` file with default settings if it doesn't exist. You can edit this file later to configure various settings, including customizing the user-agent by setting the ``CUSTOM_USER_AGENT`` variable, as well as other relevant parameters.
-
-To enable the web interface, set ``FRONTEND_USERNAME`` and ``FRONTEND_PASSWORD`` in ``.env`` - these credentials will be required when logging in at ``localhost:5000``. If they are left empty, the web interface is disabled; the API remains reachable using the ``X-API-Token`` header.
 
 We strongly recommend setting the ``CUSTOM_USER_AGENT`` and configuring rate-limiting for scanning (more information here: :doc:`user-guide/cooperation-with-scanned-entities`). For a complete list of configuration variables and their descriptions, please refer to the :doc:`user-guide/configuration` section in the documentation.
 

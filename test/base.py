@@ -86,9 +86,13 @@ class BaseReportingTest(ArtemisModuleTestCase):
             "result": call.kwargs["data"],
         }
 
-    def obtain_http_task_result(self, receiver: str, host: str, port: int = 80) -> Dict[str, Any]:
+    def obtain_http_task_result(
+        self, receiver: str, host: str, port: int = 80, filter: dict[str, TaskType | Service] | None = None
+    ) -> Dict[str, Any]:
+        if filter is None:
+            filter = {"type": TaskType.SERVICE, "service": Service.HTTP}
         task = Task(
-            {"type": TaskType.SERVICE, "service": Service.HTTP},
+            filter,
             payload={"host": host, "port": port},
             payload_persistent={"original_domain": host},
         )

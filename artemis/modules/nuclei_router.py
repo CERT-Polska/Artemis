@@ -6,10 +6,10 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
-from artemis.task_utils import get_target_url
+from artemis.task_utils import get_target_host, get_target_url
 from artemis.web_technology_identification import run_tech_detection
 
-TECHNOLOGY_DETECTION_TAGS_TO_EXCLUDE = {"wordpress": "wordpress"}
+TECHNOLOGY_DETECTION_TAGS_TO_EXCLUDE = {"wordpress": ["wordpress"]}
 # it's seperate with module configuration cause flags with values defined in router serve
 # two purposes, configuration runtime for nuclei command and define grouping key to pickup tasks
 NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY = "nuclei-routing-additional-flags"
@@ -67,12 +67,17 @@ class NucleiRouter(ArtemisBase):
                 "type": TaskType.NUCLEI_TARGET,
             },
             payload={
-                "url": target_url,
+                "host": get_target_host(current_task),
+                "port": current_task.get_payload("port"),
                 NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY: nuclei_additional_flags,
             },
         )
         self.add_task(current_task, routed_task)
 
+        # FIXME: migration line, to be removed
+        if current_task.headers.get("receiver", None) == "nuclei":
+            current_task.headers["receiver"] = "nuclei-router"
+            current_task.headers["original_receiver"] = "nuclei"
         self.db.save_task_result(
             task=current_task,
             status=TaskStatus.OK,

@@ -23,7 +23,7 @@ def get_target_host(task: Task) -> str:
     """
     task_type = task.headers["type"]
 
-    if task_type == TaskType.SERVICE:
+    if task_type == TaskType.SERVICE or task_type == TaskType.NUCLEI_TARGET:
         payload = task.get_payload("host")
         assert isinstance(payload, str)
         return payload
@@ -46,7 +46,7 @@ def get_target_host(task: Task) -> str:
         assert isinstance(payload, str)
         return payload
 
-    if task_type == TaskType.WEBAPP or task_type == TaskType.URL or task_type == TaskType.NUCLEI_TARGET:
+    if task_type == TaskType.WEBAPP or task_type == TaskType.URL:
         url = task.get_payload("url")
         hostname = urllib.parse.urlparse(url).hostname
         assert isinstance(hostname, str)
@@ -134,8 +134,6 @@ def get_task_target(task: Task) -> str:
             result = task.payload.get("last_domain", None)
     elif task.headers["type"] == TaskType.DOMAIN or task.headers["type"] == TaskType.DOMAIN_THAT_MAY_NOT_EXIST:
         result = task.payload.get("domain", None)
-    elif task.headers["type"] == TaskType.NUCLEI_TARGET:
-        result = task.payload.get("url", None)
     elif task.headers["type"] == TaskType.WEBAPP:
         result = task.payload.get("url", None)
     elif task.headers["type"] == TaskType.URL:
@@ -144,6 +142,9 @@ def get_task_target(task: Task) -> str:
         if "host" in task.payload and "port" in task.payload:
             result = task.payload["host"] + ":" + str(task.payload["port"])
     elif task.headers["type"] == TaskType.DEVICE:
+        if "host" in task.payload and "port" in task.payload:
+            result = task.payload["host"] + ":" + str(task.payload["port"])
+    elif task.headers["type"] == TaskType.NUCLEI_TARGET:
         if "host" in task.payload and "port" in task.payload:
             result = task.payload["host"] + ":" + str(task.payload["port"])
 

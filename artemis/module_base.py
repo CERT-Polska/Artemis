@@ -742,13 +742,13 @@ class ArtemisBase(Karton):
                 result = self._get_ip_for_locking(host)
             except UnknownIPException:
                 result = host
-        elif task.headers["type"] == TaskType.URL or task.headers["type"] == TaskType.NUCLEI_TARGET:
+        elif task.headers["type"] == TaskType.URL:
             host = urllib.parse.urlparse(task.payload["url"]).hostname
             try:
                 result = self._get_ip_for_locking(host)
             except UnknownIPException:
                 result = host
-        elif task.headers["type"] == TaskType.SERVICE:
+        elif task.headers["type"] == TaskType.SERVICE or task.headers["type"] == TaskType.NUCLEI_TARGET:
             try:
                 result = self._get_ip_for_locking(task.payload["host"])
             except UnknownIPException:

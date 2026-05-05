@@ -28,6 +28,7 @@ from artemis.task_utils import (
     get_analysis_num_in_progress_tasks,
 )
 from artemis.templating import render_analyses_table_row, render_task_table_row
+from artemis.frontend import _internal_download_zip as frontend_download_zip
 
 router = APIRouter()
 db = DB()
@@ -224,11 +225,11 @@ def is_blocklisted(domain: str) -> bool:
     return should_block_scanning(domain=domain, ip=None, karton_name=None, blocklist=BLOCKLIST)
 
 
-# This is a redirect so that we have an entry in api docs
+# This duplicates frontend endpoint so that we have an entry in api docs and consistent auth with the rest of API
 @router.get("/export/download-zip/{id}", dependencies=[Depends(verify_api_token)])
-def download_zip(id: int) -> RedirectResponse:
+def download_zip(id: int) -> Response:
     """Download a zip file containing an export - all messages that can be sent to scanned entities + additional data such as statistics."""
-    return RedirectResponse(f"/export/download-zip/{id}")
+    return frontend_download_zip(id)
 
 
 @router.post("/export/delete/{id}", dependencies=[Depends(verify_api_token)])

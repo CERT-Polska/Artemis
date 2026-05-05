@@ -15,7 +15,7 @@ To start Artemis:
 
 - clone the ``https://github.com/CERT-Polska/Artemis/`` repository,
 - copy the ``.env.example`` file to ``.env``,
-- set ``FRONTEND_USERNAME`` and ``FRONTEND_PASSWORD`` in ``.env`` (these credentials will be required when logging in at ``localhost:5000``)
+- set ``FRONTEND_USERNAME`` and ``FRONTEND_PASSWORD`` in ``.env`` (these credentials will be required when logging in at ``localhost:5000``),
 - execute the following command in your terminal in the ``Artemis`` directory:
 
   .. code-block:: console

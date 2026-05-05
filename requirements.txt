@@ -127,7 +127,7 @@ typer==0.24.1
 typing-extensions==4.15.0
 typing-inspection==0.4.2
 unittest-parallel==1.7.6
-url-normalize==2.2.1
+url-normalize==3.0.0
 urllib3==2.6.3
 uvicorn==0.44.0
 validators==0.35.0

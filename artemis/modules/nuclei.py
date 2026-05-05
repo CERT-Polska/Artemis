@@ -190,7 +190,7 @@ class Nuclei(ArtemisBase):
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
-    identity = "nuclei"
+    identity = "nuclei-module"
     filters = [
         {"type": TaskType.NUCLEI_TARGET.value},
     ]

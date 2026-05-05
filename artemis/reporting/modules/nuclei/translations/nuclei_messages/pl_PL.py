@@ -2230,7 +2230,7 @@ TRANSLATIONS = {
     "ZOHO ManageEngine ServiceDesk panel was detected.": "wykryto panel ZOHO ManageEngine ServiceDesk.",
     "TeamPass panel was detected.": "wykryto panel TeamPass.",
     "Apache Solr admin panel was detected.": "wykryto panel administracyjny Apache Solr.",
-    "VMware Workspace ONE UEM Airwatch login panel was detected.": "wyktyro panel logowania VMware Workspace ONE UEM Airwatch.",
+    "VMware Workspace ONE UEM Airwatch login panel was detected.": "wykryto panel logowania VMware Workspace ONE UEM Airwatch.",
     "http/exposed-panels/pritunl-panel.yaml": "wykryto panel Pritunl",
     "Oracle WebLogic login panel was detected.": "wykryto panel logowania Oracle WebLogic.",
     "Gryphon router panel was detected.": "wykryto panel routera Gryphon.",

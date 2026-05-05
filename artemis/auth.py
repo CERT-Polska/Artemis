@@ -22,16 +22,18 @@ def generate_session_secret() -> str:
 
     if os.path.exists(session_secret_path):
         with open(session_secret_path) as f:
-            return f.read()
+            secret = f.read()
+        if secret:
+            return secret
 
-    secret = base64.b64encode(os.urandom(32))
+    secret = base64.b64encode(os.urandom(32)).decode("ascii")
 
     # This will raise if someone else is also creating the secret
     fd = os.open(session_secret_path, os.O_RDWR | os.O_CREAT | os.O_EXCL)
-    os.write(fd, secret)
+    os.write(fd, secret.encode("ascii"))
     os.close(fd)
 
-    return secret.decode("ascii")
+    return secret
 
 
 def frontend_credentials_configured() -> bool:

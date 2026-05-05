@@ -2,14 +2,6 @@
 {% block main %}
     <h1>Log in</h1>
 
-    {% if not credentials_configured %}
-        <div class="alert alert-info" role="alert">
-            No frontend credentials configured. Set <tt>FRONTEND_USERNAME</tt> and <tt>FRONTEND_PASSWORD</tt>
-            in your <tt>.env</tt> file to enable login. The API remains reachable at <tt>/api/*</tt> using
-            the <tt>X-API-Token</tt> header.
-        </div>
-    {% endif %}
-
     {% if error %}
         <div class="alert alert-danger" role="alert">
             {{ error }}

@@ -91,7 +91,6 @@ def get_login(request: Request) -> Response:
         {
             "request": request,
             "error": None,
-            "credentials_configured": auth.frontend_credentials_configured(),
         },
     )
 
@@ -110,7 +109,6 @@ async def post_login(
             {
                 "request": request,
                 "error": "Invalid username or password.",
-                "credentials_configured": auth.frontend_credentials_configured(),
             },
             status_code=401,
         )

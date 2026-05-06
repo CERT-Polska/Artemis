@@ -47,7 +47,7 @@ frozenlist==1.8.0
 gmpy2==2.3.0
 greenlet==3.5.0
 h11==0.16.0
-idna==3.11
+idna==3.13
 imagesize==2.0.0
 importlib-resources==7.1.0
 invoke==3.0.3

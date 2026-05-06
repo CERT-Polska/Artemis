@@ -28,6 +28,14 @@ services:
     volumes:
       - data-redis:/data
 
+  redis-periodic-backup:
+    <<: *logging
+    restart: always
+    volumes:
+      - data-redis:/data
+    image: alpine:latest
+    command: sh -c "while true; do mkdir -p /data/backup; cp /data/dump.rdb /data/backup/dump-$(date +%Y%m%d-%H%M%S).rdb; find /data/backup/ -type f -name 'rdb-backup-*' -mtime +7 -delete; sleep 3600; done"
+
   s3mock:
     <<: *logging
     image: adobe/s3mock:latest

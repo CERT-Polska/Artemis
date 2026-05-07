@@ -603,6 +603,9 @@ class Config:
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
                         # Too many FPs
                         "dast/vulnerabilities/crlf/cookie-injection.yaml",
+                        # Roundcube templates producing FP
+                        "http/cves/2025/CVE-2025-49113.yaml",
+                        "http/cves/2024/CVE-2024-42009.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

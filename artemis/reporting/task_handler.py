@@ -8,6 +8,7 @@ import threading
 import time
 import traceback
 from pathlib import Path
+from typing import Optional
 
 import psutil
 
@@ -27,26 +28,25 @@ DUMP_TRACEBACKS_IF_RUNNING_LONGER_THAN__SECONDS = 300
 
 
 def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
-    if report_generation_task.skip_previously_exported:
-        previous_reports_directory = tempfile.mkdtemp()
-        # We want to treat only the reports visible from web as already known
-        for existing_task in db.list_report_generation_tasks():
-            if existing_task.output_location:
-                try:
-                    shutil.copy(
-                        Path(existing_task.output_location) / "advanced" / "output.json",
-                        Path(previous_reports_directory)
-                        / (hashlib.sha256(existing_task.output_location.encode("ascii")).hexdigest() + ".json"),
-                    )
-                except FileNotFoundError:
-                    logger.warning(
-                        "Previous export output missing at %s, skipping for deduplication",
-                        existing_task.output_location,
-                    )
-    else:
-        previous_reports_directory = None
-
+    previous_reports_directory: Optional[str] = None
     try:
+        if report_generation_task.skip_previously_exported:
+            previous_reports_directory = tempfile.mkdtemp()
+            # We want to treat only the reports visible from web as already known
+            for existing_task in db.list_report_generation_tasks():
+                if existing_task.output_location:
+                    try:
+                        shutil.copy(
+                            Path(existing_task.output_location) / "advanced" / "output.json",
+                            Path(previous_reports_directory)
+                            / (hashlib.sha256(existing_task.output_location.encode("ascii")).hexdigest() + ".json"),
+                        )
+                    except FileNotFoundError:
+                        logger.warning(
+                            "Previous export output missing at %s, skipping for deduplication",
+                            existing_task.output_location,
+                        )
+
         return export(
             previous_reports_directory=Path(previous_reports_directory) if previous_reports_directory else None,
             tag=report_generation_task.tag,
@@ -59,7 +59,7 @@ def handle_single_task(report_generation_task: ReportGenerationTask) -> Path:
         )
     finally:
         if previous_reports_directory:
-            shutil.rmtree(previous_reports_directory)
+            shutil.rmtree(previous_reports_directory, ignore_errors=True)
 
 
 def report_mem() -> None:

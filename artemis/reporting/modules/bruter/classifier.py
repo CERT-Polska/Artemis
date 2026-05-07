@@ -46,7 +46,7 @@ def is_log_file(found_url: FoundURL) -> bool:
     if found_url.has_directory_index:
         soup = bs4.BeautifulSoup(found_url.content_prefix)
         for link in soup.find_all("a"):
-            href = link.get("href")
+            href = link.get("href") or ""
             if (
                 "access.log" in href
                 or "error.log" in href

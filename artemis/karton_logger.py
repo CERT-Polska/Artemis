@@ -26,7 +26,7 @@ class FileLogger(LogConsumer):
                     self.opened_file.close()
                 self._rotate_logs()
                 self.opened_file_date = datetime.datetime.now().date()
-                self.opened_file = open(LOGS_PATH / f"{self.opened_file_date.strftime(LOG_DATE_FORMAT)}.log", "w")
+                self.opened_file = open(LOGS_PATH / f"{self.opened_file_date.strftime(LOG_DATE_FORMAT)}.log", "a")
                 # There should be one instance of the consumer, but for extra safety let's lock the file.
                 # From the documentation (https://docs.python.org/3/library/fcntl.html):
                 # "If LOCK_NB is used and the lock cannot be acquired, an OSError will be raised"
@@ -38,8 +38,13 @@ class FileLogger(LogConsumer):
 
     def _rotate_logs(self) -> None:
         for file_name in os.listdir(LOGS_PATH):
-            log_date_str, _ = tuple(file_name.split(".", 1))
-            log_date = datetime.datetime.strptime(log_date_str, LOG_DATE_FORMAT).date()
+            if "." not in file_name:
+                continue
+            log_date_str, _ = file_name.split(".", 1)
+            try:
+                log_date = datetime.datetime.strptime(log_date_str, LOG_DATE_FORMAT).date()
+            except ValueError:
+                continue
 
             if (
                 log_date

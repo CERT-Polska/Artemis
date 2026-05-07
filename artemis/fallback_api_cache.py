@@ -68,7 +68,7 @@ class FallbackAPICache:
         if not allow_unknown:
             assert found
 
-        response = FallbackAPICache.CACHE.get(url, headers=headers)
+        response = FallbackAPICache.CACHE.get(url, headers=headers, timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS)
 
         if found:
             if not found.validator(response.json()):

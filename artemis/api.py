@@ -294,7 +294,10 @@ def get_analyses_table(
     search_query = _get_search_query(request)
 
     result = db.get_paginated_analyses(start, length, ordering, search_query=search_query)
-    num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
+    backend = KartonBackend(config=KartonConfig())
+    num_pending_tasks = get_num_pending_tasks(backend)
+    all_bind_identities = {bind.identity for bind in backend.get_binds()}
+    disableable_bind_identities = {bind.identity for bind in get_binds_that_can_be_disabled()}
 
     entries = []
     for entry in result.data:
@@ -321,7 +324,10 @@ def get_analyses_table(
         "draw": draw,
         "recordsTotal": result.records_count_total,
         "recordsFiltered": result.records_count_filtered,
-        "data": [render_analyses_table_row(request, entry) for entry in entries],
+        "data": [
+            render_analyses_table_row(request, entry, all_bind_identities, disableable_bind_identities)
+            for entry in entries
+        ],
     }
 
 

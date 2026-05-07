@@ -98,8 +98,12 @@ def add_protocol_if_needed(data: str) -> str:
     if "://" in data:
         return data
     elif ":" in data:
-        host, port = data.split(":")
-        port_int = int(port)
+        # rsplit so IPv6 host:port (where host contains colons) splits only on the final colon.
+        host, port = data.rsplit(":", 1)
+        try:
+            port_int = int(port)
+        except ValueError:
+            return data
         try:
             service_name = getservbyport(port_int)
         except OSError:

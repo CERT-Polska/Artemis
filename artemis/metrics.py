@@ -15,25 +15,26 @@ from prometheus_client.registry import Collector
 
 
 class ArtemisMetricsCollector(Collector):
-    def collect(self) -> Generator[GaugeMetricFamily, None, None]:
+    def __init__(self) -> None:
         # We check the backend redis queue length directly to avoid the long runtimes of
         # KartonState.get_all_tasks()
-        backend = KartonBackend(config=KartonConfig())
+        self.backend = KartonBackend(config=KartonConfig())
 
+    def collect(self) -> Generator[GaugeMetricFamily, None, None]:
         yield GaugeMetricFamily(
             "tasks_consumed",
             "Karton tasks consumed",
-            value=sum(map(int, backend.redis.hvals(KartonMetrics.TASK_CONSUMED.value))),
+            value=sum(map(int, self.backend.redis.hvals(KartonMetrics.TASK_CONSUMED.value))),
         )
         yield GaugeMetricFamily(
             "tasks_crashed",
             "Karton tasks crashed",
-            value=sum(map(int, backend.redis.hvals(KartonMetrics.TASK_CRASHED.value))),
+            value=sum(map(int, self.backend.redis.hvals(KartonMetrics.TASK_CRASHED.value))),
         )
         yield GaugeMetricFamily(
             "tasks_queued",
             "Karton tasks queued",
-            value=sum([backend.redis.llen(key) for key in backend.redis.keys("karton.queue.*")]),
+            value=sum([self.backend.redis.llen(key) for key in self.backend.redis.keys("karton.queue.*")]),
         )
 
         # We count the number of tasks for these kartons separately as each task pending on them tends to produce
@@ -43,7 +44,7 @@ class ArtemisMetricsCollector(Collector):
         num_tasks_high_level_kartons = 0
         for karton_name in high_level_kartons:
             num_tasks_high_level_kartons += sum(
-                [backend.redis.llen(key) for key in backend.redis.keys(f"karton.queue.*:{karton_name}")]
+                [self.backend.redis.llen(key) for key in self.backend.redis.keys(f"karton.queue.*:{karton_name}")]
             )
 
         yield GaugeMetricFamily(

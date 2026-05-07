@@ -1,6 +1,6 @@
 import functools
 import urllib
-from typing import List
+from typing import List, Tuple
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import requests
@@ -35,27 +35,28 @@ def get_links_and_resources_on_same_domain(url: str) -> List[str]:
 
 
 @functools.lru_cache(maxsize=8192)
-def get_injectable_parameters(url: str) -> List[str]:
-    try:
-        response = http_requests.get(url)
-    except Exception:
-        return []
+def _fetch_injectable_parameters(url: str) -> Tuple[str, ...]:
+    response = http_requests.get(url)
+    if not response:
+        return ()
 
-    if response:
-        content = response.text
-    else:
-        return []
+    try:
+        soup = BeautifulSoup(response.text, "html.parser")
+    except ParserRejectedMarkup:
+        return ()
 
     result = set()
-    try:
-        soup = BeautifulSoup(content, "html.parser")
-    except ParserRejectedMarkup:
-        return []
-
     for input_tag in soup.find_all("input"):
         if input_tag.get("name"):
             result.add(input_tag.get("name"))
-    return list(result)
+    return tuple(result)
+
+
+def get_injectable_parameters(url: str) -> List[str]:
+    try:
+        return list(_fetch_injectable_parameters(url))
+    except Exception:
+        return []
 
 
 def add_injectable_params_and_common_params_from_wordlist(

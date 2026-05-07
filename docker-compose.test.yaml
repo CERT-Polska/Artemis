@@ -10,6 +10,7 @@ services:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
       - ./test/:/opt/test/
+      - ./docs/:/opt/docs/
       - ./docker/karton.ini:/etc/karton/karton.ini
       - data-test:/data/
 
@@ -98,6 +99,31 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/data/bruteable_files/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica1:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica2:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica3:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica4:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
+
+  test-service-with-bruteable-files-sql-dumps-replica5:
+    image: php:7.4-apache
+    volumes:
+      - ./test/reporting/data/bruteable_files/sql_dumps/:/var/www/html/
 
   test-robots-service:
     image: nginx:latest

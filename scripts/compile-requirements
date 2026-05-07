@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd `dirname $0`/..
+
+pip-compile requirements.in -o requirements.txt
+pip-compile docs/requirements.in -o docs/requirements.txt

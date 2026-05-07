@@ -1,15 +1,11 @@
 import html
 import textwrap
 from os import path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 import markdown
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
-from karton.core.backend import KartonBackend
-from karton.core.config import Config as KartonConfig
-
-from artemis.karton_utils import get_binds_that_can_be_disabled
 
 TEMPLATES_DIR = path.join(path.dirname(__file__), "..", "templates")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
@@ -48,15 +44,18 @@ def render_task_table_row(request: Request, task_result: Dict[str, Any]) -> List
     ]
 
 
-def render_analyses_table_row(request: Request, entry: Dict[str, Any]) -> List[str]:
-    backend = KartonBackend(config=KartonConfig())
-
+def render_analyses_table_row(
+    request: Request,
+    entry: Dict[str, Any],
+    all_bind_identities: Set[str],
+    disableable_bind_identities: Set[str],
+) -> List[str]:
     if entry["disabled_modules"]:
         enabled_modules = ", ".join(
             sorted(
-                (set([bind.identity for bind in backend.get_binds()]) - set(entry["disabled_modules"].split(",")))
+                (all_bind_identities - set(entry["disabled_modules"].split(",")))
                 # We don't show modules that can't be disabled
-                & set([bind.identity for bind in get_binds_that_can_be_disabled()])
+                & disableable_bind_identities
             )
         )
     else:

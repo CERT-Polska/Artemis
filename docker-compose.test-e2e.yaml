@@ -18,8 +18,10 @@ services:
 
   karton-bruter:
     <<: *artemis-build
+    env_file: env.test
     environment:
-      REQUESTS_PER_SECOND: 0
+      REQUESTS_PER_SECOND: 20
+      NUM_WORKERS_PER_CONTAINER_BRUTER: 5
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
 
   karton-classifier:

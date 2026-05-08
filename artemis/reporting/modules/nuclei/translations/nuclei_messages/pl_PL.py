@@ -2140,6 +2140,15 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "This instance of Atlassian JIRA is misconfigured to allow an attacker to sign up (create a new account) just by navigating to the signup page that is accessible at the URL /servicedesk/customer/user/signup. After the attacker has created a new account it's possible for him/her to access the support portal.": "Wykryto instancję systemu Jira umożliwiającą rejestrację dowolnym osobom z zewnątrz.",
     "HP iLO serial key was detected.": "Wykryto klucz HP iLO." + DATA_HIDE_HINT,
+    "RabbitMQ server accepts connections with weak or default credentials over the AMQP 0-9-1 protocol (port 5672).Default credentials (guest/guest) or commonly used weak passwords were found, allowing unauthorized access to the message broker, its queues, exchanges, and all data flowing through them.": "Wykryto serwer RabbitMQ akceptujący połączenia z domyślnymi lub słabymi danymi uwierzytelniającymi przez protokół AMQP 0-9-1. Atakujący może uzyskać nieuprawniony dostęp do brokera wiadomości, jego kolejek i wymian oraz do wszystkich danych przepływających przez system."
+    + DEFAULT_CREDENTIALS_HINT,
+    "Citrix ADC and Citrix Gateway versions before 13.0-58.30, 12.1-57.18, 12.0-63.21, 11.1-64.14 and 10.5-70.18 and Citrix SDWAN WAN-OP versions before 11.1.1a, 11.0.3d and 10.2.7 are vulnerable to local file inclusion because they allow unauthenticated access to certain URL endpoints.": "Citrix ADC i Citrix Gateway w gałęzi 13 - poniżej 13.0-58.30, w gałęzi 12.1 - poniżej 12.1-57.18, w gałęzi 12.0 - poniżej 12.0-63.21, w gałęzi 11 - poniżej 11.1-64.14 i w gałęzi 10 - poniżej 10.5-70.18 oraz Citrix SDWAN WAN-OP w gałęzi 11.1 - poniżej 11.1.1a, w gałęzi 11.0 - poniżej 11.0.3d i w gałęzi 10 - poniżej 10.2.7 zawierają podatność CVE-2020-8193 (Local File Inclusion), umożliwiającą atakującemu nieuprawniony dostęp do wybranych zasobów serwera."
+    + UPDATE_HINT,
+    "My Calendar WordPress plugin <= 3.7.6 contains an injection vulnerability caused by unvalidated user input passed to parse_str() in mc_ajax_mcjs_action endpoint, letting unauthenticated attackers access or crash sites via switch_to_blog(), exploit requires WordPress Multisite or Single Site setup.": "Wtyczka WordPress o nazwie My Calendar w wersji do 3.7.6 włącznie zawiera podatność o identyfikatorze CVE-2026-40308, umożliwiającą nieuprawnionemu atakującemu dostęp do danych lub wywołanie awarii strony."
+    + WORDPRESS_UPDATE_HINT,
+    'The command injection vulnerability in the CGI program "remote_help-cgi" in Zyxel NAS326 firmware versions before V5.21(AAZF.17)C0 and NAS542 firmware versions before V5.21(ABAG.14)C0 could allow an unauthenticated attacker to execute some operating system (OS) commands by sending a crafted HTTP POST request.': "Zyxel NAS326 w wersji oprogramowania poniżej V5.21(AAZF.17)C0 i NAS542 w wersji poniżej V5.21(ABAG.14)C0 zawierają podatność command injection o identyfikatorze CVE-2024-29972, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2583,4 +2592,6 @@ TRANSLATIONS = {
     "Residential Gateway login panel was detected.": "Wykryto panel logowania Residential Gateway.",
     "Flowise panel was detected. Flowise is an open-source drag-and-drop LLM flow builderand AI agent platform. Exposed instances may reveal AI workflow configurations, API keys, and connected data sources.": "Wykryto panel Flowise. Upublicznione instancje mogą udostępniać konfiguracje workflow, klucze API i podłączone źródła danych.",
     "Loxone Intercom Video panel was detected.": "Wykryto panel Loxone Intercom Video.",
+    "Xeams Admin Console login panel was detected.": "Wykryto panel logowania Xeams Admin Console.",
+    "SolarWinds Serv-U File Server panel was detected.": "Wykryto panel SolarWinds Serv-U File Server.",
 }

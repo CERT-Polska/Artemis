@@ -5,7 +5,7 @@ from typing import Annotated, Any, Dict, List, Optional
 
 import aiohttp
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import Response
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.task import TaskPriority
@@ -15,6 +15,7 @@ from redis import Redis
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
+from artemis.frontend import build_export_zip_response
 from artemis.karton_utils import get_binds_that_can_be_disabled, get_num_pending_tasks
 from artemis.module_utils import try_to_import_all_modules
 from artemis.modules.base.runtime_configuration_registry import (
@@ -224,11 +225,10 @@ def is_blocklisted(domain: str) -> bool:
     return should_block_scanning(domain=domain, ip=None, karton_name=None, blocklist=BLOCKLIST)
 
 
-# This is a redirect so that we have an entry in api docs
 @router.get("/export/download-zip/{id}", dependencies=[Depends(verify_api_token)])
-def download_zip(id: int) -> RedirectResponse:
+def download_zip(id: int) -> Response:
     """Download a zip file containing an export - all messages that can be sent to scanned entities + additional data such as statistics."""
-    return RedirectResponse(f"/export/download-zip/{id}")
+    return build_export_zip_response(id)
 
 
 @router.post("/export/delete/{id}", dependencies=[Depends(verify_api_token)])

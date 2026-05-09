@@ -317,8 +317,7 @@ async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtec
     return RedirectResponse(request.url_for("get_exports"), status_code=303)
 
 
-@router.get("/export/download-zip/{id}", include_in_schema=False)
-def export_download_zip(request: Request, id: int) -> Response:
+def build_export_zip_response(id: int) -> Response:
     task = db.get_report_generation_task(id)
     if not task:
         raise HTTPException(status_code=404, detail="Report generation task not found")
@@ -335,6 +334,11 @@ def export_download_zip(request: Request, id: int) -> Response:
     return Response(
         byte_stream.getvalue(), headers={"Content-Disposition": f"attachment; filename=artemis-export-{id}.zip"}
     )
+
+
+@router.get("/export/download-zip/{id}", include_in_schema=False)
+def export_download_zip(request: Request, id: int) -> Response:
+    return build_export_zip_response(id)
 
 
 @router.post("/export", include_in_schema=False)

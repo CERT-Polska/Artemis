@@ -517,6 +517,7 @@ class Config:
                         "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
                         # Source of FPs
                         "custom:CVE-2019-1579",
+                        "custom:CVE-2025-68461",
                         "custom:CVE-2024-35286",
                         "custom:CVE-2025-24016",
                         "custom:xss-inside-tag-top-params.yaml",

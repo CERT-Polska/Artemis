@@ -527,6 +527,7 @@ class Config:
                         "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
                         # Source of FPs
                         "custom:CVE-2019-1579",
+                        "custom:CVE-2025-68461",
                         "custom:CVE-2024-35286",
                         "custom:CVE-2025-24016",
                         "custom:xss-inside-tag-top-params.yaml",
@@ -613,6 +614,9 @@ class Config:
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
                         # Too many FPs
                         "dast/vulnerabilities/crlf/cookie-injection.yaml",
+                        # Roundcube templates producing FP
+                        "http/cves/2025/CVE-2025-49113.yaml",
+                        "http/cves/2024/CVE-2024-42009.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

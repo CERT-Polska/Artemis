@@ -18,7 +18,7 @@ from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority, TaskState
 from starlette.datastructures import Headers
 
-from artemis import csrf
+from artemis import auth, csrf
 from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
@@ -79,6 +79,48 @@ if not Config.Miscellaneous.API_TOKEN:
                 "request": request,
             },
         )
+
+
+@router.get("/login", include_in_schema=False)
+def get_login(request: Request) -> Response:
+    if request.session.get(auth.SESSION_KEY_AUTHENTICATED):
+        return RedirectResponse(request.url_for("get_root"), status_code=303)
+
+    return templates.TemplateResponse(
+        "login.jinja2",
+        {
+            "request": request,
+            "error": None,
+        },
+    )
+
+
+# CSRF is intentionally not enforced on /login - the session cookie is SameSite=Strict,
+# which blocks the cross-site form submissions CSRF would defend against.
+@router.post("/login", include_in_schema=False)
+async def post_login(
+    request: Request,
+    username: str = Form(),
+    password: str = Form(),
+) -> Response:
+    if not auth.check_credentials(username, password):
+        return templates.TemplateResponse(
+            "login.jinja2",
+            {
+                "request": request,
+                "error": "Invalid username or password.",
+            },
+            status_code=401,
+        )
+
+    request.session[auth.SESSION_KEY_AUTHENTICATED] = True
+    return RedirectResponse(request.url_for("get_root"), status_code=303)
+
+
+@router.post("/logout", include_in_schema=False)
+async def post_logout(request: Request) -> Response:
+    request.session.clear()
+    return RedirectResponse("/login", status_code=303)
 
 
 @router.get("/", include_in_schema=False)
@@ -275,8 +317,7 @@ async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtec
     return RedirectResponse(request.url_for("get_exports"), status_code=303)
 
 
-@router.get("/export/download-zip/{id}", include_in_schema=False)
-def export_download_zip(request: Request, id: int) -> Response:
+def build_export_zip_response(id: int) -> Response:
     task = db.get_report_generation_task(id)
     if not task:
         raise HTTPException(status_code=404, detail="Report generation task not found")
@@ -293,6 +334,11 @@ def export_download_zip(request: Request, id: int) -> Response:
     return Response(
         byte_stream.getvalue(), headers={"Content-Disposition": f"attachment; filename=artemis-export-{id}.zip"}
     )
+
+
+@router.get("/export/download-zip/{id}", include_in_schema=False)
+def export_download_zip(request: Request, id: int) -> Response:
+    return build_export_zip_response(id)
 
 
 @router.post("/export", include_in_schema=False)

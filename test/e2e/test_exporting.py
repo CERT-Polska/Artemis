@@ -31,6 +31,7 @@ class ExportingTestCase(BaseE2ETestCase):
             time.sleep(1)
 
         with requests.Session() as s:
+            self._login_frontend(s)
             data = s.get(BACKEND_URL + "export").content
             soup = BeautifulSoup(data, "html.parser")
             csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
@@ -66,7 +67,7 @@ class ExportingTestCase(BaseE2ETestCase):
         filename = tempfile.mktemp()
 
         with open(filename, "wb") as f:
-            f.write(requests.get(BACKEND_URL + str(path)).content)
+            f.write(s.get(BACKEND_URL + str(path)).content)
 
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
@@ -447,6 +448,7 @@ class ExportingTestCase(BaseE2ETestCase):
         )
 
         with requests.Session() as s:
+            self._login_frontend(s)
             data = s.get(BACKEND_URL + "export").content
             soup = BeautifulSoup(data, "html.parser")
 
@@ -459,6 +461,7 @@ class ExportingTestCase(BaseE2ETestCase):
         self.submit_tasks_with_modules_enabled(["test-smtp-server.artemis"], tag, ["mail_dns_scanner", "classifier"])
 
         with requests.Session() as s:
+            self._login_frontend(s)
             data = s.get(BACKEND_URL + "export").content
             soup = BeautifulSoup(data, "html.parser")
             csrf_token = soup.find("input", {"name": "csrf_token"})["value"]  # type: ignore
@@ -475,6 +478,7 @@ class ExportingTestCase(BaseE2ETestCase):
             )
 
         with requests.Session() as s:
+            self._login_frontend(s)
             data = s.get(BACKEND_URL + "exports").content
             soup = BeautifulSoup(data, "html.parser")
             t_body = soup.find_all(id="task_list")[0].tbody

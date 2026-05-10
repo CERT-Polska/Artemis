@@ -9,6 +9,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
+                {% if request.session.get('authenticated') %}
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.url.path == request.url_for('get_add_form').path }}" href="{{ request.url_for('get_add_form') }}">Add targets</a>
@@ -35,8 +36,16 @@
                         <a class="nav-link {{ 'active' if request.path == '/docs' }}" href="/docs">API</a>
                     </li>
                 </ul>
+                {% endif %}
             </div>
             <div class="navbar-nav ms-auto">
+                {% if request.session.get('authenticated') %}
+                <li class="nav-item align-items-center d-flex me-3">
+                    <form method="post" action="{{ request.url_for('post_logout') }}" class="d-inline">
+                        <button type="submit" class="btn btn-link nav-link p-0">Logout</button>
+                    </form>
+                </li>
+                {% endif %}
                 <li class="nav-item align-items-center d-flex">
                     <i class="fa-solid fa-sun"></i>
                     <div class="ms-2 form-check form-switch">

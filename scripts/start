@@ -16,6 +16,16 @@ else
 fi
 
 
+(
+    source .env
+
+    if [ -z "$FRONTEND_USERNAME" ] || [ -z "$FRONTEND_PASSWORD" ]; then
+        echo "Error: FRONTEND_USERNAME and FRONTEND_PASSWORD must be set in .env before starting Artemis."
+        echo "Please edit the .env file and configure your login credentials."
+        exit 1
+    fi
+) || exit 1
+
 MODE="production"
 SINGLE_WORKER_MODE=false
 POSITIONAL_ARGS=()

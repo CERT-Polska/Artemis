@@ -1,3 +1,4 @@
+import json
 import random
 import urllib
 import uuid
@@ -5,7 +6,6 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
-import more_itertools
 from karton.core import Task
 
 from artemis import load_risk_class
@@ -228,10 +228,17 @@ class OrmInjectionDetector(ArtemisBase):
         return ", ".join(set(status_reason))
 
     @staticmethod
-    def create_data(message: Any) -> Dict[str, List[str] | dict[str, Any]]:
-        message = list(more_itertools.unique_everseen(message))
+    def create_data(message: Any) -> dict[str, Any]:
+        seen: set[str] = set()
+        deduplicated_message = []
+        for item in message:
+            item_json = json.dumps(item, sort_keys=True)
+            if item_json not in seen:
+                seen.add(item_json)
+                deduplicated_message.append(item)
+
         data = {
-            "result": message,
+            "result": deduplicated_message,
             "statements": {
                 "orm_injection": Statements.orm_injection.value,
                 "orm_sensitive_field_access": Statements.orm_sensitive_field_access.value,

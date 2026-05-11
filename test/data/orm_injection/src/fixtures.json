@@ -1,0 +1,65 @@
+[
+  {
+    "model": "posts.author",
+    "pk": 1,
+    "fields": {
+      "name": "Alice Johnson",
+      "email": "alice@example.com"
+    }
+  },
+  {
+    "model": "posts.author",
+    "pk": 2,
+    "fields": {
+      "name": "Bob Smith",
+      "email": "bob@example.com"
+    }
+  },
+  {
+    "model": "posts.category",
+    "pk": 1,
+    "fields": {
+      "name": "Technology"
+    }
+  },
+  {
+    "model": "posts.category",
+    "pk": 2,
+    "fields": {
+      "name": "Lifestyle"
+    }
+  },
+  {
+    "model": "posts.post",
+    "pk": 1,
+    "fields": {
+      "title": "Django Tips",
+      "content": "Some useful Django tips and tricks.",
+      "creation_date": "2024-01-15T10:00:00Z",
+      "author": 1,
+      "category": 1
+    }
+  },
+  {
+    "model": "posts.post",
+    "pk": 2,
+    "fields": {
+      "title": "Healthy Living",
+      "content": "Tips for a healthier lifestyle.",
+      "creation_date": "2024-02-20T14:30:00Z",
+      "author": 2,
+      "category": 2
+    }
+  },
+  {
+    "model": "posts.post",
+    "pk": 3,
+    "fields": {
+      "title": "AI Trends 2025",
+      "content": "Exploring the future of artificial intelligence.",
+      "creation_date": "2025-03-10T09:15:00Z",
+      "author": 1,
+      "category": 1
+    }
+  }
+]

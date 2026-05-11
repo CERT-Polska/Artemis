@@ -21,6 +21,7 @@ repos:
   rev: v1.19.1
   hooks:
   - id: mypy
+    exclude: ^test/data/
     args: [--strict]
     additional_dependencies:
     - aiohttp==3.13.3

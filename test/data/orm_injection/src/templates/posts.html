@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Modern font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Modern minimal CSS framework (Pico.css) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding-top: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .meta {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        button {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<main class="container">
+
+    <h1>🔍 Search Posts</h1>
+
+    <div class="search-box">
+        <form method="get">
+            <input name="creation_date__year__gte" placeholder="Created after or in year (e.g. 2024)">
+            <input name="category__name" placeholder="Category (e.g. Technology)">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if not posts %}
+        <p style="text-align:center; color:#64748b;">No posts found</p>
+    {% endif %}
+
+    {% for post in posts %}
+        <div class="card">
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.content }}</p>
+
+            <div class="meta">
+                <p><strong>Author:</strong> {{ post.author.name }}</p>
+                <p><strong>Category:</strong> {{ post.category.name }}</p>
+                <p><strong>Date:</strong> {{ post.creation_date }}</p>
+            </div>
+        </div>
+    {% endfor %}
+
+</main>
+</body>
+</html>

@@ -1,10 +1,12 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-WORKDIR /app
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY ./test/data/orm_injection/requirements.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY manage.py /app/
+COPY src/ /app/src/
+WORKDIR /app/
 
-EXPOSE 5000
-
-CMD ["python", "app.py"]
+RUN python manage.py migrate
+RUN python manage.py loaddata src/fixtures.json
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

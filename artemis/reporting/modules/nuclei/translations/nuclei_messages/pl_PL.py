@@ -997,6 +997,12 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "PostgreSQL Cluster Configuration Page was detected and appeared to be accessible without authentication.": "Wykryto stronę konfiguracyjną klastra PostgreSQL dostępną bez uwierzytelnienia.",
+    "SolarView Compact 6.00 was discovered to contain a command injection vulnerability via conf_mail.php.": "SolarView Compact w wersji 6.00 i potencjalnie wcześniejszych zawiera podatność zdalnego wykonania kodu o identyfikatorze CVE-2022-29303."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Ignite Realtime Openfire through version 4.4.2 allows attackers to send arbitrary HTTP GET requests in FaviconServlet.java, resulting in server-side request forgery.": "Ignite Realtime Openfire w wersji do 4.4.2 włącznie zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2019-18394, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
+    + UPDATE_HINT,
     "Blackbox Exporter was detected and appeared to be accessible without authentication.": "Wykryto system Blackbox Exporter dostępny bez uwierzytelnienia.",
     "The BJ Lazy Load plugin v0.7.5 for WordPress has a Remote File Inclusion vulnerability via TimThumb.": "Wtyczka WordPress o nazwie BJ Lazy Load w wersji 0.7.5 i potencjalnie wcześniejszych zawiera podatność Remote File Inclusion umożliwiającą atakującemu skanowanie sieci wewnętrznej i potencjalnie zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
@@ -2603,4 +2609,6 @@ TRANSLATIONS = {
     "Claris FileMaker Server Admin Console panel was detected.": "Wykryto panel Claris FileMaker Server Admin Console.",
     "Server Backup Manager SE login panel was detected.": "Wykryto panel Server Backup Manager SE.",
     "Detected Paperless-ngx was a self-hosted document management platform for scanning, OCR-ing and tagging paper documents.": "Wykryto system Paperless-ngx.",
+    "Fortinet FortiSandbox login panel was discovered.": "Wykryto panel logowania Fortinet FortiSandbox.",
+    "Frappe Helpdesk products was detected.": "Wykryto panel produktu Frappe Helpdesk.",
 }

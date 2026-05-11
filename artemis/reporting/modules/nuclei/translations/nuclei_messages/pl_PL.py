@@ -997,6 +997,12 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Blackbox Exporter was detected and appeared to be accessible without authentication.": "Wykryto system Blackbox Exporter dostępny bez uwierzytelnienia.",
+    "The BJ Lazy Load plugin v0.7.5 for WordPress has a Remote File Inclusion vulnerability via TimThumb.": "Wtyczka WordPress o nazwie BJ Lazy Load w wersji 0.7.5 i potencjalnie wcześniejszych zawiera podatność Remote File Inclusion umożliwiającą atakującemu skanowanie sieci wewnętrznej i potencjalnie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "Detected Redmine project management application was found to have been using the default administrator credentials (admin:admin). An attacker could have gained full administrative access to manage projects, users, and system settings.": "Wykryto oprogramowanie Redmine korzystające z domyślnych danych uwierzytelniających (admin:admin), co umożliwia atakującemu uzyskanie pełnego dostępu administracyjnego, w tym dostępu do projektów, użytkowników i ustawień systemowych.",
+    "Detected exposure of the Odoo website info page, which discloses installed applications and extensions that could aid reconnaissance.": "Wykryto publicznie dostępną stronę informacyjną Odoo, udostępniającą informacje o zainstalowanych aplikacjach i rozszerzeniach.",
     "Detects exposure of the Roundcube Webmail installer interface. Public access to this installer may allow attackers to reconfigure the webmail application, potentially leading to email account compromise or the disclosure of sensitive configuration details.": "Wykryto instalator systemu Roundcube Webmail. Udostępnienie instalatora może umożliwić atakującemu wprowadzenie zmian w konfiguracji, przejęcie treści wiadomości lub poznanie wrażliwych informacji konfiguracyjnych.",
     "Before Kentico Xperience 13 Hotfix 173, this vulnerability can be exploited with any username provided. For Hotfix >= 173 and < 178, this vulnerability can be exploited only if you provide a valid Staging Service username (default: admin)": "System Kentico Xperience w wersji do 13.0.178 zawiera podatność umożliwiającą atakującemu uzyskanie uprawnień administratora."
     + UPDATE_HINT,
@@ -2594,4 +2600,7 @@ TRANSLATIONS = {
     "Loxone Intercom Video panel was detected.": "Wykryto panel Loxone Intercom Video.",
     "Xeams Admin Console login panel was detected.": "Wykryto panel logowania Xeams Admin Console.",
     "SolarWinds Serv-U File Server panel was detected.": "Wykryto panel SolarWinds Serv-U File Server.",
+    "Claris FileMaker Server Admin Console panel was detected.": "Wykryto panel Claris FileMaker Server Admin Console.",
+    "Server Backup Manager SE login panel was detected.": "Wykryto panel Server Backup Manager SE.",
+    "Detected Paperless-ngx was a self-hosted document management platform for scanning, OCR-ing and tagging paper documents.": "Wykryto system Paperless-ngx.",
 }

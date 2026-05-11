@@ -38,9 +38,6 @@ class OrmInjectionDetectorTestCase(ArtemisModuleTestCase):
 
     def test_scan_with_raw_parameter_and_sibling_params(self) -> None:
         url = "http://test-django-with-orm-injection:8000/?category__name=Technology&creation_date__year__gte=2024"
-        findings = self.karton.scan(
-            [url],
-            Task({"type": TaskType.SERVICE.value, "service": Service.HTTP.value}, payload={}),
-        )
+        findings = self.karton.scan([url])
         self.assertTrue(findings)
         self.assertTrue(any(finding["url"] == url for finding in findings))

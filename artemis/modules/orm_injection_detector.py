@@ -1,5 +1,6 @@
 import random
 import urllib
+import uuid
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
@@ -21,7 +22,7 @@ from artemis.orm_injection_data import (
 )
 from artemis.task_utils import get_target_url
 
-UNLIKELY_VALUE = "ZZZXQQIMPOSSIBLE99"
+UNLIKELY_VALUE = uuid.uuid4().hex
 
 
 class Statements(Enum):
@@ -125,9 +126,7 @@ class OrmInjectionDetector(ArtemisBase):
             return ".*"
         return original_value
 
-    def _test_django_style_lookups(
-        self, current_url: str, base_url: str, query_params: Dict[str, List[str]]
-    ) -> List[Dict[str, Any]]:
+    def _test_django_style_lookups(self, current_url: str, query_params: Dict[str, List[str]]) -> List[Dict[str, Any]]:
         """Tests for Django-style ORM injection by appending lookup suffixes (e.g. __contains,
         __startswith) to existing query parameters and checking for differential responses."""
         results: List[Dict[str, Any]] = []
@@ -194,7 +193,7 @@ class OrmInjectionDetector(ArtemisBase):
 
         return results
 
-    def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
+    def scan(self, urls: List[str]) -> List[Dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
         message: List[Dict[str, Any]] = []
 
@@ -209,7 +208,7 @@ class OrmInjectionDetector(ArtemisBase):
             else:
                 params_to_test = {name: ["test"] for name in COMMON_PARAM_NAMES}
 
-            lookup_results = self._test_django_style_lookups(current_url, base_url, params_to_test)
+            lookup_results = self._test_django_style_lookups(current_url, params_to_test)
             message.extend(lookup_results)
             if lookup_results and Config.Modules.OrmInjectionDetector.ORM_INJECTION_STOP_ON_FIRST_MATCH:
                 return message
@@ -255,7 +254,7 @@ class OrmInjectionDetector(ArtemisBase):
 
         random.shuffle(links)
 
-        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
+        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN])
 
         if message:
             status = TaskStatus.INTERESTING

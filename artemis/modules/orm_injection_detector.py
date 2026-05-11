@@ -3,7 +3,7 @@ import random
 import urllib
 import uuid
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from karton.core import Task
@@ -75,7 +75,7 @@ class OrmInjectionDetector(ArtemisBase):
 
         return text_a != text_b
 
-    def _build_url_with_params(self, base_url: str, params: Dict[str, str]) -> str:
+    def _build_url_with_params(self, base_url: str, params: dict[str, str]) -> str:
         parsed = urlparse(base_url)
         existing_params = parse_qs(parsed.query)
         merged = {k: v[0] if isinstance(v, list) else v for k, v in existing_params.items()}
@@ -126,10 +126,10 @@ class OrmInjectionDetector(ArtemisBase):
             return ".*"
         return original_value
 
-    def _test_django_style_lookups(self, current_url: str, query_params: Dict[str, List[str]]) -> List[Dict[str, Any]]:
+    def _test_django_style_lookups(self, current_url: str, query_params: dict[str, list[str]]) -> list[dict[str, Any]]:
         """Tests for Django-style ORM injection by appending lookup suffixes (e.g. __contains,
         __startswith) to existing query parameters and checking for differential responses."""
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
 
         # Check once per URL, not per suffix
         if self._has_dynamic_content(current_url):
@@ -158,10 +158,10 @@ class OrmInjectionDetector(ArtemisBase):
 
         return results
 
-    def _test_django_sensitive_field_probes(self, base_url: str) -> List[Dict[str, Any]]:
+    def _test_django_sensitive_field_probes(self, base_url: str) -> list[dict[str, Any]]:
         """Probes for Django-style ORM access to sensitive database fields (e.g. password, is_admin)
         by injecting field__lookup parameters even on URLs without existing query parameters."""
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
 
         # Skip endpoints with non-deterministic content to avoid false positives
         if self._has_dynamic_content(base_url):
@@ -193,9 +193,9 @@ class OrmInjectionDetector(ArtemisBase):
 
         return results
 
-    def scan(self, urls: List[str]) -> List[Dict[str, Any]]:
+    def scan(self, urls: list[str]) -> list[dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
-        message: List[Dict[str, Any]] = []
+        message: list[dict[str, Any]] = []
 
         for current_url in urls:
             parsed = urlparse(current_url)

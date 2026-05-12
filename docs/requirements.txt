@@ -89,7 +89,7 @@ pycparser==3.0
 pycryptodome==3.23.0
 pydantic==2.12.5
 pydantic-core==2.41.5
-pydantic-settings==2.13.1
+pydantic-settings==2.14.0
 pygments==2.20.0
 pyleri==1.5.0
 pymysql==1.1.3

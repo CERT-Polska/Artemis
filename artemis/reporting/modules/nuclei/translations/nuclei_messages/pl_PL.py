@@ -1215,6 +1215,11 @@ TRANSLATIONS = {
     + RCE_EFFECT_DESCRIPTION,
     "Exposure of Sensitive Information to an Unauthorized Actor vulnerability in PickPlugins Post Grid Combo – 36+ Gutenberg Blocks.This issue affects Post Grid Combo – 36+ Gutenberg Blocks: from n/a through 2.2.50.": "Wtyczka WordPress o nazwie PickPlugins Post Grid Combo – 36+ Gutenberg Blocks w wersji do 2.2.50 zawiera podatność o identyfikatorze CVE-2023-40211 umożliwiającą atakującemu nieuprawniony dostęp do wrażliwych informacji."
     + WORDPRESS_UPDATE_HINT,
+    "pfSense pfBlockerNG through 2.1.4_26 is susceptible to OS command injection via root via shell metacharacters in the HTTP Host header. NOTE: 3.x is unaffected.": "pfSense pfBlockerNG w wersji do 2.1.4_26 włącznie zawiera podatność OS Command Injection o identyfikatorze CVE-2022-31814."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Detected Apache ActiveMQ Artemis console default login credentials were discovered.": "Wykryto panel Apache ActiveMQ Artemis, do którego można zalogować się domyślnymi danymi dostępowymi."
+    + DEFAULT_CREDENTIALS_HINT,
     "Apache ActiveMQ default login credentials were discovered.": "Wykryto system Apache ActiveMQ do którego można zalogować się domyślnymi danymi dostępowymi.",
     "Zimbra Collaboration (ZCS) 10.0 and 10.1 contain a local file inclusion caused by improper handling of user-supplied parameters in the RestFilter servlet, letting unauthenticated remote attackers include arbitrary files from WebRoot, exploit requires crafted requests to /h/rest endpoint.": "Zimbra Collaboration Suite (ZCS) w wersjach 10.0 i 10.1 zawiera podatność typu Local File Inclusion o identyfikatorze CVE-2025-68645. Luka ta umożliwia nieuwierzytelnionym atakującym zdalnie dołączenie dowolnych plików z katalogu WebRoot."
     + UPDATE_HINT,

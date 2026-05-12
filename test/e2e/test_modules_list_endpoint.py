@@ -15,15 +15,15 @@ class ModulesListEndpointTestCase(BaseE2ETestCase):
         data = response.json()
         self.assertIsInstance(data, list)
 
-        nuclei_module: Optional[Dict[str, Any]] = None
+        sql_injection_detector_module: Optional[Dict[str, Any]] = None
 
         for module in data:
             self.assertIsInstance(module, dict)
             self.assertIn("identity", module)
             self.assertIn("info", module)
-            if module["identity"] == "nuclei":
-                nuclei_module = module
+            if module["identity"] == "sql_injection_detector":
+                sql_injection_detector_module = module
 
-        self.assertTrue(nuclei_module)
-        self.assertEqual(nuclei_module["identity"], "nuclei")  # type: ignore
-        self.assertContains(nuclei_module["info"], "🔴 Scanned system load/risk: high.")  # type: ignore
+        self.assertTrue(sql_injection_detector_module)
+        self.assertEqual(sql_injection_detector_module["identity"], "sql_injection_detector")  # type: ignore
+        self.assertContains(sql_injection_detector_module["info"], "🔴 Scanned system load/risk: high.")  # type: ignore

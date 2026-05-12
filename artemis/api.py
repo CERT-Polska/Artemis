@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 import hmac
-from typing import Annotated, Any, Dict, List, Optional
+from typing import Annotated, Any, Dict, Optional
 
 import aiohttp
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
@@ -28,7 +28,12 @@ from artemis.task_utils import (
     get_analysis_num_finished_tasks,
     get_analysis_num_in_progress_tasks,
 )
-from artemis.templating import render_analyses_table_row, render_task_table_row
+from artemis.templating import (
+    dedent,
+    render_analyses_table_row,
+    render_markdown,
+    render_task_table_row,
+)
 
 router = APIRouter()
 db = DB()
@@ -68,10 +73,10 @@ def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
 
 @router.post("/add", dependencies=[Depends(verify_api_token)])
 def add(
-    targets: List[str],
+    targets: list[str],
     tag: Optional[str] = Body(default=None),
-    disabled_modules: Optional[List[str]] = Body(default=None),
-    enabled_modules: Optional[List[str]] = Body(default=None),
+    disabled_modules: Optional[list[str]] = Body(default=None),
+    enabled_modules: Optional[list[str]] = Body(default=None),
     requests_per_second_override: Optional[float] = Body(default=None),
     priority: str = Body(default="normal"),
     module_runtime_configurations: Optional[Dict[str, Dict[str, Any]]] = Body(default=None),
@@ -134,7 +139,7 @@ def add(
 
 
 @router.get("/analyses", dependencies=[Depends(verify_api_token)])
-def list_analysis() -> List[Dict[str, Any]]:
+def list_analysis() -> list[Dict[str, Any]]:
     """Returns the list of analysed targets. Any scanned target would be listed here."""
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
     analyses = db.list_analysis()
@@ -143,8 +148,20 @@ def list_analysis() -> List[Dict[str, Any]]:
     return analyses
 
 
+@router.get("/get-modules-that-can-be-disabled", dependencies=[Depends(verify_api_token)])
+def get_binds_that_can_be_disabled_endpoint() -> list[dict[str, str]]:
+    """Returns the list of modules that can be disabled when adding a new scanning task."""
+    return [
+        {
+            "identity": bind.identity,
+            "info": render_markdown(dedent(bind.info)),
+        }
+        for bind in get_binds_that_can_be_disabled()
+    ]
+
+
 @router.get("/num-queued-tasks", dependencies=[Depends(verify_api_token)])
-def num_queued_tasks(karton_names: Optional[List[str]] = None) -> int:
+def num_queued_tasks(karton_names: Optional[list[str]] = None) -> int:
     """Return the number of queued tasks for all or only some kartons."""
     # We check the backend redis queue length directly to avoid the long runtimes of
     # KartonState.get_all_tasks()
@@ -166,7 +183,7 @@ def get_task_results(
     page_size: int = 100,
     analysis_id: Optional[str] = None,
     search: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+) -> list[Dict[str, Any]]:
     """Return raw results of the scanning tasks."""
     return db.get_paginated_task_results(
         start=(page - 1) * page_size,
@@ -199,8 +216,8 @@ def archive_tag(tag: str) -> Dict[str, bool]:
 
 
 @router.get("/exports", dependencies=[Depends(verify_api_token)])
-def get_exports(tag_prefix: Optional[str] = None) -> List[ReportGenerationTaskModel]:
-    """List all exports. An export is a request to create human-readable messages that may be sent to scanned entities."""
+def get_exports(tag_prefix: Optional[str] = None) -> list[ReportGenerationTaskModel]:
+    """list all exports. An export is a request to create human-readable messages that may be sent to scanned entities."""
     return [
         ReportGenerationTaskModel(
             id=task.id,
@@ -370,7 +387,7 @@ def get_task_results_table(
     }
 
 
-def _get_ordering(request: Request, column_names: List[Optional[str]]) -> List[ColumnOrdering]:
+def _get_ordering(request: Request, column_names: list[Optional[str]]) -> list[ColumnOrdering]:
     ordering = []
 
     # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]

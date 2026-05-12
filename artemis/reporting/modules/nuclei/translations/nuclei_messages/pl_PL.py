@@ -2611,4 +2611,5 @@ TRANSLATIONS = {
     "Detected Paperless-ngx was a self-hosted document management platform for scanning, OCR-ing and tagging paper documents.": "Wykryto system Paperless-ngx.",
     "Fortinet FortiSandbox login panel was discovered.": "Wykryto panel logowania Fortinet FortiSandbox.",
     "Frappe Helpdesk products was detected.": "Wykryto panel produktu Frappe Helpdesk.",
+    "The YSoft SafeQ panel is umbrella printer management software used by many printer vendors. This should not be exposed to the public internet.": "Wykryto panel YSoft SafeQ.",
 }

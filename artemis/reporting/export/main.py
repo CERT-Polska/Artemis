@@ -91,7 +91,7 @@ def unwrap(html: str) -> str:
 
 
 def _add_cve_link_to_rendered_html_body(html: str) -> str:
-    CVE_ID_REGEX = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
+    CVE_ID_REGEX = re.compile(r"\bCVE-\d{4}-\d{4,}\b")
     soup = bs4.BeautifulSoup(html, "html.parser")
 
     if not soup.body:
@@ -133,6 +133,8 @@ def _add_cve_link_to_rendered_html_body(html: str) -> str:
 
     return str(soup)
 
+
+postprocess_rendered_html = _add_cve_link_to_rendered_html_body
 
 def build_message_template_and_print_path(environment: Environment, output_dir: Path, silent: bool) -> Template:
     output_message_template_file_name = output_dir / "advanced" / "message_template.jinja2"
@@ -192,7 +194,7 @@ def _build_messages_and_print_path(
 
         with open(output_messages_directory_name / (top_level_target_shortened + ".html"), "w") as f:
             rendered_message = message_template.render({"data": export_data_dict["messages"][top_level_target]})
-            f.write(_add_cve_link_to_rendered_html_body(rendered_message))
+            f.write(postprocess_rendered_html(rendered_message))
 
     for message in export_data.messages.values():
         for report in message.reports:
@@ -204,7 +206,7 @@ def _build_messages_and_print_path(
             message_data["custom_template_arguments"]["skip_html_and_body_tags"] = True  # type: ignore
             message_data["custom_template_arguments"]["skip_header_and_footer_text"] = True  # type: ignore
             rendered_report = message_template.render({"data": message_data})
-            report.html = unwrap(_add_cve_link_to_rendered_html_body(rendered_report))
+            report.html = unwrap(postprocess_rendered_html(rendered_report))
 
     if not silent:
         print()

@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Dict, Optional, Union
 
@@ -89,6 +90,50 @@ def unwrap(html: str) -> str:
     return soup.renderContents().decode("utf-8", "ignore")
 
 
+def _add_cve_link_to_rendered_html_body(html: str) -> str:
+    CVE_ID_REGEX = re.compile(r"\bCVE-\d{4}-\d{4,}\b", re.IGNORECASE)
+    soup = bs4.BeautifulSoup(html, "html.parser")
+
+    if not soup.body:
+        return str(soup)
+
+    for text_node in soup.body.find_all(string=True):
+        if not text_node.strip():
+            continue
+
+        parent_node = text_node.parent
+        if not parent_node:
+            continue
+
+        if parent_node.name in ["script", "style", "a"]:
+            continue
+
+        original_text = str(text_node)
+
+        replacement_nodes: list[str | bs4.Tag] = []
+        cursor = 0
+        for match in CVE_ID_REGEX.finditer(original_text):
+            start, end = match.span()
+            if start > cursor:
+                replacement_nodes.append(original_text[cursor:start])
+
+            cve_display = match.group(0).upper()
+            link_tag = soup.new_tag(
+                "a",
+                href=f"https://www.cve.org/CVERecord?id={cve_display}",
+            )
+            link_tag.string = cve_display
+            replacement_nodes.append(link_tag)
+            cursor = end
+
+        if cursor < len(original_text):
+            replacement_nodes.append(original_text[cursor:])
+
+        text_node.replace_with(*replacement_nodes)
+
+    return str(soup)
+
+
 def build_message_template_and_print_path(environment: Environment, output_dir: Path, silent: bool) -> Template:
     output_message_template_file_name = output_dir / "advanced" / "message_template.jinja2"
 
@@ -146,7 +191,8 @@ def _build_messages_and_print_path(
         top_level_target_shortened = top_level_target_shortened.replace("/", "_")
 
         with open(output_messages_directory_name / (top_level_target_shortened + ".html"), "w") as f:
-            f.write(message_template.render({"data": export_data_dict["messages"][top_level_target]}))
+            rendered_message = message_template.render({"data": export_data_dict["messages"][top_level_target]})
+            f.write(_add_cve_link_to_rendered_html_body(rendered_message))
 
     for message in export_data.messages.values():
         for report in message.reports:
@@ -157,7 +203,8 @@ def _build_messages_and_print_path(
             }
             message_data["custom_template_arguments"]["skip_html_and_body_tags"] = True  # type: ignore
             message_data["custom_template_arguments"]["skip_header_and_footer_text"] = True  # type: ignore
-            report.html = unwrap(message_template.render({"data": message_data}))
+            rendered_report = message_template.render({"data": message_data})
+            report.html = unwrap(_add_cve_link_to_rendered_html_body(rendered_report))
 
     if not silent:
         print()

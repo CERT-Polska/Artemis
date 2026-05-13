@@ -2166,6 +2166,8 @@ TRANSLATIONS = {
     'The command injection vulnerability in the CGI program "remote_help-cgi" in Zyxel NAS326 firmware versions before V5.21(AAZF.17)C0 and NAS542 firmware versions before V5.21(ABAG.14)C0 could allow an unauthenticated attacker to execute some operating system (OS) commands by sending a crafted HTTP POST request.': "Zyxel NAS326 w wersji oprogramowania poniżej V5.21(AAZF.17)C0 i NAS542 w wersji poniżej V5.21(ABAG.14)C0 zawierają podatność command injection o identyfikatorze CVE-2024-29972, umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Mail Mint WordPress plugin < 1.19.5 contains an information disclosure vulnerability caused by lack of authorization in a REST API endpoint, letting unauthenticated users retrieve email addresses of blog users, exploit requires no authentication.": "Wtyczka WordPress o nazwie Mail Mint w wersji poniżej 1.19.5 zawiera podatność o identyfikatorze CVE-2026-2025, umożliwiającą atakującemu dostęp do adresów email użytkowników."
+    + WORDPRESS_UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2540,6 +2542,7 @@ TRANSLATIONS = {
     "Scalar API documentation panel was detected.": "Wykryto panel dokumentacji Scalar API.",
     "ZOHO ManageEngine KeyManagerPlus panel was detected.": "Wykryto panel ZOHO ManageEngine KeyManagerPlus.",
     "AdGuard Installation panel has been exposed.": "Wykryto panel instalacyjny systemu AdGuard.",
+    "FreeScout is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto panel instalacyjny systemu FreeScout.",
     "Linksys Smart Wi-Fi login panel was detected.": "Wykryto panel logowania Linksys Smart Wi-Fi.",
     "A Python based monitoring and tracking tool for Plex Media Server.": "Wykryto panel systemu Tautulli.",
     "A Cyber Chef Panel was detected": "Wykryto panel Cyber Chef.",

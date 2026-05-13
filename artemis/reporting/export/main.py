@@ -136,6 +136,7 @@ def _add_cve_link_to_rendered_html_body(html: str) -> str:
 
 postprocess_rendered_html = _add_cve_link_to_rendered_html_body
 
+
 def build_message_template_and_print_path(environment: Environment, output_dir: Path, silent: bool) -> Template:
     output_message_template_file_name = output_dir / "advanced" / "message_template.jinja2"
 

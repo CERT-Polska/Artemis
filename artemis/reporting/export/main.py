@@ -94,10 +94,7 @@ def _add_cve_link_to_rendered_html_body(html: str) -> str:
     CVE_ID_REGEX = re.compile(r"\bCVE-\d{4}-\d{4,}\b")
     soup = bs4.BeautifulSoup(html, "html.parser")
 
-    if not soup.body:
-        return str(soup)
-
-    for text_node in soup.body.find_all(string=True):
+    for text_node in soup.find_all(string=True):
         if not text_node.strip():
             continue
 

@@ -12,6 +12,14 @@ class CVEAddTestCase(unittest.TestCase):
         )
         self.assertEqual(_add_cve_link_to_rendered_html_body(input_html), expected_output)
 
+    def test_cve_in_tags(self) -> None:
+        input_html = "<p>This is a vulnerability: <b>CVE-2021-12345</b>. And another one: <i>CVE-2020-54321</i></p>."
+        expected_output = (
+            '<p>This is a vulnerability: <b><a href="https://www.cve.org/CVERecord?id=CVE-2021-12345">CVE-2021-12345</a></b>. '
+            'And another one: <i><a href="https://www.cve.org/CVERecord?id=CVE-2020-54321">CVE-2020-54321</a></i></p>.'
+        )
+        self.assertEqual(_add_cve_link_to_rendered_html_body(input_html), expected_output)
+
     def test_nothing_added_inside_links(self) -> None:
         input_html = 'This is a link: <a href="https://example.com">CVE-2021-12345</a>.'
         expected_output = 'This is a link: <a href="https://example.com">CVE-2021-12345</a>.'

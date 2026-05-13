@@ -26,4 +26,4 @@ class ModulesListEndpointTestCase(BaseE2ETestCase):
 
         self.assertTrue(sql_injection_detector_module)
         self.assertEqual(sql_injection_detector_module["identity"], "sql_injection_detector")  # type: ignore
-        self.assertContains(sql_injection_detector_module["info"], "🔴 Scanned system load/risk: high.")  # type: ignore
+        self.assertTrue("🔴 Scanned system load/risk: high." in sql_injection_detector_module["info"])  # type: ignore

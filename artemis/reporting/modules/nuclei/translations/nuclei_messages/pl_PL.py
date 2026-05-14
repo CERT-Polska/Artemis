@@ -997,7 +997,9 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
-    "WordPress Simple Fields 0.2 is vulnerable to local file inclusion, remote file inclusion, and remote code execution.": "Wtyczka WordPress o nazwie Simple Fields w wersji 0.2 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion, Remote File Inclusion oraz zdalnego wykonania kodu, umożliwiającą atakującemu odczyt dowolnych plików z serwera, a także wykonanie dowolnego kodu." + RCE_EFFECT_DESCRIPTION + WORDPRESS_UPDATE_HINT,
+    "WordPress Simple Fields 0.2 is vulnerable to local file inclusion, remote file inclusion, and remote code execution.": "Wtyczka WordPress o nazwie Simple Fields w wersji 0.2 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion, Remote File Inclusion oraz zdalnego wykonania kodu, umożliwiającą atakującemu odczyt dowolnych plików z serwera, a także wykonanie dowolnego kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
     "PostgreSQL Cluster Configuration Page was detected and appeared to be accessible without authentication.": "Wykryto stronę konfiguracyjną klastra PostgreSQL dostępną bez uwierzytelnienia.",
     "SolarView Compact 6.00 was discovered to contain a command injection vulnerability via conf_mail.php.": "SolarView Compact w wersji 6.00 i potencjalnie wcześniejszych zawiera podatność zdalnego wykonania kodu o identyfikatorze CVE-2022-29303."
     + RCE_EFFECT_DESCRIPTION

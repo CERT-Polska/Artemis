@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from src.posts.views import post_list
+from src.posts.views import post_list  # type: ignore[import-not-found]
 
 urlpatterns = [
     path("", post_list, name="post_list"),

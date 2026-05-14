@@ -15,7 +15,7 @@ def post_list(request: HttpRequest) -> HttpResponse:
                 filters[key] = values
 
         if "year" in key and key in filters:
-            filters[key] = int(filters[key])
+            filters[key] = int(filters[key])  # type: ignore[call-overload]
 
     posts: QuerySet[Post] = Post.objects.filter(**filters)
 

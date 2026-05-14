@@ -45,6 +45,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "backwpup",
     "boldgrid-easy-seo",
     "booking",
+    "dashboard-welcome-for-elementor",
     "everest-forms",
     "permalink-manager",
     "social-pug",

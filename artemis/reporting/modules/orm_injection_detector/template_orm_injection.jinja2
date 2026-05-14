@@ -19,9 +19,8 @@
                                 :
                                 {% trans trimmed %}
                                     ORM sensitive field access: the endpoint allows filtering on sensitive fields
-                                    (such as password hashes, admin flags, or email addresses) through ORM lookup
-                                    parameters. An attacker can use this to enumerate users, extract password hashes,
-                                    or identify privileged accounts.
+                                    (such as password hashes or email addresses) through ORM lookup
+                                    parameters. An attacker can use this to enumerate users or extract password hashes.
                                 {% endtrans %}
                             {% endif %}
                         </li>

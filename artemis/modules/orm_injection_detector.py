@@ -2,6 +2,7 @@ import json
 import random
 import urllib
 import uuid
+from difflib import SequenceMatcher
 from enum import Enum
 from typing import Any, Optional
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
@@ -11,12 +12,15 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.crawling import (
+    get_injectable_parameters,
+    get_links_and_resources_on_same_domain,
+)
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
+from artemis.modules.data.parameters import URL_PARAMS
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.orm_injection_data import (
-    COMMON_PARAM_NAMES,
     ORM_LOOKUP_SUFFIXES,
     SENSITIVE_FIELD_PROBES,
 )
@@ -73,7 +77,7 @@ class OrmInjectionDetector(ArtemisBase):
         text_a = self._get_response_text(response_a)
         text_b = self._get_response_text(response_b)
 
-        return text_a != text_b
+        return SequenceMatcher(None, text_a, text_b).quick_ratio() < 0.9
 
     def _build_url_with_params(self, base_url: str, params: dict[str, str]) -> str:
         parsed = urlparse(base_url)
@@ -102,7 +106,9 @@ class OrmInjectionDetector(ArtemisBase):
         base = self._strip_query_string(original_url)
 
         url_likely = self._build_url_with_params(base, {**siblings, param_with_suffix: likely_value})
-        url_unlikely = self._build_url_with_params(base, {**siblings, param_with_suffix: UNLIKELY_VALUE})
+        url_unlikely = self._build_url_with_params(
+            base, {**siblings, param_with_suffix: self._get_django_unlikely_value(suffix)}
+        )
 
         response_likely = self.forgiving_http_get(url_likely)
         response_unlikely = self.forgiving_http_get(url_unlikely)
@@ -125,6 +131,16 @@ class OrmInjectionDetector(ArtemisBase):
         elif suffix in ("__regex", "__iregex"):
             return ".*"
         return original_value
+
+    @staticmethod
+    def _get_django_unlikely_value(suffix: str) -> str:
+        # UUID hex (a–f) makes field__lt=<uuid> match all rows with typical text values.
+        # UUID can also be less than values starting with g–z, so field__gt=<uuid> may match rows too.
+        if suffix in ("__lt", "__lte"):
+            return ""
+        if suffix in ("__gt", "__gte"):
+            return "~" * 20
+        return UNLIKELY_VALUE
 
     def _test_django_style_lookups(self, current_url: str, query_params: dict[str, list[str]]) -> list[dict[str, Any]]:
         """Tests for Django-style ORM injection by appending lookup suffixes (e.g. __contains,
@@ -171,7 +187,9 @@ class OrmInjectionDetector(ArtemisBase):
             param_with_lookup = f"{field_name}__{lookup}"
 
             url_with_probe = self._build_url_with_params(base_url, {param_with_lookup: probe_value})
-            url_with_unlikely = self._build_url_with_params(base_url, {param_with_lookup: UNLIKELY_VALUE})
+            url_with_unlikely = self._build_url_with_params(
+                base_url, {param_with_lookup: self._get_django_unlikely_value(f"__{lookup}")}
+            )
 
             response_probe = self.forgiving_http_get(url_with_probe)
             response_unlikely = self.forgiving_http_get(url_with_unlikely)
@@ -202,11 +220,9 @@ class OrmInjectionDetector(ArtemisBase):
             query_params = parse_qs(parsed.query)
             base_url = self._strip_query_string(current_url)
 
-            # Use existing query params if present, otherwise probe with common param names
-            if query_params:
-                params_to_test = query_params
-            else:
-                params_to_test = {name: ["test"] for name in COMMON_PARAM_NAMES}
+            injectable = get_injectable_parameters(current_url)
+            all_param_names = list(dict.fromkeys(list(query_params.keys()) + injectable + list(URL_PARAMS)))
+            params_to_test = {name: query_params.get(name, ["test"]) for name in all_param_names}
 
             lookup_results = self._test_django_style_lookups(current_url, params_to_test)
             message.extend(lookup_results)

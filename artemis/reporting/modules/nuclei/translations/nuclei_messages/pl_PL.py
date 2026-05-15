@@ -997,6 +997,7 @@ TRANSLATIONS = {
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Detected Piwik/Matomo instances exposing analytics data without authentication. When anonymous access was enabled, the API returned visitor statistics, page views, and other sensitive analytics data using the anonymous token.": "Wykryto instancję Piwik/Matomo udostępniającą dane analityczne bez uwierzytelnienia. Jeśli dostęp anonimowy jest włączony, API zwraca statystyki odwiedzin, wyświetleń stron i inne wrażliwe dane analityczne przy użyciu anonimowego tokena.",
     "WordPress Simple Fields 0.2 is vulnerable to local file inclusion, remote file inclusion, and remote code execution.": "Wtyczka WordPress o nazwie Simple Fields w wersji 0.2 i potencjalnie wcześniejszych zawiera podatność Local File Inclusion, Remote File Inclusion oraz zdalnego wykonania kodu, umożliwiającą atakującemu odczyt dowolnych plików z serwera, a także wykonanie dowolnego kodu."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,

@@ -134,3 +134,4 @@ class TaskStatus(str, Enum):
     OK = "OK"
     ERROR = "ERROR"
     INTERESTING = "INTERESTING"
+    SKIPPED = "SKIPPED"

@@ -178,7 +178,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
 
                 version = (
                     re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|=|<h4>|</h4>|\|)", " ", line)
-                    .strip()
+                    .strip(" .")
                     # Some versions are prefixed with 'v' (e.g. v1.0.0)
                     .lstrip("v")
                     .split(" ")[0]

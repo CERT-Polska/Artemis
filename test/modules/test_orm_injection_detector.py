@@ -22,10 +22,12 @@ class OrmInjectionDetectorTestCase(ArtemisModuleTestCase):
         parameters = {result["parameter"] for result in results}
 
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertTrue(len(results) >= 2)
         for result in call.kwargs["data"]["result"]:
             self.assertIn("test-django-with-orm-injection:8000", result["url"])
 
+        self.assertIn("category__name", parameters)
+        self.assertIn("content", parameters)
+        self.assertIn("id", parameters)
         self.assertIn("title", parameters)
 
     def test_lookup_suffix_with_existing_lookup_param_preserves_siblings_and_baseline(self) -> None:

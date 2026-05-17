@@ -370,6 +370,35 @@ class Config:
                 "doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.",
             ] = get_config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
 
+        class Crawling:
+            KATANA_DEPTH: Annotated[int, "Crawl depth passed to Katana (-d)."] = get_config(
+                "KATANA_DEPTH", default=3, cast=int
+            )
+
+            KATANA_MAX_URLS: Annotated[int, "Hard cap on URLs collected by Katana per target (passed as -mdp)."] = (
+                get_config("KATANA_MAX_URLS", default=2000, cast=int)
+            )
+
+            KATANA_TIMEOUT_SECONDS: Annotated[
+                int,
+                "Subprocess-level timeout for the Katana run, separate from TASK_TIMEOUT_SECONDS. On timeout, partial "
+                "output is parsed and cached with KATANA_TIMEOUT_CACHE_TTL_SECONDS.",
+            ] = get_config("KATANA_TIMEOUT_SECONDS", default=180, cast=int)
+
+            KATANA_CONCURRENCY: Annotated[int, "Katana internal concurrency (-c)."] = get_config(
+                "KATANA_CONCURRENCY", default=10, cast=int
+            )
+
+            CRAWL_CACHE_TTL_SECONDS: Annotated[int, "Redis TTL for a successful crawl result."] = get_config(
+                "CRAWL_CACHE_TTL_SECONDS", default=24 * 60 * 60, cast=int
+            )
+
+            KATANA_TIMEOUT_CACHE_TTL_SECONDS: Annotated[
+                int,
+                "Redis TTL when a crawl timed out and we are caching partial output. Shorter than full TTL so we "
+                "retry sooner.",
+            ] = get_config("KATANA_TIMEOUT_CACHE_TTL_SECONDS", default=60 * 60, cast=int)
+
         class DanglingDnsDetector:
             DANGLING_DNS_SKIP_ROOT_DOMAIN: Annotated[
                 bool, "If set to True, detector will not perform checks against the root domain."

@@ -17,7 +17,14 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={"host": "test-apache-with-sql-injection-postgres", "port": 80},
         )
-        self.run_task(task)
+        with patch(
+            "artemis.modules.sql_injection_detector.crawl_and_filter",
+            return_value=[
+                "http://test-apache-with-sql-injection-postgres:80/sql_injection.php",
+                "http://test-apache-with-sql-injection-postgres:80/headers_vuln.php",
+            ],
+        ):
+            self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
 
         sqli_message = "http://test-apache-with-sql-injection-postgres:80/sql_injection.php?id='\""
@@ -83,7 +90,14 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             payload={"host": "test-apache-with-sql-injection-mysql", "port": 80},
         )
 
-        self.run_task(task)
+        with patch(
+            "artemis.modules.sql_injection_detector.crawl_and_filter",
+            return_value=[
+                "http://test-apache-with-sql-injection-mysql:80/sql_injection.php",
+                "http://test-apache-with-sql-injection-mysql:80/headers_vuln.php",
+            ],
+        ):
+            self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
 
         sqli_message = "http://test-apache-with-sql-injection-mysql:80/sql_injection.php?id='\""

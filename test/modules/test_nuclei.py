@@ -11,6 +11,15 @@ class NucleiTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = Nuclei  # type: ignore
 
+    def setUp(self) -> None:
+        self.crawl_patcher = patch(
+            "artemis.modules.nuclei.crawl_and_filter",
+            return_value=[],
+        )
+        self.crawl_mock = self.crawl_patcher.start()
+        self.addCleanup(self.crawl_patcher.stop)
+        return super().setUp()
+
     def test_severity_threshold(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
@@ -42,6 +51,7 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
 
     def test_dast_template(self) -> None:
+        self.crawl_mock.return_value = ["http://test-dast-vuln-app:5000/ssti?template=Testing"]
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
@@ -77,6 +87,13 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
     karton_class = Nuclei  # type: ignore
 
     def setUp(self) -> None:
+        self.crawl_patcher = patch(
+            "artemis.modules.nuclei.crawl_and_filter",
+            return_value=[],
+        )
+        self.crawl_mock = self.crawl_patcher.start()
+        self.addCleanup(self.crawl_patcher.stop)
+
         # list of templates used in tests
         self.patcher = patch(
             "artemis.config.Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
@@ -129,6 +146,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         )
 
     def test_links(self) -> None:
+        self.crawl_mock.return_value = ["http://test-php-xss-but-not-on-homepage:80/xss.php"]
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={

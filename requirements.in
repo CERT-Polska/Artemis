@@ -55,6 +55,7 @@ tqdm
 typer
 typing-extensions
 unittest-parallel
+uro
 urllib3
 uvicorn
 validators

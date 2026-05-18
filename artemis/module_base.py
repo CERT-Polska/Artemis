@@ -435,8 +435,9 @@ class ArtemisBase(Karton):
             return [], [], 0
 
         try:
-            tasks = []
+            tasks: list[Task] = []
             locks: List[Optional[ResourceLock]] = []
+            selected_batch_group_key: str | None = None
 
             if (
                 float(REDIS.get(f"queue_location_timestamp-{self.identity}") or 0)
@@ -470,6 +471,13 @@ class ArtemisBase(Karton):
                         self.backend.redis.lrem(queue, 1, item)
                         continue
 
+                    task_batch_group_key = self.get_batch_group_key(task)
+                    task_belongs_to_current_processed_batch_tasks = (
+                        task_batch_group_key == selected_batch_group_key or len(tasks) == 0
+                    )
+                    if not task_belongs_to_current_processed_batch_tasks:
+                        continue
+
                     scan_destination = self._get_scan_destination(task)
 
                     if self.lock_target:
@@ -484,6 +492,8 @@ class ArtemisBase(Karton):
                                 lock.acquire()
                                 tasks.append(task)
                                 locks.append(lock)
+                                if len(tasks) == 1:
+                                    selected_batch_group_key = task_batch_group_key
                                 self.log.info(
                                     "[taking tasks] Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s), %d/%d locked",
                                     task.uid,
@@ -508,6 +518,8 @@ class ArtemisBase(Karton):
                     else:
                         tasks.append(task)
                         locks.append(None)
+                        if len(tasks) == 1:
+                            selected_batch_group_key = task_batch_group_key
                         self.backend.redis.lrem(queue, 1, item)
                         if len(tasks) >= num_tasks:
                             break
@@ -588,6 +600,10 @@ class ArtemisBase(Karton):
 
     def run_multiple(self, tasks: List[Task]) -> None:
         raise NotImplementedError()
+
+    def get_batch_group_key(self, _task: Task) -> str | None:
+        """Return a grouping key used when taking a batch of tasks from queue."""
+        return None
 
     def internal_process_multiple(self, tasks: List[Task]) -> None:
         if not tasks:
@@ -802,7 +818,7 @@ class ArtemisBase(Karton):
                 result = self._get_ip_for_locking(host)
             except UnknownIPException:
                 result = host
-        elif task.headers["type"] == TaskType.SERVICE:
+        elif task.headers["type"] == TaskType.SERVICE or task.headers["type"] == TaskType.NUCLEI_TARGET:
             try:
                 result = self._get_ip_for_locking(task.payload["host"])
             except UnknownIPException:

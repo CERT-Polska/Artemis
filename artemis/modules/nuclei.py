@@ -18,7 +18,7 @@ from karton.core import Task
 from prometheus_client import Counter, Histogram, start_http_server
 
 from artemis import load_risk_class
-from artemis.binds import Service, TaskStatus, TaskType
+from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import (
     add_injectable_params_and_common_params_from_wordlist,
@@ -29,6 +29,7 @@ from artemis.modules.base.runtime_configuration_registry import (
     RuntimeConfigurationRegistry,
 )
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
+from artemis.modules.nuclei_router import NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY
 from artemis.modules.runtime_configuration.nuclei_configuration import (
     NucleiConfiguration,
     SeverityThreshold,
@@ -192,13 +193,29 @@ class Nuclei(ArtemisBase):
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
-    identity = "nuclei"
+    identity = "nuclei-module"
     filters = [
-        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+        {"type": TaskType.NUCLEI_TARGET.value},
     ]
 
     batch_tasks = True
     task_max_batch_size = Config.Modules.Nuclei.NUCLEI_MAX_BATCH_SIZE
+
+    def _get_nuclei_router_flags(self, tasks: list[Task]) -> list[str]:
+        if len(tasks) == 0:
+            return []
+        first_task_flags = tasks[0].payload.get(NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY, [])
+        if not isinstance(first_task_flags, list):
+            return []
+
+        if any(task.payload.get(NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY, []) != first_task_flags for task in tasks[1:]):
+            self.log.warning("Nuclei picked up tasks from different groups")
+            return []
+
+        return [item for item in first_task_flags if isinstance(item, str)]
+
+    def get_batch_group_key(self, task: Task) -> str | None:
+        return "\x1f".join(self._get_nuclei_router_flags([task]))
 
     def get_default_configuration(self) -> NucleiConfiguration:
         """
@@ -622,6 +639,12 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
+        scan_tag_args = ["-itags", ",".join(TAGS_TO_INCLUDE)]
+        router_flags = self._get_nuclei_router_flags(tasks)
+        scan_tag_args.extend(router_flags)
+
+        self.log.info("Using router flags: %s", router_flags)
+
         templates = []
 
         severity_levels = (
@@ -648,14 +671,8 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        findings = self._scan(
-            templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
-        )
-        findings.extend(
-            self._scan(
-                self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
-            )
-        )
+        findings = self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args)
+        findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=scan_tag_args))
 
         # DAST scanning
         dast_targets: List[str] = []
@@ -713,7 +730,7 @@ class Nuclei(ArtemisBase):
                     ],
                     ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
-                    extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)],
+                    extra_nuclei_args=scan_tag_args,
                 )
             )
 

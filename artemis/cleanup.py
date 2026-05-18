@@ -19,6 +19,25 @@ OLD_MODULES = ["dalfox", "http_service_to_url"]
 db = DB()
 
 
+def _migrate_nuclei_queues() -> None:
+    backend = KartonBackend(config=KartonConfig())
+
+    for source_queue in backend.redis.scan_iter(match="karton.queue.*:nuclei"):
+        destination_queue = source_queue[: -len(":nuclei")] + ":nuclei-router"
+
+        moved_in_queue = 0
+        while backend.redis.rpoplpush(source_queue, destination_queue):  # type: ignore
+            moved_in_queue += 1
+
+        if moved_in_queue > 0:
+            logger.info(
+                "Migrated %d task(s) from %s to %s",
+                moved_in_queue,
+                source_queue,
+                destination_queue,
+            )
+
+
 def _cleanup_tasks_not_in_queues() -> None:
     # Until https://github.com/CERT-Polska/karton/issues/262 gets fixed, let's have our own cleanup routine
     backend = KartonBackend(config=KartonConfig())
@@ -113,6 +132,7 @@ def _cleanup_scheduled_tasks() -> None:
 
 
 def cleanup() -> None:
+    _migrate_nuclei_queues()
     _cleanup_tasks_not_in_queues()
     _cleanup_queues()
     _cleanup_scheduled_tasks()

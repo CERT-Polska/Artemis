@@ -207,6 +207,25 @@ class Nuclei(ArtemisBase):
         """
         return NucleiConfiguration(severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
 
+    def get_runtime_configuration(self, task: Task) -> NucleiConfiguration:
+        configuration = self.get_default_configuration()
+
+        config_dict = task.payload_persistent.get("module_runtime_configurations", {}).get(self.identity)
+        if config_dict is None:
+            return configuration
+        try:
+            configuration = NucleiConfiguration.deserialize(config_dict)
+            if not configuration.validate():
+                raise ValueError(f"Invalid configuration for module {self.identity}")
+        except (KeyError, TypeError, ValueError) as exc:
+            self.log.warning(f"Failed to load configuration from task payload: {exc}")
+            return self.get_default_configuration()
+        return configuration
+
+    def get_batch_group_key(self, task: Task) -> str | None:
+        configuration = self.get_runtime_configuration(task)
+        return configuration.severity_threshold.value
+
     def _should_scan_template(self, template: str) -> bool:
         if Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN:
             return template in Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN
@@ -620,10 +639,11 @@ class Nuclei(ArtemisBase):
 
     def run_multiple(self, tasks: List[Task]) -> None:
         templates = []
+        configuration = self.get_runtime_configuration(tasks[0])
 
         severity_levels = (
-            self.configuration.get_severity_options()  # type: ignore
-            if self.configuration
+            configuration.get_severity_options()
+            if tasks
             else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
         )
 

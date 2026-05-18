@@ -39,6 +39,26 @@ class MailDNSScanner(ArtemisBase):
     def get_default_configuration(self) -> MailDNSScannerConfiguration:
         return MailDNSScannerConfiguration()
 
+    def get_runtime_configuration(self, task: Task) -> MailDNSScannerConfiguration:
+        configuration = self.get_default_configuration()
+
+        config_dict = task.payload_persistent.get("module_runtime_configurations", {}).get(self.identity)
+        if config_dict is None:
+            return configuration
+
+        try:
+            configuration = MailDNSScannerConfiguration.deserialize(config_dict)
+            if not configuration.validate():
+                raise ValueError(f"Invalid configuration for module {self.identity}")
+        except (KeyError, TypeError, ValueError) as exc:
+            self.log.warning(f"Failed to load configuration from task payload: {exc}")
+            return self.get_default_configuration()
+        return configuration
+
+    def get_batch_group_key(self, task: Task) -> str | None:
+        configuration = self.get_runtime_configuration(task)
+        return "report_warnings" if configuration.report_warnings else "no_report_warnings"
+
     @staticmethod
     def _filter_warnings(warnings: List[str]) -> List[str]:
         return [warning for warning in warnings if dns.resolver.LifetimeTimeout.msg[:-1] not in warning]
@@ -151,8 +171,9 @@ class MailDNSScanner(ArtemisBase):
 
         domain = current_task.get_payload(TaskType.DOMAIN)
         result = self.scan(current_task, domain)
+        configuration = self.get_runtime_configuration(current_task)
 
-        if not self.configuration.report_warnings:  # type: ignore
+        if not configuration.report_warnings:
             if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.spf:
                 result.spf_dmarc_scan_result.spf.warnings = []
             if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.dmarc:

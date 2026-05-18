@@ -641,11 +641,7 @@ class Nuclei(ArtemisBase):
         templates = []
         configuration = self.get_runtime_configuration(tasks[0])
 
-        severity_levels = (
-            configuration.get_severity_options()
-            if tasks
-            else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
-        )
+        severity_levels = configuration.get_severity_options()
 
         self.log.info("Using severity levels %s for scanning", severity_levels)
 

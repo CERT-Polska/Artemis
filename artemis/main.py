@@ -15,6 +15,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.frontend import error_content_not_found
 from artemis.frontend import router as router_front
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 faulthandler.register(signal.SIGUSR1)
 
@@ -35,6 +36,7 @@ app.add_middleware(
     same_site="strict",
     https_only=False,
 )
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 db = DB()
 

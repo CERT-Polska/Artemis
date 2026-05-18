@@ -142,17 +142,16 @@ When developing a new module for Artemis, you should:
 
 This approach ensures consistency in how module runtime configurations are handled throughout the system.
 
-Runtime Configuration Registry
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Runtime Configuration Mapping
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``RuntimeConfigurationRegistry`` class provides a centralized registry for module runtime configurations. It is implemented as a singleton, ensuring that there's only one instance of the registry throughout the application.
+Module runtime configuration classes are mapped directly by module identity.
 
 Basic Usage
 """""""""""
 
 .. code-block:: python
 
-    from artemis.modules.base.runtime_configuration_registry import RuntimeConfigurationRegistry
     from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 
     # Define a custom configuration class
@@ -160,49 +159,29 @@ Basic Usage
         # Custom configuration implementation
         pass
 
-    # Get the singleton registry instance
-    registry = RuntimeConfigurationRegistry()
-
-    # Register a configuration class for a module
-    registry.register_configuration("my_module", MyModuleConfiguration)
+    RUNTIME_CONFIGURATION_CLASSES = {
+      "my_module": MyModuleConfiguration,
+    }
 
     # Get the configuration class for a module
-    config_class = registry.get_configuration_class("my_module")
-
-    # Create a default configuration instance
-    default_config = registry.create_default_configuration("my_module")
-
-    # Get all registered modules
-    modules = registry.get_registered_modules()
+    config_class = RUNTIME_CONFIGURATION_CLASSES.get("my_module")
 
 API Reference
 """""""""""""
 
 .. code-block:: python
 
-    RuntimeConfigurationRegistry()
+    RUNTIME_CONFIGURATION_CLASSES: Dict[str, Type[ModuleConfiguration]]
 
-Always returns the same singleton instance.
-
-``register_configuration(module_name: str, config_class: Type[ModuleConfiguration]) -> None``
-  Registers a configuration class for a module.
-
-``get_configuration_class(module_name: str) -> Optional[Type[ModuleConfiguration]]``
-  Gets the configuration class for a module. Returns ``None`` if no configuration is registered.
-
-``create_default_configuration(module_name: str) -> Optional[ModuleConfiguration]``
-  Creates a default configuration instance for a module. Returns ``None`` if no configuration is registered.
-
-``get_registered_modules() -> Dict[str, Type[ModuleConfiguration]]``
-  Gets all registered module configurations as a dictionary mapping module names to configuration classes.
+Dictionary mapping module names to configuration classes.
 
 Integration with Module System
 """"""""""""""""""""""""""""""
 
 When integrating with the Artemis module system:
 
-1. Register module-specific configuration classes with the registry
-2. Use the registry to create default configurations for modules
+1. Add module-specific configuration classes to the runtime configuration mapping
+2. Use each module's ``get_default_configuration()`` in runtime module code
 3. Access module configurations through the registry
 
 The registry provides a centralized way to manage module configurations, making it easier to create, retrieve, and manage configurations for different modules in the system.

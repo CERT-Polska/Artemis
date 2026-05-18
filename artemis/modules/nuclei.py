@@ -25,9 +25,6 @@ from artemis.crawling import (
     get_links_and_resources_on_same_domain,
 )
 from artemis.module_base import ArtemisBase
-from artemis.modules.base.runtime_configuration_registry import (
-    RuntimeConfigurationRegistry,
-)
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.modules.runtime_configuration.nuclei_configuration import (
     NucleiConfiguration,
@@ -814,9 +811,6 @@ class Nuclei(ArtemisBase):
                 status = TaskStatus.OK
                 status_reason = None
             self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=result)
-
-
-RuntimeConfigurationRegistry().register_configuration(Nuclei.identity, NucleiConfiguration)
 
 
 if __name__ == "__main__":

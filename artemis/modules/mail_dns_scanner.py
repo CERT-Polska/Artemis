@@ -14,9 +14,6 @@ from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
-from artemis.modules.base.runtime_configuration_registry import (
-    RuntimeConfigurationRegistry,
-)
 from artemis.modules.runtime_configuration.mail_dns_scanner_configuration import (
     MailDNSScannerConfiguration,
 )
@@ -185,9 +182,6 @@ class MailDNSScanner(ArtemisBase):
         self.db.save_task_result(
             task=current_task, status=status, status_reason=status_reason, data=dataclasses.asdict(result)
         )
-
-
-RuntimeConfigurationRegistry().register_configuration(MailDNSScanner.identity, MailDNSScannerConfiguration)
 
 
 if __name__ == "__main__":

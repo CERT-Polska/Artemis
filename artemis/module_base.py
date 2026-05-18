@@ -31,9 +31,6 @@ from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.ip_utils import is_ip_address
 from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
-from artemis.modules.base.runtime_configuration_registry import (
-    RuntimeConfigurationRegistry,
-)
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -101,13 +98,8 @@ class ArtemisBase(Karton):
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
 
-        # Initialize configuration
-        registry = RuntimeConfigurationRegistry()
-        config_class = registry.get_configuration_class(self.identity)
-        if config_class:
-            self._configuration = config_class()
-        else:
-            self._configuration = ModuleRuntimeConfiguration()
+        # Initialize with module-specific default configuration.
+        self._configuration = self.get_default_configuration()
 
         if Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH:
             with open(Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH, "r") as additional_data_file:
@@ -178,12 +170,7 @@ class ArtemisBase(Karton):
         Args:
             config_dict (Dict[str, Any]): Configuration dictionary to apply
         """
-        registry = RuntimeConfigurationRegistry()
-        config_class = registry.get_configuration_class(self.identity)
-
-        if config_class is None:
-            config_class = ModuleRuntimeConfiguration
-
+        config_class = type(self.get_default_configuration())
         self._configuration = config_class.deserialize(config_dict)
         if not self._configuration.validate():
             raise ValueError(f"Invalid configuration for module {self.identity}")

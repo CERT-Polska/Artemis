@@ -3,9 +3,11 @@ import subprocess
 import unittest
 from typing import Iterable
 from unittest.mock import MagicMock, patch
+from urllib.parse import urlparse
 
 from artemis import crawling
 from artemis.config import Config
+from artemis.crawling import _CRAWL_CACHE, _cache_key, _normalize_url, crawl_and_filter
 from artemis.resource_lock import FailedToAcquireLockException
 
 
@@ -180,6 +182,33 @@ class TestCrawlAndFilter(unittest.TestCase):
             mock_run.return_value = MagicMock(stdout=b"https://example.com/a\nhttps://example.com/b\n")
             result = crawling.crawl_and_filter("https://example.com/")
         self.assertCountEqual(result, ["https://example.com/a", "https://example.com/b"])
+
+
+class CrawlAndFilterIntegrationTest(unittest.TestCase):
+    """Real integration test: runs the full pipeline (Katana + uro + Redis cache)
+    against a live test container reached via a .local network alias."""
+
+    target = "http://test-apache-with-sql-injection-postgres.local/"
+
+    def setUp(self) -> None:
+        key = _cache_key(_normalize_url(self.target))
+        _CRAWL_CACHE.redis.delete(f"{_CRAWL_CACHE.cache_name}:raw:{key}")
+
+    def test_pipeline_discovers_links_and_caches_result(self) -> None:
+        first = crawl_and_filter(self.target)
+
+        host = urlparse(self.target).hostname
+        for url in first:
+            self.assertEqual(urlparse(url).hostname, host)
+
+        paths = {urlparse(u).path for u in first}
+        self.assertIn("/sql_injection.php", paths)
+        self.assertIn("/headers_vuln.php", paths)
+
+        with patch("artemis.crawling._run_katana_uro") as mock_katana:
+            second = crawl_and_filter(self.target)
+        mock_katana.assert_not_called()
+        self.assertEqual(sorted(second), sorted(first))
 
 
 if __name__ == "__main__":

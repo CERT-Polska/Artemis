@@ -372,11 +372,11 @@ class Config:
 
         class Crawling:
             KATANA_DEPTH: Annotated[int, "Crawl depth passed to Katana (-d)."] = get_config(
-                "KATANA_DEPTH", default=3, cast=int
+                "KATANA_DEPTH", default=2, cast=int
             )
 
             KATANA_MAX_URLS: Annotated[int, "Hard cap on URLs collected by Katana per target (passed as -mdp)."] = (
-                get_config("KATANA_MAX_URLS", default=2000, cast=int)
+                get_config("KATANA_MAX_URLS", default=50, cast=int)
             )
 
             KATANA_TIMEOUT_SECONDS: Annotated[

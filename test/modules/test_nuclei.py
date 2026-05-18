@@ -11,20 +11,11 @@ class NucleiTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = Nuclei  # type: ignore
 
-    def setUp(self) -> None:
-        self.crawl_patcher = patch(
-            "artemis.modules.nuclei.crawl_and_filter",
-            return_value=[],
-        )
-        self.crawl_mock = self.crawl_patcher.start()
-        self.addCleanup(self.crawl_patcher.stop)
-        return super().setUp()
-
     def test_severity_threshold(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-service-with-exposed-apache-config",
+                "host": "test-service-with-exposed-apache-config.local",
                 "port": 80,
             },
             payload_persistent={"module_runtime_configurations": {"nuclei": {"severity_threshold": "critical_only"}}},
@@ -39,7 +30,7 @@ class NucleiTest(ArtemisModuleTestCase):
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-service-with-exposed-apache-config",
+                "host": "test-service-with-exposed-apache-config.local",
                 "port": 80,
             },
             payload_persistent={
@@ -51,11 +42,10 @@ class NucleiTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
 
     def test_dast_template(self) -> None:
-        self.crawl_mock.return_value = ["http://test-dast-vuln-app:5000/ssti?template=Testing"]
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-dast-vuln-app",
+                "host": "test-dast-vuln-app.local",
                 "port": 5000,
             },
         )
@@ -87,13 +77,6 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
     karton_class = Nuclei  # type: ignore
 
     def setUp(self) -> None:
-        self.crawl_patcher = patch(
-            "artemis.modules.nuclei.crawl_and_filter",
-            return_value=[],
-        )
-        self.crawl_mock = self.crawl_patcher.start()
-        self.addCleanup(self.crawl_patcher.stop)
-
         # list of templates used in tests
         self.patcher = patch(
             "artemis.config.Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
@@ -114,7 +97,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-php-403-bypass",
+                "host": "test-php-403-bypass.local",
                 "port": 80,
             },
         )
@@ -123,14 +106,14 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertEqual(
             call.kwargs["status_reason"],
-            "[medium] http://test-php-403-bypass:80: 403 Forbidden Bypass Detection with Headers Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).\n",
+            "[medium] http://test-php-403-bypass.local:80: 403 Forbidden Bypass Detection with Headers Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).\n",
         )
 
     def test_interactsh(self) -> None:
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-php-mock-CVE-2020-28976",
+                "host": "test-php-mock-CVE-2020-28976.local",
                 "port": 80,
             },
             payload_persistent={
@@ -142,15 +125,14 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertRegex(
             call.kwargs["status_reason"],
-            r"\[medium\] http://test-php-mock-CVE-2020-28976:80/wp-content/plugins/canto/includes/lib/get\.php\?subdomain=[a-z0-9\.]+: WordPress Canto 1\.3\.0 - Blind Server-Side Request Forgery WordPress Canto plugin 1\.3\.0 is susceptible to blind server-side request forgery\. An attacker can make a request to any internal and external server via /includes/lib/detail\.php\?subdomain and thereby possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site\.",
+            r"\[medium\] http://test-php-mock-CVE-2020-28976\.local:80/wp-content/plugins/canto/includes/lib/get\.php\?subdomain=[a-z0-9\.]+: WordPress Canto 1\.3\.0 - Blind Server-Side Request Forgery WordPress Canto plugin 1\.3\.0 is susceptible to blind server-side request forgery\. An attacker can make a request to any internal and external server via /includes/lib/detail\.php\?subdomain and thereby possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site\.",
         )
 
     def test_links(self) -> None:
-        self.crawl_mock.return_value = ["http://test-php-xss-but-not-on-homepage:80/xss.php"]
         task = Task(
             {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={
-                "host": "test-php-xss-but-not-on-homepage",
+                "host": "test-php-xss-but-not-on-homepage.local",
                 "port": 80,
             },
         )
@@ -159,16 +141,16 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertRegex(
             call.kwargs["status_reason"],
-            r"(?s)\[high\]\s+http://test-php-xss-but-not-on-homepage:80/xss\.php/\?.*?"
+            r"(?s)\[high\]\s+http://test-php-xss-but-not-on-homepage\.local/xss\.php/\?.*?"
             r"Top 38 Parameters - Cross-Site Scripting",
         )
         self.assertRegex(
             call.kwargs["status_reason"],
-            r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage:80/xss\.php/\?.*?"
+            r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage\.local/xss\.php/\?.*?"
             r"Fuzzing Parameters - Cross-Site Scripting",
         )
         self.assertRegex(
             call.kwargs["status_reason"],
-            r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage:80/xss\.php\?.*?"
+            r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage\.local/xss\.php\?.*?"
             r"Reflected Cross-Site Scripting",
         )

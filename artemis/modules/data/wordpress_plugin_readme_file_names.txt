@@ -1524,5 +1524,6 @@
   "catch-web-tools": "readme.txt",
   "wp-native-php-sessions": "readme.txt",
   "tag-pages": "readme.txt",
-  "acme-demo-setup": "readme.txt"
+  "acme-demo-setup": "readme.txt",
+  "header-footer-builder-for-elementor": "README.MD"
 }

@@ -14,8 +14,12 @@ from artemis.utils import build_logger
 LOGGER = build_logger(__name__)
 
 
-def remove_leading_whitespace(text: str) -> str:
+def remove_leading_whitespace_str(text: str) -> str:
     return "\n".join(line.lstrip() for line in text.splitlines())
+
+
+def remove_leading_whitespace_bytes(text: bytes) -> bytes:
+    return b"\n".join(line.lstrip() for line in text.splitlines())
 
 
 class ExportingTestCase(BaseE2ETestCase):
@@ -77,8 +81,8 @@ class ExportingTestCase(BaseE2ETestCase):
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
                 self.assertEqual(
-                    remove_leading_whitespace(content),
-                    remove_leading_whitespace(
+                    remove_leading_whitespace_bytes(content),
+                    remove_leading_whitespace_bytes(
                         "\n".join(
                             [
                                 "",
@@ -126,10 +130,10 @@ class ExportingTestCase(BaseE2ETestCase):
                 output_data = json.loads(f.read().decode("ascii"))
                 self.assertEqual(list(output_data["messages"].keys()), ["test-smtp-server.artemis"])
                 self.assertEqual(
-                    remove_leading_whitespace(
+                    remove_leading_whitespace_str(
                         output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"]
                     ),
-                    remove_leading_whitespace(
+                    remove_leading_whitespace_str(
                         "\n".join(
                             [
                                 "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
@@ -264,8 +268,8 @@ class ExportingTestCase(BaseE2ETestCase):
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
                 self.assertEqual(
-                    remove_leading_whitespace(content),
-                    remove_leading_whitespace(
+                    remove_leading_whitespace_bytes(content),
+                    remove_leading_whitespace_bytes(
                         "\n".join(
                             [
                                 "",
@@ -362,7 +366,7 @@ class ExportingTestCase(BaseE2ETestCase):
         ).content
 
         self.assertEqual(
-            remove_leading_whitespace(json.loads(result)).split("\n"),
+            remove_leading_whitespace_str(json.loads(result)).split("\n"),
             [
                 line.lstrip()
                 for line in [

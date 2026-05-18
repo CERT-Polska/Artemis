@@ -73,9 +73,11 @@ PLUGINS_BAD_VERSION_IN_README = [
     "login-logo",
     "official-statcounter-plugin-for-wordpress",
     "page-or-post-clone",
+    "persian-woocommerce-sms",
     "rafflepress",
     "search-meter",
     "trustpilot-reviews",
+    "unlimited-elements-for-elementor",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
     "wp-migrate-db",
@@ -176,7 +178,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
 
                 version = (
                     re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|=|<h4>|</h4>|\|)", " ", line)
-                    .strip()
+                    .strip(" .")
                     # Some versions are prefixed with 'v' (e.g. v1.0.0)
                     .lstrip("v")
                     .split(" ")[0]

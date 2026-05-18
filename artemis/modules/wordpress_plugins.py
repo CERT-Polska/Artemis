@@ -14,7 +14,7 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
-from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.crawling import crawl_and_filter
 from artemis.domains import is_subdomain
 from artemis.fallback_api_cache import FallbackAPICache
 from artemis.module_base import ArtemisBase
@@ -258,7 +258,7 @@ class WordpressPlugins(ArtemisBase):
             self._readme_file_names = json.load(f)
 
     def _get_plugins_from_homepage(self, url: str) -> List[Dict[str, Any]]:
-        links = get_links_and_resources_on_same_domain(url)
+        links = crawl_and_filter(url)
 
         plugin_data = []
         for link in links:

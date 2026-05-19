@@ -142,46 +142,15 @@ When developing a new module for Artemis, you should:
 
 This approach ensures consistency in how module runtime configurations are handled throughout the system.
 
-Runtime Configuration Mapping
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Module runtime configuration classes are mapped directly by module identity.
+API validation
+""""""""""""""
 
-Basic Usage
-"""""""""""
+In order for API to validate the runtime configuration you need to add record to mapping in ``artemis/api.py``.
 
 .. code-block:: python
 
-    from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
-
-    # Define a custom configuration class
-    class MyModuleConfiguration(ModuleRuntimeConfiguration):
-        # Custom configuration implementation
-        pass
-
-    RUNTIME_CONFIGURATION_CLASSES = {
-      "my_module": MyModuleConfiguration,
+    RUNTIME_CONFIGURATION_CLASSES: Dict[str, Type[ModuleRuntimeConfiguration]] = {
+        "mail_dns_scanner": MailDNSScannerConfiguration,
+        "nuclei": NucleiConfiguration,
     }
-
-    # Get the configuration class for a module
-    config_class = RUNTIME_CONFIGURATION_CLASSES.get("my_module")
-
-API Reference
-"""""""""""""
-
-.. code-block:: python
-
-    RUNTIME_CONFIGURATION_CLASSES: Dict[str, Type[ModuleConfiguration]]
-
-Dictionary mapping module names to configuration classes.
-
-Integration with Module System
-""""""""""""""""""""""""""""""
-
-When integrating with the Artemis module system:
-
-1. Add module-specific configuration classes to the runtime configuration mapping
-2. Use each module's ``get_default_configuration()`` in runtime module code
-3. Access module configurations through the registry
-
-The registry provides a centralized way to manage module configurations, making it easier to create, retrieve, and manage configurations for different modules in the system.

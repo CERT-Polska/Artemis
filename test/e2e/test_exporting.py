@@ -14,6 +14,14 @@ from artemis.utils import build_logger
 LOGGER = build_logger(__name__)
 
 
+def remove_leading_whitespace_str(text: str) -> str:
+    return "\n".join(line.lstrip() for line in text.splitlines())
+
+
+def remove_leading_whitespace_bytes(text: bytes) -> bytes:
+    return b"\n".join(line.lstrip() for line in text.splitlines())
+
+
 class ExportingTestCase(BaseE2ETestCase):
     def test_exporting_gui(self) -> None:
         self.submit_tasks_with_modules_enabled(
@@ -73,72 +81,78 @@ class ExportingTestCase(BaseE2ETestCase):
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
                 self.assertEqual(
-                    content,
-                    "\n".join(
-                        [
-                            "",
-                            "    <html>",
-                            "        <head>",
-                            '            <meta charset="UTF-8">',
-                            "        </head>",
-                            "        <style>",
-                            "            ul {",
-                            "                margin-top: 10px;",
-                            "                margin-bottom: 10px;",
-                            "            }",
-                            "        </style>",
-                            "        <body>",
-                            "",
-                            "        <ol>",
-                            "    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
-                            "                    <li>",
-                            "                            Error:",
-                            "",
-                            "                        test-smtp-server.artemis:",
-                            "",
-                            "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
-                            "",
-                            "                        ",
-                            "                    </li>",
-                            "        </ul>",
-                            "        <p>",
-                            "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
-                            "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
-                            "        </p>",
-                            "    </li>",
-                            "        </ol>",
-                            "",
-                            "",
-                            "        </body>",
-                            "    </html>",
-                            "",
-                        ]
-                    ).encode("ascii"),
+                    remove_leading_whitespace_bytes(content),
+                    remove_leading_whitespace_bytes(
+                        "\n".join(
+                            [
+                                "",
+                                "    <html>",
+                                "        <head>",
+                                '            <meta charset="UTF-8">',
+                                "        </head>",
+                                "        <style>",
+                                "            ul {",
+                                "                margin-top: 10px;",
+                                "                margin-bottom: 10px;",
+                                "            }",
+                                "        </style>",
+                                "        <body>",
+                                "",
+                                "        <ol>",
+                                "    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                                "                    <li>",
+                                "                            Error:",
+                                "",
+                                "                        test-smtp-server.artemis:",
+                                "",
+                                "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                                "",
+                                "                        ",
+                                "                    </li>",
+                                "        </ul>",
+                                "        <p>",
+                                "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                                "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                                "        </p>",
+                                "    </li>",
+                                "        </ol>",
+                                "",
+                                "",
+                                "        </body>",
+                                "    </html>",
+                                "",
+                            ]
+                        ).encode("ascii")
+                    ),
                 )
 
             with export.open("advanced/output.json", "r") as f:
                 output_data = json.loads(f.read().decode("ascii"))
                 self.assertEqual(list(output_data["messages"].keys()), ["test-smtp-server.artemis"])
                 self.assertEqual(
-                    output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"],
-                    "\n".join(
-                        [
-                            "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
-                            "<li>",
-                            "                            Error:",
-                            "",
-                            "                        test-smtp-server.artemis:",
-                            "",
-                            "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
-                            "",
-                            "                        ",
-                            "                    </li>",
-                            "</ul>",
-                            "<p>",
-                            "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
-                            "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
-                            "        </p>",
-                        ]
+                    remove_leading_whitespace_str(
+                        output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"]
+                    ),
+                    remove_leading_whitespace_str(
+                        "\n".join(
+                            [
+                                "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                                "<li>",
+                                "                            Error:",
+                                "",
+                                "                        test-smtp-server.artemis:",
+                                "",
+                                "                            Valid DMARC record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                                "",
+                                "                        ",
+                                "                    </li>",
+                                "</ul>",
+                                "<p>",
+                                "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                                "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                                "        </p>",
+                            ]
+                        )
                     ),
                 )
 
@@ -254,47 +268,49 @@ class ExportingTestCase(BaseE2ETestCase):
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
                 self.assertEqual(
-                    content,
-                    "\n".join(
-                        [
-                            "",
-                            "    <html>",
-                            "        <head>",
-                            '            <meta charset="UTF-8">',
-                            "        </head>",
-                            "        <style>",
-                            "            ul {",
-                            "                margin-top: 10px;",
-                            "                margin-bottom: 10px;",
-                            "            }",
-                            "        </style>",
-                            "        <body>",
-                            "",
-                            "        <ol>",
-                            "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
-                            "                    <li>",
-                            "                            Błąd:",
-                            "",
-                            "                        test-smtp-server.artemis:",
-                            "",
-                            "                            Nie znaleziono poprawnego rekordu DMARC. Rekomendujemy używanie wszystkich trzech mechanizmów: SPF, DKIM i DMARC, aby zmniejszyć szansę, że sfałszowana wiadomość zostanie zaakceptowana przez serwer odbiorcy.",
-                            "",
-                            "                        ",
-                            "                    </li>",
-                            "        </ul>",
-                            "        <p>",
-                            "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
-                            "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
-                            "        </p>",
-                            "    </li>",
-                            "        </ol>",
-                            "",
-                            "",
-                            "        </body>",
-                            "    </html>",
-                            "",
-                        ]
-                    ).encode("utf-8"),
+                    remove_leading_whitespace_bytes(content),
+                    remove_leading_whitespace_bytes(
+                        "\n".join(
+                            [
+                                "",
+                                "    <html>",
+                                "        <head>",
+                                '            <meta charset="UTF-8">',
+                                "        </head>",
+                                "        <style>",
+                                "            ul {",
+                                "                margin-top: 10px;",
+                                "                margin-bottom: 10px;",
+                                "            }",
+                                "        </style>",
+                                "        <body>",
+                                "",
+                                "        <ol>",
+                                "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
+                                "                    <li>",
+                                "                            Błąd:",
+                                "",
+                                "                        test-smtp-server.artemis:",
+                                "",
+                                "                            Nie znaleziono poprawnego rekordu DMARC. Rekomendujemy używanie wszystkich trzech mechanizmów: SPF, DKIM i DMARC, aby zmniejszyć szansę, że sfałszowana wiadomość zostanie zaakceptowana przez serwer odbiorcy.",
+                                "",
+                                "                        ",
+                                "                    </li>",
+                                "        </ul>",
+                                "        <p>",
+                                "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
+                                "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
+                                "        </p>",
+                                "    </li>",
+                                "        </ol>",
+                                "",
+                                "",
+                                "        </body>",
+                                "    </html>",
+                                "",
+                            ]
+                        ).encode("utf-8")
+                    ),
                 )
 
     def test_build_html_message(self) -> None:
@@ -350,44 +366,47 @@ class ExportingTestCase(BaseE2ETestCase):
         ).content
 
         self.assertEqual(
-            json.loads(result).split("\n"),
+            remove_leading_whitespace_str(json.loads(result)).split("\n"),
             [
-                "",
-                "    <html>",
-                "        <head>",
-                '            <meta charset="UTF-8">',
-                "        </head>",
-                "        <style>",
-                "            ul {",
-                "                margin-top: 10px;",
-                "                margin-bottom: 10px;",
-                "            }",
-                "        </style>",
-                "        <body>",
-                "",
-                "        <ol>",
-                "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
-                "                    <li>",
-                "                            Ostrzeżenie:",
-                "",
-                "                        example.com:",
-                "",
-                "                            Jeśli w tagu &#39;fo&#39; (określającym, kiedy wysyłać raport DMARC) jest włączona opcja 1 (oznaczająca, że raport jest wysyłany jeśli wiadomość nie jest poprawnie zweryfikowana przez mechanizm SPF lub DKIM, nawet, jeśli została zweryfikowana przez drugi z mechanizmów), opcja 0 (tj. wysyłka raportów, gdy wiadomość zostanie zweryfikowana negatywnie przez oba mechanizmy) jest zbędna.",
-                "",
-                "                        ",
-                "                    </li>",
-                "        </ul>",
-                "        <p>",
-                "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
-                "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
-                "        </p>",
-                "    </li>",
-                "        </ol>",
-                "",
-                "",
-                "        </body>",
-                "    </html>",
-                "",
+                line.lstrip()
+                for line in [
+                    "",
+                    "    <html>",
+                    "        <head>",
+                    '            <meta charset="UTF-8">',
+                    "        </head>",
+                    "        <style>",
+                    "            ul {",
+                    "                margin-top: 10px;",
+                    "                margin-bottom: 10px;",
+                    "            }",
+                    "        </style>",
+                    "        <body>",
+                    "",
+                    "        <ol>",
+                    "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
+                    "                    <li>",
+                    "                            Ostrzeżenie:",
+                    "",
+                    "                        example.com:",
+                    "",
+                    "                            Jeśli w tagu &#39;fo&#39; (określającym, kiedy wysyłać raport DMARC) jest włączona opcja 1 (oznaczająca, że raport jest wysyłany jeśli wiadomość nie jest poprawnie zweryfikowana przez mechanizm SPF lub DKIM, nawet, jeśli została zweryfikowana przez drugi z mechanizmów), opcja 0 (tj. wysyłka raportów, gdy wiadomość zostanie zweryfikowana negatywnie przez oba mechanizmy) jest zbędna.",
+                    "",
+                    "                        ",
+                    "                    </li>",
+                    "        </ul>",
+                    "        <p>",
+                    "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
+                    "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
+                    "        </p>",
+                    "    </li>",
+                    "        </ol>",
+                    "",
+                    "",
+                    "        </body>",
+                    "    </html>",
+                    "",
+                ]
             ],
         )
 

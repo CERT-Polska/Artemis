@@ -43,7 +43,7 @@ class BruterTest(ArtemisModuleTestCase):
                 call.kwargs["data"]["found_urls"],
                 [
                     {
-                        "url": "http://test-service-with-bruteable-files:80/config.dist",
+                        "url": "http://test-service-with-bruteable-files:80/config.dit",
                         "content_prefix": "...\n",
                         "has_directory_index": False,
                     },

@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 import hmac
-from typing import Annotated, Any, Dict, Optional
+from typing import Annotated, Any, Dict, Optional, Type
 
 import aiohttp
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request
@@ -17,11 +17,16 @@ from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.frontend import build_export_zip_response
 from artemis.karton_utils import get_binds_that_can_be_disabled, get_num_pending_tasks
-from artemis.module_utils import try_to_import_all_modules
-from artemis.modules.base.runtime_configuration_registry import (
-    RuntimeConfigurationRegistry,
+from artemis.modules.base.module_runtime_configuration import (
+    ModuleRuntimeConfiguration,
 )
 from artemis.modules.classifier import Classifier
+from artemis.modules.runtime_configuration.mail_dns_scanner_configuration import (
+    MailDNSScannerConfiguration,
+)
+from artemis.modules.runtime_configuration.nuclei_configuration import (
+    NucleiConfiguration,
+)
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
 from artemis.task_utils import (
@@ -38,7 +43,11 @@ from artemis.templating import (
 router = APIRouter()
 db = DB()
 redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
-try_to_import_all_modules()  # so that the module runtime configurations get registered
+
+RUNTIME_CONFIGURATION_CLASSES: Dict[str, Type[ModuleRuntimeConfiguration]] = {
+    "mail_dns_scanner": MailDNSScannerConfiguration,
+    "nuclei": NucleiConfiguration,
+}
 
 
 if Config.Miscellaneous.BLOCKLIST_FILE:
@@ -113,7 +122,7 @@ def add(
     # Validate module configurations if provided
     if module_runtime_configurations:
         for module_name, config in module_runtime_configurations.items():
-            config_class = RuntimeConfigurationRegistry().get_configuration_class(module_name)
+            config_class = RUNTIME_CONFIGURATION_CLASSES.get(module_name)
             if config_class:
                 try:
                     config_instance = config_class.deserialize(config)

@@ -44,10 +44,10 @@ docker compose -f docker-compose.test.yaml exec test-wordpress-easy-password-mys
 # Now we are ready to start the tests
 docker compose -f docker-compose.test.yaml run test
 
-if [ $? -ne 0 ]; then
-    exit 1
-fi
+EXIT_CODE=$?
 
 docker volume rm artemis_data-test-redis
 docker volume rm artemis_data-test-postgres
 docker volume rm artemis_data-test-mongodb
+
+exit $EXIT_CODE

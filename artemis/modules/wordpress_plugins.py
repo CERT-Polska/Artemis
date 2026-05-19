@@ -32,6 +32,7 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "customizer-export-import",
     "delete-all-comments-of-website",
     "disable-xml-rpc-api",
+    "external-thumbnail",
     "flowpaper-lite-pdf-flipbook",
     "metricool",
     "sumome",
@@ -45,6 +46,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "backwpup",
     "boldgrid-easy-seo",
     "booking",
+    "dashboard-welcome-for-elementor",
     "everest-forms",
     "permalink-manager",
     "social-pug",
@@ -72,9 +74,11 @@ PLUGINS_BAD_VERSION_IN_README = [
     "login-logo",
     "official-statcounter-plugin-for-wordpress",
     "page-or-post-clone",
+    "persian-woocommerce-sms",
     "rafflepress",
     "search-meter",
     "trustpilot-reviews",
+    "unlimited-elements-for-elementor",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
     "wp-migrate-db",
@@ -175,7 +179,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
 
                 version = (
                     re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|=|<h4>|</h4>|\|)", " ", line)
-                    .strip()
+                    .strip(" .")
                     # Some versions are prefixed with 'v' (e.g. v1.0.0)
                     .lstrip("v")
                     .split(" ")[0]
@@ -241,7 +245,9 @@ class WordpressPlugins(ArtemisBase):
         json_response = response.json()
         self._top_plugins = [
             {
-                "repository_version": plugin["version"],
+                "repository_version": plugin["version"].rstrip(
+                    "."
+                ),  # 2026-05-19 ht-mega-for-elementor had a trailing dot in the version
                 "slug": plugin["slug"],
             }
             for plugin in json_response["plugins"]

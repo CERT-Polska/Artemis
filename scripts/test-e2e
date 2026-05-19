@@ -1,0 +1,37 @@
+#!/bin/bash
+
+. scripts/check_docker_compose
+
+if [ ! -f .env ]; then
+    cp env.example .env
+fi
+
+# Let's first start everything except the test container and perform relevant setup
+docker compose \
+    -f docker-compose.test.yaml \
+    -f docker-compose.yaml \
+    -f docker-compose.test-e2e.yaml \
+    up \
+    -d \
+    --build \
+    --scale test=0 \
+    --scale test-e2e=0
+
+# Now we are ready to start the tests
+docker compose \
+    -f docker-compose.test.yaml \
+    -f docker-compose.yaml \
+    -f docker-compose.test-e2e.yaml \
+    run \
+    test-e2e
+
+EXIT_CODE=$?
+
+docker compose \
+    -f docker-compose.test.yaml \
+    -f docker-compose.yaml \
+    -f docker-compose.test-e2e.yaml \
+    down \
+    --remove-orphans
+
+exit $EXIT_CODE

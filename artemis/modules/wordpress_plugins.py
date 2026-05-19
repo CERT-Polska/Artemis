@@ -32,6 +32,7 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "customizer-export-import",
     "delete-all-comments-of-website",
     "disable-xml-rpc-api",
+    "external-thumbnail",
     "flowpaper-lite-pdf-flipbook",
     "metricool",
     "sumome",
@@ -244,7 +245,9 @@ class WordpressPlugins(ArtemisBase):
         json_response = response.json()
         self._top_plugins = [
             {
-                "repository_version": plugin["version"],
+                "repository_version": plugin["version"].rstrip(
+                    "."
+                ),  # 2026-05-19 ht-mega-for-elementor had a trailing dot in the version
                 "slug": plugin["slug"],
             }
             for plugin in json_response["plugins"]

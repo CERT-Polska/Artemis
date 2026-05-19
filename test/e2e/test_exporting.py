@@ -14,12 +14,12 @@ from artemis.utils import build_logger
 LOGGER = build_logger(__name__)
 
 
-def remove_leading_whitespace_str(text: str) -> str:
-    return "\n".join(line.lstrip() for line in text.splitlines())
+def normalize_html_str(text: str) -> str:
+    return BeautifulSoup(text, "html.parser").prettify()
 
 
-def remove_leading_whitespace_bytes(text: bytes) -> bytes:
-    return b"\n".join(line.lstrip() for line in text.splitlines())
+def normalize_html_bytes(text: bytes, encoding: str) -> str:
+    return normalize_html_str(text.decode(encoding))
 
 
 class ExportingTestCase(BaseE2ETestCase):
@@ -81,8 +81,8 @@ class ExportingTestCase(BaseE2ETestCase):
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
                 self.assertEqual(
-                    remove_leading_whitespace_bytes(content),
-                    remove_leading_whitespace_bytes(
+                    normalize_html_bytes(content, "ascii"),
+                    normalize_html_str(
                         "\n".join(
                             [
                                 "",
@@ -122,7 +122,7 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "    </html>",
                                 "",
                             ]
-                        ).encode("ascii")
+                        )
                     ),
                 )
 
@@ -130,10 +130,8 @@ class ExportingTestCase(BaseE2ETestCase):
                 output_data = json.loads(f.read().decode("ascii"))
                 self.assertEqual(list(output_data["messages"].keys()), ["test-smtp-server.artemis"])
                 self.assertEqual(
-                    remove_leading_whitespace_str(
-                        output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"]
-                    ),
-                    remove_leading_whitespace_str(
+                    normalize_html_str(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"]),
+                    normalize_html_str(
                         "\n".join(
                             [
                                 "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
@@ -268,8 +266,8 @@ class ExportingTestCase(BaseE2ETestCase):
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
                 content = f.read()
                 self.assertEqual(
-                    remove_leading_whitespace_bytes(content),
-                    remove_leading_whitespace_bytes(
+                    normalize_html_bytes(content, "utf-8"),
+                    normalize_html_str(
                         "\n".join(
                             [
                                 "",
@@ -309,7 +307,7 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "    </html>",
                                 "",
                             ]
-                        ).encode("utf-8")
+                        )
                     ),
                 )
 
@@ -366,48 +364,49 @@ class ExportingTestCase(BaseE2ETestCase):
         ).content
 
         self.assertEqual(
-            remove_leading_whitespace_str(json.loads(result)).split("\n"),
-            [
-                line.lstrip()
-                for line in [
-                    "",
-                    "    <html>",
-                    "        <head>",
-                    '            <meta charset="UTF-8">',
-                    "        </head>",
-                    "        <style>",
-                    "            ul {",
-                    "                margin-top: 10px;",
-                    "                margin-bottom: 10px;",
-                    "            }",
-                    "        </style>",
-                    "        <body>",
-                    "",
-                    "        <ol>",
-                    "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
-                    "                    <li>",
-                    "                            Ostrzeżenie:",
-                    "",
-                    "                        example.com:",
-                    "",
-                    "                            Jeśli w tagu &#39;fo&#39; (określającym, kiedy wysyłać raport DMARC) jest włączona opcja 1 (oznaczająca, że raport jest wysyłany jeśli wiadomość nie jest poprawnie zweryfikowana przez mechanizm SPF lub DKIM, nawet, jeśli została zweryfikowana przez drugi z mechanizmów), opcja 0 (tj. wysyłka raportów, gdy wiadomość zostanie zweryfikowana negatywnie przez oba mechanizmy) jest zbędna.",
-                    "",
-                    "                        ",
-                    "                    </li>",
-                    "        </ul>",
-                    "        <p>",
-                    "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
-                    "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
-                    "        </p>",
-                    "    </li>",
-                    "        </ol>",
-                    "",
-                    "",
-                    "        </body>",
-                    "    </html>",
-                    "",
-                ]
-            ],
+            normalize_html_str(json.loads(result)),
+            normalize_html_str(
+                "\n".join(
+                    [
+                        "",
+                        "    <html>",
+                        "        <head>",
+                        '            <meta charset="UTF-8">',
+                        "        </head>",
+                        "        <style>",
+                        "            ul {",
+                        "                margin-top: 10px;",
+                        "                margin-bottom: 10px;",
+                        "            }",
+                        "        </style>",
+                        "        <body>",
+                        "",
+                        "        <ol>",
+                        "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
+                        "                    <li>",
+                        "                            Ostrzeżenie:",
+                        "",
+                        "                        example.com:",
+                        "",
+                        "                            Jeśli w tagu &#39;fo&#39; (określającym, kiedy wysyłać raport DMARC) jest włączona opcja 1 (oznaczająca, że raport jest wysyłany jeśli wiadomość nie jest poprawnie zweryfikowana przez mechanizm SPF lub DKIM, nawet, jeśli została zweryfikowana przez drugi z mechanizmów), opcja 0 (tj. wysyłka raportów, gdy wiadomość zostanie zweryfikowana negatywnie przez oba mechanizmy) jest zbędna.",
+                        "",
+                        "                        ",
+                        "                    </li>",
+                        "        </ul>",
+                        "        <p>",
+                        "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
+                        "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
+                        "        </p>",
+                        "    </li>",
+                        "        </ol>",
+                        "",
+                        "",
+                        "        </body>",
+                        "    </html>",
+                        "",
+                    ]
+                )
+            ),
         )
 
     def test_exporting_api_timeframe(self) -> None:

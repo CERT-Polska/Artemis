@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
@@ -89,7 +89,7 @@ pycparser==3.0
 pycryptodome==3.23.0
 pydantic==2.12.5
 pydantic-core==2.41.5
-pydantic-settings==2.14.0
+pydantic-settings==2.14.1
 pygments==2.20.0
 pyleri==1.5.0
 pymysql==1.1.3

@@ -70,4 +70,4 @@ class DrupalScanner(BaseNewerVersionComparerModule):
 
 
 if __name__ == "__main__":
-    DrupalScanner.parallel_loop()  # type: ignore
+    DrupalScanner.parallel_loop()

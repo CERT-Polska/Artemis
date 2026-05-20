@@ -1854,6 +1854,9 @@ TRANSLATIONS = {
     'This template detects an unsafe deserialization vulnerability in Wazuh servers.\nThe DistributedAPI deserializes JSON data using as_wazuh_object. If an attacker injects\na malicious object (via __unhandled_exc__), arbitrary Python code execution can be achieved.\nInstead of triggering a shutdown (e.g. via exit), this template uses a non-existent class \n("NotARealClass") to generate a NameError. A NameError in the response indicates that the \npayload reached the vulnerable deserialization function.': "Wykryto serwer Wazuh zawierający podatność CVE-2025-24016 umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Webmin <=1.920. is vulnerable to an unauthenticated remote command execution via the parameter 'old' in password_change.cgi.": "Narzędzie Webmin w wersji do 1.920 włącznie zawiera podatność Remote Code Execution o identyfikatorze CVE-2019-15107, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "Tomcat's credential disclosure leading to Remote Code Execution via WAR upload.": "Wykryto, że dane dostępowe systemu Tomcat są publicznie dostępne, co umożliwia upload pliku WAR a w konsekwencji zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION,
     "When running Apache Tomcat versions 9.0.0.M1 to 9.0.0, 8.5.0 to 8.5.22, 8.0.0.RC1 to 8.0.46 and 7.0.0 to 7.0.81 with HTTP PUTs enabled (e.g. via setting the readonly initialisation parameter of the Default servlet to false) it was possible to upload a JSP file to the server via a specially crafted request. This JSP could then be requested and any code it contained would be executed by the server.": "Serwer Apache Tomcat w wersji od 9.0.0.M1 do 9.0.0, 8.5.0 do 8.5.22, 8.0.0.RC1 do 8.0.46 i 7.0.0 do 7.0.81 z włączoną metodą HTTP PUT umożliwia upload pliku JSP a w konsekwencji zdalne wykonanie kodu."

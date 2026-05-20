@@ -211,9 +211,6 @@ class Nuclei(ArtemisBase):
 
         return [item for item in first_task_flags if isinstance(item, str)]
 
-    def get_batch_group_key(self, task: Task) -> str | None:
-        return "\x1f".join(self._get_nuclei_router_flags([task]))
-
     def get_default_configuration(self) -> NucleiConfiguration:
         """
         Get the default configuration for the Nuclei module.
@@ -240,8 +237,15 @@ class Nuclei(ArtemisBase):
         return configuration
 
     def get_batch_group_key(self, task: Task) -> str | None:
+        router_flags = self._get_nuclei_router_flags([task])
         configuration = self.get_runtime_configuration(task)
-        return configuration.severity_threshold.value
+        return json.dumps(
+            {
+                "nuclei_router_flags": router_flags,
+                "configuration_runtime": configuration.serialize(),
+            },
+            sort_keys=True,
+        )
 
     def _should_scan_template(self, template: str) -> bool:
         if Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN:

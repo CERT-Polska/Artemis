@@ -10,12 +10,10 @@ from artemis.task_utils import get_target_host, get_target_url
 from artemis.web_technology_identification import run_tech_detection
 
 TECHNOLOGY_DETECTION_TAGS_TO_EXCLUDE = {"wordpress": ["wordpress"]}
-# it's seperate with module configuration cause flags with values defined in router serve
-# two purposes, configuration runtime for nuclei command and define grouping key to pickup tasks
 NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY = "nuclei-routing-additional-flags"
 
 
-@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
+@load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class NucleiRouter(ArtemisBase):
     """
     Module in the middle to delegate nuclei tasks.

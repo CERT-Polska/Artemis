@@ -567,10 +567,6 @@ class ArtemisBase(Karton):
     def run_multiple(self, tasks: List[Task]) -> None:
         raise NotImplementedError()
 
-    def get_batch_group_key(self, _task: Task) -> str | None:
-        """Return a grouping key used when taking a batch of tasks from queue."""
-        return None
-
     def internal_process_multiple(self, tasks: List[Task]) -> None:
         if not tasks:
             return

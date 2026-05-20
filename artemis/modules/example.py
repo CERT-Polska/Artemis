@@ -49,4 +49,4 @@ class Example(ArtemisBase):
 
 
 if __name__ == "__main__":
-    Example().loop()
+    Example.parallel_loop()

@@ -383,4 +383,4 @@ class SubdomainEnumeration(ArtemisBase):
 
 
 if __name__ == "__main__":
-    SubdomainEnumeration().loop()
+    SubdomainEnumeration.parallel_loop()

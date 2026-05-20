@@ -143,4 +143,4 @@ class SSHBadKeys(ArtemisBase):
 
 
 if __name__ == "__main__":
-    SSHBadKeys().loop()
+    SSHBadKeys.parallel_loop()

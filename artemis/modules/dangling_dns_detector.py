@@ -443,4 +443,4 @@ class DanglingDnsDetector(ArtemisBase):
 
 
 if __name__ == "__main__":
-    DanglingDnsDetector().loop()
+    DanglingDnsDetector.parallel_loop()

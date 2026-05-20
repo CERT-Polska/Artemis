@@ -209,4 +209,4 @@ class APIScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    APIScanner().loop()
+    APIScanner.parallel_loop()

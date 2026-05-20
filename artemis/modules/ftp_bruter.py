@@ -127,4 +127,4 @@ class FTPBruter(ArtemisBase):
 
 
 if __name__ == "__main__":
-    FTPBruter().loop()
+    FTPBruter.parallel_loop()

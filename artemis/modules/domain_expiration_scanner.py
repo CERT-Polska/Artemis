@@ -83,4 +83,4 @@ class DomainExpirationScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    DomainExpirationScanner().loop()
+    DomainExpirationScanner.parallel_loop()

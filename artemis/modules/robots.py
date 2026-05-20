@@ -131,4 +131,4 @@ class RobotsScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    RobotsScanner().loop()
+    RobotsScanner.parallel_loop()

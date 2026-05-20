@@ -84,4 +84,4 @@ class WebappIdentifier(ArtemisBase):
 
 
 if __name__ == "__main__":
-    WebappIdentifier().loop()
+    WebappIdentifier.parallel_loop()

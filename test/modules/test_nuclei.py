@@ -29,6 +29,7 @@ class NucleiTest(ArtemisModuleTestCase):
 
         self.mock_db.reset_mock()
 
+        # Using previous identity for backwardcompatibilty testing during migration
         task = Task(
             {"type": TaskType.NUCLEI_TARGET},
             payload={
@@ -36,7 +37,7 @@ class NucleiTest(ArtemisModuleTestCase):
                 "port": 80,
             },
             payload_persistent={
-                "module_runtime_configurations": {"nuclei-module": {"severity_threshold": "medium_and_above"}}
+                "module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}
             },
         )
         self.run_task(task)

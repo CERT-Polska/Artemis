@@ -224,7 +224,9 @@ class Nuclei(ArtemisBase):
     def get_runtime_configuration(self, task: Task) -> NucleiConfiguration:
         configuration = self.get_default_configuration()
 
-        config_dict = task.payload_persistent.get("module_runtime_configurations", {}).get(self.identity)
+        runtime_configurations = task.payload_persistent.get("module_runtime_configurations", {})
+        # FIXME: migration fallback logic to previous identity
+        config_dict = runtime_configurations.get(self.identity) or runtime_configurations.get("nuclei")
         if config_dict is None:
             return configuration
         try:

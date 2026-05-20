@@ -237,6 +237,13 @@ class Config:
             "A file that determines what should not be scanned or reported",
         ] = get_config("BLOCKLIST_FILE", default=None)
 
+        TRUSTED_PROXY_HOSTS: Annotated[
+            Optional[str],
+            "Comma-separated list of trusted proxy hosts for ProxyHeadersMiddleware (e.g. '127.0.0.1,10.0.0.1'). "
+            "Set to '*' to trust all proxies. If not set, ProxyHeadersMiddleware will not be added. "
+            "Use this when running Artemis behind a reverse proxy with SSL termination.",
+        ] = get_config("TRUSTED_PROXY_HOSTS", default=None)
+
         CUSTOM_USER_AGENT: Annotated[
             str,
             "Custom User-Agent string used by Artemis (if not set, the library defaults will be used, different for requests, Nuclei etc.)",

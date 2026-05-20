@@ -395,4 +395,4 @@ class AdminPanelLoginBruter(ArtemisBase):
 
 
 if __name__ == "__main__":
-    AdminPanelLoginBruter().loop()
+    AdminPanelLoginBruter.parallel_loop()

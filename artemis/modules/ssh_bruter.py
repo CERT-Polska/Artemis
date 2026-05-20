@@ -96,4 +96,4 @@ class SSHBruter(ArtemisBase):
 
 
 if __name__ == "__main__":
-    SSHBruter().loop()
+    SSHBruter.parallel_loop()

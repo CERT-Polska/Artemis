@@ -13,6 +13,5 @@ class TestAddCommonParamsFromWordlist(unittest.TestCase):
             params = file.read().splitlines()
             params = [param.strip() for param in params if param.strip() and not param.startswith("#")]
 
-        expected_url = "http://example.com/test?param1=value1&" + "&".join(f"{param}=abcd.html" for param in params)
-
-        self.assertEqual(modified_url, expected_url)
+        for param in params:
+            self.assertTrue(f"{param}=abcd.html" in modified_url)

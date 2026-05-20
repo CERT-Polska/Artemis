@@ -306,4 +306,4 @@ class PortScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    PortScanner().loop()
+    PortScanner.parallel_loop()

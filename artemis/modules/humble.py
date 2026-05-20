@@ -154,4 +154,4 @@ class Humble(ArtemisBase):
 
 
 if __name__ == "__main__":
-    Humble().loop()
+    Humble.parallel_loop()

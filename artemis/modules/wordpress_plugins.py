@@ -456,4 +456,4 @@ class WordpressPlugins(ArtemisBase):
 
 
 if __name__ == "__main__":
-    WordpressPlugins().loop()
+    WordpressPlugins.parallel_loop()

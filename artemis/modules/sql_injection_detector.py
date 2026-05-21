@@ -165,28 +165,25 @@ class SqlInjectionDetector(ArtemisBase):
                 error = self.contains_error(url_with, self.forgiving_http_get(url_with))
                 if not self.contains_error(url_without, self.forgiving_http_get(url_without)) and error:
                     minimal_params.append(param)
-                continue
-
-            if (
+            elif (
                 self.measure_request_time(url_without)
                 < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
                 and self.measure_request_time(url_with)
                 >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
             ):
                 minimal_params.append(param)
+            if len(minimal_params) >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN:
+                break
 
         if minimal_params:
-            capped_minimal_params = minimal_params[
-                : Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN
-            ]
             mode_label = "error-based" if minimization_mode == "error" else "time-based"
             self.log.info(
                 "SQLi %s parameter minimization: %s -> %s",
                 mode_label,
                 params,
-                capped_minimal_params,
+                minimal_params,
             )
-            return capped_minimal_params
+            return minimal_params
 
         # fallback if no single param triggers SQLi
         return params
@@ -228,30 +225,25 @@ class SqlInjectionDetector(ArtemisBase):
                 error = self.contains_error(url, self.forgiving_http_get(url, headers=single_header))
                 if not self.contains_error(url, self.forgiving_http_get(url, headers=no_effect_header)) and error:
                     minimal_headers[header_name] = header_value
-                continue
-
-            if (
+            elif (
                 self.measure_request_time(url, headers=no_effect_header)
                 < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
                 and self.measure_request_time(url, headers=single_header)
                 >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
             ):
                 minimal_headers[header_name] = header_value
+            if len(minimal_headers) >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN:
+                break
 
         if minimal_headers:
-            capped_minimal_headers = dict(
-                list(minimal_headers.items())[
-                    : Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN
-                ]
-            )
             mode_label = "error-based" if minimization_mode == "error" else "time-based"
             self.log.info(
                 "SQLi %s header minimization: %s -> %s",
                 mode_label,
                 list(headers.keys()),
-                list(capped_minimal_headers.keys()),
+                list(minimal_headers.keys()),
             )
-            return capped_minimal_headers
+            return minimal_headers
 
         # fallback if no single header triggers SQLi
         return headers

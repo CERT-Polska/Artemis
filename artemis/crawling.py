@@ -146,12 +146,12 @@ def _run_katana_uro(normalized_url: str) -> Tuple[List[str], bool]:
         "-jsonl",
         "-jc",
         "-field-scope",
+        "dn",
         # If we limit the number of URLs to obtain, let's crawl it using BFS,
         # so that we broadly crawl all features of the website instead of focusing
         # on the first.
         "-strategy",
         "breadth-first",
-        "dn",
         "-c",
         str(Config.Modules.Crawling.KATANA_CONCURRENCY),
         "-mdp",

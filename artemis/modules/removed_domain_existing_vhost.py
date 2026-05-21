@@ -158,7 +158,7 @@ class RemovedDomainExistingVhost(ArtemisBase):
 
 if __name__ == "__main__":
     if Config.Modules.RemovedDomainExistingVhost.REMOVED_DOMAIN_EXISTING_VHOST_PASSIVEDNS_URLS:
-        RemovedDomainExistingVhost().loop()
+        RemovedDomainExistingVhost.parallel_loop()
     else:
         no_pdns_config_message_printed_filename = "/.no-pdns-config-message-shown"
 

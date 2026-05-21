@@ -90,4 +90,4 @@ class VCSScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    VCSScanner().loop()
+    VCSScanner.parallel_loop()

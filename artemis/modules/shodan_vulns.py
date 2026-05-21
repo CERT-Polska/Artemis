@@ -55,7 +55,7 @@ class ShodanVulns(ArtemisBase):
 
 if __name__ == "__main__":
     if Config.Modules.Shodan.SHODAN_API_KEY:
-        ShodanVulns().loop()
+        ShodanVulns.parallel_loop()
     else:
         no_api_key_message_printed_filename = "/.no-api-key-message-shown"
 

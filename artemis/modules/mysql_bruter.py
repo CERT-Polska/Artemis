@@ -66,4 +66,4 @@ class MySQLBruter(ArtemisBase):
 
 
 if __name__ == "__main__":
-    MySQLBruter().loop()
+    MySQLBruter.parallel_loop()

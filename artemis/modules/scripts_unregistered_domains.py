@@ -119,4 +119,4 @@ class ScriptsUnregisteredDomains(ArtemisBase):
 
 
 if __name__ == "__main__":
-    ScriptsUnregisteredDomains().loop()
+    ScriptsUnregisteredDomains.parallel_loop()

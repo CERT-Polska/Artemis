@@ -112,15 +112,16 @@ class LFIDetector(ArtemisBase):
 
             if self.contains_lfi_indicator(original_response, response):
                 minimal_params.append(param)
+            if len(minimal_params) >= Config.Modules.LFIDetector.LFI_MINIMAL_PARAMS_MAX_LEN:
+                break
 
         if minimal_params:
-            capped_minimal_params = minimal_params[: Config.Modules.LFIDetector.LFI_MINIMAL_PARAMS_MAX_LEN]
             self.log.info(
                 "LFI parameter minimization: %s -> %s",
                 params,
-                capped_minimal_params,
+                minimal_params,
             )
-            return capped_minimal_params
+            return minimal_params
 
         # fallback if no single param triggers LFI
         return params

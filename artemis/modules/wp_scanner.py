@@ -103,4 +103,4 @@ class WordPressScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    WordPressScanner().loop()
+    WordPressScanner.parallel_loop()

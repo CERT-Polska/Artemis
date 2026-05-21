@@ -66,4 +66,4 @@ class PostgreSQLBruter(ArtemisBase):
 
 
 if __name__ == "__main__":
-    PostgreSQLBruter().loop()
+    PostgreSQLBruter.parallel_loop()

@@ -88,4 +88,4 @@ class ReverseDNSLookup(ArtemisBase):
 
 
 if __name__ == "__main__":
-    ReverseDNSLookup().loop()
+    ReverseDNSLookup.parallel_loop()

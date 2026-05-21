@@ -206,4 +206,4 @@ class MailDNSScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    MailDNSScanner().loop()
+    MailDNSScanner.parallel_loop()

@@ -831,4 +831,4 @@ class Nuclei(ArtemisBase):
 
 if __name__ == "__main__":
     start_http_server(9001)
-    Nuclei().loop()
+    Nuclei.parallel_loop()

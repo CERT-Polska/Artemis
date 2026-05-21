@@ -77,7 +77,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "persian-woocommerce-sms",
     "rafflepress",
     "search-meter",
-    "trustpilot-reviews",
     "unlimited-elements-for-elementor",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",

@@ -52,9 +52,11 @@ the Artemis directory** and run ``./scripts/start``.
 
    To add SSL termination consider using a reverse proxy such as nginx.
 
-**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in** ``./scripts/start``
-(e.g. by changing ``--scale=karton-bruter=5`` to ``--scale=karton-bruter=20``). By default
-some modules are spawned in a couple of instances, but you may want more of them. You can also pass the ``--single-worker`` parameter to the script to limit the number of each Karton worker to one. This is useful for development, testing, or running on machines with limited resources.
+**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in the** ``.env``
+file (by adding or updating the ``NUM_WORKERS_PER_CONTAINER_MODULE_NAME`` setting, e.g. by changing ``NUM_WORKERS_PER_CONTAINER_BRUTER=5``
+to ``NUM_WORKERS_PER_CONTAINER_BRUTER=20``).
+
+By default some modules are spawned in a couple of instances, but you may want more of them.
 
 For the full list of available configuration options you may set in the ``.env`` file, see :doc:`user-guide/configuration`.
 

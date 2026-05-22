@@ -50,7 +50,7 @@ the Artemis directory** and run ``./scripts/start``.
    internal network only), to prevent unauthorized use of the scanner and reduce exposure
    to attacks such as brute force or credential stuffing.
 
-   To add SSL termination or additional authentication layer, consider using a reverse proxy such as nginx.
+   To add SSL termination consider using a reverse proxy such as nginx.
 
 **If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in** ``./scripts/start``
 (e.g. by changing ``--scale=karton-bruter=5`` to ``--scale=karton-bruter=20``). By default

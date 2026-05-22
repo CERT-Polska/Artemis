@@ -6,6 +6,7 @@ from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
+from artemis.http_requests import HTTPResponse
 from artemis.modules.sql_injection_detector import SqlInjectionDetector
 
 
@@ -72,6 +73,30 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
                 url_to_headers_vuln, http_requests.get(url_to_headers_vuln, headers={"User-Agent": "'"})
             )
         )
+
+    def test_contains_error_ignores_pg_connect_warning(self) -> None:
+        response = HTTPResponse(
+            status_code=200,
+            content_bytes=b"Warning: pg_connect(): Unable to connect to PostgreSQL server",
+            encoding="utf-8",
+            is_redirect=False,
+            url="http://example.com",
+            headers={},
+        )
+
+        self.assertIsNone(self.karton.contains_error("http://example.com", response))
+
+    def test_contains_error_detects_pg_query(self) -> None:
+        response = HTTPResponse(
+            status_code=500,
+            content_bytes=b"Warning: pg_query(): Query failed: ERROR: syntax error at or near",
+            encoding="utf-8",
+            is_redirect=False,
+            url="http://example.com",
+            headers={},
+        )
+
+        self.assertIsNotNone(self.karton.contains_error("http://example.com", response))
 
 
 class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):

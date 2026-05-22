@@ -10,8 +10,8 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import (
+    crawl_and_filter,
     get_injectable_parameters,
-    get_links_and_resources_on_same_domain,
 )
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
@@ -189,7 +189,7 @@ class LFIDetector(ArtemisBase):
         if self.check_connection_to_base_url_and_save_error(current_task):
             url = get_target_url(current_task)
 
-            links = get_links_and_resources_on_same_domain(url)
+            links = crawl_and_filter(url)
             links.append(url)
             links = list(set(links) | set([self._strip_query_string(link) for link in links]))
 

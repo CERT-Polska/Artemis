@@ -22,7 +22,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import (
     add_injectable_params_and_common_params_from_wordlist,
-    get_links_and_resources_on_same_domain,
+    crawl_and_filter,
 )
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
@@ -359,7 +359,7 @@ class Nuclei(ArtemisBase):
                     self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
 
     def _get_links(self, url: str) -> List[str]:
-        links = get_links_and_resources_on_same_domain(url)
+        links = crawl_and_filter(url)
 
         links = [
             link

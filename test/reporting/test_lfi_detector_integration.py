@@ -8,7 +8,7 @@ class LFIDetectorIntegrationTest(BaseReportingTest):
     karton_class = LFIDetector  # type: ignore
 
     def test_reporting_only_lfi(self) -> None:
-        data = self.obtain_http_task_result("lfi_detector", "test-apache-with-lfi-and-rce")
+        data = self.obtain_http_task_result("lfi_detector", "test-apache-with-lfi-and-rce.local")
         message = self.task_result_to_message(data)
 
         self.assertIn(
@@ -25,7 +25,7 @@ class LFIDetectorIntegrationTest(BaseReportingTest):
         with patch("artemis.config.Config.Modules.LFIDetector") as mocked_config:
             mocked_config.LFI_STOP_ON_FIRST_MATCH = False
             mocked_config.LFI_MINIMAL_PARAMS_MAX_LEN = 5
-            data = self.obtain_http_task_result("lfi_detector", "test-apache-with-lfi-and-rce")
+            data = self.obtain_http_task_result("lfi_detector", "test-apache-with-lfi-and-rce.local")
             message = self.task_result_to_message(data)
 
             self.assertIn(

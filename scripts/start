@@ -27,7 +27,6 @@ fi
 ) || exit 1
 
 MODE="production"
-SINGLE_WORKER_MODE=false
 POSITIONAL_ARGS=()
 
 for arg in "$@"; do
@@ -35,16 +34,13 @@ for arg in "$@"; do
     --mode=*)
       MODE="${arg#*=}"
       ;;
-    --single-worker)
-      SINGLE_WORKER_MODE=true
-      ;;
     *)
       POSITIONAL_ARGS+=("$arg")
       ;;
   esac
 done
 
-echo "Starting Artemis in $MODE mode (single worker=$SINGLE_WORKER_MODE)..."
+echo "Starting Artemis in $MODE mode..."
 
 DOCKER_CONFIGS=$(scripts/find_docker_compose_files --mode='production')
 
@@ -74,27 +70,11 @@ else
 fi
 
 
-SCALE_ARGS=""
-
-if [ "$SINGLE_WORKER_MODE" != "true" ]; then
-    SCALE_ARGS+="
-        --scale=karton-identifier=3
-        --scale=karton-port_scanner=5
-        --scale=karton-wordpress_plugins=5
-        --scale=karton-nuclei=1
-    "
-
-    if exists Artemis-modules-extra; then
-        SCALE_ARGS+=(--scale=karton-sqlmap=10)
-    fi
-fi
-
-
 docker compose $DOCKER_CONFIGS_STRING stop
 
 docker pull certpl/artemis:latest
 
-docker compose $DOCKER_CONFIGS_STRING $PROFILE up -d --remove-orphans --build $SCALE_ARGS
+docker compose $DOCKER_CONFIGS_STRING $PROFILE up -d --remove-orphans --build
 
 
 if [ $? -eq 0 ]; then

@@ -45,10 +45,12 @@ the Artemis directory** and run ``./scripts/start``.
 
 .. note ::
 
-   Artemis exposes port 5000 that can be used to add tasks and view results. Remember that this port
-   shouldn't be available publicly, but e.g. on an internal network.
+   Artemis exposes its API/web interface on port 5000. Even with authentication enabled,
+   it is strongly recommended **not** to expose this port publicly (e.g. keep it on an
+   internal network only), to prevent unauthorized use of the scanner and reduce exposure
+   to attacks such as brute force or credential stuffing.
 
-   To add authorization (or SSL termination), you may for example use a reverse proxy, e.g. nginx.
+   To add SSL termination or additional authentication layer, consider using a reverse proxy such as nginx.
 
 **If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in** ``./scripts/start``
 (e.g. by changing ``--scale=karton-bruter=5`` to ``--scale=karton-bruter=20``). By default

@@ -104,10 +104,15 @@ class BaseE2ETestCase(TestCase):
                 time.sleep(retry_time_seconds)
 
     def get_task_results(self) -> Dict[str, Any]:
-        return requests.get(  # type: ignore
-            BACKEND_URL
-            + "api/task-results-table?draw=1&start=0&length=100&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=asc&search[regex]=false&search[value]="
-        ).json()
+        with requests.Session() as s:
+            s.post(
+                BACKEND_URL + "login",
+                data={"username": FRONTEND_USERNAME, "password": FRONTEND_PASSWORD},
+            )
+            return s.get(  # type: ignore
+                BACKEND_URL
+                + "frontend-api/task-results-table?draw=1&start=0&length=100&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=asc&search[regex]=false&search[value]="
+            ).json()
 
     def get_task_messages(self, tag: str) -> List[str]:
         task_results = self.get_task_results()["data"]

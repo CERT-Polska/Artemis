@@ -34,13 +34,14 @@ class FrontendAuthenticationTestCase(BaseE2ETestCase):
             response = s.get(BACKEND_URL)
             self.assertEqual(response.status_code, 200)
 
-    def test_frontned_tables_authentication(self) -> None:
+    def test_frontend_tables_authentication(self) -> None:
         tables_urls = ["/frontend-api/task-results-table", "/frontend-api/analysis-table"]
         for table_url in tables_urls:
             response = requests.get(
                 BACKEND_URL + table_url,
+                allow_redirects=False,
             )
-            self.assertEqual(response.status_code, 401)
+            self.assertEqual(response.status_code, 303)
 
         with requests.Session() as s:
             response = s.post(

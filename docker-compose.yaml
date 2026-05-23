@@ -271,7 +271,7 @@ services:
 
   karton-nuclei-router:
     <<: [*logging, *artemis-build-or-image]
-    command: "python3 -m artemis.modules.nuclei-router"
+    command: "python3 -m artemis.modules.nuclei_router"
     env_file: .env
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]

@@ -186,7 +186,7 @@ class ScanUsing(enum.Enum):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class Nuclei(ArtemisBase):
     """
-    Runs Nuclei templates on URLs.
+    Runs Nuclei templates on URLs. To use Nuclei, enable both nuclei-module and nuclei-router modules.
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES

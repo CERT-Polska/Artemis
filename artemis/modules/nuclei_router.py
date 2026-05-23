@@ -16,7 +16,8 @@ NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY = "nuclei-routing-additional-flags"
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class NucleiRouter(ArtemisBase):
     """
-    Module in the middle to delegate nuclei tasks.
+    A module that decides what Nuclei templates to run on a given target and prepares task information for
+    the actual nuclei-module to run. To use Nuclei, enable both nuclei-module and nuclei-router modules.
     """
 
     identity = "nuclei-router"

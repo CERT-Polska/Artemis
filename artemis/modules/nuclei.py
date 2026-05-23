@@ -36,6 +36,7 @@ from artemis.reporting.modules.nuclei.poc_url_utils import (
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
+    CalledProcessErrorWithMessage,
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
     directory_backup,
@@ -595,7 +596,14 @@ class Nuclei(ArtemisBase):
                     env["HOME"] = "/fake-home/"
 
                 command_start_time = time.time()
-                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)
+                try:
+                    stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)
+                except CalledProcessErrorWithMessage:
+                    self.log.exception("Exception while running Nuclei")
+                    # We pass to the next chunk as e.g. Nuclei raises when the templates list is empty, i.e. all
+                    # are skipped.
+                    break
+
                 METRIC_BATCH_COMMAND_DURATION.labels(scan_type=scan_using).observe(time.time() - command_start_time)
 
                 units = len(targets) * len(chunk)

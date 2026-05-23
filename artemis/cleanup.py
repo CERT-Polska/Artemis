@@ -14,7 +14,7 @@ logger = utils.build_logger(__name__)
 
 DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS = 3
 DELAY_BETWEEN_CLEANUPS__SECONDS = 4 * 3600
-OLD_MODULES = ["dalfox", "http_service_to_url"]
+OLD_MODULES = ["dalfox", "http_service_to_url", "nuclei"]
 
 db = DB()
 
@@ -132,6 +132,7 @@ def _cleanup_scheduled_tasks() -> None:
 
 
 def cleanup() -> None:
+    # this needs to be firstafter so that old Nuclei queue gets migrated before it gets removed
     _migrate_nuclei_queues()
     _cleanup_tasks_not_in_queues()
     _cleanup_queues()

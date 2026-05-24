@@ -84,7 +84,7 @@ if not Config.Miscellaneous.API_TOKEN:
 @router.get("/login", include_in_schema=False)
 def get_login(request: Request) -> Response:
     if request.session.get(auth.SESSION_KEY_AUTHENTICATED):
-        return RedirectResponse(request.url_for("get_root"), status_code=303)
+        return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
     return templates.TemplateResponse(
         "login.jinja2",
@@ -114,7 +114,7 @@ async def post_login(
         )
 
     request.session[auth.SESSION_KEY_AUTHENTICATED] = True
-    return RedirectResponse(request.url_for("get_root"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
 
 @router.post("/logout", include_in_schema=False)
@@ -140,7 +140,7 @@ def get_root(request: Request, csrf_protect: CsrfProtect = Depends()) -> Respons
             "request": request,
             "has_analyses": has_analyses,
             "has_finished_analyses": has_finished_analyses,
-            "api_url": str(request.url_for("get_analyses_table")),
+            "api_url": str(request.app.url_path_for("get_analyses_table")),
             "num_active_tasks": sum(num_pending_tasks.values()),
         },
         csrf_protect,
@@ -226,7 +226,7 @@ async def post_add(
 
     await asyncio.to_thread(create_tasks, total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:
-        return RedirectResponse(request.url_for("get_root"), status_code=303)
+        return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
     else:
         return Response(
             content="OK",
@@ -314,7 +314,7 @@ def view_export(request: Request, id: int) -> Response:
 @csrf.validate_csrf
 async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
     await asyncio.to_thread(db.delete_report_generation_task, id)
-    return RedirectResponse(request.url_for("get_exports"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_exports"), status_code=303)
 
 
 def build_export_zip_response(id: int) -> Response:
@@ -358,7 +358,7 @@ async def post_export(
         comment=comment,
         language=Language(language),
     )
-    return RedirectResponse(request.url_for("get_exports"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_exports"), status_code=303)
 
 
 @router.post("/remove-finished-analyses", include_in_schema=False)
@@ -374,7 +374,7 @@ async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProt
                 db.delete_analysis(analysis["id"])
 
     await asyncio.to_thread(_remove_finished_analyses)
-    return RedirectResponse(request.url_for("get_root"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
 
 @router.post("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
@@ -390,7 +390,7 @@ async def post_remove_pending_tasks(
                 backend.delete_task(task)
 
     await asyncio.to_thread(_remove_pending_tasks)
-    return RedirectResponse(request.url_for("get_root"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
 
 @router.get("/analysis/get-pending-tasks/{analysis_id}", include_in_schema=False)
@@ -433,7 +433,7 @@ def get_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depe
 @csrf.validate_csrf
 async def post_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     await asyncio.to_thread(restart_crashed_tasks)
-    return RedirectResponse(request.url_for("get_root"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
 
 @router.get("/queue", include_in_schema=False)
@@ -494,7 +494,7 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
         {
             "request": request,
             "title": f"Analysis of {analysis['target']}",
-            "api_url": str(request.url_for("get_task_results_table"))
+            "api_url": str(request.app.url_path_for("get_task_results_table"))
             + "?"
             + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
@@ -513,7 +513,7 @@ def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> R
         {
             "request": request,
             "title": "Results",
-            "api_url": str(request.url_for("get_task_results_table"))
+            "api_url": str(request.app.url_path_for("get_task_results_table"))
             + "?"
             + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,

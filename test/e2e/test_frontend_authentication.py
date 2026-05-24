@@ -35,7 +35,7 @@ class FrontendAuthenticationTestCase(BaseE2ETestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_frontend_tables_authentication(self) -> None:
-        tables_urls = ["/frontend-api/task-results-table", "/frontend-api/analysis-table"]
+        tables_urls = ["frontend-api/task-results-table", "frontend-api/analyses-table"]
         for table_url in tables_urls:
             response = requests.get(
                 BACKEND_URL + table_url,

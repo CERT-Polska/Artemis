@@ -30,7 +30,7 @@ checkdmarc @ git+https://github.com/CERT-Polska/checkdmarc@hotfixes-2025-08-01
 click==8.3.3
 click-plugins==1.1.1.2
 colorama==0.4.6
-coverage==7.13.5
+coverage==7.14.0
 cryptography==47.0.0
 decorator==5.2.1
 defusedxml==0.7.1
@@ -143,6 +143,7 @@ typing-inspection==0.4.2
 unittest-parallel==1.7.6
 url-normalize==3.0.0
 urllib3==2.6.3
+uro==1.0.2
 uvicorn==0.46.0
 validators==0.35.0
 werkzeug==3.1.8

@@ -34,6 +34,32 @@ class FrontendAuthenticationTestCase(BaseE2ETestCase):
             response = s.get(BACKEND_URL)
             self.assertEqual(response.status_code, 200)
 
+    def test_frontend_tables_authentication(self) -> None:
+        tables_urls = ["frontend-api/task-results-table", "frontend-api/analyses-table"]
+        for table_url in tables_urls:
+            response = requests.get(
+                BACKEND_URL + table_url,
+                allow_redirects=False,
+            )
+            self.assertEqual(response.status_code, 303)
+
+        with requests.Session() as s:
+            response = s.post(
+                BACKEND_URL + "login",
+                data={"username": FRONTEND_USERNAME, "password": FRONTEND_PASSWORD},
+                allow_redirects=False,
+            )
+            self.assertEqual(response.status_code, 303)
+
+            response = s.get(BACKEND_URL)
+            self.assertEqual(response.status_code, 200)
+
+            for table_url in tables_urls:
+                response = s.get(
+                    BACKEND_URL + table_url,
+                )
+                self.assertEqual(response.status_code, 422)
+
     def test_login_with_invalid_password_returns_401(self) -> None:
         response = requests.post(
             BACKEND_URL + "login",

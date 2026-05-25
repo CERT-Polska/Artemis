@@ -9,13 +9,23 @@ from typing import Any, Dict, List, Optional
 from zipfile import ZipFile
 
 import aiohttp
-from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Form,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+)
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority, TaskState
+from redis import Redis
 from starlette.datastructures import Headers
 
 from artemis import auth, csrf
@@ -31,11 +41,20 @@ from artemis.karton_utils import (
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
-from artemis.task_utils import get_task_target
-from artemis.templating import templates
+from artemis.task_utils import (
+    get_analysis_num_finished_tasks,
+    get_analysis_num_in_progress_tasks,
+    get_task_target,
+)
+from artemis.templating import (
+    render_analyses_table_row,
+    render_task_table_row,
+    templates,
+)
 
 router = APIRouter()
 db = DB()
+redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 
 def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
@@ -536,3 +555,127 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
             "pretty_printed": json.dumps(task, indent=4, cls=JSONEncoderAdditionalTypes),
         },
     )
+
+
+def _get_ordering(request: Request, column_names: list[Optional[str]]) -> list[ColumnOrdering]:
+    ordering = []
+
+    # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]
+    # parameters from FastAPI query string. Feel free to refactor these lines.
+    i = 0
+    while True:
+        column_key = f"order[{i}][column]"
+        dir_key = f"order[{i}][dir]"
+        if column_key not in request.query_params or dir_key not in request.query_params:
+            break
+        column_name = column_names[int(request.query_params[column_key])]
+        if column_name:
+            ordering.append(ColumnOrdering(column_name=column_name, ascending=request.query_params[dir_key] == "asc"))
+        i += 1
+    return ordering
+
+
+def _get_search_query(request: Request) -> Optional[str]:
+    i = 0
+    while True:
+        search_value_key = f"columns[{i}][search][value]"
+        search_regex_key = f"columns[{i}][search][regex]"
+        if search_value_key not in request.query_params:
+            break
+        if request.query_params[search_value_key].strip() != "":
+            raise NotImplementedError("Per-column search is not yet implemented")
+        if request.query_params[search_regex_key] != "false":
+            raise NotImplementedError("Regex search is not yet implemented")
+        i += 1
+
+    if request.query_params["search[regex]"] != "false":
+        raise NotImplementedError("Regex search is not yet implemented")
+
+    return request.query_params["search[value]"]
+
+
+@router.get("/frontend-api/analyses-table", include_in_schema=False)
+def get_analyses_table(
+    request: Request,
+    draw: int = Query(),
+    start: int = Query(),
+    length: int = Query(),
+) -> Dict[str, Any]:
+    ordering = _get_ordering(request, column_names=["created_at", "target", "tag", None, None])
+    search_query = _get_search_query(request)
+
+    result = db.get_paginated_analyses(start, length, ordering, search_query=search_query)
+    backend = KartonBackend(config=KartonConfig())
+    num_pending_tasks = get_num_pending_tasks(backend)
+    all_bind_identities = {bind.identity for bind in backend.get_binds()}
+    disableable_bind_identities = {bind.identity for bind in get_binds_that_can_be_disabled()}
+
+    entries = []
+    for entry in result.data:
+        num_finished_tasks = get_analysis_num_finished_tasks(redis, entry["id"])
+        num_in_progress_tasks = get_analysis_num_in_progress_tasks(redis, entry["id"])
+        num_all_tasks = num_finished_tasks + num_in_progress_tasks + num_pending_tasks.get(entry["id"], 0)
+
+        entries.append(
+            {
+                "id": entry["id"],
+                "tag": entry["tag"],
+                "target": entry["target"],
+                "created_at": entry["created_at"],
+                "disabled_modules": entry["disabled_modules"],
+                "num_pending_tasks": num_pending_tasks.get(entry["id"], 0),
+                "num_all_tasks": num_all_tasks,
+                "num_finished_tasks": num_finished_tasks,
+                "percentage_finished_tasks": 100.0 * num_finished_tasks / num_all_tasks if num_all_tasks else "N/A",
+                "stopped": entry.get("stopped", None),
+            }
+        )
+
+    return {
+        "draw": draw,
+        "recordsTotal": result.records_count_total,
+        "recordsFiltered": result.records_count_filtered,
+        "data": [
+            render_analyses_table_row(request, entry, all_bind_identities, disableable_bind_identities)
+            for entry in entries
+        ],
+    }
+
+
+@router.get("/frontend-api/task-results-table", include_in_schema=False)
+def get_task_results_table(
+    request: Request,
+    analysis_id: Optional[str] = Query(default=None),
+    task_filter: Optional[TaskFilter] = Query(default=None),
+    draw: int = Query(),
+    start: int = Query(),
+    length: int = Query(),
+) -> Dict[str, Any]:
+    ordering = _get_ordering(
+        request,
+        column_names=["created_at", "tag", "receiver", "target_string", None, "status_reason"],
+    )
+    search_query = _get_search_query(request)
+
+    if analysis_id:
+        if not db.get_analysis_by_id(analysis_id):
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        result = db.get_paginated_task_results(
+            start,
+            length,
+            ordering,
+            search_query=search_query,
+            analysis_id=analysis_id,
+            task_filter=task_filter,
+        )
+    else:
+        result = db.get_paginated_task_results(
+            start, length, ordering, search_query=search_query, task_filter=task_filter
+        )
+
+    return {
+        "draw": draw,
+        "recordsTotal": result.records_count_total,
+        "recordsFiltered": result.records_count_filtered,
+        "data": [render_task_table_row(request, task) for task in result.data],
+    }

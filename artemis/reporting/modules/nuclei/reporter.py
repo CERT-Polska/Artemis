@@ -76,7 +76,7 @@ class NucleiReporter(Reporter):
             url_parsed = urllib.parse.urlparse(url)
             return not url_parsed.query and not url_parsed.fragment
 
-        if task_result["headers"]["receiver"] != "nuclei":
+        if task_result["headers"]["receiver"] != "nuclei" and task_result["headers"]["receiver"] != "nuclei-module":
             return []
 
         if not isinstance(task_result["result"], list):
@@ -240,7 +240,7 @@ class NucleiReporter(Reporter):
 
     @staticmethod
     def get_assets(task_result: Dict[str, Any]) -> List[Asset]:
-        if task_result["headers"]["receiver"] != "nuclei":
+        if task_result["headers"]["receiver"] != "nuclei" and task_result["headers"]["receiver"] != "nuclei-module":
             return []
 
         if not isinstance(task_result["result"], list):

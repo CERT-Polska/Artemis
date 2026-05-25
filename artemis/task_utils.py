@@ -23,7 +23,7 @@ def get_target_host(task: Task) -> str:
     """
     task_type = task.headers["type"]
 
-    if task_type == TaskType.SERVICE:
+    if task_type == TaskType.SERVICE or task_type == TaskType.NUCLEI_TARGET:
         payload = task.get_payload("host")
         assert isinstance(payload, str)
         return payload
@@ -89,7 +89,7 @@ def get_target_url(task: Task) -> str:
         assert isinstance(url, str)
         return url
 
-    if task.headers["service"] != Service.HTTP:
+    if task.headers.get("service") != Service.HTTP and task.headers.get("type") != TaskType.NUCLEI_TARGET:
         raise NotImplementedError
 
     target = get_target_host(task)
@@ -142,6 +142,9 @@ def get_task_target(task: Task) -> str:
         if "host" in task.payload and "port" in task.payload:
             result = task.payload["host"] + ":" + str(task.payload["port"])
     elif task.headers["type"] == TaskType.DEVICE:
+        if "host" in task.payload and "port" in task.payload:
+            result = task.payload["host"] + ":" + str(task.payload["port"])
+    elif task.headers["type"] == TaskType.NUCLEI_TARGET:
         if "host" in task.payload and "port" in task.payload:
             result = task.payload["host"] + ":" + str(task.payload["port"])
 

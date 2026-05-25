@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from karton.core import Task
 
-from artemis.binds import Service, TaskStatus, TaskType
+from artemis.binds import TaskStatus, TaskType
 from artemis.modules.nuclei import Nuclei
 
 
@@ -13,12 +13,14 @@ class NucleiTest(ArtemisModuleTestCase):
 
     def test_severity_threshold(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-service-with-exposed-apache-config.local",
                 "port": 80,
             },
-            payload_persistent={"module_runtime_configurations": {"nuclei": {"severity_threshold": "critical_only"}}},
+            payload_persistent={
+                "module_runtime_configurations": {"nuclei-module": {"severity_threshold": "critical_only"}}
+            },
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
@@ -27,8 +29,9 @@ class NucleiTest(ArtemisModuleTestCase):
 
         self.mock_db.reset_mock()
 
+        # Using previous identity for backwardcompatibilty testing during migration
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-service-with-exposed-apache-config.local",
                 "port": 80,
@@ -43,7 +46,7 @@ class NucleiTest(ArtemisModuleTestCase):
 
     def test_dast_template(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-dast-vuln-app.local",
                 "port": 5000,
@@ -95,7 +98,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
     def test_403_bypass_workflow(self) -> None:
         # workflows use additional list of templates
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-php-403-bypass.local",
                 "port": 80,
@@ -111,13 +114,13 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
 
     def test_interactsh(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-php-mock-CVE-2020-28976.local",
                 "port": 80,
             },
             payload_persistent={
-                "module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}
+                "module_runtime_configurations": {"nuclei-module": {"severity_threshold": "medium_and_above"}}
             },
         )
         self.run_task(task)
@@ -130,7 +133,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
 
     def test_links(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            {"type": TaskType.NUCLEI_TARGET},
             payload={
                 "host": "test-php-xss-but-not-on-homepage.local",
                 "port": 80,

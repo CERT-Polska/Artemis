@@ -14,9 +14,28 @@ logger = utils.build_logger(__name__)
 
 DONT_CLEANUP_TASKS_FRESHER_THAN__DAYS = 3
 DELAY_BETWEEN_CLEANUPS__SECONDS = 4 * 3600
-OLD_MODULES = ["dalfox", "http_service_to_url"]
+OLD_MODULES = ["dalfox", "http_service_to_url", "nuclei"]
 
 db = DB()
+
+
+def _migrate_nuclei_queues() -> None:
+    backend = KartonBackend(config=KartonConfig())
+
+    for source_queue in backend.redis.scan_iter(match="karton.queue.*:nuclei"):
+        destination_queue = source_queue[: -len(":nuclei")] + ":nuclei-router"
+
+        moved_in_queue = 0
+        while backend.redis.rpoplpush(source_queue, destination_queue):  # type: ignore
+            moved_in_queue += 1
+
+        if moved_in_queue > 0:
+            logger.info(
+                "Migrated %d task(s) from %s to %s",
+                moved_in_queue,
+                source_queue,
+                destination_queue,
+            )
 
 
 def _cleanup_tasks_not_in_queues() -> None:
@@ -113,6 +132,8 @@ def _cleanup_scheduled_tasks() -> None:
 
 
 def cleanup() -> None:
+    # this needs to be firstafter so that old Nuclei queue gets migrated before it gets removed
+    _migrate_nuclei_queues()
     _cleanup_tasks_not_in_queues()
     _cleanup_queues()
     _cleanup_scheduled_tasks()

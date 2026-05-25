@@ -2669,4 +2669,5 @@ TRANSLATIONS = {
     "Frappe Helpdesk products was detected.": "Wykryto panel produktu Frappe Helpdesk.",
     "The YSoft SafeQ panel is umbrella printer management software used by many printer vendors. This should not be exposed to the public internet.": "Wykryto panel YSoft SafeQ.",
     "Activepieces was detected. Activepieces was an open-source automation platform with AI and LLM integrations. Exposed instances may allow access to workflow automation configurations and connected integrations.": "Wykryto panel Activepieces. Upublicznione instancje mogą umożliwiać dostęp do konfiguracji automatyzacji workflow i podłączonych integracji.",
+    "Rails GoodJob Dashboard panel was detected.": "Wykryto panel Rails GoodJob Dashboard.",
 }

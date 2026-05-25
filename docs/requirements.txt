@@ -143,6 +143,7 @@ typing-inspection==0.4.2
 unittest-parallel==1.7.6
 url-normalize==3.0.0
 urllib3==2.6.3
+uro==1.0.2
 uvicorn==0.46.0
 validators==0.35.0
 werkzeug==3.1.8

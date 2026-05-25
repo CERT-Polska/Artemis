@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 from collections import namedtuple
 from typing import Any, Callable, Dict, List
 
@@ -19,6 +20,16 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
 
+@dataclass
+class MessageWithTarget:
+        message: str
+        target: str
+        type: str
+        is_warning: bool
+        mx_server: Optional[str] = None
+        port: Optional[int] = None
+
+
 class MailDNSScannerReporter(Reporter):
     MISCONFIGURED_EMAIL = ReportType("misconfigured_email")
 
@@ -30,13 +41,12 @@ class MailDNSScannerReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
-        MessageWithTarget = namedtuple("MessageWithTarget", "message target type is_warning")
-
         messages_with_targets = []
         # Use 'or {}' instead of '{}' as the default because the keys can be present with value
         # None (libmailgoose may leave .spf or .dmarc as None), and dict.get returns None in that
         # case rather than the default — which would crash the subsequent .get chains.
-        spf_dmarc = task_result["result"].get("spf_dmarc_scan_result") or {}
+        spf_dmarc_ssl = task_result["result"].get("spf_dmarc_scan_result") or {}
+        ssl = spf_dmarc.get("ssl") or {}
         spf = spf_dmarc.get("spf") or {}
         dmarc = spf_dmarc.get("dmarc") or {}
         if spf_dmarc:
@@ -88,6 +98,15 @@ class MailDNSScannerReporter(Reporter):
                         MessageWithTarget(message=warning, target=target, type="DMARC", is_warning=True)
                     )
 
+            # Process SSL errors
+            if not ssl.get("valid", True):
+                for error in ssl.get("errors", []):
+                    messages_with_targets.append(
+                        MessageWithTarget(
+                            message=error, target=task_result["payload"]["domain"], type="SSL", is_warning=False
+                        )
+                    )
+
         result = []
         for message_with_target in sorted(messages_with_targets, key=lambda item: 1 if item.is_warning else 0):
             top_level_target = get_top_level_target(task_result)
@@ -114,6 +133,8 @@ class MailDNSScannerReporter(Reporter):
                         ),
                         "is_for_parent_domain": is_for_parent_domain,
                         "is_warning": message_with_target.is_warning,
+                        "mx_server": message_with_target.mx_server,
+                        "port": message_with_target.port,
                     },
                     timestamp=task_result["created_at"],
                 )

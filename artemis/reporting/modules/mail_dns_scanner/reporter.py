@@ -100,12 +100,13 @@ class MailDNSScannerReporter(Reporter):
 
             # Process SSL errors
             if not ssl.get("valid", True):
-                for error in ssl.get("errors", []):
-                    messages_with_targets.append(
-                        MessageWithTarget(
-                            message=error, target=task_result["payload"]["domain"], type="SSL", is_warning=False
+                for result in ssl.get("result", []):
+                    if result["error"]:
+                        messages_with_targets.append(
+                            MessageWithTarget(
+                                message=result["error"], target=task_result["payload"]["domain"], type="SSL", is_warning=False, mx=result["mx"], port=result["port"],
+                            )
                         )
-                    )
 
         result = []
         for message_with_target in sorted(messages_with_targets, key=lambda item: 1 if item.is_warning else 0):

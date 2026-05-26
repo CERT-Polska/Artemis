@@ -18,7 +18,7 @@ from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
-SSL_ERRORS_TO_SKIP = ["Errno 101] Network unreachable"]
+SSL_ERRORS_TO_SKIP = ["[Errno 101] Network unreachable", 'Connection timed out', 'Connection unexpectedly closed: timed out', '[Errno 113] Host is unreachable', 'please run connect() first', "[Errno 104] Connection reset by peer"]
 
 
 @dataclass
@@ -103,7 +103,8 @@ class MailDNSScannerReporter(Reporter):
             if not ssl.get("valid", True):
                 for result in ssl.get("results", []):
                     if result["error"]:
-                        if result["error"] in SSL_ERRORS_TO_SKIP:
+                        print("AAAA", result)
+                        if result["error"].strip() in SSL_ERRORS_TO_SKIP:
                             continue
 
                         # We don't report 'connection refused' if any other port on same mx didn't refuse connection

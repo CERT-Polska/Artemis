@@ -138,7 +138,7 @@ class ExportingTestCase(BaseE2ETestCase):
                 output_data = json.loads(f.read().decode("ascii"))
                 self.assertEqual(list(output_data["messages"].keys()), ["test-smtp-server.artemis"])
                 self.assertEqual(
-                    normalize_html_str(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"]),
+                    normalize_html_str("".join([item["html"] for item in output_data["messages"]["test-smtp-server.artemis"]["reports"] if "DMARC" in item["message_en"]])),
                     normalize_html_str(
                         "\n".join(
                             [
@@ -152,13 +152,6 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "",
                                 "                        ",
                                 "                    </li>",
-                                "<li>",
-                                "       Error:",
-                                "",
-                                "                         test-smtp-server.artemis:",
-                                "                           Problem with SSL/TLS for the MX server test-smtp-server.artemis on port 25:",
-                                "                             STARTTLS not supported on test-smtp-server.artemis MX server",
-                                "</li>",
                                 "</ul>",
                                 "<p>",
                                 "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
@@ -315,7 +308,7 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "",
                                 "                        test-smtp-server.artemis:",
                                 "Problem z SSL/TLS dla serwera MX test-smtp-server.artemis na porcie 25:",
-                                "                          STARTTLS nie jest obsługiwany przez serwer MX test-smtp-server.artemis",
+                                "                            STARTTLS nie jest obsługiwany przez serwer MX test-smtp-server.artemis",
                                 "      </li>",
                                 "        </ul>",
                                 "        <p>",

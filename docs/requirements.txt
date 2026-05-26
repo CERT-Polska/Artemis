@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
@@ -56,7 +56,7 @@ itsdangerous==2.2.0
 jinja2==3.1.6
 jmespath==1.1.0
 jsonschema==4.24.1
-jsonschema-path==0.4.5
+jsonschema-path==0.4.6
 jsonschema-specifications==2025.9.1
 karton-core==5.9.1
 lazy-object-proxy==1.12.0

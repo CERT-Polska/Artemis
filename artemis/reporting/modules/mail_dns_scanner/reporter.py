@@ -109,33 +109,32 @@ class MailDNSScannerReporter(Reporter):
                     )
 
             # Process SSL errors
-            if not ssl.get("valid", True):
-                for result in ssl.get("results", []):
-                    for problem, is_warning in [(result["error"], False), (result["warning"], True)]:
-                        if problem:
-                            if problem.strip() in SSL_ERRORS_TO_SKIP:
-                                continue
+            for result in ssl.get("results", []):
+                for problem, is_warning in [(result["error"], False), (result["warning"], True)]:
+                    if problem:
+                        if problem.strip() in SSL_ERRORS_TO_SKIP:
+                            continue
 
-                            # We don't report 'connection refused' if any other port on same mx didn't refuse connection
-                            if "connection refused" in problem.lower() and any(
-                                [
-                                    other["mx"] == result["mx"]
-                                    and "connection refused" not in (other["error"].lower() or "")
-                                    for other in ssl.get("results", [])
-                                ]
-                            ):
-                                continue
+                        # We don't report 'connection refused' if any other port on same mx didn't refuse connection
+                        if "connection refused" in problem.lower() and any(
+                            [
+                                other["mx"] == result["mx"]
+                                and "connection refused" not in (other["error"].lower() or "")
+                                for other in ssl.get("results", [])
+                            ]
+                        ):
+                            continue
 
-                            messages_with_targets.append(
-                                MessageWithTarget(
-                                    message=problem,
-                                    target=task_result["payload"]["domain"],
-                                    type="SSL",
-                                    is_warning=is_warning,
-                                    mx_server=result["mx"],
-                                    port=result["port"],
-                                )
+                        messages_with_targets.append(
+                            MessageWithTarget(
+                                message=problem,
+                                target=task_result["payload"]["domain"],
+                                type="SSL",
+                                is_warning=is_warning,
+                                mx_server=result["mx"],
+                                port=result["port"],
                             )
+                        )
 
         result = []
         for message_with_target in sorted(messages_with_targets, key=lambda item: 1 if item.is_warning else 0):

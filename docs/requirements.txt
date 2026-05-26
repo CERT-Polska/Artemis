@@ -31,7 +31,7 @@ click==8.3.3
 click-plugins==1.1.1.2
 colorama==0.4.6
 coverage==7.14.0
-cryptography==46.0.7
+cryptography==48.0.0
 decorator==5.2.1
 defusedxml==0.7.1
 dkimpy==1.1.8
@@ -140,11 +140,11 @@ tqdm==4.67.3
 typer==0.25.1
 typing-extensions==4.15.0
 typing-inspection==0.4.2
-unittest-parallel==1.7.6
+unittest-parallel==1.8.2
 url-normalize==3.0.0
 urllib3==2.7.0
 uro==1.0.2
-uvicorn==0.46.0
+uvicorn==0.47.0
 validators==0.35.0
 werkzeug==3.1.8
 whoisdomain==1.20260326.1

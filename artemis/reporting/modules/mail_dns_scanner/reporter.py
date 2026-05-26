@@ -18,6 +18,8 @@ from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
+SSL_ERRORS_TO_SKIP = ["Errno 101] Network unreachable"]
+
 
 @dataclass
 class MessageWithTarget:
@@ -101,6 +103,9 @@ class MailDNSScannerReporter(Reporter):
             if not ssl.get("valid", True):
                 for result in ssl.get("results", []):
                     if result["error"]:
+                        if result["error"] in SSL_ERRORS_TO_SKIP:
+                            continue
+
                         # We don't report 'connection refused' if any other port on same mx didn't refuse connection
                         if "connection refused" in result["error"].lower() and any(
                             [

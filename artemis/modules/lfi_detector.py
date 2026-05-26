@@ -1,5 +1,4 @@
 import random
-import re
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse, urlunparse
@@ -57,7 +56,7 @@ class LFIDetector(ArtemisBase):
         return f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
 
     def is_url_with_parameters(self, url: str) -> bool:
-        return bool(re.search(r"/?/*=", url))
+        return "?" in url
 
     def contains_lfi_indicator(self, original_response: HTTPResponse, response: HTTPResponse) -> Optional[str]:
         """Check if the response contains indicators of LFI.

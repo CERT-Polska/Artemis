@@ -14,9 +14,7 @@ msgstr ""
 
 #: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:16
 #, python-format
-msgid ""
-"Problem with the %(type)s mechanism for the MX server %(mx_sever)s on "
-"port %(port)s"
+msgid "Problem with SSL/TLS for the MX server %(mx_sever)s on port %(port)s"
 msgstr ""
 
 #: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:20

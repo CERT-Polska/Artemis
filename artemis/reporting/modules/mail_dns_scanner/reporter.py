@@ -175,7 +175,7 @@ class MailDNSScannerReporter(Reporter):
                                 " -> "
                                 + get_domain_normal_form(report.additional_data["mx_server"])
                                 + ":"
-                                + report.additional_data["port"]
+                                + str(report.additional_data["port"])
                             )
                             if report.additional_data.get("mx_server")
                             else ""

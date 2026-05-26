@@ -168,7 +168,19 @@ class MailDNSScannerReporter(Reporter):
             MailDNSScannerReporter.MISCONFIGURED_EMAIL: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
-                    "target": get_domain_normal_form(report.target),
+                    "target": (
+                        get_domain_normal_form(report.target)
+                        + (
+                            (
+                                " -> "
+                                + get_domain_normal_form(report.additional_data["mx_server"])
+                                + ":"
+                                + report.additional_data["port"]
+                            )
+                            if report.additional_data.get("mx_server")
+                            else ""
+                        )
+                    ),
                     "message": report.additional_data["message_en"],
                 }
             )

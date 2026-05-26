@@ -24,6 +24,7 @@ def normalize_html_bytes(text: bytes, encoding: str) -> str:
 
 class ExportingTestCase(BaseE2ETestCase):
     def test_exporting_gui(self) -> None:
+        self.maxDiff = None
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-gui", ["mail_dns_scanner", "classifier"]
         )
@@ -175,6 +176,7 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
     def test_exporting_api(self) -> None:
+        self.maxDiff = None
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
         )

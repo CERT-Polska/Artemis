@@ -18,7 +18,15 @@ from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
-SSL_ERRORS_TO_SKIP = ["[Errno 101] Network unreachable", 'Connection timed out', 'Connection unexpectedly closed: timed out', '[Errno 113] Host is unreachable', 'please run connect() first', "[Errno 104] Connection reset by peer"]
+SSL_ERRORS_TO_SKIP = [
+    "(554, b'5.7.1 Delivery not authorized')",
+    "Connection timed out",
+    "Connection unexpectedly closed: timed out",
+    "[Errno 101] Network unreachable",
+    "[Errno 104] Connection reset by peer",
+    "[Errno 113] Host is unreachable",
+    "please run connect() first",
+]
 
 
 @dataclass

@@ -25,6 +25,7 @@ SSL_ERRORS_TO_SKIP = [
     "[Errno 101] Network unreachable",
     "[Errno 104] Connection reset by peer",
     "[Errno 113] Host is unreachable",
+    "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)",
     "please run connect() first",
 ]
 

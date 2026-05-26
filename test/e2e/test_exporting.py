@@ -138,7 +138,15 @@ class ExportingTestCase(BaseE2ETestCase):
                 output_data = json.loads(f.read().decode("ascii"))
                 self.assertEqual(list(output_data["messages"].keys()), ["test-smtp-server.artemis"])
                 self.assertEqual(
-                    normalize_html_str("".join([item["html"] for item in output_data["messages"]["test-smtp-server.artemis"]["reports"] if "DMARC" in item["message_en"]])),
+                    normalize_html_str(
+                        "".join(
+                            [
+                                item["html"]
+                                for item in output_data["messages"]["test-smtp-server.artemis"]["reports"]
+                                if "DMARC" in item["message_en"]
+                            ]
+                        )
+                    ),
                     normalize_html_str(
                         "\n".join(
                             [

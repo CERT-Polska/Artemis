@@ -72,7 +72,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "learnpress-wishlist",
     "link-manager",
     "login-logo",
-    "official-statcounter-plugin-for-wordpress",
     "page-or-post-clone",
     "persian-woocommerce-sms",
     "rafflepress",

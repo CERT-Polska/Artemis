@@ -15,7 +15,7 @@
     </dl>
 
     {% if task.status == "done" %}
-        <a class="btn btn-primary mt-4 mb-4" href="{{ request.url_for('export_download_zip', id=task.id) }}">Download ZIP</a>
+        <a class="btn btn-primary mt-4 mb-4" href="{{ request.app.url_path_for('export_download_zip', id=task.id) }}">Download ZIP</a>
 
         <ul class="nav nav-tabs" role="tablist">
           <li class="nav-item" role="presentation">

@@ -640,6 +640,8 @@ class ArtemisBase(Karton):
                 should_check_connection = True
             elif task.headers["type"] == TaskType.WEBAPP:
                 should_check_connection = True
+            elif task.headers["type"] == TaskType.NUCLEI_TARGET:
+                should_check_connection = True
             elif task.headers["type"] == TaskType.URL:
                 should_check_connection = True
 

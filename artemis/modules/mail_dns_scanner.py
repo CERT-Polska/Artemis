@@ -194,7 +194,7 @@ class MailDNSScanner(ArtemisBase):
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.warnings)
 
         if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.ssl:
-            status_reasons.extend([item.error for item in result.spf_dmarc_scan_result.ssl.results if item.error])
+            status_reasons.extend(["Problem for server %s port %s: %s" % (item.mx, item.port, item.error) for item in result.spf_dmarc_scan_result.ssl.results if item.error])
 
         if status_reasons:
             status = TaskStatus.INTERESTING

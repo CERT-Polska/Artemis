@@ -1,7 +1,6 @@
 import os
 from dataclasses import dataclass
-from collections import namedtuple
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from libmailgoose.language import Language as MailgooseLanguageClass
 from libmailgoose.translate import translate
@@ -22,12 +21,12 @@ from artemis.reporting.utils import get_top_level_target
 
 @dataclass
 class MessageWithTarget:
-        message: str
-        target: str
-        type: str
-        is_warning: bool
-        mx_server: Optional[str] = None
-        port: Optional[int] = None
+    message: str
+    target: Optional[str]
+    type: str
+    is_warning: bool
+    mx_server: Optional[str] = None
+    port: Optional[int] = None
 
 
 class MailDNSScannerReporter(Reporter):
@@ -46,10 +45,10 @@ class MailDNSScannerReporter(Reporter):
         # None (libmailgoose may leave .spf or .dmarc as None), and dict.get returns None in that
         # case rather than the default — which would crash the subsequent .get chains.
         spf_dmarc_ssl = task_result["result"].get("spf_dmarc_scan_result") or {}
-        ssl = spf_dmarc.get("ssl") or {}
-        spf = spf_dmarc.get("spf") or {}
-        dmarc = spf_dmarc.get("dmarc") or {}
-        if spf_dmarc:
+        ssl = spf_dmarc_ssl.get("ssl") or {}
+        spf = spf_dmarc_ssl.get("spf") or {}
+        dmarc = spf_dmarc_ssl.get("dmarc") or {}
+        if spf_dmarc_ssl:
             # Process SPF errors
             if not spf.get("valid", True):
                 for error in spf.get("errors", []):
@@ -76,14 +75,14 @@ class MailDNSScannerReporter(Reporter):
                 # lack of DMARC record) is highly problable on at least one of them.
                 if dmarc.get("record_not_found"):
                     if task_result["target_string"] not in [
-                        spf_dmarc.get("base_domain"),
+                        spf_dmarc_ssl.get("base_domain"),
                         task_result["payload_persistent"].get("original_domain", None),
                     ]:
                         report_dmarc_problems = False
 
                 if report_dmarc_problems:
                     for error in dmarc.get("errors", []):
-                        target = dmarc.get("location") or spf_dmarc.get("base_domain")
+                        target = dmarc.get("location") or spf_dmarc_ssl.get("base_domain")
 
                         messages_with_targets.append(
                             MessageWithTarget(message=error, target=target, type="DMARC", is_warning=False)
@@ -92,7 +91,7 @@ class MailDNSScannerReporter(Reporter):
             # Process DMARC warnings
             if dmarc.get("warnings"):
                 for warning in dmarc["warnings"]:
-                    target = dmarc.get("location") or spf_dmarc.get("base_domain")
+                    target = dmarc.get("location") or spf_dmarc_ssl.get("base_domain")
 
                     messages_with_targets.append(
                         MessageWithTarget(message=warning, target=target, type="DMARC", is_warning=True)
@@ -100,16 +99,23 @@ class MailDNSScannerReporter(Reporter):
 
             # Process SSL errors
             if not ssl.get("valid", True):
-                for result in ssl.get("result", []):
+                for result in ssl.get("results", []):
                     if result["error"]:
                         messages_with_targets.append(
                             MessageWithTarget(
-                                message=result["error"], target=task_result["payload"]["domain"], type="SSL", is_warning=False, mx=result["mx"], port=result["port"],
+                                message=result["error"],
+                                target=task_result["payload"]["domain"],
+                                type="SSL",
+                                is_warning=False,
+                                mx_server=result["mx"],
+                                port=result["port"],
                             )
                         )
 
         result = []
         for message_with_target in sorted(messages_with_targets, key=lambda item: 1 if item.is_warning else 0):
+            assert message_with_target.target
+
             top_level_target = get_top_level_target(task_result)
 
             # Sometimes we scan a domain (e.g. something.example.com) and we get a report that parent domain

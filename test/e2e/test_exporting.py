@@ -143,7 +143,7 @@ class ExportingTestCase(BaseE2ETestCase):
                             [
                                 item["html"]
                                 for item in output_data["messages"]["test-smtp-server.artemis"]["reports"]
-                                if "DMARC" in item["message_en"]
+                                if "DMARC" in item["html"]
                             ]
                         )
                     ),

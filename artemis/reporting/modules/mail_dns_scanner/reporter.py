@@ -101,6 +101,16 @@ class MailDNSScannerReporter(Reporter):
             if not ssl.get("valid", True):
                 for result in ssl.get("results", []):
                     if result["error"]:
+                        # We don't report 'connection refused' if any other port on same mx didn't refuse connection
+                        if "connection refused" in result["error"].lower() and any(
+                            [
+                                other["mx"] == result["mx"]
+                                and "connection refused" not in (other["error"].lower() or "")
+                                for other in ssl.get("results", [])
+                            ]
+                        ):
+                            continue
+
                         messages_with_targets.append(
                             MessageWithTarget(
                                 message=result["error"],

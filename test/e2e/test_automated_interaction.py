@@ -31,7 +31,6 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         )
 
     def test_automated_interaction(self) -> None:
-        self.maxDiff = None
         self.assertTrue(
             requests.post(
                 BACKEND_URL + "api/add",

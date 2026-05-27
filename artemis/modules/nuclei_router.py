@@ -89,4 +89,4 @@ class NucleiRouter(ArtemisBase):
 
 
 if __name__ == "__main__":
-    NucleiRouter().loop()
+    NucleiRouter.parallel_loop()

@@ -6,7 +6,7 @@ from typing import List, Optional
 import dns.name
 import dns.resolver
 from karton.core import Task
-from libmailgoose.scan import DomainScanResult as SPFDMARCScanResult
+from libmailgoose.scan import DomainScanResult as SPFDMARCSSLScanResult
 from libmailgoose.scan import ScanningException, scan_domain
 from publicsuffixlist import PublicSuffixList
 
@@ -24,7 +24,7 @@ PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 @dataclasses.dataclass
 class MailDNSScannerResult:
-    spf_dmarc_scan_result: Optional[SPFDMARCScanResult] = None
+    spf_dmarc_scan_result: Optional[SPFDMARCSSLScanResult] = None
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
@@ -178,6 +178,9 @@ class MailDNSScanner(ArtemisBase):
                 result.spf_dmarc_scan_result.spf.warnings = []
             if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.dmarc:
                 result.spf_dmarc_scan_result.dmarc.warnings = []
+            if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.ssl:
+                for item in result.spf_dmarc_scan_result.ssl.results:
+                    item.warning = None
 
         status_reasons: List[str] = []
         if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.spf:
@@ -192,6 +195,12 @@ class MailDNSScanner(ArtemisBase):
 
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.warnings)
+
+        if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.ssl:
+            for item in result.spf_dmarc_scan_result.ssl.results:
+                for problem in [item.error, item.warning]:
+                    if problem:
+                        status_reasons.append("Problem for server %s port %s: %s" % (item.mx, item.port, problem))
 
         if status_reasons:
             status = TaskStatus.INTERESTING

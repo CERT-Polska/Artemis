@@ -11,7 +11,17 @@
                         {% endif %}
 
                         {{ report.target }}:
-                            {% if "SPF" not in report.additional_data.message_translated and "DMARC" not in report.additional_data.message_translated %}
+                            {% if report.additional_data.type == 'SSL' %}
+                                {% if report.additional_data.port %}
+                                    {% with mx_server=report.additional_data.mx_server, port=report.additional_data.port %}
+                                        {% trans %}Problem with SSL/TLS for the MX server {{ mx_server }} on port {{ port }}:{% endtrans %}
+                                    {% endwith %}
+                                {% else %}
+                                    {% with mx_server=report.additional_data.mx_server, port=report.additional_data.port %}
+                                        {% trans %}Problem with SSL/TLS for the MX server {{ mx_server }}:{% endtrans %}
+                                    {% endwith %}
+                                {% endif %}
+                            {% elif "SPF" not in report.additional_data.message_translated and "DMARC" not in report.additional_data.message_translated %}
                                 {% with type=report.additional_data.type %}
                                     {% trans %}Problem with the {{ type }} mechanism:{% endtrans %}
                                 {% endwith %}

@@ -1,6 +1,6 @@
 import os
-from collections import namedtuple
-from typing import Any, Callable, Dict, List
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional
 
 from libmailgoose.language import Language as MailgooseLanguageClass
 from libmailgoose.translate import translate
@@ -18,6 +18,27 @@ from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
+SSL_ERRORS_TO_SKIP = [
+    "(554, b'5.7.1 Delivery not authorized')",
+    "Connection timed out",
+    "Connection unexpectedly closed: timed out",
+    "[Errno 101] Network unreachable",
+    "[Errno 104] Connection reset by peer",
+    "[Errno 113] Host is unreachable",
+    "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)",
+    "please run connect() first",
+]
+
+
+@dataclass
+class MessageWithTarget:
+    message: str
+    target: Optional[str]
+    type: str
+    is_warning: bool
+    mx_server: Optional[str] = None
+    port: Optional[int] = None
+
 
 class MailDNSScannerReporter(Reporter):
     MISCONFIGURED_EMAIL = ReportType("misconfigured_email")
@@ -30,16 +51,15 @@ class MailDNSScannerReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
-        MessageWithTarget = namedtuple("MessageWithTarget", "message target type is_warning")
-
         messages_with_targets = []
         # Use 'or {}' instead of '{}' as the default because the keys can be present with value
         # None (libmailgoose may leave .spf or .dmarc as None), and dict.get returns None in that
         # case rather than the default — which would crash the subsequent .get chains.
-        spf_dmarc = task_result["result"].get("spf_dmarc_scan_result") or {}
-        spf = spf_dmarc.get("spf") or {}
-        dmarc = spf_dmarc.get("dmarc") or {}
-        if spf_dmarc:
+        spf_dmarc_ssl = task_result["result"].get("spf_dmarc_scan_result") or {}
+        ssl = spf_dmarc_ssl.get("ssl") or {}
+        spf = spf_dmarc_ssl.get("spf") or {}
+        dmarc = spf_dmarc_ssl.get("dmarc") or {}
+        if spf_dmarc_ssl:
             # Process SPF errors
             if not spf.get("valid", True):
                 for error in spf.get("errors", []):
@@ -66,14 +86,14 @@ class MailDNSScannerReporter(Reporter):
                 # lack of DMARC record) is highly problable on at least one of them.
                 if dmarc.get("record_not_found"):
                     if task_result["target_string"] not in [
-                        spf_dmarc.get("base_domain"),
+                        spf_dmarc_ssl.get("base_domain"),
                         task_result["payload_persistent"].get("original_domain", None),
                     ]:
                         report_dmarc_problems = False
 
                 if report_dmarc_problems:
                     for error in dmarc.get("errors", []):
-                        target = dmarc.get("location") or spf_dmarc.get("base_domain")
+                        target = dmarc.get("location") or spf_dmarc_ssl.get("base_domain")
 
                         messages_with_targets.append(
                             MessageWithTarget(message=error, target=target, type="DMARC", is_warning=False)
@@ -82,14 +102,44 @@ class MailDNSScannerReporter(Reporter):
             # Process DMARC warnings
             if dmarc.get("warnings"):
                 for warning in dmarc["warnings"]:
-                    target = dmarc.get("location") or spf_dmarc.get("base_domain")
+                    target = dmarc.get("location") or spf_dmarc_ssl.get("base_domain")
 
                     messages_with_targets.append(
                         MessageWithTarget(message=warning, target=target, type="DMARC", is_warning=True)
                     )
 
+            # Process SSL errors
+            for result in ssl.get("results", []):
+                for problem, is_warning in [(result["error"], False), (result["warning"], True)]:
+                    if problem:
+                        if problem.strip() in SSL_ERRORS_TO_SKIP:
+                            continue
+
+                        # We don't report 'connection refused' if any other port on same mx didn't refuse connection
+                        if "connection refused" in problem.lower() and any(
+                            [
+                                other["mx"] == result["mx"]
+                                and "connection refused" not in (other["error"].lower() or "")
+                                for other in ssl.get("results", [])
+                            ]
+                        ):
+                            continue
+
+                        messages_with_targets.append(
+                            MessageWithTarget(
+                                message=problem,
+                                target=task_result["payload"]["domain"],
+                                type="SSL",
+                                is_warning=is_warning,
+                                mx_server=result["mx"],
+                                port=result["port"],
+                            )
+                        )
+
         result = []
         for message_with_target in sorted(messages_with_targets, key=lambda item: 1 if item.is_warning else 0):
+            assert message_with_target.target
+
             top_level_target = get_top_level_target(task_result)
 
             # Sometimes we scan a domain (e.g. something.example.com) and we get a report that parent domain
@@ -114,6 +164,8 @@ class MailDNSScannerReporter(Reporter):
                         ),
                         "is_for_parent_domain": is_for_parent_domain,
                         "is_warning": message_with_target.is_warning,
+                        "mx_server": message_with_target.mx_server,
+                        "port": message_with_target.port,
                     },
                     timestamp=task_result["created_at"],
                 )
@@ -140,7 +192,19 @@ class MailDNSScannerReporter(Reporter):
             MailDNSScannerReporter.MISCONFIGURED_EMAIL: lambda report: Reporter.dict_to_tuple(
                 {
                     "type": report.report_type,
-                    "target": get_domain_normal_form(report.target),
+                    "target": (
+                        get_domain_normal_form(report.target)
+                        + (
+                            (
+                                " -> "
+                                + get_domain_normal_form(report.additional_data["mx_server"])
+                                + ":"
+                                + str(report.additional_data["port"])
+                            )
+                            if report.additional_data.get("mx_server")
+                            else ""
+                        )
+                    ),
                     "message": report.additional_data["message_en"],
                 }
             )

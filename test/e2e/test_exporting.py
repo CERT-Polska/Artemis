@@ -109,6 +109,13 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "",
                                 "                        ",
                                 "                    </li>",
+                                "<li>",
+                                "       Error:",
+                                "",
+                                "                        test-smtp-server.artemis:",
+                                "Problem with SSL/TLS for the MX server test-smtp-server.artemis on port 25:",
+                                "                            STARTTLS not supported on test-smtp-server.artemis MX server",
+                                "</li>",
                                 "        </ul>",
                                 "        <p>",
                                 "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
@@ -130,7 +137,15 @@ class ExportingTestCase(BaseE2ETestCase):
                 output_data = json.loads(f.read().decode("ascii"))
                 self.assertEqual(list(output_data["messages"].keys()), ["test-smtp-server.artemis"])
                 self.assertEqual(
-                    normalize_html_str(output_data["messages"]["test-smtp-server.artemis"]["reports"][0]["html"]),
+                    normalize_html_str(
+                        "".join(
+                            [
+                                item["html"]
+                                for item in output_data["messages"]["test-smtp-server.artemis"]["reports"]
+                                if "Valid DMARC record not found" in item["html"]
+                            ]
+                        )
+                    ),
                     normalize_html_str(
                         "\n".join(
                             [
@@ -294,6 +309,13 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "",
                                 "                        ",
                                 "                    </li>",
+                                "      <li>",
+                                "       Błąd:",
+                                "",
+                                "                        test-smtp-server.artemis:",
+                                "Problem z SSL/TLS dla serwera MX test-smtp-server.artemis na porcie 25:",
+                                "                            STARTTLS nie jest obsługiwany przez serwer MX test-smtp-server.artemis",
+                                "      </li>",
                                 "        </ul>",
                                 "        <p>",
                                 "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",

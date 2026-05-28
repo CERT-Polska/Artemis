@@ -19,14 +19,17 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
 SSL_ERRORS_TO_SKIP = [
+    "[Errno -2] Name does not resolve",
     "(554, b'5.7.1 Delivery not authorized')",
     "Connection timed out",
+    "Connection unexpectedly closed",
     "Connection unexpectedly closed: timed out",
     "[Errno 101] Network unreachable",
     "[Errno 104] Connection reset by peer",
     "[Errno 113] Host is unreachable",
     "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)",
     "please run connect() first",
+    "polaczenie z serwerem zostalo zablokowane",
 ]
 
 
@@ -112,14 +115,14 @@ class MailDNSScannerReporter(Reporter):
             for result in ssl.get("results", []):
                 for problem, is_warning in [(result["error"], False), (result["warning"], True)]:
                     if problem:
-                        if problem.strip() in SSL_ERRORS_TO_SKIP:
+                        if any([item in problem for item in SSL_ERRORS_TO_SKIP]):
                             continue
 
                         # We don't report 'connection refused' if any other port on same mx didn't refuse connection
                         if "connection refused" in problem.lower() and any(
                             [
                                 other["mx"] == result["mx"]
-                                and "connection refused" not in (other["error"].lower() or "")
+                                and "connection refused" not in (other["error"] or "").lower()
                                 for other in ssl.get("results", [])
                             ]
                         ):

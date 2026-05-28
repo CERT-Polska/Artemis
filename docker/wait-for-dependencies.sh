@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # We use this file instead of docker-compose depends_on mechanism as depends_on is not taken
 # into account on restarts.

@@ -662,9 +662,6 @@ class Nuclei(ArtemisBase):
                         self.log.debug("%s", line)
                         lines.append(line)
 
-                for line in stderr_utf8_lines:
-                    self.log.info("error_line: %s", line)
-
                 self.log.info(
                     "Requests per second statistics: %s", self._get_requests_per_second_statistics(stderr_utf8_lines)
                 )

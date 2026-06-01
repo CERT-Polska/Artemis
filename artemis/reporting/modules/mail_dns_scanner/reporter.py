@@ -30,6 +30,13 @@ SSL_ERRORS_TO_SKIP = [
     "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)",
     "please run connect() first",
     "polaczenie z serwerem zostalo zablokowane",
+    "Service not available",
+    "(FCrDNS). Configuring matching A and PTR records should fix the issue",
+    "Too many concurrent connections",
+    "listed_as_abusive",
+    "TLS not available due to local problem",
+    "All nameservers failed to answer the query",
+    "Service currently unavailable",
 ]
 
 

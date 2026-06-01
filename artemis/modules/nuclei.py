@@ -441,6 +441,47 @@ class Nuclei(ArtemisBase):
             )
         )
 
+    def _log_nuclei_error_summary(self, lines: List[str]) -> None:
+        # Error message substrings from https://github.com/projectdiscovery/utils/blob/main/errkit/kind.go
+        NUCLEI_ERROR_CATEGORIES = [
+            ("port closed or filtered", "port_closed_or_filtered"),
+            ("connect: connection refused", "connection_refused"),
+            ("no such host", "no_such_host"),
+            ("no address found", "no_address_found"),
+            ("could not resolve host", "could_not_resolve_host"),
+            ("host unreachable", "host_unreachable"),
+            ("Unable to connect", "unable_to_connect"),
+            ("Client.Timeout exceeded while awaiting headers", "timeout_awaiting_headers"),
+            ("context deadline exceeded", "context_deadline_exceeded"),
+            ("i/o timeout", "io_timeout"),
+        ]
+
+        error_counts: Dict[str, int] = collections.defaultdict(int)
+        for line in lines:
+            if not line.startswith("{"):
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            error = entry.get("error", "none")
+            if not error or error == "none":
+                continue
+            category = "unknown-error"
+            for substring, name in NUCLEI_ERROR_CATEGORIES:
+                if substring in error:
+                    category = name
+                    break
+            error_counts[category] += 1
+
+        if not error_counts:
+            return
+
+        self.log.info(
+            "Nuclei request error summary: %s",
+            dict(error_counts),
+        )
+
     def _scan(
         self,
         templates_or_workflows: List[str],
@@ -621,9 +662,13 @@ class Nuclei(ArtemisBase):
                         self.log.debug("%s", line)
                         lines.append(line)
 
+                for line in stderr_utf8_lines:
+                    self.log.info("error_line: %s", line)
+
                 self.log.info(
                     "Requests per second statistics: %s", self._get_requests_per_second_statistics(stderr_utf8_lines)
                 )
+                self._log_nuclei_error_summary(stderr_utf8_lines)
 
                 if "context deadline exceeded" in stdout_utf8 + stderr_utf8:
                     self.log.info(

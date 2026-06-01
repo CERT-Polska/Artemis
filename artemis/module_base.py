@@ -794,7 +794,6 @@ class ArtemisBase(Karton):
         return random.choice(ip_addresses)
 
     def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
-        return True
         base_url = get_target_url(task)
         scan_destination = self._get_scan_destination(task)
         lock = ResourceLock(f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES)

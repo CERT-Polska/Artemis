@@ -2253,6 +2253,7 @@ TRANSLATIONS = {
     "Oracle WebLogic UDDI Explorer panel was detected.": "wykryto panel narzędzia Oracle WebLogic UDDI Explorer.",
     "An ArcGIS instance was discovered.": "wykryto narzędzie ArcGIS.",
     "An ActiveAdmin Admin dashboard was discovered.": "wykryto panel administracyjny narzędzia ActiveAdmin.",
+    "Detected AVEVA InTouch Access Anywhere was a secure gateway that provided browser-based remote access to InTouch HMI applications over the internet. It was widely used in industrial process control, utilities, and manufacturing environments. Exposed instances may have provided access to industrial HMI displays and SCADA interfaces.": "Wykryto panel AVEVA InTouch Access Anywhere.",
     "TeamCity login panel was detected.": "wykryto panel logowania narzędzia TeamCity.",
     "GNU Mailman panel was detected. Panel exposes all public mailing lists on server.": "wykryto panel narzędzia GNU Mailman.",
     "Jupyter Notebook login panel was detected.": "wykryto panel logowania narzędzia Jupyter Notebook.",

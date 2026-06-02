@@ -1,7 +1,7 @@
 aioboto3==13.3.0
 aiobotocore==2.16.0
 aiofiles==25.1.0
-aiohappyeyeballs==2.6.1
+aiohappyeyeballs==2.6.2
 aiohttp==3.13.5
 aioitertools==0.13.0
 aiosignal==1.4.0

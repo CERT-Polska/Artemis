@@ -50,12 +50,11 @@ class NTLMReconReporter(Reporter):
 
         assets = []
         for endpoint in task_result["result"].get("ntlm_endpoints", []):
-            ad_domain = endpoint.get("data", {}).get("AD domain name")
             assets.append(
                 Asset(
-                    asset_type=AssetType.NTLM_ENDPOINT,
+                    asset_type=AssetType.TECHNOLOGY,
                     name=endpoint["url"],
-                    additional_type=ad_domain or "ntlm",
+                    additional_type="ntlm",
                 )
             )
         return assets

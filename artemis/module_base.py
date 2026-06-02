@@ -404,6 +404,7 @@ class ArtemisBase(Karton):
             # batch group key is used in order to group tasks with runtime configuration that needs to be applied per each
             # task in group, we want to pick the tasks with same configuration in order to lock them efficientely
             selected_batch_group_key: str | None = None
+            skipped_not_belongs_to_batch = 0
 
             if (
                 float(REDIS.get(f"queue_location_timestamp-{self.identity}") or 0)
@@ -442,6 +443,7 @@ class ArtemisBase(Karton):
                         task_batch_group_key == selected_batch_group_key or len(tasks) == 0
                     )
                     if not task_belongs_to_current_processed_batch_tasks:
+                        skipped_not_belongs_to_batch += 1
                         continue
 
                     scan_destination = self._get_scan_destination(task)
@@ -460,6 +462,7 @@ class ArtemisBase(Karton):
                                 locks.append(lock)
                                 if len(tasks) == 1:
                                     selected_batch_group_key = task_batch_group_key
+                                    self.log.info("[taking tasks] selected batch key: %s", selected_batch_group_key)
                                 self.log.info(
                                     "[taking tasks] Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s), %d/%d locked",
                                     task.uid,
@@ -489,7 +492,13 @@ class ArtemisBase(Karton):
                         self.backend.redis.lrem(queue, 1, item)
                         if len(tasks) >= num_tasks:
                             break
-                self.log.debug(f"[taking tasks] {len(tasks)} tasks after checking queue {queue}")
+                if len(tasks) > 0:
+                    self.log.info(
+                        "[taking tasks] %d tasks, skipped due to batching %d, after checking queue %s",
+                        len(tasks),
+                        skipped_not_belongs_to_batch,
+                        queue,
+                    )
                 if len(tasks) >= num_tasks:
                     break
 

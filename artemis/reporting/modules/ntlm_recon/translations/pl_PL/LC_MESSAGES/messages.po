@@ -1,0 +1,20 @@
+#: artemis/reporting/modules/ntlm_recon/template_exposed_ntlm_endpoint.jinja2:2
+msgid ""
+"The following endpoints expose NTLM authentication over HTTP. Because the"
+" server answers an unauthenticated NTLM negotiation, it discloses "
+"internal Active Directory information (such as the domain name, server "
+"name and FQDN) to anyone on the network and may facilitate username "
+"enumeration or NTLM relay. We recommend restricting access to these "
+"endpoints or disabling NTLM over HTTP where it is not required."
+msgstr ""
+"Poniższe punkty końcowe udostępniają uwierzytelnianie NTLM przez HTTP. "
+"Ponieważ serwer odpowiada na nieuwierzytelnioną negocjację NTLM, ujawnia "
+"wewnętrzne informacje o Active Directory (takie jak nazwa domeny, nazwa "
+"serwera i FQDN) każdemu w sieci, co może ułatwić enumerację nazw "
+"użytkowników lub atak NTLM relay. Zalecamy ograniczenie dostępu do tych "
+"punktów końcowych lub wyłączenie NTLM przez HTTP tam, gdzie nie jest to "
+"wymagane."
+
+#: artemis/reporting/modules/ntlm_recon/template_exposed_ntlm_endpoint.jinja2:9
+msgid "leaked the following information:"
+msgstr "ujawnił następujące informacje:"

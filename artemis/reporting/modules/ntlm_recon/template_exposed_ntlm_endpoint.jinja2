@@ -1,0 +1,22 @@
+{% if "exposed_ntlm_endpoint" in data.contains_type %}
+    <li>{% trans %}The following endpoints expose NTLM authentication over HTTP. Because the server answers an unauthenticated NTLM negotiation, it discloses internal Active Directory information (such as the domain name, server name and FQDN) to anyone on the network and may facilitate username enumeration or NTLM relay. We recommend restricting access to these endpoints or disabling NTLM over HTTP where it is not required.{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "exposed_ntlm_endpoint" %}
+                    <li>
+                        {{ report.target }}
+                        {% if report.additional_data.ntlm_info %}
+                            {% trans %}leaked the following information:{% endtrans %}
+                            <ul>
+                                {% for key, value in report.additional_data.ntlm_info.items() %}
+                                    <li>{{ key }}: {{ value }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}

@@ -92,7 +92,7 @@ pydantic-core==2.46.4
 pydantic-settings==2.14.1
 pygments==2.20.0
 pyleri==1.5.0
-pymysql==1.1.3
+pymysql==1.2.0
 pynacl==1.6.2
 pyopenssl==26.2.0
 pyspf==2.0.14

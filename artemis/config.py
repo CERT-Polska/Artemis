@@ -648,6 +648,7 @@ class Config:
                         "http/cves/2024/CVE-2024-42009.yaml",
                         # Too many FPs
                         "http/exposed-panels/aveva-intouch-access-anywhere-panel.yaml",
+                        "http/exposed-panels/janitza-umg-panel.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

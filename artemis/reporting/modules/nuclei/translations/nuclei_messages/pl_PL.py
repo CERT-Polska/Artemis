@@ -2678,4 +2678,5 @@ TRANSLATIONS = {
     "Activepieces was detected. Activepieces was an open-source automation platform with AI and LLM integrations. Exposed instances may allow access to workflow automation configurations and connected integrations.": "Wykryto panel Activepieces. Upublicznione instancje mogą umożliwiać dostęp do konfiguracji automatyzacji workflow i podłączonych integracji.",
     "Rails GoodJob Dashboard panel was detected.": "Wykryto panel Rails GoodJob Dashboard.",
     "Outline (getoutline.com / github.com/outline/outline) is a popular open-source team knowledge base / wiki, often self-hosted as a Notion alternative. Exposed self-hosted instances may reveal team documents and provide a path to login enumeration if SSO is misconfigured.": "Wykryto panel Outline. Upublicznione instancje mogą ujawniać dokumenty zespołowe i umożliwiać enumerację loginów, jeśli SSO jest nieprawidłowo skonfigurowane.",
+    "Janitza UMG series power meters and energy analyzers expose a web interface for energy monitoring and power quality analysis.": "Wykryto panel logowania Janitza UMG Power Meter.",
 }

@@ -15,7 +15,7 @@ argon2-cffi==25.1.0
 argon2-cffi-bindings==25.1.0
 attrs==26.1.0
 babel==2.18.0
-badkeys==0.0.17
+badkeys==0.0.18
 bcrypt==5.0.0
 beautifulsoup4==4.14.3
 blinker==1.9.0

@@ -68,6 +68,7 @@ class NucleiRouter(ArtemisBase):
             payload={
                 "host": get_target_host(current_task),
                 "port": current_task.get_payload("port"),
+                "ssl": current_task.get_payload("ssl"),
                 NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY: nuclei_additional_flags,
             },
         )

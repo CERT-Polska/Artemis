@@ -2684,4 +2684,5 @@ TRANSLATIONS = {
     "JupyterHub is a multi-user server for Jupyter notebooks": "Wykryto system JupyterHub.",
     "Detects the AnythingLLM web interface.": "Wykryto panel AnythingLLM.",
     "Detected ZITADEL was an open-source identity infrastructure platform providing OIDC, OAuth 2.0, SAML and machine-user IAM.": "Wykryto system ZITADEL.",
+    "Fronius Datalogger Web is a web interface for Fronius solar inverter data loggers, providing real-time monitoring and configuration of photovoltaic systems.": "Wykryto panel Fronius Datalogger Web.",
 }

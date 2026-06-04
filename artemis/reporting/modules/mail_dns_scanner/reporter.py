@@ -29,6 +29,7 @@ SSL_ERRORS_TO_SKIP = [
     "[Errno 104] Connection reset by peer",
     "[Errno 113] Host is unreachable",
     "[Errno -2] Name does not resolve",
+    "[Errno -3] Try again",
     "Error: too many connections from ",
     "(FCrDNS). Configuring matching A and PTR records should fix the issue",
     "listed_as_abusive",

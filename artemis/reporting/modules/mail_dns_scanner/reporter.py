@@ -43,6 +43,7 @@ SSL_ERRORS_TO_SKIP = [
     "SSLV3_ALERT_HANDSHAKE_FAILURE",
     "This message has been blocked because it is from a FortiGuard AntiSpam Service blocked IP address",
     "TLS not available due to local problem",
+    "TLSV13_ALERT_CERTIFICATE_REQUIRED",
     "Too many concurrent connections",
     "Too many concurrent SMTP connections",
     "Your access to this mail system has been rejected",

@@ -998,6 +998,8 @@ TRANSLATIONS = {
     "Parallels H-Sphere 3.0.0 P9 and 3.1 P1 contains multiple cross-site scripting vulnerabilities in login.php in webshell4. An attacker can inject arbitrary web script or HTML via the err, errorcode, and login parameters, thus allowing theft of cookie-based authentication credentials and launch of other attacks.": "Parallels H-Sphere 3.0.0 P9 i 3.1 P1 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Apache Superset instance discovered using weak default credentials, allows the attacker to gain admin privilege.": "Wykryto instancję Apache Superset z domyślnymi, słabymi danymi logowania, co umożliwia atakującemu uzyskanie uprawnień administratora.",
+    "ASP.NET Trace.AXD information was exposed.": "Wykryto publicznie dostępny plik Trace.AXD, który może zawierać poufne informacje o konfiguracji serwera i aplikacji.",
     "CKAN, an open-source data management system used for powering open data portals, contains an unauthenticated SQL injection vulnerability in the datastore_search_sql API endpoint.": "CKAN, system zarządzania danymi używany do obsługi portali z otwartymi danymi, zawiera podatność SQL Injection o identyfikatorze CVE-2026-42031, umożliwiającą atakującemu odczyt dowolnych danych z bazy danych.",
     "Arcane <= 1.17.3 contains an unauthenticated server-side request forgery caused by lack of URL scheme and host validation in /api/templates/fetch endpoint, letting remote attackers perform SSRF, exploit requires no authentication.": "Arcane w wersji 1.17.3 i wcześniejszych zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2026-40242, umożliwiającą atakującemu wykonanie żądania HTTP do dowolnego hosta, w tym do usług wewnętrznych. Wykorzystanie tej podatności nie wymaga uwierzytelnienia.",
     "Apereo CAS through 6.4.1 allows cross-site scripting via POST requests sent to the REST API endpoints.": "Apereo CAS w wersji do 6.4.1 włącznie zawiera podatność "
@@ -2679,4 +2681,7 @@ TRANSLATIONS = {
     "Rails GoodJob Dashboard panel was detected.": "Wykryto panel Rails GoodJob Dashboard.",
     "Outline (getoutline.com / github.com/outline/outline) is a popular open-source team knowledge base / wiki, often self-hosted as a Notion alternative. Exposed self-hosted instances may reveal team documents and provide a path to login enumeration if SSO is misconfigured.": "Wykryto panel Outline. Upublicznione instancje mogą ujawniać dokumenty zespołowe i umożliwiać enumerację loginów, jeśli SSO jest nieprawidłowo skonfigurowane.",
     "Janitza UMG series power meters and energy analyzers expose a web interface for energy monitoring and power quality analysis.": "Wykryto panel logowania Janitza UMG Power Meter.",
+    "JupyterHub is a multi-user server for Jupyter notebooks": "Wykryto system JupyterHub.",
+    "Detects the AnythingLLM web interface.": "Wykryto panel AnythingLLM.",
+    "Detected ZITADEL was an open-source identity infrastructure platform providing OIDC, OAuth 2.0, SAML and machine-user IAM.": "Wykryto system ZITADEL.",
 }

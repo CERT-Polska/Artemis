@@ -998,6 +998,7 @@ TRANSLATIONS = {
     "Parallels H-Sphere 3.0.0 P9 and 3.1 P1 contains multiple cross-site scripting vulnerabilities in login.php in webshell4. An attacker can inject arbitrary web script or HTML via the err, errorcode, and login parameters, thus allowing theft of cookie-based authentication credentials and launch of other attacks.": "Parallels H-Sphere 3.0.0 P9 i 3.1 P1 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "Astro before 5.17.3 and @astrojs/node before 9.5.4 are vulnerable to full-read SSRF due to improper Host header validation in error page rendering, allowing attackers to redirect requests and access internal resources.": "Astro w wersji poniżej 5.17.3 i @astrojs/node w wersji poniżej 9.5.4 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2026-25545, umożliwiającą atakującemu wykonanie żądania HTTP do dowolnego hosta, w tym do usług wewnętrznych." + UPDATE_HINT,
     "Apache Superset instance discovered using weak default credentials, allows the attacker to gain admin privilege.": "Wykryto instancję Apache Superset z domyślnymi, słabymi danymi logowania, co umożliwia atakującemu uzyskanie uprawnień administratora.",
     "ASP.NET Trace.AXD information was exposed.": "Wykryto publicznie dostępny plik Trace.AXD, który może zawierać poufne informacje o konfiguracji serwera i aplikacji.",
     "CKAN, an open-source data management system used for powering open data portals, contains an unauthenticated SQL injection vulnerability in the datastore_search_sql API endpoint.": "CKAN, system zarządzania danymi używany do obsługi portali z otwartymi danymi, zawiera podatność SQL Injection o identyfikatorze CVE-2026-42031, umożliwiającą atakującemu odczyt dowolnych danych z bazy danych.",
@@ -2683,6 +2684,7 @@ TRANSLATIONS = {
     "Janitza UMG series power meters and energy analyzers expose a web interface for energy monitoring and power quality analysis.": "Wykryto panel logowania Janitza UMG Power Meter.",
     "JupyterHub is a multi-user server for Jupyter notebooks": "Wykryto system JupyterHub.",
     "Detects the AnythingLLM web interface.": "Wykryto panel AnythingLLM.",
+    "FUXA is an open-source web-based SCADA/HMI platform built on Node.js.\nIt supports Modbus, OPC-UA, BACnet, MQTT, and Siemens S7 protocols and\nis widely self-hosted for small industrial deployments. Instances are\nfrequently exposed to the internet without authentication.": "Wykryto panel FUXA.",
     "Detected ZITADEL was an open-source identity infrastructure platform providing OIDC, OAuth 2.0, SAML and machine-user IAM.": "Wykryto system ZITADEL.",
     "Fronius Datalogger Web is a web interface for Fronius solar inverter data loggers, providing real-time monitoring and configuration of photovoltaic systems.": "Wykryto panel Fronius Datalogger Web.",
 }

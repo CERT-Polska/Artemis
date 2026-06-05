@@ -649,6 +649,8 @@ class Config:
                         # Too many FPs
                         "http/exposed-panels/aveva-intouch-access-anywhere-panel.yaml",
                         "http/exposed-panels/janitza-umg-panel.yaml",
+                        # FP: even if the message says `trace.axd is not available`, it's detected
+                        "http/exposures/logs/trace-axd-expose.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

@@ -9,9 +9,15 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
 
-# Candidate endpoints commonly exposing NTLM-over-HTTP. Kept in sync with
-# NTLMRecon's built-in wordlist (src/ntlmrecon/misc.py:INTERNAL_WORDLIST) so
-# that coverage matches the upstream tool.
+# Candidate endpoints commonly exposing NTLM-over-HTTP, copied verbatim from
+# NTLMRecon's built-in wordlist (src/ntlmrecon/misc.py:INTERNAL_WORDLIST;
+# https://github.com/pwnfoo/NTLMRecon, MIT-licensed).
+#
+# Copied rather than imported on purpose: NTLMRecon is not published on PyPI, so
+# importing it would mean a git dependency pinned to an archived (0.4 beta)
+# project. Its modules are also tangled with its own HTTP/CLI layer
+# (requests/urllib3/termcolor/colorama), which we deliberately replaced with
+# Artemis' HTTP layer - see the parsing helpers below.
 NTLM_PATHS: List[str] = [
     "/abs",
     "/adfs/services/trust/2005/windowstransport",
@@ -81,6 +87,13 @@ TARGET_FIELD_TYPES: Dict[int, str] = {
 }
 
 
+# The NTLM type-1 construction and the NTLMSSP type-2 (CHALLENGE) target-info
+# parsing below are reimplemented from NTLMRecon (src/ntlmrecon/ntlmutil.py,
+# MIT-licensed). They are not imported because the upstream helper
+# (gather_ntlm_info) performs the HTTP request itself and is coupled to
+# requests/urllib3 - there is no pure "parse these challenge bytes" function to
+# reuse. The protocol logic is reimplemented here and driven by Artemis'
+# throttled HTTP layer instead.
 def extract_ntlm_token(www_authenticate: str) -> Optional[str]:
     for part in www_authenticate.split(","):
         part = part.strip()

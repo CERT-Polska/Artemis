@@ -2686,6 +2686,7 @@ TRANSLATIONS = {
     "Janitza UMG series power meters and energy analyzers expose a web interface for energy monitoring and power quality analysis.": "Wykryto panel logowania Janitza UMG Power Meter.",
     "JupyterHub is a multi-user server for Jupyter notebooks": "Wykryto system JupyterHub.",
     "Detects the AnythingLLM web interface.": "Wykryto panel AnythingLLM.",
+    "FUXA is an open-source web-based SCADA/HMI platform built on Node.js.\nIt supports Modbus, OPC-UA, BACnet, MQTT, and Siemens S7 protocols and\nis widely self-hosted for small industrial deployments. Instances are\nfrequently exposed to the internet without authentication.": "Wykryto panel FUXA.",
     "Detected ZITADEL was an open-source identity infrastructure platform providing OIDC, OAuth 2.0, SAML and machine-user IAM.": "Wykryto system ZITADEL.",
     "Fronius Datalogger Web is a web interface for Fronius solar inverter data loggers, providing real-time monitoring and configuration of photovoltaic systems.": "Wykryto panel Fronius Datalogger Web.",
     "Cogent DataHub (OPC DataHub) is an industrial middleware platform for OPC connectivity,\ndata bridging, and SCADA integration. The embedded web server is commonly exposed on\nport 80 or 443.": "Wykryto panel Cogent DataHub (OPC DataHub).",

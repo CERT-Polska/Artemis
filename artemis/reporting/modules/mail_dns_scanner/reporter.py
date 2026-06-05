@@ -20,6 +20,7 @@ from artemis.reporting.utils import get_top_level_target
 
 SSL_ERRORS_TO_SKIP = [
     "Connection went away",
+    "2.0-OpenSSH",
     "(554, b'5.7.1 Delivery not authorized')",
     "All nameservers failed to answer the query",
     "blocked using zen.spamhaus.org",
@@ -36,6 +37,7 @@ SSL_ERRORS_TO_SKIP = [
     "(FCrDNS). Configuring matching A and PTR records should fix the issue",
     "is blocked",
     "listed_as_abusive",
+    "No!",
     "please run connect() first",
     "polaczenie z serwerem zostalo zablokowane",
     "Service currently unavailable",

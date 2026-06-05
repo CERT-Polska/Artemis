@@ -2688,11 +2688,8 @@ TRANSLATIONS = {
     "Detects the AnythingLLM web interface.": "Wykryto panel AnythingLLM.",
     "Detected ZITADEL was an open-source identity infrastructure platform providing OIDC, OAuth 2.0, SAML and machine-user IAM.": "Wykryto system ZITADEL.",
     "Fronius Datalogger Web is a web interface for Fronius solar inverter data loggers, providing real-time monitoring and configuration of photovoltaic systems.": "Wykryto panel Fronius Datalogger Web.",
-<<<<<<< Updated upstream
-=======
     "Cogent DataHub (OPC DataHub) is an industrial middleware platform for OPC connectivity,\ndata bridging, and SCADA integration. The embedded web server is commonly exposed on\nport 80 or 443.": "Wykryto panel Cogent DataHub (OPC DataHub).",
     "MLflow is an open-source platform for managing the end-to-end machine learning\nlifecycle including experimentation, reproducibility, and deployment. This template\ndetects exposed MLflow tracking server UI instances.": "Wykryto panel MLflow.",
     "EspoCRM panel was detected.": "Wykryto panel EspoCRM.",
     "OutBack Power Mate3s is a system hub and gateway for OutBack FX-series inverter-chargers\nused in off-grid, grid-hybrid, and battery backup solar power systems.\nThe built-in web interface exposes system status, battery metrics, and inverter data.": "Wykryto panel OutBack Power Mate3s.",
->>>>>>> Stashed changes
 }

@@ -414,12 +414,6 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  ntlm-target:
-    image: nginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    restart: always
-
 volumes:
   data-nuclei-templates:
   data-nuclei-config:

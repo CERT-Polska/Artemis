@@ -1,11 +1,10 @@
 #: artemis/reporting/modules/ntlm_recon/template_exposed_ntlm_endpoint.jinja2:2
 msgid ""
-"The following endpoints expose NTLM authentication over HTTP/HTTPS. "
-"Because the server answers an NTLM negotiation, it discloses internal "
-"Active Directory information (such as the domain name or server name) to "
-"anyone on the network and may allow username enumeration or password "
-"brute force. We recommend restricting access to these endpoints or "
-"disabling NTLM over HTTP where it is not required."
+"The following endpoints expose NTLM authentication over HTTP/HTTPS and "
+"disclose internal Active Directory information (such as the domain name "
+"or server name) to anyone on the network which may allow username "
+"enumeration or password brute force. We recommend restricting access to "
+"these endpoints or disabling NTLM over HTTP where it is not required."
 msgstr ""
 
 #: artemis/reporting/modules/ntlm_recon/template_exposed_ntlm_endpoint.jinja2:9

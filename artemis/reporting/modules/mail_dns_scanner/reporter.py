@@ -37,7 +37,7 @@ SSL_ERRORS_TO_SKIP = [
     "[Errno -3] Try again",
     "Error: too many connections from ",
     "(FCrDNS). Configuring matching A and PTR records should fix the issue",
-    "invalid the \'A\' or \'AAAA\' record",
+    "invalid the 'A' or 'AAAA' record",
     "is blocked",
     "listed_as_abusive",
     "No!",

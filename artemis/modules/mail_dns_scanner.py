@@ -94,6 +94,7 @@ class MailDNSScanner(ArtemisBase):
                 dkim_domain=None,
                 parked=not has_mx_records,
                 ignore_void_dns_lookups=True,
+                fallback_to_hostname_as_mx_in_ssl_check=False,
             )
         except ScanningException:
             self.log.exception("Unable to check domain %s", domain)

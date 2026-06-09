@@ -292,11 +292,11 @@ class Config:
             'false positives, where a failed DNS query may result with a "no DMARC" message.',
         ] = get_config("NUM_DNS_RESOLVER_RETRIES", default=3, cast=int)
 
-        MAX_NUM_TASKS_TO_PROCESS: Annotated[
+        MAX_MODULE_TASK_PROCESSING_TIME__SECONDS: Annotated[
             int,
-            "After this number of tasks processed, each scanning module will get restarted. This is to prevent situations "
+            "After this number of module running time, each scanning module will get restarted. This is to prevent situations "
             "such as slow memory leaks.",
-        ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=1000, cast=int)
+        ] = get_config("MAX_MODULE_TASK_PROCESSING_TIME__SECONDS", default=3 * 24 * 3600 * 3600, cast=int)
 
         CONTENT_PREFIX_SIZE: Annotated[
             int,
@@ -311,7 +311,6 @@ class Config:
             default="admin_panel_login_bruter,api_scanner,dangling_dns_detector,example,humble,leak_scanner,ssh_bruter,xss_scanner",
             cast=decouple.Csv(str, delimiter=","),
         )
-
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,
             "If we request a domain for subdomain enumeration, we will save that it has already been enumerated, so that e.g. "

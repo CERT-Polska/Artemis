@@ -337,7 +337,7 @@ class AdminPanelLoginBruter(ArtemisBase):
                         > Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH
                     ):
                         self.log.info(
-                            "Reached maximum number of rechecks (%d), skipping further rechecks to avoid overloading the target",
+                            "Reached maximum number of rechecks (%d), skipping further rechecks to prevent spending too much time on this path",
                             Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH,
                         )
                         break

@@ -337,6 +337,10 @@ class Config:
                 int,
                 "How many times to recheck whether the good password works, and the bad doesn't",
             ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=10, cast=int)
+            ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH: Annotated[
+                int,
+                "Maximum number of maybe-working credential pairs that we will recheck per path. This is to prevent too much time spent on rechecking in case of a large number of false positives.",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH", default=10, cast=int)
 
         class APIScanner:
             API_SPEC_MAX_SIZE: Annotated[

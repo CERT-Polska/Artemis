@@ -323,6 +323,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         results = []
         credential_pairs = set()
         for path in login_paths:
+            num_rechecked_credentials = 0
             credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
             random.shuffle(credentials)
             for username, password in credentials:
@@ -330,6 +331,17 @@ class AdminPanelLoginBruter(ArtemisBase):
                 if result:
                     self.log.info("Checking whether %s:%s indeed works", username, password)
                     rechecked = True
+                    num_rechecked_credentials += 1
+                    if (
+                        num_rechecked_credentials
+                        > Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH
+                    ):
+                        self.log.info(
+                            "Reached maximum number of rechecks (%d), skipping further rechecks to prevent spending too much time on this path",
+                            Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH,
+                        )
+                        break
+
                     for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS):
                         _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
                         # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false

@@ -25,7 +25,9 @@ class NTLMReconReporter(Reporter):
             return []
 
         reports = []
-        for endpoint in task_result["result"].get("ntlm_endpoints", []):
+        for endpoint in sorted(task_result["result"].get("ntlm_endpoints", []), key=lambda endpoint: endpoint["url"])[
+            :3
+        ]:
             reports.append(
                 Report(
                     top_level_target=task_result["target_string"],

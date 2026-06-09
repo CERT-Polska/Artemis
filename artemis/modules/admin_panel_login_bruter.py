@@ -322,8 +322,8 @@ class AdminPanelLoginBruter(ArtemisBase):
         """
         results = []
         credential_pairs = set()
-        num_rechecked_credentials = 0
         for path in login_paths:
+            num_rechecked_credentials = 0
             credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
             random.shuffle(credentials)
             for username, password in credentials:

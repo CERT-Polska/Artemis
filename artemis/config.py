@@ -340,7 +340,7 @@ class Config:
             ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH: Annotated[
                 int,
                 "Maximum number of maybe-working credential pairs that we will recheck per path. This is to prevent too much time spent on rechecking in case of a large number of false positives.",
-            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH", default=20, cast=int)
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH", default=10, cast=int)
 
         class APIScanner:
             API_SPEC_MAX_SIZE: Annotated[

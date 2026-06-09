@@ -94,7 +94,10 @@ class MailDNSScanner(ArtemisBase):
                 dkim_domain=None,
                 parked=not has_mx_records,
                 ignore_void_dns_lookups=True,
-                fallback_to_hostname_as_mx_in_ssl_check=False,
+                # for tests, the scanned hosts don't have MX records. For production usage, if a host
+                # doesn't have an MX record, it's probably not meant to support e-mail so let's not scan
+                # it.
+                fallback_to_hostname_as_mx_in_ssl_check='RUNNING_TESTS' in os.environ,
             )
         except ScanningException:
             self.log.exception("Unable to check domain %s", domain)

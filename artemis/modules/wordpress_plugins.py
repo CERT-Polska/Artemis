@@ -68,6 +68,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "disable-wordpress-updates",
     "famethemes-demo-importer",
+    "google-maps-easy",
     "icon-element",
     "learnpress-wishlist",
     "link-manager",
@@ -79,7 +80,6 @@ PLUGINS_BAD_VERSION_IN_README = [
     "unlimited-elements-for-elementor",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
-    "wp-migrate-db",
     "zapier",
 ]
 

@@ -137,6 +137,8 @@ def parse_ntlm_challenge(b64_challenge: str) -> Optional[Dict[str, str]]:
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
 class NTLMRecon(ArtemisBase):
+    """Checks, whether a given website has NTLM authentication enabled."""
+
     identity = "ntlm_recon"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},

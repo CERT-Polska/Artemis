@@ -337,6 +337,8 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
     def test_build_html_message(self) -> None:
+        self.maxDiff = None
+
         result = requests.post(
             BACKEND_URL + "api/build-html-message",
             json={

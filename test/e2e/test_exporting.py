@@ -79,6 +79,7 @@ class ExportingTestCase(BaseE2ETestCase):
 
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
+                self.maxDiff = None
                 content = f.read()
                 self.assertEqual(
                     normalize_html_bytes(content, "ascii"),
@@ -190,6 +191,8 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
     def test_exporting_api(self) -> None:
+        self.maxDiff = None
+
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
         )

@@ -19,7 +19,7 @@ class IPLookupTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         data = [
-            TestData("mwdb.cert.pl", socket.getaddrinfo("mwdb.cert.pl")),
+            TestData("mwdb.cert.pl", socket.gethostbyname("mwdb.cert.pl")),
         ]
 
         for entry in data:

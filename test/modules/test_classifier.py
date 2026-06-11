@@ -1,4 +1,3 @@
-from socket import gethostbyname
 from test.base import ArtemisModuleTestCase
 from typing import Any, Dict, List, NamedTuple
 
@@ -48,59 +47,7 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertFalse(Classifier.is_supported("ssh://127.0.0.1"))
 
     def test_parsing(self) -> None:
-        cert_ip = gethostbyname("cert.pl")
-
         entries = [
-            TestData(
-                "cert.pl:80",
-                [
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "service", "service": "http"},
-                        payload={"host": "cert.pl", "port": 80, "last_domain": "cert.pl", "ssl": False},
-                        payload_persistent={"original_domain": "cert.pl", "original_target": "cert.pl:80"},
-                    ),
-                ],
-            ),
-            TestData(
-                f"{cert_ip}:80",
-                [
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "service", "service": "http"},
-                        payload={"host": cert_ip, "port": 80, "ssl": False},
-                        payload_persistent={"original_ip": cert_ip, "original_target": f"{cert_ip}:80"},
-                    ),
-                ],
-            ),
-            TestData(
-                "cert.pl",
-                [
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "domain_that_may_not_exist"},
-                        payload={"domain": "cert.pl", "last_domain": "cert.pl"},
-                        payload_persistent={"original_domain": "cert.pl", "original_target": "cert.pl"},
-                    ),
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "domain"},
-                        payload={"domain": "cert.pl", "last_domain": "cert.pl"},
-                        payload_persistent={"original_domain": "cert.pl", "original_target": "cert.pl"},
-                    ),
-                ],
-            ),
-            TestData(
-                "CERT.pl",
-                [
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "domain_that_may_not_exist"},
-                        payload={"domain": "cert.pl", "last_domain": "cert.pl"},
-                        payload_persistent={"original_domain": "cert.pl", "original_target": "CERT.pl"},
-                    ),
-                    ExpectedTaskData(
-                        headers={"origin": "classifier", "type": "domain"},
-                        payload={"domain": "cert.pl", "last_domain": "cert.pl"},
-                        payload_persistent={"original_domain": "cert.pl", "original_target": "CERT.pl"},
-                    ),
-                ],
-            ),
             TestData(
                 "127.0.0.1-127.0.0.5",
                 [

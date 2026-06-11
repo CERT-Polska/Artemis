@@ -14,6 +14,9 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     @patch.object(SubdomainEnumeration, "get_subdomains_from_gau", return_value=set())
     @patch.object(SubdomainEnumeration, "get_subdomains_from_subfinder", return_value={"ci.drakvuf.cert.pl"})
     def test_simple(self, mock_subfinder, mock_gau, mock_brute) -> None:  # type: ignore
+        mock_subfinder.__name__ = "get_subdomains_from_subfinder"
+        mock_gau.__name__ = "get_subdomains_from_gau"
+        mock_brute.__name__ = "get_subdomains_by_dns_brute_force"
         task = Task(
             {"type": TaskType.DOMAIN},
             payload={TaskType.DOMAIN: "cert.pl"},

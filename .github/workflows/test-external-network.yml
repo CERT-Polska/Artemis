@@ -1,9 +1,5 @@
 name: "tests / external network"
 
-# on:
-#   schedule:
-#     - cron: "0 6 * * *"
-#   workflow_dispatch:
 on:
   pull_request:
     branches: [ '**' ]

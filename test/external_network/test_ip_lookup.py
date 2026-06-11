@@ -1,3 +1,4 @@
+import socket
 from test.base import ArtemisModuleTestCase
 from typing import NamedTuple
 
@@ -18,7 +19,7 @@ class IPLookupTest(ArtemisModuleTestCase):
 
     def test_simple(self) -> None:
         data = [
-            TestData("lebihan.pl", "146.59.80.63"),
+            TestData("mwdb.cert.pl", socket.getaddrinfo("mwdb.cert.pl")),
         ]
 
         for entry in data:

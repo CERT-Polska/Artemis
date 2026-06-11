@@ -79,6 +79,7 @@ class ExportingTestCase(BaseE2ETestCase):
 
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
+                self.maxDiff = None
                 content = f.read()
                 self.assertEqual(
                     normalize_html_bytes(content, "ascii"),
@@ -99,7 +100,7 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "        <body>",
                                 "",
                                 "        <ol>",
-                                "    <li>The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                                "    <li>The following domains don't have properly configured e-mail security mechanisms:        <ul>",
                                 "                    <li>",
                                 "                            Error:",
                                 "",
@@ -117,9 +118,12 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "                            STARTTLS not supported on test-smtp-server.artemis MX server",
                                 "</li>",
                                 "        </ul>",
+                                "      <p>",
+                                "      The SSL mechanism greatly increases the confidentiality of the sent e-mails.",
+                                "     </p>",
                                 "        <p>",
-                                "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
-                                "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                                "            The SPF and DMARC mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                                "                Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
                                 "        </p>",
                                 "    </li>",
                                 "        </ol>",
@@ -149,7 +153,7 @@ class ExportingTestCase(BaseE2ETestCase):
                     normalize_html_str(
                         "\n".join(
                             [
-                                "The following domains don't have properly configured e-mail sender verification mechanisms:        <ul>",
+                                "The following domains don't have properly configured e-mail security mechanisms:        <ul>",
                                 "<li>",
                                 "                            Error:",
                                 "",
@@ -161,8 +165,8 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "                    </li>",
                                 "</ul>",
                                 "<p>",
-                                "            These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
-                                "            Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
+                                "            The SPF and DMARC mechanisms greatly increase the chance that the recipient server will reject a spoofed message.",
+                                "                Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.",
                                 "        </p>",
                             ]
                         )
@@ -190,6 +194,8 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
     def test_exporting_api(self) -> None:
+        self.maxDiff = None
+
         self.submit_tasks_with_modules_enabled(
             ["test-smtp-server.artemis"], "exporting-api", ["mail_dns_scanner", "classifier"]
         )
@@ -299,7 +305,7 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "        <body>",
                                 "",
                                 "        <ol>",
-                                "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
+                                "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów bezpieczeństwa poczty elektronicznej:        <ul>",
                                 "                    <li>",
                                 "                            Błąd:",
                                 "",
@@ -318,8 +324,11 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "      </li>",
                                 "        </ul>",
                                 "        <p>",
-                                "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
-                                "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
+                                "      Wdrożenie mechanizmu SSL/TLS znacząco zwiększy poufność wysyłanych wiadomości e-mail.",
+                                "     </p>",
+                                "        <p>",
+                                "            Wdrożenie mechanizmów SPF i DMARC znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów bezpieczeństwa poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
+                                "                Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
                                 "        </p>",
                                 "    </li>",
                                 "        </ol>",
@@ -334,6 +343,8 @@ class ExportingTestCase(BaseE2ETestCase):
                 )
 
     def test_build_html_message(self) -> None:
+        self.maxDiff = None
+
         result = requests.post(
             BACKEND_URL + "api/build-html-message",
             json={
@@ -404,7 +415,7 @@ class ExportingTestCase(BaseE2ETestCase):
                         "        <body>",
                         "",
                         "        <ol>",
-                        "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów weryfikacji nadawcy wiadomości e-mail:        <ul>",
+                        "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów bezpieczeństwa poczty elektronicznej:        <ul>",
                         "                    <li>",
                         "                            Ostrzeżenie:",
                         "",
@@ -416,8 +427,8 @@ class ExportingTestCase(BaseE2ETestCase):
                         "                    </li>",
                         "        </ul>",
                         "        <p>",
-                        "            Wdrożenie tych mechanizmów znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów weryfikacji nadawcy poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
-                        "            Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
+                        "            Wdrożenie mechanizmów SPF i DMARC znacząco zwiększy szansę, że serwer odbiorcy odrzuci sfałszowaną wiadomość e-mail z powyższych domen. W serwisie <a href='https://bezpiecznapoczta.cert.pl'>https://bezpiecznapoczta.cert.pl</a> można zweryfikować poprawność implementacji mechanizmów bezpieczeństwa poczty w Państwa domenie.<br/><br/>Więcej informacji o działaniu mechanizmów weryfikacji nadawcy można znaleźć pod adresem <a href='https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci'>https://cert.pl/posts/2021/10/mechanizmy-weryfikacji-nadawcy-wiadomosci</a>.",
+                        "                Nawet w przypadku domeny niesłużącej do wysyłki poczty rekordy SPF i DMARC są potrzebne w celu ograniczenia możliwości podszycia się pod nią. Odpowiednia konfiguracja jest opisana w powyższym artykule.",
                         "        </p>",
                         "    </li>",
                         "        </ol>",

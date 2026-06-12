@@ -340,6 +340,11 @@ services:
       timeout: 10s
       retries: 12
       start_period: 60s
+  test-nginx-basic-auth:
+    image: nginx:latest
+    volumes:
+      - ./test/data/admin_panel_login_bruter_basic_auth/default.conf:/etc/nginx/conf.d/default.conf
+      - ./test/data/admin_panel_login_bruter_basic_auth/.htpasswd:/etc/nginx/.htpasswd
 
 volumes:
   data-test:

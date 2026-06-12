@@ -104,6 +104,7 @@ class Analysis(Base):  # type: ignore
     :ivar stopped: Whether the analysis has been stopped.
     :ivar disabled_modules: Comma-separated list of disabled modules for this analysis.
     :ivar priority: Priority of tasks created by the analysis.
+    :ivar desired_priority: Target priority of tasks. If different to `priority`, Artemis will try to reprioritize `Analysis`.
     """
 
     __tablename__ = "analysis"

@@ -8,7 +8,7 @@ from artemis.karton_utils import change_priority_for_analyses
 
 db = DB()
 LOGGER = utils.build_logger(__name__)
-DELAY_BETWEEN_REPRIORITIZATION__SECONDS = 15
+DELAY_BETWEEN_REPRIORITIZATION__SECONDS = 1800
 
 
 def reprioritize_analyses() -> None:

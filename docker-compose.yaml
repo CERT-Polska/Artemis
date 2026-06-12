@@ -88,7 +88,7 @@ services:
       - ./archived-task-results/:/opt/archived-task-results/
     command: "bash -c 'alembic upgrade head && python3 -m artemis.autoarchiver.autoarchiver'"
     restart: always
-  
+
   reprioritizer:
     <<: [*logging, *artemis-build-or-image]
     command: "bash -c 'alembic upgrade head && python3 -m artemis.prioritizer.prioritizer'"

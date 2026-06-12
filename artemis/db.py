@@ -21,10 +21,10 @@ from sqlalchemy import (  # type: ignore
     Index,
     Integer,
     String,
+    and_,
     create_engine,
     delete,
-    and_,
-    or_
+    or_,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
@@ -369,12 +369,12 @@ class DB:
                     return None
         except NoResultFound:
             return None
-    
+
     def set_analysis_desired_priority(self, analysis_id: str, desired_priority: TaskPriority) -> bool:
         """
         Change desired priority for :class:`~artemis.db.Analysis`.
-        
-        Any Analysis with new `desired priority` will go through reprioritize job, which will change 
+
+        Any Analysis with new `desired priority` will go through reprioritize job, which will change
         priority of tasks.
 
         :param analysis_id: The unique identifier of the analysis to retrieve. It's `Task.root_uuid`.
@@ -390,30 +390,30 @@ class DB:
                 item.desired_priority = desired_priority
                 session.commit()
                 return True
-        
+
         return False
-    
+
     def get_analyses_by_tag(self, tag: str) -> List[Dict[str, Any]]:
         with self.session() as session:
             return [
                 self._strip_internal_db_info(item.__dict__)
                 for item in session.query(Analysis).filter(Analysis.tag == tag).all()
             ]
-    
+
     def get_analyses_to_reprioritize(self) -> List[Dict[str, Any]]:
         with self.session() as session:
             return [
                 self._strip_internal_db_info(item.__dict__)
                 for item in (
-                    session
-                    .query(Analysis)
-                    .filter(Analysis.stopped == False)
+                    session.query(Analysis)
+                    .filter(Analysis.stopped == False)  # noqa
                     .filter(
                         or_(
-                            Analysis.priority != Analysis.desired_priority, 
-                            and_(Analysis.priority.is_(None), Analysis.desired_priority.isnot(None))
+                            Analysis.priority != Analysis.desired_priority,
+                            and_(Analysis.priority.is_(None), Analysis.desired_priority.isnot(None)),  # type: ignore
                         )
-                    ).all()
+                    )
+                    .all()
                 )
             ]
 

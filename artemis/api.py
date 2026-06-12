@@ -14,7 +14,7 @@ from redis import Redis
 
 from artemis.blocklist import load_blocklist, should_block_scanning
 from artemis.config import Config
-from artemis.db import DB, Analysis, ColumnOrdering, TaskFilter, TaskPriority
+from artemis.db import DB, ColumnOrdering, TaskFilter, TaskPriority
 from artemis.frontend import build_export_zip_response
 from artemis.karton_utils import get_binds_that_can_be_disabled, get_num_pending_tasks
 from artemis.modules.base.module_runtime_configuration import (
@@ -158,7 +158,6 @@ def list_analysis(tag: Optional[str] = None) -> list[Dict[str, Any]]:
 def reprioritize_analysis(analysis_id: str, new_priority: TaskPriority) -> Dict[str, bool]:
     db.set_analysis_desired_priority(analysis_id, new_priority)
     return {"ok": True}
-
 
 
 @router.get("/get-modules-that-can-be-disabled", dependencies=[Depends(verify_api_token)])

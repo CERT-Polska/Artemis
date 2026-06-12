@@ -1,9 +1,9 @@
-from sqlalchemy import update
 import time
 
-from artemis import utils
-from artemis.db import Analysis, DB, TaskPriority
+from sqlalchemy import update
 
+from artemis import utils
+from artemis.db import DB, Analysis, TaskPriority
 from artemis.karton_utils import change_priority_for_analyses
 
 db = DB()
@@ -13,18 +13,16 @@ DELAY_BETWEEN_REPRIORITIZATION__SECONDS = 1800
 
 def reprioritize_analyses() -> None:
     analyses_to_reprioritize = db.get_analyses_to_reprioritize()
-    analyses_priority_to_ids = {priority.value: [] for priority in TaskPriority}
+    analyses_priority_to_ids: dict[str, list[str]] = {priority.value: [] for priority in TaskPriority}
     for analysis in analyses_to_reprioritize:
-        analyses_priority_to_ids[analysis.get("desired_priority").value].append(analysis.get("id"))
-    
+        analyses_priority_to_ids[analysis.get("desired_priority").value].append(analysis.get("id"))  # type: ignore
+
     for priority, analyses_ids in analyses_priority_to_ids.items():
         change_priority_for_analyses(analyses_ids, priority)
-    
+
         with db.session() as session:
             session.execute(
-                update(Analysis)
-                .where(Analysis.id.in_(analyses_ids))
-                .values(priority=Analysis.desired_priority)
+                update(Analysis).where(Analysis.id.in_(analyses_ids)).values(priority=Analysis.desired_priority)  # type: ignore
             )
             session.commit()
 

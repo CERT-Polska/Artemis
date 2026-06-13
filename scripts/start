@@ -55,6 +55,10 @@ if [ "$MODE" = "development" ]; then
     pip install PyYAML==6.0.1
 
     python3 scripts/create_development_docker_compose.py -i $DOCKER_CONFIGS
+
+    docker build -t certpl/artemis:latest -f docker/Dockerfile .
+else
+    docker pull certpl/artemis:latest
 fi
 
 DOCKER_CONFIGS_STRING=$(scripts/find_docker_compose_files --mode=$MODE --docker-compose-string)
@@ -71,8 +75,6 @@ fi
 
 
 docker compose $DOCKER_CONFIGS_STRING stop
-
-docker pull certpl/artemis:latest
 
 docker compose $DOCKER_CONFIGS_STRING $PROFILE up -d --remove-orphans --build
 

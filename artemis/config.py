@@ -402,6 +402,13 @@ class Config:
                 "retry sooner.",
             ] = get_config("KATANA_TIMEOUT_CACHE_TTL_SECONDS", default=60 * 60, cast=int)
 
+        class CveLookup:
+            CVE_LOOKUP_NVD_REQUESTS_PER_SECOND: Annotated[
+                float,
+                "Rate limit for NVD API queries. NVD allows 5 requests per 30 seconds without an API key "
+                "(~0.166 r/s); raise this if you configure a key with NIST.",
+            ] = get_config("CVE_LOOKUP_NVD_REQUESTS_PER_SECOND", default=0.16, cast=float)
+
         class DanglingDnsDetector:
             DANGLING_DNS_SKIP_ROOT_DOMAIN: Annotated[
                 bool, "If set to True, detector will not perform checks against the root domain."

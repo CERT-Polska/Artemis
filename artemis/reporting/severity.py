@@ -85,6 +85,8 @@ SEVERITY_MAP = {
     ReportType(
         "dangling_dns_record"
     ): Severity.MEDIUM,  # High if it's not a FP, but there is a significant percentage of unexploitable reports
+    # Default for technology_cve_found; overridden by max-CVSS rule in get_severity().
+    ReportType("technology_cve_found"): Severity.MEDIUM,
 }
 
 if Config.Reporting.ADDITIONAL_SEVERITY_FILE:
@@ -101,6 +103,14 @@ def get_severity(report: Any) -> Severity:
         and report.additional_data["cves"]
     ):
         cvss = max((item.get("cvss") or 0) for item in report.additional_data["cves"])
+        if cvss < 4.0:
+            return Severity.LOW
+        if cvss < 7.0:
+            return Severity.MEDIUM
+        return Severity.HIGH
+
+    if report.report_type == ReportType("technology_cve_found"):
+        cvss = report.additional_data.get("max_cvss") or 0
         if cvss < 4.0:
             return Severity.LOW
         if cvss < 7.0:

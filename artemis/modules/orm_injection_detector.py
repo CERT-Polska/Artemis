@@ -152,7 +152,13 @@ class OrmInjectionDetector(ArtemisBase):
             return results
 
         for param_name, values in query_params.items():
-            original_value = values[0] if values else ""
+            if isinstance(values, list):
+                if values:
+                    original_value = values[0]
+                else:
+                    original_value = ""
+            else:
+                original_value = values
 
             for suffix in ORM_LOOKUP_SUFFIXES:
                 likely_value = self._get_django_likely_value(suffix, original_value)

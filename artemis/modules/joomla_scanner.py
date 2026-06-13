@@ -86,4 +86,4 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
 
 
 if __name__ == "__main__":
-    JoomlaScanner().loop()  # type: ignore
+    JoomlaScanner.parallel_loop()

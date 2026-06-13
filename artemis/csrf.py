@@ -20,14 +20,26 @@ def generate_csrf_secret() -> str:
 
     if os.path.exists(csrf_secret_path):
         with open(csrf_secret_path) as f:
-            return f.read()
+            existing = f.read()
+        # A zero-length secret file (interrupted write, disk full mid-write, OOM kill between
+        # O_EXCL create and write, etc.) must not be used as the CSRF signing key - that would
+        # silently set secret_key="" and let any reachable client forge valid tokens. Fall
+        # through and regenerate in that case.
+        if existing:
+            return existing
 
     secret = base64.b64encode(os.urandom(32))
 
-    # This will raise if someone else is also creating the token
-    fd = os.open(csrf_secret_path, os.O_RDWR | os.O_CREAT | os.O_EXCL)
-    os.write(fd, secret)
-    os.close(fd)
+    # Write atomically: populate a temp file, fsync, then rename into place so a crash mid-write
+    # can never leave an empty file in the target path.
+    tmp_path = csrf_secret_path + ".tmp"
+    fd = os.open(tmp_path, os.O_RDWR | os.O_CREAT | os.O_TRUNC)
+    try:
+        os.write(fd, secret)
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    os.replace(tmp_path, csrf_secret_path)
 
     return secret.decode("ascii")
 

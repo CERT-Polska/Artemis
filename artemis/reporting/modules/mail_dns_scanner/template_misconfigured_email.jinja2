@@ -1,8 +1,17 @@
+{% set has_ssl_reports = namespace(data=0) %}
+{% set has_spf_dmarc_reports = namespace(data=0) %}
+
 {% if "misconfigured_email" in data.contains_type %}
-    <li>{% trans %}The following domains don't have properly configured e-mail sender verification mechanisms:{% endtrans %}
+    <li>{% trans %}The following domains don't have properly configured e-mail security mechanisms:{% endtrans %}
         <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "misconfigured_email" %}
+                    {% if report.additional_data.type == 'SSL' %}
+                        {% set has_ssl_reports.data = 1 %}
+                    {% elif report.additional_data.type == 'SPF' or report.additional_data.type == 'DMARC' %}
+                        {% set has_spf_dmarc_reports.data = 1 %}
+                    {% endif %}
+
                     <li>
                         {% if report.additional_data.is_warning %}
                             {{ _("Warning:") }}
@@ -11,7 +20,17 @@
                         {% endif %}
 
                         {{ report.target }}:
-                            {% if "SPF" not in report.additional_data.message_translated and "DMARC" not in report.additional_data.message_translated %}
+                            {% if report.additional_data.type == 'SSL' %}
+                                {% if report.additional_data.port %}
+                                    {% with mx_server=report.additional_data.mx_server, port=report.additional_data.port %}
+                                        {% trans %}Problem with SSL/TLS for the MX server {{ mx_server }} on port {{ port }}:{% endtrans %}
+                                    {% endwith %}
+                                {% else %}
+                                    {% with mx_server=report.additional_data.mx_server, port=report.additional_data.port %}
+                                        {% trans %}Problem with SSL/TLS for the MX server {{ mx_server }}:{% endtrans %}
+                                    {% endwith %}
+                                {% endif %}
+                            {% elif "SPF" not in report.additional_data.message_translated and "DMARC" not in report.additional_data.message_translated %}
                                 {% with type=report.additional_data.type %}
                                     {% trans %}Problem with the {{ type }} mechanism:{% endtrans %}
                                 {% endwith %}
@@ -30,8 +49,14 @@
             {% endfor %}
         </ul>
         <p>
-            {{ _("These mechanisms greatly increase the chance that the recipient server will reject a spoofed message.")|safe }}
-            {{ _("Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.")|safe }}
+            {% if has_ssl_reports.data %}
+                {{ _("The SSL mechanism greatly increases the confidentiality of the sent e-mails.") }}
+                {% if has_spf_dmarc_reports.data %}</p><p>{% endif %}
+            {% endif %}
+            {% if has_spf_dmarc_reports.data %}
+                {{ _("The SPF and DMARC mechanisms greatly increase the chance that the recipient server will reject a spoofed message.")|safe }}
+                {{ _("Even if a domain is not used to send e-mails, SPF and DMARC records are needed to reduce the possibility to spoof e-mails.")|safe }}
+            {% endif %}
         </p>
     </li>
 {% endif %}

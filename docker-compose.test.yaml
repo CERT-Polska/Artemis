@@ -82,6 +82,10 @@ services:
       dockerfile: test/data/dast_vuln_app/Dockerfile
     volumes:
       - ./test/data/dast_vuln_app/:/app/
+    networks:
+      default:
+        aliases:
+          - test-dast-vuln-app.local
 
   test-flask-vulnerable-api:
     build:
@@ -94,6 +98,10 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/data/exposed_apache_config/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-service-with-exposed-apache-config.local
 
   test-service-with-bruteable-files:
     image: php:7.4-apache
@@ -145,16 +153,28 @@ services:
     image: php:8.0-apache
     volumes:
       - ./test/data/mock_CVE-2020-28976/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-php-mock-CVE-2020-28976.local
 
   test-php-403-bypass:
     image: php:8.0-apache
     volumes:
       - ./test/data/php_403_bypass/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-php-403-bypass.local
 
   test-php-xss-but-not-on-homepage:
     image: php:8.0-apache
     volumes:
       - ./test/data/php_xss_but_not_on_homepage/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-php-xss-but-not-on-homepage.local
 
   test-ftp-server-with-easy-password:
     image: stilliard/pure-ftpd:latest
@@ -276,6 +296,10 @@ services:
     image: php:7.4-apache
     volumes:
       - ./test/data/lfi-rce/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-apache-with-lfi-and-rce.local
 
   test-django-with-orm-injection:
     build:
@@ -289,6 +313,10 @@ services:
     command: systemctl start apache2.service
     volumes:
       - ./test/data/sql_injection_postgres/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-apache-with-sql-injection-postgres.local
 
   test-apache-with-sql-injection-mysql:
     build:
@@ -296,6 +324,10 @@ services:
     command: systemctl start apache2.service
     volumes:
       - ./test/data/sql_injection_mysql/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-apache-with-sql-injection-mysql.local
 
   test-nginx-with-sni-tls:
     build:
@@ -315,6 +347,11 @@ services:
       timeout: 10s
       retries: 12
       start_period: 60s
+  test-nginx-basic-auth:
+    image: nginx:latest
+    volumes:
+      - ./test/data/admin_panel_login_bruter_basic_auth/default.conf:/etc/nginx/conf.d/default.conf
+      - ./test/data/admin_panel_login_bruter_basic_auth/.htpasswd:/etc/nginx/.htpasswd
 
 volumes:
   data-test:

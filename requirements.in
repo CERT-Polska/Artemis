@@ -19,7 +19,7 @@ idna
 ipwhois
 Jinja2
 karton-core
-git+https://github.com/CERT-Polska/mailgoose@v1.3.15#egg=libmailgoose&subdirectory=scan
+git+https://github.com/CERT-Polska/mailgoose@v1.4.11#egg=libmailgoose&subdirectory=scan
 liccheck
 Markdown
 MarkupSafe
@@ -55,6 +55,7 @@ tqdm
 typer
 typing-extensions
 unittest-parallel
+uro
 urllib3
 uvicorn
 validators

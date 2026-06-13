@@ -293,4 +293,4 @@ class Classifier(ArtemisBase):
 
 
 if __name__ == "__main__":
-    Classifier().loop()
+    Classifier.parallel_loop()

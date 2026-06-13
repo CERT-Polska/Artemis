@@ -107,4 +107,4 @@ class DirectoryIndex(ArtemisBase):
 
 
 if __name__ == "__main__":
-    DirectoryIndex().loop()
+    DirectoryIndex.parallel_loop()

@@ -9,16 +9,26 @@ from typing import Any, Dict, List, Optional
 from zipfile import ZipFile
 
 import aiohttp
-from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Form,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+)
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority, TaskState
+from redis import Redis
 from starlette.datastructures import Headers
 
-from artemis import csrf
+from artemis import auth, csrf
 from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
@@ -31,11 +41,20 @@ from artemis.karton_utils import (
 from artemis.modules.classifier import Classifier
 from artemis.producer import create_tasks
 from artemis.reporting.base.language import Language
-from artemis.task_utils import get_task_target
-from artemis.templating import templates
+from artemis.task_utils import (
+    get_analysis_num_finished_tasks,
+    get_analysis_num_in_progress_tasks,
+    get_task_target,
+)
+from artemis.templating import (
+    render_analyses_table_row,
+    render_task_table_row,
+    templates,
+)
 
 router = APIRouter()
 db = DB()
+redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 
 def whitelist_proxy_request_headers(headers: Headers) -> Dict[str, str]:
@@ -81,6 +100,48 @@ if not Config.Miscellaneous.API_TOKEN:
         )
 
 
+@router.get("/login", include_in_schema=False)
+def get_login(request: Request) -> Response:
+    if request.session.get(auth.SESSION_KEY_AUTHENTICATED):
+        return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
+
+    return templates.TemplateResponse(
+        "login.jinja2",
+        {
+            "request": request,
+            "error": None,
+        },
+    )
+
+
+# CSRF is intentionally not enforced on /login - the session cookie is SameSite=Strict,
+# which blocks the cross-site form submissions CSRF would defend against.
+@router.post("/login", include_in_schema=False)
+async def post_login(
+    request: Request,
+    username: str = Form(),
+    password: str = Form(),
+) -> Response:
+    if not auth.check_credentials(username, password):
+        return templates.TemplateResponse(
+            "login.jinja2",
+            {
+                "request": request,
+                "error": "Invalid username or password.",
+            },
+            status_code=401,
+        )
+
+    request.session[auth.SESSION_KEY_AUTHENTICATED] = True
+    return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
+
+
+@router.post("/logout", include_in_schema=False)
+async def post_logout(request: Request) -> Response:
+    request.session.clear()
+    return RedirectResponse("/login", status_code=303)
+
+
 @router.get("/", include_in_schema=False)
 def get_root(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
@@ -98,7 +159,7 @@ def get_root(request: Request, csrf_protect: CsrfProtect = Depends()) -> Respons
             "request": request,
             "has_analyses": has_analyses,
             "has_finished_analyses": has_finished_analyses,
-            "api_url": str(request.url_for("get_analyses_table")),
+            "api_url": str(request.app.url_path_for("get_analyses_table")),
             "num_active_tasks": sum(num_pending_tasks.values()),
         },
         csrf_protect,
@@ -184,7 +245,7 @@ async def post_add(
 
     await asyncio.to_thread(create_tasks, total_list, tag, disabled_modules, TaskPriority(priority))
     if redirect:
-        return RedirectResponse(request.url_for("get_root"), status_code=303)
+        return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
     else:
         return Response(
             content="OK",
@@ -272,11 +333,10 @@ def view_export(request: Request, id: int) -> Response:
 @csrf.validate_csrf
 async def post_export_delete(request: Request, id: int, csrf_protect: CsrfProtect = Depends()) -> Response:
     await asyncio.to_thread(db.delete_report_generation_task, id)
-    return RedirectResponse(request.url_for("get_exports"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_exports"), status_code=303)
 
 
-@router.get("/export/download-zip/{id}", include_in_schema=False)
-def export_download_zip(request: Request, id: int) -> Response:
+def build_export_zip_response(id: int) -> Response:
     task = db.get_report_generation_task(id)
     if not task:
         raise HTTPException(status_code=404, detail="Report generation task not found")
@@ -293,6 +353,11 @@ def export_download_zip(request: Request, id: int) -> Response:
     return Response(
         byte_stream.getvalue(), headers={"Content-Disposition": f"attachment; filename=artemis-export-{id}.zip"}
     )
+
+
+@router.get("/export/download-zip/{id}", include_in_schema=False)
+def export_download_zip(request: Request, id: int) -> Response:
+    return build_export_zip_response(id)
 
 
 @router.post("/export", include_in_schema=False)
@@ -312,7 +377,7 @@ async def post_export(
         comment=comment,
         language=Language(language),
     )
-    return RedirectResponse(request.url_for("get_exports"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_exports"), status_code=303)
 
 
 @router.post("/remove-finished-analyses", include_in_schema=False)
@@ -328,7 +393,7 @@ async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProt
                 db.delete_analysis(analysis["id"])
 
     await asyncio.to_thread(_remove_finished_analyses)
-    return RedirectResponse(request.url_for("get_root"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
 
 @router.post("/analysis/remove-pending-tasks/{analysis_id}", include_in_schema=False)
@@ -344,7 +409,7 @@ async def post_remove_pending_tasks(
                 backend.delete_task(task)
 
     await asyncio.to_thread(_remove_pending_tasks)
-    return RedirectResponse(request.url_for("get_root"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
 
 @router.get("/analysis/get-pending-tasks/{analysis_id}", include_in_schema=False)
@@ -387,7 +452,7 @@ def get_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depe
 @csrf.validate_csrf
 async def post_restart_crashed_tasks(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     await asyncio.to_thread(restart_crashed_tasks)
-    return RedirectResponse(request.url_for("get_root"), status_code=303)
+    return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
 
 @router.get("/queue", include_in_schema=False)
@@ -448,7 +513,7 @@ def get_analysis(request: Request, root_id: str, task_filter: Optional[TaskFilte
         {
             "request": request,
             "title": f"Analysis of {analysis['target']}",
-            "api_url": str(request.url_for("get_task_results_table"))
+            "api_url": str(request.app.url_path_for("get_task_results_table"))
             + "?"
             + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
@@ -467,7 +532,7 @@ def get_results(request: Request, task_filter: Optional[TaskFilter] = None) -> R
         {
             "request": request,
             "title": "Results",
-            "api_url": str(request.url_for("get_task_results_table"))
+            "api_url": str(request.app.url_path_for("get_task_results_table"))
             + "?"
             + urllib.parse.urlencode(api_url_parameters),
             "task_filter": task_filter,
@@ -490,3 +555,127 @@ def get_task(task_id: str, request: Request, referer: str = Header(default="/"))
             "pretty_printed": json.dumps(task, indent=4, cls=JSONEncoderAdditionalTypes),
         },
     )
+
+
+def _get_ordering(request: Request, column_names: list[Optional[str]]) -> list[ColumnOrdering]:
+    ordering = []
+
+    # Unfortunately, I was not able to find a less ugly way of extracting order[0][column]
+    # parameters from FastAPI query string. Feel free to refactor these lines.
+    i = 0
+    while True:
+        column_key = f"order[{i}][column]"
+        dir_key = f"order[{i}][dir]"
+        if column_key not in request.query_params or dir_key not in request.query_params:
+            break
+        column_name = column_names[int(request.query_params[column_key])]
+        if column_name:
+            ordering.append(ColumnOrdering(column_name=column_name, ascending=request.query_params[dir_key] == "asc"))
+        i += 1
+    return ordering
+
+
+def _get_search_query(request: Request) -> Optional[str]:
+    i = 0
+    while True:
+        search_value_key = f"columns[{i}][search][value]"
+        search_regex_key = f"columns[{i}][search][regex]"
+        if search_value_key not in request.query_params:
+            break
+        if request.query_params[search_value_key].strip() != "":
+            raise NotImplementedError("Per-column search is not yet implemented")
+        if request.query_params[search_regex_key] != "false":
+            raise NotImplementedError("Regex search is not yet implemented")
+        i += 1
+
+    if request.query_params["search[regex]"] != "false":
+        raise NotImplementedError("Regex search is not yet implemented")
+
+    return request.query_params["search[value]"]
+
+
+@router.get("/frontend-api/analyses-table", include_in_schema=False)
+def get_analyses_table(
+    request: Request,
+    draw: int = Query(),
+    start: int = Query(),
+    length: int = Query(),
+) -> Dict[str, Any]:
+    ordering = _get_ordering(request, column_names=["created_at", "target", "tag", None, None])
+    search_query = _get_search_query(request)
+
+    result = db.get_paginated_analyses(start, length, ordering, search_query=search_query)
+    backend = KartonBackend(config=KartonConfig())
+    num_pending_tasks = get_num_pending_tasks(backend)
+    all_bind_identities = {bind.identity for bind in backend.get_binds()}
+    disableable_bind_identities = {bind.identity for bind in get_binds_that_can_be_disabled()}
+
+    entries = []
+    for entry in result.data:
+        num_finished_tasks = get_analysis_num_finished_tasks(redis, entry["id"])
+        num_in_progress_tasks = get_analysis_num_in_progress_tasks(redis, entry["id"])
+        num_all_tasks = num_finished_tasks + num_in_progress_tasks + num_pending_tasks.get(entry["id"], 0)
+
+        entries.append(
+            {
+                "id": entry["id"],
+                "tag": entry["tag"],
+                "target": entry["target"],
+                "created_at": entry["created_at"],
+                "disabled_modules": entry["disabled_modules"],
+                "num_pending_tasks": num_pending_tasks.get(entry["id"], 0),
+                "num_all_tasks": num_all_tasks,
+                "num_finished_tasks": num_finished_tasks,
+                "percentage_finished_tasks": 100.0 * num_finished_tasks / num_all_tasks if num_all_tasks else "N/A",
+                "stopped": entry.get("stopped", None),
+            }
+        )
+
+    return {
+        "draw": draw,
+        "recordsTotal": result.records_count_total,
+        "recordsFiltered": result.records_count_filtered,
+        "data": [
+            render_analyses_table_row(request, entry, all_bind_identities, disableable_bind_identities)
+            for entry in entries
+        ],
+    }
+
+
+@router.get("/frontend-api/task-results-table", include_in_schema=False)
+def get_task_results_table(
+    request: Request,
+    analysis_id: Optional[str] = Query(default=None),
+    task_filter: Optional[TaskFilter] = Query(default=None),
+    draw: int = Query(),
+    start: int = Query(),
+    length: int = Query(),
+) -> Dict[str, Any]:
+    ordering = _get_ordering(
+        request,
+        column_names=["created_at", "tag", "receiver", "target_string", None, "status_reason"],
+    )
+    search_query = _get_search_query(request)
+
+    if analysis_id:
+        if not db.get_analysis_by_id(analysis_id):
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        result = db.get_paginated_task_results(
+            start,
+            length,
+            ordering,
+            search_query=search_query,
+            analysis_id=analysis_id,
+            task_filter=task_filter,
+        )
+    else:
+        result = db.get_paginated_task_results(
+            start, length, ordering, search_query=search_query, task_filter=task_filter
+        )
+
+    return {
+        "draw": draw,
+        "recordsTotal": result.records_count_total,
+        "recordsFiltered": result.records_count_filtered,
+        "data": [render_task_table_row(request, task) for task in result.data],
+    }

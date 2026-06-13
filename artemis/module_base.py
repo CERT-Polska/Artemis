@@ -31,9 +31,6 @@ from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.ip_utils import is_ip_address
 from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
-from artemis.modules.base.runtime_configuration_registry import (
-    RuntimeConfigurationRegistry,
-)
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
 from artemis.redis_cache import RedisCache
@@ -101,14 +98,6 @@ class ArtemisBase(Karton):
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
 
-        # Initialize configuration
-        registry = RuntimeConfigurationRegistry()
-        config_class = registry.get_configuration_class(self.identity)
-        if config_class:
-            self._configuration = config_class()
-        else:
-            self._configuration = ModuleRuntimeConfiguration()
-
         if Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH:
             with open(Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH, "r") as additional_data_file:
                 with open("/etc/hosts", "a") as hosts_file:
@@ -146,21 +135,6 @@ class ArtemisBase(Karton):
 
         faulthandler.register(signal.SIGUSR1)
 
-    @property
-    def configuration(self) -> Optional[ModuleRuntimeConfiguration]:
-        """
-        Get the current module configuration.
-
-        Returns:
-            Optional[ModuleRuntimeConfiguration]: The current configuration or None if not set
-        """
-        return self._configuration
-
-    @configuration.setter
-    def configuration(self, value: Optional[ModuleRuntimeConfiguration]) -> None:
-        if value:
-            self._configuration = value
-
     def get_default_configuration(self) -> ModuleRuntimeConfiguration:
         """
         Get the default configuration for this module.
@@ -171,22 +145,12 @@ class ArtemisBase(Karton):
         """
         return ModuleRuntimeConfiguration()
 
-    def set_configuration(self, config_dict: Dict[str, Any]) -> None:
-        """
-        Set the module configuration from a dictionary.
+    def get_runtime_configuration(self, _task: Task) -> ModuleRuntimeConfiguration:
+        return self.get_default_configuration()
 
-        Args:
-            config_dict (Dict[str, Any]): Configuration dictionary to apply
-        """
-        registry = RuntimeConfigurationRegistry()
-        config_class = registry.get_configuration_class(self.identity)
-
-        if config_class is None:
-            config_class = ModuleRuntimeConfiguration
-
-        self._configuration = config_class.deserialize(config_dict)
-        if not self._configuration.validate():
-            raise ValueError(f"Invalid configuration for module {self.identity}")
+    def get_batch_group_key(self, _task: Task) -> str | None:
+        """Return a grouping key used when taking a batch of tasks from queue."""
+        return None
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
@@ -293,8 +257,14 @@ class ArtemisBase(Karton):
             os.environ.get("NUM_WORKERS_PER_CONTAINER_%s" % cls.identity.replace("-", "_").upper(), "1")
         )
         if num_processes > 1:
+            processes = []
             for _ in range(num_processes):
-                multiprocessing.Process(target=start, args=(task_counter,)).start()
+                process = multiprocessing.Process(target=start, args=(task_counter,))
+                process.start()
+                processes.append(process)
+
+            for process in processes:
+                process.join()
         else:
             cls().single_process_loop(task_counter)
 
@@ -318,8 +288,12 @@ class ArtemisBase(Karton):
         for task_filter in self.filters:
             self.log.info("Binding on: %s", task_filter)
 
+        time_start = time.time()
         with self.graceful_killer():
-            while not self.shutdown and task_counter.value < Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
+            while (
+                not self.shutdown
+                and time.time() - time_start < Config.Miscellaneous.MAX_MODULE_TASK_PROCESSING_TIME__SECONDS
+            ):
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break
@@ -337,10 +311,9 @@ class ArtemisBase(Karton):
                     # are consuming tasks.
                     time.sleep(self.task_poll_interval_seconds)
 
-        if task_counter.value >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
-            self.log.info("Exiting loop after processing %d tasks in all processes", task_counter.value)
-        else:
-            self.log.info("Exiting loop, shutdown=%s", self.shutdown)
+        self.log.info(
+            "Exiting loop after processing %d tasks in all processes, shutdown=%s", task_counter.value, self.shutdown
+        )
 
     def _single_iteration(self) -> int:
         self.log.debug("single iteration")
@@ -435,8 +408,12 @@ class ArtemisBase(Karton):
             return [], [], 0
 
         try:
-            tasks = []
+            tasks: list[Task] = []
             locks: List[Optional[ResourceLock]] = []
+            # batch group key is used in order to group tasks with runtime configuration that needs to be applied per each
+            # task in group, we want to pick the tasks with same configuration in order to lock them efficientely
+            selected_batch_group_key: str | None = None
+            skipped_not_belongs_to_batch = 0
 
             if (
                 float(REDIS.get(f"queue_location_timestamp-{self.identity}") or 0)
@@ -470,6 +447,14 @@ class ArtemisBase(Karton):
                         self.backend.redis.lrem(queue, 1, item)
                         continue
 
+                    task_batch_group_key = self.get_batch_group_key(task)
+                    task_belongs_to_current_processed_batch_tasks = (
+                        task_batch_group_key == selected_batch_group_key or len(tasks) == 0
+                    )
+                    if not task_belongs_to_current_processed_batch_tasks:
+                        skipped_not_belongs_to_batch += 1
+                        continue
+
                     scan_destination = self._get_scan_destination(task)
 
                     if self.lock_target:
@@ -484,6 +469,9 @@ class ArtemisBase(Karton):
                                 lock.acquire()
                                 tasks.append(task)
                                 locks.append(lock)
+                                if len(tasks) == 1:
+                                    selected_batch_group_key = task_batch_group_key
+                                    self.log.info("[taking tasks] selected batch key: %s", selected_batch_group_key)
                                 self.log.info(
                                     "[taking tasks] Succeeded to lock task %s (orig_uid=%s destination=%s, %d in queue %s), %d/%d locked",
                                     task.uid,
@@ -508,10 +496,18 @@ class ArtemisBase(Karton):
                     else:
                         tasks.append(task)
                         locks.append(None)
+                        if len(tasks) == 1:
+                            selected_batch_group_key = task_batch_group_key
                         self.backend.redis.lrem(queue, 1, item)
                         if len(tasks) >= num_tasks:
                             break
-                self.log.debug(f"[taking tasks] {len(tasks)} tasks after checking queue {queue}")
+                if len(tasks) > 0:
+                    self.log.info(
+                        "[taking tasks] %d tasks, skipped due to batching %d, after checking queue %s",
+                        len(tasks),
+                        skipped_not_belongs_to_batch,
+                        queue,
+                    )
                 if len(tasks) >= num_tasks:
                     break
 
@@ -662,6 +658,8 @@ class ArtemisBase(Karton):
                 should_check_connection = True
             elif task.headers["type"] == TaskType.WEBAPP:
                 should_check_connection = True
+            elif task.headers["type"] == TaskType.NUCLEI_TARGET:
+                should_check_connection = True
             elif task.headers["type"] == TaskType.URL:
                 should_check_connection = True
 
@@ -672,81 +670,45 @@ class ArtemisBase(Karton):
         if not tasks:
             return
 
-        # Group tasks by their configuration
-        grouped_tasks: Dict[str, List[Task]] = {}
-
-        for task in tasks:
-            config_dict = None
-            if task.payload_persistent.get("module_runtime_configurations"):
-                config_dict = task.payload_persistent["module_runtime_configurations"].get(self.identity, None)
-
-            # Use JSON string of config as key for grouping
-            config_key = json.dumps(config_dict) if config_dict else "default"
-
-            if config_key not in grouped_tasks:
-                grouped_tasks[config_key] = []
-
-            grouped_tasks[config_key].append(task)
-
-        # Process each group with its configuration
-        for config_key, task_group in grouped_tasks.items():
-            self.log.info(f"Processing group of {len(task_group)} tasks with configuration: {config_key}")
-
-            # Set configuration for this batch
-            if config_key != "default":
+        output = b""
+        try:
+            for i in range(self.num_retries):
                 try:
-                    self.set_configuration(json.loads(config_key))
-                except (ValueError, json.JSONDecodeError) as e:
-                    self.log.warning(f"Failed to load configuration from task payload: {e}")
-                    # Fall back to default configuration
-                    self._configuration = self.get_default_configuration()
-            else:
-                # Use default configuration if none provided
-                self._configuration = self.get_default_configuration()
-
-            # Create a fresh output redirector for each batch
-
-            output = b""
-            try:
-                for i in range(self.num_retries):
-                    try:
-                        output_redirector = OutputRedirector()
-                        with output_redirector:
-                            if self.batch_tasks:
-                                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(task_group))()
-                            else:
-                                for task in task_group:
-                                    timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
-                        output += output_redirector.get_output()
-
-                        has_errors = False
-                        for task in task_group:
-                            task_result = self.db.get_task_by_id(task.uid)
-
-                            if task_result and task_result.get("status", None) == "ERROR":
-                                has_errors = True
-                        if has_errors:
-                            if i < self.num_retries - 1:
-                                self.log.error(
-                                    "Task(s) returned error status, retrying (try %d/%d)", i + 1, self.num_retries
-                                )
+                    output_redirector = OutputRedirector()
+                    with output_redirector:
+                        if self.batch_tasks:
+                            timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run_multiple(tasks))()
                         else:
-                            break
+                            for task in tasks:
+                                timeout_decorator.timeout(self.timeout_seconds)(lambda: self.run(task))()
+                    output += output_redirector.get_output()
 
-                    except Exception:
-                        output += output_redirector.get_output()
+                    has_errors = False
+                    for task in tasks:
+                        task_result = self.db.get_task_by_id(task.uid)
+
+                        if task_result and task_result.get("status", None) == "ERROR":
+                            has_errors = True
+                    if has_errors:
                         if i < self.num_retries - 1:
-                            self.log.exception("Task(s) failed, retrying (try %d/%d)", i + 1, self.num_retries)
-                        else:
-                            for task in task_group:
-                                self.db.save_task_result(
-                                    task=task, status=TaskStatus.ERROR, data=traceback.format_exc()
-                                )
-                            raise
-            finally:
-                for task in task_group:
-                    if Config.Data.SAVE_LOGS_IN_DATABASE:
-                        self.db.save_task_logs(task.uid, output)
+                            self.log.error(
+                                "Task(s) returned error status, retrying (try %d/%d)", i + 1, self.num_retries
+                            )
+                    else:
+                        break
+
+                except Exception:
+                    output += output_redirector.get_output()
+                    if i < self.num_retries - 1:
+                        self.log.exception("Task(s) failed, retrying (try %d/%d)", i + 1, self.num_retries)
+                    else:
+                        for task in tasks:
+                            self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
+                        raise
+        finally:
+            for task in tasks:
+                if Config.Data.SAVE_LOGS_IN_DATABASE:
+                    self.db.save_task_logs(task.uid, output)
 
     def _log_tasks(self, tasks: List[Task]) -> None:
         if not tasks:
@@ -802,7 +764,7 @@ class ArtemisBase(Karton):
                 result = self._get_ip_for_locking(host)
             except UnknownIPException:
                 result = host
-        elif task.headers["type"] == TaskType.SERVICE:
+        elif task.headers["type"] == TaskType.SERVICE or task.headers["type"] == TaskType.NUCLEI_TARGET:
             try:
                 result = self._get_ip_for_locking(task.payload["host"])
             except UnknownIPException:

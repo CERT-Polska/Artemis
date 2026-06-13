@@ -54,4 +54,4 @@ class DeviceIdentifier(ArtemisBase):
 
 
 if __name__ == "__main__":
-    DeviceIdentifier().loop()
+    DeviceIdentifier.parallel_loop()

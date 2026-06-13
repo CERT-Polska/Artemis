@@ -96,4 +96,4 @@ class JoomlaExtensions(ArtemisBase):
 
 
 if __name__ == "__main__":
-    JoomlaExtensions().loop()
+    JoomlaExtensions.parallel_loop()

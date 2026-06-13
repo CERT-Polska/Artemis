@@ -69,4 +69,4 @@ class WordPressBruter(ArtemisBase):
 
 
 if __name__ == "__main__":
-    WordPressBruter().loop()
+    WordPressBruter.parallel_loop()

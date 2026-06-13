@@ -1,23 +1,33 @@
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:2
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:5
 msgid ""
-"The following domains don't have properly configured e-mail sender "
-"verification mechanisms:"
+"The following domains don't have properly configured e-mail security "
+"mechanisms:"
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:8
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:17
 msgid "Warning:"
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:10
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:19
 msgid "Error:"
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:16
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:26
+#, python-format
+msgid "Problem with SSL/TLS for the MX server %(mx_server)s on port %(port)s:"
+msgstr ""
+
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:30
+#, python-format
+msgid "Problem with SSL/TLS for the MX server %(mx_server)s:"
+msgstr ""
+
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:35
 #, python-format
 msgid "Problem with the %(type)s mechanism:"
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:24
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:43
 #, python-format
 msgid ""
 "For the DMARC mechanism to work properly on %(top_level_target)s, the "
@@ -26,13 +36,19 @@ msgid ""
 ".eu or .co.uk)."
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:33
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:53
 msgid ""
-"These mechanisms greatly increase the chance that the recipient server "
-"will reject a spoofed message."
+"The SSL mechanism greatly increases the confidentiality of the sent "
+"e-mails."
 msgstr ""
 
-#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:34
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:57
+msgid ""
+"The SPF and DMARC mechanisms greatly increase the chance that the "
+"recipient server will reject a spoofed message."
+msgstr ""
+
+#: artemis/reporting/modules/mail_dns_scanner/template_misconfigured_email.jinja2:58
 msgid ""
 "Even if a domain is not used to send e-mails, SPF and DMARC records are "
 "needed to reduce the possibility to spoof e-mails."

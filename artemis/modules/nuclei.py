@@ -18,17 +18,15 @@ from karton.core import Task
 from prometheus_client import Counter, Histogram, start_http_server
 
 from artemis import load_risk_class
-from artemis.binds import Service, TaskStatus, TaskType
+from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import (
     add_injectable_params_and_common_params_from_wordlist,
-    get_links_and_resources_on_same_domain,
+    crawl_and_filter,
 )
 from artemis.module_base import ArtemisBase
-from artemis.modules.base.runtime_configuration_registry import (
-    RuntimeConfigurationRegistry,
-)
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
+from artemis.modules.nuclei_router import NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY
 from artemis.modules.runtime_configuration.nuclei_configuration import (
     NucleiConfiguration,
     SeverityThreshold,
@@ -38,6 +36,7 @@ from artemis.reporting.modules.nuclei.poc_url_utils import (
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
+    CalledProcessErrorWithMessage,
     check_output_log_on_error,
     check_output_log_on_error_with_stderr,
     directory_backup,
@@ -188,17 +187,30 @@ class ScanUsing(enum.Enum):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class Nuclei(ArtemisBase):
     """
-    Runs Nuclei templates on URLs.
+    Runs Nuclei templates on URLs. To use Nuclei, enable both nuclei-module and nuclei-router modules.
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
-    identity = "nuclei"
+    identity = "nuclei-module"
     filters = [
-        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+        {"type": TaskType.NUCLEI_TARGET.value},
     ]
 
     batch_tasks = True
     task_max_batch_size = Config.Modules.Nuclei.NUCLEI_MAX_BATCH_SIZE
+
+    def _get_nuclei_router_flags(self, tasks: list[Task]) -> list[str]:
+        if len(tasks) == 0:
+            return []
+        first_task_flags = tasks[0].payload.get(NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY, [])
+        if not isinstance(first_task_flags, list):
+            return []
+
+        if any(task.payload.get(NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY, []) != first_task_flags for task in tasks[1:]):
+            self.log.warning("Nuclei picked up tasks from different groups")
+            return []
+
+        return [item for item in first_task_flags if isinstance(item, str)]
 
     def get_default_configuration(self) -> NucleiConfiguration:
         """
@@ -209,6 +221,34 @@ class Nuclei(ArtemisBase):
                 - severity_threshold: Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD
         """
         return NucleiConfiguration(severity_threshold=Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
+
+    def get_runtime_configuration(self, task: Task) -> NucleiConfiguration:
+        configuration = self.get_default_configuration()
+
+        runtime_configurations = task.payload_persistent.get("module_runtime_configurations", {})
+        # FIXME: migration fallback logic to previous identity
+        config_dict = runtime_configurations.get(self.identity) or runtime_configurations.get("nuclei")
+        if config_dict is None:
+            return configuration
+        try:
+            configuration = NucleiConfiguration.deserialize(config_dict)
+            if not configuration.validate():
+                raise ValueError(f"Invalid configuration for module {self.identity}")
+        except (KeyError, TypeError, ValueError) as exc:
+            self.log.warning(f"Failed to load configuration from task payload: {exc}")
+            return self.get_default_configuration()
+        return configuration
+
+    def get_batch_group_key(self, task: Task) -> str | None:
+        router_flags = self._get_nuclei_router_flags([task])
+        configuration = self.get_runtime_configuration(task)
+        return json.dumps(
+            {
+                "nuclei_router_flags": router_flags,
+                "configuration_runtime": configuration.serialize(),
+            },
+            sort_keys=True,
+        )
 
     def _should_scan_template(self, template: str) -> bool:
         if Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN:
@@ -343,7 +383,7 @@ class Nuclei(ArtemisBase):
                     self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
 
     def _get_links(self, url: str) -> List[str]:
-        links = get_links_and_resources_on_same_domain(url)
+        links = crawl_and_filter(url)
 
         links = [
             link
@@ -399,6 +439,47 @@ class Nuclei(ArtemisBase):
                 requests_per_second_per_host_99_percentile,
                 sum(1 for x in requests_per_second_per_host if x > 1),
             )
+        )
+
+    def _log_nuclei_error_summary(self, lines: List[str]) -> None:
+        # Error message substrings from https://github.com/projectdiscovery/utils/blob/main/errkit/kind.go
+        NUCLEI_ERROR_CATEGORIES = [
+            ("port closed or filtered", "port_closed_or_filtered"),
+            ("connect: connection refused", "connection_refused"),
+            ("no such host", "no_such_host"),
+            ("no address found", "no_address_found"),
+            ("could not resolve host", "could_not_resolve_host"),
+            ("host unreachable", "host_unreachable"),
+            ("Unable to connect", "unable_to_connect"),
+            ("Client.Timeout exceeded while awaiting headers", "timeout_awaiting_headers"),
+            ("context deadline exceeded", "context_deadline_exceeded"),
+            ("i/o timeout", "io_timeout"),
+        ]
+
+        error_counts: Dict[str, int] = collections.defaultdict(int)
+        for line in lines:
+            if not line.startswith("{"):
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            error = entry.get("error", "none")
+            if not error or error == "none":
+                continue
+            category = "unknown-error"
+            for substring, name in NUCLEI_ERROR_CATEGORIES:
+                if substring in error:
+                    category = name
+                    break
+            error_counts[category] += 1
+
+        if not error_counts:
+            return
+
+        self.log.info(
+            "Nuclei request error summary: %s",
+            dict(error_counts),
         )
 
     def _scan(
@@ -556,7 +637,14 @@ class Nuclei(ArtemisBase):
                     env["HOME"] = "/fake-home/"
 
                 command_start_time = time.time()
-                stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)
+                try:
+                    stdout, stderr = check_output_log_on_error_with_stderr(command, self.log, env=env)
+                except CalledProcessErrorWithMessage:
+                    self.log.exception("Exception while running Nuclei")
+                    # We pass to the next chunk as e.g. Nuclei raises when the templates list is empty, i.e. all
+                    # are skipped.
+                    break
+
                 METRIC_BATCH_COMMAND_DURATION.labels(scan_type=scan_using).observe(time.time() - command_start_time)
 
                 units = len(targets) * len(chunk)
@@ -577,6 +665,7 @@ class Nuclei(ArtemisBase):
                 self.log.info(
                     "Requests per second statistics: %s", self._get_requests_per_second_statistics(stderr_utf8_lines)
                 )
+                self._log_nuclei_error_summary(stderr_utf8_lines)
 
                 if "context deadline exceeded" in stdout_utf8 + stderr_utf8:
                     self.log.info(
@@ -622,13 +711,16 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
-        templates = []
+        scan_tag_args = ["-itags", ",".join(TAGS_TO_INCLUDE)]
+        router_flags = self._get_nuclei_router_flags(tasks)
+        scan_tag_args.extend(router_flags)
 
-        severity_levels = (
-            self.configuration.get_severity_options()  # type: ignore
-            if self.configuration
-            else SeverityThreshold.get_severity_list(Config.Modules.Nuclei.NUCLEI_SEVERITY_THRESHOLD)
-        )
+        self.log.info("Using router flags: %s", router_flags)
+
+        templates = []
+        configuration = self.get_runtime_configuration(tasks[0])
+
+        severity_levels = configuration.get_severity_options()
 
         self.log.info("Using severity levels %s for scanning", severity_levels)
 
@@ -648,14 +740,8 @@ class Nuclei(ArtemisBase):
         for task in tasks:
             targets.append(get_target_url(task))
 
-        findings = self._scan(
-            templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
-        )
-        findings.extend(
-            self._scan(
-                self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)]
-            )
-        )
+        findings = self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args)
+        findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=scan_tag_args))
 
         # DAST scanning
         dast_targets: List[str] = []
@@ -713,7 +799,7 @@ class Nuclei(ArtemisBase):
                     ],
                     ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
-                    extra_nuclei_args=["-itags", ",".join(TAGS_TO_INCLUDE)],
+                    extra_nuclei_args=scan_tag_args,
                 )
             )
 
@@ -816,9 +902,6 @@ class Nuclei(ArtemisBase):
             self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=result)
 
 
-RuntimeConfigurationRegistry().register_configuration(Nuclei.identity, NucleiConfiguration)
-
-
 if __name__ == "__main__":
     start_http_server(9001)
-    Nuclei().loop()
+    Nuclei.parallel_loop()

@@ -16,6 +16,7 @@ class TaskType(str, Enum):
     :cvar URL: HTTP URL, must have content attached.
     :cvar DEVICE: Device with host, port, SSL, and type (e.g., FortiOS).
     :cvar SUSPECTED_DANGLING_IP: Specific for dangling_dns_detector module, for retry purpose.
+    :cvar NUCLEI_TARGET: HTTP target prepared by nuclei_router for nuclei module.
     """
 
     # unclassified data (goes to classifier)
@@ -44,6 +45,9 @@ class TaskType(str, Enum):
 
     # {specific to dangling_dns_detector module, for retry purpose}
     SUSPECTED_DANGLING_IP = "suspected_dangling_ip"
+
+    # {specific for nuclei module, task routed by nuclei_router}
+    NUCLEI_TARGET = "nuclei_target"
 
 
 class Service(str, Enum):

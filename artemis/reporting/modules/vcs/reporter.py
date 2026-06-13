@@ -28,17 +28,20 @@ class VCSReporter(Reporter):
         if not task_result["status"] == "INTERESTING":
             return []
 
-        assert not (
-            task_result["result"]["svn"] and task_result["result"]["git"]
-        ), "Found a suspicious case where both correct SVN and Git repositories are present."
+        # A host can legitimately expose both .svn/wc.db and .git/HEAD (mid-migration mirrors, dual
+        # repos, honeypots). The DataLoader processes every task_result on every export, so an
+        # AssertionError here would crash every future export until the row is hand-deleted from
+        # the DB. Log and report both sides instead.
+        reports_svn = VCSReporter._create_reports_svn(task_result, language) if task_result["result"].get("svn") else []
+        reports_git = VCSReporter._create_reports_git(task_result, language) if task_result["result"].get("git") else []
 
-        if task_result["result"]["svn"]:
-            return VCSReporter._create_reports_svn(task_result, language)
+        if reports_svn and reports_git:
+            logger.warning(
+                "Both SVN and Git repositories detected for the same target (%s); reporting both.",
+                get_target_url(task_result),
+            )
 
-        if task_result["result"]["git"]:
-            return VCSReporter._create_reports_git(task_result, language)
-
-        return []
+        return reports_svn + reports_git
 
     @staticmethod
     def _create_reports_svn(task_result: Dict[str, Any], language: Language) -> List[Report]:

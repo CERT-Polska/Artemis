@@ -1,5 +1,4 @@
 import random
-import re
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse, urlunparse
@@ -10,8 +9,8 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import (
+    crawl_and_filter,
     get_injectable_parameters,
-    get_links_and_resources_on_same_domain,
 )
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
@@ -57,7 +56,7 @@ class LFIDetector(ArtemisBase):
         return f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
 
     def is_url_with_parameters(self, url: str) -> bool:
-        return bool(re.search(r"/?/*=", url))
+        return "?" in url
 
     def contains_lfi_indicator(self, original_response: HTTPResponse, response: HTTPResponse) -> Optional[str]:
         """Check if the response contains indicators of LFI.
@@ -112,15 +111,16 @@ class LFIDetector(ArtemisBase):
 
             if self.contains_lfi_indicator(original_response, response):
                 minimal_params.append(param)
+            if len(minimal_params) >= Config.Modules.LFIDetector.LFI_MINIMAL_PARAMS_MAX_LEN:
+                break
 
         if minimal_params:
-            capped_minimal_params = minimal_params[: Config.Modules.LFIDetector.LFI_MINIMAL_PARAMS_MAX_LEN]
             self.log.info(
                 "LFI parameter minimization: %s -> %s",
                 params,
-                capped_minimal_params,
+                minimal_params,
             )
-            return capped_minimal_params
+            return minimal_params
 
         # fallback if no single param triggers LFI
         return params
@@ -188,7 +188,7 @@ class LFIDetector(ArtemisBase):
         if self.check_connection_to_base_url_and_save_error(current_task):
             url = get_target_url(current_task)
 
-            links = get_links_and_resources_on_same_domain(url)
+            links = crawl_and_filter(url)
             links.append(url)
             links = list(set(links) | set([self._strip_query_string(link) for link in links]))
 

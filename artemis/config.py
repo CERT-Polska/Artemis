@@ -213,6 +213,16 @@ class Config:
             "API_TOKEN", default=None
         )
 
+        FRONTEND_USERNAME: Annotated[
+            str,
+            "Username used to log in to the Artemis web interface.",
+        ] = get_config("FRONTEND_USERNAME", default="")
+
+        FRONTEND_PASSWORD: Annotated[
+            str,
+            "Password used to log in to the Artemis web interface.",
+        ] = get_config("FRONTEND_PASSWORD", default="")
+
         REMOVE_LOGS_AFTER_DAYS: Annotated[int, "After what number of days the logs in karton-logs are removed."] = (
             get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
         )
@@ -282,11 +292,11 @@ class Config:
             'false positives, where a failed DNS query may result with a "no DMARC" message.',
         ] = get_config("NUM_DNS_RESOLVER_RETRIES", default=3, cast=int)
 
-        MAX_NUM_TASKS_TO_PROCESS: Annotated[
+        MAX_MODULE_TASK_PROCESSING_TIME__SECONDS: Annotated[
             int,
-            "After this number of tasks processed, each scanning module will get restarted. This is to prevent situations "
+            "After this number of module running time, each scanning module will get restarted. This is to prevent situations "
             "such as slow memory leaks.",
-        ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=1000, cast=int)
+        ] = get_config("MAX_MODULE_TASK_PROCESSING_TIME__SECONDS", default=3 * 24 * 3600 * 3600, cast=int)
 
         CONTENT_PREFIX_SIZE: Annotated[
             int,
@@ -298,10 +308,9 @@ class Config:
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config(
             "MODULES_DISABLED_BY_DEFAULT",
-            default="admin_panel_login_bruter,api_scanner,dangling_dns_detector,example,humble,ssh_bruter,xss_scanner",
+            default="admin_panel_login_bruter,api_scanner,dangling_dns_detector,example,humble,leak_scanner,ssh_bruter,xss_scanner",
             cast=decouple.Csv(str, delimiter=","),
         )
-
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,
             "If we request a domain for subdomain enumeration, we will save that it has already been enumerated, so that e.g. "
@@ -328,6 +337,10 @@ class Config:
                 int,
                 "How many times to recheck whether the good password works, and the bad doesn't",
             ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=10, cast=int)
+            ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH: Annotated[
+                int,
+                "Maximum number of maybe-working credential pairs that we will recheck per path. This is to prevent too much time spent on rechecking in case of a large number of false positives.",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH", default=10, cast=int)
 
         class APIScanner:
             API_SPEC_MAX_SIZE: Annotated[
@@ -359,6 +372,35 @@ class Config:
                 "If set to True, bruter will follow redirects. If to False, a redirect will be interpreted that a URL "
                 "doesn't exist, thus decreasing the number of false positives at the cost of losing some true positives.",
             ] = get_config("BRUTER_FOLLOW_REDIRECTS", default=True, cast=bool)
+
+        class Crawling:
+            KATANA_DEPTH: Annotated[int, "Crawl depth passed to Katana (-d)."] = get_config(
+                "KATANA_DEPTH", default=2, cast=int
+            )
+
+            KATANA_MAX_URLS: Annotated[int, "Hard cap on URLs collected by Katana per target (passed as -mdp)."] = (
+                get_config("KATANA_MAX_URLS", default=50, cast=int)
+            )
+
+            KATANA_TIMEOUT_SECONDS: Annotated[
+                int,
+                "Subprocess-level timeout for the Katana run, separate from TASK_TIMEOUT_SECONDS. On timeout, partial "
+                "output is parsed and cached with KATANA_TIMEOUT_CACHE_TTL_SECONDS.",
+            ] = get_config("KATANA_TIMEOUT_SECONDS", default=180, cast=int)
+
+            KATANA_CONCURRENCY: Annotated[int, "Katana internal concurrency (-c)."] = get_config(
+                "KATANA_CONCURRENCY", default=10, cast=int
+            )
+
+            CRAWL_CACHE_TTL_SECONDS: Annotated[int, "Redis TTL for a successful crawl result."] = get_config(
+                "CRAWL_CACHE_TTL_SECONDS", default=24 * 60 * 60, cast=int
+            )
+
+            KATANA_TIMEOUT_CACHE_TTL_SECONDS: Annotated[
+                int,
+                "Redis TTL when a crawl timed out and we are caching partial output. Shorter than full TTL so we "
+                "retry sooner.",
+            ] = get_config("KATANA_TIMEOUT_CACHE_TTL_SECONDS", default=60 * 60, cast=int)
 
         class DanglingDnsDetector:
             DANGLING_DNS_SKIP_ROOT_DOMAIN: Annotated[
@@ -517,6 +559,7 @@ class Config:
                         "http/exposed-panels/arcgis/arcgis-rest-api.yaml",
                         # Source of FPs
                         "custom:CVE-2019-1579",
+                        "custom:CVE-2025-68461",
                         "custom:CVE-2024-35286",
                         "custom:CVE-2025-24016",
                         "custom:xss-inside-tag-top-params.yaml",
@@ -603,6 +646,14 @@ class Config:
                         "http/exposed-panels/ghe-encrypt-saml.yaml",
                         # Too many FPs
                         "dast/vulnerabilities/crlf/cookie-injection.yaml",
+                        # Roundcube templates producing FP
+                        "http/cves/2025/CVE-2025-49113.yaml",
+                        "http/cves/2024/CVE-2024-42009.yaml",
+                        # Too many FPs
+                        "http/exposed-panels/aveva-intouch-access-anywhere-panel.yaml",
+                        "http/exposed-panels/janitza-umg-panel.yaml",
+                        # FP: even if the message says `trace.axd is not available`, it's detected
+                        "http/exposures/logs/trace-axd-expose.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -667,6 +718,7 @@ class Config:
                         "http/exposed-panels/pulse-secure-version.yaml",
                         "http/exposed-panels/cisco/cisco-asa-panel.yaml",
                         "http/exposed-panels/cisco/cisco-anyconnect-vpn.yaml",
+                        "http/exposed-panels/cyberoam-ssl-vpn-panel.yaml",
                         "http/exposed-panels/openvpn-connect.yaml",
                         "http/exposed-panels/ivanti-csa-panel.yaml",
                         "http/exposed-panels/ivanti-connect-secure-panel.yaml",
@@ -677,6 +729,7 @@ class Config:
                         "http/exposed-panels/sonicwall-sslvpn-panel.yaml",
                         "http/exposed-panels/netscaler-aaa-login.yaml",
                         "http/exposed-panels/citrix-adc-gateway-panel.yaml",
+                        "http/exposed-panels/globalprotect-panel.yaml",
                         # Online stores, CRMs, chats and ticketing systems - it's a standard practice to have them exposed in a small organization
                         "http/exposed-panels/bitrix-panel.yaml",
                         "http/exposed-panels/dynamicweb-panel.yaml",

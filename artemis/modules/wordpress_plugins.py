@@ -14,7 +14,7 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import TaskStatus, TaskType, WebApplication
 from artemis.config import Config
-from artemis.crawling import get_links_and_resources_on_same_domain
+from artemis.crawling import crawl_and_filter
 from artemis.domains import is_subdomain
 from artemis.fallback_api_cache import FallbackAPICache
 from artemis.module_base import ArtemisBase
@@ -32,6 +32,7 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "customizer-export-import",
     "delete-all-comments-of-website",
     "disable-xml-rpc-api",
+    "external-thumbnail",
     "flowpaper-lite-pdf-flipbook",
     "metricool",
     "sumome",
@@ -45,6 +46,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "backwpup",
     "boldgrid-easy-seo",
     "booking",
+    "dashboard-welcome-for-elementor",
     "everest-forms",
     "permalink-manager",
     "social-pug",
@@ -66,16 +68,18 @@ PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
     "disable-wordpress-updates",
     "famethemes-demo-importer",
+    "google-maps-easy",
     "icon-element",
+    "learnpress-wishlist",
     "link-manager",
     "login-logo",
-    "official-statcounter-plugin-for-wordpress",
     "page-or-post-clone",
+    "persian-woocommerce-sms",
     "rafflepress",
     "search-meter",
+    "unlimited-elements-for-elementor",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
-    "wp-migrate-db",
     "zapier",
 ]
 
@@ -173,7 +177,7 @@ def get_version_from_readme(slug: str, readme_content: str) -> Optional[str]:
 
                 version = (
                     re.sub(r"(\(|\*|\[|\]|/|'|:|,|-|=|<h4>|</h4>|\|)", " ", line)
-                    .strip()
+                    .strip(" .")
                     # Some versions are prefixed with 'v' (e.g. v1.0.0)
                     .lstrip("v")
                     .split(" ")[0]
@@ -239,7 +243,9 @@ class WordpressPlugins(ArtemisBase):
         json_response = response.json()
         self._top_plugins = [
             {
-                "repository_version": plugin["version"],
+                "repository_version": plugin["version"].rstrip(
+                    "."
+                ),  # 2026-05-19 ht-mega-for-elementor had a trailing dot in the version
                 "slug": plugin["slug"],
             }
             for plugin in json_response["plugins"]
@@ -253,7 +259,7 @@ class WordpressPlugins(ArtemisBase):
             self._readme_file_names = json.load(f)
 
     def _get_plugins_from_homepage(self, url: str) -> List[Dict[str, Any]]:
-        links = get_links_and_resources_on_same_domain(url)
+        links = crawl_and_filter(url)
 
         plugin_data = []
         for link in links:
@@ -448,4 +454,4 @@ class WordpressPlugins(ArtemisBase):
 
 
 if __name__ == "__main__":
-    WordpressPlugins().loop()
+    WordpressPlugins.parallel_loop()

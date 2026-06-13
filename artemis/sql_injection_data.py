@@ -26,7 +26,7 @@ SQL_ERROR_MESSAGES: List[str] = [
     "unsupported nested scalar subselect",
     # PostgreSQL,
     "PostgreSQL.{0,200}?ERROR",
-    "Warning.{0,200}?\\Wpg_",
+    "Warning.{0,200}?\\Wpg_(?!connect)",
     "valid PostgreSQL result",
     "Npgsql\\.",
     "PG::SyntaxError:",

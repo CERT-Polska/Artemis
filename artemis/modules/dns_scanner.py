@@ -107,4 +107,4 @@ class DnsScanner(ArtemisBase):
 
 
 if __name__ == "__main__":
-    DnsScanner().loop()
+    DnsScanner.parallel_loop()

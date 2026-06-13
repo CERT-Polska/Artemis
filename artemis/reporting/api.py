@@ -11,6 +11,7 @@ from artemis.reporting.export.main import (
     build_message_template_and_print_path,
     create_environment,
     install_translations_and_print_path,
+    postprocess_rendered_html,
 )
 
 router = APIRouter()
@@ -29,7 +30,7 @@ async def post_build_html_message(language: str = Body(), data: Dict[str, Any] =
         environment = create_environment()
         install_translations_and_print_path(Language(language), environment, Path(tmp_dir), silent=True)
         message_template = build_message_template_and_print_path(environment, Path(tmp_dir), silent=True)
-        return message_template.render({"data": data})
+        return postprocess_rendered_html(message_template.render({"data": data}))
 
 
 app = FastAPI(

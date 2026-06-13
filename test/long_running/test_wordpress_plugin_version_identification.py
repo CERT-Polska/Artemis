@@ -39,7 +39,10 @@ class WordpressPluginIdentificationTestCase(unittest.TestCase):
             plugins.extend(
                 [
                     {
-                        "version": plugin["version"],
+                        "version": plugin["version"].rstrip(
+                            "."
+                        ),  # 2026-05-19 ht-mega-for-elementor had a trailing dot in the version
+                        # we do the same in the identification phase
                         "slug": plugin["slug"],
                     }
                     for plugin in json_response["plugins"]

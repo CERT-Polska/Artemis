@@ -11,13 +11,16 @@ First, you need to prepare a machine. The recommended configuration for the scan
 - 2 cores,
 - 30GB of free disk space to store Docker images and scan results.
 
-To start Artemis, clone the ``https://github.com/CERT-Polska/Artemis/`` repository and execute the
-following command in your terminal in the ``Artemis`` directory:
+To start Artemis:
 
-.. code-block:: console
+- clone the ``https://github.com/CERT-Polska/Artemis/`` repository,
+- copy the ``.env.example`` file to ``.env``,
+- set ``FRONTEND_USERNAME`` and ``FRONTEND_PASSWORD`` in ``.env`` (these credentials will be required when logging in at ``localhost:5000``),
+- execute the following command in your terminal in the ``Artemis`` directory:
 
-   ./scripts/start --mode=<production|development>
+  .. code-block:: console
 
+     ./scripts/start --mode=<production|development>
 
 
 After that you should be able to access the Artemis dashboard at ``localhost:5000``.
@@ -42,14 +45,18 @@ the Artemis directory** and run ``./scripts/start``.
 
 .. note ::
 
-   Artemis exposes port 5000 that can be used to add tasks and view results. Remember that this port
-   shouldn't be available publicly, but e.g. on an internal network.
+   Artemis exposes its API/web interface on port 5000. Even with authentication enabled,
+   it is strongly recommended **not** to expose this port publicly (e.g. keep it on an
+   internal network only), to prevent unauthorized use of the scanner and reduce exposure
+   to attacks such as brute force or credential stuffing.
 
-   To add authorization (or SSL termination), you may for example use a reverse proxy, e.g. nginx.
+   To add SSL termination consider using a reverse proxy such as nginx.
 
-**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in** ``./scripts/start``
-(e.g. by changing ``--scale=karton-bruter=5`` to ``--scale=karton-bruter=20``). By default
-some modules are spawned in a couple of instances, but you may want more of them. You can also pass the ``--single-worker`` parameter to the script to limit the number of each Karton worker to one. This is useful for development, testing, or running on machines with limited resources.
+**If you want to increase the number of instances of a module to speed up scanning, modify the numbers of instances in the** ``.env``
+file (by adding or updating the ``NUM_WORKERS_PER_CONTAINER_MODULE_NAME`` setting, e.g. by changing ``NUM_WORKERS_PER_CONTAINER_BRUTER=5``
+to ``NUM_WORKERS_PER_CONTAINER_BRUTER=20``).
+
+By default some modules are spawned in a couple of instances, but you may want more of them.
 
 For the full list of available configuration options you may set in the ``.env`` file, see :doc:`user-guide/configuration`.
 

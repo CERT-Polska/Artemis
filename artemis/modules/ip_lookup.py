@@ -34,4 +34,4 @@ class IPLookup(ArtemisBase):
 
 
 if __name__ == "__main__":
-    IPLookup().loop()
+    IPLookup.parallel_loop()

@@ -9,6 +9,14 @@ import yaml
 ARTEMIS_IMAGES = ["${ARTEMIS_BUILD_IMAGE:-certpl/artemis:latest}", "certpl/artemis:latest"]
 
 
+class LocalBuildStrategy(YamlProcessor):
+    def process(self, data: Any) -> Any:
+
+        for service in data["services"]:
+            data["services"][service]["stdin_open"] = True
+            data["services"][service]["tty"] = True
+        return data
+
 class YamlProcessor(ABC):
     @abstractmethod
     def process(self, data: Any) -> Any:
@@ -97,6 +105,8 @@ if __name__ == "__main__":
         )
 
         processor.set_data()
+
+        processor.process_file(LocalBuildStrategy())
 
         processor.process_file(WebCommandStrategy())
 

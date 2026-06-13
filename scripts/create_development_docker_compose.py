@@ -5,8 +5,13 @@ from typing import Any, List
 
 import yaml
 
-
 ARTEMIS_IMAGES = ["${ARTEMIS_BUILD_IMAGE:-certpl/artemis:latest}", "certpl/artemis:latest"]
+
+
+class YamlProcessor(ABC):
+    @abstractmethod
+    def process(self, data: Any) -> Any:
+        pass
 
 
 class LocalBuildStrategy(YamlProcessor):
@@ -16,11 +21,6 @@ class LocalBuildStrategy(YamlProcessor):
             data["services"][service]["stdin_open"] = True
             data["services"][service]["tty"] = True
         return data
-
-class YamlProcessor(ABC):
-    @abstractmethod
-    def process(self, data: Any) -> Any:
-        pass
 
 
 class WebCommandStrategy(YamlProcessor):
@@ -37,7 +37,11 @@ class VolumeDevelopStrategy(YamlProcessor):
     @staticmethod
     def create_list_of_services(data: Any) -> List[str]:
         services = data.get("services", {})
-        karton_services = [name for name in services if name.startswith("karton") or name == "web" or data["services"][name]["image"] in ARTEMIS_IMAGES]
+        karton_services = [
+            name
+            for name in services
+            if name.startswith("karton") or name == "web" or data["services"][name]["image"] in ARTEMIS_IMAGES
+        ]
 
         return karton_services
 

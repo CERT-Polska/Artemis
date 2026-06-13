@@ -6,24 +6,13 @@ from typing import Any, List
 import yaml
 
 
+ARTEMIS_IMAGES = ["${ARTEMIS_BUILD_IMAGE:-certpl/artemis:latest}", "certpl/artemis:latest"]
+
+
 class YamlProcessor(ABC):
     @abstractmethod
     def process(self, data: Any) -> Any:
         pass
-
-
-class LocalBuildStrategy(YamlProcessor):
-    def process(self, data: Any) -> Any:
-
-        for service in data["services"]:
-            data["services"][service]["stdin_open"] = True
-            data["services"][service]["tty"] = True
-
-        if data.get("x-artemis-build-or-image") and data["x-artemis-build-or-image"].get("image"):
-            del data["x-artemis-build-or-image"]["image"]
-            data["x-artemis-build-or-image"]["build"] = {"context": ".", "dockerfile": "docker/Dockerfile"}
-            return data
-        return data
 
 
 class WebCommandStrategy(YamlProcessor):
@@ -40,7 +29,7 @@ class VolumeDevelopStrategy(YamlProcessor):
     @staticmethod
     def create_list_of_services(data: Any) -> List[str]:
         services = data.get("services", {})
-        karton_services = [name for name in services if name.startswith("karton") or name == "web"]
+        karton_services = [name for name in services if name.startswith("karton") or name == "web" or data["services"][name]["image"] in ARTEMIS_IMAGES]
 
         return karton_services
 
@@ -48,17 +37,11 @@ class VolumeDevelopStrategy(YamlProcessor):
         services_to_create_volume = self.create_list_of_services(data)
 
         for service in data["services"]:
-            if service in services_to_create_volume and "./:/opt" not in data["services"][service]["volumes"]:
-                data["services"][service]["volumes"].append("./:/opt")
-        return data
-
-
-class LocalBuildContainersStrategy(YamlProcessor):
-    def process(self, data: Any) -> Any:
-        for service in data["services"]:
-            if data["services"][service].get("image") == "certpl/artemis:latest":
-                del data["services"][service]["image"]
-                data["services"][service]["build"] = {"context": ".", "dockerfile": "docker/Dockerfile"}
+            if service in services_to_create_volume:
+                if "volumes" not in data["services"][service]:
+                    data["services"][service]["volumes"] = []
+                if "./:/opt" not in data["services"][service]["volumes"]:
+                    data["services"][service]["volumes"].append("./:/opt")
         return data
 
 
@@ -115,14 +98,10 @@ if __name__ == "__main__":
 
         processor.set_data()
 
-        processor.process_file(LocalBuildStrategy())
-
         processor.process_file(WebCommandStrategy())
 
         if input_file == "docker-compose.yaml":
             processor.process_file(VolumeDevelopStrategy())
-
-        processor.process_file(LocalBuildContainersStrategy())
 
         processor.process_file(PostgresOpenPortsStrategy())
 

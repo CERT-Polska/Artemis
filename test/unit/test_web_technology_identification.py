@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from artemis.web_technology_identification import run_tech_detection
+from artemis.web_technology_identification import run_tech_detection, to_tag_strings
 
 
 class TestWebTechnologyIdentification(unittest.TestCase):
@@ -34,7 +34,8 @@ class TestWebTechnologyIdentification(unittest.TestCase):
 
         for target in targets:
             self.assertIn(target, tech_results)
-            self.assertEqual(set(tech_results[target]), set(expected_results[target]))
+            detected_tags = set(to_tag_strings(tech_results[target]))
+            self.assertEqual(detected_tags, set(expected_results[target]))
 
     def test_skipping_ssl_verification(self) -> None:
         targets = ["https://self-signed.badssl.com"]
@@ -53,4 +54,5 @@ class TestWebTechnologyIdentification(unittest.TestCase):
 
         for target in targets:
             self.assertIn(target, tech_results)
-            self.assertEqual(set(tech_results[target]), set(expected_results[target]))
+            detected_tags = set(to_tag_strings(tech_results[target]))
+            self.assertEqual(detected_tags, set(expected_results[target]))

@@ -7,7 +7,7 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_host, get_target_url
-from artemis.web_technology_identification import run_tech_detection
+from artemis.web_technology_identification import run_tech_detection, to_tag_strings
 
 TECHNOLOGY_DETECTION_TAGS_TO_EXCLUDE = {"wordpress": ["wordpress"]}
 NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY = "nuclei-routing-additional-flags"
@@ -32,7 +32,7 @@ class NucleiRouter(ArtemisBase):
     def get_missing_tech(self, target: str) -> set[str]:
         technology_tags = run_tech_detection([target], self.log)
 
-        detected_techs_set = {tech.lower() for tech in technology_tags.get(target, [])}
+        detected_techs_set = {tag.lower() for tag in to_tag_strings(technology_tags.get(target, []))}
         known_detected_techs = set()
         for tech in self.known_techs_to_exclude:
             if any(tech in detected_tech for detected_tech in detected_techs_set):

@@ -1,0 +1,22 @@
+#: artemis/reporting/modules/cors_scanner/template_cors_misconfiguration.jinja2:2
+msgid "The following addresses have a CORS misconfiguration that allows arbitrary external websites to read authenticated responses:"
+msgstr ""
+
+#: artemis/reporting/modules/cors_scanner/template_cors_misconfiguration.jinja2:7
+msgid "reflected origins:"
+msgstr ""
+
+#: artemis/reporting/modules/cors_scanner/template_cors_misconfiguration.jinja2:13
+msgid ""
+"A CORS (Cross-Origin Resource Sharing) misconfiguration was detected. The server reflects "
+"arbitrary Origin headers in its Access-Control-Allow-Origin response while also setting "
+"Access-Control-Allow-Credentials: true. This means any website can make authenticated "
+"cross-origin requests and read the responses, potentially stealing sensitive user data."
+msgstr ""
+
+#: artemis/reporting/modules/cors_scanner/template_cors_misconfiguration.jinja2:20
+msgid ""
+"We recommend configuring CORS to only allow specific trusted origins. Do not reflect "
+"arbitrary Origin headers. If cross-origin credentials are not needed, remove the "
+"Access-Control-Allow-Credentials header."
+msgstr ""

@@ -72,7 +72,7 @@ fi
 
 docker compose $DOCKER_CONFIGS_STRING stop
 
-#docker pull certpl/artemis:latest
+docker pull certpl/artemis:latest
 
 docker compose $DOCKER_CONFIGS_STRING $PROFILE up -d --remove-orphans --build
 

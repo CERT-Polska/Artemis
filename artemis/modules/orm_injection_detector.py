@@ -38,12 +38,11 @@ class Statements(Enum):
 class OrmInjectionDetector(ArtemisBase):
     """
     Module for detecting ORM injection vulnerabilities.
-
-    Detection strategies are split into separate methods per ORM style so that
-    new styles (e.g. SQLAlchemy, Sequelize) can be added independently:
-      - _test_django_style_lookups: Django __lookup suffix injection
-      - _test_django_sensitive_field_probes: Django sensitive field enumeration
     """
+    # Detection strategies are split into separate methods per ORM style so that
+    # new styles (e.g. SQLAlchemy, Sequelize) can be added independently:
+    #   - _test_django_style_lookups: Django __lookup suffix injection
+    #   - _test_django_sensitive_field_probes: Django sensitive field enumeration
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
     identity = "orm_injection_detector"

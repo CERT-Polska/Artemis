@@ -5,7 +5,7 @@
                 {% if report.report_type == "orm_injection" %}
                     {% for message in report.additional_data.result %}
                         <li>
-                            {{ message.url }}
+                            {{ message.url }} ({% trans %}parameter:{% endtrans %} {{ message.parameter }})
                             {% if message.code == report.additional_data.statements.orm_injection %}
                                 :
                                 {% trans trimmed %}

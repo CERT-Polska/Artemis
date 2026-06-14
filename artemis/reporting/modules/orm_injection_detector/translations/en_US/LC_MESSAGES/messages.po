@@ -2,6 +2,10 @@
 msgid "We identified that the following URLs are vulnerable to ORM injection:"
 msgstr ""
 
+#: artemis/reporting/modules/orm_injection_detector/template_orm_injection.jinja2:8
+msgid "parameter:"
+msgstr ""
+
 #: artemis/reporting/modules/orm_injection_detector/template_orm_injection.jinja2:11
 msgid ""
 "ORM injection: user input is being passed directly to ORM query methods, "

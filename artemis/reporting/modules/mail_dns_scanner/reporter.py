@@ -19,15 +19,18 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
 SSL_ERRORS_TO_SKIP = [
+    "listed as abusive",
+    "Listed by XBL, see https://check.spamhaus.org",
     "Connection went away",
     "2.0-OpenSSH",
     "4.3.2 try again later",
     "(554, b'5.7.1 Delivery not authorized')",
     "All nameservers failed to answer the query",
     "Blacklisted",
+    "please try again later or contact administrator",
     "blocked using zen.spamhaus.org",
     "blocklisted by FortiGuard.",
-    "This email from IP has been rejected.",
+    "This email from IP  has been rejected.",  # the double space is in the original message
     "Connection refused",
     "Connection timed out",
     "Connection unexpectedly closed",

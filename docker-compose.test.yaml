@@ -30,6 +30,7 @@ services:
       SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback --timeout 60"
 
       SQL_INJECTION_STOP_ON_FIRST_MATCH: "false"
+      ORM_INJECTION_STOP_ON_FIRST_MATCH: "false"
 
       NUCLEI_INTERACTSH_SERVER: https://interactsh.lab.cert.pl
 
@@ -299,6 +300,12 @@ services:
       default:
         aliases:
           - test-apache-with-lfi-and-rce.local
+
+  test-django-with-orm-injection:
+    build:
+      context: test/data/orm_injection
+      dockerfile: Dockerfile
+    restart: on-failure
 
   test-apache-with-sql-injection-postgres:
     build:

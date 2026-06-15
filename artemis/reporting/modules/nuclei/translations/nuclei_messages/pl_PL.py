@@ -2722,4 +2722,5 @@ TRANSLATIONS = {
     "SolarEdge Telematics monitoring panel has been detected.": "Wykryto panel SolarEdge Telematics.",
     "Pimcore admin login interface was discovered.": "Wykryto panel logowania Pimcore.",
     "Digi International cellular routers expose a web management interface used in industrial IoT and remote connectivity applications.": "Wykryto panel routerów komórkowych Digi International.",
+    "Joplin Server login panel detected.": "Wykryto panel logowania Joplin Server.",
 }

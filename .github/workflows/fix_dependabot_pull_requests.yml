@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - run: apk add bash git
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
         with:
             ref: ${{ github.head_ref }}
 

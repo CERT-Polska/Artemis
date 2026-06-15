@@ -126,7 +126,7 @@ tqdm==4.67.3
 typer==0.25.1
 typing-extensions==4.15.0
 typing-inspection==0.4.2
-unittest-parallel==1.7.6
+unittest-parallel==1.8.2
 url-normalize==3.0.0
 urllib3==2.6.3
 uro==1.0.2

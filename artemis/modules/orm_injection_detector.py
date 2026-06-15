@@ -39,6 +39,7 @@ class OrmInjectionDetector(ArtemisBase):
     """
     Module for detecting ORM injection vulnerabilities.
     """
+
     # Detection strategies are split into separate methods per ORM style so that
     # new styles (e.g. SQLAlchemy, Sequelize) can be added independently:
     #   - _test_django_style_lookups: Django __lookup suffix injection

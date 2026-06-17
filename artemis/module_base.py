@@ -820,6 +820,7 @@ class ArtemisBase(Karton):
                         "Please wait while your request is being verified...",
                         "<title>Unauthorized Access</title>",
                         "<title>Attack Detected</title>",
+                        "<title>CrowdSec Ban</title>",
                         "<h1>You have been blocked</h1></html>",
                     ]
                 ]

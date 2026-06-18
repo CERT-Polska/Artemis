@@ -45,6 +45,7 @@ SSL_ERRORS_TO_SKIP = [
     "Error: too many connections from ",
     "(FCrDNS). Configuring matching A and PTR records should fix the issue",
     "invalid the 'A' or 'AAAA' record",
+    "invalid the \\'A\\' or \\'AAAA\\' record",
     "is blocked",
     "listed_as_abusive",
     "Listed by XBL, see https://check.spamhaus.org",

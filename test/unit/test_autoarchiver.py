@@ -166,7 +166,7 @@ class TestAutoArchiverWithDB(unittest.TestCase):
         ok_id_1 = _insert_task_result(self.db, tag=self.tag, status="OK", age_days=60)
 
         with self._patch_config(pack_size=2, min_age_seconds=1):
-            archive_old_results(interesting=False)
+            archive_old_results(interesting=True)
 
         remaining = _ids_in_db_with_tag(self.db, self.tag)
         self.assertNotIn(interesting_id_1, remaining)

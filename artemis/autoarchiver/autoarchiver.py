@@ -4,7 +4,7 @@ import json
 import os
 import pathlib
 import time
-from typing import Any, Dict, List
+from typing import Any, Iterator
 
 from artemis import utils
 from artemis.config import Config
@@ -15,16 +15,49 @@ db = DB()
 LOGGER = utils.build_logger(__name__)
 
 
-def _save_and_delete_items(old_items: List[Dict[str, Any]], path_suffix: str) -> None:
-    if not old_items:
-        LOGGER.info("Nothing to save")
-        return
+def _save_and_delete_items(items: Iterator[dict[str, Any]], path_suffix: str, min_count: int = 0) -> int:
+    output_dir = pathlib.Path(Config.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH)
+    temp_path = str(
+        output_dir / ("tmp_%s%s.json.gz" % (datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S_%f"), path_suffix))
+    )
 
-    date_from = old_items[0]["created_at"]
-    date_to = old_items[-1]["created_at"]
+    ids: list[str] = []
+    date_from: datetime.datetime | None = None
+    date_to: datetime.datetime | None = None
+
+    try:
+        with gzip.open(temp_path, "wt", encoding="utf-8") as f:
+            f.write("[\n")
+            for i, item in enumerate(items):
+                if date_from is None:
+                    date_from = item["created_at"]
+                date_to = item["created_at"]
+                if i > 0:
+                    f.write(",\n")
+                f.write(json.dumps(item, indent=4, cls=JSONEncoderAdditionalTypes))
+                ids.append(str(item["id"]))
+            f.write("\n]")
+    except Exception:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        raise
+
+    if not ids:
+        os.remove(temp_path)
+        LOGGER.info("Nothing to save")
+        return 0
+
+    if len(ids) < min_count:
+        os.remove(temp_path)
+        LOGGER.info("Too small (%d items), not archiving", len(ids))
+        return 0
+
+    if date_from is None or date_to is None:
+        LOGGER.warning("Coudln't properly extract date range.")
+        return 0
 
     output_path = str(
-        pathlib.Path(Config.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH)
+        output_dir
         / (
             "%s-%s%s.json.gz"
             % (
@@ -34,29 +67,24 @@ def _save_and_delete_items(old_items: List[Dict[str, Any]], path_suffix: str) ->
             )
         )
     )
-
+    os.rename(temp_path, output_path)
     LOGGER.info("Saving to %s", output_path)
-
-    with gzip.open(output_path, "wt", encoding="utf-8") as f:
-        json.dump(old_items, f, indent=4, cls=JSONEncoderAdditionalTypes)
-
     LOGGER.info("Saved %s megabytes", os.stat(output_path).st_size / (1024 * 1024 * 1.0))
 
-    db.delete_task_results_by_ids([item["id"] for item in old_items])
+    db.delete_task_results_by_ids(ids)
+    LOGGER.info("Deleted %d documents", len(ids))
 
-    LOGGER.info("Deleted %d documents", len(old_items))
+    return len(ids)
 
 
 def archive_tag(tag: str) -> int:
-    items = db.get_oldest_task_results_with_tag(
-        tag=tag,
-        max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
+    return _save_and_delete_items(
+        db.iter_oldest_task_results_with_tag(
+            tag=tag,
+            max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
+        ),
+        "_tag_" + tag,
     )
-
-    LOGGER.info("Found %s items with tag %s", len(items), tag)
-
-    _save_and_delete_items(items, "_tag_" + tag)
-    return len(items)
 
 
 def archive_old_results(interesting: bool) -> None:
@@ -69,19 +97,15 @@ def archive_old_results(interesting: bool) -> None:
             seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING
         )
 
-    old_items = db.get_oldest_task_results_before(
-        time_to=datetime.datetime.now() - archive_age_timedelta,
-        max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
-        interesting=interesting,
+    _save_and_delete_items(
+        db.iter_oldest_task_results_before(
+            time_to=datetime.datetime.now() - archive_age_timedelta,
+            max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
+            interesting=interesting,
+        ),
+        "_interesting" if interesting else "_not_interesting",
+        min_count=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
     )
-
-    LOGGER.info("Found %s old items, interesting=%s", len(old_items), interesting)
-
-    if len(old_items) < Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE:
-        LOGGER.info("Too small, not archiving")
-        return
-
-    _save_and_delete_items(old_items, "_interesting" if interesting else "_not_interesting")
 
 
 def main() -> None:

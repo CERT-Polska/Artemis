@@ -298,4 +298,4 @@ class OrmInjectionDetector(ArtemisBase):
 
 
 if __name__ == "__main__":
-    OrmInjectionDetector().loop()
+    OrmInjectionDetector.parallel_loop()

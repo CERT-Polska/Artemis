@@ -658,7 +658,7 @@ class ArtemisBase(Karton):
                 should_check_connection = True
             elif task.headers["type"] == TaskType.WEBAPP:
                 should_check_connection = True
-            elif task.headers["type"] == TaskType.NUCLEI_TARGET:
+            elif task.headers["type"] == TaskType.NUCLEI_TARGET and task.get_payload("nuclei-routing-scan-mode", "http") == "http":
                 should_check_connection = True
             elif task.headers["type"] == TaskType.URL:
                 should_check_connection = True

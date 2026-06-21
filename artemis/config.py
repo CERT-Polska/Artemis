@@ -474,7 +474,7 @@ class Config:
             NUCLEI_INTERACTSH_SERVER: Annotated[
                 str,
                 "Which interactsh server to use. if None, uses the default.",
-            ] = get_config("NUCLEI_INTERACTSH_SERVER", default=None, cast=str)
+            ] = get_config("NUCLEI_INTERACTSH_SERVER", default=None)
 
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,

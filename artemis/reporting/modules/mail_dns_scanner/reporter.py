@@ -19,6 +19,7 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
 SSL_ERRORS_TO_SKIP = [
+    "Server not connected",
     "listed as abusive",
     "Listed by XBL, see https://check.spamhaus.org",
     "Connection went away",

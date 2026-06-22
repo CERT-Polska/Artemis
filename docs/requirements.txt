@@ -119,7 +119,7 @@ semver==3.0.4
 shellingham==1.5.4
 shodan==1.31.0
 six==1.17.0
-snowballstemmer==3.0.1
+snowballstemmer==3.1.1
 soupsieve==2.8.4
 sphinx==9.0.4
 sphinx-rtd-theme==3.1.0

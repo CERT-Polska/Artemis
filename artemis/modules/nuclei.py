@@ -814,11 +814,6 @@ class Nuclei(ArtemisBase):
                         )
                     dast_targets.append(param_url)
 
-            all_dast_templates = []
-            for keyword in DAST_SCANNING.keys():
-                all_dast_templates.extend(self._dast_templates[keyword])
-            all_dast_templates.extend(self._dast_templates["other"])
-
             findings.extend(
                 self._scan(
                     [

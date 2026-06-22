@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.2
 aiohttp==3.13.5
@@ -17,7 +17,7 @@ attrs==26.1.0
 babel==2.18.0
 badkeys==0.0.18
 bcrypt==5.0.0
-beautifulsoup4==4.14.3
+beautifulsoup4==4.15.0
 blinker==1.9.0
 boto3==1.35.81
 botocore==1.35.81

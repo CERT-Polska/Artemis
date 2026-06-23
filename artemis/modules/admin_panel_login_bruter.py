@@ -25,6 +25,18 @@ def read_file(file: IO[str]) -> List[str]:
     return [line.strip() for line in file if not line.startswith("#")]
 
 
+def read_credential_pairs(file: IO[str]) -> List[Tuple[str, str]]:
+    pairs = []
+    for line in read_file(file):
+        if ":" not in line:
+            continue
+        username, password = line.split(":", 1)
+        if not password:  # no empty passwords for now
+            continue
+        pairs.append((username, password))
+    return pairs
+
+
 COMMON_FAILURE_MESSAGES: List[str]
 with open(
     os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_failure_messages.txt"),
@@ -45,6 +57,13 @@ with open(
     encoding="utf-8",
 ) as f:
     COMMON_LOGIN_PATHS = read_file(f)
+
+COMMON_CREDENTIAL_PAIRS: List[Tuple[str, str]]
+with open(
+    os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_credential_pairs.txt"),
+    encoding="utf-8",
+) as f:
+    COMMON_CREDENTIAL_PAIRS = read_credential_pairs(f)
 
 # JSON-only API login endpoints that do not respond to GET with 200 (POST-only).
 # These are always tried regardless of discovery, because check_url(GET) would fail.
@@ -366,6 +385,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         for path in login_paths:
             num_rechecked_credentials = 0
             credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
+            credentials += COMMON_CREDENTIAL_PAIRS
             random.shuffle(credentials)
             for username, password in credentials:
                 login_mechanism_found, result = self.brute_force_login_path(base_url, path, username, password)

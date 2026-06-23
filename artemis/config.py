@@ -640,8 +640,6 @@ class Config:
                         # Roundcube templates producing FP
                         "http/cves/2025/CVE-2025-49113.yaml",
                         "http/cves/2024/CVE-2024-42009.yaml",
-                        # Too many FPs
-                        "http/exposed-panels/janitza-umg-panel.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

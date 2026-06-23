@@ -23,6 +23,7 @@ from sqlalchemy import (  # type: ignore
     String,
     create_engine,
     delete,
+    func,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
@@ -538,6 +539,18 @@ class DB:
 
         for item in self._iter_results(query, batch_size):
             yield self._strip_internal_db_info(dict(item))
+
+    def count_oldest_task_results_before(self, time_to: datetime.datetime, max_length: int, interesting: bool) -> int:
+        with self.session() as session:
+            query = select(TaskResult).filter(TaskResult.created_at <= time_to)  # type: ignore
+            if interesting:
+                query = query.filter(TaskResult.status == "INTERESTING")
+            else:
+                query = query.filter(TaskResult.status != "INTERESTING")
+            query = query.limit(max_length)
+            subquery = query.subquery()
+            result = session.execute(select(func.count()).select_from(subquery)).scalar()
+            return result or 0
 
     @staticmethod
     def dict_to_str(d: Dict[str, Any]) -> str:

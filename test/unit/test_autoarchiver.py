@@ -2,6 +2,7 @@ import datetime
 import gzip
 import json
 import os
+import shutil
 import tempfile
 import unittest
 import uuid
@@ -17,48 +18,22 @@ from artemis.autoarchiver.autoarchiver import (
 from artemis.db import DB, TaskResult
 
 
+def _read_gz(path: str) -> list[Any]:
+    with gzip.open(path, "rt", encoding="utf-8") as f:
+        return list(json.load(f))
+
+
 class TestAutoArchiver(unittest.TestCase):
     def _make_result(self, id: str, created_at: datetime.datetime, body: str = "x") -> dict[str, Any]:
         return {"id": id, "created_at": created_at, "result": {"body": body}}
-
-    def _read_gz(self, path: str) -> list[Any]:
-        with gzip.open(path, "rt", encoding="utf-8") as f:
-            return list(json.load(f))
 
     def setUp(self) -> None:
         self.tmpdir = tempfile.mkdtemp()
 
     def tearDown(self) -> None:
-        import shutil
-
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
-    def test_save_and_archive_empty_iterator(self) -> None:
-        with patch("artemis.autoarchiver.autoarchiver.db") as mock_db, patch(
-            "artemis.autoarchiver.autoarchiver.Config"
-        ) as mock_cfg:
-            mock_cfg.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH = self.tmpdir
-            result = _save_and_delete_items(iter([]), "_test")
-
-        self.assertEqual(result, 0)
-        mock_db.delete_task_results_by_ids.assert_not_called()
-
-        self.assertEqual(os.listdir(self.tmpdir), [])
-
-    def test_min_count_not_reached(self) -> None:
-        items = [self._make_result("1", datetime.datetime(2024, 1, 1))]
-        with patch("artemis.autoarchiver.autoarchiver.db") as mock_db, patch(
-            "artemis.autoarchiver.autoarchiver.Config"
-        ) as mock_cfg:
-            mock_cfg.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH = self.tmpdir
-            result = _save_and_delete_items(iter(items), "_test", min_count=3)
-
-        self.assertEqual(result, 0)
-        mock_db.delete_task_results_by_ids.assert_not_called()
-
-        self.assertEqual(os.listdir(self.tmpdir), [])
-
-    def test_min_count_reached(self) -> None:
+    def test_simple(self) -> None:
         items = [
             self._make_result("a", datetime.datetime(2024, 1, 1)),
             self._make_result("b", datetime.datetime(2024, 1, 2)),
@@ -68,14 +43,14 @@ class TestAutoArchiver(unittest.TestCase):
             "artemis.autoarchiver.autoarchiver.Config"
         ) as mock_cfg:
             mock_cfg.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH = self.tmpdir
-            result = _save_and_delete_items(iter(items), "_test", min_count=3)
+            result = _save_and_delete_items(iter(items), "_test")
 
         self.assertEqual(result, 3)
 
         # file_verification
         gz_files = [f for f in os.listdir(self.tmpdir) if f.endswith(".json.gz")]
         self.assertEqual(len(gz_files), 1)
-        data = self._read_gz(os.path.join(self.tmpdir, gz_files[0]))
+        data = _read_gz(os.path.join(self.tmpdir, gz_files[0]))
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 3)
         self.assertEqual(data[0]["id"], "a")
@@ -86,12 +61,12 @@ class TestAutoArchiver(unittest.TestCase):
         leftover = [f for f in os.listdir(self.tmpdir) if f.startswith("tmp_")]
         self.assertEqual(leftover, [])
 
-    def test_temp_file_cleaned_up_on_write_error(self) -> None:
+    def test_cleanup_on_write_error(self) -> None:
         def bad_iterator() -> Iterator[dict[str, Any]]:
             yield self._make_result("a", datetime.datetime(2024, 1, 1))
             raise RuntimeError("simulated DB failure mid-stream")
 
-        with patch("artemis.autoarchiver.autoarchiver.db"), patch(
+        with patch("artemis.autoarchiver.autoarchiver.db") as mock_db, patch(
             "artemis.autoarchiver.autoarchiver.Config"
         ) as mock_cfg:
             mock_cfg.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH = self.tmpdir
@@ -99,6 +74,7 @@ class TestAutoArchiver(unittest.TestCase):
                 _save_and_delete_items(bad_iterator(), "_test")
 
         self.assertEqual(os.listdir(self.tmpdir), [])
+        mock_db.delete_task_results_by_ids.assert_not_called()
 
 
 def _insert_task_result(db: DB, *, tag: str, status: str, age_days: int = 60) -> str:
@@ -122,7 +98,7 @@ def _insert_task_result(db: DB, *, tag: str, status: str, age_days: int = 60) ->
                     "payload": {},
                     "payload_persistent": {},
                 },
-                result={"body": "x"},
+                result={"body": "test-body"},
                 additional_info={},
             )
         )
@@ -142,8 +118,6 @@ class TestAutoArchiverWithDB(unittest.TestCase):
         self.tag = f"autoarchiver_test_{uuid.uuid4().hex}"
 
     def tearDown(self) -> None:
-        import shutil
-
         with self.db.session() as session:
             session.query(TaskResult).filter(TaskResult.tag.like("autoarchiver_test_%")).delete(
                 synchronize_session=False
@@ -173,6 +147,14 @@ class TestAutoArchiverWithDB(unittest.TestCase):
         self.assertNotIn(interesting_id_2, remaining)
         self.assertIn(ok_id_1, remaining)
 
+        gz_files = [f for f in os.listdir(self.tmpdir) if f.endswith(".json.gz")]
+        self.assertEqual(len(gz_files), 1)
+        data = _read_gz(os.path.join(self.tmpdir, gz_files[0]))
+        archived_ids = {item["id"] for item in data}
+        self.assertEqual(archived_ids, {interesting_id_1, interesting_id_2})
+        for item in data:
+            self.assertEqual(item["result"]["body"], "test-body")
+
     def test_archive_old_results_only_archives_matching_not_interesting_flag(self) -> None:
         ok_id_1 = _insert_task_result(self.db, tag=self.tag, status="OK", age_days=60)
         ok_id_2 = _insert_task_result(self.db, tag=self.tag, status="OK", age_days=60)
@@ -185,6 +167,14 @@ class TestAutoArchiverWithDB(unittest.TestCase):
         self.assertNotIn(ok_id_1, remaining)
         self.assertNotIn(ok_id_2, remaining)
         self.assertIn(interesting_id_1, remaining)
+
+        gz_files = [f for f in os.listdir(self.tmpdir) if f.endswith(".json.gz")]
+        self.assertEqual(len(gz_files), 1)
+        data = _read_gz(os.path.join(self.tmpdir, gz_files[0]))
+        archived_ids = {item["id"] for item in data}
+        self.assertEqual(archived_ids, {ok_id_1, ok_id_2})
+        for item in data:
+            self.assertEqual(item["result"]["body"], "test-body")
 
     def test_archive_old_results_does_not_archive_when_min_count_not_reached(self) -> None:
         inserted_ids = {_insert_task_result(self.db, tag=self.tag, status="OK", age_days=60) for _ in range(3)}

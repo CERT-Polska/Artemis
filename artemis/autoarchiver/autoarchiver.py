@@ -15,7 +15,7 @@ db = DB()
 LOGGER = utils.build_logger(__name__)
 
 
-def _save_and_delete_items(items: Iterator[dict[str, Any]], path_suffix: str, min_count: int = 0) -> int:
+def _save_and_delete_items(items: Iterator[dict[str, Any]], path_suffix: str) -> int:
     output_dir = pathlib.Path(Config.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH)
     temp_path = str(
         output_dir / ("tmp_%s%s.json.gz" % (datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S_%f"), path_suffix))
@@ -31,7 +31,8 @@ def _save_and_delete_items(items: Iterator[dict[str, Any]], path_suffix: str, mi
             for i, item in enumerate(items):
                 if date_from is None:
                     date_from = item["created_at"]
-                date_to = item["created_at"]
+                if date_to is None or date_to > item["created_at"]:
+                    date_to = item["created_at"]
                 if i > 0:
                     f.write(",\n")
                 f.write(json.dumps(item, indent=4, cls=JSONEncoderAdditionalTypes))
@@ -41,16 +42,6 @@ def _save_and_delete_items(items: Iterator[dict[str, Any]], path_suffix: str, mi
         if os.path.exists(temp_path):
             os.remove(temp_path)
         raise
-
-    if not ids:
-        os.remove(temp_path)
-        LOGGER.info("Nothing to save")
-        return 0
-
-    if len(ids) < min_count:
-        os.remove(temp_path)
-        LOGGER.info("Too small (%d items), not archiving", len(ids))
-        return 0
 
     if date_from is None or date_to is None:
         LOGGER.warning("Coudln't properly extract date range.")
@@ -97,14 +88,23 @@ def archive_old_results(interesting: bool) -> None:
             seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING
         )
 
+    time_to = datetime.datetime.now() - archive_age_timedelta
+    count = db.count_oldest_task_results_before(
+        time_to=time_to,
+        max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
+        interesting=interesting,
+    )
+    if count < Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE:
+        LOGGER.info("Too small (%d items), not archiving", count)
+        return
+
     _save_and_delete_items(
         db.iter_oldest_task_results_before(
-            time_to=datetime.datetime.now() - archive_age_timedelta,
+            time_to=time_to,
             max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
             interesting=interesting,
         ),
         "_interesting" if interesting else "_not_interesting",
-        min_count=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
     )
 
 

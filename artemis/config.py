@@ -640,11 +640,6 @@ class Config:
                         # Roundcube templates producing FP
                         "http/cves/2025/CVE-2025-49113.yaml",
                         "http/cves/2024/CVE-2024-42009.yaml",
-                        # Too many FPs
-                        "http/exposed-panels/aveva-intouch-access-anywhere-panel.yaml",
-                        "http/exposed-panels/janitza-umg-panel.yaml",
-                        # FP: even if the message says `trace.axd is not available`, it's detected
-                        "http/exposures/logs/trace-axd-expose.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

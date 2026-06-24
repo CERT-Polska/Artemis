@@ -44,7 +44,7 @@ def _save_and_delete_items(items: Iterator[dict[str, Any]], path_suffix: str) ->
         raise
 
     if date_from is None or date_to is None:
-        LOGGER.warning("Coudln't properly extract date range.")
+        LOGGER.warning("Couldn't properly extract date range.")
         return 0
 
     output_path = str(

@@ -31,7 +31,7 @@ def _save_and_delete_items(items: Iterator[dict[str, Any]], path_suffix: str) ->
             for i, item in enumerate(items):
                 if date_from is None:
                     date_from = item["created_at"]
-                if date_to is None or date_to > item["created_at"]:
+                if date_to is None or date_to < item["created_at"]:
                     date_to = item["created_at"]
                 if i > 0:
                     f.write(",\n")

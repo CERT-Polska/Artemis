@@ -61,6 +61,24 @@ class TestAutoArchiver(unittest.TestCase):
         leftover = [f for f in os.listdir(self.tmpdir) if f.startswith("tmp_")]
         self.assertEqual(leftover, [])
 
+    def test_output_filename_date_range(self) -> None:
+        items = [
+            self._make_result("a", datetime.datetime(2024, 1, 2)),
+            self._make_result("c", datetime.datetime(2025, 2, 3)),
+            self._make_result("b", datetime.datetime(2024, 1, 1)),
+        ]
+        with patch("artemis.autoarchiver.autoarchiver.db"), patch(
+            "artemis.autoarchiver.autoarchiver.Config"
+        ) as mock_cfg:
+            mock_cfg.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH = self.tmpdir
+            _save_and_delete_items(iter(items), "_test")
+
+        gz_files = [f for f in os.listdir(self.tmpdir) if f.endswith(".json.gz")]
+        self.assertEqual(len(gz_files), 1)
+        filename = gz_files[0]
+
+        self.assertEqual(filename, "2024-01-02_00_00_00-2025-02-03_00_00_00_test.json.gz")
+
     def test_cleanup_on_write_error(self) -> None:
         def bad_iterator() -> Iterator[dict[str, Any]]:
             yield self._make_result("a", datetime.datetime(2024, 1, 1))

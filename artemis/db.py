@@ -23,6 +23,7 @@ from sqlalchemy import (  # type: ignore
     String,
     create_engine,
     delete,
+    func,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
@@ -515,20 +516,18 @@ class DB:
             query = query.filter(TaskResult.tag == tag)
         return self._iter_results(query, batch_size)
 
-    def get_oldest_task_results_with_tag(
+    def iter_oldest_task_results_with_tag(
         self, tag: str, max_length: int, batch_size: int = 100
-    ) -> List[Dict[str, Any]]:
-        query = select(TaskResult).filter(TaskResult.tag == tag).order_by(TaskResult.created_at)  # type: ignore
-        result = []
-        for i, item in enumerate(self._iter_results(query, batch_size)):
-            if i >= max_length:
-                break
-            result.append(self._strip_internal_db_info(dict(item)))
-        return result
+    ) -> Generator[Dict[str, Any], None, None]:
+        query = (
+            select(TaskResult).filter(TaskResult.tag == tag).order_by(TaskResult.created_at).limit(max_length)  # type: ignore
+        )
+        for item in self._iter_results(query, batch_size):
+            yield self._strip_internal_db_info(dict(item))
 
-    def get_oldest_task_results_before(
+    def iter_oldest_task_results_before(
         self, time_to: datetime.datetime, max_length: int, interesting: bool, batch_size: int = 100
-    ) -> List[Dict[str, Any]]:
+    ) -> Generator[Dict[str, Any], None, None]:
         query = select(TaskResult).filter(TaskResult.created_at <= time_to).order_by(TaskResult.created_at)  # type: ignore
 
         if interesting:
@@ -536,12 +535,22 @@ class DB:
         else:
             query = query.filter(TaskResult.status != "INTERESTING")
 
-        result = []
-        for i, item in enumerate(self._iter_results(query, batch_size)):
-            if i >= max_length:
-                break
-            result.append(self._strip_internal_db_info(dict(item)))
-        return result
+        query = query.limit(max_length)
+
+        for item in self._iter_results(query, batch_size):
+            yield self._strip_internal_db_info(dict(item))
+
+    def count_oldest_task_results_before(self, time_to: datetime.datetime, max_length: int, interesting: bool) -> int:
+        with self.session() as session:
+            query = select(TaskResult).filter(TaskResult.created_at <= time_to)  # type: ignore
+            if interesting:
+                query = query.filter(TaskResult.status == "INTERESTING")
+            else:
+                query = query.filter(TaskResult.status != "INTERESTING")
+            query = query.limit(max_length)
+            subquery = query.subquery()
+            result = session.execute(select(func.count()).select_from(subquery)).scalar()
+            return result or 0
 
     @staticmethod
     def dict_to_str(d: Dict[str, Any]) -> str:

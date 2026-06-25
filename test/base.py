@@ -3,7 +3,7 @@ import tempfile
 import urllib
 from pathlib import Path
 from typing import Any, Dict, List
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from karton.core import Task
@@ -45,6 +45,10 @@ class ArtemisModuleTestCase(KartonTestCase):
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=self.mock_db
         )
+
+        self.wayback_patch = patch("artemis.crawling._fetch_wayback_parameters", return_value=())
+        self.wayback_patch.start()
+        self.addCleanup(self.wayback_patch.stop)
 
 
 class BaseReportingTest(ArtemisModuleTestCase):

@@ -1181,7 +1181,7 @@ class Config:
                 "How many times a differential response must reproduce before it is reported as a finding. "
                 "Guards against flaky services where a one-off difference is not actually caused by ORM "
                 "injection.",
-            ] = get_config("ORM_INJECTION_NUM_CONFIRMATIONS", default=3, cast=int)
+            ] = get_config("ORM_INJECTION_NUM_CONFIRMATIONS", default=10, cast=int)
 
         class SqlInjectionDetector:
             SQL_INJECTION_STOP_ON_FIRST_MATCH: Annotated[

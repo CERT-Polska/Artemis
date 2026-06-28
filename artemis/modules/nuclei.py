@@ -294,11 +294,13 @@ class Nuclei(ArtemisBase):
             template_lists_raw: Dict[str, List[str]] = {}
 
             for severity in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):
-                template_lists_raw[severity] = (
-                    check_output_log_on_error(["nuclei", "-s", severity] + templates_list_command, self.log)
+                template_lists_raw[severity] = [
+                    item
+                    for item in check_output_log_on_error(["nuclei", "-s", severity] + templates_list_command, self.log)
                     .decode("ascii")
                     .split()
-                )
+                    if item.endswith(".yml") or item.endswith(".yaml")
+                ]
 
             # Add non-severity specific sources
             if "known_exploited_vulnerabilities" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
@@ -813,11 +815,6 @@ class Nuclei(ArtemisBase):
                             param_url, template_data["params_wordlist"], template_data["param_default_value"]
                         )
                     dast_targets.append(param_url)
-
-            all_dast_templates = []
-            for keyword in DAST_SCANNING.keys():
-                all_dast_templates.extend(self._dast_templates[keyword])
-            all_dast_templates.extend(self._dast_templates["other"])
 
             findings.extend(
                 self._scan(

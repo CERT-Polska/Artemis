@@ -11,39 +11,6 @@ class NucleiTest(ArtemisModuleTestCase):
     # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
     karton_class = Nuclei  # type: ignore
 
-    def test_severity_threshold(self) -> None:
-        task = Task(
-            {"type": TaskType.NUCLEI_TARGET},
-            payload={
-                "host": "test-service-with-exposed-apache-config.local",
-                "port": 80,
-            },
-            payload_persistent={
-                "module_runtime_configurations": {"nuclei-module": {"severity_threshold": "critical_only"}}
-            },
-        )
-        self.run_task(task)
-        (call,) = self.mock_db.save_task_result.call_args_list
-        # Should find nothing if the severity threshold is set to critical, as the template is not critical-severity
-        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
-
-        self.mock_db.reset_mock()
-
-        # Using previous identity for backwardcompatibilty testing during migration
-        task = Task(
-            {"type": TaskType.NUCLEI_TARGET},
-            payload={
-                "host": "test-service-with-exposed-apache-config.local",
-                "port": 80,
-            },
-            payload_persistent={
-                "module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}
-            },
-        )
-        self.run_task(task)
-        (call,) = self.mock_db.save_task_result.call_args_list
-        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-
     def test_dast_template(self) -> None:
         task = Task(
             {"type": TaskType.NUCLEI_TARGET},
@@ -88,12 +55,46 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
                 "http/vulnerabilities/generic/top-xss-params.yaml",
                 "http/vulnerabilities/generic/xss-fuzz.yaml",
                 "dast/vulnerabilities/xss/reflected-xss.yaml",
+                "http/exposures/configs/apache-config.yaml",
             ],
         )
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
 
         return super().setUp()
+
+    def test_severity_threshold(self) -> None:
+        task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-service-with-exposed-apache-config.local",
+                "port": 80,
+            },
+            payload_persistent={
+                "module_runtime_configurations": {"nuclei-module": {"severity_threshold": "critical_only"}}
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        # Should find nothing if the severity threshold is set to critical, as the template is not critical-severity
+        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+
+        self.mock_db.reset_mock()
+
+        # Using previous identity for backwardcompatibilty testing during migration
+        task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-service-with-exposed-apache-config.local",
+                "port": 80,
+            },
+            payload_persistent={
+                "module_runtime_configurations": {"nuclei": {"severity_threshold": "medium_and_above"}}
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
 
     def test_403_bypass_workflow(self) -> None:
         # workflows use additional list of templates

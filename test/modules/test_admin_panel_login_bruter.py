@@ -63,3 +63,42 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["data"]["results"][0]["username"], "admin")
         self.assertEqual(call.kwargs["data"]["results"][0]["password"], "admin")
         self.assertIn("json_api_token", call.kwargs["data"]["results"][0]["indicators"])
+
+    def test_basic_auth_login(self) -> None:
+        """Test that an endpoint protected by HTTP Basic auth is detected and brute-forced."""
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-nginx-basic-auth",
+                "port": 80,
+            },
+        )
+
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-nginx-basic-auth:80/admin/")
+        self.assertEqual(call.kwargs["data"]["results"][0]["username"], "admin")
+        self.assertEqual(call.kwargs["data"]["results"][0]["password"], "admin")
+        self.assertEqual(call.kwargs["data"]["results"][0]["indicators"], ["http_basic_auth"])
+
+    def test_vendor_default_credential_pair(self) -> None:
+        """A login accepting only root:toor proves the credential-pairs mechanism:
+        'root' is not in COMMON_USERNAMES, so this is unreachable via the cartesian product."""
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-php-root-toor-login",
+                "port": 80,
+            },
+        )
+
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-php-root-toor-login:80/index.php")
+        self.assertEqual(call.kwargs["data"]["results"][0]["username"], "root")
+        self.assertEqual(call.kwargs["data"]["results"][0]["password"], "toor")
+        self.assertEqual(
+            call.kwargs["data"]["results"][0]["indicators"], ["redirect", "logout_link", "no_failure_messages"]
+        )

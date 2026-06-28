@@ -21,6 +21,7 @@ SEVERITY_MAP = {
     ReportType("weak_admin_credentials"): Severity.HIGH,
     ReportType("insecure_wordpress"): Severity.HIGH,
     ReportType("nuclei_vulnerability"): Severity.HIGH,
+    ReportType("orm_injection"): Severity.HIGH,
     ReportType("script_unregistered_domain"): Severity.HIGH,
     ReportType("closed_wordpress_plugin"): Severity.HIGH,
     ReportType("exposed_database_with_easy_password"): Severity.HIGH,

@@ -1,3 +1,4 @@
+import base64
 import binascii
 import itertools
 import os
@@ -24,6 +25,18 @@ def read_file(file: IO[str]) -> List[str]:
     return [line.strip() for line in file if not line.startswith("#")]
 
 
+def read_credential_pairs(file: IO[str]) -> List[Tuple[str, str]]:
+    pairs = []
+    for line in read_file(file):
+        if ":" not in line:
+            continue
+        username, password = line.split(":", 1)
+        if not password:  # no empty passwords for now
+            continue
+        pairs.append((username, password))
+    return pairs
+
+
 COMMON_FAILURE_MESSAGES: List[str]
 with open(
     os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_failure_messages.txt"),
@@ -44,6 +57,13 @@ with open(
     encoding="utf-8",
 ) as f:
     COMMON_LOGIN_PATHS = read_file(f)
+
+COMMON_CREDENTIAL_PAIRS: List[Tuple[str, str]]
+with open(
+    os.path.join(os.path.dirname(__file__), "data", "admin_panel_login_bruter", "common_credential_pairs.txt"),
+    encoding="utf-8",
+) as f:
+    COMMON_CREDENTIAL_PAIRS = read_credential_pairs(f)
 
 # JSON-only API login endpoints that do not respond to GET with 200 (POST-only).
 # These are always tried regardless of discovery, because check_url(GET) would fail.
@@ -72,13 +92,19 @@ class AdminPanelLoginBruter(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
+    def _is_basic_auth_challenge(self, response: Optional[http_requests.HTTPResponse]) -> bool:
+        if response is None or response.status_code != 401:
+            return False
+        return response.headers.get("WWW-Authenticate", "").lower().startswith("basic")
+
     def check_url(self, url: str) -> bool:
-        """
-        Checks if the given URL is accessible and returns a 200 status code.
-        """
         try:
             response = http_requests.get(url)
-            return response.status_code == 200 if response else False
+            if not response:
+                return False
+            if response.status_code == 200:
+                return True
+            return self._is_basic_auth_challenge(response)
         except requests.RequestException as e:
             self.log.debug(f"Error checking URL {url}: {e}")
             return False
@@ -152,6 +178,38 @@ class AdminPanelLoginBruter(ArtemisBase):
 
         return (is_json_api, None)
 
+    def _try_basic_auth(
+        self, session: requests.Session, login_url: str, username: str, password: str
+    ) -> Tuple[bool, Optional[AdminPanelLoginBruterResult]]:
+        """Try HTTP Basic auth for panels that respond with a 401 Basic challenge."""
+        token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("ascii")
+        self.log.debug("Trying HTTP Basic auth on %s", login_url)
+        try:
+            response = self.throttle_request(
+                lambda: http_requests.request(
+                    "get",
+                    login_url,
+                    session=session,
+                    headers={"Authorization": f"Basic {token}"},
+                )
+            )
+        except requests.RequestException as e:
+            self.log.debug("Error during Basic auth on %s: %s", login_url, e)
+            return (False, None)
+
+        if response is not None and response.status_code == 200:
+            self.log.info("successful Basic auth on %s username=%s password=%s", login_url, username, password)
+            return (
+                True,
+                AdminPanelLoginBruterResult(
+                    url=login_url,
+                    username=username,
+                    password=password,
+                    indicators=["http_basic_auth"],
+                ),
+            )
+        return (True, None)
+
     def discover_login_paths(self, base_url: str) -> List[str]:
         """
         Discovers common admin login paths by checking predefined URLs.
@@ -197,13 +255,15 @@ class AdminPanelLoginBruter(ArtemisBase):
         Attempts to brute-force a single login path.
         Returns a tuple: (login_mechanism_found, AdminPanelLoginBruterResult)
         """
-        self.log.info("Trying %s:%s on %s/%s", username, password, base_url, login_path.lstrip("/"))
+        self.log.debug("Trying %s:%s on %s/%s", username, password, base_url, login_path.lstrip("/"))
         login_url = urllib.parse.urljoin(base_url, login_path)
         session = requests.session()
         login_mechanism_found = False
 
         try:
             response = self.throttle_request(lambda: http_requests.request("get", login_url, session=session))
+            if self._is_basic_auth_challenge(response):
+                return self._try_basic_auth(session, login_url, username, password)
             if not response or response.status_code != 200:
                 # GET failed — the path may still be a JSON-only API endpoint;
                 # attempt JSON login before giving up.
@@ -243,14 +303,14 @@ class AdminPanelLoginBruter(ArtemisBase):
                             form_data[input_name] = input_value
 
                 if not found_username or not found_password:
-                    self.log.info("Didn't found username/pwd in form, ignoring...")
+                    self.log.debug("Didn't find username/pwd in form, ignoring...")
                     continue
                 else:
-                    self.log.info("Found username/pwd in form on %s, proceeding", login_url)
+                    self.log.debug("Found username/pwd in form on %s, proceeding", login_url)
                     login_mechanism_found = True
 
                 try:
-                    self.log.info("Post data: %s", form_data)
+                    self.log.debug("Post data: %s", form_data)
                     post_response = self.throttle_request(
                         lambda: http_requests.request(
                             "post",
@@ -325,6 +385,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         for path in login_paths:
             num_rechecked_credentials = 0
             credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
+            credentials += COMMON_CREDENTIAL_PAIRS
             random.shuffle(credentials)
             for username, password in credentials:
                 login_mechanism_found, result = self.brute_force_login_path(base_url, path, username, password)

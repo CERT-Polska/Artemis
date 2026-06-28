@@ -4,7 +4,7 @@ import urllib
 import uuid
 from difflib import SequenceMatcher
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from karton.core import Task
@@ -95,9 +95,12 @@ class OrmInjectionDetector(ArtemisBase):
         response_b = self.forgiving_http_get(url)
         return self._responses_differ(response_a, response_b)
 
-    def _test_lookup_suffix(self, original_url: str, param_name: str, suffix: str, likely_value: str) -> bool:
+    def _test_lookup_suffix(
+        self, original_url: str, param_name: str, suffix: str, likely_value: str
+    ) -> Optional[dict[str, str]]:
         # Sends two requests: one with a value likely to match records and one with a value
-        # unlikely to match. If the responses differ, the ORM is processing the suffix.
+        # unlikely to match. If the responses differ, the ORM is processing the suffix. Returns
+        # the two probe URLs when they differ (so the finding can be reproduced), else None.
         param_with_suffix = f"{param_name}{suffix}"
 
         # Preserve sibling query params, replacing only the param under test
@@ -113,7 +116,44 @@ class OrmInjectionDetector(ArtemisBase):
         response_likely = self.forgiving_http_get(url_likely)
         response_unlikely = self.forgiving_http_get(url_unlikely)
 
-        return self._responses_differ(response_likely, response_unlikely)
+        if self._responses_differ(response_likely, response_unlikely):
+            return {"matching_url": url_likely, "baseline_url": url_unlikely}
+        return None
+
+    def _test_sensitive_field(
+        self, base_url: str, field_name: str, lookup: str, probe_value: str
+    ) -> Optional[dict[str, str]]:
+        # Same differential idea as _test_lookup_suffix, but injects a `field__lookup` parameter
+        # even when the URL has no existing query string. Returns the probe URLs on a difference.
+        param_with_lookup = f"{field_name}__{lookup}"
+
+        url_with_probe = self._build_url_with_params(base_url, {param_with_lookup: probe_value})
+        url_with_unlikely = self._build_url_with_params(
+            base_url, {param_with_lookup: self._get_django_unlikely_value(f"__{lookup}")}
+        )
+
+        response_probe = self.forgiving_http_get(url_with_probe)
+        response_unlikely = self.forgiving_http_get(url_with_unlikely)
+
+        if self._responses_differ(response_probe, response_unlikely):
+            return {"matching_url": url_with_probe, "baseline_url": url_with_unlikely}
+        return None
+
+    def _confirm_difference(
+        self, check: Callable[..., Optional[dict[str, str]]], *args: Any
+    ) -> Optional[dict[str, str]]:
+        """Re-runs a differential check and only confirms it when every run still reports a
+        difference. A flaky service can return a one-off difference that is not caused by ORM
+        processing, so requiring the same result across independent runs filters out that noise.
+        Returns the probe URLs from the confirming run, or None as soon as a run disagrees (so
+        non-matching probes pay no extra requests)."""
+        confirmed: Optional[dict[str, str]] = None
+        for _ in range(max(1, Config.Modules.OrmInjectionDetector.ORM_INJECTION_NUM_CONFIRMATIONS)):
+            result = check(*args)
+            if result is None:
+                return None
+            confirmed = result
+        return confirmed
 
     def _get_django_likely_value(self, suffix: str, original_value: str) -> str:
         if suffix in ("__startswith", "__istartswith"):
@@ -163,13 +203,17 @@ class OrmInjectionDetector(ArtemisBase):
             for suffix in ORM_LOOKUP_SUFFIXES:
                 likely_value = self._get_django_likely_value(suffix, original_value)
 
-                if self._test_lookup_suffix(current_url, param_name, suffix, likely_value):
+                probe_urls = self._confirm_difference(
+                    self._test_lookup_suffix, current_url, param_name, suffix, likely_value
+                )
+                if probe_urls is not None:
                     self.log.info("Matched ORM lookup: %s%s on %s", param_name, suffix, current_url)
                     results.append(
                         {
                             "url": current_url,
                             "parameter": param_name,
                             "suffix": suffix,
+                            "tested_urls": probe_urls,
                             "statement": "It appears that this URL is vulnerable to ORM injection",
                             "code": Statements.orm_injection.value,
                         }
@@ -192,21 +236,15 @@ class OrmInjectionDetector(ArtemisBase):
         for field_name, lookup, probe_value in SENSITIVE_FIELD_PROBES:
             param_with_lookup = f"{field_name}__{lookup}"
 
-            url_with_probe = self._build_url_with_params(base_url, {param_with_lookup: probe_value})
-            url_with_unlikely = self._build_url_with_params(
-                base_url, {param_with_lookup: self._get_django_unlikely_value(f"__{lookup}")}
-            )
-
-            response_probe = self.forgiving_http_get(url_with_probe)
-            response_unlikely = self.forgiving_http_get(url_with_unlikely)
-
-            if self._responses_differ(response_probe, response_unlikely):
+            probe_urls = self._confirm_difference(self._test_sensitive_field, base_url, field_name, lookup, probe_value)
+            if probe_urls is not None:
                 self.log.info("Matched ORM sensitive field: %s on %s", param_with_lookup, base_url)
                 results.append(
                     {
                         "url": base_url,
                         "parameter": param_with_lookup,
                         "suffix": f"__{lookup}",
+                        "tested_urls": probe_urls,
                         "statement": "It appears that this URL allows ORM filtering on sensitive fields",
                         "code": Statements.orm_sensitive_field_access.value,
                     }

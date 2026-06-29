@@ -211,13 +211,19 @@ async def post_add(
     for task in total_list:
         if not Classifier.is_supported(task):
             validation_messages.append(
-                f"{task} is not supported - Artemis supports domains, IPs or IPv4 ranges. Domains and IPs may also optionally be followed by port number."
+                f"{task} is not supported - Artemis supports domains, IPs, IPv4 ranges or root URLs such as https://example.com/ or ssh://example.com:22/. Domains and IPs may also optionally be followed by port number. A URL must be a root URL (scheme://host[:port]/) without a path."
             )
+
+    # When every target is a root URL, the classifier emits the SERVICE task directly
+    # from the scheme, so port_scanner isn't needed to reach SERVICE/WEBAPP modules.
+    all_targets_are_urls = bool(total_list) and all(Classifier.is_url(task) for task in total_list)
 
     for dependency, task_types in [
         ("port_scanner", [TaskType.SERVICE.value, TaskType.WEBAPP.value]),
         ("device_identifier", [TaskType.DEVICE.value]),
     ]:
+        if dependency == "port_scanner" and all_targets_are_urls:
+            continue
         if dependency in disabled_modules:
             for bind in get_binds_that_can_be_disabled():
                 if bind.identity not in disabled_modules:

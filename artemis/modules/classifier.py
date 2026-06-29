@@ -2,8 +2,10 @@
 import ipaddress
 import json
 import re
+import socket
 import subprocess
-from typing import List
+import urllib.parse
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from karton.core import Task
 
@@ -15,6 +17,34 @@ from artemis.module_base import ArtemisBase
 from artemis.utils import check_output_log_on_error
 
 ASN_REGEX = "[aA][sS][0-9][0-9]*"
+
+
+class ParsedURL(NamedTuple):
+    service: Service
+    host: str
+    port: int
+    ssl: bool
+
+
+# Maps a URL scheme to the service it implies and whether it uses SSL/TLS. This is
+# the single source of truth for which schemes are accepted as direct targets - the
+# supported schemes are exactly the keys of this table. The default port for a scheme
+# is looked up in the system services database (socket.getservbyname), the same way
+# the reporting code derives ports from URL schemes.
+SCHEME_TO_SERVICE: Dict[str, Tuple[Service, bool]] = {
+    "http": (Service.HTTP, False),
+    "https": (Service.HTTP, True),
+    "ftp": (Service.FTP, False),
+    "ftps": (Service.FTP, True),
+    "ssh": (Service.SSH, False),
+    "smtp": (Service.SMTP, False),
+    "smtps": (Service.SMTP, True),
+    "imap": (Service.IMAP, False),
+    "imaps": (Service.IMAP, True),
+    "mysql": (Service.MYSQL, False),
+    "postgresql": (Service.POSTGRESQL, False),
+    "postgres": (Service.POSTGRESQL, False),
+}
 
 
 class RIPEAccessException(Exception):
@@ -84,7 +114,62 @@ class Classifier(ArtemisBase):
         return data
 
     @staticmethod
+    def _parse_url(data: str) -> Optional[ParsedURL]:
+        """
+        Parses a root URL (`scheme://host[:port][/]`) into the service it implies.
+
+        Returns `None` for anything that isn't a supported root URL: an input without
+        a scheme, an unmapped scheme, a missing host, userinfo, or a non-root path,
+        parameters, query or fragment. `urlparse` lowercases the scheme and host and
+        unwraps bracketed IPv6 hosts for us; `hostname`/`port` raise `ValueError`
+        on a malformed host or out-of-range port, which we treat as unsupported.
+        """
+        if "://" not in data:
+            return None
+
+        try:
+            parsed = urllib.parse.urlparse(data)
+        except ValueError:
+            return None
+
+        mapping = SCHEME_TO_SERVICE.get(parsed.scheme)
+        if mapping is None:
+            return None
+
+        # Userinfo (e.g. user:pass@host) points at credentials, not a target.
+        if parsed.username is not None or parsed.password is not None:
+            return None
+
+        # Only a root URL is accepted - service modules crawl from the root themselves,
+        # so a path, parameters, query or fragment would be ambiguous.
+        if parsed.path not in ("", "/") or parsed.params or parsed.query or parsed.fragment:
+            return None
+
+        try:
+            host = parsed.hostname
+            port = parsed.port
+        except ValueError:
+            return None
+
+        if not host:
+            return None
+
+        service, ssl = mapping
+        if port is None:
+            # No explicit port - fall back to the scheme's default from the system
+            # services database, the same way the reporting code resolves it.
+            try:
+                port = socket.getservbyname(parsed.scheme)
+            except OSError:
+                return None
+
+        return ParsedURL(service=service, host=host, port=port, ssl=ssl)
+
+    @staticmethod
     def is_supported(data: str) -> bool:
+        if "://" in data:
+            return Classifier._parse_url(data) is not None
+
         if re.match(ASN_REGEX, data):
             return True
 
@@ -110,6 +195,11 @@ class Classifier(ArtemisBase):
         return Classifier._is_ip_or_domain(data)
 
     @staticmethod
+    def is_url(data: str) -> bool:
+        """Whether `data` is a root URL the classifier turns directly into a service task."""
+        return Classifier._parse_url(data) is not None
+
+    @staticmethod
     def _classify(data: str) -> TaskType:
         """
         :raises: ValueError if failed to find domain/IP
@@ -130,6 +220,31 @@ class Classifier(ArtemisBase):
 
         raise ValueError("Failed to find domain/IP in input")
 
+    def _create_service_task(
+        self,
+        current_task: Task,
+        original_target: str,
+        service: Service,
+        host: str,
+        port: int,
+        ssl: bool,
+    ) -> None:
+        host_type = "domain" if is_domain(host) else "ip"
+
+        new_task = Task(
+            {
+                "type": TaskType.SERVICE,
+                "service": service,
+            },
+            payload={"host": host, "port": port, "ssl": ssl, **({"last_domain": host} if is_domain(host) else {})},
+            payload_persistent={
+                f"original_{host_type}": host,
+                "original_target": original_target,
+            },
+        )
+        self.add_task(current_task, new_task)
+        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]})
+
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")
 
@@ -140,6 +255,15 @@ class Classifier(ArtemisBase):
         if not Classifier.is_supported(data):
             self.db.save_task_result(
                 task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data
+            )
+            return
+
+        parsed_url = Classifier._parse_url(data)
+        if parsed_url is not None:
+            # The scheme already told us the service, port and SSL flag, so we emit a
+            # SERVICE task straight away instead of fingerprinting the host:port.
+            self._create_service_task(
+                current_task, original_target, parsed_url.service, parsed_url.host, parsed_url.port, parsed_url.ssl
             )
             return
 
@@ -204,11 +328,6 @@ class Classifier(ArtemisBase):
             host = Classifier._clean_ipv6_brackets(host)
             port = int(port_str)
 
-            if is_domain(host):
-                host_type = "domain"
-            else:
-                host_type = "ip"
-
             try:
                 output = self.throttle_request(
                     lambda: check_output_log_on_error(
@@ -238,19 +357,7 @@ class Classifier(ArtemisBase):
 
             self.log.info("%s identified to be %s", data, service)
 
-            new_task = Task(
-                {
-                    "type": TaskType.SERVICE,
-                    "service": Service(service.lower()),
-                },
-                payload={"host": host, "port": port, "ssl": ssl, **({"last_domain": host} if is_domain(host) else {})},
-                payload_persistent={
-                    f"original_{host_type}": host,
-                    "original_target": original_target,
-                },
-            )
-            self.add_task(current_task, new_task)
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]})
+            self._create_service_task(current_task, original_target, Service(service.lower()), host, port, ssl)
         else:
             data = Classifier._clean_ipv6_brackets(data)
 

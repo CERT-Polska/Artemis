@@ -7,7 +7,7 @@ require (
 	github.com/praetorian-inc/fingerprintx v1.1.19
 	github.com/projectdiscovery/naabu/v2 v2.3.3
 	github.com/projectdiscovery/nuclei/v3 v3.9.0
-	github.com/projectdiscovery/subfinder/v2 v2.12.0
+	github.com/projectdiscovery/subfinder/v2 v2.14.0
 )
 
 require (
@@ -280,7 +280,7 @@ require (
 	github.com/projectdiscovery/cdncheck v1.2.39 // indirect
 	github.com/projectdiscovery/chaos-client v0.5.2 // indirect
 	github.com/projectdiscovery/clistats v0.1.4 // indirect
-	github.com/projectdiscovery/dnsx v1.2.2 // indirect
+	github.com/projectdiscovery/dnsx v1.2.3 // indirect
 	github.com/projectdiscovery/dsl v0.8.19 // indirect
 	github.com/projectdiscovery/fastdialer v0.5.10 // indirect
 	github.com/projectdiscovery/fasttemplate v0.0.2 // indirect

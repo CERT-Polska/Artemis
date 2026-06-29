@@ -859,8 +859,8 @@ github.com/projectdiscovery/chaos-client v0.5.2 h1:dN+7GXEypsJAbCD//dBcUxzAEAEH1
 github.com/projectdiscovery/chaos-client v0.5.2/go.mod h1:KnoJ/NJPhll42uaqlDga6oafFfNw5l2XI2ajRijtDuU=
 github.com/projectdiscovery/clistats v0.1.4 h1:kDnXoNxIdOvQElOF7k2Mt6XosGa5GbMKPtRXdPHMVzU=
 github.com/projectdiscovery/clistats v0.1.4/go.mod h1:hjJYNcUubk9T3cuFvA+JkLhZGjzYW50fkC48dqUAtbU=
-github.com/projectdiscovery/dnsx v1.2.2 h1:ZjUov0GOyrS8ERlKAAhk+AOkqzaYHBzCP0qZfO+6Ihg=
-github.com/projectdiscovery/dnsx v1.2.2/go.mod h1:3iYm86OEqo0WxeGDkVl5WZNmG0qYE5TYNx8fBg6wX1I=
+github.com/projectdiscovery/dnsx v1.2.3 h1:S87U9kYuuqqvMFyen8mZQy1FMuR5EGCsXHqfHPQAeuc=
+github.com/projectdiscovery/dnsx v1.2.3/go.mod h1:NjAEyJt6+meNqZqnYHL4ZPxXfysuva+et56Eq/e1cVE=
 github.com/projectdiscovery/dsl v0.8.19 h1:qA5OFJMfghSCjKqS4AdsEtnur/SoriXDw3geE7+mReU=
 github.com/projectdiscovery/dsl v0.8.19/go.mod h1:Twk93q7fxQ43v/8nR+0TJV8/eFTdBAC5tIXe3qzua9Y=
 github.com/projectdiscovery/fastdialer v0.5.10 h1:dB9MSu4cSo22qne4pHiK9iYSxfOgpwlKB6zfOHvz3RI=
@@ -921,8 +921,8 @@ github.com/projectdiscovery/sarif v0.1.0 h1:O541T+a448nSJsmIMnXXSOeDQEzpnCAYvRfe
 github.com/projectdiscovery/sarif v0.1.0/go.mod h1:LBC+reM3bkI3qIIhE0rZaINaYX6VG+En6u2hHa5mA7E=
 github.com/projectdiscovery/stringsutil v0.0.2 h1:uzmw3IVLJSMW1kEg8eCStG/cGbYYZAja8BH3LqqJXMA=
 github.com/projectdiscovery/stringsutil v0.0.2/go.mod h1:EJ3w6bC5fBYjVou6ryzodQq37D5c6qbAYQpGmAy+DC0=
-github.com/projectdiscovery/subfinder/v2 v2.12.0 h1:MgEYn0F2qLvr63BWpV9jNjFiD8i9oXI3dp02tAGRft0=
-github.com/projectdiscovery/subfinder/v2 v2.12.0/go.mod h1:FNy+bkJwZjUUWLte6T91IRBISqWDZ/q+ygUmoe8eb/w=
+github.com/projectdiscovery/subfinder/v2 v2.14.0 h1:lTi9tNEqSPFOKcswh62MDVEV8yO5qCJU75ccLcW7Anc=
+github.com/projectdiscovery/subfinder/v2 v2.14.0/go.mod h1:3XBFCLD/9R8KWK5zfu3u1Qau02shuCiQuCV3W2ClUmk=
 github.com/projectdiscovery/tlsx v1.2.2 h1:Y96QBqeD2anpzEtBl4kqNbwzXh2TrzJuXfgiBLvK+SE=
 github.com/projectdiscovery/tlsx v1.2.2/go.mod h1:ZJl9F1sSl0sdwE+lR0yuNHVX4Zx6tCSTqnNxnHCFZB4=
 github.com/projectdiscovery/uncover v1.2.1 h1:8U46T/96CLT7BPoXBgkTvWqB06lOyeTSLvh5+UjzATE=

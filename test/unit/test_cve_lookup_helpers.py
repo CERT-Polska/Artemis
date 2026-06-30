@@ -28,6 +28,12 @@ class FillCpeVersionTest(unittest.TestCase):
     def test_malformed_cpe_returns_unchanged(self) -> None:
         self.assertEqual(_fill_cpe_version("garbage", "1.0"), "garbage")
 
+    def test_junk_version_leaves_wildcard(self) -> None:
+        # A non-version value (e.g. "latest") must not be injected into the CPE; the
+        # wildcard is kept so NVD still range-matches the product.
+        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
+        self.assertEqual(_fill_cpe_version(cpe, "latest"), cpe)
+
 
 class ExtractCvesTest(unittest.TestCase):
     def test_empty_vulnerabilities(self) -> None:
@@ -163,3 +169,66 @@ class IsProductVulnerableTest(unittest.TestCase):
 
     def test_false_when_no_configurations(self) -> None:
         self.assertFalse(_is_product_vulnerable({}, "a:apache:http_server"))
+
+    def test_false_when_node_is_negated(self) -> None:
+        # A negated node matches the *absence* of its CPEs, so our product appearing
+        # there does not make it the vulnerable component.
+        cve = {
+            "configurations": [
+                {
+                    "nodes": [
+                        {
+                            "negate": True,
+                            "cpeMatch": [
+                                {"vulnerable": True, "criteria": "cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*"}
+                            ],
+                        }
+                    ]
+                }
+            ]
+        }
+        self.assertFalse(_is_product_vulnerable(cve, "a:apache:http_server"))
+
+    def test_false_when_configuration_is_negated(self) -> None:
+        cve = {
+            "configurations": [
+                {
+                    "negate": True,
+                    "nodes": [
+                        {
+                            "cpeMatch": [
+                                {"vulnerable": True, "criteria": "cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*"}
+                            ]
+                        }
+                    ],
+                }
+            ]
+        }
+        self.assertFalse(_is_product_vulnerable(cve, "a:apache:http_server"))
+
+    def test_true_across_and_joined_nodes(self) -> None:
+        # AND config (CVE-2021-44228 shape): the vulnerable product sits in one node
+        # and a vulnerable=false "running on" platform in another. Our product is
+        # still the vulnerable component.
+        cve = {
+            "configurations": [
+                {
+                    "operator": "AND",
+                    "nodes": [
+                        {
+                            "operator": "OR",
+                            "cpeMatch": [
+                                {"vulnerable": True, "criteria": "cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*"}
+                            ],
+                        },
+                        {
+                            "operator": "OR",
+                            "cpeMatch": [
+                                {"vulnerable": False, "criteria": "cpe:2.3:o:vendor:platform:*:*:*:*:*:*:*:*"}
+                            ],
+                        },
+                    ],
+                }
+            ]
+        }
+        self.assertTrue(_is_product_vulnerable(cve, "a:apache:http_server"))

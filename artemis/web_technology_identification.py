@@ -74,12 +74,13 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Dict[str, Lis
             )
 
         raw = json.loads(wappalyzer_output)
-        parsed: Dict[str, List[Technology]] = {}
+        # Pre-seed every input URL so the result keeps the documented url -> list
+        # contract even when Wappalyzer omits a URL it found nothing for (or choked
+        # on); we then overlay whatever it did return.
+        parsed: Dict[str, List[Technology]] = {url: [] for url in urls}
         for url, items in raw.items():
-            if not isinstance(items, list):
-                parsed[url] = []
-                continue
-            parsed[url] = [_parse_tech(item) for item in items if isinstance(item, dict)]
+            if isinstance(items, list):
+                parsed[url] = [_parse_tech(item) for item in items if isinstance(item, dict)]
         return parsed
     except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
         logger.error(f"Error running technology detection: {e}")

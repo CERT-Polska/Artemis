@@ -194,19 +194,34 @@ class CveLookupTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["data"]["findings"], [])
 
     @patch("artemis.modules.cve_lookup.http_requests.get")
-    def test_http_error_falls_through_to_ok(self, mock_get: MagicMock) -> None:
+    def test_http_error_yields_error(self, mock_get: MagicMock) -> None:
+        # A failed NVD lookup must not look like a green "no CVEs found": it is saved
+        # as ERROR so a transient NVD outage doesn't pass for a clean scan.
         mock_get.side_effect = ConnectionError("nvd unreachable")
         self.run_task(_make_task())
 
         call = self.mock_db.save_task_result.call_args
-        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+        self.assertEqual(call.kwargs["status"], TaskStatus.ERROR)
         self.assertEqual(call.kwargs["data"]["findings"], [])
 
     @patch("artemis.modules.cve_lookup.http_requests.get")
-    def test_non_200_status_yields_empty(self, mock_get: MagicMock) -> None:
+    def test_non_200_status_yields_error(self, mock_get: MagicMock) -> None:
         mock_get.return_value = _make_response({}, status=503)
         self.run_task(_make_task())
 
         call = self.mock_db.save_task_result.call_args
-        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+        self.assertEqual(call.kwargs["status"], TaskStatus.ERROR)
         self.assertEqual(call.kwargs["data"]["findings"], [])
+
+    @patch("artemis.modules.cve_lookup.http_requests.get")
+    def test_failed_lookup_is_cached(self, mock_get: MagicMock) -> None:
+        # The first failure is cached under the CPE key with a short TTL, so a second
+        # task for the same technology reports the failure without re-querying NVD.
+        mock_get.side_effect = ConnectionError("nvd unreachable")
+
+        self.run_task(_make_task())
+        self.run_task(_make_task())
+
+        self.assertEqual(mock_get.call_count, 1)
+        call = self.mock_db.save_task_result.call_args
+        self.assertEqual(call.kwargs["status"], TaskStatus.ERROR)

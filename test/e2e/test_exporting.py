@@ -5,6 +5,7 @@ import time
 import zipfile
 from socket import gethostbyname
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -281,7 +282,9 @@ class ExportingTestCase(BaseE2ETestCase):
         filename = tempfile.mktemp()
 
         with open(filename, "wb") as f:
-            f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+            f.write(
+                requests.get(urljoin(BACKEND_URL, data[0]["zip_url"]), headers={"X-Api-Token": "api-token"}).content
+            )
 
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
@@ -486,7 +489,9 @@ class ExportingTestCase(BaseE2ETestCase):
             filename = tempfile.mktemp()
 
             with open(filename, "wb") as f:
-                f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+                f.write(
+                    requests.get(urljoin(BACKEND_URL, data[0]["zip_url"]), headers={"X-Api-Token": "api-token"}).content
+                )
 
             with zipfile.ZipFile(filename) as export:
                 with export.open("advanced/output.json", "r") as f:

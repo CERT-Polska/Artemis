@@ -1,5 +1,6 @@
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 from typing import Any, Dict, Optional
+from urllib.parse import urljoin
 
 import requests
 
@@ -9,7 +10,7 @@ VALID_HEADERS: Dict[str, str] = {"X-API-Token": API_TOKEN}
 
 class ModulesListEndpointTestCase(BaseE2ETestCase):
     def test_modules_list_endpoint(self) -> None:
-        response = requests.get(f"{BACKEND_URL}/api/get-modules-that-can-be-disabled", headers=VALID_HEADERS)
+        response = requests.get(urljoin(BACKEND_URL, "/api/get-modules-that-can-be-disabled"), headers=VALID_HEADERS)
         self.assertEqual(response.status_code, 200)
 
         data = response.json()

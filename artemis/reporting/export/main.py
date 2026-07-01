@@ -206,6 +206,10 @@ def _build_messages_and_print_path(
             rendered_report = message_template.render({"data": message_data})
             report.html = unwrap(postprocess_rendered_html(rendered_report))
 
+            message_data["custom_template_arguments"]["always_show_full_poc"] = True  # type: ignore
+
+            report.html_full_poc = unwrap(message_template.render({"data": message_data}))
+
     if not silent:
         print()
         print(termcolor.colored(f"Messages written to: {output_messages_directory_name}", attrs=["bold"]))

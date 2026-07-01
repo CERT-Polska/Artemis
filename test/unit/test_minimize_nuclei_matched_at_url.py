@@ -6,102 +6,65 @@ from artemis.reporting.modules.nuclei.poc_url_utils import (
 )
 
 
-def _params(url: str) -> dict[str, list[str]]:
-    return urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+def _param_names(url: str) -> list[str]:
+    return list(urllib.parse.parse_qs(urllib.parse.urlparse(url).query).keys())
+
+
+def _raw_query(url: str) -> str:
+    return urllib.parse.urlparse(url).query
 
 
 class TestMinimizeNucleiMatchedAtUrl(unittest.TestCase):
-    """Tests for minimize_nuclei_matched_at_url.
+    URL = "http://ex.com/?next=PAYLOAD&category=PAYLOAD&page=testing&view=testing&q=testing&s=testing"
 
-    Strategy: if Nuclei's ``fuzzing_parameter`` is available, keep only that
-    parameter in the URL.  Otherwise return the original URL unchanged so the
-    recipient always has a working PoC.
-    """
+    def test_multiple_confirmed_all_kept(self) -> None:
+        result = minimize_nuclei_matched_at_url(self.URL, refuzz_fn=lambda _: {"next", "category"})
+        self.assertEqual(sorted(_param_names(result)), ["category", "next"])
 
-    def test_no_query_string_unchanged(self) -> None:
-        url = "https://example.com/vuln.php"
-        self.assertEqual(minimize_nuclei_matched_at_url(url, fuzzing_parameter="id"), url)
+    def test_single_confirmed_only_that_one(self) -> None:
+        result = minimize_nuclei_matched_at_url(self.URL, refuzz_fn=lambda _: {"next"})
+        self.assertEqual(_param_names(result), ["next"])
 
-    def test_no_fuzzing_parameter_returns_full_url(self) -> None:
-        """Without fuzzing_parameter the full URL is returned unchanged."""
-        url = "http://example.com/?id=testing'&search=testing'&category=testing'"
-        self.assertEqual(minimize_nuclei_matched_at_url(url), url)
+    def test_nothing_confirmed_falls_back_to_full(self) -> None:
+        result = minimize_nuclei_matched_at_url(self.URL, refuzz_fn=lambda _: set())
+        self.assertEqual(result, self.URL)
 
-    def test_fuzzing_parameter_keeps_only_named_param(self) -> None:
-        """When fuzzing_parameter is given, keep only that one param."""
-        url = "http://example.com/?filename=../../etc/passwd&file=abc.html&path=abc.html"
-        result = minimize_nuclei_matched_at_url(url, fuzzing_parameter="filename")
-        p = _params(result)
-        self.assertEqual(list(p.keys()), ["filename"])
-        self.assertEqual(p["filename"], ["../../etc/passwd"])
+    def test_no_refuzz_fn_returns_full(self) -> None:
+        result = minimize_nuclei_matched_at_url(self.URL, refuzz_fn=None)
+        self.assertEqual(result, self.URL)
 
-    def test_fuzzing_parameter_not_in_url_returns_full_url(self) -> None:
-        """If the named param isn't in the URL, return it unchanged."""
-        url = "http://example.com/?id=testing'&search=testing'"
-        self.assertEqual(
-            minimize_nuclei_matched_at_url(url, fuzzing_parameter="nonexistent"),
-            url,
-        )
+    def test_confirmed_name_absent_from_url_ignored(self) -> None:
+        result = minimize_nuclei_matched_at_url(self.URL, refuzz_fn=lambda _: {"next", "doesnotexist"})
+        self.assertEqual(_param_names(result), ["next"])
 
-    def test_real_lfi_url(self) -> None:
-        """Matches the real Nuclei v3.7.0 output from test-dast-vuln-app."""
-        url = "http://172.17.0.2:5000/?filename=../../../../../../../../../../../../../../../etc/passwd"
-        result = minimize_nuclei_matched_at_url(url, fuzzing_parameter="filename")
-        # Single param URL stays the same (just the one param)
-        self.assertIn("filename=", result)
-        self.assertIn("/etc/passwd", result)
-        self.assertNotIn("&", result)
+    def test_few_params_not_minimized(self) -> None:
+        short = "http://ex.com/?a=1&b=2"
+        result = minimize_nuclei_matched_at_url(short, refuzz_fn=lambda _: {"a"})
+        self.assertEqual(result, short)
 
-    def test_big_sqli_url_minimized(self) -> None:
-        """The exact long URL from issue #1977 gets minimized to one param."""
-        url = (
-            "http://example.com/vulnerabilities/sqli.php"
-            "?dest=http%3A%2F%2F127.0.0.1%2Fabc.html'"
-            "&redirect=http%3A%2F%2F127.0.0.1%2Fabc.html'"
-            "&id=testing'&search=testing'&category=testing'"
-        )
-        result = minimize_nuclei_matched_at_url(url, fuzzing_parameter="id")
-        p = _params(result)
-        self.assertEqual(list(p.keys()), ["id"])
-        self.assertEqual(p["id"], ["testing'"])
+    def test_no_query_returned_unchanged(self) -> None:
+        url = "http://ex.com/path"
+        self.assertEqual(minimize_nuclei_matched_at_url(url, refuzz_fn=lambda _: {"a"}), url)
 
-    def test_slashes_not_encoded(self) -> None:
-        """Path traversal slashes must stay readable, not become %2F."""
-        url = "http://example.com/?file=../../etc/passwd&other=abc"
-        result = minimize_nuclei_matched_at_url(url, fuzzing_parameter="file")
-        self.assertIn("../../etc/passwd", result)
-        self.assertNotIn("%2F", result)
+    def test_payload_preserved_byte_for_byte(self) -> None:
+        url = "http://ex.com/?url=%2F%2Fevil.example.com%2F&a=testing&b=testing"
+        result = minimize_nuclei_matched_at_url(url, refuzz_fn=lambda _: {"url"})
+        self.assertEqual(_raw_query(result), "url=%2F%2Fevil.example.com%2F")
 
-    def test_path_host_scheme_preserved(self) -> None:
-        url = "https://example.com:8443/api/v1/?file=../../etc/passwd&path=abc.html"
-        result = minimize_nuclei_matched_at_url(url, fuzzing_parameter="file")
-        parsed = urllib.parse.urlparse(result)
-        self.assertEqual(parsed.scheme, "https")
-        self.assertEqual(parsed.hostname, "example.com")
-        self.assertEqual(parsed.port, 8443)
-        self.assertEqual(parsed.path, "/api/v1/")
+    def test_equals_sign_in_value_preserved(self) -> None:
+        url = "http://ex.com/?redirect=http://evil/?a=b%26c=d&x=testing&y=testing&z=testing"
+        result = minimize_nuclei_matched_at_url(url, refuzz_fn=lambda _: {"redirect"})
+        self.assertEqual(_raw_query(result), "redirect=http://evil/?a=b%26c=d")
 
-    def test_verify_fn_passes_uses_minimized_url(self) -> None:
-        """If verify_url_fn returns True, the minimized URL is used."""
-        url = "http://example.com/?id=testing'&search=testing'&category=testing'"
-        result = minimize_nuclei_matched_at_url(
-            url,
-            fuzzing_parameter="id",
-            verify_url_fn=lambda _: True,
-        )
-        p = _params(result)
-        self.assertEqual(list(p.keys()), ["id"])
+    def test_param_without_value_preserved(self) -> None:
+        url = "http://ex.com/?debug&next=PAYLOAD&a=testing&b=testing"
+        result = minimize_nuclei_matched_at_url(url, refuzz_fn=lambda _: {"debug", "next"})
+        self.assertEqual(_raw_query(result), "debug&next=PAYLOAD")
 
-    def test_verify_fn_fails_falls_back_to_original(self) -> None:
-        """If verify_url_fn returns False (e.g. Nuclei doesn't find the vuln),
-        the original URL is returned so the PoC stays valid."""
-        url = "http://example.com/?id=testing'&required_param=abc"
-        result = minimize_nuclei_matched_at_url(
-            url,
-            fuzzing_parameter="id",
-            verify_url_fn=lambda _: False,  # simulates a broken minimized URL
-        )
-        self.assertEqual(result, url)
+    def test_original_order_preserved(self) -> None:
+        url = "http://ex.com/?zzz=PAYLOAD&aaa=PAYLOAD&mmm=testing&nnn=testing"
+        result = minimize_nuclei_matched_at_url(url, refuzz_fn=lambda _: {"aaa", "zzz"})
+        self.assertEqual(_raw_query(result), "zzz=PAYLOAD&aaa=PAYLOAD")
 
 
 if __name__ == "__main__":

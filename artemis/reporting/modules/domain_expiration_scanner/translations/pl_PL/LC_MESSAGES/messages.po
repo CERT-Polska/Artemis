@@ -9,3 +9,17 @@ msgstr "domena"
 #: artemis/reporting/modules/domain_expiration_scanner/template_close_domain_expiration_scanner.jinja2:11
 msgid "will expire on"
 msgstr "wygaśnie dnia"
+
+#: artemis/reporting/modules/domain_expiration_scanner/template_close_domain_expiration_scanner.jinja2:17
+msgid ""
+"If a domain expires, it may be purchased by a third party, leading to "
+"redirects to pornographic, gambling, or other unwanted content. CERT PL "
+"has observed multiple cases of this type. After changing the domain, we "
+"recommend keeping the old one for e.g. 3 years, so that the old one "
+"receives less traffic e.g. from obsolete links."
+msgstr ""
+"Jeśli domena wygaśnie, może zostać zakupiona przez osobę trzecią, co może"
+" prowadzić do przekierowań do pornograficznych, hazardowych lub innych "
+"niepożądanych treści. CERT Polska zaobserwował liczne przypadki tego "
+"typu. Po zmianie domeny zalecamy zachowanie starej np. przez 3 lata, aby "
+"stara domena otrzymywała mniej ruchu, np. z nieaktualnych linków."

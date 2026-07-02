@@ -1164,7 +1164,7 @@ class Config:
         class DomainExpirationScanner:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
-            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=30, cast=int)
+            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=45, cast=int)
 
         class OrmInjectionDetector:
             ORM_INJECTION_STOP_ON_FIRST_MATCH: Annotated[

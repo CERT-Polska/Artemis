@@ -1,0 +1,29 @@
+{% if "technology_cve_found" in data.contains_type %}
+    <li>{% trans %}Known CVEs were found for the following detected web technologies (the site may not be exploitable - verify the patch level):{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "technology_cve_found" %}
+                    <li>
+                        {{ report.target }}:
+                        {{ report.additional_data.technology_name }}{% if report.additional_data.technology_version %} {{ report.additional_data.technology_version }}{% endif %}
+                        {% trans count=report.additional_data.cves | length %}has {{ count }} known CVE.{% pluralize %}has {{ count }} known CVEs.{% endtrans %}
+                        {% if report.additional_data.max_cvss %}
+                            {% trans %}Highest CVSS score:{% endtrans %} {{ report.additional_data.max_cvss }}.
+                        {% endif %}
+                        <ul>
+                            {% for cve in report.additional_data.cves[:5] %}
+                                <li>
+                                    <strong>{{ cve.id }}</strong>{% if cve.cvss_score %} ({% trans %}CVSS{% endtrans %} {{ cve.cvss_score }}){% endif %}{% if cve.description %}: {{ cve.description }}{% endif %}
+                                </li>
+                            {% endfor %}
+                            {% if report.additional_data.cves | length > 5 %}
+                                <li>{% trans count=(report.additional_data.cves | length) - 5 %}and {{ count }} more.{% endtrans %}</li>
+                            {% endif %}
+                        </ul>
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}

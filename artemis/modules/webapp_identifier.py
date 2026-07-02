@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import re
+from dataclasses import asdict
 from typing import List, Tuple
 
 from karton.core import Task
@@ -8,7 +9,7 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType, WebApplication
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import get_target_url
-from artemis.web_technology_identification import run_tech_detection
+from artemis.web_technology_identification import run_tech_detection, to_tag_strings
 
 WEBAPP_SIGNATURES: List[Tuple[WebApplication, str]] = [
     (WebApplication.WORDPRESS, '<meta name="generator" content="WordPress'),
@@ -57,6 +58,11 @@ class WebappIdentifier(ArtemisBase):
     def _process(self, current_task: Task, url: str) -> None:
         application = self._identify(url)
 
+        tech_results = run_tech_detection([url], self.log)
+        technologies = tech_results.get(url, [])
+        technology_tags = to_tag_strings(technologies)
+        technologies_payload = [asdict(t) for t in technologies]
+
         new_task = Task(
             {
                 "type": TaskType.WEBAPP,
@@ -64,16 +70,20 @@ class WebappIdentifier(ArtemisBase):
             },
             payload={
                 "url": url,
+                "technology_tags": technology_tags,
+                "technologies": technologies_payload,
             },
         )
         self.add_task(current_task, new_task)
 
-        technology_tags = run_tech_detection([url], self.log)
-
         self.db.save_task_result(
             task=current_task,
             status=TaskStatus.OK,
-            data={"webapp": application, "technology_tags": technology_tags.get(url, [])},
+            data={
+                "webapp": application,
+                "technology_tags": technology_tags,
+                "technologies": technologies_payload,
+            },
         )
 
     def run(self, current_task: Task) -> None:

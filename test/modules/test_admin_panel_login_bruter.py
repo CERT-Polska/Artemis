@@ -102,3 +102,24 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
         self.assertEqual(
             call.kwargs["data"]["results"][0]["indicators"], ["redirect", "logout_link", "no_failure_messages"]
         )
+
+    def test_vendor_default_credential_pair_case_sensitive(self) -> None:
+        """A login accepting only Admin:zabbix (capital A) proves pairs pass usernames verbatim:
+        COMMON_USERNAMES contains 'admin' (lowercase), so 'Admin' is unreachable via the
+        cartesian product and cannot come from case-folding."""
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-php-admin-zabbix-login",
+                "port": 80,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertEqual(call.kwargs["data"]["results"][0]["url"], "http://test-php-admin-zabbix-login:80/index.php")
+        self.assertEqual(call.kwargs["data"]["results"][0]["username"], "Admin")
+        self.assertEqual(call.kwargs["data"]["results"][0]["password"], "zabbix")
+        self.assertEqual(
+            call.kwargs["data"]["results"][0]["indicators"], ["redirect", "logout_link", "no_failure_messages"]
+        )

@@ -19,6 +19,7 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_top_level_target
 
 SSL_ERRORS_TO_SKIP = [
+    "Certificate error: unable to get local issuer certificate",
     "2.0-OpenSSH",
     "4.3.2 try again later",
     "(554, b'5.7.1 Delivery not authorized')",

@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.2
 aiohttp==3.14.1
@@ -9,7 +9,7 @@ alabaster==1.0.0
 alembic==1.18.4
 annotated-doc==0.0.4
 annotated-types==0.7.0
-anyio==4.13.0
+anyio==4.14.1
 anytree==2.13.0
 argon2-cffi==25.1.0
 argon2-cffi-bindings==25.1.0

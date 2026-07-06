@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from karton.core import Task
 
+from artemis import direct_url_scanning
 from artemis.binds import TaskType
 from artemis.modules.classifier import Classifier
 
@@ -45,6 +46,9 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertFalse(Classifier.is_supported("http://"))
         self.assertFalse(Classifier.is_supported("http://cert.pl/admin"))
         self.assertFalse(Classifier.is_supported("http://cert.pl/?q=1"))
+        # Malformed scheme separators are not URLs and aren't valid host:port either
+        self.assertFalse(Classifier.is_supported("http:/cert.pl"))
+        self.assertFalse(Classifier.is_supported("http:cert.pl"))
         # Non-URL inputs keep their existing behaviour
         self.assertTrue(Classifier.is_supported("cert.pl"))
         self.assertTrue(Classifier.is_supported("[::1]:2"))
@@ -56,18 +60,20 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertTrue(Classifier.is_supported("CERT.pl"))
         self.assertFalse(Classifier.is_supported("root@cert.pl"))
 
-    def test_is_url(self) -> None:
-        # Root URLs that map to a service are recognized as URLs
-        self.assertTrue(Classifier.is_url("http://example.com"))
-        self.assertTrue(Classifier.is_url("https://example.com:8443/"))
-        self.assertTrue(Classifier.is_url("ssh://example.com:22/"))
-        # Domains and IPs (with or without a port) are supported targets but are not URLs
-        self.assertFalse(Classifier.is_url("cert.pl"))
-        self.assertFalse(Classifier.is_url("cert.pl:8080"))
-        self.assertFalse(Classifier.is_url("1.2.3.4:56"))
-        # Non-root URLs and unmapped schemes are not URLs either
-        self.assertFalse(Classifier.is_url("http://cert.pl/admin"))
-        self.assertFalse(Classifier.is_url("ws://cert.pl"))
+    def test_is_scannable_url(self) -> None:
+        # Root URLs that map to a service are accepted as direct scan targets
+        self.assertTrue(direct_url_scanning.is_scannable_url("http://example.com"))
+        self.assertTrue(direct_url_scanning.is_scannable_url("https://example.com:8443/"))
+        self.assertTrue(direct_url_scanning.is_scannable_url("ssh://example.com:22/"))
+        # Domains and IPs (with or without a port) are supported targets but not direct scan URLs
+        self.assertFalse(direct_url_scanning.is_scannable_url("cert.pl"))
+        self.assertFalse(direct_url_scanning.is_scannable_url("cert.pl:8080"))
+        self.assertFalse(direct_url_scanning.is_scannable_url("1.2.3.4:56"))
+        # Non-root URLs, unmapped schemes and malformed separators are not accepted
+        self.assertFalse(direct_url_scanning.is_scannable_url("http://cert.pl/admin"))
+        self.assertFalse(direct_url_scanning.is_scannable_url("ws://cert.pl"))
+        self.assertFalse(direct_url_scanning.is_scannable_url("http:/cert.pl"))
+        self.assertFalse(direct_url_scanning.is_scannable_url("http:cert.pl"))
 
     def test_parsing(self) -> None:
         entries = [

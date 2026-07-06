@@ -28,7 +28,7 @@ from karton.core.task import TaskPriority, TaskState
 from redis import Redis
 from starlette.datastructures import Headers
 
-from artemis import auth, csrf
+from artemis import auth, csrf, direct_url_scanning
 from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
@@ -216,7 +216,7 @@ async def post_add(
 
     # When every target is a root URL, the classifier emits the SERVICE task directly
     # from the scheme, so port_scanner isn't needed to reach SERVICE/WEBAPP modules.
-    all_targets_are_urls = bool(total_list) and all(Classifier.is_url(task) for task in total_list)
+    all_targets_are_urls = bool(total_list) and all(direct_url_scanning.is_scannable_url(task) for task in total_list)
 
     for dependency, task_types in [
         ("port_scanner", [TaskType.SERVICE.value, TaskType.WEBAPP.value]),

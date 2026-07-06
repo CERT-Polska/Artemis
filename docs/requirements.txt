@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.2
 aiohttp==3.14.1
@@ -78,7 +78,7 @@ packaging==26.2
 paramiko==5.0.0
 pathable==0.6.0
 pem==23.1.0
-platformdirs==4.9.6
+platformdirs==4.10.0
 prometheus-client==0.25.0
 propcache==0.5.2
 psutil==7.2.2

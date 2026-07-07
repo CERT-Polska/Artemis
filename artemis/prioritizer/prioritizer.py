@@ -15,10 +15,10 @@ def reprioritize_analyses() -> None:
     analyses_to_reprioritize = db.get_analyses_to_reprioritize()
     analyses_priority_to_ids: dict[str, list[str]] = {priority.value: [] for priority in TaskPriority}
     for analysis in analyses_to_reprioritize:
-        analyses_priority_to_ids[analysis.get("desired_priority").value].append(analysis.get("id"))  # type: ignore
+        analyses_priority_to_ids[analysis["desired_priority"].value].append(analysis.get("id"))  # type: ignore
 
-    for priority, analyses_ids in analyses_priority_to_ids.items():
-        change_priority_for_analyses(analyses_ids, priority)
+    for desired_priority, analyses_ids in analyses_priority_to_ids.items():
+        change_priority_for_analyses(analyses_ids, desired_priority)
 
         with db.session() as session:
             session.execute(

@@ -5,7 +5,11 @@ from karton.core.config import Config as KartonConfig
 from karton.core.inspect import KartonState
 from karton.core.task import Task, TaskPriority, TaskState
 
+from artemis import utils
+
 BINDS_THAT_CANNOT_BE_DISABLED = ["classifier", "webapp_identifier", "IPLookup"]
+
+LOGGER = utils.build_logger(__name__)
 
 
 def get_binds_that_can_be_disabled() -> List[KartonBind]:
@@ -57,14 +61,19 @@ def change_priority_for_analyses(analyses_ids: list[str], new_priority: str, pus
             found_analyses.append(state_analysis)
 
     if not_found_ids:
-        return
+        LOGGER.warning("There were analyses that were not found in Karton state: %s", ", ".join(not_found_ids))
 
     tasks = []
     for analysis in found_analyses:
         tasks = analysis.tasks
 
     for task in tasks:
-        change_priority_for_task(state, task, new_priority, push_to_queue_end)
+        try:
+            change_priority_for_task(state, task, new_priority, push_to_queue_end)
+        except Exception as e:
+            LOGGER.error(
+                "Error while changing priority for task %s of analysis %s: %s", task.uid, task.root_uid, str(e)
+            )
 
 
 def change_priority_for_task(
@@ -72,6 +81,9 @@ def change_priority_for_task(
 ) -> None:
     # no need to change priority for running or finished task
     backend = karton_state.backend
+    if karton_task.status not in TaskState:
+        raise ValueError("Unknown task status: " + str(karton_task.status))
+
     if karton_task.status in [TaskState.STARTED, TaskState.FINISHED, TaskState.CRASHED]:
         return
 

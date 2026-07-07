@@ -156,6 +156,7 @@ def list_analysis(tag: Optional[str] = None) -> list[Dict[str, Any]]:
 
 @router.get("/analyses/reprioritize/{analysis_id}", dependencies=[Depends(verify_api_token)])
 def reprioritize_analysis(analysis_id: str, new_priority: TaskPriority) -> Dict[str, bool]:
+    """Enqueue a request to reprioritize a given analysis. The priority will be changed for all tasks of the analysis. Change might take some time to be reflected in the system."""
     db.set_analysis_desired_priority(analysis_id, new_priority)
     return {"ok": True}
 

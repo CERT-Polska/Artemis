@@ -138,6 +138,7 @@ TRANSLATIONS = {
     "Redis server without any required authentication was discovered.": "Wykryto serwer Redis dostępny bez uwierzytelniania. Rekomendujemy, aby nie był dostępny publicznie.",
     "Generic J2EE Scan panel was detected. Looks for J2EE specific LFI vulnerabilities; tries to leak the web.xml file.": "Wykryto platformę J2EE zawierającą podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + BUG_FIX_HINT,
+    "zhttpd is vulnerable to unauthenticated local inclusion including privileged files such as /etc/shadow. An attacker can read all files on the system by using this endpoint.": "Narzędzie zhttpd zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera bez uwierzytelnienia.",
     "DotNetNuke (DNN) versions between 5.0.0 - 9.3.0 are affected by a deserialization vulnerability that leads to remote code execution.": "Narzędzie DotNetNuke (DNN) w wersjach pomiędzy 5.0.0 i 9.3.0 umożliwia zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,

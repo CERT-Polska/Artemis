@@ -239,10 +239,16 @@ def get_exports(tag_prefix: Optional[str] = None) -> list[ReportGenerationTaskMo
     ]
 
 
-@router.get("/is-blocklisted/{domain}", dependencies=[Depends(verify_api_token)])
-def is_blocklisted(domain: str) -> bool:
+@router.get("/is-domain-blocklisted/{domain}", dependencies=[Depends(verify_api_token)])
+def is_domain_blocklisted(domain: str) -> bool:
     """Returns True if scanning of a given domain is blocklisted"""
     return should_block_scanning(domain=domain, ip=None, karton_name=None, blocklist=BLOCKLIST)
+
+
+@router.get("/is-module-blocklisted/{module_name}", dependencies=[Depends(verify_api_token)])
+def is_module_blocklisted(module_name: str) -> bool:
+    """Returns True if scanning with a given module is blocklisted"""
+    return should_block_scanning(None, None, karton_name=module_name, blocklist=BLOCKLIST)
 
 
 @router.get("/export/download-zip/{id}", dependencies=[Depends(verify_api_token)])

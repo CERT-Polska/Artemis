@@ -303,14 +303,33 @@ The archive will be stored as a JSON file on disk.
 Checking the blocklist
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Use ``GET /api/is-blocklisted/{domain}`` to check whether scanning of a domain is blocklisted:
+Use ``GET /api/is-domain-blocklisted/{domain}`` to check whether scanning of a domain is blocklisted:
 
 ..
-   test-id:: is-blocklisted
+   test-id:: is-domain-blocklisted
 
 .. code-block:: bash
 
-   curl -s http://localhost:5000/api/is-blocklisted/example.com \
+   curl -s http://localhost:5000/api/is-domain-blocklisted/example.com \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+Response:
+
+.. code-block:: json
+
+   false
+
+Checking the module blocklist
+^^^^^^^^^^^^^^^^^^^^^^
+
+Use ``GET /api/is-module-blocklisted/{modul_name}`` to check whether scanning of a modul is blocklisted:
+
+..
+   test-id:: is-module-blocklisted
+
+.. code-block:: bash
+
+   curl -s http://localhost:5000/api/is-module-blocklisted/drupal_scanner \
       -H "X-API-Token: YOUR_API_TOKEN"
 
 Response:

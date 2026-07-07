@@ -83,13 +83,11 @@ class ScanningBlocklistTest(unittest.TestCase):
             karton_name="bruter",
         )
         self.assertEqual(should_block_scanning(None, None, "nuclei", [blocklist_module_item]), False)
-        self.assertEqual(should_block_scanning(None, None,"bruter", [blocklist_module_item]), True)
+        self.assertEqual(should_block_scanning(None, None, "bruter", [blocklist_module_item]), True)
 
     def test_should_not_block_module_when_blocklist_entry_is_expired(self) -> None:
         blocklist_module_item = BlocklistItem(
-            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
-            karton_name="bruter",
-            until=datetime.datetime(2023, 1, 9)
+            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING, karton_name="bruter", until=datetime.datetime(2023, 1, 9)
         )
         self.assertEqual(should_block_scanning(None, None, "bruter", [blocklist_module_item]), False)
 
@@ -97,23 +95,17 @@ class ScanningBlocklistTest(unittest.TestCase):
         blocklist_module_item = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
             karton_name="nuclei",
-            until=datetime.datetime.now() + datetime.timedelta(days=1)
+            until=datetime.datetime.now() + datetime.timedelta(days=1),
         )
-        self.assertEqual(should_block_scanning(None, None,"nuclei", [blocklist_module_item]), True)
+        self.assertEqual(should_block_scanning(None, None, "nuclei", [blocklist_module_item]), True)
 
     def test_empty_blocklist_does_not_block_any_module(self) -> None:
         self.assertEqual(should_block_scanning(None, None, "bruter", []), False)
         self.assertEqual(should_block_scanning(None, None, "nuclei", []), False)
 
     def test_should_block_module_when_module_is_present_in_blocklist(self) -> None:
-        blocklist_module_item1 = BlocklistItem(
-            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
-            karton_name="bruter"
-        )
-        blocklist_module_item2 = BlocklistItem(
-            mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
-            karton_name="nuclei"
-        )
+        blocklist_module_item1 = BlocklistItem(mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING, karton_name="bruter")
+        blocklist_module_item2 = BlocklistItem(mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING, karton_name="nuclei")
         self.assertEqual(
             should_block_scanning(None, None, "bruter", [blocklist_module_item1, blocklist_module_item2]), True
         )

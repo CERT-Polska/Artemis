@@ -469,6 +469,7 @@ class DB:
         record = {
             "module_identity": module_identity,
             "analysis_id": task.root_uid,
+            # PostgreSQL limits the length of string if it's an indexed column
             "deduplication_data": hashlib.sha256(self._get_task_deduplication_data(task).encode("utf-8")).hexdigest(),
         }
         statement = postgres_insert(ModuleProcessedTask).values([record])
@@ -650,6 +651,9 @@ class DB:
             del task_as_dict["payload"]["last_domain"]
         if "created_at" in task_as_dict["payload"]:
             del task_as_dict["payload"]["created_at"]
+        # it may come from 'process_multiple' logic
+        if "start_time" in task_as_dict["payload"]:
+            del task_as_dict["payload"]["start_time"]
         if task.receiver in Config.Miscellaneous.MODULES_WHITELIST_FOR_ORIGINAL_HOST_DEDUPLICATION:
             if "original_ip" in task_as_dict["payload_persistent"]:
                 del task_as_dict["payload_persistent"]["original_ip"]

@@ -63,26 +63,14 @@ class TSVector(TypeDecorator):  # type: ignore
     impl = TSVECTOR
 
 
-class ScheduledTask(Base):  # type: ignore
-    """
-    Represents a scheduled task in the Artemis system.
-    The purpose of this object is solely to prevent duplication, not to perform actual task scheduling.
+class ModuleProcessedTask(Base):  # type: ignore
+    """Tracks which tasks have already been processed by each module, for per-module deduplication."""
 
-    :ivar analysis_id: Unique identifier for the analysis associated with this scheduled task.
-    :ivar deduplication_data: Hash used for deduplication of scheduled tasks.
-    :ivar task_id: Unique identifier for the underlying task.
-    :ivar created_at: Timestamp when the scheduled task was created.
-    """
-
-    __tablename__ = "scheduled_task"
-    created_at = Column(DateTime, server_default=text("NOW()"))
+    __tablename__ = "module_processed_task"
+    module_identity = Column(String, primary_key=True)
     analysis_id = Column(String, primary_key=True)
-    # The purpose of this column is to be able to quickly find identical scheduled tasks. Therefore
-    # we convert them to a string form (created by the
-    # _get_task_deduplication_data method) and store the hash of the string in the indexed
-    # deduplication_data column (because PostgreSQL limits the max length of indexed column).
     deduplication_data = Column(String, primary_key=True)
-    task_id = Column(String)
+    created_at = Column(DateTime, server_default=text("NOW()"))
 
 
 class Analysis(Base):  # type: ignore
@@ -473,36 +461,25 @@ class DB:
             session.execute(delete(TaskResult).where(TaskResult.id.in_(ids)))  # type: ignore
             session.commit()
 
-    def save_scheduled_task(self, task: Task) -> bool:
+    def save_module_processed_task(self, module_identity: str, task: Task) -> bool:
         """
-        Saves a scheduled task and returns True if it didn't exist in the database.
-
-        The purpose of this method is deduplication - making sure identical tasks aren't run twice.
+        Records that a module has processed a task. Returns True if this is the first time
+        this module processes this task, False if it was already processed.
         """
-        created_task = {
-            "task_id": task.uid,
+        record = {
+            "module_identity": module_identity,
             "analysis_id": task.root_uid,
-            # PostgreSQL limits the length of string if it's an indexed column
             "deduplication_data": hashlib.sha256(self._get_task_deduplication_data(task).encode("utf-8")).hexdigest(),
         }
-
-        statement = postgres_insert(ScheduledTask).values([created_task])
-
+        statement = postgres_insert(ModuleProcessedTask).values([record])
         statement = statement.on_conflict_do_nothing()
         with self.session() as session:
             result = session.execute(statement)
             session.commit()
             return bool(result.rowcount)
 
-    def delete_scheduled_task(self, scheduled_task_id: str) -> int:
-        query = delete(ScheduledTask).where(ScheduledTask.task_id == scheduled_task_id)  # type: ignore
-        with self.session() as session:
-            result = session.execute(query)
-            session.commit()
-            return int(result.rowcount)
-
-    def delete_scheduled_tasks_for_analyses(self, analysis_ids: list[str]) -> int:
-        query = delete(ScheduledTask).where(ScheduledTask.analysis_id.in_(analysis_ids))  # type: ignore
+    def delete_module_processed_tasks_for_analyses(self, analysis_ids: list[str]) -> int:
+        query = delete(ModuleProcessedTask).where(ModuleProcessedTask.analysis_id.in_(analysis_ids))  # type: ignore
         with self.session() as session:
             result = session.execute(query)
             session.commit()
@@ -661,7 +638,7 @@ class DB:
         """
 
         # We convert the task to dict so that we don't have problems e.g. with enums.
-        task_as_dict = self.task_to_dict(task)
+        task_as_dict = copy.deepcopy(self.task_to_dict(task))
 
         # We treat a task that originates from a different karton than an existing one
         # as an existing one.

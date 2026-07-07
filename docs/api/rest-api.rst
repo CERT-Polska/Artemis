@@ -322,7 +322,7 @@ Response:
 Checking the module blocklist
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Use ``GET /api/is-module-blocklisted/{modul_name}`` to check whether scanning of a modul is blocklisted:
+Use ``GET /api/is-module-blocklisted/{modul_name}`` to check whether scanning of a module is blocklisted:
 
 ..
    test-id:: is-module-blocklisted

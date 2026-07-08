@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 import hmac
-from typing import Annotated, Any, Dict, Optional, Type
+from typing import Annotated, Any, Dict, List, Optional, Type
 
 import aiohttp
 from fastapi import APIRouter, Body, Depends, Header, HTTPException
@@ -249,6 +249,22 @@ def is_domain_blocklisted(domain: str) -> bool:
 def is_module_blocklisted(module_name: str) -> bool:
     """Returns True if scanning with a given module is blocklisted"""
     return should_block_scanning(None, None, karton_name=module_name, blocklist=BLOCKLIST)
+
+
+@router.get("/blocklist-modules", dependencies=[Depends(verify_api_token)])
+def blocklist_modules() -> Dict[str, List[str]]:
+    """Returns a list of modules that are blocklisted"""
+    blocklist_modules = [
+        item.karton_name
+        for item in BLOCKLIST
+        if item.mode == "block_scanning_and_reporting"
+        and item.karton_name
+        and not (
+            item.domain_regex or item.domain_only or item.domain_and_subdomains or item.subdomains or item.ip_range
+        )
+    ]
+
+    return {"blocklist_modules": blocklist_modules}
 
 
 @router.get("/export/download-zip/{id}", dependencies=[Depends(verify_api_token)])

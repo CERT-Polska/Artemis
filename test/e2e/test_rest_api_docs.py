@@ -239,6 +239,12 @@ class RestApiDocsTestCase(BaseE2ETestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(response.json(), [True, False])
 
+    def test_api_blocklist_modules(self) -> None:
+        """Test GET /api/blocklist-modules using the documented curl command."""
+        response = self._extract_and_execute("blocklist_modules")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.json(), {"blocklist_modules": ["drupal_scanner", "ssh_bruter"]})
+
     def test_api_exports_empty(self) -> None:
         """Test GET /api/exports returns empty list when no exports exist."""
         response = self._extract_and_execute("exports-list")

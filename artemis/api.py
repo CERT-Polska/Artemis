@@ -245,12 +245,6 @@ def is_domain_blocklisted(domain: str) -> bool:
     return should_block_scanning(domain=domain, ip=None, karton_name=None, blocklist=BLOCKLIST)
 
 
-@router.get("/is-module-blocklisted/{module_name}", dependencies=[Depends(verify_api_token)])
-def is_module_blocklisted(module_name: str) -> bool:
-    """Returns True if scanning with a given module is blocklisted"""
-    return should_block_scanning(None, None, karton_name=module_name, blocklist=BLOCKLIST)
-
-
 @router.get("/blocklist-modules", dependencies=[Depends(verify_api_token)])
 def blocklist_modules() -> Dict[str, List[str]]:
     """Returns a list of modules that are blocklisted"""

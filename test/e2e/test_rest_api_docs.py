@@ -233,12 +233,6 @@ class RestApiDocsTestCase(BaseE2ETestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(response.json(), [True, False])
 
-    def test_api_is_module_blocklisted(self) -> None:
-        """Test GET /api/is-module-blocklisted/{module_name} using the documented curl command."""
-        response = self._extract_and_execute("is-module-blocklisted")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(response.json(), [True, False])
-
     def test_api_blocklist_modules(self) -> None:
         """Test GET /api/blocklist-modules using the documented curl command."""
         response = self._extract_and_execute("blocklist_modules")

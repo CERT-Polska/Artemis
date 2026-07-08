@@ -319,25 +319,6 @@ Response:
 
    false
 
-Checking the module blocklist
-^^^^^^^^^^^^^^^^^^^^^^
-
-Use ``GET /api/is-module-blocklisted/{module_name}`` to check whether scanning of a module is blocklisted:
-
-..
-   test-id:: is-module-blocklisted
-
-.. code-block:: bash
-
-   curl -s http://localhost:5000/api/is-module-blocklisted/drupal_scanner \
-      -H "X-API-Token: YOUR_API_TOKEN"
-
-Response:
-
-.. code-block:: json
-
-   false
-
 Checking the blocklist modules
 ^^^^^^^^^^^^^^^^^^^^^^
 

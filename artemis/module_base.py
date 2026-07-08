@@ -257,8 +257,14 @@ class ArtemisBase(Karton):
             os.environ.get("NUM_WORKERS_PER_CONTAINER_%s" % cls.identity.replace("-", "_").upper(), "1")
         )
         if num_processes > 1:
+            processes = []
             for _ in range(num_processes):
-                multiprocessing.Process(target=start, args=(task_counter,)).start()
+                process = multiprocessing.Process(target=start, args=(task_counter,))
+                process.start()
+                processes.append(process)
+
+            for process in processes:
+                process.join()
         else:
             cls().single_process_loop(task_counter)
 
@@ -282,8 +288,12 @@ class ArtemisBase(Karton):
         for task_filter in self.filters:
             self.log.info("Binding on: %s", task_filter)
 
+        time_start = time.time()
         with self.graceful_killer():
-            while not self.shutdown and task_counter.value < Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
+            while (
+                not self.shutdown
+                and time.time() - time_start < Config.Miscellaneous.MAX_MODULE_TASK_PROCESSING_TIME__SECONDS
+            ):
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break
@@ -301,10 +311,9 @@ class ArtemisBase(Karton):
                     # are consuming tasks.
                     time.sleep(self.task_poll_interval_seconds)
 
-        if task_counter.value >= Config.Miscellaneous.MAX_NUM_TASKS_TO_PROCESS:
-            self.log.info("Exiting loop after processing %d tasks in all processes", task_counter.value)
-        else:
-            self.log.info("Exiting loop, shutdown=%s", self.shutdown)
+        self.log.info(
+            "Exiting loop after processing %d tasks in all processes, shutdown=%s", task_counter.value, self.shutdown
+        )
 
     def _single_iteration(self) -> int:
         self.log.debug("single iteration")
@@ -811,6 +820,7 @@ class ArtemisBase(Karton):
                         "Please wait while your request is being verified...",
                         "<title>Unauthorized Access</title>",
                         "<title>Attack Detected</title>",
+                        "<title>CrowdSec Ban</title>",
                         "<h1>You have been blocked</h1></html>",
                     ]
                 ]

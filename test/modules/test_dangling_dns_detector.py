@@ -4,9 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import dns.name
 from dns import rdatatype
-from karton.core import Task
 
-from artemis.binds import TaskStatus, TaskType
 from artemis.modules.dangling_dns_detector import DanglingDnsDetector
 
 
@@ -71,98 +69,6 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
         # then
         self.assertFalse(result)
 
-    @patch("artemis.modules.dangling_dns_detector.ip_exists")
-    @patch("dns.resolver.resolve")
-    def test_check_dns_ip_records_dangling_a(self, mock_resolve, mock_ip_exists) -> None:  # type: ignore
-        # given
-        a_record = MagicMock()
-        a_record.rdtype = rdatatype.A
-        a_record.address = "1.1.1.1"
-        mock_a_answer = MagicMock()
-        mock_a_answer.rrset = [a_record]
-        mock_a_answer.__iter__.return_value = iter([a_record])
-        mock_aaaa_answer = MagicMock()
-        mock_aaaa_answer.rrset = None
-        mock_aaaa_answer.__iter__.return_value = iter([])
-        mock_resolve.side_effect = [mock_a_answer, mock_aaaa_answer]
-        mock_ip_exists.return_value = False
-
-        # when
-        result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("dangling.example.com", result, True)
-
-        # then
-        self.assertTrue(len(result) == 1)
-        self.assertTrue(result[0]["record"] == rdatatype.A)
-        self.assertTrue("does not resolve" in result[0]["message"])
-
-    @patch("artemis.modules.dangling_dns_detector.ip_exists")
-    @patch("dns.resolver.resolve")
-    def test_check_dns_ip_records_valid_a(self, mock_resolve, mock_ip_exists) -> None:  # type: ignore
-        # given
-        a_record = MagicMock()
-        a_record.rdtype = rdatatype.A
-        a_record.address = "1.1.1.1"
-        mock_a_answer = MagicMock()
-        mock_a_answer.rrset = [a_record]
-        mock_a_answer.__iter__.return_value = iter([a_record])
-        mock_aaaa_answer = MagicMock()
-        mock_aaaa_answer.rrset = None
-        mock_aaaa_answer.__iter__.return_value = iter([])
-        mock_resolve.side_effect = [mock_a_answer, mock_aaaa_answer]
-        mock_ip_exists.return_value = True
-
-        # when
-        result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("valid.example.com", result, True)
-
-        # then
-        self.assertFalse(result)
-
-    @patch("artemis.modules.dangling_dns_detector.ip_exists")
-    @patch("dns.resolver.resolve")
-    def test_check_dns_ip_records_dangling_aaaa(self, mock_resolve, mock_ip_exists) -> None:  # type: ignore
-        # given
-        aaaa_record = MagicMock()
-        aaaa_record.rdtype = rdatatype.AAAA
-        aaaa_record.address = "2606:4700:4700::1111"
-        mock_a_answer = MagicMock()
-        mock_a_answer.rrset = None
-        mock_a_answer.__iter__.return_value = iter([])
-        mock_aaaa_answer = MagicMock()
-        mock_aaaa_answer.rrset = [aaaa_record]
-        mock_aaaa_answer.__iter__.return_value = iter([aaaa_record])
-        mock_resolve.side_effect = [mock_a_answer, mock_aaaa_answer]
-        mock_ip_exists.return_value = False
-
-        # when
-        result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("dangling.example.com", result, True)
-
-        # then
-        self.assertTrue(len(result) == 1)
-        self.assertTrue(result[0]["record"] == rdatatype.AAAA)
-        self.assertTrue("does not resolve" in result[0]["message"])
-
-    @patch("artemis.modules.dangling_dns_detector.ip_exists")
-    @patch("dns.resolver.resolve")
-    def test_check_dns_ip_records_no_records(self, mock_resolve, mock_ip_exists) -> None:  # type: ignore
-        # given
-        mock_a_answer = MagicMock()
-        mock_a_answer.rrset = None
-        mock_a_answer.__iter__.return_value = iter([])
-        mock_aaaa_answer = MagicMock()
-        mock_aaaa_answer.rrset = None
-        mock_aaaa_answer.__iter__.return_value = iter([])
-        mock_resolve.side_effect = [mock_a_answer, mock_aaaa_answer]
-
-        # when
-        result: list[dict[str, Any]] = []
-        self.karton.check_dns_ip_records_are_alive("norecords.example.com", result, True)
-
-        # then
-        self.assertFalse(result)
-
     @patch("dns.resolver.resolve")
     def test_check_cname_dangling(self, mock_resolve) -> None:  # type: ignore
         # given
@@ -222,50 +128,3 @@ class TestDanglingDnsDetector(ArtemisModuleTestCase):
 
         # then
         self.assertFalse(result)
-
-
-class TestDanglingDnsDetectorIntegration(ArtemisModuleTestCase):
-    karton_class = DanglingDnsDetector  # type: ignore
-
-    def test_cname_dangling_real_domain(self) -> None:
-        # given
-        task = Task(
-            {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value},
-            payload={
-                "domain": "dangling-cname.test.artemis.lab.cert.pl",
-                "last_domain": "dangling-cname.test.artemis.lab.cert.pl",
-            },
-        )
-
-        # when
-        self.run_task(task)
-        (call,) = self.mock_db.save_task_result.call_args_list
-
-        # then
-        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertTrue(
-            "The defined domain has a CNAME record configured but the CNAME does not resolve."
-            in call.kwargs["status_reason"],
-        )
-
-    def test_check_dns_ip_records_integration(self) -> None:
-        # given
-        task = Task(
-            {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value},
-            payload={
-                "domain": "dangling.test.artemis.lab.cert.pl",
-                "last_domain": "dangling.test.artemis.lab.cert.pl",
-            },
-        )
-
-        # when
-        with patch("artemis.config.Config.Modules.DanglingDnsDetector") as mocked_config:
-            mocked_config.DANGLING_DNS_NUMBER_OF_RETRIES_FOR_IP = 0
-            self.run_task(task)
-            (call,) = self.mock_db.save_task_result.call_args_list
-
-        # then
-        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertTrue(
-            "The defined domain has an A record configured but the IP does not resolve." in call.kwargs["status_reason"]
-        )

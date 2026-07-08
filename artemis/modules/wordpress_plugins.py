@@ -66,20 +66,17 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
 ]
 PLUGINS_BAD_VERSION_IN_README = [
     "coming-soon",
-    "disable-wordpress-updates",
     "famethemes-demo-importer",
+    "google-maps-easy",
     "icon-element",
     "learnpress-wishlist",
     "link-manager",
     "login-logo",
     "page-or-post-clone",
-    "persian-woocommerce-sms",
     "rafflepress",
     "search-meter",
-    "unlimited-elements-for-elementor",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
-    "wp-migrate-db",
     "zapier",
 ]
 

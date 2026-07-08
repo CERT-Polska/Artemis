@@ -1,10 +1,7 @@
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 FROM python:3.13.3-alpine3.20
 
-COPY --from=golang:1.24-alpine /usr/local/go/ /usr/local/go/
-# Go 1.25 is installed under /usr/local/go125/ solely to build katana, which
-# requires Go >= 1.25. The other Go tools stay on 1.24 via the default PATH.
-COPY --from=golang:1.25-alpine /usr/local/go/ /usr/local/go125/
+COPY --from=golang:1.25-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
 
 COPY docker/wait-for-it.sh /wait-for-it.sh
@@ -23,7 +20,7 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/lc/gau/v2/cmd/gau && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
-    GOBIN=/usr/local/bin/ /usr/local/go125/bin/go install github.com/projectdiscovery/katana/cmd/katana@v1.6.1 && \
+    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/katana/cmd/katana && \
     cd / && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
     git clone https://github.com/CERT-Polska/joomla-scanner.git --branch main /joomla-scanner && \

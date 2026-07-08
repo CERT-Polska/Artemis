@@ -21,6 +21,7 @@ SEVERITY_MAP = {
     ReportType("weak_admin_credentials"): Severity.HIGH,
     ReportType("insecure_wordpress"): Severity.HIGH,
     ReportType("nuclei_vulnerability"): Severity.HIGH,
+    ReportType("orm_injection"): Severity.HIGH,
     ReportType("script_unregistered_domain"): Severity.HIGH,
     ReportType("closed_wordpress_plugin"): Severity.HIGH,
     ReportType("exposed_database_with_easy_password"): Severity.HIGH,
@@ -66,6 +67,7 @@ SEVERITY_MAP = {
     ReportType("exposed_phpinfo"): Severity.LOW,
     ReportType("nuclei_exposed_panel"): Severity.LOW,
     ReportType("missing_security_headers"): Severity.LOW,
+    ReportType("exposed_ntlm_endpoint"): Severity.LOW,
     # This is a fake "vulnerability" from an example module
     ReportType("url_has_even_number_of_characters"): Severity.LOW,
     # These modules are not available in core Artemis for licensing reasons, but let's

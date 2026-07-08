@@ -263,6 +263,13 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-ntlm_recon:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.ntlm_recon"
+    env_file: .env
+    restart: always
+    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-nuclei:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.nuclei"
@@ -327,6 +334,13 @@ services:
   karton-shodan_vulns:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.shodan_vulns"
+    env_file: .env
+    restart: always
+    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
+  karton-orm_injection_detector:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.orm_injection_detector"
     env_file: .env
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
@@ -412,7 +426,6 @@ services:
     env_file: .env
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
 
 volumes:
   data-nuclei-templates:

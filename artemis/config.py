@@ -62,7 +62,7 @@ class Config:
                 int,
                 "How old the task results need to be to be archived (in seconds) for tasks that don't have status=INTERESTING",
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING", default=30 * 24 * 60 * 60, cast=int
+                "AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING", default=15 * 24 * 60 * 60, cast=int
             )  # 30 days
             AUTOARCHIVER_PACK_SIZE: Annotated[
                 int,
@@ -292,11 +292,11 @@ class Config:
             'false positives, where a failed DNS query may result with a "no DMARC" message.',
         ] = get_config("NUM_DNS_RESOLVER_RETRIES", default=3, cast=int)
 
-        MAX_NUM_TASKS_TO_PROCESS: Annotated[
+        MAX_MODULE_TASK_PROCESSING_TIME__SECONDS: Annotated[
             int,
-            "After this number of tasks processed, each scanning module will get restarted. This is to prevent situations "
+            "After this number of module running time, each scanning module will get restarted. This is to prevent situations "
             "such as slow memory leaks.",
-        ] = get_config("MAX_NUM_TASKS_TO_PROCESS", default=1000, cast=int)
+        ] = get_config("MAX_MODULE_TASK_PROCESSING_TIME__SECONDS", default=3 * 24 * 3600 * 3600, cast=int)
 
         CONTENT_PREFIX_SIZE: Annotated[
             int,
@@ -311,7 +311,6 @@ class Config:
             default="admin_panel_login_bruter,api_scanner,dangling_dns_detector,example,humble,leak_scanner,ssh_bruter,xss_scanner",
             cast=decouple.Csv(str, delimiter=","),
         )
-
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
             int,
             "If we request a domain for subdomain enumeration, we will save that it has already been enumerated, so that e.g. "
@@ -338,6 +337,10 @@ class Config:
                 int,
                 "How many times to recheck whether the good password works, and the bad doesn't",
             ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS", default=10, cast=int)
+            ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH: Annotated[
+                int,
+                "Maximum number of maybe-working credential pairs that we will recheck per path. This is to prevent too much time spent on rechecking in case of a large number of false positives.",
+            ] = get_config("ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH", default=10, cast=int)
 
         class APIScanner:
             API_SPEC_MAX_SIZE: Annotated[
@@ -403,15 +406,6 @@ class Config:
             DANGLING_DNS_SKIP_ROOT_DOMAIN: Annotated[
                 bool, "If set to True, detector will not perform checks against the root domain."
             ] = get_config("DANGLING_DNS_SKIP_ROOT_DOMAIN", default=False, cast=bool)
-            DANGLING_DNS_NUMBER_OF_RETRIES_FOR_IP: Annotated[int, "Number of retries for dangling ip records."] = (
-                get_config("DANGLING_DNS_NUMBER_OF_RETRIES_FOR_IP", default=20, cast=int)
-            )
-            DANGLING_DNS_MAX_DELAY_RETRY: Annotated[int, "Max number of delay in seconds between each retry."] = (
-                get_config("DANGLING_DNS_MAX_DELAY_RETRY", default=3600, cast=int)
-            )
-            DANGLING_DNS_DELAY_STEP: Annotated[int, "Number of seconds for incremental step for retries."] = get_config(
-                "DANGLING_DNS_DELAY_STEP", default=600, cast=int
-            )
             DANGLING_DNS_KNOWN_DNS_ZONE_RECORDS_TO_SKIP: Annotated[
                 list[str],
                 "The list of known DNS zone records to skip. In case of those zone names we are sure that they are not claimable.",
@@ -480,7 +474,7 @@ class Config:
             NUCLEI_INTERACTSH_SERVER: Annotated[
                 str,
                 "Which interactsh server to use. if None, uses the default.",
-            ] = get_config("NUCLEI_INTERACTSH_SERVER", default=None, cast=str)
+            ] = get_config("NUCLEI_INTERACTSH_SERVER", default=None)
 
             NUCLEI_CHECK_TEMPLATE_LIST: Annotated[
                 bool,
@@ -646,11 +640,6 @@ class Config:
                         # Roundcube templates producing FP
                         "http/cves/2025/CVE-2025-49113.yaml",
                         "http/cves/2024/CVE-2024-42009.yaml",
-                        # Too many FPs
-                        "http/exposed-panels/aveva-intouch-access-anywhere-panel.yaml",
-                        "http/exposed-panels/janitza-umg-panel.yaml",
-                        # FP: even if the message says `trace.axd is not available`, it's detected
-                        "http/exposures/logs/trace-axd-expose.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -1175,7 +1164,19 @@ class Config:
         class DomainExpirationScanner:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
-            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=30, cast=int)
+            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=45, cast=int)
+
+        class OrmInjectionDetector:
+            ORM_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to stop scanning after the first ORM injection finding.",
+            ] = get_config("ORM_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            ORM_INJECTION_NUM_CONFIRMATIONS: Annotated[
+                int,
+                "How many times a differential response must reproduce before it is reported as a finding. "
+                "Guards against flaky services where a one-off difference is not actually caused by ORM "
+                "injection.",
+            ] = get_config("ORM_INJECTION_NUM_CONFIRMATIONS", default=10, cast=int)
 
         class SqlInjectionDetector:
             SQL_INJECTION_STOP_ON_FIRST_MATCH: Annotated[

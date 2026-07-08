@@ -381,7 +381,7 @@
   "woocommerce-mercadopago": "readme.txt",
   "robin-image-optimizer": "readme.txt",
   "widget-google-reviews": "readme.txt",
-  "crowdsignal-forms": "README.TXT",
+  "crowdsignal-forms": "readme.txt",
   "kliken-marketing-for-google": "readme.txt",
   "template-kit-import": "readme.txt",
   "hummingbird-performance": "readme.txt",

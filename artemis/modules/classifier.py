@@ -7,7 +7,7 @@ from typing import List
 
 from karton.core import Task
 
-from artemis import http_requests, load_risk_class
+from artemis import direct_url_scanning, http_requests, load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.domains import is_domain
 from artemis.ip_utils import to_ip_range
@@ -85,6 +85,9 @@ class Classifier(ArtemisBase):
 
     @staticmethod
     def is_supported(data: str) -> bool:
+        if "://" in data:
+            return direct_url_scanning.is_scannable_url(data)
+
         if re.match(ASN_REGEX, data):
             return True
 
@@ -110,6 +113,18 @@ class Classifier(ArtemisBase):
         return Classifier._is_ip_or_domain(data)
 
     @staticmethod
+    def is_service_target(data: str) -> bool:
+        """Whether `data` already names a service (a root URL or a `host:port`), so the classifier
+        can emit a SERVICE task for it without the port scanner."""
+        if not Classifier.is_supported(data):
+            return False
+        if "://" in data:
+            return True
+        if re.match(ASN_REGEX, data) or to_ip_range(data):
+            return False
+        return not Classifier._is_ip_or_domain(Classifier._clean_ipv6_brackets(data))
+
+    @staticmethod
     def _classify(data: str) -> TaskType:
         """
         :raises: ValueError if failed to find domain/IP
@@ -130,6 +145,31 @@ class Classifier(ArtemisBase):
 
         raise ValueError("Failed to find domain/IP in input")
 
+    def _create_service_task(
+        self,
+        current_task: Task,
+        original_target: str,
+        service: Service,
+        host: str,
+        port: int,
+        ssl: bool,
+    ) -> None:
+        host_type = "domain" if is_domain(host) else "ip"
+
+        new_task = Task(
+            {
+                "type": TaskType.SERVICE,
+                "service": service,
+            },
+            payload={"host": host, "port": port, "ssl": ssl, **({"last_domain": host} if is_domain(host) else {})},
+            payload_persistent={
+                f"original_{host_type}": host,
+                "original_target": original_target,
+            },
+        )
+        self.add_task(current_task, new_task)
+        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]})
+
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")
 
@@ -140,6 +180,20 @@ class Classifier(ArtemisBase):
         if not Classifier.is_supported(data):
             self.db.save_task_result(
                 task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data
+            )
+            return
+
+        direct_scanning_url = direct_url_scanning.parse_url(data)
+        if direct_scanning_url is not None:
+            # The scheme already told us the service, port and SSL flag, so we emit a
+            # SERVICE task straight away instead of fingerprinting the host:port.
+            self._create_service_task(
+                current_task,
+                original_target,
+                direct_scanning_url.service,
+                direct_scanning_url.host,
+                direct_scanning_url.port,
+                direct_scanning_url.ssl,
             )
             return
 
@@ -204,11 +258,6 @@ class Classifier(ArtemisBase):
             host = Classifier._clean_ipv6_brackets(host)
             port = int(port_str)
 
-            if is_domain(host):
-                host_type = "domain"
-            else:
-                host_type = "ip"
-
             try:
                 output = self.throttle_request(
                     lambda: check_output_log_on_error(
@@ -238,19 +287,7 @@ class Classifier(ArtemisBase):
 
             self.log.info("%s identified to be %s", data, service)
 
-            new_task = Task(
-                {
-                    "type": TaskType.SERVICE,
-                    "service": Service(service.lower()),
-                },
-                payload={"host": host, "port": port, "ssl": ssl, **({"last_domain": host} if is_domain(host) else {})},
-                payload_persistent={
-                    f"original_{host_type}": host,
-                    "original_target": original_target,
-                },
-            )
-            self.add_task(current_task, new_task)
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]})
+            self._create_service_task(current_task, original_target, Service(service.lower()), host, port, ssl)
         else:
             data = Classifier._clean_ipv6_brackets(data)
 

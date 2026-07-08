@@ -20,6 +20,15 @@ from artemis.task_utils import get_target_url
 
 COMMON_USERNAMES: List[str] = ["admin"]
 
+# Substrings in an <input name="..."> that identify the identifier ("username")
+# field and the password field of a login form, matched case-insensitively.
+# Kept as substrings to tolerate the loose real-world naming of login inputs:
+# "mail" covers email/e-mail/user_email, "user"/"usr"/"name" cover username/uname.
+# Field type and the autocomplete attribute are checked before these (see
+# brute_force_login_path), as they are more reliable signals than the name.
+USERNAME_FIELD_HINTS: List[str] = ["user", "name", "usr", "log", "mail", "account", "identifier", "phone"]
+PASSWORD_FIELD_HINTS: List[str] = ["pass", "pwd", "psw"]
+
 
 def read_file(file: IO[str]) -> List[str]:
     return [line.strip() for line in file if not line.startswith("#")]
@@ -286,19 +295,29 @@ class AdminPanelLoginBruter(ArtemisBase):
                     input_name = input_tag.get("name")
                     input_value = input_tag.get("value", "")
                     if input_name:
-                        if input_tag.get("type", "").lower() == "hidden":
+                        name_lower = input_name.lower()
+                        input_type = input_tag.get("type", "").lower()
+                        autocomplete = input_tag.get("autocomplete", "").lower()
+                        if input_type == "hidden":
                             form_data[input_name] = input_value
+                        # type="password" / autocomplete="current-password" are the
+                        # most reliable password signals, so check them before the
+                        # username hints (a name like "login_password" must not be
+                        # mistaken for the identifier field).
                         elif (
-                            "user" in input_name.lower()
-                            or "name" in input_name.lower()
-                            or "usr" in input_name.lower()
-                            or "log" in input_name.lower()
+                            input_type == "password"
+                            or "password" in autocomplete
+                            or any(hint in name_lower for hint in PASSWORD_FIELD_HINTS)
+                        ):
+                            form_data[input_name] = password
+                            found_password = True
+                        elif (
+                            input_type in ("email", "tel")
+                            or autocomplete == "username"
+                            or any(hint in name_lower for hint in USERNAME_FIELD_HINTS)
                         ):
                             form_data[input_name] = username
                             found_username = True
-                        elif "pass" in input_name.lower() or "pwd" in input_name.lower():
-                            form_data[input_name] = password
-                            found_password = True
                         else:
                             form_data[input_name] = input_value
 

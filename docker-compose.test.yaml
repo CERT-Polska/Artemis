@@ -159,6 +159,16 @@ services:
     volumes:
       - ./test/data/php_admin_zabbix_login/:/var/www/html/
 
+  test-php-email-login:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_email_login/:/var/www/html/
+
+  test-php-autocomplete-login:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_autocomplete_login/:/var/www/html/
+
   test-php-mock-CVE-2020-28976:
     image: php:8.0-apache
     volumes:

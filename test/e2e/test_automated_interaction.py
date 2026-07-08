@@ -53,7 +53,17 @@ class AutomatedInteractionTestCase(BaseE2ETestCase):
         self.assertEqual(len(analyses), 1)
         self.assertEqual(
             set(analyses[0].keys()),
-            {"stopped", "target", "created_at", "id", "tag", "num_pending_tasks", "disabled_modules"},
+            {
+                "stopped",
+                "target",
+                "created_at",
+                "id",
+                "tag",
+                "num_pending_tasks",
+                "disabled_modules",
+                "priority",
+                "desired_priority",
+            },
         )
         self.assertEqual(analyses[0]["stopped"], False)
         self.assertEqual(analyses[0]["target"], "test-smtp-server.artemis")

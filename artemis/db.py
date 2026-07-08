@@ -298,6 +298,7 @@ class DB:
             tag=analysis_dict["payload_persistent"].get("tag", None),
             stopped=False,
             disabled_modules=analysis_dict["payload_persistent"]["disabled_modules"],
+            priority=analysis_dict["priority"],
         )
         with self.session() as session:
             session.add(analysis)

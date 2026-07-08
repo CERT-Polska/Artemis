@@ -28,7 +28,7 @@ from karton.core.task import TaskPriority, TaskState
 from redis import Redis
 from starlette.datastructures import Headers
 
-from artemis import auth, csrf, direct_url_scanning
+from artemis import auth, csrf
 from artemis.binds import TaskType
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
@@ -214,15 +214,15 @@ async def post_add(
                 f"{task} is not supported - Artemis supports domains, IPs, IPv4 ranges or root URLs such as https://example.com/ or ssh://example.com:22/. Domains and IPs may also optionally be followed by port number. A URL must be a root URL (scheme://host[:port]/) without a path."
             )
 
-    # When every target is a root URL, the classifier emits the SERVICE task directly
-    # from the scheme, so port_scanner isn't needed to reach SERVICE/WEBAPP modules.
-    all_targets_are_urls = bool(total_list) and all(direct_url_scanning.is_scannable_url(task) for task in total_list)
+    # The port scanner isn't needed when every target already names its service - a root
+    # URL or a host:port - so the classifier can emit a SERVICE task without it.
+    port_scan_not_needed = bool(total_list) and all(Classifier.is_service_target(task) for task in total_list)
 
     for dependency, task_types in [
         ("port_scanner", [TaskType.SERVICE.value, TaskType.WEBAPP.value]),
         ("device_identifier", [TaskType.DEVICE.value]),
     ]:
-        if dependency == "port_scanner" and all_targets_are_urls:
+        if dependency == "port_scanner" and port_scan_not_needed:
             continue
         if dependency in disabled_modules:
             for bind in get_binds_that_can_be_disabled():

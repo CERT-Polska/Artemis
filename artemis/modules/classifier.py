@@ -113,6 +113,18 @@ class Classifier(ArtemisBase):
         return Classifier._is_ip_or_domain(data)
 
     @staticmethod
+    def is_service_target(data: str) -> bool:
+        """Whether `data` already names a service (a root URL or a `host:port`), so the classifier
+        can emit a SERVICE task for it without the port scanner."""
+        if not Classifier.is_supported(data):
+            return False
+        if "://" in data:
+            return True
+        if re.match(ASN_REGEX, data) or to_ip_range(data):
+            return False
+        return not Classifier._is_ip_or_domain(Classifier._clean_ipv6_brackets(data))
+
+    @staticmethod
     def _classify(data: str) -> TaskType:
         """
         :raises: ValueError if failed to find domain/IP

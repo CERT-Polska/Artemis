@@ -75,6 +75,23 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertFalse(direct_url_scanning.is_scannable_url("http:/cert.pl"))
         self.assertFalse(direct_url_scanning.is_scannable_url("http:cert.pl"))
 
+    def test_is_service_target(self) -> None:
+        # Root URLs and host:port targets already name a service, so no port scan is needed
+        self.assertTrue(Classifier.is_service_target("https://example.com/"))
+        self.assertTrue(Classifier.is_service_target("ssh://example.com:22/"))
+        self.assertTrue(Classifier.is_service_target("cert.pl:8080"))
+        self.assertTrue(Classifier.is_service_target("1.2.3.4:56"))
+        self.assertTrue(Classifier.is_service_target("[::1]:22"))
+        # Bare domains and IPs, ranges and ASNs still need the port scanner
+        self.assertFalse(Classifier.is_service_target("cert.pl"))
+        self.assertFalse(Classifier.is_service_target("[::1]"))
+        self.assertFalse(Classifier.is_service_target("1.2.3.4"))
+        self.assertFalse(Classifier.is_service_target("127.0.0.1-127.0.0.5"))
+        self.assertFalse(Classifier.is_service_target("AS123"))
+        # Unsupported inputs (non-root URL, malformed port) are not service targets
+        self.assertFalse(Classifier.is_service_target("http://cert.pl/admin"))
+        self.assertFalse(Classifier.is_service_target("cert.pl:8080port"))
+
     def test_parsing(self) -> None:
         entries = [
             TestData(

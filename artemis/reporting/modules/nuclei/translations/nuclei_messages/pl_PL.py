@@ -1502,6 +1502,13 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The vulnerability would enable an attacker to remotely obtain sensitive information from a NetScaler appliance configured as a Gateway or AAA virtual server via a very commonly connected Web interface, and without requiring authentication. This bug is nearly identical to the Citrix Bleed vulnerability (CVE-2023-4966), except it is less likely to return highly sensitive information to an attacker.": "Wykryto podatność CVE-2023-6549 umożliwiającą atakującemu zdalne uzyskanie wrażliwych informacji z urządzenia NetScaler skonfigurowanego jako Gateway lub serwer wirtualny AAA bez konieczności uwierzytelniania."
     + UPDATE_HINT,
+    'A flaw was found in the Samba printing subsystem. Samba passes the client-controlled job description string to the command configured with the "print command" setting via the "%J" substitution character without escaping shell meta characters. A remote attacker could exploit this vulnerability by sending a specially crafted print job description that contains unescaped shell characters. This could lead to remote code execution on the affected system.': "Wykryto podatność w systemie drukowania narzędzia Samba o identyfikatorze CVE-2026-4480, umożliwającą atakującemu zdalne wykonanie kodu na serwerze."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Citrix Application Delivery Controller (ADC) and Gateway 10.5, 11.1, 12.0, 12.1, and 13.0 are susceptible to directory traversal vulnerabilities.": "Narzędzia Citrix Application Delivery Controller (ADC) i Gateway w wersjach 10.5, 11.1, 12.0, 12.1 i 13.0 zawierają podatność Directory Traversal o identyfikatorze CVE-2019-19781, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Clustering master branch as of commit 53e663e259bcfc8cdecb56c0bb255bd70bfcaa70 is affected by a directory traversal vulnerability. This attack can cause the disclosure of critical secrets stored anywhere on the system and can significantly aid in getting remote code access.": "Oprogramowanie Clustering zawiera podatność Directory Traversal o identyfikatorze CVE-2021-43496, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
     "WordPress is affected by an unauthenticated blind SSRF in the pingback feature. Because of a TOCTOU race condition between the validation checks and the HTTP request, attackers can reach internal hosts that are explicitly forbidden.": "Wykryto system WordPress zawierający podatność typu blind SSRF (identyfikator CVE-2022-3590) niewymagającą uwierzytelnienia. Atakujący mogą wysyłać żądania HTTP do hostów w sieci wewnętrznej (bez możliwości odczytu odpowiedzi)."
     + UPDATE_HINT,
     "OpenCTI 3.3.1 is vulnerable to local file inclusion.": "OpenCTI w wersji 3.3.1 i potencjalnie wcześniejszych zawiera podatność umożliwiającą atakującemu odczyt dowolnych plików z dysku."
@@ -2752,4 +2759,7 @@ TRANSLATIONS = {
     "PostHog login panel was detected.": "Wykryto panel logowania PostHog.",
     "Detected Mealie was a self-hosted recipe manager and meal planner with a Vue/Nuxt frontend and FastAPI backend.": "Wykryto panel Mealie.",
     "SUNGROW (Solar Energy Inverter Monitoring Devices) Logger1000 panel was detected.": "Wykryto panel SUNGROW (Solar Energy Inverter Monitoring Devices) Logger1000.",
+    "Detected Headlamp Kubernetes Web UI panel exposed, which could lead to unauthorized access to Kubernetes cluster management if not properly secured.": "Wykryto panel Headlamp Kubernetes Web UI.",
+    "Microsys Promotic is a SCADA/HMI software platform widely deployed in central European\nindustrial and building automation applications. The embedded web server exposes a\nruntime panel accessible over HTTP on non-standard ports.": "Wykryto panel narzędzia Microsys Promotic.",
+    "Detected a Leantime instance identified with the setup installation page accessible at /install, enabling unauthenticated users to create the first administrator account and configure the database.": "Wykryto publicznie dostępny panel instalacyjny systemu Leantime.",
 }

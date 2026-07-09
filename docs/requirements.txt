@@ -26,12 +26,12 @@ certifi==2026.6.17
 cffi==2.0.0
 chardet==7.4.3
 charset-normalizer==3.4.7
-checkdmarc==5.17.1
+checkdmarc==5.17.3
 click==8.4.2
 click-plugins==1.1.1.2
 colorama==0.4.6
 coverage==7.14.1
-cryptography==46.0.7
+cryptography==48.0.1
 decorator==5.3.1
 defusedxml==0.7.1
 dkimpy==1.1.8

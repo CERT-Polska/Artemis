@@ -87,7 +87,7 @@ with open(
     COMMON_CREDENTIAL_PAIRS = read_credential_pairs(f)
 
 # JSON-only API login endpoints that do not respond to GET with 200 (POST-only).
-# These are always tried regardless of discovery, because check_url(GET) would fail.
+# These are always tried regardless of discovery, because _is_login_path(GET) would fail.
 JSON_API_PATHS = [
     "/api/login",  # Grafana
     "/api/auth",  # Portainer and other tools
@@ -118,11 +118,12 @@ class AdminPanelLoginBruter(ArtemisBase):
             return False
         return response.headers.get("WWW-Authenticate", "").lower().startswith("basic")
 
-    def check_url(self, url: str) -> bool:
+    def _is_login_path(self, url: str) -> bool:
         try:
             response = http_requests.get(url)
             if not response:
                 return False
+            _abort_if_rate_limited(response)
             if response.status_code == 200:
                 return True
             return self._is_basic_auth_challenge(response)
@@ -243,7 +244,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         found_paths = []
         for path in COMMON_LOGIN_PATHS:
             full_url = urllib.parse.urljoin(base_url, path)
-            if self.check_url(full_url):
+            if self._is_login_path(full_url):
                 self.log.info("Discovered login path: %s", full_url)
                 found_paths.append(path)
         return found_paths
@@ -487,16 +488,24 @@ class AdminPanelLoginBruter(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
-        login_paths = self.discover_login_paths(url)
+        results: List[AdminPanelLoginBruterResult] = []
+        rate_limited = False
+        try:
+            login_paths = self.discover_login_paths(url)
 
-        # Always include known JSON-only API paths that won't pass the GET check.
-        for path in JSON_API_PATHS:
-            if path not in login_paths:
-                login_paths.append(path)
+            # Always include known JSON-only API paths that won't pass the GET check.
+            for path in JSON_API_PATHS:
+                if path not in login_paths:
+                    login_paths.append(path)
 
-        random.shuffle(login_paths)
+            random.shuffle(login_paths)
 
-        results, rate_limited = self.scan(current_task, url, login_paths)
+            results, rate_limited = self.scan(current_task, url, login_paths)
+        except RateLimitedError:
+            # 429 during discovery (before scan() runs). scan() catches 429 raised
+            # during brute forcing itself, so this only fires in the discovery phase.
+            rate_limited = True
+            self.log.info("Aborting scan of %s during discovery: target is rate-limiting (HTTP 429)", url)
 
         if results:
             status = TaskStatus.INTERESTING

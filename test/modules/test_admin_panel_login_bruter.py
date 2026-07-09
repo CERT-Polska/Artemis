@@ -185,3 +185,22 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
         self.assertEqual(call.kwargs["status"], TaskStatus.OK)
         self.assertIn("429", call.kwargs["status_reason"])
         self.assertEqual(call.kwargs["data"]["results"], [])
+
+    def test_rate_limited_during_discovery_aborts(self) -> None:
+        """A target that returns HTTP 429 already during path discovery (on the GET
+        requests, before brute forcing starts) aborts cleanly: the RateLimitedError
+        must be caught in run(), giving status OK with a rate-limit reason and no
+        results, rather than crashing the module."""
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-php-rate-limited-discovery",
+                "port": 80,
+            },
+        )
+
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+        self.assertIn("429", call.kwargs["status_reason"])
+        self.assertEqual(call.kwargs["data"]["results"], [])

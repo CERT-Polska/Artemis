@@ -260,8 +260,7 @@ def blocklisted_modules() -> Dict[str, List[str]]:
     now = datetime.datetime.now()
     for item in BLOCKLIST:
         if (
-            item.mode == BlocklistMode.BLOCK_SCANNING_AND_REPORTING
-            and item.karton_name
+            item.karton_name
             and all(getattr(item, field_name) is None for field_name in filter_fields)
         ):
             if (item.until and now <= item.until) or item.until is None:

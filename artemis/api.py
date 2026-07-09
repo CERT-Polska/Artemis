@@ -15,7 +15,6 @@ from redis import Redis
 
 from artemis.blocklist import (
     BlocklistItem,
-    BlocklistMode,
     load_blocklist,
     should_block_scanning,
 )
@@ -259,10 +258,7 @@ def blocklisted_modules() -> Dict[str, List[str]]:
     blocklisted_modules = []
     now = datetime.datetime.now()
     for item in BLOCKLIST:
-        if (
-            item.karton_name
-            and all(getattr(item, field_name) is None for field_name in filter_fields)
-        ):
+        if item.karton_name and all(getattr(item, field_name) is None for field_name in filter_fields):
             if (item.until and now <= item.until) or item.until is None:
                 blocklisted_modules.append(item.karton_name)
 

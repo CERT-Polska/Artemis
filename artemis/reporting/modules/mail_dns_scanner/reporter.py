@@ -72,6 +72,7 @@ SSL_ERRORS_TO_SKIP = [
     "Too many concurrent connections",
     "Too many concurrent SMTP connections",
     "Your access to this mail system has been rejected",
+    "Too much load; please try again later",
 ]
 
 

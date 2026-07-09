@@ -167,3 +167,40 @@ class AdminPanelLoginBruterTest(ArtemisModuleTestCase):
         self.assertEqual(
             call.kwargs["data"]["results"][0]["indicators"], ["redirect", "logout_link", "no_failure_messages"]
         )
+
+    def test_rate_limited_aborts_scan(self) -> None:
+        """A target that answers login attempts with HTTP 429 aborts the whole-host
+        scan: the status is OK (not INTERESTING), the reason mentions rate limiting,
+        and no credentials are reported."""
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-php-rate-limited",
+                "port": 80,
+            },
+        )
+
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+        self.assertIn("429", call.kwargs["status_reason"])
+        self.assertEqual(call.kwargs["data"]["results"], [])
+
+    def test_rate_limited_during_discovery_aborts(self) -> None:
+        """A target that returns HTTP 429 already during path discovery (on the GET
+        requests, before brute forcing starts) aborts cleanly: the RateLimitedError
+        must be caught in run(), giving status OK with a rate-limit reason and no
+        results, rather than crashing the module."""
+        task = Task(
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+            payload={
+                "host": "test-php-rate-limited-discovery",
+                "port": 80,
+            },
+        )
+
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+        self.assertIn("429", call.kwargs["status_reason"])
+        self.assertEqual(call.kwargs["data"]["results"], [])

@@ -115,7 +115,7 @@ class MailDNSScanner(ArtemisBase):
             result.spf_dmarc_scan_result
             and result.spf_dmarc_scan_result.spf
             and result.spf_dmarc_scan_result.spf.record_not_found
-            and (not has_mx_records or is_running_tests)
+            and has_mx_records
         ):
             result.spf_dmarc_scan_result.spf.valid = True
 
@@ -164,8 +164,6 @@ class MailDNSScanner(ArtemisBase):
                 and result.spf_dmarc_scan_result.spf.record_not_found
             ):
                 result.spf_dmarc_scan_result.spf.valid = True
-
-        self.log.error("result.spf_dmarc_scan_result: %s", result.spf_dmarc_scan_result.__dict__)
 
         return result
 

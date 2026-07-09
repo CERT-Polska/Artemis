@@ -6,13 +6,17 @@ Python ``requests`` calls, and execute them against a running Artemis instance.
 This ensures the documented examples stay in sync with the actual API.
 """
 
+import datetime
 import json
 import re
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
 from typing import Any, Dict, Optional
+from unittest.mock import patch
 from urllib.parse import urlparse, urlunparse
 
 import requests
+
+from artemis.blocklist import BlocklistItem, BlocklistMode
 
 API_TOKEN = "api-token"
 RST_PATH = "/opt/docs/api/rest-api.rst"
@@ -233,11 +237,41 @@ class RestApiDocsTestCase(BaseE2ETestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(response.json(), [True, False])
 
-    def test_api_blocklist_modules(self) -> None:
-        """Test GET /api/blocklist-modules using the documented curl command."""
-        response = self._extract_and_execute("blocklist_modules")
+    def test_api_blocklist_modules_returns_only_matching_modules(self) -> None:
+        """Test GET /api/blocklisted-modules returns only pure module blocklist entries."""
+        now = datetime.datetime.now()
+
+        mocked_blocklist = [
+            BlocklistItem(
+                mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+                karton_name="nuclei",
+            ),
+            BlocklistItem(
+                mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+                karton_name="mail_dns_scanner",
+                domain_only="example.com",
+            ),
+            BlocklistItem(
+                mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+                karton_name="port_scanner",
+                until=now - datetime.timedelta(days=1),
+            ),
+            BlocklistItem(
+                mode=BlocklistMode.BLOCK_REPORTING_ONLY,
+                karton_name="ssh_bruter",
+            ),
+            BlocklistItem(
+                mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
+                karton_name="drupal_scanner",
+                until=now + datetime.timedelta(days=1),
+            ),
+        ]
+
+        with patch("artemis.api.BLOCKLIST", mocked_blocklist):
+            response = self._extract_and_execute("blocklisted_modules")
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"blocklist_modules": []})
+        self.assertEqual(response.json(), {"blocklisted_modules": ["nuclei", "drupal_scanner"]})
 
     def test_api_exports_empty(self) -> None:
         """Test GET /api/exports returns empty list when no exports exist."""

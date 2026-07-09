@@ -319,24 +319,24 @@ Response:
 
    false
 
-Checking the blocklist modules
+Checking the blocklisted modules
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Use ``GET /api/blocklist-modules`` to check blocklist modules:
+Use ``GET /api/blocklisted-modules`` to check blocklisted modules:
 
 ..
-   test-id:: blocklist_modules
+   test-id:: blocklisted_modules
 
 .. code-block:: bash
 
-   curl -s http://localhost:5000/api/blocklist-modules \
+   curl -s http://localhost:5000/api/blocklisted-modules \
       -H "X-API-Token: YOUR_API_TOKEN"
 
 Response:
 
 .. code-block:: json
 
-   {"blocklist_modules": ["drupal_scanner", "ssh_bruter"]}
+   {"blocklisted_modules": ["nuclei", "drupal_scanner"]}
 
 Rendering HTML messages
 ^^^^^^^^^^^^^^^^^^^^^^^

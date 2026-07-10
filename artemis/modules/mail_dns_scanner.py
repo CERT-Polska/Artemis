@@ -204,11 +204,7 @@ class MailDNSScanner(ArtemisBase):
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.errors)
             status_reasons.extend(result.spf_dmarc_scan_result.dmarc.warnings)
 
-        if (
-            result.spf_dmarc_scan_result
-            and result.spf_dmarc_scan_result.ssl
-            and not result.spf_dmarc_scan_result.ssl.valid
-        ):
+        if result.spf_dmarc_scan_result and result.spf_dmarc_scan_result.ssl:
             for item in result.spf_dmarc_scan_result.ssl.results:
                 for problem in [item.error, item.warning]:
                     if problem:

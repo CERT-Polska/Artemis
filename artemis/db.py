@@ -382,7 +382,7 @@ class DB:
         :param analysis_id: The unique identifier of the analysis to retrieve. It's `Task.root_uuid`.
         :type analysis_id: str
         :param desired_priority: Desired task priority for given analysis
-        :type desires_priority: `artemis.db.TaskPriority`
+        :type desired_priority: `artemis.db.TaskPriority`
         :return: True if desired priority successfully changed, otherwise False
         :rtype: bool
         """

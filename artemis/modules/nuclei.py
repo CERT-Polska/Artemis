@@ -188,6 +188,12 @@ def _refuzz_single_with_nuclei(url: str, template_path: str) -> Set[str]:
             rebuilt_pairs.append(raw_pair)
     refuzz_url = urllib.parse.urlunparse(parsed._replace(query="&".join(rebuilt_pairs)))
 
+    # These flags mirror the main scan's command (_scan) so the re-fuzz
+    # reproduces the finding under the same conditions (user agent, rate
+    # limit, timeout, resolvers). Batch-only flags are intentionally
+    # omitted: rate-limit-duration/bulk-size/concurrency/stats are
+    # meaningless for a single-URL re-fuzz. Sharing a common command
+    # builder with _scan is a planned follow-up (see PR description).
     try:
         command = [
             "nuclei",
@@ -201,7 +207,16 @@ def _refuzz_single_with_nuclei(url: str, template_path: str) -> Set[str]:
             "single",
             "-jsonl",
             "-silent",
+            "-timeout",
+            str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
+            "-system-resolvers",
+            "-rate-limit",
+            "1",
+            "-response-size-read",
+            "1048576",
         ]
+        if Config.Miscellaneous.CUSTOM_USER_AGENT:
+            command.extend(["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT])
         if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
             command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER.strip("/")])
 

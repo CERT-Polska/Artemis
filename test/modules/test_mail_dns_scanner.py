@@ -24,4 +24,4 @@ class MailDNSScannerTest(ArtemisModuleTestCase):
             "possibility of successful e-mail message spoofing.",
         )
         self.assertEqual(call.kwargs["data"]["spf_dmarc_scan_result"]["dmarc"]["valid"], False)
-        self.assertEqual(call.kwargs["data"]["spf_dmarc_scan_result"]["spf"]["valid"], True)
+        self.assertEqual(call.kwargs["data"]["spf_dmarc_scan_result"]["spf"]["valid"], False)

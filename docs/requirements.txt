@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.6.2
 aiohttp==3.14.1
@@ -30,7 +30,7 @@ checkdmarc==5.17.3
 click==8.4.2
 click-plugins==1.1.1.2
 colorama==0.4.6
-coverage==7.14.1
+coverage==7.15.0
 cryptography==48.0.1
 decorator==5.3.1
 defusedxml==0.7.1

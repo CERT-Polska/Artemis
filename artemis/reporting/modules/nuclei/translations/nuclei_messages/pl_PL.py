@@ -2273,6 +2273,15 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Mail Mint WordPress plugin < 1.19.5 contains an information disclosure vulnerability caused by lack of authorization in a REST API endpoint, letting unauthenticated users retrieve email addresses of blog users, exploit requires no authentication.": "Wtyczka WordPress o nazwie Mail Mint w wersji poniżej 1.19.5 zawiera podatność o identyfikatorze CVE-2026-2025, umożliwiającą atakującemu dostęp do adresów email użytkowników."
     + WORDPRESS_UPDATE_HINT,
+    "Ninja Forms File Uploads plugin for WordPress versions up to and including 3.3.26 is vulnerable to unauthenticated arbitrary file upload which could lead to remote code execution.": "Wtyczka WordPress o nazwie Ninja Forms File Uploads w wersji do 3.3.26 włącznie zawiera podatność umożliwiającą zdalne wykonanie kodu o identyfikatorze CVE-2026-0740."
+    + RCE_EFFECT_DESCRIPTION
+    + WORDPRESS_UPDATE_HINT,
+    "Ruby On Rails is vulnerable to local file inclusion caused by secondary decoding in Sprockets 3.7.1 and lower versions. An attacker can use %252e%252e/ to access the root directory and read or execute any file on the target server.": "Komponent Sprockets narzędzia Ruby On Rails w wersji do 3.7.1 włącznie zawiera podatność Local File Inclusion o identyfikatorze CVE-2018-3760, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "CData RSB Connect v22.0.8336 was discovered to contain a Server-Side Request Forgery (SSRF).": "Narzędzie CData RSB Connect w wersji v22.0.8336 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2023-24243, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
+    + UPDATE_HINT,
+    "Koha 3.14.x before 3.14.16, 3.16.x before 3.16.12, 3.18.x before 3.18.08, and 3.20.x before 3.20.1 allow remote attackers to read arbitrary files via a ..%2f (dot dot encoded slash) in the template_path parameter to (1) svc/virtualshelves/search or (2) svc/members/search.": "Koha w gałęzi 3.14 poniżej 3.14.16, 3.16 poniżej 3.16.12, 3.18 poniżej 3.18.08 i 3.20 poniżej 3.20.1 zawiera podatność Local File Inclusion o identyfikatorze CVE-2015-4632, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2767,4 +2776,7 @@ TRANSLATIONS = {
     "Microsys Promotic is a SCADA/HMI software platform widely deployed in central European\nindustrial and building automation applications. The embedded web server exposes a\nruntime panel accessible over HTTP on non-standard ports.": "Wykryto panel narzędzia Microsys Promotic.",
     "Detected a Leantime instance identified with the setup installation page accessible at /install, enabling unauthenticated users to create the first administrator account and configure the database.": "Wykryto publicznie dostępny panel instalacyjny systemu Leantime.",
     "Frappe ERPNext Login Panel was discovered.": "Wykryto panel Frappe ERPNext.",
+    "Copa-Data zenon is an industrial automation platform used in manufacturing,\nenergy, and infrastructure. The zenon Web Server and Smart Server expose a\nbrowser-based HMI interface for remote monitoring and control of SCADA processes.": "Wykryto panel Copa-Data zenon.",
+    "Typebot is an open-source chatbot builder that allows you to create advanced\nchatbots visually.": "Wykryto panel Typebot.",
+    "Beckhoff TwinCAT HMI (Human Machine Interface) Server is part of the TwinCAT\nindustrial automation platform used in manufacturing, robotics, and process\nautomation. It exposes a web-based HMI accessible via browser for monitoring\nand controlling PLC-driven systems.": "Wykryto panel Beckhoff TwinCAT HMI.",
 }

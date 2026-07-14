@@ -640,6 +640,8 @@ class Config:
                         # Roundcube templates producing FP
                         "http/cves/2025/CVE-2025-49113.yaml",
                         "http/cves/2024/CVE-2024-42009.yaml",
+                        # wildcard sites will match this template very often, block till fixed
+                        "http/exposures/logs/opencart-error-log.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

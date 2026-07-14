@@ -2282,6 +2282,11 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Koha 3.14.x before 3.14.16, 3.16.x before 3.16.12, 3.18.x before 3.18.08, and 3.20.x before 3.20.1 allow remote attackers to read arbitrary files via a ..%2f (dot dot encoded slash) in the template_path parameter to (1) svc/virtualshelves/search or (2) svc/members/search.": "Koha w gałęzi 3.14 poniżej 3.14.16, 3.16 poniżej 3.16.12, 3.18 poniżej 3.18.08 i 3.20 poniżej 3.20.1 zawiera podatność Local File Inclusion o identyfikatorze CVE-2015-4632, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
+    "KR-Web 1.1b2 and prior contain a remote file inclusion vulnerability via adm/krgourl.php, which allows remote attackers to execute arbitrary PHP code via a URL in the DOCUMENT_ROOT parameter.": "Narzędzie KR-Web w wersji do 1.1b2 włącznie zawiera podatność Remote File Inclusion, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "The EU Cookie Law GDPR (Banner + Blocker) PrestaShop module before 2.1.3 allows blind SQL injection via the __lglaw or lgcookieslaw cookie used to store user consent choices.": "Moduł PrestaShop o nazwie EU Cookie Law GDPR (Banner + Blocker) w wersji poniżej 2.1.3 zawiera podatność Blind SQL Injection o identyfikatorze CVE-2022-44727, umożliwiającą atakującemu odczyt danych z bazy danych."
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",

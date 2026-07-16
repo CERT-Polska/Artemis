@@ -2287,6 +2287,17 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "The EU Cookie Law GDPR (Banner + Blocker) PrestaShop module before 2.1.3 allows blind SQL injection via the __lglaw or lgcookieslaw cookie used to store user consent choices.": "Moduł PrestaShop o nazwie EU Cookie Law GDPR (Banner + Blocker) w wersji poniżej 2.1.3 zawiera podatność Blind SQL Injection o identyfikatorze CVE-2022-44727, umożliwiającą atakującemu odczyt danych z bazy danych."
     + UPDATE_HINT,
+    "Gotenberg < 8.31.0 contains a command injection caused by lack of validation on JSON metadata keys in /forms/pdfengines/metadata/write endpoint, letting unauthenticated attackers execute OS commands, exploit requires crafted HTTP request.": "Narzędzie Gotenberg w wersji poniżej 8.31.0 zawiera podatność Command Injection o identyfikatorze CVE-2026-42589, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Windmill < 1.603.3 contains a path traversal caused by unsanitized filename parameter in get_log_file endpoint, letting unauthenticated attackers read arbitrary files on the server, exploit requires no authentication.": "Narzędzie Windmill w wersji poniżej 1.603.3 zawiera podatność Path Traversal o identyfikatorze CVE-2026-29059, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Remote Command Execution vulnerability in the NetMizer log management system cmd.php, and the attacker can execute the command by passing in the cmd parameter.": "Narzędzie NetMizer zawiera podatność zdalnego wykonania kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    "Piwigo <= 16.3.0 contains an information disclosure vulnerability caused by the pwg.history.search API method lacking admin_only restriction, letting unauthenticated users access full browsing history, exploit requires no authentication": "Narzędzie Piwigo w wersji do 16.3.0 włącznie zawiera podatność Information Disclosure o identyfikatorze CVE-2026-27833, umożliwiającą atakującemu dostęp do wrażliwych informacji."
+    + UPDATE_HINT,
+    "PACSOne Server 6.6.2 is vulnerable to local file inclusion via its integrated DICOM Web Viewer.": "Narzędzie PACSOne Server w wersji 6.6.2 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2784,4 +2795,8 @@ TRANSLATIONS = {
     "Copa-Data zenon is an industrial automation platform used in manufacturing,\nenergy, and infrastructure. The zenon Web Server and Smart Server expose a\nbrowser-based HMI interface for remote monitoring and control of SCADA processes.": "Wykryto panel Copa-Data zenon.",
     "Typebot is an open-source chatbot builder that allows you to create advanced\nchatbots visually.": "Wykryto panel Typebot.",
     "Beckhoff TwinCAT HMI (Human Machine Interface) Server is part of the TwinCAT\nindustrial automation platform used in manufacturing, robotics, and process\nautomation. It exposes a web-based HMI accessible via browser for monitoring\nand controlling PLC-driven systems.": "Wykryto panel Beckhoff TwinCAT HMI.",
+    "Homarr dashboard panel was detected. Homarr is a self-hosted dashboard for managing homelab and *arr-stack services.": "Wykryto panel Homarr.",
+    "Echelon (now Adesto/Dialog Semiconductor) i.LON SmartServer is a LonWorks/IP-852\nbuilding automation controller used in HVAC, lighting, and energy management systems.\nThe embedded web interface is frequently exposed on standard and non-standard ports.": "Wykryto panel Echelon i.LON SmartServer.",
+    "CrushFTP WebInterface login panel was detected.": "Wykryto panel logowania CrushFTP.",
+    "A Laravel login panel was detected.": "Wykryto panel logowania Laravel.",
 }

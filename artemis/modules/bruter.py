@@ -158,7 +158,7 @@ class Bruter(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(
+        self.save_task_result(
             task=task, status=status, status_reason=status_reason, data=dataclasses.asdict(scan_result)
         )
 

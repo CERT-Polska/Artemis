@@ -13,6 +13,8 @@ from prometheus_client import (
 from prometheus_client.core import GaugeMetricFamily
 from prometheus_client.registry import Collector
 
+from artemis.task_utils import ARTEMIS_INTERESTING_TASKS_NUMBER_KEY
+
 
 class ArtemisMetricsCollector(Collector):
     def __init__(self) -> None:
@@ -63,6 +65,28 @@ class ArtemisMetricsCollector(Collector):
             "large number of other tasks.",
             value=num_tasks_high_level_kartons,
         )
+
+        interesting = {
+            (k.decode() if isinstance(k, bytes) else k): int(v)
+            for k, v in self.backend.redis.hgetall(ARTEMIS_INTERESTING_TASKS_NUMBER_KEY).items()
+        }
+
+        yield GaugeMetricFamily(
+            "tasks_interesting",
+            "Karton tasks with interesting findings",
+            value=sum(interesting.values()),
+        )
+
+        interesting_per_karton = GaugeMetricFamily(
+            "tasks_interesting_per_karton",
+            "Karton tasks with interesting findings per karton",
+            labels=["karton"],
+        )
+
+        for karton_name, count in interesting.items():
+            interesting_per_karton.add_metric([karton_name], count)
+
+        yield interesting_per_karton
 
 
 if __name__ == "__main__":

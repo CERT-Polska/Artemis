@@ -42,6 +42,7 @@ from artemis.task_utils import (
     get_target_url,
     increase_analysis_num_finished_tasks,
     increase_analysis_num_in_progress_tasks,
+    increment_interesting_tasks_number,
 )
 from artemis.utils import throttle_request
 
@@ -703,7 +704,7 @@ class ArtemisBase(Karton):
                         self.log.exception("Task(s) failed, retrying (try %d/%d)", i + 1, self.num_retries)
                     else:
                         for task in tasks:
-                            self.db.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
+                            self.save_task_result(task=task, status=TaskStatus.ERROR, data=traceback.format_exc())
                         raise
         finally:
             for task in tasks:
@@ -802,6 +803,13 @@ class ArtemisBase(Karton):
 
         return random.choice(ip_addresses)
 
+    def save_task_result(
+        self, task: Task, *, status: TaskStatus, status_reason: Optional[str] = None, data: Optional[Any] = None
+    ) -> None:
+        self.db.save_task_result(task, status=status, status_reason=status_reason, data=data)
+        if status == TaskStatus.INTERESTING:
+            increment_interesting_tasks_number(self.redis, task.headers.get("receiver", "unknown"))
+
     def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
         base_url = get_target_url(task)
         scan_destination = self._get_scan_destination(task)
@@ -825,7 +833,7 @@ class ArtemisBase(Karton):
                     ]
                 ]
             ):
-                self.db.save_task_result(
+                self.save_task_result(
                     task=task,
                     status=TaskStatus.ERROR,
                     status_reason=f"Unable to connect to base URL: {base_url}: WAF detected, task skipped",
@@ -839,7 +847,7 @@ class ArtemisBase(Karton):
 
             return True
         except RequestException as e:
-            self.db.save_task_result(
+            self.save_task_result(
                 task=task,
                 status=TaskStatus.ERROR,
                 status_reason=f"Unable to connect to base URL {base_url}: {repr(e)}, task skipped",

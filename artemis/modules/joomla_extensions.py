@@ -45,7 +45,7 @@ class JoomlaExtensions(ArtemisBase):
             ).decode("utf-8", errors="ignore")
         except subprocess.TimeoutExpired:
             self.log.warning("joomla-scanner timed out after %d seconds for %s", JOOMLA_SCANNER_TIMEOUT_SECONDS, url)
-            self.db.save_task_result(
+            self.save_task_result(
                 task=current_task,
                 status=TaskStatus.ERROR,
                 status_reason=f"joomla-scanner timed out after {JOOMLA_SCANNER_TIMEOUT_SECONDS} seconds",
@@ -85,7 +85,7 @@ class JoomlaExtensions(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(
+        self.save_task_result(
             task=current_task,
             status=status,
             status_reason=status_reason,

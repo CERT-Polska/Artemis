@@ -118,7 +118,7 @@ class APIScanner(ArtemisBase):
         # Try to discover the API spec
         spec_file, spec_file_url = self.discover_spec(url)
         if not spec_file:
-            self.db.save_task_result(
+            self.save_task_result(
                 task=current_task, status=TaskStatus.OK, status_reason="No OpenAPI/Swagger specification found", data={}
             )
             return
@@ -185,7 +185,7 @@ class APIScanner(ArtemisBase):
                 status = TaskStatus.OK
                 status_reason = f"detected API on {spec_file_url}, no vulnerabilities found"
 
-            self.db.save_task_result(
+            self.save_task_result(
                 task=current_task,
                 status=status,
                 status_reason=status_reason,
@@ -194,7 +194,7 @@ class APIScanner(ArtemisBase):
 
         except Exception as e:
             self.log.exception(f"Error scanning API: {e}")
-            self.db.save_task_result(
+            self.save_task_result(
                 task=current_task,
                 status=TaskStatus.ERROR,
                 status_reason=str(e),

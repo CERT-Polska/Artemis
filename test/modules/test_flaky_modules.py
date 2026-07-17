@@ -27,9 +27,7 @@ class FlakyModuleRaisingException(ArtemisBase):
         if random.randint(1, 100) < 90:
             raise Exception("a problem has occured")
 
-        self.db.save_task_result(
-            task=current_task, status=TaskStatus.INTERESTING, status_reason="Found a vulnerability"
-        )
+        self.save_task_result(task=current_task, status=TaskStatus.INTERESTING, status_reason="Found a vulnerability")
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
@@ -47,12 +45,10 @@ class FlakyModuleSavingError(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         if random.randint(1, 100) < 90:
-            self.db.save_task_result(task=current_task, status=TaskStatus.ERROR)
+            self.save_task_result(task=current_task, status=TaskStatus.ERROR)
             return
 
-        self.db.save_task_result(
-            task=current_task, status=TaskStatus.INTERESTING, status_reason="Found a vulnerability"
-        )
+        self.save_task_result(task=current_task, status=TaskStatus.INTERESTING, status_reason="Found a vulnerability")
 
 
 class FlakyModuleRaisingExceptionTest(KartonTestCase):

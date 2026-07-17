@@ -28,6 +28,7 @@ SSL_ERRORS_TO_SKIP = [
     "Blacklisted",
     "blocked using zen.spamhaus.org",
     "blocklisted by FortiGuard.",
+    "Client host rejected: Access denied",
     "Connection refused",
     "Connection timed out",
     "Connection unexpectedly closed",
@@ -41,6 +42,7 @@ SSL_ERRORS_TO_SKIP = [
     "[Errno 22] Invalid argument",
     "[Errno -3] Try again",
     "Error: too many connections from ",
+    "ESMTP not accepting messages",
     "(FCrDNS). Configuring matching A and PTR records should fix the issue",
     "invalid  the \\'A\\' or \\'AAAA\\' record",
     "invalid  the 'A' or 'AAAA' record",  # yes, there are two spaces here
@@ -50,6 +52,7 @@ SSL_ERRORS_TO_SKIP = [
     "Listed by XBL, see https://check.spamhaus.org",
     "listed_as_abusive",
     "No!",
+    "No SMTP service here",
     "please run connect() first",
     "please try again later or contact administrator",
     "polaczenie z serwerem zostalo zablokowane",
@@ -71,8 +74,8 @@ SSL_ERRORS_TO_SKIP = [
     "TLSV1_ALERT_INTERNAL_ERROR",
     "Too many concurrent connections",
     "Too many concurrent SMTP connections",
-    "Your access to this mail system has been rejected",
     "Too much load; please try again later",
+    "Your access to this mail system has been rejected",
 ]
 
 

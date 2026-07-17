@@ -31,21 +31,31 @@ class ArtemisMetricsCollector(Collector):
             "Karton tasks crashed",
             value=sum(map(int, self.backend.redis.hvals(KartonMetrics.TASK_CRASHED.value))),
         )
+        queue_lengths: dict[str, int] = {}
+        for key in self.backend.redis.keys("karton.queue.*"):
+            karton_name = key.split(":")[-1]
+            queue_lengths[karton_name] = queue_lengths.get(karton_name, 0) + self.backend.redis.llen(key)
+
         yield GaugeMetricFamily(
             "tasks_queued",
             "Karton tasks queued",
-            value=sum([self.backend.redis.llen(key) for key in self.backend.redis.keys("karton.queue.*")]),
+            value=sum(queue_lengths.values()),
         )
+
+        queue_length_per_karton = GaugeMetricFamily(
+            "tasks_queued_per_karton",
+            "Karton tasks queued per karton queue",
+            labels=["karton"],
+        )
+        for karton_name, length in queue_lengths.items():
+            queue_length_per_karton.add_metric([karton_name], length)
+        yield queue_length_per_karton
 
         # We count the number of tasks for these kartons separately as each task pending on them tends to produce
         # a large number of tasks for other kartons - so we want to monitor the queue length separately.
         high_level_kartons = ["port_scanner", "subdomain_enumeration"]
 
-        num_tasks_high_level_kartons = 0
-        for karton_name in high_level_kartons:
-            num_tasks_high_level_kartons += sum(
-                [self.backend.redis.llen(key) for key in self.backend.redis.keys(f"karton.queue.*:{karton_name}")]
-            )
+        num_tasks_high_level_kartons = sum(queue_lengths.get(karton_name, 0) for karton_name in high_level_kartons)
 
         yield GaugeMetricFamily(
             "tasks_queued_high_level_kartons",

@@ -103,7 +103,7 @@ def get_target_url(task: Task) -> str:
 
 ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX = b"analysis-num-finished-tasks-"
 ANALYSIS_NUM_IN_PROGRESS_TASKS_KEY_PREFIX = b"analysis-num-in-progress-tasks-"
-ARTEMIS_INTERESTING_TASKS_NUMBER_KEY = "artemis-tasks-interesting-"
+ARTEMIS_INTERESTING_TASKS_NUMBER_KEY = "artemis-tasks-interesting"
 
 
 def increase_analysis_num_finished_tasks(redis: Redis, root_uid: str, by: int = 1) -> None:  # type: ignore[type-arg]

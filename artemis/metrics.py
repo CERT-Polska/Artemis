@@ -10,9 +10,11 @@ from prometheus_client import (
     REGISTRY,
     start_http_server,
 )
-from prometheus_client.core import GaugeMetricFamily
+from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.registry import Collector
+from redis import Redis
 
+from artemis.config import Config
 from artemis.task_utils import ARTEMIS_INTERESTING_TASKS_NUMBER_KEY
 
 
@@ -21,8 +23,9 @@ class ArtemisMetricsCollector(Collector):
         # We check the backend redis queue length directly to avoid the long runtimes of
         # KartonState.get_all_tasks()
         self.backend = KartonBackend(config=KartonConfig())
+        self.artemis_redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
-    def collect(self) -> Generator[GaugeMetricFamily, None, None]:
+    def collect(self) -> Generator[GaugeMetricFamily | CounterMetricFamily, None, None]:
         yield GaugeMetricFamily(
             "tasks_consumed",
             "Karton tasks consumed",
@@ -68,16 +71,16 @@ class ArtemisMetricsCollector(Collector):
 
         interesting = {
             (k.decode() if isinstance(k, bytes) else k): int(v)
-            for k, v in self.backend.redis.hgetall(ARTEMIS_INTERESTING_TASKS_NUMBER_KEY).items()
+            for k, v in self.artemis_redis.hgetall(ARTEMIS_INTERESTING_TASKS_NUMBER_KEY).items()
         }
 
-        yield GaugeMetricFamily(
+        yield CounterMetricFamily(
             "tasks_interesting",
             "Karton tasks with interesting findings",
             value=sum(interesting.values()),
         )
 
-        interesting_per_karton = GaugeMetricFamily(
+        interesting_per_karton = CounterMetricFamily(
             "tasks_interesting_per_karton",
             "Karton tasks with interesting findings per karton",
             labels=["karton"],

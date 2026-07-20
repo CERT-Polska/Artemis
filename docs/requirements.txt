@@ -23,7 +23,7 @@ boto3==1.35.81
 botocore==1.35.81
 cattrs==26.1.0
 certifi==2026.6.17
-cffi==2.0.0
+cffi==2.1.0
 chardet==7.4.3
 charset-normalizer==3.4.7
 checkdmarc==5.17.3

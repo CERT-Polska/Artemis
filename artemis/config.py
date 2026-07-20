@@ -62,7 +62,7 @@ class Config:
                 int,
                 "How old the task results need to be to be archived (in seconds) for tasks that don't have status=INTERESTING",
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING", default=30 * 24 * 60 * 60, cast=int
+                "AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING", default=15 * 24 * 60 * 60, cast=int
             )  # 30 days
             AUTOARCHIVER_PACK_SIZE: Annotated[
                 int,
@@ -647,6 +647,8 @@ class Config:
                         # Roundcube templates producing FP
                         "http/cves/2025/CVE-2025-49113.yaml",
                         "http/cves/2024/CVE-2024-42009.yaml",
+                        # wildcard sites will match this template very often, block till fixed
+                        "http/exposures/logs/opencart-error-log.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -1171,13 +1173,19 @@ class Config:
         class DomainExpirationScanner:
             DOMAIN_EXPIRATION_TIMEFRAME_DAYS: Annotated[
                 int, "The scanner warns if the domain's expiration date falls within this time frame from now."
-            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=30, cast=int)
+            ] = get_config("DOMAIN_EXPIRATION_TIMEFRAME_DAYS", default=45, cast=int)
 
         class OrmInjectionDetector:
             ORM_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
                 bool,
                 "Whether to stop scanning after the first ORM injection finding.",
             ] = get_config("ORM_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            ORM_INJECTION_NUM_CONFIRMATIONS: Annotated[
+                int,
+                "How many times a differential response must reproduce before it is reported as a finding. "
+                "Guards against flaky services where a one-off difference is not actually caused by ORM "
+                "injection.",
+            ] = get_config("ORM_INJECTION_NUM_CONFIRMATIONS", default=10, cast=int)
 
         class SqlInjectionDetector:
             SQL_INJECTION_STOP_ON_FIRST_MATCH: Annotated[

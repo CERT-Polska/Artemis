@@ -1,0 +1,13 @@
+- mode: block_scanning_and_reporting
+  karton_name: nuclei
+- mode: block_scanning_and_reporting
+  karton_name: mail_dns_scanner
+  domain_only: test-smtp-server.artemis
+- mode: block_scanning_and_reporting
+  karton_name: port_scanner
+  until: "2000-01-01"
+- mode: block_reporting_only
+  karton_name: ssh_bruter
+- mode: block_scanning_and_reporting
+  karton_name: drupal_scanner
+  until: "2999-01-01"

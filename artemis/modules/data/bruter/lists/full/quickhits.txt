@@ -63,6 +63,8 @@
 /.cfg
 /.checkstyle
 /.classpath
+/.claude/CLAUDE.md
+/.claude/settings.json
 /.cobalt
 /.codeintel
 /.codekit-cache
@@ -980,6 +982,7 @@
 /ckfinder/ckfinder.html
 /classes/adodb/server.php
 /classes/cookie.txt
+/CLAUDE.md
 /cleanup.log
 /ClientAccessPolicy.xml
 /clientaccesspolicy.xml

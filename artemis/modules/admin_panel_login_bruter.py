@@ -4,7 +4,7 @@ import itertools
 import os
 import random
 import urllib.parse
-from typing import IO, List, Optional, Tuple
+from typing import IO, Any, List, Optional, Tuple
 
 import requests
 from bs4 import BeautifulSoup
@@ -18,7 +18,28 @@ from artemis.module_base import ArtemisBase
 from artemis.password_utils import get_passwords
 from artemis.task_utils import get_target_url
 
+
+class RateLimitedError(Exception):
+    """Raised when a target responds with HTTP 429. Rate limiting is per-host, so
+    there is no point in trying other credentials or paths — the whole scan of the
+    host is aborted."""
+
+
+def _abort_if_rate_limited(response: Any) -> None:
+    if response is not None and response.status_code == 429:
+        raise RateLimitedError()
+
+
 COMMON_USERNAMES: List[str] = ["admin"]
+
+# Substrings in an <input name="..."> that identify the identifier ("username")
+# field and the password field of a login form, matched case-insensitively.
+# Kept as substrings to tolerate the loose real-world naming of login inputs:
+# "mail" covers email/e-mail/user_email, "user"/"usr"/"name" cover username/uname.
+# Field type and the autocomplete attribute are checked before these (see
+# brute_force_login_path), as they are more reliable signals than the name.
+USERNAME_FIELD_HINTS: List[str] = ["user", "name", "usr", "log", "mail", "account", "identifier", "phone"]
+PASSWORD_FIELD_HINTS: List[str] = ["pass", "pwd", "psw"]
 
 
 def read_file(file: IO[str]) -> List[str]:
@@ -66,7 +87,7 @@ with open(
     COMMON_CREDENTIAL_PAIRS = read_credential_pairs(f)
 
 # JSON-only API login endpoints that do not respond to GET with 200 (POST-only).
-# These are always tried regardless of discovery, because check_url(GET) would fail.
+# These are always tried regardless of discovery, because _is_login_path(GET) would fail.
 JSON_API_PATHS = [
     "/api/login",  # Grafana
     "/api/auth",  # Portainer and other tools
@@ -97,11 +118,12 @@ class AdminPanelLoginBruter(ArtemisBase):
             return False
         return response.headers.get("WWW-Authenticate", "").lower().startswith("basic")
 
-    def check_url(self, url: str) -> bool:
+    def _is_login_path(self, url: str) -> bool:
         try:
             response = http_requests.get(url)
             if not response:
                 return False
+            _abort_if_rate_limited(response)
             if response.status_code == 200:
                 return True
             return self._is_basic_auth_challenge(response)
@@ -133,6 +155,8 @@ class AdminPanelLoginBruter(ArtemisBase):
                 )
                 if post_response is None:
                     continue
+
+                _abort_if_rate_limited(post_response)
 
                 if post_response.status_code in (200, 400, 401, 403, 422):
                     content_type = post_response.headers.get("Content-Type", "").lower()
@@ -197,6 +221,8 @@ class AdminPanelLoginBruter(ArtemisBase):
             self.log.debug("Error during Basic auth on %s: %s", login_url, e)
             return (False, None)
 
+        _abort_if_rate_limited(response)
+
         if response is not None and response.status_code == 200:
             self.log.info("successful Basic auth on %s username=%s password=%s", login_url, username, password)
             return (
@@ -218,7 +244,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         found_paths = []
         for path in COMMON_LOGIN_PATHS:
             full_url = urllib.parse.urljoin(base_url, path)
-            if self.check_url(full_url):
+            if self._is_login_path(full_url):
                 self.log.info("Discovered login path: %s", full_url)
                 found_paths.append(path)
         return found_paths
@@ -262,6 +288,7 @@ class AdminPanelLoginBruter(ArtemisBase):
 
         try:
             response = self.throttle_request(lambda: http_requests.request("get", login_url, session=session))
+            _abort_if_rate_limited(response)
             if self._is_basic_auth_challenge(response):
                 return self._try_basic_auth(session, login_url, username, password)
             if not response or response.status_code != 200:
@@ -286,19 +313,29 @@ class AdminPanelLoginBruter(ArtemisBase):
                     input_name = input_tag.get("name")
                     input_value = input_tag.get("value", "")
                     if input_name:
-                        if input_tag.get("type", "").lower() == "hidden":
+                        name_lower = input_name.lower()
+                        input_type = input_tag.get("type", "").lower()
+                        autocomplete = input_tag.get("autocomplete", "").lower()
+                        if input_type == "hidden":
                             form_data[input_name] = input_value
+                        # type="password" / autocomplete="current-password" are the
+                        # most reliable password signals, so check them before the
+                        # username hints (a name like "login_password" must not be
+                        # mistaken for the identifier field).
                         elif (
-                            "user" in input_name.lower()
-                            or "name" in input_name.lower()
-                            or "usr" in input_name.lower()
-                            or "log" in input_name.lower()
+                            input_type == "password"
+                            or "password" in autocomplete
+                            or any(hint in name_lower for hint in PASSWORD_FIELD_HINTS)
+                        ):
+                            form_data[input_name] = password
+                            found_password = True
+                        elif (
+                            input_type in ("email", "tel")
+                            or autocomplete == "username"
+                            or any(hint in name_lower for hint in USERNAME_FIELD_HINTS)
                         ):
                             form_data[input_name] = username
                             found_username = True
-                        elif "pass" in input_name.lower() or "pwd" in input_name.lower():
-                            form_data[input_name] = password
-                            found_password = True
                         else:
                             form_data[input_name] = input_value
 
@@ -325,6 +362,8 @@ class AdminPanelLoginBruter(ArtemisBase):
 
                 if post_response is None:
                     continue
+
+                _abort_if_rate_limited(post_response)
 
                 redirect_detected = self.detect_redirect(post_response, form_url)
 
@@ -367,6 +406,9 @@ class AdminPanelLoginBruter(ArtemisBase):
                         ),
                     )
 
+        except RateLimitedError:
+            # Rate limiting is per-host; propagate so scan() can abort the whole host.
+            raise
         except Exception as e:
             self.log.warning(f"Error during brute force on {login_url}: {e}")
 
@@ -376,85 +418,105 @@ class AdminPanelLoginBruter(ArtemisBase):
 
         return (login_mechanism_found, None)
 
-    def scan(self, task: Task, base_url: str, login_paths: List[str]) -> List[AdminPanelLoginBruterResult]:
+    def scan(self, task: Task, base_url: str, login_paths: List[str]) -> Tuple[List[AdminPanelLoginBruterResult], bool]:
         """
         Scans the target URL for vulnerable login paths using common credentials.
+        Returns (results, rate_limited); rate_limited is True if the target responded
+        with HTTP 429 and the scan was aborted before completing.
         """
-        results = []
+        results: List[AdminPanelLoginBruterResult] = []
         credential_pairs = set()
-        for path in login_paths:
-            num_rechecked_credentials = 0
-            credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
-            credentials += COMMON_CREDENTIAL_PAIRS
-            random.shuffle(credentials)
-            for username, password in credentials:
-                login_mechanism_found, result = self.brute_force_login_path(base_url, path, username, password)
-                if result:
-                    self.log.info("Checking whether %s:%s indeed works", username, password)
-                    rechecked = True
-                    num_rechecked_credentials += 1
-                    if (
-                        num_rechecked_credentials
-                        > Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH
-                    ):
-                        self.log.info(
-                            "Reached maximum number of rechecks (%d), skipping further rechecks to prevent spending too much time on this path",
-                            Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH,
-                        )
-                        break
-
-                    for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS):
-                        _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
-                        # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
-                        # positive.
-                        has_login_mechanism_fake_password, result_fake_password = self.brute_force_login_path(
-                            base_url,
-                            path,
-                            "this-username-should-not-exist",
-                            binascii.hexlify(os.urandom(16)).decode("ascii"),
-                        )
-
-                        if not (
-                            result_good_password and has_login_mechanism_fake_password and not result_fake_password
+        rate_limited = False
+        try:
+            for path in login_paths:
+                num_rechecked_credentials = 0
+                credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
+                credentials += COMMON_CREDENTIAL_PAIRS
+                random.shuffle(credentials)
+                for username, password in credentials:
+                    login_mechanism_found, result = self.brute_force_login_path(base_url, path, username, password)
+                    if result:
+                        self.log.info("Checking whether %s:%s indeed works", username, password)
+                        rechecked = True
+                        num_rechecked_credentials += 1
+                        if (
+                            num_rechecked_credentials
+                            > Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH
                         ):
-                            rechecked = False
+                            self.log.info(
+                                "Reached maximum number of rechecks (%d), skipping further rechecks to prevent spending too much time on this path",
+                                Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_MAX_RECHECKS_PER_PATH,
+                            )
                             break
 
-                    if rechecked:
-                        results.append(result)
-                        credential_pairs.add((username, password))
-                        self.log.info("rechecked - works!")
-                    else:
-                        self.log.info("rechecked - doesn't work")
+                        for _ in range(Config.Modules.AdminPanelLoginBruter.ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS):
+                            _, result_good_password = self.brute_force_login_path(base_url, path, username, password)
+                            # We also try the random password, to make sure we don't "log in" with that password - if we do, that is a false
+                            # positive.
+                            has_login_mechanism_fake_password, result_fake_password = self.brute_force_login_path(
+                                base_url,
+                                path,
+                                "this-username-should-not-exist",
+                                binascii.hexlify(os.urandom(16)).decode("ascii"),
+                            )
 
-                if not login_mechanism_found:  # not worth trying all other credential pairs
-                    break
+                            if not (
+                                result_good_password and has_login_mechanism_fake_password and not result_fake_password
+                            ):
+                                rechecked = False
+                                break
+
+                        if rechecked:
+                            results.append(result)
+                            credential_pairs.add((username, password))
+                            self.log.info("rechecked - works!")
+                        else:
+                            self.log.info("rechecked - doesn't work")
+
+                    if not login_mechanism_found:  # not worth trying all other credential pairs
+                        break
+        except RateLimitedError:
+            rate_limited = True
+            self.log.info("Aborting scan of %s: target is rate-limiting (HTTP 429)", base_url)
 
         if len(credential_pairs) > 1:
             # More than one successful working credential pair is most probably a FP. We do
             # accept working credentials on different paths though.
             results = []
 
-        return results
+        return results, rate_limited
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
-        login_paths = self.discover_login_paths(url)
+        results: List[AdminPanelLoginBruterResult] = []
+        rate_limited = False
+        try:
+            login_paths = self.discover_login_paths(url)
 
-        # Always include known JSON-only API paths that won't pass the GET check.
-        for path in JSON_API_PATHS:
-            if path not in login_paths:
-                login_paths.append(path)
+            # Always include known JSON-only API paths that won't pass the GET check.
+            for path in JSON_API_PATHS:
+                if path not in login_paths:
+                    login_paths.append(path)
 
-        random.shuffle(login_paths)
+            random.shuffle(login_paths)
 
-        results = self.scan(current_task, url, login_paths)
+            results, rate_limited = self.scan(current_task, url, login_paths)
+        except RateLimitedError:
+            # 429 during discovery (before scan() runs). scan() catches 429 raised
+            # during brute forcing itself, so this only fires in the discovery phase.
+            rate_limited = True
+            self.log.info("Aborting scan of %s during discovery: target is rate-limiting (HTTP 429)", url)
 
         if results:
             status = TaskStatus.INTERESTING
             status_reason = "Found weak credentials on admin panel(s): " + ", ".join(
                 [f"{result.username}:{result.password} at {result.url}" for result in results]
             )
+            if rate_limited:
+                status_reason += " (scan aborted early: target rate-limited, HTTP 429)"
+        elif rate_limited:
+            status = TaskStatus.OK
+            status_reason = "Scan aborted: target rate-limited (HTTP 429); results may be incomplete"
         else:
             status = TaskStatus.OK
             status_reason = None

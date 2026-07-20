@@ -5,6 +5,7 @@ import time
 import zipfile
 from socket import gethostbyname
 from test.e2e.base import BACKEND_URL, BaseE2ETestCase
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -101,6 +102,13 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "",
                                 "        <ol>",
                                 "    <li>The following domains don't have properly configured e-mail security mechanisms:        <ul>",
+                                "<li>",
+                                " Error:",
+                                "",
+                                "                        test-smtp-server.artemis:",
+                                "",
+                                "                            Valid SPF record not found. We recommend using all three mechanisms: SPF, DKIM and DMARC to decrease the possibility of successful e-mail message spoofing.",
+                                "</li>",
                                 "                    <li>",
                                 "                            Error:",
                                 "",
@@ -281,7 +289,9 @@ class ExportingTestCase(BaseE2ETestCase):
         filename = tempfile.mktemp()
 
         with open(filename, "wb") as f:
-            f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+            f.write(
+                requests.get(urljoin(BACKEND_URL, data[0]["zip_url"]), headers={"X-Api-Token": "api-token"}).content
+            )
 
         with zipfile.ZipFile(filename) as export:
             with export.open("messages/test-smtp-server.artemis.html", "r") as f:
@@ -306,6 +316,13 @@ class ExportingTestCase(BaseE2ETestCase):
                                 "",
                                 "        <ol>",
                                 "    <li>Następujące domeny nie mają poprawnie skonfigurowanych mechanizmów bezpieczeństwa poczty elektronicznej:        <ul>",
+                                "      <li>",
+                                "       Błąd:",
+                                "",
+                                "                        test-smtp-server.artemis:",
+                                "",
+                                "                            Nie znaleziono poprawnego rekordu SPF. Rekomendujemy używanie wszystkich trzech mechanizmów: SPF, DKIM i DMARC, aby zmniejszyć szansę, że sfałszowana wiadomość zostanie zaakceptowana przez serwer odbiorcy.",
+                                "      </li>",
                                 "                    <li>",
                                 "                            Błąd:",
                                 "",
@@ -486,7 +503,9 @@ class ExportingTestCase(BaseE2ETestCase):
             filename = tempfile.mktemp()
 
             with open(filename, "wb") as f:
-                f.write(requests.get(BACKEND_URL + data[0]["zip_url"], headers={"X-Api-Token": "api-token"}).content)
+                f.write(
+                    requests.get(urljoin(BACKEND_URL, data[0]["zip_url"]), headers={"X-Api-Token": "api-token"}).content
+                )
 
             with zipfile.ZipFile(filename) as export:
                 with export.open("advanced/output.json", "r") as f:

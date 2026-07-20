@@ -67,6 +67,7 @@ class MailDNSScanner(ArtemisBase):
         result = MailDNSScannerResult()
 
         has_mx_records = False
+        is_running_tests = "RUNNING_TESTS" in os.environ
 
         # Try to find an SMTP for current domain or for the private suffix domain - let's treat a domain
         # as parked if we don't see a MX record on either of them, as some DMARC checks are performed
@@ -83,6 +84,9 @@ class MailDNSScanner(ArtemisBase):
         except dns.resolver.NoAnswer:
             pass
 
+        if is_running_tests:
+            has_mx_records = True
+
         try:
             # Ignore_void_dns_lookups is set because:
             # - the checkdmarc check is buggy and sometimes counts the void DNS lookups wrongly,
@@ -97,7 +101,7 @@ class MailDNSScanner(ArtemisBase):
                 # for tests, the scanned hosts don't have MX records. For production usage, if a host
                 # doesn't have an MX record, it's probably not meant to support e-mail so let's not scan
                 # it.
-                fallback_to_hostname_as_mx_in_ssl_check="RUNNING_TESTS" in os.environ,
+                fallback_to_hostname_as_mx_in_ssl_check=is_running_tests,
             )
         except ScanningException:
             self.log.exception("Unable to check domain %s", domain)

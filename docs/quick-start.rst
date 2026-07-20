@@ -73,6 +73,11 @@ in the form of entries separated with newlines. Artemis works with both IPs and 
 IP ranges, both in the form of `127.0.0.1-127.0.0.10` or `127.0.0.0/30` and `host:port` syntax - in the latter
 case, no port scanning will be performed.
 
+You may also provide a root URL such as `https://example.com/` or `ssh://example.com:22/`. In that case the
+scheme selects the service directly, so no port scanning or fingerprinting is performed - Artemis scans exactly
+the host, port and protocol given. The URL must be a root URL (`scheme://host[:port]/`) without a path, query
+or fragment.
+
 To be later able to filter various types of targets, provide a tag in the `Tag` field. You may
 also choose what modules will be executed, to increase scanning speed if you need only to check for
 a subset of vulnerabilities.

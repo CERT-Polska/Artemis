@@ -1,3 +1,4 @@
+import json
 from test.base import ArtemisModuleTestCase
 from typing import Any, Dict, Optional
 from unittest.mock import MagicMock, patch
@@ -225,3 +226,82 @@ class CveLookupTest(ArtemisModuleTestCase):
         self.assertEqual(mock_get.call_count, 1)
         call = self.mock_db.save_task_result.call_args
         self.assertEqual(call.kwargs["status"], TaskStatus.ERROR)
+
+    @patch("artemis.modules.cve_lookup.http_requests.get")
+    def test_versionless_technology_is_skipped_not_failed(self, mock_get: MagicMock) -> None:
+        # Wappalyzer reports a bare name when it cannot determine the version, leaving the
+        # wildcard in the CPE version slot. NVD answers such a cpeName with 404, so the lookup
+        # must not be attempted at all - and the task is a clean OK, not an ERROR.
+        self.run_task(_make_task(version=None))
+
+        mock_get.assert_not_called()
+        call = self.mock_db.save_task_result.call_args
+        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+        self.assertEqual(call.kwargs["data"]["findings"], [])
+
+    @patch("artemis.modules.cve_lookup.http_requests.get")
+    def test_paginates_until_total_results_is_reached(self, mock_get: MagicMock) -> None:
+        # NVD splits large result sets across startIndex/resultsPerPage pages. Reading only the
+        # first page silently drops the rest, so both pages' CVEs must end up in the finding.
+        def _page(cve_id: str, start_index: int) -> Dict[str, Any]:
+            payload: Dict[str, Any] = json.loads(json.dumps(_NVD_HIT))
+            payload["vulnerabilities"][0]["cve"]["id"] = cve_id
+            payload["totalResults"] = 2
+            payload["resultsPerPage"] = 1
+            payload["startIndex"] = start_index
+            return payload
+
+        mock_get.side_effect = [
+            _make_response(_page("CVE-2024-0001", 0)),
+            _make_response(_page("CVE-2024-0002", 1)),
+        ]
+        self.run_task(_make_task())
+
+        self.assertEqual(mock_get.call_count, 2)
+        self.assertIn("startIndex=1", mock_get.call_args_list[1].args[0])
+
+        call = self.mock_db.save_task_result.call_args
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        found = [cve["id"] for cve in call.kwargs["data"]["findings"][0]["cves"]]
+        self.assertEqual(found, ["CVE-2024-0001", "CVE-2024-0002"])
+
+
+class CveLookupIntegrationTest(ArtemisModuleTestCase):
+    # Kept in the same module as CveLookupTest on purpose: every test's setUp flushes the shared
+    # test Redis, so running cve_lookup tests in a single process keeps that flushing serialized.
+    # A separate module would run in its own unittest-parallel process and race the flush.
+    karton_class = CveLookup  # type: ignore
+
+    def test_queries_a_real_nvd_endpoint_and_filters_runs_on_cves(self) -> None:
+        # Unlike the tests above this one does not patch http_requests: the module makes a real
+        # HTTP request to the test-mock-nvd service (CVE_LOOKUP_NVD_API_URL points at it), so it
+        # exercises the whole pipeline - the framework reachability check, the throttled request,
+        # JSON parsing, vulnerable-component filtering and the saved result.
+        task = Task(
+            {"type": TaskType.WEBAPP.value, "webapp": WebApplication.UNKNOWN.value},
+            payload={
+                "url": "http://test-mock-nvd.local/",
+                "technologies": [
+                    {
+                        "name": "Apache HTTP Server",
+                        "version": "2.4.53",
+                        "cpe": "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*",
+                        "categories": ["Web servers"],
+                    },
+                ],
+            },
+        )
+        self.run_task(task)
+
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+
+        findings = call.kwargs["data"]["findings"]
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]["cpe"], "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*")
+
+        # Only the CVE where Apache itself is the vulnerable component survives; the one where
+        # Apache is merely the "runs on" platform (CVE-2100-0002) must have been filtered out.
+        reported_ids = [cve["id"] for cve in findings[0]["cves"]]
+        self.assertEqual(reported_ids, ["CVE-2100-0001"])
+        self.assertEqual(findings[0]["cves"][0]["cvss_score"], 9.1)

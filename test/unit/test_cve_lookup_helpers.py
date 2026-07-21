@@ -1,12 +1,34 @@
 import unittest
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from artemis.modules.cve_lookup import (
+    _best_base_score,
     _cpe_product_key,
     _extract_cves,
     _fill_cpe_version,
+    _has_concrete_version,
     _is_product_vulnerable,
 )
+
+
+class HasConcreteVersionTest(unittest.TestCase):
+    """
+    NVD answers a wildcard-version ``cpeName`` with HTTP 404 (verified against apache,
+    wordpress and nginx), so these CPEs must never reach the API.
+    """
+
+    def test_true_for_real_version(self) -> None:
+        self.assertTrue(_has_concrete_version("cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*"))
+
+    def test_false_for_wildcard_version(self) -> None:
+        self.assertFalse(_has_concrete_version("cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"))
+
+    def test_false_for_empty_or_dash_version(self) -> None:
+        self.assertFalse(_has_concrete_version("cpe:2.3:a:apache:http_server::*:*:*:*:*:*:*"))
+        self.assertFalse(_has_concrete_version("cpe:2.3:a:apache:http_server:-:*:*:*:*:*:*:*"))
+
+    def test_false_for_truncated_cpe(self) -> None:
+        self.assertFalse(_has_concrete_version("cpe:2.3:a:apache"))
 
 
 class FillCpeVersionTest(unittest.TestCase):
@@ -72,6 +94,41 @@ class ExtractCvesTest(unittest.TestCase):
             ]
         }
         self.assertEqual(_extract_cves(payload)[0]["cvss_score"], 4.0)
+
+    def test_reads_cvss_v4(self) -> None:
+        # A CVE that only publishes CVSS v4 must still yield its base score.
+        payload = {
+            "vulnerabilities": [
+                {
+                    "cve": {
+                        "id": "CVE-V4-ONLY",
+                        "descriptions": [],
+                        "metrics": {"cvssMetricV40": [{"type": "Primary", "cvssData": {"baseScore": 9.3}}]},
+                    }
+                }
+            ]
+        }
+        self.assertEqual(_extract_cves(payload)[0]["cvss_score"], 9.3)
+
+    def test_prefers_primary_over_higher_secondary(self) -> None:
+        # NVD's own Primary score wins even when a CNA-supplied Secondary score is higher.
+        payload = {
+            "vulnerabilities": [
+                {
+                    "cve": {
+                        "id": "CVE-MULTI",
+                        "descriptions": [],
+                        "metrics": {
+                            "cvssMetricV31": [
+                                {"type": "Secondary", "cvssData": {"baseScore": 9.8}},
+                                {"type": "Primary", "cvssData": {"baseScore": 7.5}},
+                            ]
+                        },
+                    }
+                }
+            ]
+        }
+        self.assertEqual(_extract_cves(payload)[0]["cvss_score"], 7.5)
 
     def test_no_metrics_yields_none_score(self) -> None:
         payload = {"vulnerabilities": [{"cve": {"id": "CVE-X", "descriptions": []}}]}
@@ -232,3 +289,79 @@ class IsProductVulnerableTest(unittest.TestCase):
             ]
         }
         self.assertTrue(_is_product_vulnerable(cve, "a:apache:http_server"))
+
+    def test_false_when_and_requires_a_second_vulnerable_component(self) -> None:
+        # An AND config where *both* nodes name a vulnerable component means the CVE only
+        # applies when both are present. Detecting just one of them is not enough - this is
+        # the case the earlier operator-blind check reported as a false positive.
+        cve = {
+            "configurations": [
+                {
+                    "operator": "AND",
+                    "nodes": [
+                        {
+                            "operator": "OR",
+                            "cpeMatch": [
+                                {"vulnerable": True, "criteria": "cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*"}
+                            ],
+                        },
+                        {
+                            "operator": "OR",
+                            "cpeMatch": [{"vulnerable": True, "criteria": "cpe:2.3:a:other:product:*:*:*:*:*:*:*:*"}],
+                        },
+                    ],
+                }
+            ]
+        }
+        self.assertFalse(_is_product_vulnerable(cve, "a:apache:http_server"))
+
+    def test_true_when_or_joins_two_vulnerable_components(self) -> None:
+        # The same shape under OR means either component alone is affected, so our product
+        # matching one of the nodes is enough.
+        cve = {
+            "configurations": [
+                {
+                    "operator": "OR",
+                    "nodes": [
+                        {
+                            "operator": "OR",
+                            "cpeMatch": [
+                                {"vulnerable": True, "criteria": "cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*"}
+                            ],
+                        },
+                        {
+                            "operator": "OR",
+                            "cpeMatch": [{"vulnerable": True, "criteria": "cpe:2.3:a:other:product:*:*:*:*:*:*:*:*"}],
+                        },
+                    ],
+                }
+            ]
+        }
+        self.assertTrue(_is_product_vulnerable(cve, "a:apache:http_server"))
+
+
+class BestBaseScoreTest(unittest.TestCase):
+    def test_returns_none_for_non_list(self) -> None:
+        self.assertIsNone(_best_base_score(None))
+        self.assertIsNone(_best_base_score({}))
+
+    def test_returns_none_when_no_scores(self) -> None:
+        self.assertIsNone(_best_base_score([{"type": "Primary", "cvssData": {}}]))
+
+    def test_prefers_primary(self) -> None:
+        entries = [
+            {"type": "Secondary", "cvssData": {"baseScore": 9.8}},
+            {"type": "Primary", "cvssData": {"baseScore": 6.1}},
+        ]
+        self.assertEqual(_best_base_score(entries), 6.1)
+
+    def test_highest_when_no_primary(self) -> None:
+        entries = [
+            {"type": "Secondary", "cvssData": {"baseScore": 4.0}},
+            {"type": "Secondary", "cvssData": {"baseScore": 8.2}},
+        ]
+        self.assertEqual(_best_base_score(entries), 8.2)
+
+    def test_ignores_non_dict_and_missing_scores(self) -> None:
+        entries: List[Any] = ["bad", None, {"cvssData": {"baseScore": 5.5}}, {"cvssData": {}}]
+        self.assertEqual(_best_base_score(entries), 5.5)

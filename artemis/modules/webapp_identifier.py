@@ -70,7 +70,7 @@ class WebappIdentifier(ArtemisBase):
 
         technology_tags = run_tech_detection([url], self.log)
 
-        self.db.save_task_result(
+        self.save_task_result(
             task=current_task,
             status=TaskStatus.OK,
             data={"webapp": application, "technology_tags": technology_tags.get(url, [])},

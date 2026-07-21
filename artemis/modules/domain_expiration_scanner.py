@@ -53,7 +53,7 @@ class DomainExpirationScanner(ArtemisBase):
                         days_to_expire=result["days_to_expire"], expiration_date=result["expiration_date"]
                     )
 
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
     @staticmethod
     def _prepare_expiration_data(

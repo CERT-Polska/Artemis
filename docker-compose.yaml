@@ -127,6 +127,13 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
+  karton-cve_lookup:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.modules.cve_lookup"
+    env_file: .env
+    restart: always
+    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
+
   karton-dangling-dns-detector:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.dangling_dns_detector"

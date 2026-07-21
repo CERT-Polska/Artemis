@@ -40,6 +40,11 @@ services:
       REQUESTS_PER_SECOND: 0
       CUSTOM_PORT_SCANNER_PORTS: 21,80,443,6379
       NUCLEI_CHECK_TEMPLATE_LIST: "false"
+
+      # Point cve_lookup at the local mock NVD service so its integration test exercises the real
+      # HTTP path without hitting (and being throttled by) the live NVD API.
+      CVE_LOOKUP_NVD_API_URL: http://test-mock-nvd.local/
+      CVE_LOOKUP_NVD_REQUESTS_PER_SECOND: 100
     env_file: env.test
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
@@ -177,6 +182,15 @@ services:
       default:
         aliases:
           - test-php-mock-CVE-2020-28976.local
+
+  test-mock-nvd:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/mock_nvd/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-mock-nvd.local
 
   test-php-rate-limited:
     image: php:8.0-apache

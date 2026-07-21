@@ -41,6 +41,11 @@ def get_target_host(task: Task) -> str:
         assert isinstance(payload, str)
         return payload
 
+    if task_type == TaskType.NEW:
+        payload = task.get_payload("data")
+        assert isinstance(payload, str)
+        return payload
+
     if task_type == TaskType.IP:
         payload = task.get_payload(TaskType.IP)
         assert isinstance(payload, str)

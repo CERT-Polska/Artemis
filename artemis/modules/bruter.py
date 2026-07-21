@@ -83,41 +83,43 @@ class Bruter(ArtemisBase):
 
         self.log.info(f"bruter scanning {base_url}: {len(FILENAMES_TO_SCAN)} paths to scan")
 
-        results = {}
-        for i, url in enumerate(FILENAMES_TO_SCAN):
-            self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
-            try:
-                full_url = base_url + "/" + url
-                results[full_url] = self.http_get(
-                    full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS
-                )
-            except Exception:
-                self.log.warning("Failed to scan URL %s", full_url)
-
-        self.log.info("bruter finished")
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
         # not have access to response contents here.
-
+        #
+        # We filter each response inline instead of collecting them all first: keeping every response in
+        # memory used gigabytes of RAM on the full list, while only the handful of matching URLs is needed.
+        # Iterating a sorted list keeps the output order that sorted(results.items()) produced before.
         found_urls = []
-        for response_url, response in sorted(results.items()):
+        for i, url in enumerate(sorted(FILENAMES_TO_SCAN)):
+            self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
+            full_url = base_url + "/" + url
+            try:
+                response = self.http_get(full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS)
+            except Exception:
+                self.log.warning("Failed to scan URL %s", full_url)
+                continue
+
             if response.status_code != 200:
                 continue
 
+            content = response.content
             filtered_content = (
-                "Error 403" in response.content
-                or response.content.strip() in IGNORED_CONTENTS
-                or SequenceMatcher(None, response.content, dummy_content).quick_ratio() >= 0.8
+                "Error 403" in content
+                or content.strip() in IGNORED_CONTENTS
+                or SequenceMatcher(None, content, dummy_content).quick_ratio() >= 0.8
             )
 
             if not filtered_content:
                 found_urls.append(
                     FoundURL(
-                        url=response_url,
-                        content_prefix=response.content[: Config.Miscellaneous.CONTENT_PREFIX_SIZE],
-                        has_directory_index=is_directory_index(response.content),
+                        url=full_url,
+                        content_prefix=content[: Config.Miscellaneous.CONTENT_PREFIX_SIZE],
+                        has_directory_index=is_directory_index(content),
                     )
                 )
+
+        self.log.info("bruter finished")
 
         if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.Modules.Bruter.BRUTER_FALSE_POSITIVE_THRESHOLD:
             return BruterResult(

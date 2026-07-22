@@ -41,6 +41,7 @@ SSL_ERRORS_TO_SKIP = [
     "[Errno -2] Name does not resolve",
     "[Errno 22] Invalid argument",
     "[Errno -3] Try again",
+    "[Errno -5] Name has no usable address",
     "Error: too many connections from ",
     "ESMTP not accepting messages",
     "(FCrDNS). Configuring matching A and PTR records should fix the issue",
@@ -75,6 +76,7 @@ SSL_ERRORS_TO_SKIP = [
     "Too many concurrent connections",
     "Too many concurrent SMTP connections",
     "Too much load; please try again later",
+    "Try again later",
     "Your access to this mail system has been rejected",
 ]
 

@@ -26,6 +26,14 @@
             <label class="form-label">Targets (separated with newlines)</label>
             <textarea class="form-control" name="targets" rows="10" required>{% for task in tasks %}{{ task }}
 {% endfor %}</textarea>
+            <small class="form-text text-muted">
+                You can provide domains, IP addresses, IPv4 ranges, or root URLs of the form
+                <tt>scheme://host[:port]/</tt> - for example <tt>https://example.com/</tt> or <tt>ssh://example.com:22/</tt>,
+                where the scheme selects the service to scan. A URL with a path such as <tt>http://example.com/admin/</tt>
+                is not accepted, because Artemis crawls from the root on its own. Supported URL schemes are
+                <tt>http</tt>, <tt>https</tt>, <tt>ftp</tt>, <tt>ftps</tt>, <tt>ssh</tt>, <tt>smtp</tt>, <tt>smtps</tt>,
+                <tt>imap</tt>, <tt>imaps</tt>, <tt>mysql</tt> and <tt>postgresql</tt>.
+            </small>
         </div>
         <div class="form-group mb-3">
             <label class="form-label">Enter your tag{% if tag_names %} or select existing one{% endif %}</label>

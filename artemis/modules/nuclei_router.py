@@ -78,7 +78,7 @@ class NucleiRouter(ArtemisBase):
         if current_task.headers.get("receiver", None) == "nuclei":
             current_task.headers["receiver"] = "nuclei-router"
             current_task.headers["original_receiver"] = "nuclei"
-        self.db.save_task_result(
+        self.save_task_result(
             task=current_task,
             status=TaskStatus.OK,
             data={

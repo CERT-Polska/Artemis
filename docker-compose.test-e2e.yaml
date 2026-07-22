@@ -11,9 +11,11 @@ services:
       API_TOKEN: api-token
       FRONTEND_USERNAME: testuser
       FRONTEND_PASSWORD: testpass
+      BLOCKLIST_FILE: /opt/test/e2e/data/blocklist_modules_test.yml
     volumes:
       - data-web:/data
       - ./docker/karton-test.ini:/etc/karton/karton.ini
+      - ./test/e2e/data/blocklist_modules_test.yml:/opt/test/e2e/data/blocklist_modules_test.yml:ro
 
   autoreporter:
     env_file: env.test

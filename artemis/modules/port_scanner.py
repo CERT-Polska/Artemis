@@ -302,7 +302,7 @@ class PortScanner(ArtemisBase):
                 status = TaskStatus.OK
                 status_reason = None
             # save raw results
-            self.db.save_task_result(task=task, status=status, status_reason=status_reason, data=all_results)
+            self.save_task_result(task=task, status=status, status_reason=status_reason, data=all_results)
 
 
 if __name__ == "__main__":

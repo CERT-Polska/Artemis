@@ -326,7 +326,7 @@ class WordpressPlugins(ArtemisBase):
             self.log.warning(
                 not_scanning_redirect_message,
             )
-            self.db.save_task_result(
+            self.save_task_result(
                 task=current_task,
                 status=TaskStatus.OK,
                 status_reason=not_scanning_redirect_message,
@@ -437,7 +437,7 @@ class WordpressPlugins(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(
+        self.save_task_result(
             task=current_task,
             status=status,
             status_reason=status_reason,

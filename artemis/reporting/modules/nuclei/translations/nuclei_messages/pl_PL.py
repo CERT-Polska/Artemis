@@ -2298,6 +2298,9 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "PACSOne Server 6.6.2 is vulnerable to local file inclusion via its integrated DICOM Web Viewer.": "Narzędzie PACSOne Server w wersji 6.6.2 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
+    "[no description] http/misconfiguration/pcoweb-unauth.yaml": "Wykryto, że dostęp do narzędzia Carel pCOweb nie wymaga logowania. Rekomendujemy włączenie uwierzytelniania.",
+    "Next.js 13.4.13 to before 15.5.16 and 16.2.5 contains a server-side request forgery caused by crafted WebSocket upgrade requests in the built-in Node.js server, letting attackers proxy requests to arbitrary destinations, exploit requires self-hosted deployment.": "Next.js w wersji od 13.4.13 do 15.5.16 i od 16.2.5 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2026-44578, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2799,4 +2802,9 @@ TRANSLATIONS = {
     "Echelon (now Adesto/Dialog Semiconductor) i.LON SmartServer is a LonWorks/IP-852\nbuilding automation controller used in HVAC, lighting, and energy management systems.\nThe embedded web interface is frequently exposed on standard and non-standard ports.": "Wykryto panel Echelon i.LON SmartServer.",
     "CrushFTP WebInterface login panel was detected.": "Wykryto panel logowania CrushFTP.",
     "A Laravel login panel was detected.": "Wykryto panel logowania Laravel.",
+    "An Atvise login panel was discovered. Atvise is a leading visualization and control center solutions based on pure web technology.": "Wykryto panel logowania Atvise.",
+    "Ubiquiti EdgeRouter is an enterprise-grade router with advanced routing capabilities and VPN features, running EdgeOS (Ubiquiti's Vyatta-based firmware).": "Wykryto panel logowania Ubiquiti EdgeRouter.",
+    "CODESYS WebVisu is the web-based HMI (Human-Machine Interface) component of the\nCODESYS industrial automation runtime. It provides browser-based access to PLC\nvisualizations and industrial control interfaces. Exposed instances may reveal\nreal-time process data and control functions without authentication.": "Wykryto panel CODESYS WebVisu.",
+    "Kavita login panel was detected.": "Wykryto panel logowania systemu Kavita.",
+    "Stormshield Network Security (SNS) is a French network security appliance providing\nfirewall, IPS, VPN, and web filtering capabilities. Its web management portal is\nfrequently exposed on non-standard ports.": "Wykryto panel Stormshield Network Security (SNS).",
 }

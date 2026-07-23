@@ -91,21 +91,11 @@ def check_output_log_on_error(command: List[str], logger: logging.Logger, **kwar
     return stdout
 
 
-def perform_whois_or_sleep(domain: str, logger: logging.Logger) -> Optional[Domain]:
-    try:
-        domain_data = whois_query(domain=domain)
-        logger.info(
-            "Successful whois query for %s expiry=%s", domain, domain_data.expiration_date if domain_data else None
-        )
-    except WhoisQuotaExceeded:
-        logger.info("Quota exceeded for whois query for %s, sleeping 24 hours", domain)
-        time.sleep(24 * 60 * 60)
-        domain_data = whois_query(domain=domain)
-        logger.info(
-            "Successful whois query for %s after retry expiry=%s",
-            domain,
-            domain_data.expiration_date if domain_data else None,
-        )
+def perform_whois(domain: str, logger: logging.Logger) -> Optional[Domain]:
+    domain_data = whois_query(domain=domain)
+    logger.info(
+        "Successful whois query for %s expiry=%s", domain, domain_data.expiration_date if domain_data else None
+    )
     return domain_data
 
 

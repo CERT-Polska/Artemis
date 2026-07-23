@@ -2301,7 +2301,7 @@ TRANSLATIONS = {
     "[no description] http/misconfiguration/pcoweb-unauth.yaml": "Wykryto, że dostęp do narzędzia Carel pCOweb nie wymaga logowania. Rekomendujemy włączenie uwierzytelniania.",
     "Next.js 13.4.13 to before 15.5.16 and 16.2.5 contains a server-side request forgery caused by crafted WebSocket upgrade requests in the built-in Node.js server, letting attackers proxy requests to arbitrary destinations, exploit requires self-hosted deployment.": "Next.js w wersji od 13.4.13 do 15.5.16 i od 16.2.5 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2026-44578, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
     + UPDATE_HINT,
-    "Joomla! Jtag Members Directory 5.3.7 is vulnerable to local file inclusion via the download_file parameter.": "Wtyczka Joomla! o nazwie Jtag Members Directory w wersji 5.3.7 zawiera podatność Local File Inclusion, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    "Joomla! Jtag Members Directory 5.3.7 is vulnerable to local file inclusion via the download_file parameter.": "Wtyczka Joomla! o nazwie Jtag Members Directory w wersji 5.3.7 zawiera podatność Local File Inclusion o identyfikatorze CVE-2018-6008, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + PLUGIN_UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",

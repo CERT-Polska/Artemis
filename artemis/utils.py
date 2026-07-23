@@ -93,9 +93,7 @@ def check_output_log_on_error(command: List[str], logger: logging.Logger, **kwar
 
 def perform_whois(domain: str, logger: logging.Logger) -> Optional[Domain]:
     domain_data = whois_query(domain=domain)
-    logger.info(
-        "Successful whois query for %s expiry=%s", domain, domain_data.expiration_date if domain_data else None
-    )
+    logger.info("Successful whois query for %s expiry=%s", domain, domain_data.expiration_date if domain_data else None)
     return domain_data
 
 

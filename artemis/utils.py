@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Generator, List, Optional, Tuple
 
-from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
+from whoisdomain import Domain  # type: ignore
 from whoisdomain import query as whois_query
 
 from artemis.config import Config

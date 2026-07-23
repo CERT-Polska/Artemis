@@ -42,6 +42,7 @@ SSL_ERRORS_TO_SKIP = [
     "[Errno 22] Invalid argument",
     "[Errno -3] Try again",
     "[Errno -5] Name has no usable address",
+    "[SSL: TLSV1_ALERT_DECODE_ERROR]",
     "Error: too many connections from ",
     "ESMTP not accepting messages",
     "(FCrDNS). Configuring matching A and PTR records should fix the issue",

@@ -10,7 +10,7 @@ from artemis.config import Config
 from artemis.domains import is_main_domain
 from artemis.module_base import ArtemisBase
 from artemis.task_utils import has_ip_range
-from artemis.utils import perform_whois_or_sleep
+from artemis.utils import perform_whois
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
@@ -39,7 +39,7 @@ class DomainExpirationScanner(ArtemisBase):
         status = TaskStatus.OK
         status_reason = None
         if is_main_domain(domain):
-            domain_data = perform_whois_or_sleep(domain=domain, logger=self.log)
+            domain_data = perform_whois(domain=domain, logger=self.log)
 
             if domain_data:
                 expiry_date = domain_data.expiration_date

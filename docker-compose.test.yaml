@@ -331,6 +331,15 @@ services:
         aliases:
           - test-apache-with-lfi-and-rce.local
 
+  test-apache-with-command-injection:
+    image: php:7.4-apache
+    volumes:
+      - ./test/data/command_injection/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-apache-with-command-injection.local
+
   test-django-with-orm-injection:
     build:
       context: test/data/orm_injection

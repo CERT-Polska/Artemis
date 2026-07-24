@@ -172,11 +172,8 @@ class ArtemisBase(Karton):
         elif "last_domain" in current_task.payload:
             new_task.payload["last_domain"] = current_task.payload["last_domain"]
 
-        if self.db.save_scheduled_task(new_task):
-            self.log.info("Task is a new task, adding: %s", new_task)
-            self.send_task(new_task)
-        else:
-            self.log.info("Task is not a new task, not adding: %s", new_task)
+        self.log.info("Adding task: %s", new_task)
+        self.send_task(new_task)
 
     def add_task_if_domain_exists(self, current_task: Task, new_task: Task) -> bool:
         """
@@ -650,6 +647,16 @@ class ArtemisBase(Karton):
             return
 
         self._forgiven_http_requests = 0
+
+        tasks_not_yet_processed = []
+        for task in tasks:
+            if self.db.save_module_processed_task(self.identity, task):
+                tasks_not_yet_processed.append(task)
+            else:
+                self.log.info("Task %s already processed by module %s, skipping", task.uid, self.identity)
+        tasks = tasks_not_yet_processed
+        if not tasks:
+            return
 
         tasks_filtered = []
         for task in tasks:

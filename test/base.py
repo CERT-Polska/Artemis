@@ -41,7 +41,7 @@ class ArtemisModuleTestCase(KartonTestCase):
     def setUp(self) -> None:
         self.mock_db = MagicMock()
         self.mock_db.get_analysis_by_id.return_value = {}
-        self.mock_db.contains_scheduled_task.return_value = False
+        self.mock_db.save_module_processed_task.return_value = True
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=self.mock_db
         )

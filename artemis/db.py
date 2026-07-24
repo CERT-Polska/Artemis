@@ -7,7 +7,6 @@ import hashlib
 import json
 import os
 import shutil
-from enum import Enum
 from typing import Any, Callable, Dict, Generator, List, Optional, Type
 
 from karton.core import Task
@@ -18,12 +17,15 @@ from sqlalchemy import (  # type: ignore
     Column,
     Computed,
     DateTime,
+    Enum,
     Index,
     Integer,
     String,
+    and_,
     create_engine,
     delete,
     func,
+    or_,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
@@ -46,7 +48,7 @@ class ColumnOrdering:
     ascending: bool
 
 
-class TaskFilter(str, Enum):
+class TaskFilter(str, enum.Enum):
     INTERESTING = "interesting"
 
     def as_dict(self) -> Dict[str, Any]:
@@ -61,6 +63,12 @@ Base = declarative_base()
 
 class TSVector(TypeDecorator):  # type: ignore
     impl = TSVECTOR
+
+
+class TaskPriority(enum.Enum):
+    LOW = "low"
+    NORMAL = "normal"
+    HIGH = "high"
 
 
 class ScheduledTask(Base):  # type: ignore
@@ -96,6 +104,8 @@ class Analysis(Base):  # type: ignore
     :ivar tag: Tag associated with the analysis.
     :ivar stopped: Whether the analysis has been stopped.
     :ivar disabled_modules: Comma-separated list of disabled modules for this analysis.
+    :ivar priority: Priority of tasks created by the analysis.
+    :ivar desired_priority: Target priority of tasks. If different to `priority`, Artemis will try to reprioritize `Analysis`.
     """
 
     __tablename__ = "analysis"
@@ -105,6 +115,8 @@ class Analysis(Base):  # type: ignore
     tag = Column(String, index=True)
     stopped = Column(Boolean, index=True)
     disabled_modules = Column(String, index=True)  # comma-separated
+    priority = Column(Enum(TaskPriority, values_callable=lambda obj: [e.value for e in obj]))
+    desired_priority = Column(Enum(TaskPriority, values_callable=lambda obj: [e.value for e in obj]))
 
     fulltext = Column(
         TSVector(),
@@ -287,6 +299,7 @@ class DB:
             tag=analysis_dict["payload_persistent"].get("tag", None),
             stopped=False,
             disabled_modules=analysis_dict["payload_persistent"]["disabled_modules"],
+            priority=analysis_dict["priority"],
         )
         with self.session() as session:
             session.add(analysis)
@@ -358,6 +371,53 @@ class DB:
                     return None
         except NoResultFound:
             return None
+
+    def set_analysis_desired_priority(self, analysis_id: str, desired_priority: TaskPriority) -> bool:
+        """
+        Change desired priority for :class:`~artemis.db.Analysis`.
+
+        Any Analysis with new `desired priority` will go through reprioritize job, which will change
+        priority of tasks.
+
+        :param analysis_id: The unique identifier of the analysis to retrieve. It's `Task.root_uuid`.
+        :type analysis_id: str
+        :param desired_priority: Desired task priority for given analysis
+        :type desired_priority: `artemis.db.TaskPriority`
+        :return: True if desired priority successfully changed, otherwise False
+        :rtype: bool
+        """
+        with self.session() as session:
+            item = session.query(Analysis).get(analysis_id)
+            if item:
+                item.desired_priority = desired_priority
+                session.commit()
+                return True
+
+        return False
+
+    def get_analyses_by_tag(self, tag: str) -> List[Dict[str, Any]]:
+        with self.session() as session:
+            return [
+                self._strip_internal_db_info(item.__dict__)
+                for item in session.query(Analysis).filter(Analysis.tag == tag).all()
+            ]
+
+    def get_analyses_to_reprioritize(self) -> List[Dict[str, Any]]:
+        with self.session() as session:
+            return [
+                self._strip_internal_db_info(item.__dict__)
+                for item in (
+                    session.query(Analysis)
+                    .filter(Analysis.stopped == False)  # noqa
+                    .filter(
+                        or_(
+                            Analysis.priority != Analysis.desired_priority,
+                            and_(Analysis.priority.is_(None), Analysis.desired_priority.isnot(None)),  # type: ignore
+                        )
+                    )
+                    .all()
+                )
+            ]
 
     def get_paginated_analyses(
         self,

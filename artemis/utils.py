@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Generator, List, Optional, Tuple
 
-from whoisdomain import Domain  # type: ignore
+from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
 from whoisdomain import query as whois_query
 
 from artemis.config import Config
@@ -92,7 +92,11 @@ def check_output_log_on_error(command: List[str], logger: logging.Logger, **kwar
 
 
 def perform_whois(domain: str, logger: logging.Logger) -> Optional[Domain]:
-    domain_data = whois_query(domain=domain)
+    try:
+        domain_data = whois_query(domain=domain)
+    except WhoisQuotaExceeded:
+        logger.exception("WhoisQuotaExceeded for query for %s")
+        raise
     logger.info("Successful whois query for %s expiry=%s", domain, domain_data.expiration_date if domain_data else None)
     return domain_data
 

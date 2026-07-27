@@ -9,11 +9,19 @@ characters long. From a ``multiple`` hit we cannot tell which parameter is
 actually vulnerable - the payload is in all of them.
 
 To shorten the PoC we re-fuzz the finding in ``-fuzzing-mode single`` (one
-parameter per request). That tells us exactly which parameters trigger the
-vulnerability on their own; we keep those and drop the rest. If single-mode
-confirms nothing (e.g. the vulnerability needs several parameters together,
-which single-mode cannot reproduce), we fall back to the original URL so the
-PoC still works.
+parameter per request). That tells us which parameters carry the payload when
+fuzzed on their own; we keep those and drop the rest. If single-mode confirms
+nothing (e.g. the vulnerability needs several parameters together, which
+single-mode cannot reproduce), we fall back to the original URL so the PoC
+still works.
+
+Single mode changes one parameter per request but still *sends* all the others,
+so a reported parameter is not proof that it suffices alone. For
+``if (isset($_GET["login"])) { echo "Login failed: " . $_GET["search"]; }``
+single mode reports ``search``, yet dropping ``login`` breaks the PoC. We
+therefore never trust the reported names on their own: the shortened URL is
+re-fuzzed as well, and only kept if the finding still reproduces without the
+parameters we removed.
 
 Parameter values are preserved byte-for-byte from the raw query string: they
 are attack payloads, and re-encoding them (e.g. decoding ``%2F%2F`` to ``//``)
@@ -53,11 +61,14 @@ def minimize_nuclei_matched_at_url(
 ) -> str:
     """Return a short, still-working PoC URL from a Nuclei matched-at URL.
 
-    ``refuzz_fn`` re-runs Nuclei in single fuzzing mode against ``url`` and
-    returns the set of parameter names that trigger the finding on their own.
-    We rebuild the URL keeping only those parameters, with their query segments
-    preserved byte-for-byte. If ``refuzz_fn`` is absent, or confirms no
-    parameter, the original URL is returned unchanged so the PoC still works.
+    ``refuzz_fn`` re-runs Nuclei in single fuzzing mode against the URL it is
+    given and returns the set of parameter names Nuclei reported the finding
+    for. We rebuild the URL keeping only those parameters, with their query
+    segments preserved byte-for-byte, and then call ``refuzz_fn`` again on the
+    shortened URL to check the finding survives without the dropped
+    parameters. If ``refuzz_fn`` is absent, confirms no parameter, or no longer
+    reproduces the finding on the shortened URL, the original URL is returned
+    unchanged so the PoC still works.
     """
     parsed = urllib.parse.urlparse(url)
     if not parsed.query:
@@ -78,14 +89,35 @@ def minimize_nuclei_matched_at_url(
     # original order and encoding.
     kept_raw = [raw_pair for decoded_name, raw_pair in pairs if decoded_name in confirmed]
 
+    # The fallbacks below are logged without the URL, to avoid recording
+    # payloads and targets, so that the fallback rate can still be tracked.
     if not kept_raw:
         # Single-mode reproduced nothing (e.g. needs several params together) -
-        # keep the full URL so the PoC still works. Logged (without the URL, to
-        # avoid recording payloads/targets) so the fallback rate can be tracked.
+        # keep the full URL so the PoC still works.
         logger.info(
             "PoC minimization: single-mode confirmed no parameter, keeping full URL with %d params",
             len(pairs),
         )
         return url
 
-    return urllib.parse.urlunparse(parsed._replace(query="&".join(kept_raw)))
+    if len(kept_raw) == len(pairs):
+        # Nothing to drop, so nothing to re-verify.
+        return url
+
+    minimized = urllib.parse.urlunparse(parsed._replace(query="&".join(kept_raw)))
+
+    # Single mode reports the parameter it mutated, but it sends the other
+    # parameters along with it - so a finding that needs a second parameter
+    # (a gate such as `login`) is still reported against one name only.
+    # Re-fuzz the shortened URL to make sure the finding does not depend on
+    # what we are about to drop.
+    if not refuzz_fn(minimized):
+        logger.info(
+            "PoC minimization: finding does not reproduce on the %d-param URL shortened from %d params, "
+            "keeping full URL",
+            len(kept_raw),
+            len(pairs),
+        )
+        return url
+
+    return minimized

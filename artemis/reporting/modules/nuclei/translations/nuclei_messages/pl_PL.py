@@ -2809,4 +2809,5 @@ TRANSLATIONS = {
     "CODESYS WebVisu is the web-based HMI (Human-Machine Interface) component of the\nCODESYS industrial automation runtime. It provides browser-based access to PLC\nvisualizations and industrial control interfaces. Exposed instances may reveal\nreal-time process data and control functions without authentication.": "Wykryto panel CODESYS WebVisu.",
     "Kavita login panel was detected.": "Wykryto panel logowania systemu Kavita.",
     "Stormshield Network Security (SNS) is a French network security appliance providing\nfirewall, IPS, VPN, and web filtering capabilities. Its web management portal is\nfrequently exposed on non-standard ports.": "Wykryto panel Stormshield Network Security (SNS).",
+    "Sophos UTM (Unified Threat Management) exposes a User Portal interface on ports 8443/5443 for SSL VPN client access and self-service.": "Wykryto panel Sophos UTM (Unified Threat Management).",
 }

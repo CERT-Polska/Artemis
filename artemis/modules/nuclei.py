@@ -459,6 +459,7 @@ class Nuclei(ArtemisBase):
         ]
 
         error_counts: Dict[str, int] = collections.defaultdict(int)
+        context_deadline_exceeded_targets: Dict[str, int] = collections.defaultdict(int)
         for line in lines:
             if not line.startswith("{"):
                 continue
@@ -476,6 +477,21 @@ class Nuclei(ArtemisBase):
                     break
             error_counts[category] += 1
 
+            if "context deadline exceeded" in error:
+                # Aggregate per target, not per template path. A single unreachable or slow
+                # target times out for every template path it's hit with, so the actionable
+                # signal - and the value the eventual re-run would pass back to Nuclei via
+                # `-target` - is the target, not the path. `input` carries the requested
+                # host:port (matching `-target`); `address` is the resolved IP and is used only
+                # as a fallback when `input` is absent.
+                page = entry.get("input")
+                if page:
+                    target = urllib.parse.urlparse(page).netloc or page
+                else:
+                    target = entry.get("address")
+                if target:
+                    context_deadline_exceeded_targets[target] += 1
+
         if not error_counts:
             return
 
@@ -483,6 +499,13 @@ class Nuclei(ArtemisBase):
             "Nuclei request error summary: %s",
             dict(error_counts),
         )
+
+        if context_deadline_exceeded_targets:
+            self.log.info(
+                "Targets that caused 'context deadline exceeded': %d distinct target(s): %s",
+                len(context_deadline_exceeded_targets),
+                dict(context_deadline_exceeded_targets),
+            )
 
     def _scan(
         self,

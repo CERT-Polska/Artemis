@@ -65,7 +65,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "testimonial-slider-and-showcase",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "coming-soon",
     "famethemes-demo-importer",
     "google-maps-easy",
     "icon-element",
@@ -76,6 +75,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "rafflepress",
     "search-meter",
     "website-monetization-by-magenet",
+    "wp-2fa",
     "wp-maximum-execution-time-exceeded",
     "zapier",
 ]

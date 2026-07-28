@@ -2303,6 +2303,13 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Joomla! Jtag Members Directory 5.3.7 is vulnerable to local file inclusion via the download_file parameter.": "Wtyczka Joomla! o nazwie Jtag Members Directory w wersji 5.3.7 zawiera podatność Local File Inclusion o identyfikatorze CVE-2018-6008, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + PLUGIN_UPDATE_HINT,
+    'Detects the presence of JHipster application dashboard or API endpoints that allow authentication using default credentials. JHipster applications by default are often configured with the username "admin" and password "admin", potentially exposing application management interfaces or sensitive APIs if not changed after deployment.': "Wykryto obecność panelu administracyjnego lub punktów końcowych API aplikacji JHipster, które pozwalają na uwierzytelnianie przy użyciu domyślnych poświadczeń, co może umożliwić atakującemu dostęp do interfejsów zarządzania aplikacją lub wrażliwych API."
+    + DEFAULT_CREDENTIALS_HINT,
+    "OneUptime < 10.0.21 contains a path traversal caused by unsanitized componentName parameter in /workflow/docs/:componentName endpoint, letting unauthenticated attackers read arbitrary files from the server filesystem.": "Narzędzie OneUptime w wersji poniżej 10.0.21 zawiera podatność Path Traversal o identyfikatorze CVE-2026-30958, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Apache Tomcat servers 7.0.{0 to 79} are susceptible to remote code execution. By design, you are not allowed to upload JSP files via the PUT method. This is likely a security measure to prevent an attacker from uploading a JSP shell and gaining remote code execution on the server. However, due to the insufficient checks, an attacker could gain remote code execution on Apache Tomcat servers that have enabled PUT method by using a specially crafted HTTP request.": "Serwery Apache Tomcat w wersji od 7.0.0 do 7.0.79 zawierają podatność o identyfikatorze CVE-2017-12615 umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2810,4 +2817,6 @@ TRANSLATIONS = {
     "Kavita login panel was detected.": "Wykryto panel logowania systemu Kavita.",
     "Stormshield Network Security (SNS) is a French network security appliance providing\nfirewall, IPS, VPN, and web filtering capabilities. Its web management portal is\nfrequently exposed on non-standard ports.": "Wykryto panel Stormshield Network Security (SNS).",
     "Sophos UTM (Unified Threat Management) exposes a User Portal interface on ports 8443/5443 for SSL VPN client access and self-service.": "Wykryto panel Sophos UTM (Unified Threat Management).",
+    "OpenVZ Web Panel login panel was detected.": "Wykryto panel logowania OpenVZ Web Panel.",
+    "ZoneMinder panel was detected.": "Wykryto panel ZoneMinder.",
 }

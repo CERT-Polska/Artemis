@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import collections
 import enum
+import functools
 import itertools
 import json
 import logging
@@ -11,7 +12,7 @@ import subprocess
 import time
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 import more_itertools
 from karton.core import Task
@@ -106,38 +107,6 @@ METRIC_SCAN_DURATION = Histogram(
 logger = logging.getLogger(__name__)
 
 
-def _verify_with_nuclei(url: str, template_path: str) -> bool:
-    try:
-        command = [
-            "nuclei",
-            "-disable-update-check",
-            "-u",
-            url,
-            "-t",
-            template_path,
-            "-dast",
-            "-fuzzing-mode",
-            "multiple",
-            "-jsonl",
-            "-silent",
-        ]
-        result = subprocess.check_output(command, stderr=subprocess.DEVNULL)
-        for line in result.strip().splitlines():
-            try:
-                hit = json.loads(line)
-                if hit.get("matched-at"):
-                    return True
-            except json.JSONDecodeError:
-                continue
-        return False
-    except FileNotFoundError:
-        logger.warning("Nuclei binary not found, skipping URL verification")
-        return False
-    except subprocess.CalledProcessError as e:
-        logger.warning("Nuclei verification failed on %s: %s", url, e)
-        return False
-
-
 # It is important to keep ssrf, redirect and lfi at the top so that their params get the correct default values
 DAST_SCANNING: Dict[str, Dict[str, Any]] = {
     "ssrf": {  # ssrf dast templates work only when the param is of the form http://...
@@ -168,6 +137,132 @@ DAST_SCANNING: Dict[str, Dict[str, Any]] = {
         "param_default_value": "testing",
     },
 }
+
+
+@functools.lru_cache(maxsize=1)
+def _get_dast_param_defaults() -> Dict[str, str]:
+    """Map each DAST wordlist parameter name to its default value.
+
+    Used to rebuild a re-fuzz target: parameters that Artemis injected are
+    reset to their family default (so Nuclei re-fuzzes them from a clean base,
+    exactly like the original scan did), rather than being left carrying the
+    payload from the multiple-mode hit. If a name appears in several wordlists,
+    the first family wins (DAST_SCANNING order keeps ssrf/redirect/lfi on top).
+    """
+    defaults: Dict[str, str] = {}
+    for template_data in DAST_SCANNING.values():
+        default_value = template_data["param_default_value"]
+        with open(template_data["params_wordlist"], "r") as wordlist_file:
+            for line in wordlist_file:
+                name = line.strip()
+                if name and not name.startswith("#") and name not in defaults:
+                    defaults[name] = default_value
+    return defaults
+
+
+def build_common_nuclei_command() -> List[str]:
+    """Return the Nuclei flags shared by every invocation Artemis makes.
+
+    Both the batch scan (:meth:`Nuclei._scan`) and the single-URL re-fuzz used
+    to shorten PoC URLs (:func:`_refuzz_single_with_nuclei`) start from this
+    list, so a re-fuzz reproduces the finding under the same conditions the
+    scan found it (user agent, rate limit, timeout, resolvers, interactsh).
+    Flags that only make sense for a batch (parallelism, stats, per-batch rate
+    limit duration) stay in the caller.
+    """
+    command = [
+        "nuclei",
+        "-disable-update-check",
+        "-timeout",
+        str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
+        "-jsonl",
+        "-system-resolvers",
+        "-rate-limit",
+        "1",
+        "-response-size-read",
+        "1048576",
+    ]
+
+    if Config.Miscellaneous.CUSTOM_USER_AGENT:
+        command.extend(["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT])
+
+    if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
+        # Unfortunately, because of https://github.com/projectdiscovery/interactsh/issues/135,
+        # the trailing slash matters.
+        command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER.strip("/")])
+
+    return command
+
+
+def _refuzz_single_with_nuclei(url: str, template_path: str) -> Set[str]:
+    """Re-run Nuclei in single fuzzing mode and return the set of parameter
+    names Nuclei reported the finding for.
+
+    Injected (wordlist) parameters are reset to their default value so Nuclei
+    fuzzes them from a clean base; the site's own parameters (not in any
+    wordlist) keep their matched-at value. Returns an empty set on any failure
+    (binary missing, timeout, no hit) - the caller then falls back to the full
+    PoC.
+
+    Single mode mutates one parameter per request but still sends the others,
+    so a reported name is not proof that it suffices on its own -
+    ``minimize_nuclei_matched_at_url`` calls this again on the shortened URL to
+    check that.
+    """
+    parsed = urllib.parse.urlparse(url)
+    if not parsed.query:
+        return set()
+
+    defaults = _get_dast_param_defaults()
+
+    rebuilt_pairs = []
+    for raw_pair in parsed.query.split("&"):
+        if not raw_pair:
+            continue
+        raw_name = raw_pair.split("=", 1)[0]
+        name = urllib.parse.unquote_plus(raw_name)
+        if name in defaults:
+            rebuilt_pairs.append(raw_name + "=" + urllib.parse.quote(defaults[name], safe="/:@!$&'()*+,;="))
+        else:
+            rebuilt_pairs.append(raw_pair)
+    refuzz_url = urllib.parse.urlunparse(parsed._replace(query="&".join(rebuilt_pairs)))
+
+    # Batch-only flags (rate-limit-duration, bulk-size, concurrency, stats,
+    # trace log) are intentionally left out of the shared command builder -
+    # they are meaningless for a single-URL re-fuzz.
+    command = build_common_nuclei_command() + [
+        "-u",
+        refuzz_url,
+        "-t",
+        template_path,
+        "-dast",
+        "-fuzzing-mode",
+        "single",
+        "-silent",
+    ]
+
+    try:
+        result = subprocess.check_output(command, stderr=subprocess.DEVNULL)
+        confirmed: Set[str] = set()
+        for line in result.strip().splitlines():
+            try:
+                hit = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            # "fuzzing_parameter" is the name Nuclei mutated for this hit. A hit
+            # without it tells us nothing usable, so it is skipped - if that
+            # leaves us with nothing, the caller keeps the full PoC URL.
+            param = hit.get("fuzzing_parameter")
+            if param:
+                confirmed.add(param)
+        return confirmed
+    except FileNotFoundError:
+        logger.warning("Nuclei binary not found, skipping URL minimization")
+        return set()
+    except subprocess.CalledProcessError as e:
+        logger.warning("Nuclei single-mode re-fuzz failed on %s: %s", url, e)
+        return set()
+
 
 UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
 
@@ -574,11 +669,6 @@ class Nuclei(ArtemisBase):
 
         milliseconds_per_request_candidates = [milliseconds_per_request_initial, milliseconds_per_request_retry]
 
-        if Config.Miscellaneous.CUSTOM_USER_AGENT:
-            additional_configuration = ["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT]
-        else:
-            additional_configuration = []
-
         lines = []
         time_start = time.time()
         for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
@@ -589,30 +679,20 @@ class Nuclei(ArtemisBase):
                     len(targets),
                     milliseconds_per_request,
                 )
-                command = [
-                    "nuclei",
-                    "-disable-update-check",
+                command = build_common_nuclei_command() + [
                     "-v",
-                    "-timeout",
-                    str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
-                    "-jsonl",
-                    "-system-resolvers",
-                    "-rate-limit",
-                    "1",
                     "-rate-limit-duration",
                     str(milliseconds_per_request) + "ms",
                     "-stats-json",
                     "-stats-interval",
                     "1",
-                    "-response-size-read",
-                    "1048576",
                     "-concurrency",
                     "5",
                     "-bulk-size",
                     str(len(targets)),
                     "-trace-log",
                     "/dev/stderr",
-                ] + additional_configuration
+                ]
 
                 if extra_nuclei_args:
                     command.extend(extra_nuclei_args)
@@ -633,11 +713,6 @@ class Nuclei(ArtemisBase):
                     )
                 else:
                     assert False
-
-                if Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER:
-                    # Unfortunately, because of https://github.com/projectdiscovery/interactsh/issues/135,
-                    # the trailing slash matters.
-                    command.extend(["-interactsh-server", Config.Modules.Nuclei.NUCLEI_INTERACTSH_SERVER.strip("/")])
 
                 if scan_using == ScanUsing.TEMPLATES:
                     # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
@@ -905,8 +980,7 @@ class Nuclei(ArtemisBase):
                     )
                     finding["matched-at"] = minimize_nuclei_matched_at_url(
                         finding["matched-at"],
-                        fuzzing_parameter=finding.get("fuzzing_parameter"),
-                        verify_url_fn=lambda url: _verify_with_nuclei(url, template_path),
+                        refuzz_fn=lambda url: _refuzz_single_with_nuclei(url, template_path),
                     )
                 result.append(finding)
                 messages.append(

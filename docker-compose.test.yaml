@@ -206,6 +206,15 @@ services:
         aliases:
           - test-php-xss-but-not-on-homepage.local
 
+  test-php-xss-requiring-second-param:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_xss_requiring_second_param/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-php-xss-requiring-second-param.local
+
   test-ftp-server-with-easy-password:
     image: stilliard/pure-ftpd:latest
     environment:

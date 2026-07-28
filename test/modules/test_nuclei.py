@@ -1,3 +1,5 @@
+import re
+import urllib.parse
 from test.base import ArtemisModuleTestCase
 from unittest.mock import patch
 
@@ -5,6 +7,15 @@ from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.modules.nuclei import Nuclei
+
+
+def _param_names(url: str) -> list[str]:
+    return list(urllib.parse.parse_qs(urllib.parse.urlparse(url).query, keep_blank_values=True).keys())
+
+
+def _reflected_xss_urls(status_reason: str) -> list[str]:
+    """The PoC URLs reported for the reflected XSS DAST template."""
+    return re.findall(r"\[medium\]\s+(\S+): Reflected Cross-Site Scripting", status_reason)
 
 
 class NucleiTest(ArtemisModuleTestCase):
@@ -131,6 +142,47 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             call.kwargs["status_reason"],
             r"\[medium\] http://test-php-mock-CVE-2020-28976\.local:80/wp-content/plugins/canto/includes/lib/get\.php\?subdomain=[a-z0-9\.]+: WordPress Canto 1\.3\.0 - Blind Server-Side Request Forgery WordPress Canto plugin 1\.3\.0 is susceptible to blind server-side request forgery\. An attacker can make a request to any internal and external server via /includes/lib/detail\.php\?subdomain and thereby possibly obtain sensitive information, modify data, and/or execute unauthorized administrative operations in the context of the affected site\.",
         )
+
+    def test_poc_url_shortened_when_one_param_is_enough(self) -> None:
+        """/xss.php reflects `search` on its own, so the PoC URL - built from
+        the whole DAST wordlist - is shortened to that single parameter."""
+        task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-php-xss-but-not-on-homepage.local",
+                "port": 80,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        urls = _reflected_xss_urls(call.kwargs["status_reason"])
+        self.assertTrue(urls)
+        for url in urls:
+            self.assertEqual(_param_names(url), ["search"])
+
+    def test_poc_url_kept_whole_when_the_finding_needs_a_second_param(self) -> None:
+        """The app reflects `search` only if `login` is present. Nuclei's
+        single-mode re-fuzz reports `search` alone, because it keeps sending
+        `login` alongside it - so shortening the PoC to `?search=...` would
+        produce a URL that no longer reproduces the vulnerability. Artemis
+        must notice that and report the full URL instead."""
+        task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-php-xss-requiring-second-param.local",
+                "port": 80,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        urls = _reflected_xss_urls(call.kwargs["status_reason"])
+        self.assertTrue(urls)
+        for url in urls:
+            param_names = _param_names(url)
+            self.assertIn("search", param_names)
+            self.assertIn("login", param_names)
 
     def test_links(self) -> None:
         task = Task(

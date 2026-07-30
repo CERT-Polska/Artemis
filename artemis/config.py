@@ -333,8 +333,10 @@ class Config:
 
         MODULES_WHITELIST_FOR_ORIGINAL_HOST_DEDUPLICATION: Annotated[
             list[str],
-            "List of modules not depending on original_ip/original_domain. "
-            "The purpose of the list is solely for task deduplication. Can be extended with custom modules.",
+            "List of modules whose results do not depend on the original_ip/original_domain through which a target "
+            "was discovered. When a task is enqueued for such a module, Artemis will deduplicate it by target host "
+            "alone (ignoring original_ip/original_domain), so the same host is not scanned twice by these modules "
+            "just because it was reachable via different original hosts. Can be extended with custom modules.",
         ] = get_config(
             "MODULES_WHITELIST_FOR_ORIGINAL_HOST_DEDUPLICATION",
             default="nuclei-router,nuclei-module,admin_panel_login_bruter,xss_scanner,lfi_detector,sqlmap,sql_injection_detector,dangling_dns_detector",

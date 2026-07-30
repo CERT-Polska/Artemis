@@ -118,11 +118,11 @@ def _cleanup_scheduled_tasks() -> None:
         removed_rows = 0
         for i in range(0, len(finished_analyses_ids), BATCH):
             analysis_ids = finished_analyses_ids[i : i + BATCH]
-            removed_rows += db.delete_module_processed_tasks_for_analyses(analysis_ids)
+            removed_rows += db.delete_module_started_tasks_for_analyses(analysis_ids)
 
             logger.debug("Cleaned up ScheduledTask table for analyses: %s", ",".join(analysis_ids))
         logger.info(
-            "Removed %d rows in ModuleProcessedTask table for %d finished analyses. "
+            "Removed %d rows in ModuleStartedTask table for %d finished analyses. "
             "Number of remaining unfinished analyses: %d.",
             removed_rows,
             len(finished_analyses_ids),

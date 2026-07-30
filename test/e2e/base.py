@@ -11,7 +11,7 @@ from karton.core.config import Config as KartonConfig
 from artemis.db import (
     DB,
     Analysis,
-    ModuleProcessedTask,
+    ModuleStartedTask,
     ReportGenerationTask,
     TaskResult,
 )
@@ -40,7 +40,7 @@ class BaseE2ETestCase(TestCase):
     def _clean_db_and_redis(self) -> None:
         db = DB()
         session = db.session()
-        session.query(ModuleProcessedTask).delete()
+        session.query(ModuleStartedTask).delete()
         session.query(Analysis).delete()
         session.query(ReportGenerationTask).delete()
         session.query(TaskResult).delete()

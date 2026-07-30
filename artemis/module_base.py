@@ -650,10 +650,10 @@ class ArtemisBase(Karton):
 
         tasks_not_yet_processed = []
         for task in tasks:
-            if self.db.save_module_processed_task(self.identity, task):
+            if self.db.save_module_started_task(self.identity, task):
                 tasks_not_yet_processed.append(task)
             else:
-                self.log.info("Task %s already processed by module %s, skipping", task.uid, self.identity)
+                self.log.info("Task %s already started or processed by module %s, skipping", task.uid, self.identity)
         tasks = tasks_not_yet_processed
         if not tasks:
             return

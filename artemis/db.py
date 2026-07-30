@@ -63,10 +63,10 @@ class TSVector(TypeDecorator):  # type: ignore
     impl = TSVECTOR
 
 
-class ModuleProcessedTask(Base):  # type: ignore
+class ModuleStartedTask(Base):  # type: ignore
     """Tracks which tasks have already been processed by each module, for per-module deduplication."""
 
-    __tablename__ = "module_processed_task"
+    __tablename__ = "module_started_task"
     module_identity = Column(String, primary_key=True)
     analysis_id = Column(String, primary_key=True)
     deduplication_data = Column(String, primary_key=True)
@@ -461,10 +461,10 @@ class DB:
             session.execute(delete(TaskResult).where(TaskResult.id.in_(ids)))  # type: ignore
             session.commit()
 
-    def save_module_processed_task(self, module_identity: str, task: Task) -> bool:
+    def save_module_started_task(self, module_identity: str, task: Task) -> bool:
         """
-        Records that a module has processed a task. Returns True if this is the first time
-        this module processes this task, False if it was already processed.
+        Records that a module has started a task. Returns True if this is the first time
+        this module started this task, False if it was already started.
         """
         record = {
             "module_identity": module_identity,
@@ -472,15 +472,15 @@ class DB:
             # PostgreSQL limits the length of string if it's an indexed column
             "deduplication_data": hashlib.sha256(self._get_task_deduplication_data(task).encode("utf-8")).hexdigest(),
         }
-        statement = postgres_insert(ModuleProcessedTask).values([record])
+        statement = postgres_insert(ModuleStartedTask).values([record])
         statement = statement.on_conflict_do_nothing()
         with self.session() as session:
             result = session.execute(statement)
             session.commit()
             return bool(result.rowcount)
 
-    def delete_module_processed_tasks_for_analyses(self, analysis_ids: list[str]) -> int:
-        query = delete(ModuleProcessedTask).where(ModuleProcessedTask.analysis_id.in_(analysis_ids))  # type: ignore
+    def delete_module_started_tasks_for_analyses(self, analysis_ids: list[str]) -> int:
+        query = delete(ModuleStartedTask).where(ModuleStartedTask.analysis_id.in_(analysis_ids))  # type: ignore
         with self.session() as session:
             result = session.execute(query)
             session.commit()

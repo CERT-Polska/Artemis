@@ -76,7 +76,7 @@ class WebappIdentifier(ArtemisBase):
         )
         self.add_task(current_task, new_task)
 
-        self.db.save_task_result(
+        self.save_task_result(
             task=current_task,
             status=TaskStatus.OK,
             data={

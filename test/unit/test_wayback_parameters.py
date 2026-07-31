@@ -64,12 +64,14 @@ class TestGetWaybackParameters(unittest.TestCase):
         result = get_wayback_parameters("http://example.com/")
         self.assertEqual(result, [])
 
+    @patch("artemis.crawling.logger.exception")
     @patch("artemis.crawling.requests.get")
-    def test_network_failure_returns_empty_list(self, mock_get: MagicMock) -> None:
+    def test_network_failure_returns_empty_list(self, mock_get: MagicMock, mock_logger_exception: MagicMock) -> None:
         mock_get.side_effect = Exception("connection error")
 
         result = get_wayback_parameters("http://example.com/")
         self.assertEqual(result, [])
+        mock_logger_exception.assert_called_once_with("Failed to fetch Wayback CDX data for %s", "example.com")
 
     @patch("artemis.crawling.requests.get")
     def test_results_cached_per_domain(self, mock_get: MagicMock) -> None:

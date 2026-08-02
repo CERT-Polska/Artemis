@@ -332,7 +332,7 @@ class OrmInjectionDetector(ArtemisBase):
 
         data = self.create_data(message=message)
 
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
+        self.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 
 
 if __name__ == "__main__":

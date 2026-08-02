@@ -52,7 +52,7 @@ class SSHBruter(ArtemisBase):
             #
             # It makes no sense to scan all domains as they are processed by the ip_lookup karton
             # and we would scan the same IP multiple times. Therefore we scan only IPs.
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            self.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 
         port = current_task.get_payload("port")
@@ -92,7 +92,7 @@ class SSHBruter(ArtemisBase):
         else:
             status = TaskStatus.OK
             status_reason = None
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
 
 if __name__ == "__main__":

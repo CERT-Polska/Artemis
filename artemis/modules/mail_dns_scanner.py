@@ -174,7 +174,7 @@ class MailDNSScanner(ArtemisBase):
             return
 
         if current_task.get_payload("mail_domain"):
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            self.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 
         domain = current_task.get_payload(TaskType.DOMAIN)
@@ -217,7 +217,7 @@ class MailDNSScanner(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(
+        self.save_task_result(
             task=current_task, status=status, status_reason=status_reason, data=dataclasses.asdict(result)
         )
 

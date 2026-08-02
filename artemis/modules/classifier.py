@@ -168,7 +168,7 @@ class Classifier(ArtemisBase):
             },
         )
         self.add_task(current_task, new_task)
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]})
+        self.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": host_type, "data": [host]})
 
     def run(self, current_task: Task) -> None:
         data = current_task.get_payload("data")
@@ -178,9 +178,7 @@ class Classifier(ArtemisBase):
         data = data.lower()
 
         if not Classifier.is_supported(data):
-            self.db.save_task_result(
-                task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data
-            )
+            self.save_task_result(task=current_task, status=TaskStatus.ERROR, status_reason="Unsupported data: " + data)
             return
 
         direct_scanning_url = direct_url_scanning.parse_url(data)
@@ -215,7 +213,7 @@ class Classifier(ArtemisBase):
                     ),
                 )
 
-            self.db.save_task_result(
+            self.save_task_result(
                 task=current_task, status=TaskStatus.OK, data={"type": TaskType.IP, "data": data_as_ip_range}
             )
             return
@@ -247,7 +245,7 @@ class Classifier(ArtemisBase):
                     )
                     ips.append(ip)
 
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": TaskType.IP, "data": ips})
+            self.save_task_result(task=current_task, status=TaskStatus.OK, data={"type": TaskType.IP, "data": ips})
             return
 
         sanitized = self._sanitize(data)
@@ -266,14 +264,14 @@ class Classifier(ArtemisBase):
                 )
             except subprocess.CalledProcessError:
                 self.log.exception("Unable to fingerprint %s", data)
-                self.db.save_task_result(
+                self.save_task_result(
                     task=current_task, status=TaskStatus.ERROR, status_reason="Unable to fingerprint: %s" % data
                 )
                 return
 
             if not output:
                 self.log.exception("Unable to fingerprint %s", data)
-                self.db.save_task_result(
+                self.save_task_result(
                     task=current_task, status=TaskStatus.ERROR, status_reason="Unable to fingerprint: %s" % data
                 )
                 return
@@ -318,11 +316,11 @@ class Classifier(ArtemisBase):
             )
 
             if self.add_task_if_domain_exists(current_task, new_task):
-                self.db.save_task_result(
+                self.save_task_result(
                     task=current_task, status=TaskStatus.OK, data={"type": task_type, "data": [sanitized]}
                 )
             else:
-                self.db.save_task_result(
+                self.save_task_result(
                     task=current_task,
                     status=TaskStatus.ERROR,
                     status_reason="Domain doesn't exist or is a placeholder page",

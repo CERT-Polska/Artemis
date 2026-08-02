@@ -60,3 +60,17 @@
 /api/auth
 # Traefik dashboard
 /dashboard/
+# Apache Tomcat Manager (HTTP Basic auth)
+/manager/html
+/host-manager/html
+# Oracle WebLogic Server admin console
+/console/
+# Adminer (single-file database manager)
+/adminer.php
+/adminer/
+# Cacti
+/cacti/
+# Nagios (HTTP Basic auth)
+/nagios/
+# pgAdmin 4
+/pgadmin4/

@@ -105,7 +105,7 @@ class SSHBadKeys(ArtemisBase):
         if not is_ip_address(host):
             # Same reasoning as ssh_bruter: port scanner emits separate SERVICE tasks
             # for all domains on a given IP, so we only scan IPs to avoid duplicates.
-            self.db.save_task_result(task=current_task, status=TaskStatus.OK)
+            self.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 
         port = current_task.get_payload("port")
@@ -139,7 +139,7 @@ class SSHBadKeys(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
+        self.save_task_result(task=current_task, status=status, status_reason=status_reason, data=result)
 
 
 if __name__ == "__main__":

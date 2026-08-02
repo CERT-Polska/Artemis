@@ -39,6 +39,12 @@ class TestWebTechnologyIdentification(unittest.TestCase):
             detected_tags = set(to_tag_strings(tech_results[target]))
             self.assertEqual(detected_tags, set(expected_results[target]))
 
+            # to_tag_strings drops the CPE, so check it separately - it is what a CVE lookup
+            # keys on. Apache is detected on both targets, and its version slot stays a
+            # wildcard because Wappalyzer reports the version apart from the CPE template.
+            (apache,) = [tech for tech in tech_results[target] if tech.name == "Apache HTTP Server"]
+            self.assertEqual(apache.cpe, "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*")
+
     def test_skipping_ssl_verification(self) -> None:
         targets = ["https://self-signed.badssl.com"]
 

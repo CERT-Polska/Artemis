@@ -65,7 +65,6 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "testimonial-slider-and-showcase",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "coming-soon",
     "famethemes-demo-importer",
     "google-maps-easy",
     "icon-element",
@@ -76,6 +75,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "rafflepress",
     "search-meter",
     "website-monetization-by-magenet",
+    "wp-2fa",
     "wp-maximum-execution-time-exceeded",
     "zapier",
 ]
@@ -326,7 +326,7 @@ class WordpressPlugins(ArtemisBase):
             self.log.warning(
                 not_scanning_redirect_message,
             )
-            self.db.save_task_result(
+            self.save_task_result(
                 task=current_task,
                 status=TaskStatus.OK,
                 status_reason=not_scanning_redirect_message,
@@ -437,7 +437,7 @@ class WordpressPlugins(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
 
-        self.db.save_task_result(
+        self.save_task_result(
             task=current_task,
             status=status,
             status_reason=status_reason,

@@ -43,8 +43,8 @@ class WebappIdentifierTest(ArtemisModuleTestCase):
             for tag in technology_tags:
                 self.assertIsInstance(tag, str)
 
-            # The full structured technology list is carried on the WEBAPP task payload;
-            # cve_lookup reads it from there instead of from a separate task type.
+            # The full structured technology list is carried on the WEBAPP task payload, so
+            # downstream modules can read it from there instead of needing a separate task type.
             technologies = webapp_task.payload["technologies"]
             self.assertIsInstance(technologies, list)
             self.assertGreater(len(technologies), 0)
@@ -58,7 +58,7 @@ class WebappIdentifierTest(ArtemisModuleTestCase):
 
             # Be specific: the CMS must show up in the detected technologies (a regression that
             # stops detecting it should fail here), and at least one technology must carry a CPE
-            # since that is exactly what cve_lookup needs downstream to query NVD.
+            # since that is what a technology has to be looked up by downstream.
             detected_names = {str(tech["name"]).lower() for tech in technologies}
             self.assertIn(entry.application.value, detected_names)
             self.assertTrue(any(tech["cpe"] for tech in technologies))

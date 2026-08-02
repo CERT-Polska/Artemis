@@ -30,7 +30,7 @@ class IPLookup(ArtemisBase):
     def run(self, current_task: Task) -> None:
         domain = current_task.get_payload(TaskType.DOMAIN)
         ips = self._process(current_task, domain)
-        self.db.save_task_result(task=current_task, status=TaskStatus.OK, data={"ips": ips})
+        self.save_task_result(task=current_task, status=TaskStatus.OK, data={"ips": ips})
 
 
 if __name__ == "__main__":

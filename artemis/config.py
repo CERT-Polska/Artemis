@@ -405,8 +405,7 @@ class Config:
         class CveLookup:
             CVE_LOOKUP_NVD_REQUESTS_PER_SECOND: Annotated[
                 float,
-                "Rate limit for NVD API queries. NVD allows 5 requests per 30 seconds without an API key "
-                "(~0.166 r/s); raise this if you configure a key with NIST.",
+                "Rate limit for NVD API queries. NVD allows 5 requests per 30 seconds (~0.166 r/s).",
             ] = get_config("CVE_LOOKUP_NVD_REQUESTS_PER_SECOND", default=0.16, cast=float)
 
             CVE_LOOKUP_NVD_API_URL: Annotated[

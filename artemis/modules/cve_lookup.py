@@ -99,10 +99,9 @@ def _configuration_implicates_product(configuration: Dict[str, Any], product_key
     """
     Whether ``product_key`` is a vulnerable component of this single configuration.
 
-    A configuration joins its sibling nodes with an ``operator``. Ignoring that operator is
-    what made the earlier check too shallow: under ``AND`` the CVE only applies when *every*
-    node holds, so a CVE requiring two distinct vulnerable components must not be reported
-    when we have only detected one of them.
+    A configuration joins its sibling nodes with an ``operator`` and we have to follow it:
+    under ``AND`` the CVE only applies when *every* node holds, so a CVE that needs two
+    distinct vulnerable components must not be reported when we only detected one of them.
 
     Nodes carrying solely ``vulnerable: false`` CPEs are the "running on" platform rather
     than a component (in CVE-2021-44228 the vulnerable node is log4j and the ``AND``-ed
@@ -248,13 +247,26 @@ class CveLookup(ArtemisBase):
             timeout=NVD_FAILURE_CACHE_TTL_SECONDS,
         )
 
+    def _cache_partial_or_failure(self, cpe: str, cves: List[Dict[str, Any]]) -> Optional[List[Dict[str, Any]]]:
+        """
+        A page can fail after earlier ones already returned CVEs. Those are still valid, so we
+        keep them under the short failure TTL instead of dropping the whole lookup. If we found
+        nothing, there is nothing worth keeping and it stays a failure.
+        """
+        if not cves:
+            self._cache_failure(cpe)
+            return None
+        self.cache.set(cpe, json.dumps(cves).encode("utf-8"), timeout=NVD_FAILURE_CACHE_TTL_SECONDS)
+        return cves
+
     def _query_nvd(self, cpe: str) -> Optional[List[Dict[str, Any]]]:
-        # NVD is slow and rate-limited (~5 requests / 30s without a key), so we use http_requests
-        # (per-second throttle + longer timeout) plus a shared Redis cache kept for
-        # NVD_CACHE_TTL_SECONDS — not FallbackAPICache, which does not throttle. Returns the CVE
-        # list on success ([] = genuinely none found), or None when the lookup itself failed
+        # NVD is slow and rate-limited (~5 requests / 30s), so we use http_requests (per-second
+        # throttle + longer timeout) plus a shared Redis cache kept for NVD_CACHE_TTL_SECONDS,
+        # not FallbackAPICache, which does not throttle. Returns the CVE list on success
+        # ([] = genuinely none found), or None when the lookup failed with nothing to show for it
         # (network error, non-200 or unparseable body) so the caller can report that distinctly
-        # instead of as a green "no CVEs found".
+        # instead of as a green "no CVEs found". If a page fails part-way through, we keep what
+        # the earlier pages returned (see _cache_partial_or_failure).
         cached = self.cache.get(cpe)
         if cached is not None:
             try:
@@ -282,22 +294,19 @@ class CveLookup(ArtemisBase):
                 )
             except Exception as e:
                 self.log.warning(f"NVD request failed for cpe={cpe} at startIndex={start_index}: {e}")
-                self._cache_failure(cpe)
-                return None
+                return self._cache_partial_or_failure(cpe, cves)
 
             if response.status_code != 200:
                 self.log.warning(
                     f"NVD returned status {response.status_code} for cpe={cpe} at startIndex={start_index}"
                 )
-                self._cache_failure(cpe)
-                return None
+                return self._cache_partial_or_failure(cpe, cves)
 
             try:
                 payload = response.json()
             except ValueError:
                 self.log.warning(f"NVD returned non-JSON for cpe={cpe} at startIndex={start_index}")
-                self._cache_failure(cpe)
-                return None
+                return self._cache_partial_or_failure(cpe, cves)
 
             cves.extend(_extract_cves(payload, product_key))
 

@@ -265,6 +265,32 @@ class CveLookupTest(ArtemisModuleTestCase):
         found = [cve["id"] for cve in call.kwargs["data"]["findings"][0]["cves"]]
         self.assertEqual(found, ["CVE-2024-0001", "CVE-2024-0002"])
 
+    @patch("artemis.modules.cve_lookup.http_requests.get")
+    def test_pagination_failure_keeps_cves_from_earlier_pages(self, mock_get: MagicMock) -> None:
+        # If a page fails part-way through, we must not discard what the earlier pages
+        # returned: that would turn a real finding into an ERROR that reports nothing.
+        first_page: Dict[str, Any] = json.loads(json.dumps(_NVD_HIT))
+        first_page["totalResults"] = 2
+        first_page["resultsPerPage"] = 1
+        first_page["startIndex"] = 0
+
+        mock_get.side_effect = [
+            _make_response(first_page),
+            ConnectionError("nvd unreachable"),
+        ]
+        self.run_task(_make_task())
+
+        self.assertEqual(mock_get.call_count, 2)
+        call = self.mock_db.save_task_result.call_args
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        found = [cve["id"] for cve in call.kwargs["data"]["findings"][0]["cves"]]
+        self.assertEqual(found, ["CVE-2024-1234"])
+
+        # The partial result is cached (under the short failure TTL, so the missing pages are
+        # retried soon), meaning the next task for the same CPE does not re-hammer NVD.
+        self.run_task(_make_task())
+        self.assertEqual(mock_get.call_count, 2)
+
 
 class CveLookupIntegrationTest(ArtemisModuleTestCase):
     # Kept in the same module as CveLookupTest on purpose: every test's setUp flushes the shared

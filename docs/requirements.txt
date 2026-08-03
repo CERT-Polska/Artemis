@@ -138,7 +138,7 @@ tldextract==5.3.1
 toml==0.10.2
 tqdm==4.68.4
 typer==0.26.8
-typing-extensions==4.15.0
+typing-extensions==4.16.0
 typing-inspection==0.4.2
 unittest-parallel==1.8.2
 url-normalize==3.0.0

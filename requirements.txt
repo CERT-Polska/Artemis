@@ -7,7 +7,7 @@ aioitertools==0.13.0
 aiosignal==1.4.0
 alembic==1.18.5
 annotated-doc==0.0.4
-annotated-types==0.7.0
+annotated-types==0.8.0
 anyio==4.13.0
 anytree==2.13.0
 argon2-cffi==25.1.0

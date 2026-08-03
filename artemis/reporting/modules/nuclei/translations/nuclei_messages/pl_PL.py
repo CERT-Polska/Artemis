@@ -2310,6 +2310,11 @@ TRANSLATIONS = {
     "Apache Tomcat servers 7.0.{0 to 79} are susceptible to remote code execution. By design, you are not allowed to upload JSP files via the PUT method. This is likely a security measure to prevent an attacker from uploading a JSP shell and gaining remote code execution on the server. However, due to the insufficient checks, an attacker could gain remote code execution on Apache Tomcat servers that have enabled PUT method by using a specially crafted HTTP request.": "Serwery Apache Tomcat w wersji od 7.0.0 do 7.0.79 zawierają podatność o identyfikatorze CVE-2017-12615 umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "WP Go Maps WordPress plugin <10.0.10 contains an information disclosure vulnerability caused by lack of approval-state filtering on the public single-marker REST endpoint, letting unauthenticated users access unapproved marker records including PII and geographic coordinates, exploit requires no authentication.": "Wtyczka WordPress o nazwie WP Go Maps w wersji poniżej 10.0.10 zawiera podatność Information Disclosure o identyfikatorze CVE-2026-8386, umożliwiającą atakującemu dostęp do wrażliwych informacji."
+    + UPDATE_HINT,
+    "Zoho ManageEngine OpManager before 12.5.329 contains a remote code execution caused by a general bypass in the deserialization class, letting unauthenticated attackers execute arbitrary code, exploit requires no authentication": "Narzędzie Zoho ManageEngine OpManager w wersji poniżej 12.5.329 zawiera podatność Remote Code Execution o identyfikatorze CVE-2021-3287, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2819,4 +2824,6 @@ TRANSLATIONS = {
     "Sophos UTM (Unified Threat Management) exposes a User Portal interface on ports 8443/5443 for SSL VPN client access and self-service.": "Wykryto panel Sophos UTM (Unified Threat Management).",
     "OpenVZ Web Panel login panel was detected.": "Wykryto panel logowania OpenVZ Web Panel.",
     "ZoneMinder panel was detected.": "Wykryto panel ZoneMinder.",
+    "Vikunja login panel was detected. Vikunja is a self-hosted to-do and project management application.": "Wykryto panel logowania Vikunja.",
+    "DD-WRT router management panel detected.": "Wykryto panel zarządzania routerem DD-WRT.",
 }

@@ -159,6 +159,16 @@ services:
     volumes:
       - ./test/data/php_admin_zabbix_login/:/var/www/html/
 
+  test-php-email-login:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_email_login/:/var/www/html/
+
+  test-php-autocomplete-login:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_autocomplete_login/:/var/www/html/
+
   test-php-mock-CVE-2020-28976:
     image: php:8.0-apache
     volumes:
@@ -167,6 +177,16 @@ services:
       default:
         aliases:
           - test-php-mock-CVE-2020-28976.local
+
+  test-php-rate-limited:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_rate_limited/:/var/www/html/
+
+  test-php-rate-limited-discovery:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_rate_limited_discovery/:/var/www/html/
 
   test-php-403-bypass:
     image: php:8.0-apache
@@ -185,6 +205,15 @@ services:
       default:
         aliases:
           - test-php-xss-but-not-on-homepage.local
+
+  test-php-xss-requiring-second-param:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_xss_requiring_second_param/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-php-xss-requiring-second-param.local
 
   test-ftp-server-with-easy-password:
     image: stilliard/pure-ftpd:latest

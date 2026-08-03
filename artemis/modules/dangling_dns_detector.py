@@ -201,7 +201,7 @@ class DanglingDnsDetector(ArtemisBase):
         root_domain = analysis.get("target") if analysis else None
 
         if Config.Modules.DanglingDnsDetector.DANGLING_DNS_SKIP_ROOT_DOMAIN and domain == root_domain:
-            self.db.save_task_result(
+            self.save_task_result(
                 task=current_task,
                 status=TaskStatus.OK,
                 status_reason="Skipped: root domain",
@@ -219,7 +219,7 @@ class DanglingDnsDetector(ArtemisBase):
         messages = [r["message"] for r in result]
         status_reason = " ".join(messages) if messages else None
 
-        self.db.save_task_result(
+        self.save_task_result(
             task=current_task,
             status=status,
             status_reason=status_reason,

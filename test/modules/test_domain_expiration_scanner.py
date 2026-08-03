@@ -11,7 +11,7 @@ from artemis.modules.domain_expiration_scanner import DomainExpirationScanner
 class TestDomainExpirationScanner(ArtemisModuleTestCase):
     karton_class = DomainExpirationScanner  # type: ignore
 
-    @patch("artemis.modules.domain_expiration_scanner.perform_whois_or_sleep")
+    @patch("artemis.modules.domain_expiration_scanner.perform_whois")
     def test_simple(self, mock_whois) -> None:  # type: ignore
         expiration = datetime.datetime.now() + datetime.timedelta(days=100)
         mock_domain = MagicMock()

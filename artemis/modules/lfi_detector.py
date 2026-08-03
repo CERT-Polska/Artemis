@@ -211,7 +211,7 @@ class LFIDetector(ArtemisBase):
 
             data = {"result": messages, "statements": {e.value: e.name for e in LFIFindings}}
 
-            self.db.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
+            self.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 
 
 if __name__ == "__main__":

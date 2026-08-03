@@ -1,7 +1,8 @@
 import asyncio
+import dataclasses
 import datetime
 import hmac
-from typing import Annotated, Any, Dict, Optional, Type
+from typing import Annotated, Any, Dict, List, Optional, Type
 
 import aiohttp
 from fastapi import APIRouter, Body, Depends, Header, HTTPException
@@ -12,7 +13,11 @@ from karton.core.task import TaskPriority
 from pydantic import BaseModel
 from redis import Redis
 
-from artemis.blocklist import load_blocklist, should_block_scanning
+from artemis.blocklist import (
+    BlocklistItem,
+    load_blocklist,
+    should_block_scanning,
+)
 from artemis.config import Config
 from artemis.db import DB, ColumnOrdering, TaskFilter
 from artemis.frontend import build_export_zip_response
@@ -239,10 +244,25 @@ def get_exports(tag_prefix: Optional[str] = None) -> list[ReportGenerationTaskMo
     ]
 
 
-@router.get("/is-blocklisted/{domain}", dependencies=[Depends(verify_api_token)])
-def is_blocklisted(domain: str) -> bool:
+@router.get("/is-domain-blocklisted/{domain}", dependencies=[Depends(verify_api_token)])
+def is_domain_blocklisted(domain: str) -> bool:
     """Returns True if scanning of a given domain is blocklisted"""
     return should_block_scanning(domain=domain, ip=None, karton_name=None, blocklist=BLOCKLIST)
+
+
+@router.get("/blocklisted-modules", dependencies=[Depends(verify_api_token)])
+def blocklisted_modules() -> Dict[str, List[str]]:
+    """Returns a list of modules that are blocklisted."""
+    ignored_fields = {"mode", "karton_name", "until"}
+    filter_fields = [field.name for field in dataclasses.fields(BlocklistItem) if field.name not in ignored_fields]
+    blocklisted_modules = []
+    now = datetime.datetime.now()
+    for item in BLOCKLIST:
+        if item.karton_name and all(getattr(item, field_name) is None for field_name in filter_fields):
+            if (item.until and now <= item.until) or item.until is None:
+                blocklisted_modules.append(item.karton_name)
+
+    return {"blocklisted_modules": blocklisted_modules}
 
 
 @router.get("/export/download-zip/{id}", dependencies=[Depends(verify_api_token)])

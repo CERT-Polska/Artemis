@@ -3,7 +3,7 @@ import random
 import urllib
 from enum import Enum
 from timeit import default_timer as timer
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 import more_itertools
 import requests
@@ -51,9 +51,12 @@ class CommandInjectionDetector(ArtemisBase):
         return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
     @staticmethod
-    def _url_with_payload(url: str, params: tuple[Any, ...], payload: str) -> str:
+    def _url_with_payload(url: str, params: tuple[Any, ...], payload: str, encode: bool = True) -> str:
+        # The payload is url-encoded for the request: the newline injection form must not put a raw
+        # control character in the URL. Pass encode=False for the readable URL we report.
         separator = "&" if "?" in url else "?"
-        assignments = "&".join(f"{name}={payload}" for name in params)
+        value = urllib.parse.quote(payload, safe="") if encode else payload
+        assignments = "&".join(f"{name}={value}" for name in params)
         return f"{url}{separator}{assignments}"
 
     @staticmethod
@@ -65,7 +68,7 @@ class CommandInjectionDetector(ArtemisBase):
         )
 
     @staticmethod
-    def response_contains_marker(response: Optional[HTTPResponse], marker: str) -> bool:
+    def response_contains_marker(response: HTTPResponse | None, marker: str) -> bool:
         if response is None:
             return False
         return marker in response.content
@@ -93,11 +96,11 @@ class CommandInjectionDetector(ArtemisBase):
     def _minimize_parameters(
         self,
         url: str,
-        params: List[str],
+        params: list[str],
         payload: str,
         minimization_mode: Literal["output", "time"],
-        marker: Optional[str] = None,
-    ) -> List[str]:
+        marker: str | None = None,
+    ) -> list[str]:
         """
         Find the minimal set of parameters that still proves the injection, capped at
         COMMAND_INJECTION_MINIMAL_PARAMS_MAX_LEN. Falls back to the full set if none prove it alone.
@@ -105,10 +108,9 @@ class CommandInjectionDetector(ArtemisBase):
         threshold = Config.Modules.CommandInjectionDetector.COMMAND_INJECTION_TIME_THRESHOLD
         baseline_payload = self.change_sleep_to_0(payload) if minimization_mode == "time" else ""
 
-        minimal_params: List[str] = []
+        minimal_params: list[str] = []
         for param in params:
-            if minimization_mode == "output":
-                assert marker is not None  # required for output-based minimization
+            if minimization_mode == "output" and marker is not None:
                 confirmed = self.response_contains_marker(
                     self.forgiving_http_get(self._url_with_payload(url, (param,), payload)), marker
                 )
@@ -123,9 +125,9 @@ class CommandInjectionDetector(ArtemisBase):
                 break
         return minimal_params or params
 
-    def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
+    def scan(self, urls: list[str]) -> list[dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
-        message: List[Dict[str, Any]] = []
+        message: list[dict[str, Any]] = []
 
         for current_url in urls:
             parameters = get_injectable_parameters(current_url)
@@ -135,8 +137,11 @@ class CommandInjectionDetector(ArtemisBase):
             time_payloads = build_time_payloads(
                 Config.Modules.CommandInjectionDetector.COMMAND_INJECTION_TIME_THRESHOLD
             )
+            # Measure the encoded payload length: _url_with_payload url-encodes before the request, so
+            # the batch budget must count the encoded size to keep each URL under the length cap.
             max_payload_len = max(
-                [len(injection) for injection, _ in output_payloads] + [len(payload) for payload in time_payloads]
+                len(urllib.parse.quote(payload, safe=""))
+                for payload in [injection for injection, _ in output_payloads] + time_payloads
             )
 
             # Group parameters so each injected URL (base + "&name=payload" per param) stays under the
@@ -162,7 +167,9 @@ class CommandInjectionDetector(ArtemisBase):
                         )
                         message.append(
                             {
-                                "url": self._url_with_payload(current_url, tuple(minimal_params), injection),
+                                "url": self._url_with_payload(
+                                    current_url, tuple(minimal_params), injection, encode=False
+                                ),
                                 "statement": "It appears that this URL is vulnerable to OS command injection",
                                 "code": Statements.command_injection.value,
                             }
@@ -183,7 +190,9 @@ class CommandInjectionDetector(ArtemisBase):
                         )
                         message.append(
                             {
-                                "url": self._url_with_payload(current_url, tuple(minimal_params), sleep_payload),
+                                "url": self._url_with_payload(
+                                    current_url, tuple(minimal_params), sleep_payload, encode=False
+                                ),
                                 "statement": "It appears that this URL is vulnerable to time-based (blind) "
                                 "OS command injection",
                                 "code": Statements.command_injection_time_based.value,
@@ -198,10 +207,13 @@ class CommandInjectionDetector(ArtemisBase):
     def create_status_reason(message: Any) -> str:
         return ", ".join(sorted({f"{item.get('url')}: {item.get('statement')}" for item in message}))
 
-    def create_data(self, message: Any) -> Dict[str, Any]:
+    def create_data(self, message: Any) -> dict[str, Any]:
+        seen: set[Any] = set()
         deduplicated_message = []
         for item in message:
-            if item not in deduplicated_message:
+            key = (item["url"], item["code"])
+            if key not in seen:
+                seen.add(key)
                 deduplicated_message.append(item)
 
         return {
@@ -227,7 +239,7 @@ class CommandInjectionDetector(ArtemisBase):
 
         random.shuffle(links)
 
-        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
+        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN])
 
         if message:
             status = TaskStatus.INTERESTING

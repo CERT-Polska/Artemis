@@ -79,7 +79,7 @@ paramiko==5.0.0
 pathable==0.6.0
 pem==23.1.0
 platformdirs==4.10.1
-prometheus-client==0.25.0
+prometheus-client==0.26.0
 propcache==0.5.2
 psutil==7.2.2
 psycopg2-binary==2.9.12

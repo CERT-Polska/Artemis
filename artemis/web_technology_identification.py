@@ -6,7 +6,12 @@ import tempfile
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-WAPPALYZER_PATH = "/opt/artemis/modules/utils/wappalyzer/"
+
+class TechDetectionFailedException(Exception):
+    """Raised when technology detection couldn't be performed at all.
+
+    This is not the same as detecting no technologies - see the comment in run_tech_detection.
+    """
 
 
 @dataclass
@@ -49,20 +54,24 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Dict[str, Lis
     """
     Run technology detection on a list of URLs using Wappalyzer.
 
-    Returns a mapping of URL -> list of detected technologies. On subprocess or
-    JSON parse failure, returns an empty list per URL.
+    Returns a mapping of URL -> list of detected technologies. A URL that couldn't be fetched maps to an
+    empty list, same as one that runs nothing we recognize.
+
+    Raises TechDetectionFailedException if the detection itself couldn't be performed - the caller must not
+    confuse that with a target running no technologies.
     """
     wappalyzer_path = os.path.join(os.path.dirname(__file__), "modules", "utils", "wappalyzer")
     main_go_path = os.path.join(wappalyzer_path, "main.go")
     if not os.path.exists(main_go_path):
-        raise FileNotFoundError(f"Wappalyzer main.go not found at {main_go_path}")
+        # Same class of failure as the ones below, so it gets the same exception - a caller catching
+        # TechDetectionFailedException would otherwise miss this one.
+        raise TechDetectionFailedException(f"Wappalyzer main.go not found at {main_go_path}")
 
     try:
-        # Update the Wappalyzer package once
-        subprocess.run(
-            ["go", "-C", WAPPALYZER_PATH, "get", "-u", "./..."], cwd=wappalyzer_path, check=True, capture_output=True
-        )
-
+        # The wappalyzergo version comes from go.mod. We deliberately don't upgrade it here: doing that on
+        # each call meant production, CI and the pinned version were all running different code, so a broken
+        # upstream release would hit production and CI at the same moment, with no PR to revert. Upgrades
+        # arrive as Dependabot pull requests instead - see .github/dependabot.yml.
         with tempfile.NamedTemporaryFile(mode="w") as temp_file:
             for url in urls:
                 temp_file.write(url + "\n")
@@ -83,8 +92,14 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Dict[str, Lis
                 parsed[url] = [_parse_tech(item) for item in items if isinstance(item, dict)]
         return parsed
     except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+        # Returning an empty result here would be indistinguishable from "we checked and found nothing",
+        # which is a lie the callers can't detect. Raising makes ArtemisBase retry the task and, if that
+        # doesn't help, save it with TaskStatus.ERROR instead of recording a false negative.
+        #
+        # A target that didn't respond doesn't end up here - the wrapper logs that and exits with 0 - so this
+        # means the detection itself is broken (no Go toolchain, no module, unreachable proxy, invalid output).
         logger.error(f"Error running technology detection: {e}")
-        return {url: [] for url in urls}
+        raise TechDetectionFailedException(f"Unable to run technology detection for {urls}") from e
 
 
 def to_tag_strings(techs: List[Technology]) -> List[str]:

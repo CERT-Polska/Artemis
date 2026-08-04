@@ -260,6 +260,36 @@ class SubdomainEnumeration(ArtemisBase):
 
         return subdomains
 
+    def _filter_wildcard_subdomains(self, subdomains: set[str], parent_domain: str) -> set[str]:
+        # Mirrors the wildcard-detection logic in get_subdomains_by_dns_brute_force.
+        wildcard_ips: set[str] = set()
+        for _ in range(10):
+            random_label = binascii.hexlify(os.urandom(5)).decode("ascii")
+            try:
+                wildcard_ips.update(lookup(f"{random_label}.{parent_domain}"))
+            except ResolutionException:
+                pass
+
+        kept: set[str] = set()
+        for subdomain in subdomains:
+            try:
+                candidate_ips = set(lookup(subdomain))
+            except ResolutionException:
+                self.log.info("Subdomain %s no longer resolves, filtering out", subdomain)
+                continue
+            if candidate_ips - wildcard_ips:
+                kept.add(subdomain)
+            else:
+                self.log.info("Subdomain %s resolves only to wildcard IPs, filtering out", subdomain)
+
+        self.log.info(
+            "Wildcard filter: kept %d/%d subdomains (%d wildcard IPs)",
+            len(kept),
+            len(subdomains),
+            len(wildcard_ips),
+        )
+        return kept
+
     def run(self, current_task: Task) -> None:
         if current_task.headers.get("origin", "") == self.identity:
             return
@@ -293,8 +323,8 @@ class SubdomainEnumeration(ArtemisBase):
             self.save_task_result(task=current_task, status=TaskStatus.OK)
             return
 
-        valid_subdomains = set()
-        existing_subdomains = set()
+        valid_subdomains: set[str] = set()
+        existing_subdomains: set[str] = set()
 
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
@@ -310,7 +340,6 @@ class SubdomainEnumeration(ArtemisBase):
                 self.log.error(f"Failed to obtain subdomains from {tool_func.__name__} for domain {domain}: {e}")
                 continue
 
-            valid_subdomains_from_tool = set()
             for subdomain in subdomains_from_tool:
                 subdomain = subdomain.strip(".")
                 if not is_domain(subdomain):
@@ -322,50 +351,53 @@ class SubdomainEnumeration(ArtemisBase):
                 if self._should_filter_subdomain(subdomain):
                     self.log.info("Subdomain returned that we should filter: %s", subdomain)
                     continue
-                if subdomain in valid_subdomains:
-                    continue
-                valid_subdomains_from_tool.add(subdomain)
+                valid_subdomains.add(subdomain)
 
-            # Batch mark subdomains as done in Redis using a pipeline
-            with self.redis.pipeline() as pipe:
-                for subdomain in valid_subdomains_from_tool:
-                    encoded_subdomain = subdomain.encode("idna").decode("utf-8")
-                    pipe.setex(
-                        f"subdomain-enumeration-done-{encoded_subdomain}-{current_task.root_uid}",
-                        Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
-                        1,
-                    )
-                pipe.execute()
+        threshold = Config.Modules.SubdomainEnumeration.LARGE_SUBDOMAIN_COUNT_VERIFICATION_THRESHOLD
+        if threshold > 0 and len(valid_subdomains) > threshold:
+            self.log.info(
+                "Found %d subdomains, exceeding threshold of %d. Running wildcard DNS filter.",
+                len(valid_subdomains),
+                threshold,
+            )
+            valid_subdomains = self._filter_wildcard_subdomains(valid_subdomains, domain)
 
-            # We save the task as soon as we have results from a single tool so that other kartons can do something.
-            for subdomain in valid_subdomains_from_tool:
-                if subdomain != domain:  # ensure we are not adding the parent domain again
-                    # If the initial source of the scanning was an IP or an IP range, only scan the subdomains
-                    # that point to the original IP.
-                    if has_ip_range(current_task):
-                        ip_range = get_ip_range(current_task)
-                        matches = [ip in ip_range for ip in lookup(subdomain)]
-                        if not (len(matches) and all(matches)):
-                            continue
+        with self.redis.pipeline() as pipe:
+            for subdomain in valid_subdomains:
+                encoded_subdomain = subdomain.encode("idna").decode("utf-8")
+                pipe.setex(
+                    f"subdomain-enumeration-done-{encoded_subdomain}-{current_task.root_uid}",
+                    Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,
+                    1,
+                )
+            pipe.execute()
 
-                    task = Task(
-                        {"type": TaskType.DOMAIN},
-                        payload={
-                            "domain": subdomain,
-                        },
-                    )
-                    if self.add_task_if_domain_exists(current_task, task):
-                        existing_subdomains.add(subdomain)
+        for subdomain in valid_subdomains:
+            if subdomain != domain:  # ensure we are not adding the parent domain again
+                # If the initial source of the scanning was an IP or an IP range, only scan the subdomains
+                # that point to the original IP.
+                if has_ip_range(current_task):
+                    ip_range = get_ip_range(current_task)
+                    matches = [ip in ip_range for ip in lookup(subdomain)]
+                    if not (len(matches) and all(matches)):
+                        continue
 
-                    task = Task(
-                        {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST},
-                        payload={
-                            "domain": subdomain,
-                        },
-                    )
-                    self.add_task(current_task, task)
+                task = Task(
+                    {"type": TaskType.DOMAIN},
+                    payload={
+                        "domain": subdomain,
+                    },
+                )
+                if self.add_task_if_domain_exists(current_task, task):
+                    existing_subdomains.add(subdomain)
 
-            valid_subdomains.update(valid_subdomains_from_tool)
+                task = Task(
+                    {"type": TaskType.DOMAIN_THAT_MAY_NOT_EXIST},
+                    payload={
+                        "domain": subdomain,
+                    },
+                )
+                self.add_task(current_task, task)
 
         if valid_subdomains:
             self.save_task_result(

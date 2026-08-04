@@ -2315,6 +2315,10 @@ TRANSLATIONS = {
     "Zoho ManageEngine OpManager before 12.5.329 contains a remote code execution caused by a general bypass in the deserialization class, letting unauthenticated attackers execute arbitrary code, exploit requires no authentication": "Narzędzie Zoho ManageEngine OpManager w wersji poniżej 12.5.329 zawiera podatność Remote Code Execution o identyfikatorze CVE-2021-3287, umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "The Meta Box plugin for WordPress is vulnerable to arbitrary file deletion due to insufficient file path validation in the ajax_delete_file function. This makes it possible for authenticated attackers with Contributor-level access and above to delete arbitrary files on the server.": "Wtyczka WordPress o nazwie Meta Box zawiera podatność Arbitrary File Deletion o identyfikatorze CVE-2026-39468, umożliwiającą atakującemu usunięcie dowolnych plików z serwera.",
+    "The Everest Forms plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 3.4.3 via deserialization of untrusted input from form entry metadata. This is due to the html-admin-page-entries-view.php file calling PHP's native unserialize() on stored entry meta values without passing the allowed_classes parameter. This makes it possible for unauthenticated attackers to inject a serialized PHP object payload through any public Everest Forms form field. The payload survives sanitize_text_field() sanitization (serialization control characters are not stripped) and is stored in the wp_evf_entrymeta database table. When an administrator views entries or views an individual entry, the unsafe unserialize() call processes the stored data without class restrictions.": "Wtyczka WordPress o nazwie Everest Forms w wersji do 3.4.3 włącznie zawiera podatność PHP Object Injection o identyfikatorze CVE-2026-3296, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2826,4 +2830,6 @@ TRANSLATIONS = {
     "ZoneMinder panel was detected.": "Wykryto panel ZoneMinder.",
     "Vikunja login panel was detected. Vikunja is a self-hosted to-do and project management application.": "Wykryto panel logowania Vikunja.",
     "DD-WRT router management panel detected.": "Wykryto panel zarządzania routerem DD-WRT.",
+    "Detects the presence of ChirpStack LoRaWAN Network-Server by identifying unique page characteristics in the HTML response.": "Wykryto panel ChirpStack LoRaWAN Network-Server.",
+    "[no description] http/exposed-panels/web-viewer-panel.yaml": "Wykryto panel Web Viewer.",
 }

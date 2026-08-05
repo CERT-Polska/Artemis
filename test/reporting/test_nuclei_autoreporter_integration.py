@@ -58,6 +58,8 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
                     asset_type=AssetType.EXPOSED_PANEL,
                     name="http://test-old-wordpress:80/wp-login.php",
                     additional_type="wordpress-login",
+                    # Taken from the info.classification.cpe field of the Nuclei template
+                    cpe="cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*",
                     original_karton_name=None,
                     last_domain=None,
                 )

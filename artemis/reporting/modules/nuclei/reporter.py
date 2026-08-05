@@ -2,7 +2,7 @@ import collections
 import json
 import os
 import urllib.parse
-from typing import Any, Callable, Counter, Dict, List
+from typing import Any, Callable, Counter, Dict, List, Optional
 
 from artemis.config import Config
 from artemis.domains import is_domain
@@ -11,6 +11,7 @@ from artemis.modules.nuclei import (
 )
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
+from artemis.reporting.base.cpe import parse_cpe
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_domain_normal_form
 from artemis.reporting.base.report import Report
@@ -31,6 +32,30 @@ SEVERITY_OVERRIDES = {
     "http/exposures/logs/": "medium",
     "http/misconfiguration/server-status.yaml": "medium",
 }
+
+
+def _get_cpe(vulnerability: Dict[str, Any]) -> Optional[str]:
+    """Returns the CPE of the software the Nuclei template matched, if the template provides one.
+
+    Nuclei templates may contain it in the info.classification.cpe field, e.g.:
+
+        info:
+          classification:
+            cpe: cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*
+
+    When a template doesn't describe a concrete piece of software, None is returned.
+    """
+    info = vulnerability.get("info", None)
+
+    if not isinstance(info, dict):
+        return None
+
+    classification = info.get("classification", None)
+
+    if not isinstance(classification, dict):
+        return None
+
+    return parse_cpe(classification.get("cpe", None))
 
 
 class NucleiReporter(Reporter):
@@ -266,6 +291,11 @@ class NucleiReporter(Reporter):
             panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
 
             result.append(
-                Asset(asset_type=AssetType.EXPOSED_PANEL, name=vulnerability["matched-at"], additional_type=panel)
+                Asset(
+                    asset_type=AssetType.EXPOSED_PANEL,
+                    name=vulnerability["matched-at"],
+                    additional_type=panel,
+                    cpe=_get_cpe(vulnerability),
+                )
             )
         return result

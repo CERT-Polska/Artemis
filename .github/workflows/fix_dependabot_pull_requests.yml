@@ -27,6 +27,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add requirements.txt
+          git add requirements.txt docs/requirements.txt
           git diff --cached --quiet || git commit -m "Recompile requirements"
           git push

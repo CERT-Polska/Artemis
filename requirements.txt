@@ -24,7 +24,7 @@ cattrs==26.1.0
 certifi==2026.7.22
 cffi==2.0.0
 chardet==7.4.3
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
 checkdmarc==5.17.3
 click==8.4.2
 click-plugins==1.1.1.2

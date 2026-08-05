@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
-from artemis.reporting.base.cpe import parse_cpe
+from artemis.reporting.base.cpe import to_cpe
 from artemis.reporting.base.reporter import Reporter
 from artemis.web_technology_identification import Technology
 
@@ -30,7 +30,7 @@ def _iter_technologies(result: Dict[str, Any]) -> List[Technology]:
                 Technology(
                     name=str(name),
                     version=str(version) if version else None,
-                    cpe=parse_cpe(tech.get("cpe", None)),
+                    cpe=to_cpe(tech.get("cpe", None)),
                 )
             )
         return technologies

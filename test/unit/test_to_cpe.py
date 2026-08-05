@@ -1,22 +1,22 @@
 import unittest
 from typing import Any, List
 
-from artemis.reporting.base.cpe import parse_cpe
+from artemis.reporting.base.cpe import to_cpe
 
 
-class ParseCPETest(unittest.TestCase):
+class ToCPETest(unittest.TestCase):
     def test_cpe_2_3(self) -> None:
         self.assertEqual(
-            parse_cpe("cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*"),
+            to_cpe("cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*"),
             "cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*",
         )
 
     def test_cpe_2_2_uri(self) -> None:
         # A single Nuclei template still uses the old binding - let's not drop it.
-        self.assertEqual(parse_cpe("cpe:/a:redhat:infinispan"), "cpe:/a:redhat:infinispan")
+        self.assertEqual(to_cpe("cpe:/a:redhat:infinispan"), "cpe:/a:redhat:infinispan")
 
     def test_surrounding_whitespace_is_stripped(self) -> None:
-        self.assertEqual(parse_cpe("  cpe:2.3:a:php:php:*:*:*:*:*:*:*:*\n"), "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*")
+        self.assertEqual(to_cpe("  cpe:2.3:a:php:php:*:*:*:*:*:*:*:*\n"), "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*")
 
     def test_values_that_are_not_cpe_names(self) -> None:
         values: List[Any] = [
@@ -38,7 +38,7 @@ class ParseCPETest(unittest.TestCase):
         ]
         for value in values:
             with self.subTest(value=value):
-                self.assertIsNone(parse_cpe(value))
+                self.assertIsNone(to_cpe(value))
 
 
 if __name__ == "__main__":

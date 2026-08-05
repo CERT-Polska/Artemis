@@ -70,7 +70,7 @@ class NucleiAssetCPETest(unittest.TestCase):
 
     def test_malformed_cpe_is_skipped(self) -> None:
         # Custom templates may put anything there - the full matrix of what counts as a CPE name
-        # is checked in test_parse_cpe.
+        # is checked in test_to_cpe.
         (asset,) = _assets({"severity": "info", "classification": {"cpe": "wordpress"}})
         self.assertIsNone(asset.cpe)
 

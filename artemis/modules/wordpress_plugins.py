@@ -65,8 +65,8 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "testimonial-slider-and-showcase",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
+    "coming-soon",
     "famethemes-demo-importer",
-    "google-maps-easy",
     "icon-element",
     "learnpress-wishlist",
     "link-manager",

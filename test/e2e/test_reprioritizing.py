@@ -8,7 +8,7 @@ from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority as KartonTaskPriority
 from karton.core.task import TaskState
 
-from artemis.prioritizer.prioritizer import reprioritize_analyses
+from artemis.reprioritizer.reprioritizer import reprioritize_analyses
 
 API_TOKEN = "api-token"
 VALID_HEADERS: Dict[str, str] = {"X-API-Token": API_TOKEN}

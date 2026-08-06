@@ -91,7 +91,7 @@ services:
 
   reprioritizer:
     <<: [*logging, *artemis-build-or-image]
-    command: "bash -c 'alembic upgrade head && python3 -m artemis.prioritizer.prioritizer'"
+    command: "bash -c 'alembic upgrade head && python3 -m artemis.reprioritizer.reprioritizer'"
     env_file: .env
     restart: always
 

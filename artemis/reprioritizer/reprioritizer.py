@@ -15,6 +15,7 @@ def reprioritize_analyses() -> None:
     analyses_to_reprioritize = db.get_analyses_to_reprioritize()
     analyses_priority_to_ids: dict[str, list[str]] = {priority.value: [] for priority in TaskPriority}
     for analysis in analyses_to_reprioritize:
+        LOGGER.info("Reprioritizing %s", analysis)
         analyses_priority_to_ids[analysis["desired_priority"].value].append(analysis.get("id"))  # type: ignore
 
     for desired_priority, analyses_ids in analyses_priority_to_ids.items():
@@ -30,6 +31,7 @@ def reprioritize_analyses() -> None:
 def main() -> None:
     LOGGER.info("Trying to reprioritize analyses...")
     reprioritize_analyses()
+    LOGGER.info("Reprioritized analyses")
 
 
 if __name__ == "__main__":

@@ -48,6 +48,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "booking",
     "dashboard-welcome-for-elementor",
     "everest-forms",
+    "litespeed-cache",
     "permalink-manager",
     "social-pug",
     "uicore-animate",

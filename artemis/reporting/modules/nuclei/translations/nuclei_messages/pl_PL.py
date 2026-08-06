@@ -2319,6 +2319,7 @@ TRANSLATIONS = {
     "The Everest Forms plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 3.4.3 via deserialization of untrusted input from form entry metadata. This is due to the html-admin-page-entries-view.php file calling PHP's native unserialize() on stored entry meta values without passing the allowed_classes parameter. This makes it possible for unauthenticated attackers to inject a serialized PHP object payload through any public Everest Forms form field. The payload survives sanitize_text_field() sanitization (serialization control characters are not stripped) and is stored in the wp_evf_entrymeta database table. When an administrator views entries or views an individual entry, the unsafe unserialize() call processes the stored data without class restrictions.": "Wtyczka WordPress o nazwie Everest Forms w wersji do 3.4.3 włącznie zawiera podatność PHP Object Injection o identyfikatorze CVE-2026-3296, umożliwiającą atakującemu zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "Laravel Passport OAuth2 RSA private or public keys are publicly accessible at default storage paths. Exposed private keys allow attackers to forge OAuth2 access tokens and impersonate any user.": "Wykryto, że klucze prywatne lub publiczne narzędzia Laravel Passport OAuth2 są publicznie dostępne w domyślnych ścieżkach przechowywania. Ujawnione klucze prywatne umożliwiają atakującemu fałszowanie tokenów dostępu OAuth2 i podszywanie się pod dowolnego użytkownika.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2832,4 +2833,5 @@ TRANSLATIONS = {
     "DD-WRT router management panel detected.": "Wykryto panel zarządzania routerem DD-WRT.",
     "Detects the presence of ChirpStack LoRaWAN Network-Server by identifying unique page characteristics in the HTML response.": "Wykryto panel ChirpStack LoRaWAN Network-Server.",
     "[no description] http/exposed-panels/web-viewer-panel.yaml": "Wykryto panel Web Viewer.",
+    "Detected SonicWall Secure Mobile Access (SMA) appliances — an enterprise SSL-VPN gateway for secure remote access (SMA 1000/6200/7200 series).": "Wykryto panel SonicWall Secure Mobile Access (SMA).",
 }

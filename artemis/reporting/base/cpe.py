@@ -6,7 +6,7 @@ from typing import Any, Optional
 CPE_PREFIXES = ("cpe:2.3:", "cpe:/")
 
 
-def to_cpe(value: Any) -> Optional[str]:
+def extract_cpe(value: Any) -> Optional[str]:
     """Returns the value if it looks like a CPE name (https://en.wikipedia.org/wiki/Common_Platform_Enumeration).
 
     Only the binding prefix is checked, not the structure - the point is to drop values that clearly

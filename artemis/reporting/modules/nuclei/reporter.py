@@ -11,7 +11,7 @@ from artemis.modules.nuclei import (
 )
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
-from artemis.reporting.base.cpe import to_cpe
+from artemis.reporting.base.cpe import extract_cpe
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_domain_normal_form
 from artemis.reporting.base.report import Report
@@ -55,7 +55,7 @@ def _get_cpe(vulnerability: Dict[str, Any]) -> Optional[str]:
     if not isinstance(classification, dict):
         return None
 
-    return to_cpe(classification.get("cpe", None))
+    return extract_cpe(classification.get("cpe", None))
 
 
 class NucleiReporter(Reporter):

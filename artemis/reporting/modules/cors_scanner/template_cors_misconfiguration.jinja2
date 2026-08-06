@@ -1,0 +1,18 @@
+{% if "cors_misconfiguration" in data.contains_type %}
+    <li>{% trans %}We identified CORS misconfigurations on the following targets:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "cors_misconfiguration" %}
+                    <li>
+                        {{ report.target }} ({{ report.additional_data.endpoints_scanned }} {% trans %}endpoints scanned{% endtrans %})
+                        <ul>
+                            {% for finding in report.additional_data.findings %}
+                                <li>[{{ finding.severity | upper }}] {{ finding.issue }} — {{ finding.endpoint }} (Origin: {{ finding.origin_sent }})</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}

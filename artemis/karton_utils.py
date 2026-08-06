@@ -63,17 +63,14 @@ def change_priority_for_analyses(analyses_ids: list[str], new_priority: str, pus
     if not_found_ids:
         LOGGER.warning("There were analyses that were not found in Karton state: %s", ", ".join(not_found_ids))
 
-    tasks = []
     for analysis in found_analyses:
-        tasks = analysis.tasks
-
-    for task in tasks:
-        try:
-            change_priority_for_task(state, task, new_priority, push_to_queue_end)
-        except Exception as e:
-            LOGGER.error(
-                "Error while changing priority for task %s of analysis %s: %s", task.uid, task.root_uid, str(e)
-            )
+        for task in analysis.tasks:
+            try:
+                change_priority_for_task(state, task, new_priority, push_to_queue_end)
+            except Exception as e:
+                LOGGER.error(
+                    "Error while changing priority for task %s of analysis %s: %s", task.uid, task.root_uid, str(e)
+                )
 
 
 def change_priority_for_task(

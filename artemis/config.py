@@ -331,6 +331,18 @@ class Config:
             bool, "Raise error in case cleanup task did not found unfinished analyses."
         ] = get_config("CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES", default=False, cast=bool)
 
+        MODULES_WHITELIST_FOR_ORIGINAL_HOST_DEDUPLICATION: Annotated[
+            list[str],
+            "List of modules whose results do not depend on the original_ip/original_domain through which a target "
+            "was discovered. When a task is enqueued for such a module, Artemis will deduplicate it by target host "
+            "alone (ignoring original_ip/original_domain), so the same host is not scanned twice by these modules "
+            "just because it was reachable via different original hosts. Can be extended with custom modules.",
+        ] = get_config(
+            "MODULES_WHITELIST_FOR_ORIGINAL_HOST_DEDUPLICATION",
+            default="nuclei-router,nuclei-module,admin_panel_login_bruter,xss_scanner,lfi_detector,sqlmap,sql_injection_detector,dangling_dns_detector",
+            cast=decouple.Csv(str, delimiter=","),
+        )
+
     class Modules:
         class AdminPanelLoginBruter:
             ADMIN_PANEL_LOGIN_BRUTER_NUM_RECHECKS: Annotated[

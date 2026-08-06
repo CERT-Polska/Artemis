@@ -41,7 +41,6 @@ def create_tasks(
             logger.debug(f"No module configurations provided for task {uri}")
 
         db.create_analysis(task)
-        db.save_scheduled_task(task)
         db.save_tag(tag)
         producer.send_task(task)
         task_ids.append(task.uid)

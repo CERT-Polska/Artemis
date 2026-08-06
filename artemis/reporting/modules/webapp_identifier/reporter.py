@@ -1,19 +1,21 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
+from artemis.reporting.base.cpe import extract_cpe
 from artemis.reporting.base.reporter import Reporter
+from artemis.web_technology_identification import Technology
 
 
-def _iter_technologies(result: Dict[str, Any]) -> List[Tuple[str, Optional[str]]]:
+def _iter_technologies(result: Dict[str, Any]) -> List[Technology]:
     """
-    Yield ``(name, version)`` pairs from a ``webapp_identifier`` task result.
+    Return technologies from a ``webapp_identifier`` task result.
 
     Prefers the structured ``technologies`` list; falls back to the legacy
     ``technology_tags`` string list so reports for older task results still
-    render.
+    render (those don't carry the CPE, therefore it stays None there).
     """
-    pairs: List[Tuple[str, Optional[str]]] = []
+    technologies: List[Technology] = []
 
     structured = result.get("technologies")
     if isinstance(structured, list) and structured:
@@ -24,18 +26,24 @@ def _iter_technologies(result: Dict[str, Any]) -> List[Tuple[str, Optional[str]]
             if not name:
                 continue
             version = tech.get("version") or None
-            pairs.append((str(name), str(version) if version else None))
-        return pairs
+            technologies.append(
+                Technology(
+                    name=str(name),
+                    version=str(version) if version else None,
+                    cpe=extract_cpe(tech.get("cpe", None)),
+                )
+            )
+        return technologies
 
     for tag in result.get("technology_tags", []):
         if not isinstance(tag, str):
             continue
         if ":" in tag:
             name, version = tag.split(":", 1)
-            pairs.append((name, version or None))
+            technologies.append(Technology(name=name, version=version or None))
         else:
-            pairs.append((tag, None))
-    return pairs
+            technologies.append(Technology(name=tag))
+    return technologies
 
 
 class WebappIdentifierReporter(Reporter):
@@ -48,23 +56,25 @@ class WebappIdentifierReporter(Reporter):
             return []
 
         result = []
-        for technology, version in _iter_technologies(task_result["result"]):
-            if technology == "WordPress":  # we have separate type for that
+        for technology in _iter_technologies(task_result["result"]):
+            if technology.name == "WordPress":  # we have separate type for that
                 result.append(
                     Asset(
                         asset_type=AssetType.CMS,
                         name=task_result["target_string"],
                         additional_type="wordpress",
-                        version=version,
+                        version=technology.version,
+                        cpe=technology.cpe,
                     )
                 )
-            elif technology == "Joomla":  # we have separate type for that
+            elif technology.name == "Joomla":  # we have separate type for that
                 result.append(
                     Asset(
                         asset_type=AssetType.CMS,
                         name=task_result["target_string"],
                         additional_type="joomla",
-                        version=version,
+                        version=technology.version,
+                        cpe=technology.cpe,
                     )
                 )
             else:
@@ -72,8 +82,9 @@ class WebappIdentifierReporter(Reporter):
                     Asset(
                         asset_type=AssetType.TECHNOLOGY,
                         name=task_result["target_string"],
-                        additional_type=technology,
-                        version=version,
+                        additional_type=technology.name,
+                        version=technology.version,
+                        cpe=technology.cpe,
                     )
                 )
         return result

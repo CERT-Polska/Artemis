@@ -26,7 +26,6 @@ class ReprioritizingTestCase(BaseE2ETestCase):
 
         analysis = analyses[0]
         analysis_id = analysis["id"]
-        print(analysis)
 
         self.assertEqual(analysis["priority"], "normal")
 

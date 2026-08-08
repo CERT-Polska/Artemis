@@ -1,0 +1,24 @@
+#: artemis/reporting/modules/command_injection_detector/template_command_injection.jinja2:2
+msgid ""
+"We identified that the following URLs are vulnerable to OS command "
+"injection:"
+msgstr ""
+
+#: artemis/reporting/modules/command_injection_detector/template_command_injection.jinja2:11
+msgid ""
+"This was detected using a time-based (blind) technique: an injected sleep"
+" command caused a reproducible delay in the response, which shows the "
+"server executed it even though the command output is not visible in the "
+"response."
+msgstr ""
+
+#: artemis/reporting/modules/command_injection_detector/template_command_injection.jinja2:23
+msgid ""
+"OS command injection occurs when user input is passed to a system shell "
+"without proper validation, allowing an attacker to execute arbitrary "
+"operating system commands on the server. This can lead to full server "
+"compromise, data theft, and lateral movement inside the network. To fix "
+"this, avoid passing user input to shell commands; where that is "
+"unavoidable, use parameterized APIs and strictly validate and whitelist "
+"all input."
+msgstr ""

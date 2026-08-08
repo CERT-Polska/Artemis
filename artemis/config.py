@@ -1202,6 +1202,25 @@ class Config:
                 "Seconds to sleep using the sleep() or pg_sleep() methods",
             ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=5, cast=int)
 
+        class CommandInjectionDetector:
+            COMMAND_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to display only the first OS command injection and stop scanning.",
+            ] = get_config("COMMAND_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            COMMAND_INJECTION_MINIMAL_PARAMS_MAX_LEN: Annotated[
+                int,
+                "Maximum number of parameters kept after OS command injection parameter minimization.",
+            ] = get_config("COMMAND_INJECTION_MINIMAL_PARAMS_MAX_LEN", default=5, cast=int)
+            COMMAND_INJECTION_NUM_RETRIES_TIME_BASED: Annotated[
+                int,
+                "How many times to re-check whether a long request duration with the injected sleep (and a short "
+                "one without it) is indeed a vulnerability rather than a random fluctuation.",
+            ] = get_config("COMMAND_INJECTION_NUM_RETRIES_TIME_BASED", default=10, cast=int)
+            COMMAND_INJECTION_TIME_THRESHOLD: Annotated[
+                int,
+                "Seconds to sleep using the sleep command in time-based OS command injection detection.",
+            ] = get_config("COMMAND_INJECTION_TIME_THRESHOLD", default=5, cast=int)
+
         class LFIDetector:
             LFI_STOP_ON_FIRST_MATCH: Annotated[
                 bool,

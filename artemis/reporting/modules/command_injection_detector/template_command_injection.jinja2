@@ -1,0 +1,32 @@
+{% if "command_injection" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are vulnerable to OS command injection:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "command_injection" %}
+                    {% for message in report.additional_data.result %}
+                        <li>
+                            {{ message.url }}
+                            {% if message.code == report.additional_data.statements.command_injection_time_based %}
+                                :
+                                {% trans trimmed %}
+                                    This was detected using a time-based (blind) technique: an injected sleep command
+                                    caused a reproducible delay in the response, which shows the server executed it even
+                                    though the command output is not visible in the response.
+                                {% endtrans %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                OS command injection occurs when user input is passed to a system shell without proper validation,
+                allowing an attacker to execute arbitrary operating system commands on the server. This can lead to full
+                server compromise, data theft, and lateral movement inside the network. To fix this, avoid passing user
+                input to shell commands; where that is unavoidable, use parameterized APIs and strictly validate and
+                whitelist all input.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

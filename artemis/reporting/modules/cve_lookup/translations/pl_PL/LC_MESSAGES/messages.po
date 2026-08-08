@@ -1,0 +1,21 @@
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:2
+msgid "Known CVEs were found for the following detected web technologies (the site may not be exploitable — verify the patch level):"
+msgstr ""
+
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:10
+msgid "has {{ count }} known CVE."
+msgid_plural "has {{ count }} known CVEs."
+msgstr[0] ""
+msgstr[1] ""
+
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:12
+msgid "Highest CVSS score:"
+msgstr ""
+
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:17
+msgid "CVSS"
+msgstr ""
+
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:21
+msgid "and {{ count }} more."
+msgstr ""

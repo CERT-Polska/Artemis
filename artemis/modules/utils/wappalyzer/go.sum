@@ -2,8 +2,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/projectdiscovery/wappalyzergo v0.2.91 h1:pjbEOCJKmxfEG5xK3WnUNY4SuYjPoYUuAUxa3F1QN1Y=
-github.com/projectdiscovery/wappalyzergo v0.2.91/go.mod h1:gMH0o5lBp65sKMwHx/tuUdOtW2RjodC6Ti+9QDsYMkY=
+github.com/projectdiscovery/wappalyzergo v0.2.92 h1:u9SMlh2t3ZM89hNa0TBCpANh1SFyfUA2Qaqz5NXYG3U=
+github.com/projectdiscovery/wappalyzergo v0.2.92/go.mod h1:gMH0o5lBp65sKMwHx/tuUdOtW2RjodC6Ti+9QDsYMkY=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 golang.org/x/net v0.54.0 h1:2zJIZAxAHV/OHCDTCOHAYehQzLfSXuf/5SoL/Dv6w/w=

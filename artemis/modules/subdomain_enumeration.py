@@ -218,6 +218,15 @@ class SubdomainEnumeration(ArtemisBase):
             input=domain.encode("idna"),
         )
 
+    def _collect_wildcard_ips(self, domain: str, num_samples: int) -> Set[str]:
+        wildcard_ips: Set[str] = set()
+        for _ in range(num_samples):
+            try:
+                wildcard_ips.update(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain))
+            except ResolutionException:
+                pass
+        return wildcard_ips
+
     def get_subdomains_by_dns_brute_force(self, domain: str) -> Optional[Set[str]]:
         # The rationale here is to filter wildcard DNS configurations. If someone has configured their
         # DNS server to return something for all subdomains, we don't want to produce a large list of subdomains.
@@ -226,15 +235,8 @@ class SubdomainEnumeration(ArtemisBase):
         # for wildcard DNS query.
         #
         # The number here (100) is not a mistake - we observed that there might be a large number of possible results.
-        results_for_random_subdomain = []
-        for _ in range(100):
-            try:
-                results_for_random_subdomain.append(
-                    tuple(lookup(binascii.hexlify(os.urandom(5)).decode("ascii") + "." + domain))
-                )
-            except ResolutionException:
-                pass
-        if not results_for_random_subdomain:
+        wildcard_ips = self._collect_wildcard_ips(domain, 100)
+        if not wildcard_ips:
             return set()
 
         subdomains: Set[str] = set()
@@ -248,7 +250,7 @@ class SubdomainEnumeration(ArtemisBase):
             except ResolutionException:
                 continue
 
-            if lookup_result and tuple(lookup_result) not in results_for_random_subdomain:
+            if lookup_result and set(lookup_result) - wildcard_ips:
                 subdomains.add(subdomain + "." + domain)
 
             if time.time() > time_start + Config.Modules.SubdomainEnumeration.DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS:
@@ -260,15 +262,8 @@ class SubdomainEnumeration(ArtemisBase):
 
         return subdomains
 
-    def _filter_wildcard_subdomains(self, subdomains: set[str], parent_domain: str) -> set[str]:
-        # Mirrors the wildcard-detection logic in get_subdomains_by_dns_brute_force.
-        wildcard_ips: set[str] = set()
-        for _ in range(10):
-            random_label = binascii.hexlify(os.urandom(5)).decode("ascii")
-            try:
-                wildcard_ips.update(lookup(f"{random_label}.{parent_domain}"))
-            except ResolutionException:
-                pass
+    def _filter_wildcard_subdomains(self, subdomains: Set[str], parent_domain: str) -> Set[str]:
+        wildcard_ips = self._collect_wildcard_ips(parent_domain, 10)
 
         kept: set[str] = set()
         for subdomain in subdomains:
@@ -354,7 +349,7 @@ class SubdomainEnumeration(ArtemisBase):
                 valid_subdomains.add(subdomain)
 
         threshold = Config.Modules.SubdomainEnumeration.LARGE_SUBDOMAIN_COUNT_VERIFICATION_THRESHOLD
-        if threshold > 0 and len(valid_subdomains) > threshold:
+        if threshold > 0 and len(valid_subdomains) >= threshold:
             self.log.info(
                 "Found %d subdomains, exceeding threshold of %d. Running wildcard DNS filter.",
                 len(valid_subdomains),

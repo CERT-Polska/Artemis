@@ -227,18 +227,7 @@ class SubdomainEnumeration(ArtemisBase):
                 pass
         return wildcard_ips
 
-    def get_subdomains_by_dns_brute_force(self, domain: str) -> Optional[Set[str]]:
-        # The rationale here is to filter wildcard DNS configurations. If someone has configured their
-        # DNS server to return something for all subdomains, we don't want to produce a large list of subdomains.
-        #
-        # We perform queries for multiple random domains as there might be multiple possible results
-        # for wildcard DNS query.
-        #
-        # The number here (100) is not a mistake - we observed that there might be a large number of possible results.
-        wildcard_ips = self._collect_wildcard_ips(domain, 100)
-        if not wildcard_ips:
-            return set()
-
+    def get_subdomains_by_dns_brute_force(self, wildcard_ips: Set[str], domain: str) -> Optional[Set[str]]:
         subdomains: Set[str] = set()
         self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
         time_start = time.time()
@@ -262,9 +251,7 @@ class SubdomainEnumeration(ArtemisBase):
 
         return subdomains
 
-    def _filter_wildcard_subdomains(self, subdomains: Set[str], parent_domain: str) -> Set[str]:
-        wildcard_ips = self._collect_wildcard_ips(parent_domain, 10)
-
+    def _filter_wildcard_subdomains(self, wildcard_ips: Set[str], subdomains: Set[str], parent_domain: str) -> Set[str]:
         kept: set[str] = set()
         for subdomain in subdomains:
             try:
@@ -293,6 +280,15 @@ class SubdomainEnumeration(ArtemisBase):
             # In practice, there are too many subdomains such as 1.2.3.4.hosting-provider.net.
             # returned via reverse DNS to perform subdomain enumeration on all of them.
             return
+
+        # The rationale here is to filter wildcard DNS configurations. If someone has configured their
+        # DNS server to return something for all subdomains, we don't want to produce a large list of subdomains.
+        #
+        # We perform queries for multiple random domains as there might be multiple possible results
+        # for wildcard DNS query.
+        #
+        # The number here (100) is not a mistake - we observed that there might be a large number of possible results.
+        wildcard_ips = self._collect_wildcard_ips(domain, 100)
 
         domain = current_task.get_payload("domain").lower()
 
@@ -324,7 +320,7 @@ class SubdomainEnumeration(ArtemisBase):
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
             self.get_subdomains_from_gau,
-            self.get_subdomains_by_dns_brute_force,
+            lambda domain: self.get_subdomains_by_dns_brute_force(wildcard_ips, domain),
         ]
 
         for tool_func in subdomain_tools:
@@ -355,7 +351,7 @@ class SubdomainEnumeration(ArtemisBase):
                 len(valid_subdomains),
                 threshold,
             )
-            valid_subdomains = self._filter_wildcard_subdomains(valid_subdomains, domain)
+            valid_subdomains = self._filter_wildcard_subdomains(wildcard_ips, valid_subdomains, domain)
 
         with self.redis.pipeline() as pipe:
             for subdomain in valid_subdomains:

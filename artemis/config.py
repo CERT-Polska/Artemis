@@ -1137,8 +1137,8 @@ class Config:
             LARGE_SUBDOMAIN_COUNT_VERIFICATION_THRESHOLD: Annotated[
                 int,
                 "When the total number of discovered subdomains exceeds this value, a wildcard DNS "
-                "filter is applied before dispatching tasks. Ten random subdomains of the parent "
-                "domain are resolved to build a wildcard IP baseline; any candidate subdomain whose "
+                "filter is applied before dispatching tasks. A sample random subdomains of the parent "
+                "domain is resolved to build a wildcard IP baseline; any candidate subdomain whose "
                 "resolved IPs are all within that baseline (indicating an ISP catch-all or wildcard "
                 "DNS configuration) is dropped. Set to 0 to disable (default).",
             ] = get_config("SUBDOMAIN_ENUMERATION_LARGE_COUNT_VERIFICATION_THRESHOLD", default=0, cast=int)

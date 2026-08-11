@@ -20,6 +20,28 @@ from artemis.reporting.severity import get_severity
 from artemis.reporting.utils import get_top_level_target
 from artemis.task_utils import get_target_host
 
+MERGEABLE_ASSET_FIELDS = ("version", "cpe")
+
+
+def _fill_missing_data(asset: Asset, duplicate: Asset) -> None:
+    """Copies the data `duplicate` has and `asset` lacks.
+
+    Modules detect overlapping sets of facts about the same asset - e.g. both webapp_identifier and
+    wp_scanner report a WordPress CMS on the same URL, but only the former knows a CPE, and either of them
+    may fail to determine the version. Keeping only the description that happened to be loaded first would
+    therefore drop data depending on the order the database returned the rows in.
+
+    A value that is already there is never overwritten: when both descriptions know a fact and disagree
+    (two versions detected by two different methods), choosing between them is a separate problem and
+    both answers are equally true as far as this function is concerned.
+
+    `asset` is modified in place, which the whole mechanism depends on - it works because Asset is a plain,
+    non-frozen dataclass, and because the object modified here is the one already collected for the export.
+    """
+    for field_name in MERGEABLE_ASSET_FIELDS:
+        if getattr(asset, field_name) is None:
+            setattr(asset, field_name, getattr(duplicate, field_name))
+
 
 class DataLoader:
     """
@@ -70,7 +92,7 @@ class DataLoader:
         if not self._silent:
             results = tqdm(results)  # type: ignore
 
-        seen_assets: Set[Tuple[str, str, str, str]] = set()
+        seen_assets: Dict[Tuple[AssetType, Optional[str], str, Optional[str]], Asset] = {}
 
         for result in results:
             result_tag = result["task"].get("payload_persistent", {}).get("tag", None)
@@ -139,9 +161,14 @@ class DataLoader:
             for item in assets_to_add:
                 # We save last domain so that even if an IP occurs multiple times on multiple domains, we'll still
                 # save it for each domain.
-                if (item.asset_type, item.additional_type, item.name, item.last_domain) in seen_assets:
+                key = (item.asset_type, item.additional_type, item.name, item.last_domain)
+                if key in seen_assets:
+                    # The asset is already there, but this description of it may know something the stored
+                    # one doesn't. Mutating in place is what makes it visible - the object we modify is the
+                    # one already appended to self._assets.
+                    _fill_missing_data(seen_assets[key], item)
                     continue
-                seen_assets.add((item.asset_type, item.additional_type, item.name, item.last_domain))
+                seen_assets[key] = item
                 assets_filtered.append(item)
             self._assets.extend(assets_filtered)
 

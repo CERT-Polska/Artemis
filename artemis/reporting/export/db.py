@@ -165,7 +165,9 @@ class DataLoader:
                 if key in seen_assets:
                     # The asset is already there, but this description of it may know something the stored
                     # one doesn't. Mutating in place is what makes it visible - the object we modify is the
-                    # one already appended to self._assets.
+                    # one already appended to self._assets. `dataclasses.replace()` would be the tidier-looking
+                    # alternative, but it re-runs `__post_init__`, resolving the asset's domain again on every
+                    # merge, and wouldn't carry `domain_ips` over anyway, as that one is an `init=False` field.
                     _fill_missing_data(seen_assets[key], item)
                     continue
                 seen_assets[key] = item

@@ -281,6 +281,8 @@ class SubdomainEnumeration(ArtemisBase):
             # returned via reverse DNS to perform subdomain enumeration on all of them.
             return
 
+        domain = current_task.get_payload("domain").lower()
+
         # The rationale here is to filter wildcard DNS configurations. If someone has configured their
         # DNS server to return something for all subdomains, we don't want to produce a large list of subdomains.
         #
@@ -289,8 +291,6 @@ class SubdomainEnumeration(ArtemisBase):
         #
         # The number here (100) is not a mistake - we observed that there might be a large number of possible results.
         wildcard_ips = self._collect_wildcard_ips(domain, 100)
-
-        domain = current_task.get_payload("domain").lower()
 
         if (
             PUBLIC_SUFFIX_LIST.publicsuffix(domain) == domain

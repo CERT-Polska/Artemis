@@ -1,7 +1,5 @@
 import datetime
-import random
 import re
-import urllib
 from enum import Enum
 from timeit import default_timer as timer
 from typing import Any, Dict, List, Literal, Optional
@@ -14,14 +12,10 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import (
-    crawl_and_filter,
-    get_injectable_parameters,
-)
+from artemis.crawling import get_injectable_parameters, get_links_to_scan
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.parameters import URL_PARAMS
-from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url
 
@@ -44,11 +38,6 @@ class SqlInjectionDetector(ArtemisBase):
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
-
-    @staticmethod
-    def _strip_query_string(url: str) -> str:
-        url_parsed = urllib.parse.urlparse(url)
-        return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
     def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any, ...], payload: str) -> str:
         assignments = {key: payload for key in param_batch}
@@ -534,20 +523,9 @@ class SqlInjectionDetector(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
+        links = get_links_to_scan(url)
 
-        links = crawl_and_filter(url)
-        links.append(url)
-        links = list(set(links) | set([self._strip_query_string(link) for link in links]))
-
-        links = [
-            link.split("#")[0]
-            for link in links
-            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-        ]
-
-        random.shuffle(links)
-
-        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
+        message = self.scan(urls=links, task=current_task)
 
         if message:
             status = TaskStatus.INTERESTING

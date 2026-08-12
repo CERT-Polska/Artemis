@@ -98,6 +98,7 @@ class ArtemisBase(Karton):
         self.setup_logger(Config.Miscellaneous.LOG_LEVEL)
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
+        self._current_task_locks: Dict[str, Optional[ResourceLock]] = {}
 
         if Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH:
             with open(Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH, "r") as additional_data_file:
@@ -172,11 +173,8 @@ class ArtemisBase(Karton):
         elif "last_domain" in current_task.payload:
             new_task.payload["last_domain"] = current_task.payload["last_domain"]
 
-        if self.db.save_scheduled_task(new_task):
-            self.log.info("Task is a new task, adding: %s", new_task)
-            self.send_task(new_task)
-        else:
-            self.log.info("Task is not a new task, not adding: %s", new_task)
+        self.log.info("Adding task: %s", new_task)
+        self.send_task(new_task)
 
     def add_task_if_domain_exists(self, current_task: Task, new_task: Task) -> bool:
         """
@@ -348,6 +346,7 @@ class ArtemisBase(Karton):
             resource_lock = None
 
         tasks, locks, num_task_removed_from_queue = self._take_and_lock_tasks(self.task_max_batch_size)
+        self._current_task_locks = {task.uid: lock for task, lock in zip(tasks, locks)}
         self._log_tasks(tasks)
 
         for task in tasks:
@@ -391,9 +390,10 @@ class ArtemisBase(Karton):
             increase_analysis_num_finished_tasks(REDIS, task.root_uid)
             increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
 
-        for lock in locks:
+        for lock in self._current_task_locks.values():
             if lock:
                 lock.release()
+        self._current_task_locks = {}
 
         if resource_lock:
             resource_lock.release()
@@ -651,6 +651,24 @@ class ArtemisBase(Karton):
 
         self._forgiven_http_requests = 0
 
+        tasks_to_release_lock = []
+        tasks_not_yet_started = []
+        for task in tasks:
+            if self.db.save_module_started_task(self.identity, task):
+                tasks_not_yet_started.append(task)
+            else:
+                self.log.info("Task %s already started or processed by module %s, skipping", task.uid, self.identity)
+                tasks_to_release_lock.append(task)
+
+        for task in tasks_to_release_lock:
+            lock = self._current_task_locks.pop(task.uid, None)
+            if lock:
+                lock.release()
+
+        tasks = tasks_not_yet_started
+        if not tasks:
+            return
+
         tasks_filtered = []
         for task in tasks:
             should_check_connection = False
@@ -812,7 +830,11 @@ class ArtemisBase(Karton):
     def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
         base_url = get_target_url(task)
         scan_destination = self._get_scan_destination(task)
-        lock = ResourceLock(f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES)
+
+        def _release_lock() -> None:
+            lock = self._current_task_locks.pop(task.uid, None)
+            if lock:
+                lock.release()
 
         try:
             response = self.http_get(base_url)
@@ -841,7 +863,7 @@ class ArtemisBase(Karton):
                 self.log.info(
                     f"Unable to connect to base URL: {base_url}: WAF detected, task skipped, releasing lock for {scan_destination}"
                 )
-                lock.release()
+                _release_lock()
                 return False
 
             return True
@@ -854,7 +876,7 @@ class ArtemisBase(Karton):
             self.log.info(
                 f"Unable to connect to base URL: {base_url}: {repr(e)}, task skipped, releasing lock for {scan_destination}"
             )
-            lock.release()
+            _release_lock()
             return False
 
     def http_get(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore

@@ -159,7 +159,17 @@ class RestApiDocsTestCase(BaseE2ETestCase):
         self.assertGreaterEqual(len(analyses), 1)
         self.assertEqual(
             set(analyses[0].keys()),
-            {"stopped", "target", "created_at", "id", "tag", "num_pending_tasks", "disabled_modules"},
+            {
+                "stopped",
+                "target",
+                "created_at",
+                "id",
+                "tag",
+                "num_pending_tasks",
+                "disabled_modules",
+                "priority",
+                "desired_priority",
+            },
         )
 
         # Step 3: GET /api/num-queued-tasks - Check queue

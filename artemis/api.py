@@ -9,7 +9,7 @@ from fastapi import APIRouter, Body, Depends, Header, HTTPException
 from fastapi.responses import Response
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
-from karton.core.task import TaskPriority
+from karton.core.task import TaskPriority as KartonTaskPriority
 from pydantic import BaseModel
 from redis import Redis
 
@@ -19,7 +19,7 @@ from artemis.blocklist import (
     should_block_scanning,
 )
 from artemis.config import Config
-from artemis.db import DB, ColumnOrdering, TaskFilter
+from artemis.db import DB, ColumnOrdering, TaskFilter, TaskPriority
 from artemis.frontend import build_export_zip_response
 from artemis.karton_utils import get_binds_that_can_be_disabled, get_num_pending_tasks
 from artemis.modules.base.module_runtime_configuration import (
@@ -138,7 +138,7 @@ def add(
         targets,
         tag,
         disabled_modules=disabled_modules,
-        priority=TaskPriority(priority),
+        priority=KartonTaskPriority(priority),
         requests_per_second_override=requests_per_second_override,
         module_runtime_configurations=module_runtime_configurations,
     )
@@ -147,13 +147,23 @@ def add(
 
 
 @router.get("/analyses", dependencies=[Depends(verify_api_token)])
-def list_analysis() -> list[Dict[str, Any]]:
+def list_analysis(tag: Optional[str] = None) -> list[Dict[str, Any]]:
     """Returns the list of analysed targets. Any scanned target would be listed here."""
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
-    analyses = db.list_analysis()
+    if tag:
+        analyses = db.get_analyses_by_tag(tag)
+    else:
+        analyses = db.list_analysis()
     for analysis in analyses:
         analysis["num_pending_tasks"] = num_pending_tasks.get(analysis["id"], 0)
     return analyses
+
+
+@router.get("/analyses/reprioritize/{analysis_id}", dependencies=[Depends(verify_api_token)])
+def reprioritize_analysis(analysis_id: str, new_priority: TaskPriority) -> Dict[str, bool]:
+    """Enqueue a request to reprioritize a given analysis. The priority will be changed for all tasks of the analysis. Change might take some time to be reflected in the system."""
+    db.set_analysis_desired_priority(analysis_id, new_priority)
+    return {"ok": True}
 
 
 @router.get("/get-modules-that-can-be-disabled", dependencies=[Depends(verify_api_token)])

@@ -6,7 +6,7 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import get_injectable_parameters, prepare_links
+from artemis.crawling import get_injectable_parameters, get_links_to_scan
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.lfi_detector.lfi_detector_data import (
@@ -177,7 +177,7 @@ class LFIDetector(ArtemisBase):
         """Run the LFI detection module."""
         if self.check_connection_to_base_url_and_save_error(current_task):
             url = get_target_url(current_task)
-            links = prepare_links(url)
+            links = get_links_to_scan(url)
 
             messages = self.scan(urls=links, task=current_task)
 

@@ -239,7 +239,7 @@ def strip_query_string(url: str) -> str:
     return urlunparse(parsed._replace(query="", fragment=""))
 
 
-def prepare_links(url: str) -> List[str]:
+def get_links_to_scan(url: str) -> List[str]:
     links = crawl_and_filter(url)
     links.append(url)
     links = list(set(links) | set([strip_query_string(link) for link in links]))

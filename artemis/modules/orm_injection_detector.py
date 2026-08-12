@@ -12,7 +12,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import (
     get_injectable_parameters,
-    prepare_links,
+    get_links_to_scan,
     strip_query_string,
 )
 from artemis.http_requests import HTTPResponse
@@ -301,7 +301,7 @@ class OrmInjectionDetector(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
-        links = prepare_links(url)
+        links = get_links_to_scan(url)
 
         message = self.scan(urls=links)
 

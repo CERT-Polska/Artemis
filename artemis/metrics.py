@@ -1,5 +1,5 @@
 import time
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Generator
 
 from karton.core.backend import KartonBackend, KartonMetrics
@@ -48,7 +48,7 @@ class ArtemisMetricsCollector(Collector):
         )
         queue_lengths: dict[str, int] = {}
         for key in self.backend.redis.scan_iter("karton.queue.*"):
-            karton_name = key.decode().split(":")[-1]
+            karton_name = key.split(":")[-1]
             queue_lengths[karton_name] = queue_lengths.get(karton_name, 0) + self.backend.redis.llen(key)
 
         yield GaugeMetricFamily(
@@ -80,9 +80,15 @@ class ArtemisMetricsCollector(Collector):
         )
 
         interesting = GaugeMetricFamily(
-            "tasks_interesting",
+            "tasks_interesting_status",
             "Karton tasks with interesting findings",
-            labels=["date", "receiver"],
+            labels=["date", "karton"],
+        )
+        today_str = datetime.now(timezone.utc).date().isoformat()
+        interesting_today = GaugeMetricFamily(
+            "tasks_interesting_today",
+            "Karton tasks with interesting findings for the current day",
+            labels=["karton"],
         )
         for key in artemis_redis.scan_iter(f"{ARTEMIS_INTERESTING_TASKS_KEY_PREFIX}*"):
             key_str = key.decode() if isinstance(key, bytes) else key
@@ -90,11 +96,14 @@ class ArtemisMetricsCollector(Collector):
             for field, count in artemis_redis.hgetall(key).items():
                 receiver = field.decode() if isinstance(field, bytes) else field
                 interesting.add_metric([day, receiver], int(count))
+                if day == today_str:
+                    interesting_today.add_metric([receiver], int(count))
         yield interesting
+        yield interesting_today
 
 
 def sync_interesting_findings() -> None:
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
     for day in (today, today - timedelta(days=1)):
         counts = db.count_interesting_tasks_by_receiver(day)
         key = ARTEMIS_INTERESTING_TASKS_KEY_PREFIX + day.isoformat()

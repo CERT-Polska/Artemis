@@ -613,7 +613,7 @@ class DB:
             return result or 0
 
     def count_interesting_tasks_by_receiver(self, day: date) -> dict[str, int]:
-        start = datetime.combine(day, datetime.min.time()).replace(tzinfo=timezone.utc)
+        start = datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc)
         end = start + timedelta(days=1)
         with self.session() as session:
             rows = session.execute(

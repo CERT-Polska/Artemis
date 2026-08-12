@@ -130,7 +130,7 @@ def get_analysis_num_in_progress_tasks(redis: Redis, root_uid: str) -> int:  # t
 
 
 def increment_interesting_tasks_number(redis: Redis, receiver: str) -> None:  # type: ignore[type-arg]
-    key = ARTEMIS_INTERESTING_TASKS_KEY_PREFIX + datetime.today().replace(tzinfo=timezone.utc).isoformat()
+    key = ARTEMIS_INTERESTING_TASKS_KEY_PREFIX + datetime.now(timezone.utc).date().isoformat()
     redis.hincrby(key, receiver, 1)
     redis.expire(key, INTERESTING_TASKS_REDIS_TTL_SECONDS)
 

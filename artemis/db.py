@@ -1,12 +1,12 @@
 import copy
 import dataclasses
-import datetime
 import enum
 import functools
 import hashlib
 import json
 import os
 import shutil
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Callable, Dict, Generator, List, Optional, Type
 
 from karton.core import Task
@@ -569,7 +569,7 @@ class DB:
             return int(result.rowcount)
 
     def get_task_results_since(
-        self, time_from: datetime.datetime, tag: Optional[str] = None, batch_size: int = 100
+        self, time_from: datetime, tag: Optional[str] = None, batch_size: int = 100
     ) -> Generator[Dict[str, Any], None, None]:
         query = select(TaskResult).filter(TaskResult.created_at >= time_from)  # type: ignore
         if tag:
@@ -577,16 +577,16 @@ class DB:
         return self._iter_results(query, batch_size)
 
     def iter_oldest_task_results_with_tag(
-        self, tag: str, max_length: int, batch_size: int = 100
+        self, tag: str, max_length: int, batch_size: int = 100, time_to: datetime | None = None
     ) -> Generator[Dict[str, Any], None, None]:
-        query = (
-            select(TaskResult).filter(TaskResult.tag == tag).order_by(TaskResult.created_at).limit(max_length)  # type: ignore
-        )
+        query = select(TaskResult).filter(TaskResult.tag == tag).order_by(TaskResult.created_at).limit(max_length)  # type: ignore
+        if time_to is not None:
+            query = query.filter(TaskResult.created_at <= time_to)
         for item in self._iter_results(query, batch_size):
             yield self._strip_internal_db_info(dict(item))
 
     def iter_oldest_task_results_before(
-        self, time_to: datetime.datetime, max_length: int, interesting: bool, batch_size: int = 100
+        self, time_to: datetime, max_length: int, interesting: bool, batch_size: int = 100
     ) -> Generator[Dict[str, Any], None, None]:
         query = select(TaskResult).filter(TaskResult.created_at <= time_to).order_by(TaskResult.created_at)  # type: ignore
 
@@ -600,7 +600,7 @@ class DB:
         for item in self._iter_results(query, batch_size):
             yield self._strip_internal_db_info(dict(item))
 
-    def count_oldest_task_results_before(self, time_to: datetime.datetime, max_length: int, interesting: bool) -> int:
+    def count_oldest_task_results_before(self, time_to: datetime, max_length: int, interesting: bool) -> int:
         with self.session() as session:
             query = select(TaskResult).filter(TaskResult.created_at <= time_to)  # type: ignore
             if interesting:
@@ -611,6 +611,19 @@ class DB:
             subquery = query.subquery()
             result = session.execute(select(func.count()).select_from(subquery)).scalar()
             return result or 0
+
+    def count_interesting_tasks_by_receiver(self, day: date) -> dict[str, int]:
+        start = datetime.combine(day, datetime.min.time()).replace(tzinfo=timezone.utc)
+        end = start + timedelta(days=1)
+        with self.session() as session:
+            rows = session.execute(
+                select(TaskResult.receiver, func.count(TaskResult.id).label("count"))  # type: ignore[arg-type]
+                .where(TaskResult.status == TaskStatus.INTERESTING.value)
+                .where(TaskResult.created_at >= start)
+                .where(TaskResult.created_at < end)
+                .group_by(TaskResult.receiver)
+            ).all()
+        return {row.receiver: row.count for row in rows}
 
     @staticmethod
     def dict_to_str(d: Dict[str, Any]) -> str:
@@ -663,7 +676,7 @@ class DB:
         skip_hooks: bool = False,
         skip_suspicious_reports: bool = False,
         custom_template_arguments: Dict[str, Any] = {},
-        include_only_results_since: Optional[datetime.datetime] = None,
+        include_only_results_since: datetime | None = None,
     ) -> None:
         with self.session() as session:
             task = ReportGenerationTask(
@@ -773,7 +786,7 @@ class DB:
         with self.session() as session:
             return session.query(Tag).all()
 
-    def list_tag_archive_requests(self, min_age: datetime.datetime) -> List[Dict[str, Any]]:
+    def list_tag_archive_requests(self, min_age: datetime) -> List[Dict[str, Any]]:
         with self.session() as session:
             return [
                 self._strip_internal_db_info(item.__dict__)

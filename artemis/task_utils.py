@@ -1,4 +1,5 @@
 import urllib
+from datetime import datetime, timezone
 from typing import List
 
 from karton.core import Task
@@ -108,7 +109,8 @@ def get_target_url(task: Task) -> str:
 
 ANALYSIS_NUM_FINISHED_TASKS_KEY_PREFIX = b"analysis-num-finished-tasks-"
 ANALYSIS_NUM_IN_PROGRESS_TASKS_KEY_PREFIX = b"analysis-num-in-progress-tasks-"
-ARTEMIS_INTERESTING_TASKS_NUMBER_KEY = "artemis-tasks-interesting"
+ARTEMIS_INTERESTING_TASKS_KEY_PREFIX = "artemis-tasks-interesting:"
+INTERESTING_TASKS_REDIS_TTL_SECONDS = 7 * 24 * 60 * 60
 
 
 def increase_analysis_num_finished_tasks(redis: Redis, root_uid: str, by: int = 1) -> None:  # type: ignore[type-arg]
@@ -128,7 +130,9 @@ def get_analysis_num_in_progress_tasks(redis: Redis, root_uid: str) -> int:  # t
 
 
 def increment_interesting_tasks_number(redis: Redis, receiver: str) -> None:  # type: ignore[type-arg]
-    redis.hincrby(ARTEMIS_INTERESTING_TASKS_NUMBER_KEY, receiver, 1)
+    key = ARTEMIS_INTERESTING_TASKS_KEY_PREFIX + datetime.now(timezone.utc).date().isoformat()
+    redis.hincrby(key, receiver, 1)
+    redis.expire(key, INTERESTING_TASKS_REDIS_TTL_SECONDS)
 
 
 def get_task_target(task: Task) -> str:

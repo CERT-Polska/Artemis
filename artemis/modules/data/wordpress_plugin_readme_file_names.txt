@@ -1486,7 +1486,7 @@
   "lockdown-wp-admin": "readme.txt",
   "wp-widget-disable": "readme.txt",
   "dk-pricr-responsive-pricing-table": "readme.txt",
-  "contact-forms-anti-spam": "README.txt",
+  "contact-forms-anti-spam": "readme.txt",
   "branda-white-labeling": "readme.txt",
   "wp-bottom-menu": "readme.txt",
   "wp-social": "readme.txt",

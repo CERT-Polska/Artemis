@@ -28,6 +28,8 @@ artemis_redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 LOGGER = build_logger(__name__)
 SYNC_POSTGRES_REDIS_INTERVAL_SECONDS = 3600
 
+REDIS_SCAN_COUNT = 10000
+
 
 class ArtemisMetricsCollector(Collector):
     def __init__(self) -> None:
@@ -47,7 +49,7 @@ class ArtemisMetricsCollector(Collector):
             value=sum(map(int, self.backend.redis.hvals(KartonMetrics.TASK_CRASHED.value))),
         )
         queue_lengths: dict[str, int] = {}
-        for key in self.backend.redis.scan_iter("karton.queue.*"):
+        for key in self.backend.redis.scan_iter("karton.queue.*", count=REDIS_SCAN_COUNT):
             karton_name = key.split(":")[-1]
             queue_lengths[karton_name] = queue_lengths.get(karton_name, 0) + self.backend.redis.llen(key)
 
@@ -90,7 +92,7 @@ class ArtemisMetricsCollector(Collector):
             "Karton tasks with interesting findings for the current day",
             labels=["karton"],
         )
-        for key in artemis_redis.scan_iter(f"{ARTEMIS_INTERESTING_TASKS_KEY_PREFIX}*"):
+        for key in artemis_redis.scan_iter(f"{ARTEMIS_INTERESTING_TASKS_KEY_PREFIX}*", count=REDIS_SCAN_COUNT):
             key_str = key.decode() if isinstance(key, bytes) else key
             day = key_str[len(ARTEMIS_INTERESTING_TASKS_KEY_PREFIX) :]
             for field, count in artemis_redis.hgetall(key).items():

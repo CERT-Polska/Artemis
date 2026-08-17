@@ -2852,4 +2852,5 @@ TRANSLATIONS = {
     "Riello UPS NetMan 204 login panel was detected.": "Wykryto panel logowania Riello UPS NetMan 204.",
     "SonicWall Analytics (formerly SGMS) is SonicWall's centralised network security analytics and reporting platform used to aggregate and visualise threat data across SonicWall firewall deployments.": "Wykryto panel SonicWall Analytics (SGMS).",
     "Langfuse panel was detected. Langfuse is an open-source LLM engineering platform for observability, evaluations, prompt management and analytics. Exposed instances may reveal LLM prompts, traces, evaluations, and connected API keys.": "Wykryto panel Langfuse.",
+    "Linkwarden (linkwarden.app / github.com/linkwarden/linkwarden) is a popular open-source self-hosted bookmark and link archiving manager. Default Docker port 3000. Exposed instances may reveal users' archived link collections, screenshots, and PDFs.": "Wykryto panel Linkwarden.",
 }

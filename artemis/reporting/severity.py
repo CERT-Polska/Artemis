@@ -15,6 +15,7 @@ class Severity(str, Enum):
 SEVERITY_MAP = {
     ReportType("xss_scanner"): Severity.HIGH,
     ReportType("forti_vuln"): Severity.HIGH,
+    ReportType("command_injection"): Severity.HIGH,
     ReportType("globalprotect_vuln"): Severity.HIGH,
     ReportType("lfi_vulnerability"): Severity.HIGH,
     ReportType("rce_vulnerability"): Severity.HIGH,

@@ -1,0 +1,38 @@
+#: artemis/reporting/modules/nosql_injection_detector/template_nosql_injection.jinja2:2
+msgid "We identified that the following URLs are vulnerable to NoSQL injection:"
+msgstr ""
+
+#: artemis/reporting/modules/nosql_injection_detector/template_nosql_injection.jinja2:8
+msgid "method:"
+msgstr ""
+
+#: artemis/reporting/modules/nosql_injection_detector/template_nosql_injection.jinja2:8
+msgid "parameters:"
+msgstr ""
+
+#: artemis/reporting/modules/nosql_injection_detector/template_nosql_injection.jinja2:11
+msgid ""
+"NoSQL injection through a JSON request body: user input is passed "
+"directly into a database query, so an attacker can send query operators "
+"instead of plain values to change what the query matches. This can be "
+"used to bypass authentication or read records the query was not meant to "
+"return."
+msgstr ""
+
+#: artemis/reporting/modules/nosql_injection_detector/template_nosql_injection.jinja2:19
+msgid ""
+"NoSQL injection: user input is passed directly into a database query, so "
+"an attacker can send query operators instead of plain values to change "
+"what the query matches. This can be used to bypass authentication or read"
+" records the query was not meant to return."
+msgstr ""
+
+#: artemis/reporting/modules/nosql_injection_detector/template_nosql_injection.jinja2:32
+msgid ""
+"NoSQL injection occurs when user input reaches a database query without "
+"validation, letting an attacker supply query operators (for example the "
+"MongoDB operators $ne, $gt or $regex) in place of ordinary values. To fix"
+" this, validate that each parameter is of the expected type and reject "
+"values that are objects or that contain operator keys before passing them"
+" to the database."
+msgstr ""

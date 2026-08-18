@@ -428,15 +428,6 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
 
-  test-apache-with-command-injection:
-    image: php:7.4-apache
-    volumes:
-      - ./test/data/command_injection/:/var/www/html/
-    networks:
-      default:
-        aliases:
-          - test-apache-with-command-injection.local
-
 volumes:
   data-nuclei-templates:
   data-nuclei-config:

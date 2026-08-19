@@ -1211,6 +1211,21 @@ class Config:
                 "Seconds to sleep using the sleep() or pg_sleep() methods",
             ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=5, cast=int)
 
+        class NoSqlInjectionDetector:
+            NOSQL_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to stop scanning after the first NoSQL injection finding.",
+            ] = get_config("NOSQL_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            NOSQL_INJECTION_MINIMAL_PARAMS_MAX_LEN: Annotated[
+                int,
+                "Maximum number of parameters kept after NoSQL injection parameter minimization.",
+            ] = get_config("NOSQL_INJECTION_MINIMAL_PARAMS_MAX_LEN", default=5, cast=int)
+            NOSQL_INJECTION_NUM_CONFIRMATIONS: Annotated[
+                int,
+                "How many times an operator must reproduce a database error absent from the baseline "
+                "before it is reported as a finding. Guards against a one-off error on a flaky service.",
+            ] = get_config("NOSQL_INJECTION_NUM_CONFIRMATIONS", default=10, cast=int)
+
         class LFIDetector:
             LFI_STOP_ON_FIRST_MATCH: Annotated[
                 bool,

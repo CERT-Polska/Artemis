@@ -1,6 +1,4 @@
-import json
 import uuid
-from difflib import SequenceMatcher
 from enum import Enum
 from typing import Any, Callable, Optional
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
@@ -10,14 +8,13 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import (
-    get_injectable_parameters,
-    get_links_to_scan,
-    strip_query_string,
-)
-from artemis.http_requests import HTTPResponse
+from artemis.crawling import collect_parameters, get_links_to_scan, strip_query_string
 from artemis.module_base import ArtemisBase
-from artemis.modules.data.parameters import URL_PARAMS
+from artemis.modules.base.injection_helpers import (
+    build_result_data,
+    create_status_reason,
+    responses_differ,
+)
 from artemis.orm_injection_data import (
     ORM_LOOKUP_SUFFIXES,
     SENSITIVE_FIELD_PROBES,
@@ -49,29 +46,6 @@ class OrmInjectionDetector(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    @staticmethod
-    def _get_response_text(response: Optional[HTTPResponse]) -> str:
-        if response is None:
-            return ""
-        return response.content
-
-    def _responses_differ(self, response_a: Optional[HTTPResponse], response_b: Optional[HTTPResponse]) -> bool:
-        if response_a is None or response_b is None:
-            return False
-
-        # Skip server errors — a 5xx is noise (e.g. the server crashing on an unexpected param),
-        # not evidence of ORM processing. 4xx responses are kept as some apps return e.g. 404
-        # for "no matching records".
-        status_a = response_a.status_code
-        status_b = response_b.status_code
-        if status_a >= 500 or status_b >= 500:
-            return False
-
-        text_a = self._get_response_text(response_a)
-        text_b = self._get_response_text(response_b)
-
-        return SequenceMatcher(None, text_a, text_b).quick_ratio() < 0.9
-
     def _build_url_with_params(self, base_url: str, params: dict[str, str]) -> str:
         parsed = urlparse(base_url)
         existing_params = parse_qs(parsed.query)
@@ -86,7 +60,7 @@ class OrmInjectionDetector(ArtemisBase):
         produce false positives."""
         response_a = self.forgiving_http_get(url)
         response_b = self.forgiving_http_get(url)
-        return self._responses_differ(response_a, response_b)
+        return responses_differ(response_a, response_b)
 
     def _test_lookup_suffix(
         self, original_url: str, param_name: str, suffix: str, likely_value: str
@@ -109,7 +83,7 @@ class OrmInjectionDetector(ArtemisBase):
         response_likely = self.forgiving_http_get(url_likely)
         response_unlikely = self.forgiving_http_get(url_unlikely)
 
-        if self._responses_differ(response_likely, response_unlikely):
+        if responses_differ(response_likely, response_unlikely):
             return {"matching_url": url_likely, "baseline_url": url_unlikely}
         return None
 
@@ -128,7 +102,7 @@ class OrmInjectionDetector(ArtemisBase):
         response_probe = self.forgiving_http_get(url_with_probe)
         response_unlikely = self.forgiving_http_get(url_with_unlikely)
 
-        if self._responses_differ(response_probe, response_unlikely):
+        if responses_differ(response_probe, response_unlikely):
             return {"matching_url": url_with_probe, "baseline_url": url_with_unlikely}
         return None
 
@@ -257,8 +231,7 @@ class OrmInjectionDetector(ArtemisBase):
             query_params = parse_qs(parsed.query)
             base_url = strip_query_string(current_url)
 
-            injectable = get_injectable_parameters(current_url)
-            all_param_names = list(dict.fromkeys(list(query_params.keys()) + injectable + list(URL_PARAMS)))
+            all_param_names = collect_parameters(current_url)
             params_to_test = {name: query_params.get(name, ["test"]) for name in all_param_names}
 
             lookup_results = self._test_django_style_lookups(current_url, params_to_test)
@@ -273,32 +246,6 @@ class OrmInjectionDetector(ArtemisBase):
 
         return message
 
-    @staticmethod
-    def create_status_reason(message: Any) -> str:
-        status_reason = []
-        for injection_message in message:
-            status_reason.append(f"{injection_message.get('url')}: {injection_message.get('statement')}")
-        return ", ".join(set(status_reason))
-
-    @staticmethod
-    def create_data(message: Any) -> dict[str, Any]:
-        seen: set[str] = set()
-        deduplicated_message = []
-        for item in message:
-            item_json = json.dumps(item, sort_keys=True)
-            if item_json not in seen:
-                seen.add(item_json)
-                deduplicated_message.append(item)
-
-        data = {
-            "result": deduplicated_message,
-            "statements": {
-                "orm_injection": Statements.orm_injection.value,
-                "orm_sensitive_field_access": Statements.orm_sensitive_field_access.value,
-            },
-        }
-        return data
-
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
         links = get_links_to_scan(url)
@@ -307,12 +254,18 @@ class OrmInjectionDetector(ArtemisBase):
 
         if message:
             status = TaskStatus.INTERESTING
-            status_reason = self.create_status_reason(message=message)
+            status_reason = create_status_reason(message)
         else:
             status = TaskStatus.OK
             status_reason = None
 
-        data = self.create_data(message=message)
+        data = build_result_data(
+            message,
+            {
+                "orm_injection": Statements.orm_injection.value,
+                "orm_sensitive_field_access": Statements.orm_sensitive_field_access.value,
+            },
+        )
 
         self.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 

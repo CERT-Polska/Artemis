@@ -13,6 +13,7 @@ from redis import Redis
 
 from artemis import http_requests, utils
 from artemis.config import Config
+from artemis.modules.data.parameters import URL_PARAMS
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.redis_cache import RedisCache
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
@@ -250,3 +251,10 @@ def get_links_to_scan(url: str) -> List[str]:
     ]
     random.shuffle(links)
     return links[: Config.Miscellaneous.MAX_URLS_TO_SCAN]
+
+
+def collect_parameters(url: str) -> List[str]:
+    # Union of the parameters already present in the URL, the ones discovered on the page, and the
+    # common names from the wordlist, deduplicated while keeping first-seen order.
+    query_params = list(parse_qs(urlparse(url).query).keys())
+    return list(dict.fromkeys(query_params + get_injectable_parameters(url) + list(URL_PARAMS)))

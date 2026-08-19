@@ -15,6 +15,7 @@ from artemis.config import Config
 from artemis.crawling import get_injectable_parameters, get_links_to_scan
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
+from artemis.modules.base.injection_helpers import build_result_data
 from artemis.modules.data.parameters import URL_PARAMS
 from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url
@@ -250,24 +251,6 @@ class SqlInjectionDetector(ArtemisBase):
 
             status_reason.append(base_reason)
         return ", ".join(set(status_reason))
-
-    @staticmethod
-    def create_data(message: Any) -> Dict[str, List[str] | dict[str, Any]]:
-        new_message = []
-        for item in message:
-            if item not in new_message:
-                new_message.append(item)
-
-        data = {
-            "result": new_message,
-            "statements": {
-                "sql_injection": Statements.sql_injection.value,
-                "sql_time_based_injection": Statements.sql_time_based_injection.value,
-                "headers_sql_injection": Statements.headers_sql_injection.value,
-                "headers_time_based_sql_injection": Statements.headers_time_based_sql_injection.value,
-            },
-        }
-        return data  # type: ignore
 
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
@@ -534,7 +517,15 @@ class SqlInjectionDetector(ArtemisBase):
             status = TaskStatus.OK
             status_reason = None
 
-        data = self.create_data(message=message)
+        data = build_result_data(
+            message,
+            {
+                "sql_injection": Statements.sql_injection.value,
+                "sql_time_based_injection": Statements.sql_time_based_injection.value,
+                "headers_sql_injection": Statements.headers_sql_injection.value,
+                "headers_time_based_sql_injection": Statements.headers_time_based_sql_injection.value,
+            },
+        )
 
         self.save_task_result(task=current_task, status=status, status_reason=status_reason, data=data)
 

@@ -643,6 +643,7 @@ class Config:
                         # wildcard sites will match this template very often, block till fixed
                         "http/exposures/logs/opencart-error-log.yaml",
                         # DAST templates that might produce false positives
+                        # TODO: to remove after implementing FP validation for these templates
                         "dast/vulnerabilities/injection/unix-command-injection.yaml",
                         "dast/vulnerabilities/injection/windows-command-injection.yaml",
                         "dast/vulnerabilities/sqli/time-based-sqli.yaml",

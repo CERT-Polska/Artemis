@@ -8,7 +8,7 @@ require (
 	github.com/projectdiscovery/katana v1.6.1
 	github.com/projectdiscovery/naabu/v2 v2.3.3
 	github.com/projectdiscovery/nuclei/v3 v3.11.1
-	github.com/projectdiscovery/subfinder/v2 v2.14.0
+	github.com/projectdiscovery/subfinder/v2 v2.15.0
 )
 
 require (
@@ -286,10 +286,10 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/projectdiscovery/asnmap v1.1.1 // indirect
 	github.com/projectdiscovery/blackrock v0.0.1 // indirect
-	github.com/projectdiscovery/cdncheck v1.2.46 // indirect
+	github.com/projectdiscovery/cdncheck v1.2.47 // indirect
 	github.com/projectdiscovery/chaos-client v0.5.2 // indirect
 	github.com/projectdiscovery/clistats v0.1.4 // indirect
-	github.com/projectdiscovery/dnsx v1.2.3 // indirect
+	github.com/projectdiscovery/dnsx v1.3.0 // indirect
 	github.com/projectdiscovery/dsl v0.8.20 // indirect
 	github.com/projectdiscovery/fastdialer v0.5.14 // indirect
 	github.com/projectdiscovery/fasttemplate v0.0.2 // indirect

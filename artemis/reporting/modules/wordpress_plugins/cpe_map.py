@@ -13,8 +13,6 @@ logger = utils.build_logger(__name__)
 
 def make_versionless(cpe23: str) -> str:
     parts = cpe23.split(":")
-    # cpe:2.3:a:vendor:product:version:...
-    # Replace index 5 (version) with *
     if len(parts) >= 6:
         parts[5] = "*"
     return ":".join(parts)

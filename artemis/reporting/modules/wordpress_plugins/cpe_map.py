@@ -11,10 +11,12 @@ from artemis import utils
 logger = utils.build_logger(__name__)
 
 
-def make_versionless(cpe23: str) -> str:
+def strip_version_and_sw_edition(cpe23: str) -> str:
     parts = cpe23.split(":")
     if len(parts) >= 6:
         parts[5] = "*"
+    if len(parts) >= 10:
+        parts[9] = "*"
     return ":".join(parts)
 
 
@@ -52,7 +54,7 @@ def download_cpe_map() -> dict[str, str]:
                 break
 
         if found_slug:
-            vc = make_versionless(cpe["cpeName"])
+            vc = strip_version_and_sw_edition(cpe["cpeName"])
             if found_slug not in slug_to_dates or slug_to_dates[found_slug] < datetime.datetime.fromisoformat(
                 cpe["created"]
             ):

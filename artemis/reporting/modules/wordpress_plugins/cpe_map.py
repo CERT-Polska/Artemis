@@ -1,6 +1,6 @@
 import datetime
-import io
 import json
+import os
 import re
 import tarfile
 import urllib.request
@@ -40,7 +40,8 @@ def download_cpe_map_file() -> str:
     with open(CPE_CACHE + ".done", "w") as f:
         f.write("ok")
 
-    return cpe_map
+    return CPE_CACHE
+
 
 def download_cpe_map() -> dict[str, str]:
     file_path = download_cpe_map_file()

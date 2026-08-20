@@ -9,6 +9,8 @@ from artemis import utils
 
 logger = utils.build_logger(__name__)
 
+CPE_CACHE = os.path.join(os.path.dirname(__file__), ".cache", "cpe_map.json")
+
 
 def strip_version_and_sw_edition(cpe23: str) -> str:
     parts = cpe23.split(":")
@@ -19,7 +21,11 @@ def strip_version_and_sw_edition(cpe23: str) -> str:
     return ":".join(parts)
 
 
-def download_cpe_map() -> dict[str, str]:
+def download_cpe_map_file() -> str:
+    if os.path.exists(CPE_CACHE + ".done"):
+        logger.info("Loading CPE map from cache")
+        return CPE_CACHE
+
     URL = "https://nvd.nist.gov/feeds/json/cpe/2.0/nvdcpe-2.0.tar.gz"
 
     logger.info("Downloading CPE map...")
@@ -28,13 +34,25 @@ def download_cpe_map() -> dict[str, str]:
         compressed = resp.read()
     logger.info("Downloaded CPE map")
 
+    os.makedirs(os.path.dirname(CPE_CACHE), exist_ok=True)
+    with open(CPE_CACHE, "w") as f:
+        f.write(compressed)
+    with open(CPE_CACHE + ".done", "w") as f:
+        f.write("ok")
+
+    return cpe_map
+
+def download_cpe_map() -> dict[str, str]:
+    file_path = download_cpe_map_file()
+
     feed = []
-    with tarfile.open(fileobj=io.BytesIO(compressed), mode="r:gz") as tar:
-        for member in tar.getmembers():
-            if member.name.endswith(".json"):
-                raw = tar.extractfile(member).read().decode("utf-8")  # type: ignore
-                data = json.loads(raw)
-                feed.extend(data["products"])
+    with open(file_path, "rb") as f:
+        with tarfile.open(fileobj=f, mode="r:gz") as tar:
+            for member in tar.getmembers():
+                if member.name.endswith(".json"):
+                    raw = tar.extractfile(member).read().decode("utf-8")  # type: ignore
+                    data = json.loads(raw)
+                    feed.extend(data["products"])
 
     slug_re = re.compile(r"wordpress\.org/plugins/([^/]+)/$", re.IGNORECASE)
 

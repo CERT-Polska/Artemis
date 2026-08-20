@@ -35,7 +35,7 @@ def download_cpe_map_file() -> str:
     logger.info("Downloaded CPE map")
 
     os.makedirs(os.path.dirname(CPE_CACHE), exist_ok=True)
-    with open(CPE_CACHE, "w") as f:
+    with open(CPE_CACHE, "wb") as f:
         f.write(compressed)
     with open(CPE_CACHE + ".done", "w") as f:
         f.write("ok")

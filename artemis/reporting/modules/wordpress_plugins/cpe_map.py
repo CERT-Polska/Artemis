@@ -4,7 +4,6 @@ import json
 import re
 import tarfile
 import urllib.request
-from collections import defaultdict
 
 from artemis import utils
 

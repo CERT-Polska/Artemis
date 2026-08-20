@@ -39,7 +39,7 @@ def download_cpe_map() -> dict[str, str]:
 
     slug_re = re.compile(r"wordpress\.org/plugins/([^/]+)/$", re.IGNORECASE)
 
-    slug_to_cpes = defaultdict(set)
+    slug_to_cpe = {}
     slug_to_dates: dict[str, datetime.datetime] = {}
 
     for entry in feed:
@@ -54,16 +54,12 @@ def download_cpe_map() -> dict[str, str]:
                 break
 
         if found_slug:
-            vc = strip_version_and_sw_edition(cpe["cpeName"])
+            stripped_cpe = strip_version_and_sw_edition(cpe["cpeName"])
             if found_slug not in slug_to_dates or slug_to_dates[found_slug] < datetime.datetime.fromisoformat(
                 cpe["created"]
             ):
                 slug_to_dates[found_slug] = datetime.datetime.fromisoformat(cpe["created"])
-                slug_to_cpes[found_slug].add(vc)
+                slug_to_cpe[found_slug] = stripped_cpe
 
-    result = {}
-    for slug, cpes in sorted(slug_to_cpes.items()):
-        result[slug] = sorted(cpes)[0]
-
-    logger.info("Downloaded CPE map for %d plugins" % len(result))
-    return result
+    logger.info("Downloaded CPE map for %d plugins" % len(slug_to_cpe))
+    return slug_to_cpe

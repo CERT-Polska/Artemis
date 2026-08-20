@@ -647,6 +647,7 @@ class Config:
                         "dast/vulnerabilities/injection/unix-command-injection.yaml",
                         "dast/vulnerabilities/injection/windows-command-injection.yaml",
                         "dast/vulnerabilities/sqli/time-based-sqli.yaml",
+                        "http/cves/2022/CVE-2022-44727.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

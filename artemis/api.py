@@ -293,7 +293,7 @@ async def post_export_delete(id: int) -> Dict[str, Any]:
 @router.post("/build-html-message", dependencies=[Depends(verify_api_token)])
 async def post_build_html_message(language: str = Body(), data: Dict[str, Any] = Body()) -> str:
     """Renders a custom list of vulnerabilities as HTML."""
-    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=120)) as session:
         async with session.post(
             "http://autoreporter:5000/api/build-html-message",
             json={

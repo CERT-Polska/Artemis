@@ -55,7 +55,7 @@ def download_cpe_map() -> dict[str, str]:
                     data = json.loads(raw)
                     feed.extend(data["products"])
 
-    slug_re = re.compile(r"wordpress\.org/plugins/([^/]+)/$", re.IGNORECASE)
+    slug_re = re.compile(r"wordpress\.org/plugins/([^/]+)/", re.IGNORECASE)
 
     slug_to_cpe = {}
     slug_to_dates: dict[str, datetime.datetime] = {}
@@ -81,3 +81,8 @@ def download_cpe_map() -> dict[str, str]:
 
     logger.info("Downloaded CPE map for %d plugins" % len(slug_to_cpe))
     return slug_to_cpe
+
+
+if __name__ == "__main__":
+    for slug, cpe in download_cpe_map().items():
+        print(slug, cpe)

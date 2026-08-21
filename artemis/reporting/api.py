@@ -26,6 +26,9 @@ async def post_build_html_message(language: str = Body(), data: Dict[str, Any] =
     related to building reports for custom modules (e.g. Artemis-modules-extra).
     """
     with tempfile.TemporaryDirectory() as tmp_dir:
+        import sys
+        sys.stderr.write("AAAAAA", repr(locals()) + "\n")
+        sys.stderr.write("AAAAAA", repr(data) + "\n")
         os.makedirs(Path(tmp_dir) / "advanced")
         environment = create_environment()
         install_translations_and_print_path(Language(language), environment, Path(tmp_dir), silent=True)

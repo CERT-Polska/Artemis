@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.7.1
 aiohttp==3.14.3
@@ -47,6 +47,8 @@ frozenlist==1.8.0
 gmpy2==2.3.1
 greenlet==3.5.4
 h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
 idna==3.18
 imagesize==2.0.0
 importlib-resources==7.1.0
@@ -134,6 +136,7 @@ sqlalchemy==2.0.51
 starlette==1.6.0
 termcolor==3.3.0
 timeout-decorator==0.5.0
+tld==0.13.2
 tldextract==5.3.1
 toml==0.10.2
 tqdm==4.68.4
@@ -147,7 +150,8 @@ uro==1.0.2
 uvicorn==0.52.0
 validators==0.35.0
 werkzeug==3.1.8
-whoisdomain==1.20260326.1
+whodap==0.1.16
+whoisdomain==2.20260806.3
 wrapt==1.17.3
 xlsxwriter==3.2.9
 xmltodict==1.0.4

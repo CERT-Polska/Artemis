@@ -1,5 +1,5 @@
 {% if "technology_cve_found" in data.contains_type %}
-    <li>{% trans %}Known CVEs were found for the following detected web technologies (the site may not be exploitable - verify the patch level):{% endtrans %}
+    <li>{% trans %}Known CVEs were found for the following detected technologies - verify, whether used configuration and version is vulnerable:{% endtrans %}
         <ul>
             {% for report in data.reports %}
                 {% if report.report_type == "technology_cve_found" %}

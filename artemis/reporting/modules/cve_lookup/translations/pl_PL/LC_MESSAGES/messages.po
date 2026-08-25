@@ -1,0 +1,28 @@
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:2
+msgid ""
+"Known CVEs were found for the following detected technologies - verify, "
+"whether used configuration and version is vulnerable:"
+msgstr ""
+"Wykryto znane podatności dla następujących wykrytych technologii - "
+"sprawdź, czy używana konfiguracja i wersja są podatne na ataki:"
+
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:9
+#, python-format
+msgid "has %(count)s known CVE."
+msgid_plural "has %(count)s known CVEs."
+msgstr[0] "ma %(count)s znaną podatność CVE."
+msgstr[1] "ma %(count)s znane podatności CVE."
+msgstr[2] "ma %(count)s znanych podatności CVE."
+
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:11
+msgid "Highest CVSS score:"
+msgstr "Najwyższy wynik CVSS:"
+
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:16
+msgid "CVSS"
+msgstr "CVSS"
+
+#: artemis/reporting/modules/cve_lookup/template_technology_cve_found.jinja2:20
+#, python-format
+msgid "and %(count)s more."
+msgstr "i %(count)s więcej."

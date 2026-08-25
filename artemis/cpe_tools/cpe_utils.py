@@ -1,10 +1,7 @@
 import logging
-import time
 from pathlib import Path
 
 from artemis.cpe_tools.cpe_main_process import (
-    CHUNKS_SUBDIR,
-    INDEX_CACHE,
     LOOKUP_CACHE,
     ensure_index,
     family,
@@ -15,9 +12,7 @@ from artemis.cpe_tools.cpe_main_process import (
 logger = logging.getLogger(__name__)
 
 
-# Words that carry no discriminative value for product matching. Security
-# words such as "secure", "connect" or "gateway" are intentionally kept - they
-# distinguish products (e.g. "Pulse Connect Secure" vs "Pulse Policy Secure").
+# Words that carry no discriminative value for product matching.
 _STOPWORDS = frozenset(
     {
         "the",
@@ -39,15 +34,8 @@ _STOPWORDS = frozenset(
 
 _MISSING = object()
 
-# The lookup cache can grow unbounded (one entry per distinct product name) and
-# cpe_utils is reused by every module - each module process holds its own copy (the
-# refresh daemon reads all of them), so we cap it.
+# The lookup cache can grow unbounded (one entry per distinct product name)
 MAX_LOOKUP_CACHE_SIZE = 100_000
-
-# How long to wait on the first lookup if the CPE refresher hasn't finished
-# its initial download yet (edge case on a fresh deploy).
-STARTUP_WAIT_SECONDS = 30
-STARTUP_POLL_SECONDS = 5
 
 
 def _cache_put(key: tuple[Path, str], value: str | None) -> None:
@@ -111,15 +99,6 @@ def lookup_cpe(name: str, version: str | None = None) -> str | None:
     if not isinstance(name, str) or not name.strip():
         return None
     nvd_dir = get_nvd_dir()
-    # Wait briefly on the first call if the refresher hasn't finished its
-    # initial download yet (edge case on a fresh deploy).
-    if nvd_dir not in INDEX_CACHE:
-        chunks_dir = nvd_dir / CHUNKS_SUBDIR
-        if not chunks_dir.is_dir():
-            deadline = time.time() + STARTUP_WAIT_SECONDS
-            while not chunks_dir.is_dir() and time.time() < deadline:
-                logger.info("CPE dictionary not yet available at %s, waiting...", chunks_dir)
-                time.sleep(STARTUP_POLL_SECONDS)
     normalized = normalize(name)
     if not normalized:
         return None

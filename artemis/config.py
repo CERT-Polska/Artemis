@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Annotated, Any, List, Optional, get_type_hints
 
 import decouple
@@ -198,6 +199,29 @@ class Config:
             E.g. when set to 2, Artemis will make sure no more than 2 HTTP/MySQL connect/... requests take place per second, sleeping if needed.
             """,
         ] = get_config("REQUESTS_PER_SECOND", default=0, cast=float)
+
+    class CpeDictionary:
+        CPE_NVD_DIR: Annotated[
+            str,
+            "Directory where the NVD CPE dictionary is stored (inside the container). "
+            "Defaults to the bundled artemis/cpe_tools/nvdcpe-2.0 directory.",
+        ] = get_config(
+            "CPE_NVD_DIR",
+            default=str(Path(__file__).resolve().parent / "cpe_tools" / "nvdcpe-2.0"),
+        )
+
+        CPE_NVD_DOWNLOAD_URL: Annotated[
+            str,
+            "URL of the NVD CPE 2.0 feed tarball. Re-downloaded every CPE_NVD_REFRESH_INTERVAL_SECONDS to keep CPE lookups current.",
+        ] = get_config(
+            "CPE_NVD_DOWNLOAD_URL",
+            default="https://nvd.nist.gov/feeds/json/cpe/2.0/nvdcpe-2.0.tar.gz",
+        )
+
+        CPE_NVD_REFRESH_INTERVAL_SECONDS: Annotated[
+            int,
+            "How often (in seconds) the NVD CPE dictionary is re-downloaded and the title index rebuilt. Default is 24 h.",
+        ] = get_config("CPE_NVD_REFRESH_INTERVAL_SECONDS", default=24 * 3600, cast=int)
 
     class Miscellaneous:
         DEFAULT_MODULE_NUM_RETRIES: Annotated[

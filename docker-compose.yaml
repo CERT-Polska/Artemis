@@ -81,6 +81,16 @@ services:
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     command: "python3 -m artemis.metrics"
 
+  cpe-nvd-service:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.cpe_tools.cpe_main_process"
+    env_file: .env
+    environment:
+      - CPE_NVD_DIR=/data/cpe-nvd
+    volumes:
+      - cpe-nvd-data:/data/cpe-nvd
+    restart: always
+
   autoarchiver:
     <<: [*logging, *artemis-build-or-image]
     env_file: .env
@@ -440,3 +450,4 @@ volumes:
   data-postgres:
   data-redis:
   data-web:
+  cpe-nvd-data:

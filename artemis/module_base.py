@@ -149,9 +149,9 @@ class ArtemisBase(Karton):
     def get_runtime_configuration(self, _task: Task) -> ModuleRuntimeConfiguration:
         return self.get_default_configuration()
 
-    def _get_requests_per_second_batch_key(self, task: Task) -> str | None:
+    def _get_requests_per_second_batch_key(self, task: Task) -> str:
         override = task.payload_persistent.get("requests_per_second_override")
-        return str(override) if override is not None else None
+        return str(override) if override is not None else str(Config.Limits.REQUESTS_PER_SECOND)
 
     def get_batch_group_key(self, task: Task) -> str | None:
         """Return a grouping key used when taking a batch of tasks from queue."""
@@ -357,9 +357,17 @@ class ArtemisBase(Karton):
         for task in tasks:
             increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
 
-        # batching guarantees all tasks share the same override, so reading the first is sufficient
-        override_from_payload = tasks[0].payload_persistent.get("requests_per_second_override") if tasks else None
-        requests_per_second_overrides = [override_from_payload] if override_from_payload is not None else []
+        distinct_override_values = {
+            override
+            for task in tasks
+            if (override := task.payload_persistent.get("requests_per_second_override")) is not None
+        }
+        if len(distinct_override_values) > 1:
+            self.log.error(
+                "Batching produced tasks with multiple different overrides, this is unexpected: %s",
+                distinct_override_values,
+            )
+        requests_per_second_overrides = list(distinct_override_values)
 
         # To clear the confusion, the below code introduces another RPS override, it's not added to batching for
         # simplicity of the key generation.

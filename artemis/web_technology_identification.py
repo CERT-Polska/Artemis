@@ -35,6 +35,10 @@ def _parse_tech(raw: Dict[str, Any]) -> Technology:
     else:
         name, version = raw_name, None
 
+
+    if name == "Basic":
+        name = "Basic Auth"
+
     cpe = raw.get("cpe") or None
     raw_categories = raw.get("categories") or []
     if isinstance(raw_categories, list):

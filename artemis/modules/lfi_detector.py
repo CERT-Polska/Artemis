@@ -38,6 +38,7 @@ class LFIDetector(ArtemisBase):
     identity = "lfi_detector"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+        {"type": TaskType.URL.value},
     ]
 
     def create_url_with_batch_payload(self, url: str, param_batch: List[str], payload: str) -> str:

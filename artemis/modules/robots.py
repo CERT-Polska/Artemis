@@ -110,11 +110,31 @@ class RobotsScanner(ArtemisBase):
         result = RobotsResult(response.status_code, groups, self._download(current_task, url, groups))
         return result
 
+    def _emit_url_tasks(self, current_task: Task, url: str, groups: List[RobotsGroup]) -> None:
+        seen: set = set()
+        for g in groups:
+            for path in g.allow + g.disallow:
+                if any(re.match(p, path) for p in NOT_INTERESTING_PATHS):
+                    continue
+                if "*" in path:
+                    continue
+                path = path.rstrip("$")
+                full_url = f"{url}{path}"
+                if full_url in seen:
+                    continue
+                seen.add(full_url)
+                new_task = Task(
+                    {"type": TaskType.URL},
+                    payload={"url": full_url},
+                )
+                self.add_task(current_task, new_task)
+
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
         self.log.info(f"robots looking for {url}/robots.txt")
 
         result = self.download_robots(current_task, url)
+        self._emit_url_tasks(current_task, url, result.groups)
 
         if result.found_urls:
             status = TaskStatus.INTERESTING

@@ -16,7 +16,9 @@ class TechDetectionFailedException(Exception):
 
 NAME_MAPPING = {
     # Basic Auth is called `Basic` in https://raw.githubusercontent.com/projectdiscovery/wappalyzergo/refs/heads/main/fingerprints_data.json
-    "Basic": "Basic Auth"
+    "Basic": "Basic Auth",
+    # Digest Auth is called `Digest` in https://raw.githubusercontent.com/projectdiscovery/wappalyzergo/refs/heads/main/fingerprints_data.json
+    "Digest": "Digest Auth",
 }
 
 

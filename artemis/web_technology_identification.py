@@ -35,7 +35,6 @@ def _parse_tech(raw: Dict[str, Any]) -> Technology:
     else:
         name, version = raw_name, None
 
-
     if name == "Basic":
         name = "Basic Auth"
 

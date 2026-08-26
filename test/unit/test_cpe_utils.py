@@ -143,12 +143,12 @@ class CpeUtilsTest(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            lookup_cpe_by_plugin_slug("superplugin"),
+            lookup_cpe_by_plugin_slug("superplugin", cms="wordpress"),
             "cpe:2.3:a:acme:superplugin:*:*:*:*:*:*:*:*",
         )
         # The slug is namespaced by CMS; a bare slug without the right cms misses.
         self.assertIsNone(lookup_cpe_by_plugin_slug("superplugin", cms="joomla"))
-        self.assertIsNone(lookup_cpe_by_plugin_slug("nonexistent-plugin"))
+        self.assertIsNone(lookup_cpe_by_plugin_slug("nonexistent-plugin", cms="wordpress"))
 
     def test_sw_edition_stripped(self) -> None:
         _make_chunk(

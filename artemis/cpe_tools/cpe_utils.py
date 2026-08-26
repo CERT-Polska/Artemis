@@ -90,7 +90,7 @@ def lookup_cpe(name: str, version: str | None = None) -> str | None:
     return with_version(family_cpe, version) if version else family_cpe
 
 
-def lookup_cpe_by_plugin_slug(slug: str, cms: str = "wordpress", version: str | None = None) -> str | None:
+def lookup_cpe_by_plugin_slug(slug: str, cms: str, version: str | None = None) -> str | None:
     """Resolve a CMS plugin slug to an authoritative NVD CPE 2.3 name.
 
     The plugin index stores slugs namespaced by CMS (e.g. ``wordpress:<slug>``)

@@ -1,5 +1,5 @@
+import hashlib
 import json
-import logging
 import re
 import shutil
 import tarfile
@@ -7,17 +7,35 @@ import tempfile
 import time
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 import requests
 
 from artemis.config import Config
+from artemis.cpe_tools.cpe_plugin_slug import plugin_slug
+from artemis.utils import build_logger
 
-logger = logging.getLogger(__name__)
+logger = build_logger(__name__)
 
 CHUNKS_SUBDIR = "nvdcpe-2.0-chunks"
-INDEX_FILENAME = "title-index.json"
-INDEX_CACHE: dict[Path, dict[str, str]] = {}
-LOOKUP_CACHE: dict[tuple[Path, str], str | None] = {}
+INDEX_TITLE_FILENAME = "title-index.json"
+PLUGIN_INDEX_FILENAME = "plugin-index.json"
+URL_INDEX_FILENAME = "url-index.json"
+VERSION_FILENAME = "index-version.json"
+
+TITLE = "title"
+PLUGIN = "plugin"
+URL = "url"
+_INDEX_KINDS = {TITLE: INDEX_TITLE_FILENAME, PLUGIN: PLUGIN_INDEX_FILENAME, URL: URL_INDEX_FILENAME}
+
+# Per-kind, per-directory index caches holding the parsed index data. Each entry is
+# a (version-token, dict) pair.
+INDEX_CACHE: dict[str, dict[Path, tuple[str, dict[str, str]]]] = {kind: {} for kind in _INDEX_KINDS}
+
+
+def split_cpe(cpe: str) -> list[str]:
+    return re.split(r"(?<!\\):", cpe)
 
 
 def get_nvd_dir() -> Path:
@@ -28,12 +46,41 @@ def normalize(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
 
 
+def normalize_url(url: str) -> str:
+    url = url.strip()
+    if not url:
+        return ""
+    parts = urlsplit(url)
+    return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), parts.path.rstrip("/"), parts.query, ""))
+
+
 def family(cpe: str) -> str:
     # cpe:2.3:part:vendor:product -> the first five colon-separated components.
-    return ":".join(cpe.split(":")[:5])
+    return ":".join(split_cpe(cpe)[:5])
 
 
-def _iter_entries(chunks_dir: Path) -> Iterator[tuple[str, str]]:
+def _extract_refs(cpe: dict[str, Any]) -> list[str]:
+    urls: list[str] = []
+    for ref in cpe.get("refs") or []:
+        if isinstance(ref, str):
+            urls.append(ref)
+        elif isinstance(ref, dict):
+            url = ref.get("ref") or ref.get(URL)
+            if isinstance(url, str):
+                urls.append(url)
+    return urls
+
+
+def _strip_sw_edition(cpe_name: str) -> str:
+    SW_EDITION_FIELD_INDEX = 9
+    parts = split_cpe(cpe_name)
+    if len(parts) > SW_EDITION_FIELD_INDEX:
+        parts[SW_EDITION_FIELD_INDEX] = "*"
+        return ":".join(parts)
+    return cpe_name
+
+
+def _iter_entries(chunks_dir: Path) -> Iterator[tuple[str, str, list[str]]]:
     for chunk in sorted(chunks_dir.glob("*.json")):
         try:
             with chunk.open("rb") as f:
@@ -43,28 +90,69 @@ def _iter_entries(chunks_dir: Path) -> Iterator[tuple[str, str]]:
             continue
         for product in data.get("products", []):
             cpe = product.get("cpe") or {}
+            if cpe.get("deprecated"):
+                continue
             cpe_name = cpe.get("cpeName")
             if not isinstance(cpe_name, str):
                 continue
             title = None
             for entry in cpe.get("titles", []):
                 if isinstance(entry, dict) and entry.get("lang") == "en":
-                    title = entry.get("title")
+                    title = entry.get(TITLE)
                     break
             if not title:
                 continue
-            yield cpe_name, title
+            yield cpe_name, title, _extract_refs(cpe)
 
 
-def _build_index(chunks_dir: Path) -> dict[str, str]:
-    # Normalized english title -> first CPE whose family matched that title.
-    entries: dict[str, str] = {}
-    for cpe_name, title in _iter_entries(chunks_dir):
+def _build_indices(chunks_dir: Path) -> dict[str, dict[str, str]]:
+    titles: dict[str, str] = {}
+    plugins: dict[str, str] = {}
+    urls: dict[str, str] = {}
+    for cpe_name, title, refs in _iter_entries(chunks_dir):
+        cpe = _strip_sw_edition(cpe_name)
         key = normalize(title)
-        if not key or key in entries:
-            continue
-        entries[key] = cpe_name
-    return entries
+        if key and key not in titles:
+            titles[key] = cpe
+        for url in refs:
+            cms_slug = plugin_slug(url)
+            if cms_slug is not None:
+                cms, slug = cms_slug
+                pkey = f"{cms}:{slug}"
+                if pkey not in plugins:
+                    plugins[pkey] = cpe
+            url_key = normalize_url(url)
+            if url_key and url_key not in urls:
+                urls[url_key] = cpe
+    return {TITLE: titles, PLUGIN: plugins, URL: urls}
+
+
+def build_version_token(*dicts: dict[str, str]) -> str:
+    h = hashlib.sha256()
+    for m in dicts:
+        h.update(json.dumps(m, sort_keys=True, separators=(",", ":")).encode())
+    return h.hexdigest()
+
+
+def read_version_token(directory: Path) -> str:
+    version_path = directory / VERSION_FILENAME
+    try:
+        with version_path.open("rb") as f:
+            payload = json.load(f)
+        if isinstance(payload, dict):
+            token = payload.get("hash")
+            if isinstance(token, str):
+                return token
+    except (OSError, json.JSONDecodeError):
+        pass
+    return ""
+
+
+def ensure_version_token(directory: Path) -> str:
+    token = read_version_token(directory)
+    if token:
+        return token
+    return ""
 
 
 def _read_index_file(index_path: Path) -> dict[str, str] | None:
@@ -83,30 +171,45 @@ def _write_index_file(index_path: Path, entries: dict[str, str]) -> None:
     tmp_path.replace(index_path)
 
 
-def ensure_index(nvd_dir: Path) -> dict[str, str]:
-    cached = INDEX_CACHE.get(nvd_dir)
-    if cached is not None:
-        return cached
+def _ensure_index(nvd_dir: Path, kind: str) -> dict[str, str]:
+    cache = INDEX_CACHE[kind]
+    version = ensure_version_token(nvd_dir)
+    cached = cache.get(nvd_dir)
+    if cached is not None and cached[0] == version:
+        return cached[1]
 
     chunks_dir = nvd_dir / CHUNKS_SUBDIR
-    index_path = nvd_dir / INDEX_FILENAME
-    index = _read_index_file(index_path)
+    index = _read_index_file(nvd_dir / _INDEX_KINDS[kind])
     if index is None:
         if chunks_dir.is_dir():
             try:
-                index = _build_index(chunks_dir)
-            except Exception:  # never let a corrupt feed break scanning
-                logger.exception("Failed to build CPE index from %s", chunks_dir)
+                index = _build_indices(chunks_dir)[kind]
+            except Exception:
+                logger.exception("Failed to build %s index from %s", kind, chunks_dir)
                 index = {}
         else:
-            logger.warning(
-                "NVD CPE dictionary not found under %s; CPE lookups will return None. "
-                "Run `python3 -m artemis.cpe_tools.cpe_main_process` to download it.",
-                nvd_dir,
-            )
             index = {}
-    INDEX_CACHE[nvd_dir] = index
+            if kind == TITLE:
+                logger.warning(
+                    "NVD CPE dictionary not found under %s; CPE lookups will return None. "
+                    "Run `python3 -m artemis.cpe_tools.cpe_main_process` to download it.",
+                    nvd_dir,
+                )
+
+    cache[nvd_dir] = (version, index)
     return index
+
+
+def ensure_title_index(nvd_dir: Path) -> dict[str, str]:
+    return _ensure_index(nvd_dir, TITLE)
+
+
+def ensure_plugin_index(nvd_dir: Path) -> dict[str, str]:
+    return _ensure_index(nvd_dir, PLUGIN)
+
+
+def ensure_url_index(nvd_dir: Path) -> dict[str, str]:
+    return _ensure_index(nvd_dir, URL)
 
 
 def build_index(nvd_dir: Path | None = None) -> Path:
@@ -115,12 +218,14 @@ def build_index(nvd_dir: Path | None = None) -> Path:
     if not chunks_dir.is_dir():
         raise FileNotFoundError(f"CPE chunks directory not found: {chunks_dir}")
 
-    entries = _build_index(chunks_dir)
-    index_path = directory / INDEX_FILENAME
-    _write_index_file(index_path, entries)
+    indices = _build_indices(chunks_dir)
+    for kind, filename in _INDEX_KINDS.items():
+        _write_index_file(directory / filename, indices[kind])
+    _write_index_file(
+        directory / VERSION_FILENAME, {"hash": build_version_token(indices[TITLE], indices[PLUGIN], indices[URL])}
+    )
 
-    INDEX_CACHE[directory] = entries
-    return index_path
+    return directory / INDEX_TITLE_FILENAME
 
 
 def download_and_refresh(nvd_dir: Path | None = None) -> None:
@@ -163,8 +268,6 @@ def download_and_refresh(nvd_dir: Path | None = None) -> None:
         build_index(directory)
     except Exception:
         logger.exception("Failed to build CPE index after download from %s", url)
-    INDEX_CACHE.clear()
-    LOOKUP_CACHE.clear()
     logger.info("NVD CPE database refreshed at %s", directory)
 
 

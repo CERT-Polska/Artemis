@@ -2,11 +2,14 @@ import logging
 from pathlib import Path
 
 from artemis.cpe_tools.cpe_main_process import (
-    LOOKUP_CACHE,
-    ensure_index,
+    ensure_plugin_index,
+    ensure_title_index,
+    ensure_url_index,
     family,
     get_nvd_dir,
     normalize,
+    normalize_url,
+    split_cpe,
 )
 
 logger = logging.getLogger(__name__)
@@ -32,25 +35,14 @@ _STOPWORDS = frozenset(
     }
 )
 
-_MISSING = object()
-
-# The lookup cache can grow unbounded (one entry per distinct product name)
-MAX_LOOKUP_CACHE_SIZE = 100_000
-
-
-def _cache_put(key: tuple[Path, str], value: str | None) -> None:
-    while len(LOOKUP_CACHE) >= MAX_LOOKUP_CACHE_SIZE:
-        LOOKUP_CACHE.pop(next(iter(LOOKUP_CACHE)), None)
-    LOOKUP_CACHE[key] = value
-
 
 def with_version(cpe: str, version: str) -> str:
-    # A CPE 2.3 well-formed name escapes ":" inside fields as %3a, so splitting on
-    # ":" always yields exactly 13 components: cpe, 2.3, part, vendor, product,
-    # version, update, edition, language, sw_edition, target_sw, target_hw, other.
+    # Components are: cpe, 2.3, part, vendor, product, version, update, edition,
+    # language, sw_edition, target_sw, target_hw, other. Replace the version field
+    # (index 5) and re-join;
     VERSION_FIELD_INDEX = 5
 
-    parts = cpe.split(":")
+    parts = split_cpe(cpe)
     if len(parts) <= VERSION_FIELD_INDEX:
         return cpe
     parts[VERSION_FIELD_INDEX] = version
@@ -61,22 +53,14 @@ def resolve(nvd_dir: Path, normalized: str) -> str | None:
     def _tokens(normalized: str) -> list[str]:
         return [t for t in normalized.split() if len(t) > 1 and t not in _STOPWORDS]
 
-    cache_key = (nvd_dir, normalized)
-    cached: object = LOOKUP_CACHE.get(cache_key, _MISSING)
-    if cached is not _MISSING:
-        return cached if isinstance(cached, str) else None
-
-    index = ensure_index(nvd_dir)
+    index = ensure_title_index(nvd_dir)
 
     cpe = index.get(normalized)
     if cpe is not None:
-        result: str | None = with_version(cpe, "*")
-        _cache_put(cache_key, result)
-        return result
+        return with_version(cpe, "*")
 
     tokens = _tokens(normalized)
     if not tokens:
-        _cache_put(cache_key, None)
         return None
 
     token_set = frozenset(tokens)
@@ -85,9 +69,7 @@ def resolve(nvd_dir: Path, normalized: str) -> str | None:
         if token_set.issubset(title.split()):
             candidates.setdefault(family(cpe), cpe)
 
-    result = with_version(next(iter(candidates.values())), "*") if len(candidates) == 1 else None
-    _cache_put(cache_key, result)
-    return result
+    return with_version(next(iter(candidates.values())), "*") if len(candidates) == 1 else None
 
 
 def lookup_cpe(name: str, version: str | None = None) -> str | None:
@@ -106,3 +88,42 @@ def lookup_cpe(name: str, version: str | None = None) -> str | None:
     if family_cpe is None:
         return None
     return with_version(family_cpe, version) if version else family_cpe
+
+
+def lookup_cpe_by_plugin_slug(slug: str, cms: str = "wordpress", version: str | None = None) -> str | None:
+    """Resolve a CMS plugin slug to an authoritative NVD CPE 2.3 name.
+
+    The plugin index stores slugs namespaced by CMS (e.g. ``wordpress:<slug>``)
+
+    Returns ``None`` when the dictionary is unavailable or no plugin CPE
+    references that slug.
+    """
+    if not isinstance(slug, str) or not slug.strip():
+        return None
+    plugins = ensure_plugin_index(get_nvd_dir())
+    cpe = plugins.get(f"{cms}:{slug.strip().lower()}")
+    if cpe is None:
+        return None
+    return with_version(cpe, version) if version else with_version(cpe, "*")
+
+
+def lookup_cpe_by_url(url: str, version: str | None = None) -> str | None:
+    """Resolve a reference URL to an authoritative NVD CPE 2.3 name.
+
+    The url index stores every ref URL seen on a CPE, keyed by
+    its normalized form. First-seen wins when the same normalized URL appears on more
+    than one CPE.
+
+    Returns ``None`` when the dictionary is unavailable or no CPE
+    references that URL.
+    """
+    if not isinstance(url, str) or not url.strip():
+        return None
+    key = normalize_url(url)
+    if not key:
+        return None
+    urls = ensure_url_index(get_nvd_dir())
+    cpe = urls.get(key)
+    if cpe is None:
+        return None
+    return with_version(cpe, version) if version else with_version(cpe, "*")

@@ -7,6 +7,7 @@ from karton.core import Task
 from karton.core.test import ConfigMock
 
 from artemis.binds import TaskType
+from artemis.config import Config
 from artemis.module_base import ArtemisBase
 from artemis.modules.mail_dns_scanner import MailDNSScanner
 from artemis.modules.nuclei import Nuclei
@@ -36,8 +37,11 @@ class TestGetRequestsPerSecondBatchKey(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.module = _MinimalModule(config=ConfigMock(), backend=MagicMock(), db=MagicMock())  # type: ignore[no-untyped-call]
 
-    def test_no_override_returns_none(self) -> None:
-        self.assertIsNone(self.module._get_requests_per_second_batch_key(_domain_task()))
+    def test_no_override_returns_default(self) -> None:
+        self.assertEqual(
+            str(Config.Limits.REQUESTS_PER_SECOND),
+            self.module._get_requests_per_second_batch_key(_domain_task()),
+        )
 
     def test_float_override_returns_string(self) -> None:
         self.assertEqual("2.0", self.module._get_requests_per_second_batch_key(_domain_task(override=2.0)))
@@ -60,8 +64,11 @@ class TestBaseBatchGroupKey(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.module = _MinimalModule(config=ConfigMock(), backend=MagicMock(), db=MagicMock())  # type: ignore[no-untyped-call]
 
-    def test_no_override_returns_none(self) -> None:
-        self.assertIsNone(self.module.get_batch_group_key(_domain_task()))
+    def test_no_override_returns_default(self) -> None:
+        self.assertEqual(
+            str(Config.Limits.REQUESTS_PER_SECOND),
+            self.module.get_batch_group_key(_domain_task()),
+        )
 
     def test_with_override_returns_non_none(self) -> None:
         self.assertIsNotNone(self.module.get_batch_group_key(_domain_task(override=1.0)))

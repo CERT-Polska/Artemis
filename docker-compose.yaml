@@ -29,12 +29,11 @@ services:
       - data-redis:/data
 
   s3mock:
-    <<: *logging
     image: adobe/s3mock:latest
     environment:
-      - initialBuckets=bucket
-    entrypoint: ["sh", "-c", "java -jar opt/s3mock.jar 2>&1 > /dev/null"]
-
+      - COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS=bucket
+    logging:
+      driver: none
     deploy:
       resources:
         limits:

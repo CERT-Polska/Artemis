@@ -14,6 +14,14 @@ class TechDetectionFailedException(Exception):
     """
 
 
+NAME_MAPPING = {
+    # Basic Auth is called `Basic` in https://raw.githubusercontent.com/projectdiscovery/wappalyzergo/refs/heads/main/fingerprints_data.json
+    "Basic": "Basic Auth",
+    # Digest Auth is called `Digest` in https://raw.githubusercontent.com/projectdiscovery/wappalyzergo/refs/heads/main/fingerprints_data.json
+    "Digest": "Digest Auth",
+}
+
+
 @dataclass
 class Technology:
     """A single technology detected by Wappalyzer on a URL.
@@ -34,6 +42,9 @@ def _parse_tech(raw: Dict[str, Any]) -> Technology:
         name, _, version = raw_name.partition(":")
     else:
         name, version = raw_name, None
+
+    if name in NAME_MAPPING:
+        name = NAME_MAPPING[name]
 
     cpe = raw.get("cpe") or None
     raw_categories = raw.get("categories") or []

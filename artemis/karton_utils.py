@@ -45,13 +45,12 @@ def get_num_pending_tasks(karton_backend: KartonBackend) -> Dict[str, int]:
     return result
 
 
-def change_priority_for_analyses(analyses_ids: list[str], new_priority: str, push_to_queue_end: bool = True) -> None:
-    backend = KartonBackend(config=KartonConfig())
-    state = KartonState(backend=backend)
-    analyses = state.analyses
-
+def change_priority_for_analyses(
+    analyses_ids: list[str], karton_state: KartonState, new_priority: str, push_to_queue_end: bool = True
+) -> None:
     found_analyses = []
     not_found_ids = []
+    analyses = karton_state.analyses
 
     for analysis_id in analyses_ids:
         state_analysis = analyses.get(analysis_id)
@@ -66,7 +65,7 @@ def change_priority_for_analyses(analyses_ids: list[str], new_priority: str, pus
     for analysis in found_analyses:
         for task in analysis.tasks:
             try:
-                change_priority_for_task(state, task, new_priority, push_to_queue_end)
+                change_priority_for_task(karton_state, task, new_priority, push_to_queue_end)
             except Exception as e:
                 LOGGER.error(
                     "Error while changing priority for task %s of analysis %s: %s", task.uid, task.root_uid, str(e)

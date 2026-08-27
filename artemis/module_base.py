@@ -149,9 +149,13 @@ class ArtemisBase(Karton):
     def get_runtime_configuration(self, _task: Task) -> ModuleRuntimeConfiguration:
         return self.get_default_configuration()
 
-    def get_batch_group_key(self, _task: Task) -> str | None:
+    def _get_requests_per_second_batch_key(self, task: Task) -> str:
+        override = task.payload_persistent.get("requests_per_second_override")
+        return str(override) if override is not None else str(Config.Limits.REQUESTS_PER_SECOND)
+
+    def get_batch_group_key(self, task: Task) -> str | None:
         """Return a grouping key used when taking a batch of tasks from queue."""
-        return None
+        return self._get_requests_per_second_batch_key(task)
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
@@ -353,12 +357,20 @@ class ArtemisBase(Karton):
         for task in tasks:
             increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
 
-        requests_per_second_overrides = [
-            task.payload_persistent.get("requests_per_second_override")
+        distinct_override_values = {
+            override
             for task in tasks
-            if "requests_per_second_override" in task.payload_persistent
-        ]
+            if (override := task.payload_persistent.get("requests_per_second_override")) is not None
+        }
+        if len(distinct_override_values) > 1:
+            self.log.error(
+                "Batching produced tasks with multiple different overrides, this is unexpected: %s",
+                distinct_override_values,
+            )
+        requests_per_second_overrides = list(distinct_override_values)
 
+        # To clear the confusion, the below code introduces another RPS override, it's not added to batching for
+        # simplicity of the key generation.
         for task in tasks:
             destination = self._get_scan_destination(task)
             for key, value in self._scan_speed_overrides.items():
@@ -370,7 +382,7 @@ class ArtemisBase(Karton):
                 if ipaddress.ip_address(destination) in ipaddress.ip_network(key):
                     requests_per_second_overrides.append(value)
 
-        self.requests_per_second_for_current_tasks = min(  # type: ignore
+        self.requests_per_second_for_current_tasks = min(
             requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
         )
 

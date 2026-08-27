@@ -341,6 +341,7 @@ class Nuclei(ArtemisBase):
             {
                 "nuclei_router_flags": router_flags,
                 "configuration_runtime": configuration.serialize(),
+                "requests_per_second_override": self._get_requests_per_second_batch_key(task),
             },
             sort_keys=True,
         )

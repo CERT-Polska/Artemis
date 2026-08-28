@@ -8,9 +8,10 @@ def _wordpress_plugin_slug(url: str) -> tuple[str, str] | None:
 
 
 def _joomla_extension_slug(url: str) -> tuple[str, str] | None:
+    # https://extensions.joomla.org/extension/googlesearch-cse-component/
+    # https://extensions.joomla.org/extension/marketing/newsletter/acymailing-starter/
     # The slug is the last (non-numeric) path segment under /extension/. The older
     # /extensions/... tree paths end in numeric IDs and are skipped.
-    # example: https://extensions.joomla.org/extension/akeeba-backup/
     match = re.match(r"https?://(?:www\.)?extensions\.joomla\.org/extension/([^#?]*)", url, re.IGNORECASE)
     if not match:
         return None

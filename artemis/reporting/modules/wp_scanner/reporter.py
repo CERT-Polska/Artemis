@@ -1,6 +1,7 @@
 import os
 from typing import Any, Callable, Dict, List
 
+from artemis.cpe_tools.cpe_utils import lookup_cpe
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
@@ -89,5 +90,6 @@ class WPScannerReporter(Reporter):
                 name=get_target_url(task_result),
                 additional_type="wordpress",
                 version=task_result["result"].get("wp_version", None),
+                cpe=lookup_cpe("WordPress", version=task_result["result"].get("wp_version", None)),
             )
         ]

@@ -63,9 +63,12 @@ services:
     command: "bash -c 'alembic upgrade head && python3 -m artemis.reporting.task_handler'"
     env_file: .env
     restart: always
+    environment:
+      - CPE_NVD_DIR=/data/cpe-nvd
     volumes:
       - ./output/autoreporter/:/opt/output/autoreporter
       - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
+      - cpe-nvd-data:/data/cpe-nvd
 
   cleanup:
     <<: [*logging, *artemis-build-or-image]
@@ -79,6 +82,16 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     command: "python3 -m artemis.metrics"
+
+  cpe-nvd-service:
+    <<: [*logging, *artemis-build-or-image]
+    command: "python3 -m artemis.cpe_tools.cpe_main_process"
+    env_file: .env
+    environment:
+      - CPE_NVD_DIR=/data/cpe-nvd
+    volumes:
+      - cpe-nvd-data:/data/cpe-nvd
+    restart: always
 
   autoarchiver:
     <<: [*logging, *artemis-build-or-image]
@@ -446,3 +459,4 @@ volumes:
   data-postgres:
   data-redis:
   data-web:
+  cpe-nvd-data:

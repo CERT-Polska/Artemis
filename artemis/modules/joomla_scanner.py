@@ -1,4 +1,5 @@
 import re
+from datetime import date
 from typing import Any, Dict, List, Union
 
 from karton.core import Task
@@ -54,6 +55,9 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
                 # Get latest release in repo from GitHub API
 
                 if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_obsolete(joomla_version):
+                    # FIXME: reason https://github.com/endoflife-date/endoflife.date/issues/10831
+                    if joomla_version == "5.4.8" and date.today() < date(2026, 9, 11):
+                        continue
                     found_problems.append(f"Joomla version is too old: {joomla_version}")
                     result["joomla_version_is_too_old"] = True
                 break

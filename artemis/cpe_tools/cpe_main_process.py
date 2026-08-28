@@ -97,7 +97,7 @@ def _iter_entries(chunks_dir: Path) -> Iterator[tuple[str, str, list[str]]]:
                 continue
             title = None
             for entry in cpe.get("titles", []):
-                if isinstance(entry, dict) and entry.get("lang") and entry.get("lang").lower().startswith("en"):
+                if isinstance(entry, dict) and entry.get("lang") is not None and entry.get("lang").lower().startswith("en"):
                     title = entry.get(TITLE)
                     break
             if not title:

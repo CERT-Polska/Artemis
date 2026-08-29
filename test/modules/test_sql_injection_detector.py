@@ -7,7 +7,8 @@ from karton.core import Task
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.http_requests import HTTPResponse
-from artemis.modules.sql_injection_detector import SqlInjectionDetector
+from artemis.modules.sql_injection_detector import SqlInjectionDetector, Statements
+from artemis.sql_injection_data import HEADERS as HEADERS_DATA
 
 
 class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
@@ -116,13 +117,12 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "http://test-apache-with-sql-injection-mysql.local/sql_injection.php?id='||sleep(5)||'"
             ": It appears that this URL is vulnerable to time-based SQL injection"
         )
+        headers_vuln_url = "http://test-apache-with-sql-injection-mysql.local/headers_vuln.php"
         sqli_by_headers_message = (
-            "http://test-apache-with-sql-injection-mysql.local/headers_vuln.php: "
-            "It appears that this URL is vulnerable to SQL injection through HTTP Headers"
+            f"{headers_vuln_url}: It appears that this URL is vulnerable to SQL injection through HTTP Headers"
         )
         time_base_sqli_by_headers_message = (
-            "http://test-apache-with-sql-injection-mysql.local/headers_vuln.php: "
-            "It appears that this URL is vulnerable to time-based SQL injection "
+            f"{headers_vuln_url}: It appears that this URL is vulnerable to time-based SQL injection "
             "through HTTP Headers"
         )
 
@@ -132,6 +132,24 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertTrue(sqli_by_headers_message in call.kwargs["status_reason"])
         self.assertTrue(time_base_sqli_by_headers_message in call.kwargs["status_reason"])
         self.assertEqual(len(call.kwargs["data"]["result"]), 4)
+
+        headers_msgs = [item for item in call.kwargs["data"]["result"] if item["url"] == headers_vuln_url]
+        self.assertEqual(len(headers_msgs), 2)
+        self.assertEqual(
+            [headers_msgs[0]["code"], headers_msgs[1]["code"]],
+            [
+                Statements.headers_sql_injection.value,
+                Statements.headers_time_based_sql_injection.value,
+            ],
+        )
+        expected_headers_by_code = {
+            Statements.headers_sql_injection.value: {"User-Agent": HEADERS_DATA["User-Agent"] + "'\""},
+            Statements.headers_time_based_sql_injection.value: {
+                "User-Agent": HEADERS_DATA["User-Agent"] + "'||sleep(5)||'"
+            },
+        }
+        for msg in headers_msgs:
+            self.assertEqual(msg["headers"], expected_headers_by_code[msg["code"]])
 
     def test_is_url_with_parameters(self) -> None:
         current_url = "http://test-apache-with-sql-injection-mysql.local"

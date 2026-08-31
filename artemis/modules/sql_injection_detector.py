@@ -14,8 +14,8 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_injectable_parameters, get_links_to_scan
 from artemis.http_requests import HTTPResponse
+from artemis.injection_helpers import build_result_data
 from artemis.module_base import ArtemisBase
-from artemis.modules.base.injection_helpers import build_result_data
 from artemis.modules.data.parameters import URL_PARAMS
 from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url

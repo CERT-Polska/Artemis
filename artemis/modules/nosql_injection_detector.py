@@ -2,7 +2,7 @@ import json
 import re
 import uuid
 from enum import Enum
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Iterator, TypeVar
 
 import more_itertools
 from karton.core import Task
@@ -12,12 +12,12 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import collect_parameters, get_links_to_scan, strip_query_string
 from artemis.http_requests import HTTPResponse
-from artemis.module_base import ArtemisBase
-from artemis.modules.base.injection_helpers import (
+from artemis.injection_helpers import (
     build_result_data,
     create_status_reason,
     responses_differ,
 )
+from artemis.module_base import ArtemisBase
 from artemis.nosql_injection_data import (
     BLIND_FALSE_OPERATOR,
     BLIND_TRUE_OPERATOR,
@@ -30,8 +30,8 @@ from artemis.task_utils import get_target_url
 
 JSON_HEADERS = {"Content-Type": "application/json"}
 
-# A random value no record holds ("$ne" then matches every record, "$eq" none), kept to 8 hex chars
-# so that a full batch of bracket parameters stays under the URL-length limit.
+# Randomly generated value that is unlikely to exist in any record ("$ne" then matches every record,
+# "$eq" none), kept to 8 hex chars so a full batch of bracket parameters stays under the URL-length limit.
 UNLIKELY_VALUE = uuid.uuid4().hex[:8]
 
 T = TypeVar("T")
@@ -113,10 +113,19 @@ class NoSqlInjectionDetector(ArtemisBase):
             return error, True
         return None, True
 
-    def _has_dynamic_content(self, url: str) -> bool:
-        # Two identical requests that already differ mean the endpoint is non-deterministic (timestamps,
-        # tokens), so the blind differential below would flag it on every run. Skip those.
+    def _has_dynamic_get_content(self, url: str) -> bool:
+        # Two identical GET requests that already differ mean the endpoint is non-deterministic
+        # (timestamps, tokens), so the blind differential below would flag it on every run. Skip those.
         return responses_differ(self.forgiving_http_get(url), self.forgiving_http_get(url))
+
+    def _has_dynamic_post_content(self, url: str) -> bool:
+        # Same guard on POST: the GET check says nothing about how the endpoint answers a JSON body, so a
+        # noisy POST endpoint would false-positive and a real vuln would be skipped on GET noise alone.
+        base = strip_query_string(url)
+        body = json.dumps({})
+        first = self.forgiving_http_post(base, data=body, headers=JSON_HEADERS)
+        second = self.forgiving_http_post(base, data=body, headers=JSON_HEADERS)
+        return responses_differ(first, second)
 
     def _probe_boolean_get(self, url: str, params: list[str]) -> tuple[dict[str, str] | None, bool]:
         # Blind probe: "$ne" matches (almost) every record while "$eq" matches none, so a difference
@@ -189,93 +198,118 @@ class NoSqlInjectionDetector(ArtemisBase):
 
         for current_url in urls:
             all_params = collect_parameters(current_url)
-            blind_enabled = not self._has_dynamic_content(current_url)
+            if not all_params:
+                # collect_parameters unions in the URL_PARAMS wordlist, so this is rare - but bailing here
+                # keeps a param-less URL from firing probes or being counted untestable and forcing an ERROR.
+                continue
 
-            url_completed = False
-            for param_batch in more_itertools.batched(all_params, PARAMS_PER_BATCH):
-                batch = list(param_batch)
-
-                for operator, value in BRACKET_OPERATOR_PAYLOADS:
-                    matched, completed = self._confirm(self._probe_get, current_url, batch, operator, value)
-                    url_completed = url_completed or completed
-                    if matched:
-                        minimal = self.minimize_parameters(current_url, batch, self._probe_get, operator, value)
-                        message.append(
-                            {
-                                "url": self._build_bracket_url(current_url, minimal, operator, value),
-                                "method": "GET",
-                                "parameters": minimal,
-                                "payload": f"[{operator}]={value}",
-                                "matched_error": matched,
-                                "statement": "It appears that this URL is vulnerable to NoSQL injection",
-                                "code": Statements.nosql_injection.value,
-                            }
-                        )
-                        if stop_on_first_match:
-                            return message, untestable_urls
-
-                for operator, value in JSON_OPERATOR_PAYLOADS:
-                    matched, completed = self._confirm(self._probe_post, current_url, batch, operator, value)
-                    url_completed = url_completed or completed
-                    if matched:
-                        minimal = self.minimize_parameters(current_url, batch, self._probe_post, operator, value)
-                        message.append(
-                            {
-                                "url": strip_query_string(current_url),
-                                "method": "POST",
-                                "parameters": minimal,
-                                "payload": self._build_json_body(minimal, operator, value),
-                                "matched_error": matched,
-                                "statement": "It appears that this URL is vulnerable to NoSQL injection through a JSON body",
-                                "code": Statements.nosql_injection_json_body.value,
-                            }
-                        )
-                        if stop_on_first_match:
-                            return message, untestable_urls
-
-                if not blind_enabled:
-                    continue
-
-                blind_matched, completed = self._confirm(self._probe_boolean_get, current_url, batch)
-                url_completed = url_completed or completed
-                if blind_matched:
-                    minimal = self.minimize_parameters(current_url, batch, self._probe_boolean_get)
-                    message.append(
-                        {
-                            "url": self._build_bracket_url(current_url, minimal, BLIND_TRUE_OPERATOR, UNLIKELY_VALUE),
-                            "method": "GET",
-                            "parameters": minimal,
-                            "payload": f"[{BLIND_TRUE_OPERATOR}]={UNLIKELY_VALUE}",
-                            "baseline": f"[{BLIND_FALSE_OPERATOR}]={UNLIKELY_VALUE}",
-                            "statement": "It appears that this URL is vulnerable to blind NoSQL injection",
-                            "code": Statements.nosql_injection_blind.value,
-                        }
-                    )
-                    if stop_on_first_match:
-                        return message, untestable_urls
-
-                blind_matched, completed = self._confirm(self._probe_boolean_post, current_url, batch)
-                url_completed = url_completed or completed
-                if blind_matched:
-                    minimal = self.minimize_parameters(current_url, batch, self._probe_boolean_post)
-                    message.append(
-                        {
-                            "url": strip_query_string(current_url),
-                            "method": "POST",
-                            "parameters": minimal,
-                            "payload": self._build_json_body(minimal, BLIND_TRUE_OPERATOR, UNLIKELY_VALUE),
-                            "baseline": self._build_json_body(minimal, BLIND_FALSE_OPERATOR, UNLIKELY_VALUE),
-                            "statement": "It appears that this URL is vulnerable to blind NoSQL injection through a JSON body",
-                            "code": Statements.nosql_injection_blind.value,
-                        }
-                    )
-                    if stop_on_first_match:
-                        return message, untestable_urls
-
-            if not url_completed:
+            findings, completed = self._scan_url(current_url, all_params, stop_on_first_match)
+            message.extend(findings)
+            if findings and stop_on_first_match:
+                return message, untestable_urls
+            # Not one probe reached its baseline, so this URL was never actually tested.
+            if not completed:
                 untestable_urls.append(current_url)
 
         return message, untestable_urls
+
+    def _scan_url(
+        self, current_url: str, all_params: list[str], stop_on_first_match: bool
+    ) -> tuple[list[dict[str, Any]], bool]:
+        # The determinism guards are measured once per URL, not per batch, to keep the request count down.
+        findings: list[dict[str, Any]] = []
+        completed = False
+
+        blind_get_enabled = not self._has_dynamic_get_content(current_url)
+        blind_post_enabled = not self._has_dynamic_post_content(current_url)
+
+        for param_batch in more_itertools.batched(all_params, PARAMS_PER_BATCH):
+            batch = list(param_batch)
+            for finding, done in self._iter_batch_findings(current_url, batch, blind_get_enabled, blind_post_enabled):
+                completed = completed or done
+                if finding is not None:
+                    findings.append(finding)
+                    if stop_on_first_match:
+                        return findings, completed
+
+        return findings, completed
+
+    def _iter_batch_findings(
+        self, current_url: str, batch: list[str], blind_get_enabled: bool, blind_post_enabled: bool
+    ) -> Iterator[tuple[dict[str, Any] | None, bool]]:
+        # Lazy on purpose: when the caller stops on the first match, the remaining probes never fire.
+        for operator, value in BRACKET_OPERATOR_PAYLOADS:
+            yield self._check_error_get(current_url, batch, operator, value)
+        for operator, value in JSON_OPERATOR_PAYLOADS:
+            yield self._check_error_post(current_url, batch, operator, value)
+        if blind_get_enabled:
+            yield self._check_blind_get(current_url, batch)
+        if blind_post_enabled:
+            yield self._check_blind_post(current_url, batch)
+
+    def _check_error_get(
+        self, current_url: str, batch: list[str], operator: str, value: str
+    ) -> tuple[dict[str, Any] | None, bool]:
+        matched, completed = self._confirm(self._probe_get, current_url, batch, operator, value)
+        if matched is None:
+            return None, completed
+        minimal = self.minimize_parameters(current_url, batch, self._probe_get, operator, value)
+        return {
+            "url": self._build_bracket_url(current_url, minimal, operator, value),
+            "method": "GET",
+            "parameters": minimal,
+            "payload": f"[{operator}]={value}",
+            "matched_error": matched,
+            "statement": "It appears that this URL is vulnerable to NoSQL injection",
+            "code": Statements.nosql_injection.value,
+        }, completed
+
+    def _check_error_post(
+        self, current_url: str, batch: list[str], operator: str, value: Any
+    ) -> tuple[dict[str, Any] | None, bool]:
+        matched, completed = self._confirm(self._probe_post, current_url, batch, operator, value)
+        if matched is None:
+            return None, completed
+        minimal = self.minimize_parameters(current_url, batch, self._probe_post, operator, value)
+        return {
+            "url": strip_query_string(current_url),
+            "method": "POST",
+            "parameters": minimal,
+            "payload": self._build_json_body(minimal, operator, value),
+            "matched_error": matched,
+            "statement": "It appears that this URL is vulnerable to NoSQL injection through a JSON body",
+            "code": Statements.nosql_injection_json_body.value,
+        }, completed
+
+    def _check_blind_get(self, current_url: str, batch: list[str]) -> tuple[dict[str, Any] | None, bool]:
+        matched, completed = self._confirm(self._probe_boolean_get, current_url, batch)
+        if matched is None:
+            return None, completed
+        minimal = self.minimize_parameters(current_url, batch, self._probe_boolean_get)
+        return {
+            "url": self._build_bracket_url(current_url, minimal, BLIND_TRUE_OPERATOR, UNLIKELY_VALUE),
+            "method": "GET",
+            "parameters": minimal,
+            "payload": f"[{BLIND_TRUE_OPERATOR}]={UNLIKELY_VALUE}",
+            "baseline": f"[{BLIND_FALSE_OPERATOR}]={UNLIKELY_VALUE}",
+            "statement": "It appears that this URL is vulnerable to blind NoSQL injection",
+            "code": Statements.nosql_injection_blind.value,
+        }, completed
+
+    def _check_blind_post(self, current_url: str, batch: list[str]) -> tuple[dict[str, Any] | None, bool]:
+        matched, completed = self._confirm(self._probe_boolean_post, current_url, batch)
+        if matched is None:
+            return None, completed
+        minimal = self.minimize_parameters(current_url, batch, self._probe_boolean_post)
+        return {
+            "url": strip_query_string(current_url),
+            "method": "POST",
+            "parameters": minimal,
+            "payload": self._build_json_body(minimal, BLIND_TRUE_OPERATOR, UNLIKELY_VALUE),
+            "baseline": self._build_json_body(minimal, BLIND_FALSE_OPERATOR, UNLIKELY_VALUE),
+            "statement": "It appears that this URL is vulnerable to blind NoSQL injection through a JSON body",
+            "code": Statements.nosql_injection_blind.value,
+        }, completed
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
@@ -288,8 +322,7 @@ class NoSqlInjectionDetector(ArtemisBase):
             status = TaskStatus.INTERESTING
             status_reason = create_status_reason(message)
         elif scanned and len(untestable_urls) == len(scanned):
-            # Every discovered URL failed its baseline request, so nothing could actually be tested.
-            # A failed check must be saved as an error, not as a clean OK with no findings.
+            # Every URL failed its baseline, so this is an error, not a clean OK with no findings.
             status = TaskStatus.ERROR
             status_reason = "Could not test any discovered URL: " + ", ".join(untestable_urls)
         else:

@@ -119,6 +119,12 @@ async function main() {
     res.type("html").send("<p>Status errmsg: none. Last CastError: none. ValidationError: none.</p>");
   });
 
+  // Returns a different body on every request (GET or POST) so the module's determinism guard flags it
+  // as non-deterministic and skips its blind probes instead of matching on the endpoint's own noise.
+  app.all("/dynamic", (req, res) => {
+    res.type("text/plain").send(`nonce ${Date.now()} ${Math.random()}`);
+  });
+
   app.listen(PORT, () => console.log(`listening on ${PORT}`));
 }
 

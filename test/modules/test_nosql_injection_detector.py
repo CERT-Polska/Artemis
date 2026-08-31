@@ -49,6 +49,12 @@ class NoSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertTrue(completed)
         self.assertIsNotNone(matched)
 
+    def test_blind_json_body_probe_detects_login_endpoint(self) -> None:
+        # The login endpoint leaks no error, so only the blind "$ne" vs "$eq" differential catches it.
+        matched, completed = self.karton._probe_boolean_post(f"{TARGET}/api/login", ["password"])
+        self.assertTrue(completed)
+        self.assertIsNotNone(matched)
+
     def test_noisy_endpoint_is_not_reported(self) -> None:
         matched, completed = self.karton._probe_get(f"{TARGET}/noisy", ["id"], "$artemisProbe", "1")
         self.assertTrue(completed)
@@ -78,6 +84,18 @@ class NoSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         matched, completed = self.karton._probe_boolean_get(f"{TARGET}/noisy", ["id"])
         self.assertTrue(completed)
         self.assertIsNone(matched)
+
+    def test_dynamic_get_content_is_detected(self) -> None:
+        # The GET guard must flag an endpoint that changes on every request and leave a stable one alone,
+        # otherwise the blind GET differential fires on the endpoint's own noise.
+        self.assertTrue(self.karton._has_dynamic_get_content(f"{TARGET}/dynamic"))
+        self.assertFalse(self.karton._has_dynamic_get_content(f"{TARGET}/noisy"))
+
+    def test_dynamic_post_content_is_detected(self) -> None:
+        # The POST guard is measured on its own - a stable GET says nothing about the JSON-body response,
+        # so a deterministic login endpoint must read as stable while the changing one reads as dynamic.
+        self.assertTrue(self.karton._has_dynamic_post_content(f"{TARGET}/dynamic"))
+        self.assertFalse(self.karton._has_dynamic_post_content(f"{TARGET}/api/login"))
 
     def test_bracket_url_construction(self) -> None:
         url = self.karton._build_bracket_url(f"{TARGET}/search", ["id", "q"], "$ne", "1")

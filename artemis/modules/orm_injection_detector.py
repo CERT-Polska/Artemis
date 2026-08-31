@@ -9,12 +9,12 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import collect_parameters, get_links_to_scan, strip_query_string
-from artemis.module_base import ArtemisBase
-from artemis.modules.base.injection_helpers import (
+from artemis.injection_helpers import (
     build_result_data,
     create_status_reason,
     responses_differ,
 )
+from artemis.module_base import ArtemisBase
 from artemis.orm_injection_data import (
     ORM_LOOKUP_SUFFIXES,
     SENSITIVE_FIELD_PROBES,

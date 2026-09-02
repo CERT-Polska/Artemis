@@ -33,6 +33,17 @@ SEVERITY_OVERRIDES = {
     "http/misconfiguration/server-status.yaml": "medium",
 }
 
+ADDITIONAL_REFERENCES = {
+    (Language.pl_PL, "dast/vulnerabilities/sqli/sqli-error-based.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/",
+    (Language.pl_PL, "dast/vulnerabilities/sqli/time-based-sqli.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/",
+    (Language.pl_PL, "dast/vulnerabilities/xss/reflected-xss.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/cross-site-scripting/",
+    (Language.pl_PL, "dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/",
+    (Language.pl_PL, "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/",
+    (Language.pl_PL, "dast/vulnerabilities/lfi/lfi-keyed.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/",
+    (Language.pl_PL, "dast/vulnerabilities/redirect/open-redirect-bypass.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/open-redir/",
+    (Language.pl_PL, "artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/open-redir/",
+}
+
 
 def _get_cpe(vulnerability: Dict[str, Any]) -> Optional[str]:
     """Returns the CPE of the software the Nuclei template matched, if the template provides one.
@@ -186,6 +197,8 @@ class NucleiReporter(Reporter):
                     if original_template_name.startswith(prefix):
                         severity = severity_override
 
+                additional_references = ADDITIONAL_REFERENCES.get((language, original_template_name), [])
+
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -201,7 +214,7 @@ class NucleiReporter(Reporter):
                             "description_translated": NucleiReporter._translate_description(
                                 template, description, language
                             ),
-                            "reference": vulnerability["info"].get("reference", []),
+                            "reference": vulnerability["info"].get("reference", []) + additional_references,
                             "severity": severity,
                             "matched_at": matched_at,
                             "template_name": template,

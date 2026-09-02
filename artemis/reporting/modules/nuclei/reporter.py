@@ -33,7 +33,7 @@ SEVERITY_OVERRIDES = {
     "http/misconfiguration/server-status.yaml": "medium",
 }
 
-ADDITIONAL_REFERENCES: dict[tuple[Language, str], str] = {
+ADDITIONAL_REFERENCES: dict[tuple[Language, str], list[str]] = {
     (
         Language.pl_PL,  # type: ignore
         "dast/vulnerabilities/sqli/sqli-error-based.yaml",

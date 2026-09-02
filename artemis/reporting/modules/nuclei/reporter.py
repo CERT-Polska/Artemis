@@ -33,15 +33,39 @@ SEVERITY_OVERRIDES = {
     "http/misconfiguration/server-status.yaml": "medium",
 }
 
-ADDITIONAL_REFERENCES = {
-    (Language.pl_PL, "dast/vulnerabilities/sqli/sqli-error-based.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/",
-    (Language.pl_PL, "dast/vulnerabilities/sqli/time-based-sqli.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/",
-    (Language.pl_PL, "dast/vulnerabilities/xss/reflected-xss.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/cross-site-scripting/",
-    (Language.pl_PL, "dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/",
-    (Language.pl_PL, "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/",
-    (Language.pl_PL, "dast/vulnerabilities/lfi/lfi-keyed.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/",
-    (Language.pl_PL, "dast/vulnerabilities/redirect/open-redirect-bypass.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/open-redir/",
-    (Language.pl_PL, "artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml"): "https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/open-redir/",
+ADDITIONAL_REFERENCES: dict[tuple[Language, str], str] = {
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/sqli/sqli-error-based.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/sqli/time-based-sqli.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/xss/reflected-xss.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/cross-site-scripting/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/lfi/lfi-keyed.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/redirect/open-redirect-bypass.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/open-redir/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/open-redir/"],
 }
 
 
@@ -197,7 +221,7 @@ class NucleiReporter(Reporter):
                     if original_template_name.startswith(prefix):
                         severity = severity_override
 
-                additional_references = ADDITIONAL_REFERENCES.get((language, original_template_name), [])
+                additional_references: list[str] = ADDITIONAL_REFERENCES.get((language, original_template_name), [])
 
                 result.append(
                     Report(

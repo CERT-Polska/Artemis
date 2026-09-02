@@ -28,7 +28,7 @@ msgstr ""
 " dostęp do plików  danych konfiguracyjnych serwera, a w niektórych "
 "sytuacjach - również zdalne wykonanie kodu. Podatność występuje, gdy dane"
 " od użytkownika są używane jako część ścieżki pliku bez wystarczającej "
-"walidacji, co umożliwia atakującemu manipulację ścieżką."
+"walidacji, co umożliwia atakującemu manipulację ścieżką. Aby dowiedzieć się więcej, przeczytaj <a href=\"https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/\">artykuł</a> CERT Polska na temat tej podatności."
 
 #: artemis/reporting/modules/lfi_detector/template_rce.jinja2:2
 msgid ""

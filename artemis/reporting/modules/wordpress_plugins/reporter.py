@@ -1,10 +1,11 @@
 import os
 import re
-from typing import Any, Callable, Dict, List, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 from packaging import version
 
 from artemis import utils
+from artemis.cpe_tools.cpe_utils import lookup_cpe_by_plugin_slug
 from artemis.fallback_api_cache import FallbackAPICache
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
@@ -17,6 +18,10 @@ from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import get_target_url, get_top_level_target
 
 logger = utils.build_logger(__name__)
+
+
+def _get_cpe(slug: str) -> Optional[str]:
+    return lookup_cpe_by_plugin_slug(slug, "wordpress")
 
 
 class WordpressPluginsReporter(Reporter):
@@ -183,6 +188,7 @@ class WordpressPluginsReporter(Reporter):
                 name=get_target_url(task_result),
                 additional_type="wordpress-plugin:" + slug,
                 version=data.get("version", ""),
+                cpe=_get_cpe(slug),
             )
             for slug, data in task_result["result"].get("plugins", {}).items()
         ]

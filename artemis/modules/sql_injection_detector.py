@@ -37,6 +37,7 @@ class SqlInjectionDetector(ArtemisBase):
     identity = "sql_injection_detector"
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+        {"type": TaskType.URL.value},
     ]
 
     def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any, ...], payload: str) -> str:

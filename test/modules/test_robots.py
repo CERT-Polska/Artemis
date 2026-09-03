@@ -56,3 +56,13 @@ class RobotsTest(ArtemisModuleTestCase):
                 [path["url"] for path in call.kwargs["data"]["result"]["found_urls"]],
                 ["http://test-robots-service:80/secret-url/"],
             )
+            url_tasks = [t for t in self.karton.backend.produced_tasks if t.headers["type"] == TaskType.URL]
+            emitted_urls = sorted([t.get_payload("url") for t in url_tasks])
+            self.assertEqual(
+                emitted_urls,
+                [
+                    "http://test-robots-service:80/icons/",
+                    "http://test-robots-service:80/secret-url-noindex/",
+                    "http://test-robots-service:80/secret-url/",
+                ],
+            )

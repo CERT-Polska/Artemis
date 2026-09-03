@@ -75,6 +75,6 @@ class JoomlaScannerReporter(Reporter):
                 name=get_target_url(task_result),
                 additional_type="joomla",
                 version=task_result["result"].get("joomla_version", None),
-                cpe=lookup_cpe("Joomla", version=task_result["result"].get("joomla_version", None)),
+                cpe=lookup_cpe("Joomla"),
             )
         ]

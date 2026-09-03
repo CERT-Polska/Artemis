@@ -90,6 +90,6 @@ class WPScannerReporter(Reporter):
                 name=get_target_url(task_result),
                 additional_type="wordpress",
                 version=task_result["result"].get("wp_version", None),
-                cpe=lookup_cpe("WordPress", version=task_result["result"].get("wp_version", None)),
+                cpe=lookup_cpe("WordPress"),
             )
         ]

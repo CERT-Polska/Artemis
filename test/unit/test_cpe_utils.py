@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from artemis.config import Config
 from artemis.cpe_tools.cpe_utils import (
+    fill_version,
     lookup_cpe,
     lookup_cpe_by_plugin_slug,
     lookup_cpe_by_url,
@@ -32,6 +33,52 @@ def _product(
     if deprecated:
         cpe["deprecated"] = True
     return {"cpe": cpe}
+
+
+class FillVersionTest(unittest.TestCase):
+    """
+    A stored CPE keeps ``*`` in the version slot by definition; the consumer fills it in
+    just before use (e.g. cve_lookup, before querying NVD).
+    """
+
+    def test_substitutes_wildcard_slot(self) -> None:
+        self.assertEqual(
+            fill_version("cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*", "2.4.53"),
+            "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*",
+        )
+
+    def test_keeps_slot_that_already_holds_a_version(self) -> None:
+        cpe = "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*"
+        self.assertEqual(fill_version(cpe, "2.4.54"), cpe)
+
+    def test_no_version_returns_unchanged(self) -> None:
+        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
+        self.assertEqual(fill_version(cpe, None), cpe)
+        self.assertEqual(fill_version(cpe, ""), cpe)
+
+    def test_invalid_version_leaves_wildcard(self) -> None:
+        # A non-version value must not be injected into the CPE; the wildcard is kept so
+        # the caller can tell nothing concrete was filled in.
+        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
+        for version in ("latest", "v2.4", "stable", "1.0:extra", " 1.0", "1.0\n"):
+            with self.subTest(version=version):
+                self.assertEqual(fill_version(cpe, version), cpe)
+
+    def test_short_cpe_returns_unchanged(self) -> None:
+        # Fewer than six components means there is no version slot to fill.
+        self.assertEqual(fill_version("garbage", "1.0"), "garbage")
+        self.assertEqual(fill_version("cpe:2.3:a:apache:http_server", "1.0"), "cpe:2.3:a:apache:http_server")
+
+    def test_escaped_colon_in_product_does_not_shift_the_slot(self) -> None:
+        # CPE 2.3 escapes a colon inside a field, so a naive split would land on the
+        # product's own text instead of the version.
+        self.assertEqual(
+            fill_version("cpe:2.3:a:cgiirc:cgi\\:irc:*:*:*:*:*:*:*:*", "0.5.7"),
+            "cpe:2.3:a:cgiirc:cgi\\:irc:0.5.7:*:*:*:*:*:*:*",
+        )
+        # ... and the same name with a version already in place is left alone.
+        cpe = "cpe:2.3:a:cgiirc:cgi\\:irc:0.5.7:*:*:*:*:*:*:*"
+        self.assertEqual(fill_version(cpe, "0.5.9"), cpe)
 
 
 class CpeUtilsTest(unittest.TestCase):

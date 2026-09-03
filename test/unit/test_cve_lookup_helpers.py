@@ -5,7 +5,6 @@ from artemis.modules.cve_lookup import (
     _best_base_score,
     _cpe_product_key,
     _extract_cves,
-    _fill_cpe_version,
     _has_concrete_version,
     _is_product_vulnerable,
 )
@@ -30,31 +29,11 @@ class HasConcreteVersionTest(unittest.TestCase):
     def test_false_for_truncated_cpe(self) -> None:
         self.assertFalse(_has_concrete_version("cpe:2.3:a:apache"))
 
-
-class FillCpeVersionTest(unittest.TestCase):
-    def test_substitutes_wildcard_slot(self) -> None:
-        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
-        self.assertEqual(
-            _fill_cpe_version(cpe, "2.4.53"),
-            "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*",
-        )
-
-    def test_keeps_real_version(self) -> None:
-        cpe = "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*"
-        self.assertEqual(_fill_cpe_version(cpe, "2.4.54"), cpe)
-
-    def test_no_version_returns_unchanged(self) -> None:
-        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
-        self.assertEqual(_fill_cpe_version(cpe, None), cpe)
-
-    def test_malformed_cpe_returns_unchanged(self) -> None:
-        self.assertEqual(_fill_cpe_version("garbage", "1.0"), "garbage")
-
-    def test_junk_version_leaves_wildcard(self) -> None:
-        # A non-version value (e.g. "latest") must not be injected into the CPE; the
-        # wildcard is kept so NVD still range-matches the product.
-        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
-        self.assertEqual(_fill_cpe_version(cpe, "latest"), cpe)
+    def test_escaped_colon_in_product_does_not_shift_the_slot(self) -> None:
+        # A colon escaped inside the product field must not be counted as a separator,
+        # or slot 5 would read a piece of the product name and pass as a "version".
+        self.assertFalse(_has_concrete_version("cpe:2.3:a:cgiirc:cgi\\:irc:*:*:*:*:*:*:*:*"))
+        self.assertTrue(_has_concrete_version("cpe:2.3:a:cgiirc:cgi\\:irc:0.5.7:*:*:*:*:*:*:*"))
 
 
 class ExtractCvesTest(unittest.TestCase):

@@ -349,7 +349,7 @@ class Config:
         MAX_URLS_TO_SCAN: Annotated[
             int,
             "Maximum number of URLs to scan per target for modules that crawl like lfi_detector, Nuclei, sq_injection_detector, etc.",
-        ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
+        ] = get_config("MAX_URLS_TO_SCAN", default=15, cast=int)
 
         CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES: Annotated[
             bool, "Raise error in case cleanup task did not found unfinished analyses."
@@ -1017,7 +1017,7 @@ class Config:
                 "Maximum number of links to be checked with the templates provided in "
                 "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS (if more are seen, random "
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
-            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=20, cast=int)
+            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=15, cast=int)
 
             NUCLEI_CHUNK_SIZE: Annotated[
                 int,

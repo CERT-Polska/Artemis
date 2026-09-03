@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import json
-import re
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlencode
 
@@ -9,6 +8,8 @@ from karton.core import Task
 from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
+from artemis.cpe_tools.cpe_main_process import split_cpe
+from artemis.cpe_tools.cpe_utils import fill_version
 from artemis.module_base import ArtemisBase
 
 NVD_RESPONSE_MAX_BYTES = 5 * 1024 * 1024
@@ -27,31 +28,6 @@ NVD_FAILURE_MARKER = "lookup_failed"
 NVD_MAX_PAGES = 10
 
 
-# A CPE version slot must look like a real version. Wappalyzer reports the version
-# separately from its static CPE template, so guarding against a stray value such as
-# "latest" (or anything carrying a ":") keeps us from building a malformed CPE that
-# NVD would silently match nothing for.
-_CPE_VERSION_RE = re.compile(r"^[0-9][0-9A-Za-z.\-+]*$")
-
-
-def _fill_cpe_version(cpe: str, version: Optional[str]) -> str:
-    """
-    Wappalyzer keeps the version slot as ``*`` even when the version is known, so
-    substitute the real version (slot 5 of a cpe:2.3 URI) before hitting the API.
-    A version that doesn't look like one is left as the wildcard, which
-    ``_has_concrete_version`` then rejects rather than sending junk to NVD.
-    """
-    if not version or not _CPE_VERSION_RE.match(version):
-        return cpe
-    parts = cpe.split(":")
-    if len(parts) < 6:
-        return cpe
-    if parts[5] != "*":
-        return cpe
-    parts[5] = version
-    return ":".join(parts)
-
-
 def _has_concrete_version(cpe: str) -> bool:
     """
     Whether the cpe:2.3 URI carries a real version in slot 5.
@@ -61,13 +37,13 @@ def _has_concrete_version(cpe: str) -> bool:
     wouldn't want to anyway, since the only thing NVD could return is "every CVE ever filed for
     this product", which says nothing about the host we scanned.
     """
-    parts = cpe.split(":")
+    parts = split_cpe(cpe)
     return len(parts) > 5 and parts[5] not in ("", "*", "-")
 
 
 def _cpe_product_key(cpe: str) -> str:
     """Return the ``part:vendor:product`` portion of a cpe:2.3 URI (e.g. ``a:apache:http_server``)."""
-    parts = cpe.split(":")
+    parts = split_cpe(cpe)
     if len(parts) < 5:
         return ""
     return ":".join(parts[2:5])
@@ -339,7 +315,7 @@ class CveLookup(ArtemisBase):
                 continue
 
             technology_version = technology.get("version")
-            normalized_cpe = _fill_cpe_version(cpe, technology_version)
+            normalized_cpe = fill_version(cpe, technology_version)
             if not _has_concrete_version(normalized_cpe):
                 # No usable version - NVD answers a wildcard cpeName with 404, and "some release
                 # of this product has a CVE" says nothing about this host, so skip the lookup.

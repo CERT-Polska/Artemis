@@ -1,4 +1,5 @@
 import logging
+import re
 from pathlib import Path
 
 from artemis.cpe_tools.cpe_main_process import (
@@ -36,17 +37,50 @@ _STOPWORDS = frozenset(
 )
 
 
-def with_version(cpe: str, version: str) -> str:
-    # Components are: cpe, 2.3, part, vendor, product, version, update, edition,
-    # language, sw_edition, target_sw, target_hw, other. Replace the version field
-    # (index 5) and re-join;
-    VERSION_FIELD_INDEX = 5
+# Components of a cpe:2.3 name are: cpe, 2.3, part, vendor, product, version, update,
+# edition, language, sw_edition, target_sw, target_hw, other.
+_VERSION_FIELD_INDEX = 5
 
+# A version slot must look like a real version: it starts with a digit and carries only
+# characters a version is made of. The version reaching ``fill_version`` is whatever a
+# scanner reported next to the technology, so guarding against a stray value such as
+# "latest" - or anything carrying a ":", which would silently add a component - keeps us
+# from building a malformed CPE that NVD matches nothing for. The match is anchored with
+# ``\Z`` rather than ``$``, which in Python also matches before a trailing newline and
+# would let "1.0\n" through into the CPE.
+_VERSION_RE = re.compile(r"^[0-9][0-9A-Za-z.\-+]*\Z")
+
+
+def with_version(cpe: str, version: str) -> str:
+    """Replace the version field of a cpe:2.3 name with ``version``, whatever it holds now.
+
+    Used to normalize a dictionary CPE down to its wildcard family. To insert a version
+    that a scanner reported, use ``fill_version`` instead - it validates the value and
+    leaves an already-concrete slot alone.
+    """
     parts = split_cpe(cpe)
-    if len(parts) <= VERSION_FIELD_INDEX:
+    if len(parts) <= _VERSION_FIELD_INDEX:
         return cpe
-    parts[VERSION_FIELD_INDEX] = version
+    parts[_VERSION_FIELD_INDEX] = version
     return ":".join(parts)
+
+
+def fill_version(cpe: str, version: str | None) -> str:
+    """Substitute a scanner-reported version into the wildcard version slot of a cpe:2.3 name.
+
+    A CPE we store (e.g. ``Asset.cpe``) keeps ``*`` in the version slot by definition, with
+    the version living alongside it, so filling the slot is the consumer's job - done here,
+    right before the CPE is used to query something.
+
+    The CPE comes back unchanged when the version is missing, doesn't look like a version,
+    or the slot already carries something concrete that we would rather not contradict.
+    """
+    if not version or not _VERSION_RE.match(version):
+        return cpe
+    parts = split_cpe(cpe)
+    if len(parts) <= _VERSION_FIELD_INDEX or parts[_VERSION_FIELD_INDEX] != "*":
+        return cpe
+    return with_version(cpe, version)
 
 
 def resolve(nvd_dir: Path, normalized: str) -> str | None:
@@ -87,7 +121,7 @@ def lookup_cpe(name: str, version: str | None = None) -> str | None:
     family_cpe = resolve(nvd_dir, normalized)
     if family_cpe is None:
         return None
-    return with_version(family_cpe, version) if version else family_cpe
+    return fill_version(family_cpe, version)
 
 
 def lookup_cpe_by_plugin_slug(slug: str, cms: str, version: str | None = None) -> str | None:
@@ -104,7 +138,7 @@ def lookup_cpe_by_plugin_slug(slug: str, cms: str, version: str | None = None) -
     cpe = plugins.get(f"{cms}:{slug.strip().lower()}")
     if cpe is None:
         return None
-    return with_version(cpe, version) if version else with_version(cpe, "*")
+    return fill_version(with_version(cpe, "*"), version)
 
 
 def lookup_cpe_by_url(url: str, version: str | None = None) -> str | None:
@@ -126,4 +160,4 @@ def lookup_cpe_by_url(url: str, version: str | None = None) -> str | None:
     cpe = urls.get(key)
     if cpe is None:
         return None
-    return with_version(cpe, version) if version else with_version(cpe, "*")
+    return fill_version(with_version(cpe, "*"), version)

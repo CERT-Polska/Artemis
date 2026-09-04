@@ -10,6 +10,7 @@ from artemis.cpe_tools.cpe_utils import (
     lookup_cpe,
     lookup_cpe_by_plugin_slug,
     lookup_cpe_by_url,
+    with_version,
 )
 from artemis.reporting.base.cpe import extract_cpe
 
@@ -32,6 +33,62 @@ def _product(
     if deprecated:
         cpe["deprecated"] = True
     return {"cpe": cpe}
+
+
+class WithVersionTest(unittest.TestCase):
+    """
+    A CPE keeps ``*`` in the version slot until someone sets it.
+    """
+
+    def test_sets_wildcard_slot(self) -> None:
+        self.assertEqual(
+            with_version("cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*", "2.4.53"),
+            "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*",
+        )
+
+    def test_replaces_a_slot_that_already_holds_a_version(self) -> None:
+        self.assertEqual(
+            with_version("cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*", "2.4.54"),
+            "cpe:2.3:a:apache:http_server:2.4.54:*:*:*:*:*:*:*",
+        )
+
+    def test_special_values_are_accepted(self) -> None:
+        # ``*`` (ANY) and ``-`` (NA) are CPE 2.3 field values, and resetting a dictionary
+        # CPE to its versionless family depends on them passing validation.
+        cpe = "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*"
+        self.assertEqual(with_version(cpe, "*"), "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*")
+        self.assertEqual(with_version(cpe, "-"), "cpe:2.3:a:apache:http_server:-:*:*:*:*:*:*:*")
+
+    def test_no_version_returns_unchanged(self) -> None:
+        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
+        self.assertEqual(with_version(cpe, None), cpe)
+        self.assertEqual(with_version(cpe, ""), cpe)
+
+    def test_invalid_version_leaves_the_slot_alone(self) -> None:
+        # A non-version value must not be injected into the CPE; the slot is left as it was
+        # so the caller can tell nothing was set.
+        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
+        for version in ("latest", "v2.4", "stable", "1.0:extra", " 1.0", "1.0\n"):
+            with self.subTest(version=version):
+                self.assertEqual(with_version(cpe, version), cpe)
+
+    def test_short_cpe_returns_unchanged(self) -> None:
+        # Fewer than six components means there is no version slot to set.
+        self.assertEqual(with_version("garbage", "1.0"), "garbage")
+        self.assertEqual(with_version("cpe:2.3:a:apache:http_server", "1.0"), "cpe:2.3:a:apache:http_server")
+
+    def test_escaped_colon_in_product_does_not_shift_the_slot(self) -> None:
+        # CPE 2.3 escapes a colon inside a field, so a naive split would land on the
+        # product's own text instead of the version.
+        self.assertEqual(
+            with_version("cpe:2.3:a:cgiirc:cgi\\:irc:*:*:*:*:*:*:*:*", "0.5.7"),
+            "cpe:2.3:a:cgiirc:cgi\\:irc:0.5.7:*:*:*:*:*:*:*",
+        )
+        # ... and the same name with a version already in place is replaced, not appended to.
+        self.assertEqual(
+            with_version("cpe:2.3:a:cgiirc:cgi\\:irc:0.5.7:*:*:*:*:*:*:*", "0.5.9"),
+            "cpe:2.3:a:cgiirc:cgi\\:irc:0.5.9:*:*:*:*:*:*:*",
+        )
 
 
 class CpeUtilsTest(unittest.TestCase):

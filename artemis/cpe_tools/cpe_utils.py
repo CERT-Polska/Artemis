@@ -41,21 +41,16 @@ _STOPWORDS = frozenset(
 # edition, language, sw_edition, target_sw, target_hw, other.
 _VERSION_FIELD_INDEX = 5
 
-# A version slot must look like a real version: it starts with a digit and carries only
-# characters a version is made of. The version reaching ``fill_version`` is whatever a
-# scanner reported next to the technology, so guarding against a stray value such as
-# "latest" - or anything carrying a ":", which would silently add a component - keeps us
-# from building a malformed CPE that NVD matches nothing for. The match is anchored with
-# ``\Z`` rather than ``$``, which in Python also matches before a trailing newline and
-# would let "1.0\n" through into the CPE.
+# A version has to look like one: a digit first, then only characters versions are made of.
+# Anchored with ``\Z``, because Python's ``$`` also matches before a trailing newline.
 _VERSION_RE = re.compile(r"^[0-9][0-9A-Za-z.\-+]*\Z")
 
 
 def with_version(cpe: str, version: str) -> str:
     """Replace the version field of a cpe:2.3 name with ``version``, whatever it holds now.
 
-    Used to normalize a dictionary CPE down to its wildcard family. To insert a version
-    that a scanner reported, use ``fill_version`` instead - it validates the value and
+    Used to normalize a dictionary CPE down to its wildcard family. To insert a
+    caller-supplied version use ``fill_version`` instead - it validates the value and
     leaves an already-concrete slot alone.
     """
     parts = split_cpe(cpe)
@@ -66,11 +61,10 @@ def with_version(cpe: str, version: str) -> str:
 
 
 def fill_version(cpe: str, version: str | None) -> str:
-    """Substitute a scanner-reported version into the wildcard version slot of a cpe:2.3 name.
+    """Substitute ``version`` into the wildcard version slot of a cpe:2.3 name.
 
-    A CPE we store (e.g. ``Asset.cpe``) keeps ``*`` in the version slot by definition, with
-    the version living alongside it, so filling the slot is the consumer's job - done here,
-    right before the CPE is used to query something.
+    A name carrying ``*`` in the version slot denotes the product as a whole; filling that
+    slot narrows it to a single release.
 
     The CPE comes back unchanged when the version is missing, doesn't look like a version,
     or the slot already carries something concrete that we would rather not contradict.

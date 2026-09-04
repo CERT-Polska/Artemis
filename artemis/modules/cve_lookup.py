@@ -9,7 +9,7 @@ from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.cpe_tools.cpe_main_process import split_cpe
-from artemis.cpe_tools.cpe_utils import fill_version
+from artemis.cpe_tools.cpe_utils import with_version
 from artemis.module_base import ArtemisBase
 
 NVD_RESPONSE_MAX_BYTES = 5 * 1024 * 1024
@@ -315,7 +315,7 @@ class CveLookup(ArtemisBase):
                 continue
 
             technology_version = technology.get("version")
-            normalized_cpe = fill_version(cpe, technology_version)
+            normalized_cpe = with_version(cpe, technology_version)
             if not _has_concrete_version(normalized_cpe):
                 # No usable version - NVD answers a wildcard cpeName with 404, and "some release
                 # of this product has a CVE" says nothing about this host, so skip the lookup.

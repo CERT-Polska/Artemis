@@ -21,6 +21,9 @@
                                         {% if cve.title %} - {{ cve.title }}{% endif %}{% if cve.cvss %}, {% trans %}severity level (CVSS){% endtrans %}: {{ cve.cvss }}/10{% endif %}
                                    </li>
                                 {% endfor %}
+                                {% if report.additional_data.has_more_cves %}
+                                   ...
+                                {% endif %}
                             </ul>
                             {% set copyrights_to_display.data = copyrights_to_display.data + report.additional_data.copyrights %}
                         {% endif %}

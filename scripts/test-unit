@@ -12,16 +12,26 @@ docker compose -f docker-compose.test.yaml down --remove-orphans
 docker compose -f docker-compose.test.yaml up -d --build --scale test=0 --scale=test-e2e=0
 
 # Wait for the dependency services to be available
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-old-joomla-mysql:3306
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-old-wordpress-mysql:3306
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-service-with-bruteable-files:80
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-robots-service:80
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-ftp-server-with-easy-password:21
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-old-joomla:80
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-smtp-server:25
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-service-with-exposed-git:80
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-old-wordpress:80
-docker compose -f docker-compose.test.yaml run --entrypoint bash test /wait-for-it.sh test-service-with-directory-index:80
+for attempt in 1 2 3; do
+    if docker compose -f docker-compose.test.yaml run --rm --entrypoint bash test -c '
+            for ep in test-old-joomla-mysql:3306 test-old-wordpress-mysql:3306 \
+                      test-service-with-bruteable-files:80 test-robots-service:80 \
+                      test-ftp-server-with-easy-password:21 test-old-joomla:80 \
+                      test-smtp-server:25 test-service-with-exposed-git:80 \
+                      test-old-wordpress:80 test-service-with-directory-index:80; do
+                /wait-for-it.sh --quiet --timeout=60 "$ep"
+            done
+        '; then
+        break
+    else
+        echo "wait attempt ${attempt} failed, retrying"
+        if [ "${attempt}" -lt 3 ]; then
+            sleep 5
+        else
+            exit 1
+        fi
+    fi
+done
 
 # Set up Joomla instance
 docker compose -f docker-compose.test.yaml cp test/data/joomla/configuration.php test-old-joomla:/var/www/html

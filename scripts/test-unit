@@ -14,12 +14,12 @@ docker compose -f docker-compose.test.yaml up -d --build --scale test=0 --scale=
 # Wait for the dependency services to be available
 for attempt in 1 2 3; do
     if docker compose -f docker-compose.test.yaml run --rm --entrypoint bash test -c '
-            for ep in test-old-joomla-mysql:3306 test-old-wordpress-mysql:3306 \
+            for endpoint in test-old-joomla-mysql:3306 test-old-wordpress-mysql:3306 \
                       test-service-with-bruteable-files:80 test-robots-service:80 \
                       test-ftp-server-with-easy-password:21 test-old-joomla:80 \
                       test-smtp-server:25 test-service-with-exposed-git:80 \
                       test-old-wordpress:80 test-service-with-directory-index:80; do
-                /wait-for-it.sh --quiet --timeout=60 "$ep"
+                /wait-for-it.sh --quiet --timeout=60 "$endpoint"
             done
         '; then
         break

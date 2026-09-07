@@ -797,7 +797,7 @@ class ArtemisBase(Karton):
     def _is_cdn_ip(self, ip: str) -> bool:
         for network in get_cdn_ip_ranges():
             try:
-                if ip in ipaddress.ip_network(network):
+                if ipaddress.ip_address(ip) in ipaddress.ip_network(network):
                     return True
             except ValueError:
                 self.log.warning("Invalid network %s in CDN_IP_RANGES", network)
@@ -830,7 +830,7 @@ class ArtemisBase(Karton):
             # If all the IPs are CDN IPs, we use the public suffix of the domain as the key for locking,
             # so that many tasks don't wait for a single CDN IP to be free, but rather limit the scanning
             # of a given domain.
-            return PUBLIC_SUFFIX_LIST.privatesuffix(host)
+            return PUBLIC_SUFFIX_LIST.privatesuffix(host)  # type: ignore
 
         return random.choice(ip_addresses)
 

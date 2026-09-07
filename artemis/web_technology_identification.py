@@ -21,6 +21,10 @@ NAME_MAPPING = {
     "Digest": "Digest Auth",
 }
 
+CPE_MAPPING = {
+    "Sentry": "cpe:2.3:a:sentry:sentry:*:*:*:*:*:*:*:*",
+}
+
 
 @dataclass
 class Technology:
@@ -46,7 +50,7 @@ def _parse_tech(raw: Dict[str, Any]) -> Technology:
     if name in NAME_MAPPING:
         name = NAME_MAPPING[name]
 
-    cpe = raw.get("cpe") or None
+    cpe = raw.get("cpe") or CPE_MAPPING.get(name, None)
     raw_categories = raw.get("categories") or []
     if isinstance(raw_categories, list):
         categories = [str(c) for c in raw_categories]

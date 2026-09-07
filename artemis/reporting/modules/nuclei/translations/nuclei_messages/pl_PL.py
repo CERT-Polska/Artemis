@@ -114,8 +114,6 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "group:sql-injection": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych."
     + BUG_FIX_HINT,
-    "dast/vulnerabilities/sqli/sqli-error-based.yaml": "Wykryto podatność SQL Injection na podstawie komunikatu o błędzie. Ta podatność może umożliwiać pobranie dowolnej informacji z bazy danych."
-    + BUG_FIX_HINT,
     "WordPress WooCommerce plugin before 3.1.2 does not have authorisation and CSRF checks in the wpt_admin_update_notice_option AJAX action available to both unauthenticated and authenticated users as well as does not validate the callback parameter, allowing unauthenticated attackers to call arbitrary functions with either none or one user controlled argument.": "Wtyczka WooCommerce w wersji poniżej 3.1.2 zawiera podatność, która może prowadzić do zdalnego wykonania kodu przez niezalogowanego użytkownika."
     + RCE_EFFECT_DESCRIPTION
     + WORDPRESS_UPDATE_HINT,

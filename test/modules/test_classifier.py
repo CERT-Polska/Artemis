@@ -1,3 +1,4 @@
+import re
 from test.base import ArtemisModuleTestCase
 from typing import Any, Dict, List, NamedTuple
 from unittest.mock import patch
@@ -6,7 +7,7 @@ from karton.core import Task
 
 from artemis import direct_url_scanning
 from artemis.binds import TaskType
-from artemis.modules.classifier import Classifier
+from artemis.modules.classifier import ASN_REGEX, Classifier
 
 
 class ExpectedTaskData(NamedTuple):
@@ -59,6 +60,8 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertTrue(Classifier.is_supported("1.2.3.4:56"))
         self.assertTrue(Classifier.is_supported("CERT.pl"))
         self.assertFalse(Classifier.is_supported("root@cert.pl"))
+        # A domain whose label happens to look like an ASN prefix is supported as a domain
+        self.assertTrue(Classifier.is_supported("as7822.example.com"))
 
     def test_is_scannable_url(self) -> None:
         # Root URLs that map to a service are accepted as direct scan targets
@@ -88,6 +91,7 @@ class ClassifierTest(ArtemisModuleTestCase):
         self.assertFalse(Classifier.is_service_target("1.2.3.4"))
         self.assertFalse(Classifier.is_service_target("127.0.0.1-127.0.0.5"))
         self.assertFalse(Classifier.is_service_target("AS123"))
+        self.assertFalse(Classifier.is_service_target("as7822.example.com"))
         # Unsupported inputs (non-root URL, malformed port) are not service targets
         self.assertFalse(Classifier.is_service_target("http://cert.pl/admin"))
         self.assertFalse(Classifier.is_service_target("cert.pl:8080port"))
@@ -245,6 +249,23 @@ class ClassifierTest(ArtemisModuleTestCase):
             for i in range(len(results)):
                 del results[i].payload["created_at"]
             self.assertTasksEqual(results, expected_tasks)
+
+    def test_asn_prefix_input_is_classified_as_domain(self) -> None:
+        # A domain starting with "as<digits>" must not be misrouted to the ASN path (which
+        # would query RIPEstat with a non-ASN resource and error out).
+        with patch("artemis.modules.classifier.get_ip_prefixes_for_asn") as mock_ripe:
+            task = Task({"type": TaskType.NEW}, payload={"data": "as7822.example.com"})
+            results = self.run_task(task)
+            mock_ripe.assert_not_called()
+
+        types = [result.headers["type"] for result in results]
+        self.assertIn(TaskType.DOMAIN_THAT_MAY_NOT_EXIST.value, types)
+
+    def test_asn_still_detected(self) -> None:
+        # Positive control: real ASNs still take the ASN path.
+        self.assertTrue(re.fullmatch(ASN_REGEX, "AS123"))
+        self.assertTrue(re.fullmatch(ASN_REGEX, "as48282"))
+        self.assertFalse(re.fullmatch(ASN_REGEX, "as7822.example.com"))
 
     def test_invalid_data(self) -> None:
         task = Task({"type": TaskType.NEW}, payload={"data": "INVALID_DATA"})

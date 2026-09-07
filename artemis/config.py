@@ -320,7 +320,7 @@ class Config:
             int,
             "After this number of module running time, each scanning module will get restarted. This is to prevent situations "
             "such as slow memory leaks.",
-        ] = get_config("MAX_MODULE_TASK_PROCESSING_TIME__SECONDS", default=3 * 24 * 3600 * 3600, cast=int)
+        ] = get_config("MAX_MODULE_TASK_PROCESSING_TIME__SECONDS", default=3 * 24 * 3600, cast=int)
 
         CONTENT_PREFIX_SIZE: Annotated[
             int,

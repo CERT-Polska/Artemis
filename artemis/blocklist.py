@@ -8,10 +8,10 @@ from typing import List, Optional, Union
 import yaml
 
 from artemis import utils
+from artemis.cdn_ip_ranges import is_cdn_ip
 from artemis.domains import is_domain, is_subdomain
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
-from artemis.cdn_ip_ranges import is_cdn_ip
 
 logger = utils.build_logger(__name__)
 
@@ -107,7 +107,7 @@ def should_block_scanning(
     domain: Optional[str], ip: Optional[str], karton_name: Optional[str], blocklist: List[BlocklistItem]
 ) -> bool:
     logger.info("checking whether scanning of domain=%s ip=%s by %s is filtered", domain, ip, karton_name)
-    if not domain and is_cdn_ip(ip):
+    if not domain and ip and is_cdn_ip(ip):
         logger.info("Directly scanning CDN IPs is blocked.")
         return True
 

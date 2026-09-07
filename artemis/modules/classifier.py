@@ -88,7 +88,7 @@ class Classifier(ArtemisBase):
         if "://" in data:
             return direct_url_scanning.is_scannable_url(data)
 
-        if re.match(ASN_REGEX, data):
+        if re.fullmatch(ASN_REGEX, data):
             return True
 
         if to_ip_range(data):
@@ -120,7 +120,7 @@ class Classifier(ArtemisBase):
             return False
         if "://" in data:
             return True
-        if re.match(ASN_REGEX, data) or to_ip_range(data):
+        if re.fullmatch(ASN_REGEX, data) or to_ip_range(data):
             return False
         return not Classifier._is_ip_or_domain(Classifier._clean_ipv6_brackets(data))
 
@@ -218,7 +218,7 @@ class Classifier(ArtemisBase):
             )
             return
 
-        if re.match(ASN_REGEX, data):
+        if re.fullmatch(ASN_REGEX, data):
             ips = []
             for prefix in get_ip_prefixes_for_asn(data):
                 self.log.info(f"Converted {data} to IP prefixes, processing {prefix}")

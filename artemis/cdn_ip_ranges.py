@@ -4,7 +4,7 @@ import ipaddress
 import requests
 
 
-def get_cloudflare_ips() -> list[str]:
+def get_cloudflare_ips() -> list[ipaddress.ip_network]:
     response = requests.get(
         "https://api.cloudflare.com/client/v4/ips",
         timeout=30,
@@ -16,7 +16,7 @@ def get_cloudflare_ips() -> list[str]:
         raise RuntimeError(f"Cloudflare API error: {payload['errors']}")
 
     result = payload["result"]
-    return list(result["ipv4_cidrs"] + result["ipv6_cidrs"])
+    return [ipaddress.ip_network(item) for item in result["ipv4_cidrs"] + result["ipv6_cidrs"]]
 
 
 @functools.lru_cache(maxsize=10)
@@ -25,8 +25,9 @@ def get_cdn_ip_ranges() -> list[str]:
 
 
 def is_cdn_ip(ip: str) -> bool:
-    for network in get_cdn_ip_ranges():
-        if ipaddress.ip_address(ip) in ipaddress.ip_network(network):
-            return True
+    address = ipaddress.ip_address(ip)
 
-    return False
+    return any(
+        address in network
+        for network in get_cdn_ip_ranges()
+    )

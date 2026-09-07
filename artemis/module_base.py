@@ -27,7 +27,7 @@ from requests.exceptions import RequestException
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
-from artemis.cdn_ip_ranges import get_cdn_ip_ranges
+from artemis.cdn_ip_ranges import is_cdn_ip
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
@@ -794,17 +794,6 @@ class ArtemisBase(Karton):
         self.cache.set(cache_key, result.encode("utf-8"))
         return result
 
-    def _is_cdn_ip(self, ip: str) -> bool:
-        for network in get_cdn_ip_ranges():
-            try:
-                if ipaddress.ip_address(ip) in ipaddress.ip_network(network):
-                    return True
-            except ValueError:
-                self.log.warning("Invalid network %s in CDN_IP_RANGES", network)
-                continue
-
-        return False
-
     def _get_key_for_locking(self, host: str) -> str:
         try:
             # if this doesn't throw then we have an IP address
@@ -826,7 +815,7 @@ class ArtemisBase(Karton):
         if not ip_addresses:
             raise UnknownIPException(f"Unknown IP for host {host}")
 
-        if all(self._is_cdn_ip(ip) for ip in ip_addresses):
+        if all(is_cdn_ip(ip) for ip in ip_addresses):
             # If all the IPs are CDN IPs, we use the public suffix of the domain as the key for locking,
             # so that many tasks don't wait for a single CDN IP to be free, but rather limit the scanning
             # of a given domain.

@@ -1,5 +1,6 @@
-import ipaddress
 import functools
+import ipaddress
+
 import requests
 
 

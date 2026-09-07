@@ -109,7 +109,7 @@ class WordpressPluginsReporter(Reporter):
 
             additional_data["cves"] = sorted(additional_data["cves"], key=lambda item: item["cvss"], reverse=True)
 
-            max_cves = 5
+            max_cves = 8
             if len(additional_data["cves"]) > max_cves:
                 additional_data["cves"] = additional_data["cves"][:max_cves]
                 additional_data["has_more_cves"] = True

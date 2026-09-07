@@ -1,4 +1,3 @@
-from artemis.cdn_ip_ranges import get_cdn_ip_ranges
 import datetime
 import faulthandler
 import fcntl
@@ -21,12 +20,14 @@ from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
 from multiprocessing_logging import install_mp_handler
+from publicsuffixlist import PublicSuffixList
 from redis import Redis
 from requests.exceptions import RequestException
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
+from artemis.cdn_ip_ranges import get_cdn_ip_ranges
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain

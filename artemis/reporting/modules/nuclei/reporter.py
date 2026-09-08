@@ -93,6 +93,30 @@ def _get_cpe(vulnerability: Dict[str, Any]) -> Optional[str]:
     return extract_cpe(classification.get("cpe", None))
 
 
+def extract_request_target(request: str | None) -> tuple[str, str] | None:
+    """Extract path and query from the request-line of a raw HTTP request."""
+    if not isinstance(request, str):
+        return None
+
+    try:
+        target = request.splitlines()[0].split()[1]
+    except IndexError:
+        return None
+
+    if target == "*":
+        return None
+
+    if target.startswith("/"):
+        path, _, query = target.partition("?")
+        return path, query
+
+    parsed = urllib.parse.urlsplit(target)
+    if not parsed.path:
+        return None
+
+    return parsed.path, parsed.query
+
+
 class NucleiReporter(Reporter):
     NUCLEI_VULNERABILITY = ReportType("nuclei_vulnerability")
     NUCLEI_EXPOSED_PANEL = ReportType("nuclei_exposed_panel")
@@ -223,6 +247,18 @@ class NucleiReporter(Reporter):
 
                 additional_references: list[str] = ADDITIONAL_REFERENCES.get((language, original_template_name), [])
 
+                path_query_fragment = (
+                    matched_at_parsed.path
+                    + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
+                    + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else "")
+                )
+
+                request_target = extract_request_target(vulnerability.get("request"))
+                if request_target is not None:
+                    request_path, request_query = request_target
+                    if request_path != matched_at_parsed.path:
+                        path_query_fragment = request_path + (f"?{request_query}" if request_query else "")
+
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -231,9 +267,7 @@ class NucleiReporter(Reporter):
                         additional_data={
                             "is_url_without_query_fragment": _is_url_without_query_fragment(matched_at),
                             "hostname": matched_at_parsed.hostname,
-                            "path_query_fragment": matched_at_parsed.path
-                            + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
-                            + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else ""),
+                            "path_query_fragment": path_query_fragment,
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
                                 template, description, language
@@ -244,6 +278,7 @@ class NucleiReporter(Reporter):
                             "template_name": template,
                             "original_template_name": original_template_name,
                             "curl_command": vulnerability.get("curl-command", None),
+                            "request": vulnerability.get("request", None),
                         },
                         timestamp=task_result["created_at"],
                     )

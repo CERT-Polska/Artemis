@@ -19,7 +19,7 @@ for attempt in 1 2 3; do
                       test-ftp-server-with-easy-password:21 test-old-joomla:80 \
                       test-smtp-server:25 test-service-with-exposed-git:80 \
                       test-old-wordpress:80 test-service-with-directory-index:80; do
-                /wait-for-it.sh --quiet --timeout=60 "$endpoint"
+                /wait-for-it.sh --quiet --timeout=30 "$endpoint"
             done
         '; then
         break

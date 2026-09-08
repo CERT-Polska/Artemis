@@ -98,7 +98,7 @@ pyopenssl==26.2.0
 pyspf==2.0.14
 python-dateutil==2.9.0.post0
 python-decouple==3.8
-python-dotenv==1.2.2
+python-dotenv==1.2.3
 python-multipart==0.0.32
 pytz==2026.3.post1
 pyyaml==6.0.3

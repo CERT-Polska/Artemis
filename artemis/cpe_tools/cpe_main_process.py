@@ -29,6 +29,24 @@ PLUGIN = "plugin"
 URL = "url"
 _INDEX_KINDS = {TITLE: INDEX_TITLE_FILENAME, PLUGIN: PLUGIN_INDEX_FILENAME, URL: URL_INDEX_FILENAME}
 
+# Bump whenever the keys or values of an index change. The version token is a hash of the
+# index contents, so it cannot notice that: readers compare this number instead, and
+# rebuild from the chunks when an index left in the volume does not match.
+INDEX_FORMAT_VERSION = 2
+
+# Position of the version field in a cpe:2.3 name.
+VERSION_FIELD_INDEX = 5
+
+# A version has to look like one: a digit first, then only characters versions are made of.
+# ``*`` (ANY) and ``-`` (NA) are the two special values CPE 2.3 defines for a field, and are
+# accepted so that a name can also be reset to its versionless family.
+# Anchored with ``\Z``, because Python's ``$`` also matches before a trailing newline.
+VERSION_RE = re.compile(r"^(?:[0-9][0-9A-Za-z.\-+]*|\*|-)\Z")
+
+# Stored in the title index instead of a CPE when a key is claimed by more than one
+# vendor:product family. Not a valid CPE, so it cannot collide with a real value.
+AMBIGUOUS_TITLE = ""
+
 # Per-kind, per-directory index caches holding the parsed index data. Each entry is
 # a (version-token, dict) pair.
 INDEX_CACHE: dict[str, dict[Path, tuple[str, dict[str, str]]]] = {kind: {} for kind in _INDEX_KINDS}
@@ -57,6 +75,48 @@ def normalize_url(url: str) -> str:
 def family(cpe: str) -> str:
     # cpe:2.3:part:vendor:product -> the first five colon-separated components.
     return ":".join(split_cpe(cpe)[:5])
+
+
+def with_version(cpe: str, version: str | None) -> str:
+    """Set the version field of a cpe:2.3 name to ``version``.
+
+    A name carrying ``*`` in the version slot denotes the product as a whole; setting that
+    slot narrows it to a single release, and setting it back to ``*`` widens it again.
+
+    The CPE comes back unchanged when the version is missing, doesn't look like a version,
+    or the name is too short to have a version field.
+    """
+    if not version or not VERSION_RE.match(version):
+        return cpe
+    parts = split_cpe(cpe)
+    if len(parts) <= VERSION_FIELD_INDEX:
+        return cpe
+    parts[VERSION_FIELD_INDEX] = version
+    return ":".join(parts)
+
+
+def _drop_token_run(tokens: list[str], run: list[str]) -> list[str]:
+    if not run or len(run) > len(tokens):
+        return tokens
+    for i in range(len(tokens) - len(run), -1, -1):
+        if tokens[i : i + len(run)] == run:
+            return tokens[:i] + tokens[i + len(run) :]
+    return tokens
+
+
+def title_key(title: str, cpe_name: str) -> tuple[str, bool]:
+    """Index key for a title, plus whether the key is the whole title.
+
+    NVD titles name a release ("JoomlaWorks K2 2.8.0 for Joomla!"), so the raw title keys
+    one entry per release. The version is not guessed from the title - product names are
+    full of digits - but taken from the version component of the CPE and deleted from the
+    title verbatim.
+    """
+    normalized = normalize(title)
+    parts = split_cpe(cpe_name)
+    version = parts[VERSION_FIELD_INDEX] if len(parts) > VERSION_FIELD_INDEX else ""
+    key = " ".join(_drop_token_run(normalized.split(), normalize(version).split()))
+    return key, key == normalized
 
 
 def _extract_refs(cpe: dict[str, Any]) -> list[str]:
@@ -109,15 +169,37 @@ def _iter_entries(chunks_dir: Path) -> Iterator[tuple[str, str, list[str]]]:
             yield cpe_name, title, _extract_refs(cpe)
 
 
+def _record_title(titles: dict[str, str], named: set[str], key: str, cpe: str, names_a_product: bool) -> None:
+    """Add one title claim to the title index, resolving collisions between families.
+
+    Cutting the version off merges the releases of a product, which is the point, but it
+    also merges products that differ only by version; a key several families claim is
+    marked ambiguous rather than given to whichever chunk sorted first. Claims are
+    ranked, though: an untrimmed title is a name NVD published, a trimmed key is our own
+    inference, so a full title outranks every derived one and only equals can collide.
+    """
+    previous = titles.get(key)
+    outranks = names_a_product and key not in named
+    outranked = not names_a_product and key in named
+    if previous is None or outranks:
+        titles[key] = cpe
+    elif not outranked and previous != AMBIGUOUS_TITLE and family(previous) != family(cpe):
+        titles[key] = AMBIGUOUS_TITLE
+    if names_a_product:
+        named.add(key)
+
+
 def _build_indices(chunks_dir: Path) -> dict[str, dict[str, str]]:
     titles: dict[str, str] = {}
+    named: set[str] = set()  # Keys spelled out in full by a title, not left over by trimming.
     plugins: dict[str, str] = {}
     urls: dict[str, str] = {}
     for cpe_name, title, refs in _iter_entries(chunks_dir):
         cpe = _strip_sw_edition(cpe_name)
-        key = normalize(title)
-        if key and key not in titles:
-            titles[key] = cpe
+        key, names_a_product = title_key(title, cpe_name)
+        if key:
+            # The index holds the family CPE; the caller sets whatever version it needs.
+            _record_title(titles, named, key, with_version(cpe, "*"), names_a_product)
         for url in refs:
             cms_slug = plugin_slug(url)
             if cms_slug is not None:
@@ -138,18 +220,23 @@ def build_version_token(*dicts: dict[str, str]) -> str:
     return h.hexdigest()
 
 
-def read_version_token(directory: Path) -> str:
+def _read_version_payload(directory: Path) -> dict[str, Any]:
     version_path = directory / VERSION_FILENAME
     try:
         with version_path.open("rb") as f:
             payload = json.load(f)
-        if isinstance(payload, dict):
-            token = payload.get("hash")
-            if isinstance(token, str):
-                return token
     except (OSError, json.JSONDecodeError):
-        pass
-    return ""
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def read_version_token(directory: Path) -> str:
+    token = _read_version_payload(directory).get("hash")
+    return token if isinstance(token, str) else ""
+
+
+def index_format_is_current(directory: Path) -> bool:
+    return _read_version_payload(directory).get("format") == INDEX_FORMAT_VERSION
 
 
 def ensure_version_token(directory: Path) -> str:
@@ -168,7 +255,7 @@ def _read_index_file(index_path: Path) -> dict[str, str] | None:
     return payload if isinstance(payload, dict) else None
 
 
-def _write_index_file(index_path: Path, entries: dict[str, str]) -> None:
+def _write_index_file(index_path: Path, entries: dict[str, Any]) -> None:
     tmp_path = index_path.with_name(index_path.name + ".tmp")
     with tmp_path.open("w", encoding="utf-8") as f:
         json.dump(entries, f)
@@ -183,7 +270,7 @@ def _ensure_index(nvd_dir: Path, kind: str) -> dict[str, str]:
         return cached[1]
 
     chunks_dir = nvd_dir / CHUNKS_SUBDIR
-    index = _read_index_file(nvd_dir / _INDEX_KINDS[kind])
+    index = _read_index_file(nvd_dir / _INDEX_KINDS[kind]) if index_format_is_current(nvd_dir) else None
     if index is None:
         if chunks_dir.is_dir():
             try:
@@ -226,7 +313,11 @@ def build_index(nvd_dir: Path | None = None) -> Path:
     for kind, filename in _INDEX_KINDS.items():
         _write_index_file(directory / filename, indices[kind])
     _write_index_file(
-        directory / VERSION_FILENAME, {"hash": build_version_token(indices[TITLE], indices[PLUGIN], indices[URL])}
+        directory / VERSION_FILENAME,
+        {
+            "hash": build_version_token(indices[TITLE], indices[PLUGIN], indices[URL]),
+            "format": INDEX_FORMAT_VERSION,
+        },
     )
 
     return directory / INDEX_TITLE_FILENAME

@@ -26,6 +26,7 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
                 "dast/vulnerabilities/lfi/lfi-keyed.yaml",
                 "dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml",
                 "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml",
+                "http/vulnerabilities/generic/top-xss-params.yaml",
             ],
         )
         self.patcher.start()
@@ -97,3 +98,23 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
                 1,
                 f"matched_at URL was not minimized (has {len(params)} params): {matched_at}",
             )
+
+    def test_path_overridden_from_request_when_matched_at_drifts(self) -> None:
+        data = self.obtain_http_task_result(
+            "nuclei-module", "test-redirect-reflect-app", 5000, filter={"type": TaskType.NUCLEI_TARGET}
+        )
+        reports = reports_from_task_result(data, Language.en_US)  # type: ignore
+
+        xss_reports = [r for r in reports if r.additional_data.get("matched_at")]
+        self.assertGreater(len(xss_reports), 0, "Expected at least one finding against the redirect-reflect app")
+
+        for report in xss_reports:
+            matched_at = report.additional_data["matched_at"]
+            path_query_fragment = report.additional_data["path_query_fragment"]
+
+            matched_at_parsed = urllib.parse.urlparse(matched_at)
+            pqf_parsed = urllib.parse.urlparse(path_query_fragment)
+
+            self.assertEqual(matched_at_parsed.path, "/search")
+            self.assertEqual(pqf_parsed.path, "/")
+            self.assertEqual(pqf_parsed.query, matched_at_parsed.query)

@@ -29,6 +29,10 @@ from artemis.utils import get_host_from_url
 
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
 
+TECHNOLOGY_NAME_MAPPINGS = {
+    "Apache": "Apache HTTP Server",
+}
+
 SEVERITY_OVERRIDES = {
     "http/exposures/logs/": "medium",
     "http/misconfiguration/server-status.yaml": "medium",
@@ -338,7 +342,14 @@ class NucleiReporter(Reporter):
             else:
                 assert template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX)
                 asset_type = AssetType.TECHNOLOGY
-                panel = vulnerability["info"]["name"].removesuffix(" Detect").removesuffix(" Detection")
+                panel = (
+                    vulnerability["info"]["name"]
+                    .removesuffix(" Detect")
+                    .removesuffix(" Detection")
+                    .removesuffix(" -")
+                    .removesuffix(" End-of-Life")
+                )
+                panel = TECHNOLOGY_NAME_MAPPINGS.get(panel, panel)
 
             result.append(
                 Asset(

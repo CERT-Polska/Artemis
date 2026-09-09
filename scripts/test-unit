@@ -18,7 +18,8 @@ for attempt in 1 2 3; do
                       test-service-with-bruteable-files:80 test-robots-service:80 \
                       test-ftp-server-with-easy-password:21 test-old-joomla:80 \
                       test-smtp-server:25 test-service-with-exposed-git:80 \
-                      test-old-wordpress:80 test-service-with-directory-index:80; do
+                      test-old-wordpress:80 test-service-with-directory-index:80 \
+		      test-redirect-reflect-app:5000; do
                 /wait-for-it.sh --quiet --timeout=30 "$endpoint"
             done
         '; then

@@ -334,13 +334,15 @@ class NucleiReporter(Reporter):
 
             if template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
                 panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
+                asset_type = AssetType.EXPOSED_PANEL
             else:
                 assert template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX)
+                asset_type = AssetType.TECHNOLOGY
                 panel = vulnerability["info"]["name"].removesuffix(" Detect").removesuffix(" Detection")
 
             result.append(
                 Asset(
-                    asset_type=AssetType.EXPOSED_PANEL,
+                    asset_type=asset_type,
                     name=vulnerability["matched-at"],
                     additional_type=panel,
                     cpe=_get_cpe(vulnerability),

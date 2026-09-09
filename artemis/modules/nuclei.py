@@ -426,11 +426,16 @@ class Nuclei(ArtemisBase):
                     and not item.startswith("http/exposures/logs/git-")
                 ]
 
-            if "technologies" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+            # Support also the obsolete `exposed_panels` name or the new one
+            if (
+                "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS
+                or "technologies" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS
+            ):
                 template_lists_raw["technologies"] = [
                     item
                     for item in listed_templates
                     if any(item.startswith(prefix) for prefix in TECHNOLOGIES_TEMPLATE_PATH_PREFIXES)
+                    and not (item.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX) and "/wordpress/" in item)
                 ]
 
             self._template_lists: Dict[str, List[str]] = {}

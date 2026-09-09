@@ -44,6 +44,9 @@ from artemis.utils import (
 )
 
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
+TECHNOLOGY_TEMPLATE_PATH_PREFIX = "http/technologies/"
+TECHNOLOGIES_TEMPLATE_PATH_PREFIXES = [EXPOSED_PANEL_TEMPLATE_PATH_PREFIX, TECHNOLOGY_TEMPLATE_PATH_PREFIX]
+
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
 NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
@@ -423,9 +426,11 @@ class Nuclei(ArtemisBase):
                     and not item.startswith("http/exposures/logs/git-")
                 ]
 
-            if "exposed_panels" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
-                template_lists_raw["exposed_panels"] = [
-                    item for item in listed_templates if item.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX)
+            if "technologies" in Config.Modules.Nuclei.NUCLEI_TEMPLATE_LISTS:
+                template_lists_raw["technologies"] = [
+                    item
+                    for item in listed_templates
+                    if any(item.startswith(prefix) for prefix in TECHNOLOGIES_TEMPLATE_PATH_PREFIXES)
                 ]
 
             self._template_lists: Dict[str, List[str]] = {}

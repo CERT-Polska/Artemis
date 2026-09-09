@@ -8,6 +8,7 @@ from artemis.config import Config
 from artemis.domains import is_domain
 from artemis.modules.nuclei import (
     EXPOSED_PANEL_TEMPLATE_PATH_PREFIX,
+    TECHNOLOGY_TEMPLATE_PATH_PREFIX,
 )
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
@@ -162,6 +163,10 @@ class NucleiReporter(Reporter):
 
             # Some templates are slightly broken and are returned multiple times, let's skip subsequent ones.
             if template in templates_seen:
+                continue
+
+            if template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX):
+                # Report this only as assets
                 continue
 
             templates_seen.add(template)
@@ -322,10 +327,16 @@ class NucleiReporter(Reporter):
             if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
                 continue
 
-            if not template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+            if not template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX) and not template.startswith(
+                TECHNOLOGY_TEMPLATE_PATH_PREFIX
+            ):
                 continue
 
-            panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
+            if template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+                panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
+            else:
+                assert template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX)
+                panel = vulnerability["info"]["name"].removesuffix(" Detect")
 
             result.append(
                 Asset(

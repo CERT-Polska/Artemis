@@ -490,10 +490,10 @@ class Config:
                 "Which template lists to use besides the ones defined by NUCLEI_SEVERITY_THRESHOLD. Available: "
                 "known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
                 "log_exposures (http/exposures/logs folder in https://github.com/projectdiscovery/nuclei-templates/), "
-                "exposed_panels (http/exposed-panels/ folder).",
+                "technologies (http/exposed-panels/ and http/technologies/ folders).",
             ] = get_config(
                 "NUCLEI_TEMPLATE_LISTS",
-                default="known_exploited_vulnerabilities,log_exposures,exposed_panels",
+                default="known_exploited_vulnerabilities,log_exposures,technologies",
                 cast=decouple.Csv(str, delimiter=","),
             )
 

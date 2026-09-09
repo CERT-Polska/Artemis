@@ -43,7 +43,6 @@ def resolve(nvd_dir: Path, normalized: str) -> str | None:
 
     index = ensure_title_index(nvd_dir)
 
-    # Index values are already version-wildcarded, so a hit needs no rewriting.
     cpe = index.get(normalized)
     if cpe is not None:
         return None if cpe == AMBIGUOUS_TITLE else cpe

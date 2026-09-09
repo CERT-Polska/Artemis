@@ -198,7 +198,6 @@ def _build_indices(chunks_dir: Path) -> dict[str, dict[str, str]]:
         cpe = _strip_sw_edition(cpe_name)
         key, names_a_product = title_key(title, cpe_name)
         if key:
-            # The index holds the family CPE; the caller sets whatever version it needs.
             _record_title(titles, named, key, with_version(cpe, "*"), names_a_product)
         for url in refs:
             cms_slug = plugin_slug(url)

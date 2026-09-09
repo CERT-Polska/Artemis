@@ -336,7 +336,7 @@ class NucleiReporter(Reporter):
                 panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
             else:
                 assert template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX)
-                panel = vulnerability["info"]["name"].removesuffix(" Detect")
+                panel = vulnerability["info"]["name"].removesuffix(" Detect").removesuffix(" Detection")
 
             result.append(
                 Asset(

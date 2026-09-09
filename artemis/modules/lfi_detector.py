@@ -8,6 +8,11 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_injectable_parameters, get_links_to_scan
 from artemis.http_requests import HTTPResponse
+from artemis.injection_utils import (
+    create_url_with_batch_payload,
+    has_query_parameters,
+    minimize_parameters,
+)
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.lfi_detector.lfi_detector_data import (
     LFI_PAYLOADS,
@@ -41,12 +46,10 @@ class LFIDetector(ArtemisBase):
     ]
 
     def create_url_with_batch_payload(self, url: str, param_batch: List[str], payload: str) -> str:
-        assignments = {key: payload for key in param_batch}
-        concatenation = "&" if self.is_url_with_parameters(url) else "?"
-        return f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
+        return create_url_with_batch_payload(url=url, param_batch=param_batch, payload=payload)
 
     def is_url_with_parameters(self, url: str) -> bool:
-        return "?" in url
+        return has_query_parameters(url)
 
     def contains_lfi_indicator(self, original_response: HTTPResponse, response: HTTPResponse) -> Optional[str]:
         """Check if the response contains indicators of LFI.
@@ -93,27 +96,25 @@ class LFIDetector(ArtemisBase):
         Try to find the minimal set of parameters that still triggers LFI. Currently minimizes to single parameters only.
         Falls back to original params if none work individually.
         """
-        minimal_params: List[str] = []
-
-        for param in params:
+        def test_param(param: str) -> bool:
             test_url = self.create_url_with_batch_payload(url, [param], payload)
             response = self.http_get(test_url)
+            return bool(self.contains_lfi_indicator(original_response, response))
 
-            if self.contains_lfi_indicator(original_response, response):
-                minimal_params.append(param)
-            if len(minimal_params) >= Config.Modules.LFIDetector.LFI_MINIMAL_PARAMS_MAX_LEN:
-                break
+        minimal_params = minimize_parameters(
+            params=params,
+            test_func=test_param,
+            max_len=Config.Modules.LFIDetector.LFI_MINIMAL_PARAMS_MAX_LEN,
+        )
 
-        if minimal_params:
+        if minimal_params != params:
             self.log.info(
                 "LFI parameter minimization: %s -> %s",
                 params,
                 minimal_params,
             )
-            return minimal_params
 
-        # fallback if no single param triggers LFI
-        return params
+        return minimal_params
 
     def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
         """Scan URLs for LFI vulnerabilities."""

@@ -1,12 +1,8 @@
-import datetime
 import re
 from enum import Enum
-from timeit import default_timer as timer
-from typing import Any, Dict, List, Literal, Optional
-from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
+from typing import Any, Dict, List, Literal, Optional, Sequence
 
 import more_itertools
-import requests
 from karton.core import Task
 
 from artemis import load_risk_class
@@ -14,6 +10,13 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import get_injectable_parameters, get_links_to_scan
 from artemis.http_requests import HTTPResponse
+from artemis.injection_utils import (
+    change_url_params,
+    create_url_with_batch_payload,
+    has_query_parameters,
+    measure_request_time,
+    minimize_parameters,
+)
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.parameters import URL_PARAMS
 from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES
@@ -39,13 +42,8 @@ class SqlInjectionDetector(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any, ...], payload: str) -> str:
-        assignments = {key: payload for key in param_batch}
-        concatenation = "&" if self.is_url_with_parameters(url) else "?"
-
-        url_with_payload = f"{url}{concatenation}" + "&".join([f"{key}={value}" for key, value in assignments.items()])
-
-        return url_with_payload
+    def create_url_with_batch_payload(self, url: str, param_batch: Sequence[str], payload: str) -> str:
+        return create_url_with_batch_payload(url=url, param_batch=param_batch, payload=payload)
 
     @staticmethod
     def change_sleep_to_0(payload: str) -> str:
@@ -55,47 +53,20 @@ class SqlInjectionDetector(ArtemisBase):
 
     @staticmethod
     def is_url_with_parameters(url: str) -> bool:
-        if re.search("/?/*=", url):
-            return True
-        return False
+        return has_query_parameters(url)
 
     @staticmethod
-    def change_url_params(url: str, payload: str, param_batch: tuple[Any, ...]) -> str:
-        parsed_url = urlparse(url)
-        query_params = parse_qs(parsed_url.query)
-        params = list(query_params.keys())
-        new_query_params = {}
-        assignments = {key: payload for key in param_batch}
-
-        for param in params:
-            new_query_params[param] = [payload]
-
-        new_query_string = urlencode(new_query_params, doseq=True)
-        new_url = urlunparse(
-            (
-                parsed_url.scheme,
-                parsed_url.netloc,
-                parsed_url.path,
-                parsed_url.params,
-                new_query_string,
-                parsed_url.fragment,
-            )
-        )
-        concatenation = "&" if SqlInjectionDetector.is_url_with_parameters(new_url) else "?"
-        new_url = f"{new_url}" + concatenation + "&".join([f"{key}={value}" for key, value in assignments.items()])
-        return unquote(new_url)
+    def change_url_params(url: str, payload: str, param_batch: Sequence[str]) -> str:
+        return change_url_params(url=url, payload=payload, param_batch=param_batch)
 
     def measure_request_time(self, url: str, **kwargs: Dict[str, Any]) -> float:
-        start = timer()
-        try:
-            if "headers" not in kwargs:
-                self.forgiving_http_get(url)
-            else:
-                self.forgiving_http_get(url, headers=kwargs.get("headers"))
-        except requests.exceptions.Timeout:
-            return Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
-
-        return datetime.timedelta(seconds=timer() - start).seconds
+        headers = kwargs.get("headers")  # type: ignore
+        return measure_request_time(
+            http_get_func=self.forgiving_http_get,
+            url=url,
+            timeout_threshold=Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD,
+            headers=headers,
+        )
 
     def contains_error(self, url: str, response: Optional[HTTPResponse]) -> str | None:
         if response is None:
@@ -132,13 +103,12 @@ class SqlInjectionDetector(ArtemisBase):
         if minimization_mode == "error" and baseline_payload is None:
             raise ValueError("baseline_payload is required for error-based minimization")
 
-        minimal_params: List[str] = []
         if minimization_mode == "error":
             payload_without_effect = baseline_payload if baseline_payload is not None else ""
         else:
             payload_without_effect = self.change_sleep_to_0(payload)
 
-        for param in params:
+        def test_param(param: str) -> bool:
             single_batch = (param,)
             url_with = self._create_injected_url(
                 url=url, payload=payload, param_batch=single_batch, use_change_url_params=use_change_url_params
@@ -152,19 +122,22 @@ class SqlInjectionDetector(ArtemisBase):
 
             if minimization_mode == "error":
                 error = self.contains_error(url_with, self.forgiving_http_get(url_with))
-                if not self.contains_error(url_without, self.forgiving_http_get(url_without)) and error:
-                    minimal_params.append(param)
-            elif (
-                self.measure_request_time(url_without)
-                < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
-                and self.measure_request_time(url_with)
-                >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
-            ):
-                minimal_params.append(param)
-            if len(minimal_params) >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN:
-                break
+                return bool(not self.contains_error(url_without, self.forgiving_http_get(url_without)) and error)
+            else:
+                return bool(
+                    self.measure_request_time(url_without)
+                    < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
+                    and self.measure_request_time(url_with)
+                    >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
+                )
 
-        if minimal_params:
+        minimal_params = minimize_parameters(
+            params=params,
+            test_func=test_param,
+            max_len=Config.Modules.SqlInjectionDetector.SQL_INJECTION_MINIMAL_PARAMS_MAX_LEN,
+        )
+
+        if minimal_params != params:
             mode_label = "error-based" if minimization_mode == "error" else "time-based"
             self.log.info(
                 "SQLi %s parameter minimization: %s -> %s",
@@ -172,10 +145,8 @@ class SqlInjectionDetector(ArtemisBase):
                 params,
                 minimal_params,
             )
-            return minimal_params
 
-        # fallback if no single param triggers SQLi
-        return params
+        return minimal_params
 
     @staticmethod
     def create_headers(payload: str) -> dict[str, str]:

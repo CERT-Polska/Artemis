@@ -2359,6 +2359,37 @@ TRANSLATIONS = {
     "phpBB is susceptible to the Installation page exposure due to misconfiguration.": "Wykryto, że dostęp do strony instalacyjnej narzędzia phpBB jest możliwy bez uwierzytelniania. Rekomendujemy usunięcie lub zablokowanie dostępu do tej strony.",
     "[no description] http/misconfiguration/aspx-debug-mode.yaml": "Wykryto, że włączony jest tryb debugowania ASPX. Rekomendujemy wyłączenie tego trybu.",
     "NS ASG is vulnerable to local file inclusion.": "Wykryto podatność Local File Inclusion w narzędziu NS ASG, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
+    "GeoServer is an open source software server written in Java that allows users to share and edit geospatial data. The OGC Web Processing Service (WPS) specification is designed to process information from any server using GET and POST requests. This presents the opportunity for Server Side Request Forgery. This vulnerability has been patched in version 2.22.5 and 2.23.2.": "GeoServer w wersji poniżej 2.22.5 i 2.23.2 zawiera podatność Server-Side Request Forgery o identyfikatorze CVE-2023-43795, umożliwiającą atakującemu wykonywanie żądań HTTP do usług w sieci wewnętrznej."
+    + UPDATE_HINT,
+    'In Struts 2 before 2.3.15.1 the information following "action:", "redirect:", or "redirectAction:" is not properly sanitized and will be evaluated as an OGNL expression against the value stack. This introduces the possibility to inject server side code.': "Apache Struts 2 w wersji poniżej 2.3.15.1 zawiera podatność OGNL Injection o identyfikatorze CVE-2013-2251, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Photo Gallery WordPress plugin v1.6.3 contains a SQL injection caused by improper escaping of $_POST['filter_tag'] parameter in SQL queries, letting attackers execute arbitrary SQL commands, exploit requires sending crafted POST requests.": "Wtyczka WordPress o nazwie Photo Gallery w wersji 1.6.3 zawiera podatność SQL Injection o identyfikatorze CVE-2022-1281, umożliwiającą atakującemu pobranie całej zawartości bazy danych."
+    + WORDPRESS_UPDATE_HINT,
+    "Unable to find translation for message 'Home Assistant Supervisor is an open source home automation tool. A remotely exploitable vulnerability bypassing authentication for accessing the Supervisor API through Home Assistant has been discovered.This impacts all Home Assistant installation types that use the Supervisor 2023.01.1 or older. Installation types, like Home Assistant Container (for example Docker), or Home Assistant Core manually in a Python environment, are not affected.": "Narzędzie Home Assistant Supervisor w wersji 2023.01.1 i wcześniejszych zawiera podatność o identyfikatorze CVE-2023-27482 umożliwiającą atakującemu ominięcie uwierzytelniania i dostęp do API Supervisor."
+    + UPDATE_HINT,
+    "JoomShaper Helix3 template framework versions 1.0 through 3.1.0 for Joomla expose an unauthenticated AJAX handler (plg_ajax_helix3) accessible via the Joomla com_ajax component. The onAjaxHelix3() plugin method processes data[action]=save requests without any authentication check or CSRF token validation. Unauthenticated remote attackers can write arbitrary JSON content to server-side files. The layoutName parameter contains no path traversal validation, enabling write to any directory writable by the web server process. Actively exploited in the wild by the AntonKill botnet campaign.": "Szablon JoomShaper Helix3 w wersjach od 1.0 do 3.1.0 dla systemu Joomla! zawiera podatność o identyfikatorze CVE-2026-49049 umożliwiającą atakującemu nieuprawnione zapisywanie dowolnych plików na serwerze, a w konsekwencji zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "NVIDIA Triton Inference Server contains an authentication bypass vulnerability, letting attackers bypass authentication and potentially execute code, escalate privileges, tamper data, cause denial of service, or disclose information, exploit requires no special conditions.": "Narzędzie NVIDIA Triton Inference Server zawiera podatność o identyfikatorze CVE-2026-24207 umożliwiającą atakującemu ominięcie uwierzytelniania, a w konsekwencji potencjalnie zdalne wykonanie kodu, eskalację uprawnień, modyfikację danych, przerwanie działania usługi lub ujawnienie informacji."
+    + UPDATE_HINT,
+    "DedeCMS 5.8.1-beta is susceptible to remote code execution via a variable override vulnerability that allows an attacker to construct malicious code with template file inclusion without proper authorization, thus possibly obtaining sensitive information, modifying data, and/or gaining full control over a compromised system without entering necessary credentials.": "System DedeCMS w wersji 5.8.1-beta zawiera podatność o identyfikatorze CVE-2022-43192 umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    'The vulnerability is located in the /template/scripts/BxBaseMenuSetAclLevel.php script. Specifically, within the BxBaseMenuSetAclLevel::getCode() method. When calling this method, user input passed through the "profile_id" POST parameter is not properly sanitized before being used in a call to the unserialize() PHP function. This can be exploited by remote, unauthenticated attackers to inject arbitrary PHP objects into the application scope, allowing them to perform a variety of attacks, such as writing and executing arbitrary PHP code.': "Wykryto podatność PHP Object Injection o identyfikatorze CVE-2025-32101 potencjalnie umożliwiającą atakującemu zdalne wykonanie kodu poprzez nieuprawnione wstrzyknięcie obiektów PHP."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Joomla JCE editor extension contains an unrestricted file upload vulnerability caused by allowing unauthenticated users to create new editor profiles, letting attackers upload and execute PHP code remotely, exploit requires no authentication.": "Rozszerzenie JCE editor systemu Joomla! zawiera podatność Unrestricted File Upload o identyfikatorze CVE-2026-48907 umożliwiającą atakującemu wgranie dowolnego pliku, a w efekcie zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Multiple directory traversal vulnerabilities in Dolibarr CMS 3.2.0 Alpha allow remote attackers to read arbitrary files and possibly execute arbitrary code via a .. (dot dot) in the (1) file parameter to document.php or (2) backtopage parameter in a create action to comm/action/fiche.php.": "System Dolibarr CMS w wersji 3.2.0 Alpha zawiera podatność Directory Traversal o identyfikatorze CVE-2012-1226 umożliwiającą atakującemu odczyt dowolnych plików z serwera, a w niektórych sytuacjach również zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Intelbras WRN 150 router is vulnerable to authentication bypass through cookie manipulation. An attacker can bypass authentication and download the router configuration file by manipulating the admin:language cookie.": "Router Intelbras WRN 150 zawiera podatność o identyfikatorze CVE-2017-14942 umożliwiającą atakującemu ominięcie uwierzytelniania i pobranie pliku konfiguracyjnego routera poprzez manipulację ciasteczkiem admin:language."
+    + UPDATE_HINT,
+    "Gitea versions 1.22.1 through 1.27.0 initialize the go-org markup renderer without replacing its default ReadFile callback. An unauthenticated attacker can submit Org-mode markup containing an #+INCLUDE directive with an absolute path to the repository markup endpoint of any public repository, causing the server to read and render arbitrary files accessible to the Gitea service user.": "System Gitea w wersjach od 1.22.1 do 1.27.0 zawiera podatność o identyfikatorze CVE-2026-59774 umożliwiającą atakującemu nieuprawniony odczyt dowolnych plików z serwera."
+    + UPDATE_HINT,
+    "Attempts to list all users on a MySQL server.": "Wykryto podatność polegającą na możliwości odczytu wszystkich użytkowników w publicznie dostepnej bazie MySQL.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2887,4 +2918,9 @@ TRANSLATIONS = {
     "Ubiquiti UniFi Security Gateway management panel detected.": "Wykryto panel zarządzania Ubiquiti UniFi Security Gateway.",
     "Arize Phoenix is an open-source AI observability and evaluation platform for monitoring,\ndebugging, and evaluating LLM applications.": "Wykryto panel Arize Phoenix.",
     "Detected OpenClaw Control, a web-based control interface.": "Wykryto panel OpenClaw Control.",
+    "Zulip login panel was discovered.": "Wykryto panel logowania Zulip.",
+    "SAP NetWeaver Portal login has been detected. Note that NetWeaver has multiple default passwords as listed in the references.": "Wykryto panel logowania SAP NetWeaver Portal.",
+    "SigNoz open-source observability platform web interface was detected.": "Wykryto panel SigNoz.",
+    "Cyberoam UTM firewall login panel detected.": "Wykryto panel logowania do Cyberoam UTM.",
+    "Couchbase Server administrative console was discovered.": "Wykryto panel administracyjny Couchbase Server.",
 }

@@ -565,6 +565,8 @@ class Config:
                     [
                         # We already have Wappalyzer
                         "http/technologies/tech-detect.yaml",
+                        # Too many FP
+                        "http/technologies/waf-detect.yaml",
                         # We have a separate module for that, checking whethet the repository is a copy of a public one
                         "http/exposures/configs/exposed-svn.yaml",
                         "http/exposures/configs/git-config.yaml",

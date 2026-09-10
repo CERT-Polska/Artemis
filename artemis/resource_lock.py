@@ -31,13 +31,32 @@ LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
+# Deletes the key only if it is still owned by the expected owner, to prevent one process from
+# releasing a lock that has already expired and been re-acquired by another process.
+_COMPARE_AND_DELETE_SCRIPT = (
+    "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end"
+)
+
+# Refreshes the key's expiry only if it is still owned by the expected owner, for the same reason.
+_COMPARE_AND_SET_SCRIPT = (
+    "if redis.call('get', KEYS[1]) == ARGV[1] then " "return redis.call('pexpire', KEYS[1], ARGV[2]) else return 0 end"
+)
+
+
+def _compare_and_delete(res_name: str, owner_lid: str) -> bool:
+    return bool(REDIS.eval(_COMPARE_AND_DELETE_SCRIPT, 1, res_name, owner_lid))  # type: ignore
+
+
+def _compare_and_set(res_name: str, owner_lid: str, ex_seconds: int) -> bool:
+    return bool(REDIS.eval(_COMPARE_AND_SET_SCRIPT, 1, res_name, owner_lid, str(ex_seconds * 1000)))  # type: ignore
+
 
 def sustain_locks() -> None:
     while True:
         try:
             with LOCKS_TO_SUSTAIN_LOCK:
                 for key, value in LOCKS_TO_SUSTAIN.items():
-                    REDIS.set(key, value, ex=LOCK_HEARTBEAT_TIMEOUT)
+                    _compare_and_set(key, value, LOCK_HEARTBEAT_TIMEOUT)
         except Exception:
             logger.exception("Failed to sustain locks, will retry")
         time.sleep(1)
@@ -76,9 +95,9 @@ class ResourceLock:
     @staticmethod
     def release_all_locks(logger: Logger) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            for lock in list(LOCKS_TO_SUSTAIN.keys()):
-                logger.info(f"Releasing lock: {lock} -> {LOCKS_TO_SUSTAIN[lock]}")
-                REDIS.delete(lock)
+            for lock, owner_lid in list(LOCKS_TO_SUSTAIN.items()):
+                logger.info(f"Releasing lock: {lock} -> {owner_lid}")
+                _compare_and_delete(lock, owner_lid)
             LOCKS_TO_SUSTAIN.clear()
 
     def acquire(self) -> None:
@@ -104,7 +123,7 @@ class ResourceLock:
         with LOCKS_TO_SUSTAIN_LOCK:
             if self.res_name in LOCKS_TO_SUSTAIN:
                 del LOCKS_TO_SUSTAIN[self.res_name]
-        REDIS.delete(self.res_name)
+        _compare_and_delete(self.res_name, self.lid)
 
     def __enter__(self) -> None:
         self.acquire()

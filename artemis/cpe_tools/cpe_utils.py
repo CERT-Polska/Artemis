@@ -1,4 +1,5 @@
 import logging
+import re
 from pathlib import Path
 
 from artemis.cpe_tools.cpe_main_process import (
@@ -36,16 +37,32 @@ _STOPWORDS = frozenset(
 )
 
 
-def with_version(cpe: str, version: str) -> str:
-    # Components are: cpe, 2.3, part, vendor, product, version, update, edition,
-    # language, sw_edition, target_sw, target_hw, other. Replace the version field
-    # (index 5) and re-join;
-    VERSION_FIELD_INDEX = 5
+# Components of a cpe:2.3 name are: cpe, 2.3, part, vendor, product, version, update,
+# edition, language, sw_edition, target_sw, target_hw, other.
+_VERSION_FIELD_INDEX = 5
 
-    parts = split_cpe(cpe)
-    if len(parts) <= VERSION_FIELD_INDEX:
+# A version has to look like one: a digit first, then only characters versions are made of.
+# ``*`` (ANY) and ``-`` (NA) are the two special values CPE 2.3 defines for a field, and are
+# accepted so that a name can also be reset to its versionless family.
+# Anchored with ``\Z``, because Python's ``$`` also matches before a trailing newline.
+_VERSION_RE = re.compile(r"^(?:[0-9][0-9A-Za-z.\-+]*|\*|-)\Z")
+
+
+def with_version(cpe: str, version: str | None) -> str:
+    """Set the version field of a cpe:2.3 name to ``version``.
+
+    A name carrying ``*`` in the version slot denotes the product as a whole; setting that
+    slot narrows it to a single release, and setting it back to ``*`` widens it again.
+
+    The CPE comes back unchanged when the version is missing, doesn't look like a version,
+    or the name is too short to have a version field.
+    """
+    if not version or not _VERSION_RE.match(version):
         return cpe
-    parts[VERSION_FIELD_INDEX] = version
+    parts = split_cpe(cpe)
+    if len(parts) <= _VERSION_FIELD_INDEX:
+        return cpe
+    parts[_VERSION_FIELD_INDEX] = version
     return ":".join(parts)
 
 
@@ -87,7 +104,7 @@ def lookup_cpe(name: str, version: str | None = None) -> str | None:
     family_cpe = resolve(nvd_dir, normalized)
     if family_cpe is None:
         return None
-    return with_version(family_cpe, version) if version else family_cpe
+    return with_version(family_cpe, version)
 
 
 def lookup_cpe_by_plugin_slug(slug: str, cms: str, version: str | None = None) -> str | None:
@@ -104,7 +121,8 @@ def lookup_cpe_by_plugin_slug(slug: str, cms: str, version: str | None = None) -
     cpe = plugins.get(f"{cms}:{slug.strip().lower()}")
     if cpe is None:
         return None
-    return with_version(cpe, version) if version else with_version(cpe, "*")
+    family = with_version(cpe, "*")
+    return with_version(family, version)
 
 
 def lookup_cpe_by_url(url: str, version: str | None = None) -> str | None:
@@ -126,4 +144,5 @@ def lookup_cpe_by_url(url: str, version: str | None = None) -> str | None:
     cpe = urls.get(key)
     if cpe is None:
         return None
-    return with_version(cpe, version) if version else with_version(cpe, "*")
+    family = with_version(cpe, "*")
+    return with_version(family, version)

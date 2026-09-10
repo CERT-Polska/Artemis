@@ -2389,7 +2389,7 @@ TRANSLATIONS = {
     + UPDATE_HINT,
     "Gitea versions 1.22.1 through 1.27.0 initialize the go-org markup renderer without replacing its default ReadFile callback. An unauthenticated attacker can submit Org-mode markup containing an #+INCLUDE directive with an absolute path to the repository markup endpoint of any public repository, causing the server to read and render arbitrary files accessible to the Gitea service user.": "System Gitea w wersjach od 1.22.1 do 1.27.0 zawiera podatność o identyfikatorze CVE-2026-59774 umożliwiającą atakującemu nieuprawniony odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
-    "Attempts to list all users on a MySQL server.": "Wykryto podatność polegającą na możliwości odczytu wszystkich użytkowników w publicznie dostepnej bazie MySQL.",
+    "Attempts to list all users on a MySQL server.": "Wykryto błędną konfigurację polegającą na możliwości odczytu wszystkich użytkowników w publicznie dostepnej bazie MySQL.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",

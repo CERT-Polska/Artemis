@@ -1,6 +1,17 @@
-from typing import Optional
+from typing import Any, List, Optional
 
 from redis import Redis
+
+# Escapes Redis glob metacharacters so cache names are always matched literally.
+# Note: unlike fnmatch/Tcl, Redis treats [] as an empty (never-matching) class,
+# so ] must be escaped as \] rather than []]. Verified against real Redis.
+_GLOB_ESCAPE_TABLE = {
+    ord("*"): "[*]",
+    ord("?"): "[?]",
+    ord("["): "[[]",
+    ord("]"): "\\]",
+    ord("\\"): "\\\\",
+}
 
 
 class RedisCache:
@@ -21,4 +32,15 @@ class RedisCache:
         self.redis.set(f"{self.cache_name}:{key}", value, ex=timeout)
 
     def flush(self) -> None:
-        self.redis.flushall()
+        # Delete only this cache's keys. Never flushall()/flushdb() here: Karton
+        # queues, locks, and other caches share the same Redis instance/database,
+        # so flushdb would be equally destructive.
+        safe_name = self.cache_name.translate(_GLOB_ESCAPE_TABLE)
+        batch: List[Any] = []
+        for key in self.redis.scan_iter(match=f"{safe_name}:*", count=1000):
+            batch.append(key)
+            if len(batch) >= 1000:
+                self.redis.delete(*batch)
+                batch = []
+        if batch:
+            self.redis.delete(*batch)

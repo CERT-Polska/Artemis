@@ -29,11 +29,6 @@ PLUGIN = "plugin"
 URL = "url"
 _INDEX_KINDS = {TITLE: INDEX_TITLE_FILENAME, PLUGIN: PLUGIN_INDEX_FILENAME, URL: URL_INDEX_FILENAME}
 
-# Bump whenever the keys or values of an index change. The version token is a hash of the
-# index contents, so it cannot notice that: readers compare this number instead, and
-# rebuild from the chunks when an index left in the volume does not match.
-INDEX_FORMAT_VERSION = 2
-
 # Position of the version field in a cpe:2.3 name.
 VERSION_FIELD_INDEX = 5
 
@@ -219,23 +214,18 @@ def build_version_token(*dicts: dict[str, str]) -> str:
     return h.hexdigest()
 
 
-def _read_version_payload(directory: Path) -> dict[str, Any]:
+def read_version_token(directory: Path) -> str:
     version_path = directory / VERSION_FILENAME
     try:
         with version_path.open("rb") as f:
             payload = json.load(f)
+        if isinstance(payload, dict):
+            token = payload.get("hash")
+            if isinstance(token, str):
+                return token
     except (OSError, json.JSONDecodeError):
-        return {}
-    return payload if isinstance(payload, dict) else {}
-
-
-def read_version_token(directory: Path) -> str:
-    token = _read_version_payload(directory).get("hash")
-    return token if isinstance(token, str) else ""
-
-
-def index_format_is_current(directory: Path) -> bool:
-    return _read_version_payload(directory).get("format") == INDEX_FORMAT_VERSION
+        pass
+    return ""
 
 
 def ensure_version_token(directory: Path) -> str:
@@ -254,7 +244,7 @@ def _read_index_file(index_path: Path) -> dict[str, str] | None:
     return payload if isinstance(payload, dict) else None
 
 
-def _write_index_file(index_path: Path, entries: dict[str, Any]) -> None:
+def _write_index_file(index_path: Path, entries: dict[str, str]) -> None:
     tmp_path = index_path.with_name(index_path.name + ".tmp")
     with tmp_path.open("w", encoding="utf-8") as f:
         json.dump(entries, f)
@@ -269,7 +259,7 @@ def _ensure_index(nvd_dir: Path, kind: str) -> dict[str, str]:
         return cached[1]
 
     chunks_dir = nvd_dir / CHUNKS_SUBDIR
-    index = _read_index_file(nvd_dir / _INDEX_KINDS[kind]) if index_format_is_current(nvd_dir) else None
+    index = _read_index_file(nvd_dir / _INDEX_KINDS[kind])
     if index is None:
         if chunks_dir.is_dir():
             try:
@@ -312,11 +302,7 @@ def build_index(nvd_dir: Path | None = None) -> Path:
     for kind, filename in _INDEX_KINDS.items():
         _write_index_file(directory / filename, indices[kind])
     _write_index_file(
-        directory / VERSION_FILENAME,
-        {
-            "hash": build_version_token(indices[TITLE], indices[PLUGIN], indices[URL]),
-            "format": INDEX_FORMAT_VERSION,
-        },
+        directory / VERSION_FILENAME, {"hash": build_version_token(indices[TITLE], indices[PLUGIN], indices[URL])}
     )
 
     return directory / INDEX_TITLE_FILENAME

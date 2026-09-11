@@ -233,7 +233,7 @@ class ClassifierTest(ArtemisModuleTestCase):
         ]
 
         for entry in entries:
-            self.karton.cache.flush()
+            self.karton.cache.redis.flushall()
             task = Task({"type": TaskType.NEW}, payload={"data": entry.raw})
             results = self.run_task(task)
 
@@ -332,7 +332,7 @@ class ClassifierTest(ArtemisModuleTestCase):
         ]
 
         for entry in entries:
-            self.karton.cache.flush()
+            self.karton.cache.redis.flushall()
             # The scheme tells us the service, so the URL path must not shell out to fingerprintx.
             with patch("artemis.modules.classifier.check_output_log_on_error") as mock_fingerprintx:
                 task = Task({"type": TaskType.NEW}, payload={"data": entry.raw})

@@ -58,6 +58,13 @@ services:
       SQL_INJECTION_STOP_ON_FIRST_MATCH: "false"
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
 
+  karton-nosql_injection_detector:
+    <<: *artemis-build
+    env_file: env.test
+    environment:
+      NOSQL_INJECTION_STOP_ON_FIRST_MATCH: "false"
+    volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+
   karton-system:
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]

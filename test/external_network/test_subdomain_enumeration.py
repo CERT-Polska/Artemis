@@ -43,3 +43,7 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     def test_get_subdomains_from_gau(self) -> None:
         result = self.karton.get_subdomains_from_gau("cert.pl")
         self.assertTrue("vortex.cert.pl" in result)
+
+    @retry(tries=3, delay=10)
+    def test_dns_brute(self) -> None:
+        self.assertEqual(self.karton.get_subdomains_by_dns_brute_force(set(), "cert.pl"), ["www.cert.pl"])

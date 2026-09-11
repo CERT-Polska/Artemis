@@ -1,3 +1,4 @@
+import time
 import datetime
 import re
 from enum import Enum
@@ -289,11 +290,14 @@ class SqlInjectionDetector(ArtemisBase):
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
 
             for param_batch in more_itertools.batched(parameters + URL_PARAMS, 75):
+                time_start = time.time()
+                max_url_length = 0
                 if self.is_url_with_parameters(current_url):
                     for error_payload in sql_injection_error_payloads:
                         url_with_payload = self.change_url_params(
                             url=current_url, payload=error_payload, param_batch=param_batch
                         )
+                        max_url_length = max(max_url_length, len(url_with_payload))
                         url_without_payload = self.change_url_params(
                             url=current_url, payload=not_error_payload, param_batch=param_batch
                         )
@@ -334,6 +338,7 @@ class SqlInjectionDetector(ArtemisBase):
                         url_with_sleep_payload = self.change_url_params(
                             url=current_url, payload=sleep_payload, param_batch=param_batch
                         )
+                        max_url_length = max(max_url_length, len(url_with_sleep_payload))
 
                         flags = []
                         for _ in range(Config.Modules.SqlInjectionDetector.SQL_INJECTION_NUM_RETRIES_TIME_BASED):
@@ -375,6 +380,7 @@ class SqlInjectionDetector(ArtemisBase):
                     url_with_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=error_payload
                     )
+                    max_url_length = max(max_url_length, len(url_with_payload))
                     url_with_no_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=not_error_payload
                     )
@@ -413,6 +419,7 @@ class SqlInjectionDetector(ArtemisBase):
                     url_with_sleep_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=sleep_payload
                     )
+                    max_url_length = max(max_url_length, len(url_with_sleep_payload))
                     url_with_no_sleep_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=self.change_sleep_to_0(sleep_payload)
                     )
@@ -451,6 +458,7 @@ class SqlInjectionDetector(ArtemisBase):
                         )
                         if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                             return message
+                self.log.info("Param batch of %d parameters took %f seconds, max_url_length=%d", len(param_batch), time.time() - time_start, max_url_length)
 
             for error_payload in sql_injection_error_payloads:
                 headers = self.create_headers(payload=error_payload)

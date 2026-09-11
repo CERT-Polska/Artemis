@@ -1,3 +1,4 @@
+import time
 import functools
 import hashlib
 import json
@@ -60,6 +61,7 @@ def get_injectable_parameters(url: str) -> List[str]:
 
 @functools.lru_cache(maxsize=1024)
 def _fetch_wayback_parameters(domain: str) -> Tuple[str, ...]:
+    time_start = time.time()
     response = requests.get(
         WAYBACK_CDX_URL,
         params={
@@ -81,6 +83,7 @@ def _fetch_wayback_parameters(domain: str) -> Tuple[str, ...]:
             params.update(parse_qs(parsed.query).keys())
         except IndexError:
             continue
+    logger.info("_fetch_wayback_parameters took %f seconds", time.time() - time_start)
     return tuple(params)
 
 

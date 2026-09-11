@@ -10,6 +10,9 @@ from artemis.modules.subdomain_enumeration import SubdomainEnumeration
 class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
     karton_class = SubdomainEnumeration  # type: ignore
 
+    def test_dns_brute(self) -> None:
+        self.assertEqual(self.karton.get_subdomains_by_dns_brute_force("cert.pl"), ["www.cert.pl"])
+
     @patch.object(SubdomainEnumeration, "get_subdomains_by_dns_brute_force", return_value=set())
     @patch.object(SubdomainEnumeration, "get_subdomains_from_gau", return_value=set())
     @patch.object(SubdomainEnumeration, "get_subdomains_from_subfinder", return_value={"ci.drakvuf.cert.pl"})

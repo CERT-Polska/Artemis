@@ -235,7 +235,7 @@ class SubdomainEnumeration(ArtemisBase):
         time_limit = Config.Modules.SubdomainEnumeration.DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS
         deadline = time_start + time_limit
 
-        def _resolve(subdomain):
+        def _resolve(subdomain: str) -> str | None:
             try:
                 result = lookup(subdomain + "." + domain)
             except ResolutionException:

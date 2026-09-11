@@ -1,6 +1,6 @@
-import time
 import datetime
 import re
+import time
 from enum import Enum
 from timeit import default_timer as timer
 from typing import Any, Dict, List, Literal, Optional
@@ -458,7 +458,12 @@ class SqlInjectionDetector(ArtemisBase):
                         )
                         if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                             return message
-                self.log.info("Param batch of %d parameters took %f seconds, max_url_length=%d", len(param_batch), time.time() - time_start, max_url_length)
+                self.log.info(
+                    "Param batch of %d parameters took %f seconds, max_url_length=%d",
+                    len(param_batch),
+                    time.time() - time_start,
+                    max_url_length,
+                )
 
             for error_payload in sql_injection_error_payloads:
                 headers = self.create_headers(payload=error_payload)

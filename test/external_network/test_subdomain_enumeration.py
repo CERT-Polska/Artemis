@@ -46,4 +46,8 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
 
     @retry(tries=3, delay=10)
     def test_dns_brute(self) -> None:
-        self.assertEqual(self.karton.get_subdomains_by_dns_brute_force(set(), "cert.pl"), ["www.cert.pl"])
+        result = set(self.karton.get_subdomains_by_dns_brute_force(set(), "cert.pl"))
+        self.assertIn("www.cert.pl", result)
+        self.assertIn("hack.cert.pl", result)
+        self.assertIn("challenge.cert.pl", result)
+        self.assertIn("analytics.cert.pl", result)

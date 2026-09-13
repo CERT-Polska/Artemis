@@ -99,7 +99,7 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
                 f"matched_at URL was not minimized (has {len(params)} params): {matched_at}",
             )
 
-    def test_path_overridden_from_request_when_matched_at_drifts(self) -> None:
+    def test_path_overridden_from_request_when_matched_at_redirects(self) -> None:
         data = self.obtain_http_task_result(
             "nuclei-module", "test-redirect-reflect-app", 5000, filter={"type": TaskType.NUCLEI_TARGET}
         )
@@ -118,3 +118,6 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
             self.assertEqual(matched_at_parsed.path, "/search")
             self.assertEqual(pqf_parsed.path, "/")
             self.assertEqual(pqf_parsed.query, matched_at_parsed.query)
+
+        message = self.task_result_to_message(data)
+        print("AAAAAA", message)

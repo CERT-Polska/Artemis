@@ -93,13 +93,15 @@ def _get_cpe(vulnerability: Dict[str, Any]) -> Optional[str]:
     return extract_cpe(classification.get("cpe", None))
 
 
-def extract_request_target(request: str | None) -> tuple[str, str] | None:
+def extract_request_target(host: str, request: str | None) -> tuple[str, str] | None:
     """Extract path and query from the request-line of a raw HTTP request."""
     if not isinstance(request, str):
         return None
 
     try:
-        target = request.splitlines()[0].split()[1]
+        command, target = request.splitlines()[0].split(1)
+        assert command == "curl"
+        assert target.startswith("http://") or target.startswith("https://")
     except IndexError:
         return None
 
@@ -114,6 +116,7 @@ def extract_request_target(request: str | None) -> tuple[str, str] | None:
     if not parsed.path:
         return None
 
+    assert get_host_from_url(target) == host
     return parsed.path, parsed.query
 
 
@@ -253,7 +256,7 @@ class NucleiReporter(Reporter):
                     + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else "")
                 )
 
-                request_target = extract_request_target(vulnerability.get("request"))
+                request_target = extract_request_target(get_host_from_url(matched_at), vulnerability.get("request"))
                 if request_target is not None:
                     request_path, request_query = request_target
                     if request_path != matched_at_parsed.path:

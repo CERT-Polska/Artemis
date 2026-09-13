@@ -277,12 +277,6 @@ class ArtemisBase(Karton):
             cls().single_process_loop(task_counter)
 
     def single_process_loop(self, task_counter: Any) -> None:
-        """
-        Differs from the original karton implementation: consumes the tasks in random order, so that
-        there is lower chance that multiple tasks associated with the same IP (e.g. coming from subdomain
-        enumeration) will be taken by multiple threads, thus slowing down the process, as requests for
-        the same IP are throttled.
-        """
         self.log.info("Service %s started", self.identity)
 
         # Get the old binds and set the new ones atomically

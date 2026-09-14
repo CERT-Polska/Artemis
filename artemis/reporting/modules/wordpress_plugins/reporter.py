@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Set
 from packaging import version
 
 from artemis import utils
+from artemis.cpe_tools.cpe_utils import lookup_cpe_by_plugin_slug
 from artemis.fallback_api_cache import FallbackAPICache
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
@@ -192,6 +193,7 @@ class WordpressPluginsReporter(Reporter):
                 name=get_target_url(task_result),
                 additional_type="wordpress-plugin:" + slug,
                 version=data.get("version", ""),
+                cpe=lookup_cpe_by_plugin_slug(slug, "wordpress"),
             )
             for slug, data in task_result["result"].get("plugins", {}).items()
         ]

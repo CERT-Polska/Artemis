@@ -501,7 +501,7 @@
   "wp-whatsapp": "readme.txt",
   "option-tree": "readme.txt",
   "wp-slimstat": "readme.txt",
-  "webappick-product-feed-for-woocommerce": "README.txt",
+  "webappick-product-feed-for-woocommerce": "readme.txt",
   "paid-memberships-pro": "readme.txt",
   "wp-all-export": "readme.txt",
   "master-slider": "README.txt",

@@ -4,6 +4,7 @@ import json
 import os
 import time
 import urllib.parse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -20,7 +21,7 @@ from artemis.domains import is_domain, is_subdomain
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import ResolutionException, lookup
 from artemis.task_utils import get_ip_range, has_ip_range
-from artemis.utils import check_output_log_on_error, throttle_request
+from artemis.utils import check_output_log_on_error
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -228,26 +229,39 @@ class SubdomainEnumeration(ArtemisBase):
         return wildcard_ips
 
     def get_subdomains_by_dns_brute_force(self, wildcard_ips: Set[str], domain: str) -> Optional[Set[str]]:
-        subdomains: Set[str] = set()
-        self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
         time_start = time.time()
-        for subdomain in self._subdomains_to_brute_force:
+        self.log.info("Brute-forcing %s possible subdomains", len(self._subdomains_to_brute_force))
+        qps = Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
+        time_limit = Config.Modules.SubdomainEnumeration.DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS
+        deadline = time_start + time_limit
+
+        def _resolve(subdomain: str) -> str | None:
             try:
-                lookup_result = throttle_request(
-                    lambda: lookup(subdomain + "." + domain), Config.Modules.SubdomainEnumeration.DNS_QUERIES_PER_SECOND
-                )
+                result = lookup(subdomain + "." + domain)
             except ResolutionException:
-                continue
+                return None
+            if result and set(result) - wildcard_ips:
+                return subdomain + "." + domain
+            return None
 
-            if lookup_result and set(lookup_result) - wildcard_ips:
-                subdomains.add(subdomain + "." + domain)
+        subdomains: Set[str] = set()
 
-            if time.time() > time_start + Config.Modules.SubdomainEnumeration.DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS:
-                self.log.error(
-                    "Brute-force time limit of %s exceeded, finishing",
-                    Config.Modules.SubdomainEnumeration.DNS_BRUTE_FORCE_TIME_LIMIT_SECONDS,
-                )
-                break
+        with ThreadPoolExecutor(max_workers=qps) as executor:
+            futures = []
+            for subdomain in self._subdomains_to_brute_force:
+                if time.time() > deadline:
+                    self.log.error(
+                        "Brute-force time limit of %s exceeded, finishing",
+                        time_limit,
+                    )
+                    break
+                futures.append(executor.submit(_resolve, subdomain))
+                time.sleep(1.0 / qps)
+
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    subdomains.add(result)
 
         return subdomains
 

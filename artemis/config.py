@@ -490,10 +490,10 @@ class Config:
                 "Which template lists to use besides the ones defined by NUCLEI_SEVERITY_THRESHOLD. Available: "
                 "known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
                 "log_exposures (http/exposures/logs folder in https://github.com/projectdiscovery/nuclei-templates/), "
-                "exposed_panels (http/exposed-panels/ folder).",
+                "technologies (http/exposed-panels/ and http/technologies/ folders).",
             ] = get_config(
                 "NUCLEI_TEMPLATE_LISTS",
-                default="known_exploited_vulnerabilities,log_exposures,exposed_panels",
+                default="known_exploited_vulnerabilities,log_exposures,technologies",
                 cast=decouple.Csv(str, delimiter=","),
             )
 
@@ -563,6 +563,10 @@ class Config:
                 "NUCLEI_TEMPLATES_TO_SKIP",
                 default=",".join(
                     [
+                        # We already have Wappalyzer
+                        "http/technologies/tech-detect.yaml",
+                        # Too many FP
+                        "http/technologies/waf-detect.yaml",
                         # We have a separate module for that, checking whethet the repository is a copy of a public one
                         "http/exposures/configs/exposed-svn.yaml",
                         "http/exposures/configs/git-config.yaml",

@@ -52,6 +52,7 @@ PLUGINS_TO_SKIP_CHANGELOG = [
     "permalink-manager",
     "social-pug",
     "uicore-animate",
+    "varnish-http-purge",
     "wordpress-popup",
     "wp-letsencrypt-ssl",
     "wp-members",
@@ -66,17 +67,13 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "testimonial-slider-and-showcase",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
-    "coming-soon",
-    "famethemes-demo-importer",
     "icon-element",
     "learnpress-wishlist",
     "link-manager",
     "login-logo",
     "page-or-post-clone",
-    "rafflepress",
     "search-meter",
     "website-monetization-by-magenet",
-    "wp-2fa",
     "wp-maximum-execution-time-exceeded",
     "zapier",
 ]

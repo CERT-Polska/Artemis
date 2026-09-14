@@ -19,6 +19,3 @@ class RedisCache:
         if not timeout:
             timeout = self.duration
         self.redis.set(f"{self.cache_name}:{key}", value, ex=timeout)
-
-    def flush(self) -> None:
-        self.redis.flushall()

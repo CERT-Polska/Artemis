@@ -46,7 +46,7 @@ class CveLookupAutoreporterIntegrationTest(BaseReportingTest):
 
     def setUp(self) -> None:
         super().setUp()
-        self.karton.cache.flush()
+        self.karton.cache.redis.flushall()
         # WEBAPP tasks trigger the framework's base-URL reachability check before run();
         # bypass it so the NVD mock only sees the module's own request.
         connection_check_patcher = patch(

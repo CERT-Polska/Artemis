@@ -8,6 +8,7 @@ from artemis.config import Config
 from artemis.domains import is_domain
 from artemis.modules.nuclei import (
     EXPOSED_PANEL_TEMPLATE_PATH_PREFIX,
+    TECHNOLOGY_TEMPLATE_PATH_PREFIX,
 )
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
@@ -27,6 +28,10 @@ from artemis.reporting.utils import (
 from artemis.utils import get_host_from_url
 
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
+
+TECHNOLOGY_NAME_MAPPINGS = {
+    "Apache": "Apache HTTP Server",
+}
 
 SEVERITY_OVERRIDES = {
     "http/exposures/logs/": "medium",
@@ -162,6 +167,10 @@ class NucleiReporter(Reporter):
 
             # Some templates are slightly broken and are returned multiple times, let's skip subsequent ones.
             if template in templates_seen:
+                continue
+
+            if template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX):
+                # Report this only as assets
                 continue
 
             templates_seen.add(template)
@@ -322,14 +331,29 @@ class NucleiReporter(Reporter):
             if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
                 continue
 
-            if not template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+            if not template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX) and not template.startswith(
+                TECHNOLOGY_TEMPLATE_PATH_PREFIX
+            ):
                 continue
 
-            panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
+            if template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+                panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
+                asset_type = AssetType.EXPOSED_PANEL
+            else:
+                assert template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX)
+                asset_type = AssetType.TECHNOLOGY
+                panel = (
+                    vulnerability["info"]["name"]
+                    .removesuffix(" Detect")
+                    .removesuffix(" Detection")
+                    .removesuffix(" -")
+                    .removesuffix(" End-of-Life")
+                )
+                panel = TECHNOLOGY_NAME_MAPPINGS.get(panel, panel)
 
             result.append(
                 Asset(
-                    asset_type=AssetType.EXPOSED_PANEL,
+                    asset_type=asset_type,
                     name=vulnerability["matched-at"],
                     additional_type=panel,
                     cpe=_get_cpe(vulnerability),

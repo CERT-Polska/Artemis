@@ -23,6 +23,7 @@ NAME_MAPPING = {
 
 CPE_MAPPING = {
     "Sentry": "cpe:2.3:a:sentry:sentry:*:*:*:*:*:*:*:*",
+    "PixelYourSite": "cpe:2.3:a:pixelyoursite:pixelyoursite:*:*:*:*:*:wordpress:*:*",
 }
 
 

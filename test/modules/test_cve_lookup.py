@@ -111,7 +111,7 @@ class CveLookupTest(ArtemisModuleTestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        self.karton.cache.flush()
+        self.karton.cache.redis.flushall()
         # cve_lookup consumes TaskType.WEBAPP, for which the framework runs a base-URL
         # reachability check before run(). That check issues its own http_requests.get, which
         # the NVD mock below would otherwise intercept; bypass it so each test exercises only

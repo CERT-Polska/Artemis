@@ -80,7 +80,7 @@ class ClassifierTest(ArtemisModuleTestCase):
         ]
 
         for entry in entries:
-            self.karton.cache.flush()
+            self.karton.cache.redis.flushall()
             task = Task({"type": TaskType.NEW}, payload={"data": entry.raw})
             results = self.run_task(task)
 

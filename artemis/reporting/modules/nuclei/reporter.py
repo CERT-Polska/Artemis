@@ -100,7 +100,7 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
 
     try:
         method, target, protocol = request.splitlines()[0].split(" ")
-        assert method in ["GET", "POST"], f"{command} is not 'GET'/'POST'"
+        assert method in ["GET", "POST"], f"{method} is not 'GET'/'POST'"
         assert target.startswith("http://") or target.startswith("https://") or target.startswith("/"), f"{target} should start with proto or /"
         assert protocol.startswith("HTTP/"), f"{protocol} should start with HTTP/"
     except IndexError:

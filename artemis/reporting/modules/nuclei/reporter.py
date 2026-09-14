@@ -99,9 +99,10 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
         return None
 
     try:
-        command, target = request.splitlines()[0].split(" ", 1)
-        assert command in ["GET", "POST"], f"{command} is not 'GET'/'POST'"
+        method, target, protocol = request.splitlines()[0].split(" ")
+        assert method in ["GET", "POST"], f"{command} is not 'GET'/'POST'"
         assert target.startswith("http://") or target.startswith("https://") or target.startswith("/"), f"{target} should start with proto or /"
+        assert protocol.startswith("HTTP/"), f"{protocol} should start with HTTP/"
     except IndexError:
         return None
 

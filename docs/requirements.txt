@@ -9,7 +9,7 @@ alabaster==1.0.0
 alembic==1.18.5
 annotated-doc==0.0.5
 annotated-types==0.8.0
-anyio==4.14.2
+anyio==4.15.1
 anytree==2.13.0
 argon2-cffi==25.1.0
 argon2-cffi-bindings==25.1.0

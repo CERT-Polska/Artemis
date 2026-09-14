@@ -36,27 +36,18 @@ _STOPWORDS = frozenset(
     }
 )
 
-
-# Components of a cpe:2.3 name are: cpe, 2.3, part, vendor, product, version, update,
-# edition, language, sw_edition, target_sw, target_hw, other.
-_VERSION_FIELD_INDEX = 5
-
 # A version has to look like one: a digit first, then only characters versions are made of.
 # ``*`` (ANY) and ``-`` (NA) are the two special values CPE 2.3 defines for a field, and are
 # accepted so that a name can also be reset to its versionless family.
 # Anchored with ``\Z``, because Python's ``$`` also matches before a trailing newline.
-_VERSION_RE = re.compile(r"^(?:[0-9][0-9A-Za-z.\-+]*|\*|-)\Z")
+_VERSION_RE = re.compile(r"(?:[0-9][0-9A-Za-z.+-]*|[*-])\Z")
 
 
 def with_version(cpe: str, version: str | None) -> str:
-    """Set the version field of a cpe:2.3 name to ``version``.
-
-    A name carrying ``*`` in the version slot denotes the product as a whole; setting that
-    slot narrows it to a single release, and setting it back to ``*`` widens it again.
-
-    The CPE comes back unchanged when the version is missing, doesn't look like a version,
-    or the name is too short to have a version field.
-    """
+    """Set the CPE 2.3 version field, leaving invalid inputs unchanged."""
+    # Components of a cpe:2.3 name are: cpe, 2.3, part, vendor, product, version, update,
+    # edition, language, sw_edition, target_sw, target_hw, other.
+    _VERSION_FIELD_INDEX = 5
     if not version or not _VERSION_RE.match(version):
         return cpe
     parts = split_cpe(cpe)

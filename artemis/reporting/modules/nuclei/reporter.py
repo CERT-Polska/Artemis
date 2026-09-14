@@ -100,7 +100,7 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
 
     try:
         command, target = request.splitlines()[0].split(" ", 1)
-        assert command == "curl", f"{command} is not 'curl'"
+        assert command in ["GET", "POST"], f"{command} is not 'GET'/'POST'"
         assert target.startswith("http://") or target.startswith("https://")
     except IndexError:
         return None

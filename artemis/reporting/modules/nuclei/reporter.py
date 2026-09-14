@@ -101,7 +101,9 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
     try:
         method, target, protocol = request.splitlines()[0].split(" ")
         assert method in ["GET", "POST"], f"{method} is not 'GET'/'POST'"
-        assert target.startswith("http://") or target.startswith("https://") or target.startswith("/"), f"{target} should start with proto or /"
+        assert (
+            target.startswith("http://") or target.startswith("https://") or target.startswith("/")
+        ), f"{target} should start with proto or /"
         assert protocol.startswith("HTTP/"), f"{protocol} should start with HTTP/"
     except IndexError:
         return None
@@ -262,6 +264,8 @@ class NucleiReporter(Reporter):
                     request_path, request_query = request_target
                     if request_path != matched_at_parsed.path:
                         path_query_fragment = request_path + (f"?{request_query}" if request_query else "")
+
+                print("BBBBB", vulnerability.get("request"), request_target, path_query_fragment)
 
                 result.append(
                     Report(

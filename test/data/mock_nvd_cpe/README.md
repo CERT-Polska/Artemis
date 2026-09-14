@@ -1,10 +1,11 @@
 # Mock NVD CPE dictionary
 
-A stand-in for the NVD CPE 2.0 dictionary, pointed at by `CPE_NVD_DIR` in the test container so that
-`artemis.cpe_tools.cpe_utils` answers lookups in the integration tests. Without it the tests run
-against an empty directory in CI - every lookup returns `None`, and an assertion that an asset
-carries a CPE passes without checking anything.
+A stand-in for the NVD CPE 2.0 dictionary, pointed at by `CPE_NVD_DIR` in the test container
+so that `artemis.cpe_tools.cpe_utils` answers lookups in the integration tests.
 
+In CI that directory would otherwise be empty: the real dictionary is downloaded at runtime
+and gitignored. Every lookup would return `None`, so a test asserting that an asset carries a
+CPE would pass whether the reporter set one or not.
 What is stored here are the raw feed chunks, not a ready-made index: the indices are built from them
 by `_build_indices()` on first use, so that code is covered too.
 

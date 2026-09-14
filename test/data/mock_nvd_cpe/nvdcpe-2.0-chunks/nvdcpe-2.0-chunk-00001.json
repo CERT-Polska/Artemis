@@ -1,0 +1,119 @@
+{
+  "products": [
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:wordpress:wordpress:-:*:*:*:*:*:*:*",
+        "cpeNameId": "D588E9C4-FB98-4082-A118-D779BF2C379F",
+        "lastModified": "2012-07-30T16:20:37.347",
+        "created": "2012-06-18T18:07:29.013",
+        "titles": [
+          {
+            "title": "WordPress",
+            "lang": "en"
+          }
+        ]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:wordpress:wordpress:5.9.3:*:*:*:*:*:*:*",
+        "cpeNameId": "FC517A7D-53F4-4B7A-ACEC-89B1DB69A719",
+        "lastModified": "2022-08-24T15:23:36.867",
+        "created": "2022-08-24T15:22:49.240",
+        "titles": [
+          {
+            "title": "WordPress 5.9.3",
+            "lang": "en"
+          }
+        ],
+        "refs": [
+          {
+            "ref": "https://github.com/WordPress/WordPress",
+            "type": "Version"
+          },
+          {
+            "ref": "https://wordpress.org/",
+            "type": "Vendor"
+          }
+        ]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:wordpress:wordpress:6.3.2:*:*:*:*:*:*:*",
+        "cpeNameId": "B4C1DFA4-BE0D-4275-9A10-134CF2B8C4B3",
+        "lastModified": "2023-10-16T14:06:41.290",
+        "created": "2023-10-16T14:06:41.290",
+        "titles": [
+          {
+            "title": "WordPress 6.3.2",
+            "lang": "en"
+          }
+        ],
+        "refs": [
+          {
+            "ref": "https://wordpress.org/download/releases/",
+            "type": "Version"
+          },
+          {
+            "ref": "https://github.com/WordPress/WordPress/tags",
+            "type": "Change Log"
+          }
+        ]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:automattic:akismet:-:*:*:*:*:wordpress:*:*",
+        "cpeNameId": "8AB1B288-D315-4F15-9ADD-A9669D6C905D",
+        "lastModified": "2019-08-29T17:08:14.627",
+        "created": "2019-08-29T17:08:14.627",
+        "titles": [
+          {
+            "title": "Automattic Akismet for WordPress",
+            "lang": "en"
+          }
+        ],
+        "refs": [
+          {
+            "ref": "https://wordpress.org/plugins/akismet/#developers",
+            "type": "Change Log"
+          },
+          {
+            "ref": "https://automattic.com/wordpress-plugins/",
+            "type": "Vendor"
+          }
+        ]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:automattic:akismet:4.1.2:*:*:*:*:wordpress:*:*",
+        "cpeNameId": "96DBFFEF-277F-48F4-A095-FE0BC2E485FB",
+        "lastModified": "2019-08-29T17:08:22.863",
+        "created": "2019-08-29T17:08:22.863",
+        "titles": [
+          {
+            "title": "Automattic Akismet 4.1.2 for WordPress",
+            "lang": "en"
+          }
+        ],
+        "refs": [
+          {
+            "ref": "https://automattic.com/wordpress-plugins/",
+            "type": "Vendor"
+          },
+          {
+            "ref": "https://wordpress.org/plugins/akismet/#developers",
+            "type": "Change Log"
+          }
+        ]
+      }
+    }
+  ]
+}

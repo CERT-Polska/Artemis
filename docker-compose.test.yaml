@@ -45,6 +45,11 @@ services:
       # HTTP path without hitting (and being throttled by) the live NVD API.
       CVE_LOOKUP_NVD_API_URL: http://test-mock-nvd.local/
       CVE_LOOKUP_NVD_REQUESTS_PER_SECOND: 100
+
+      # Point the CPE lookups at a small stand-in dictionary (mounted with the rest of ./test/), so that
+      # the reporters that name an asset's software have something to resolve against. Without it the
+      # directory is empty in CI, every lookup returns None and the assertions check nothing.
+      CPE_NVD_DIR: /opt/test/data/mock_nvd_cpe
     env_file: env.test
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
@@ -282,6 +287,11 @@ services:
     image: mysql:5.6
     environment:
       MYSQL_ROOT_PASSWORD: example
+
+  test-wordpress-with-plugins:
+    image: nginx:latest
+    volumes:
+      - ./test/data/wordpress_with_plugins/:/usr/share/nginx/html/
 
   test-service-with-directory-index:
     image: nginx:latest

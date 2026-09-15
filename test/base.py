@@ -113,6 +113,7 @@ class BaseReportingTest(ArtemisModuleTestCase):
             "payload": {
                 "last_domain": host,
                 "host": host,
+                "port": port,
             },
             "payload_persistent": {
                 "original_domain": host,
@@ -145,13 +146,13 @@ class BaseReportingTest(ArtemisModuleTestCase):
             "result": call.kwargs["data"],
         }
 
-    def task_result_to_message(self, data: Dict[str, Any]) -> str:
+    def task_result_to_message(self, data: Dict[str, Any], custom_template_arguments: dict[str, Any]={}) -> str:
         reports = reports_from_task_result(data, Language.en_US)  # type: ignore
         message_template = self.generate_message_template()
         return message_template.render(
             {
                 "data": {
-                    "custom_template_arguments": {},
+                    "custom_template_arguments": custom_template_arguments,
                     "contains_type": set([report.report_type for report in reports]),
                     "reports": reports,
                 }

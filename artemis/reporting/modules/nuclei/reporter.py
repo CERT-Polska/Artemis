@@ -265,7 +265,7 @@ class NucleiReporter(Reporter):
                     if request_path != matched_at_parsed.path:
                         path_query_fragment = request_path + (f"?{request_query}" if request_query else "")
 
-                print("BBBBB", vulnerability.get("request"), request_target, path_query_fragment)
+                print("BBBBB", target, request_target, path_query_fragment)
 
                 result.append(
                     Report(

@@ -119,5 +119,5 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
             self.assertEqual(pqf_parsed.path, "/")
             self.assertEqual(pqf_parsed.query, matched_at_parsed.query)
 
-        message = self.task_result_to_message(data)
+        message = self.task_result_to_message(data, custom_template_arguments={"always_show_full_poc": True})
         print("AAAAAA", message)

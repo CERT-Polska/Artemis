@@ -32,11 +32,10 @@ _INDEX_KINDS = {TITLE: INDEX_TITLE_FILENAME, PLUGIN: PLUGIN_INDEX_FILENAME, URL:
 # Position of the version field in a cpe:2.3 name.
 VERSION_FIELD_INDEX = 5
 
-# A version has to look like one: a digit first, then only the characters a version is made of.
-# ``*`` (ANY) and ``-`` (NA) are the two special values CPE 2.3 defines for a field, and are
-# accepted so that a name can also be reset to its versionless family.
-# Anchored with ``\Z``, because Python's ``$`` also matches before a trailing newline.
-VERSION_RE = re.compile(r"(?:[0-9][0-9A-Za-z.+-]*|[*-])\Z")
+# A version starts with a digit; ``*`` (ANY) and ``-`` (NA) are the field's two special values,
+# accepted so a name can be reset to its versionless family. ``\Z`` rather than ``$``, which in
+# Python also matches before a trailing newline.
+VERSION_RE = re.compile(r"(?:[0-9][\w.+-]*|[*-])\Z")
 
 # Stored in the title index instead of a CPE when a key is claimed by more than one
 # vendor:product family. Not a valid CPE, so it cannot collide with a real value.

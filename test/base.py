@@ -146,7 +146,7 @@ class BaseReportingTest(ArtemisModuleTestCase):
             "result": call.kwargs["data"],
         }
 
-    def task_result_to_message(self, data: Dict[str, Any], custom_template_arguments: dict[str, Any]={}) -> str:
+    def task_result_to_message(self, data: Dict[str, Any], custom_template_arguments: dict[str, Any] = {}) -> str:
         reports = reports_from_task_result(data, Language.en_US)  # type: ignore
         message_template = self.generate_message_template()
         return message_template.render(

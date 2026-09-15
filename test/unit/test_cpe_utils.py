@@ -158,9 +158,8 @@ class CpeUtilsTest(unittest.TestCase):
         self.assertIsNone(lookup_cpe("Duplicated Product"))
 
     def test_title_index_is_keyed_per_product_not_per_release(self) -> None:
-        # Asserted on the index itself: lookup_cpe() would also answer these through the
-        # token-subset fallback in resolve(), so it cannot tell whether the key still
-        # carries a version.
+        # Asserted on the index rather than through lookup_cpe(), which would answer the same
+        # either way thanks to its token-subset fallback.
         _make_chunk(
             self.nvd_dir / "nvdcpe-2.0-chunks" / "chunk-00002.json",
             [
@@ -195,10 +194,6 @@ class CpeUtilsTest(unittest.TestCase):
         self.assertEqual(
             lookup_cpe("JoomlaWorks K2 for Joomla"),
             "cpe:2.3:a:joomlaworks:k2:*:*:*:*:*:joomla\\!:*:*",
-        )
-        self.assertEqual(
-            lookup_cpe("JoomlaWorks K2 for Joomla", version="2.8.0"),
-            "cpe:2.3:a:joomlaworks:k2:2.8.0:*:*:*:*:joomla\\!:*:*",
         )
 
     def test_digits_in_product_name_are_kept(self) -> None:

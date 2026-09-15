@@ -32,7 +32,7 @@ _INDEX_KINDS = {TITLE: INDEX_TITLE_FILENAME, PLUGIN: PLUGIN_INDEX_FILENAME, URL:
 # Position of the version field in a cpe:2.3 name.
 VERSION_FIELD_INDEX = 5
 
-# A version has to look like one: a digit first, then only characters versions are made of.
+# A version has to look like one: a digit first, then only the characters a version is made of.
 # ``*`` (ANY) and ``-`` (NA) are the two special values CPE 2.3 defines for a field, and are
 # accepted so that a name can also be reset to its versionless family.
 # Anchored with ``\Z``, because Python's ``$`` also matches before a trailing newline.

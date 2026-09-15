@@ -1,3 +1,5 @@
+from http import HTTPMethod
+
 import collections
 import json
 import os
@@ -99,14 +101,15 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
         return None
 
     try:
-        method, target, protocol = request.splitlines()[0].split(" ")
-        assert method in ["GET", "POST"], f"{method} is not 'GET'/'POST'"
-        assert (
-            target.startswith("http://") or target.startswith("https://") or target.startswith("/")
-        ), f"{target} should start with proto or /"
-        assert protocol.startswith("HTTP/"), f"{protocol} should start with HTTP/"
+        method, target, protocol = request.splitlines()[0].split(" ", 3)
     except IndexError:
         return None
+
+    assert method in [method.value for method in HTTPMethod], f"{method} is not 'GET'/'POST'"
+    assert (
+        target.startswith("http://") or target.startswith("https://") or target.startswith("/")
+    ), f"{target} should start with proto or /"
+    assert protocol.startswith("HTTP/"), f"{protocol} should start with HTTP/"
 
     if target == "*":
         return None
@@ -284,7 +287,6 @@ class NucleiReporter(Reporter):
                             "template_name": template,
                             "original_template_name": original_template_name,
                             "curl_command": vulnerability.get("curl-command", None),
-                            "request": vulnerability.get("request", None),
                         },
                         timestamp=task_result["created_at"],
                     )

@@ -31,6 +31,7 @@ services:
 
       SQL_INJECTION_STOP_ON_FIRST_MATCH: "false"
       ORM_INJECTION_STOP_ON_FIRST_MATCH: "false"
+      NOSQL_INJECTION_STOP_ON_FIRST_MATCH: "false"
 
       NUCLEI_INTERACTSH_SERVER: https://interactsh.lab.cert.pl
 
@@ -80,6 +81,10 @@ services:
     image: mysql:5.6
     environment:
       MYSQL_ROOT_PASSWORD: root
+
+  nosql-injection-test-mongo:
+    image: mongo
+    restart: always
 
   test-dast-vuln-app:
     build:
@@ -368,6 +373,16 @@ services:
       context: test/data/orm_injection
       dockerfile: Dockerfile
     restart: on-failure
+
+  test-express-with-nosql-injection:
+    build:
+      context: test/data/nosql_injection
+      dockerfile: Dockerfile
+    restart: on-failure
+    networks:
+      default:
+        aliases:
+          - test-express-with-nosql-injection.local
 
   test-apache-with-sql-injection-postgres:
     build:

@@ -120,4 +120,6 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
             self.assertEqual(pqf_parsed.query, matched_at_parsed.query)
 
         message = self.task_result_to_message(data, custom_template_arguments={"always_show_full_poc": True})
-        print("AAAAAA", message)
+        self.assertIn(
+            "http://test-redirect-reflect-app:5000 under /?uname=%27%3E%22%3Csvg", " ".join(message.split())
+        )

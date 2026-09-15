@@ -265,8 +265,6 @@ class NucleiReporter(Reporter):
                     if request_path != matched_at_parsed.path:
                         path_query_fragment = request_path + (f"?{request_query}" if request_query else "")
 
-                print("BBBBB", target, request_target, path_query_fragment)
-
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),

@@ -104,7 +104,7 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
     except IndexError:
         return None
 
-    assert method in [method.value for method in HTTPMethod], f"{method} is not 'GET'/'POST'"
+    assert method in [method.value for method in HTTPMethod], f"{method} is not a standard HTTP verb"
     assert (
         target.startswith("http://") or target.startswith("https://") or target.startswith("/")
     ), f"{target} should start with proto or /"

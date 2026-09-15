@@ -261,6 +261,8 @@ class NucleiReporter(Reporter):
                     + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else "")
                 )
 
+                # This is to support the case of e.g. XSS detected after redirect. The request contains
+                # the final path.
                 request_target = extract_request_target(get_host_from_url(matched_at), vulnerability.get("request"))
                 if request_target is not None:
                     request_path, request_query = request_target

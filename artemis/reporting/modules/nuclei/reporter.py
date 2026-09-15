@@ -2,6 +2,7 @@ import collections
 import json
 import os
 import urllib.parse
+from http import HTTPMethod
 from typing import Any, Callable, Counter, Dict, List, Optional
 
 from artemis.config import Config
@@ -96,6 +97,37 @@ def _get_cpe(vulnerability: Dict[str, Any]) -> Optional[str]:
         return None
 
     return extract_cpe(classification.get("cpe", None))
+
+
+def extract_request_target(host: str, request: str | None) -> tuple[str, str] | None:
+    """Extract path and query from the request-line of a raw HTTP request."""
+    if not isinstance(request, str):
+        return None
+
+    try:
+        method, target, protocol = request.splitlines()[0].split(" ", 3)
+    except IndexError:
+        return None
+
+    assert method in [method.value for method in HTTPMethod], f"{method} is not a standard HTTP verb"
+    assert (
+        target.startswith("http://") or target.startswith("https://") or target.startswith("/")
+    ), f"{target} should start with proto or /"
+    assert protocol.startswith("HTTP/"), f"{protocol} should start with HTTP/"
+
+    if target == "*":
+        return None
+
+    if target.startswith("/"):
+        path, _, query = target.partition("?")
+        return path, query
+
+    parsed = urllib.parse.urlsplit(target)
+    if not parsed.path:
+        return None
+
+    assert get_host_from_url(target) == host
+    return parsed.path, parsed.query
 
 
 class NucleiReporter(Reporter):
@@ -232,6 +264,20 @@ class NucleiReporter(Reporter):
 
                 additional_references: list[str] = ADDITIONAL_REFERENCES.get((language, original_template_name), [])
 
+                path_query_fragment = (
+                    matched_at_parsed.path
+                    + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
+                    + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else "")
+                )
+
+                # This is to support the case of e.g. XSS detected after redirect. The request contains
+                # the final path.
+                request_target = extract_request_target(get_host_from_url(matched_at), vulnerability.get("request"))
+                if request_target is not None:
+                    request_path, request_query = request_target
+                    if request_path != matched_at_parsed.path:
+                        path_query_fragment = request_path + (f"?{request_query}" if request_query else "")
+
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -240,9 +286,7 @@ class NucleiReporter(Reporter):
                         additional_data={
                             "is_url_without_query_fragment": _is_url_without_query_fragment(matched_at),
                             "hostname": matched_at_parsed.hostname,
-                            "path_query_fragment": matched_at_parsed.path
-                            + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
-                            + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else ""),
+                            "path_query_fragment": path_query_fragment,
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
                                 template, description, language

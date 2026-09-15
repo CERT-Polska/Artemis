@@ -92,6 +92,17 @@ services:
         aliases:
           - test-dast-vuln-app.local
 
+  test-redirect-reflect-app:
+    build:
+      context: .
+      dockerfile: test/data/redirect_reflect_app/Dockerfile
+    volumes:
+      - ./test/data/redirect_reflect_app/:/app/
+    networks:
+      default:
+        aliases:
+          - test-redirect-reflect-app.local
+
   test-flask-vulnerable-api:
     build:
       context: .

@@ -6,6 +6,11 @@ from typing import Any
 from unittest.mock import patch
 
 from artemis.config import Config
+from artemis.cpe_tools.cpe_main_process import (
+    ensure_title_index,
+    get_nvd_dir,
+    with_version,
+)
 from artemis.cpe_tools.cpe_utils import (
     lookup_cpe,
     lookup_cpe_by_plugin_slug,
@@ -32,6 +37,62 @@ def _product(
     if deprecated:
         cpe["deprecated"] = True
     return {"cpe": cpe}
+
+
+class WithVersionTest(unittest.TestCase):
+    """
+    A CPE keeps ``*`` in the version slot until someone sets it.
+    """
+
+    def test_sets_wildcard_slot(self) -> None:
+        self.assertEqual(
+            with_version("cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*", "2.4.53"),
+            "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*",
+        )
+
+    def test_replaces_a_slot_that_already_holds_a_version(self) -> None:
+        self.assertEqual(
+            with_version("cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*", "2.4.54"),
+            "cpe:2.3:a:apache:http_server:2.4.54:*:*:*:*:*:*:*",
+        )
+
+    def test_special_values_are_accepted(self) -> None:
+        # ``*`` (ANY) and ``-`` (NA) are CPE 2.3 field values, and resetting a dictionary
+        # CPE to its versionless family depends on them passing validation.
+        cpe = "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*"
+        self.assertEqual(with_version(cpe, "*"), "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*")
+        self.assertEqual(with_version(cpe, "-"), "cpe:2.3:a:apache:http_server:-:*:*:*:*:*:*:*")
+
+    def test_no_version_returns_unchanged(self) -> None:
+        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
+        self.assertEqual(with_version(cpe, None), cpe)
+        self.assertEqual(with_version(cpe, ""), cpe)
+
+    def test_invalid_version_leaves_the_slot_alone(self) -> None:
+        # A non-version value must not be injected into the CPE; the slot is left as it was
+        # so the caller can tell nothing was set.
+        cpe = "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*"
+        for version in ("latest", "v2.4", "stable", "1.0:extra", " 1.0", "1.0\n"):
+            with self.subTest(version=version):
+                self.assertEqual(with_version(cpe, version), cpe)
+
+    def test_short_cpe_returns_unchanged(self) -> None:
+        # Fewer than six components means there is no version slot to set.
+        self.assertEqual(with_version("garbage", "1.0"), "garbage")
+        self.assertEqual(with_version("cpe:2.3:a:apache:http_server", "1.0"), "cpe:2.3:a:apache:http_server")
+
+    def test_escaped_colon_in_product_does_not_shift_the_slot(self) -> None:
+        # CPE 2.3 escapes a colon inside a field, so a naive split would land on the
+        # product's own text instead of the version.
+        self.assertEqual(
+            with_version("cpe:2.3:a:cgiirc:cgi\\:irc:*:*:*:*:*:*:*:*", "0.5.7"),
+            "cpe:2.3:a:cgiirc:cgi\\:irc:0.5.7:*:*:*:*:*:*:*",
+        )
+        # ... and the same name with a version already in place is replaced, not appended to.
+        self.assertEqual(
+            with_version("cpe:2.3:a:cgiirc:cgi\\:irc:0.5.7:*:*:*:*:*:*:*", "0.5.9"),
+            "cpe:2.3:a:cgiirc:cgi\\:irc:0.5.9:*:*:*:*:*:*:*",
+        )
 
 
 class CpeUtilsTest(unittest.TestCase):
@@ -92,11 +153,107 @@ class CpeUtilsTest(unittest.TestCase):
         # "Widget" matches two different vendor:product families.
         self.assertIsNone(lookup_cpe("Widget"))
 
-    def test_duplicated_title_picks_first(self) -> None:
-        # The same title shared by two families resolves to the first one seen.
+    def test_duplicated_title_returns_none(self) -> None:
+        # A title claimed by two families is ambiguous, so the lookup reports no match.
+        self.assertIsNone(lookup_cpe("Duplicated Product"))
+
+    def test_title_index_is_keyed_per_product_not_per_release(self) -> None:
+        # Asserted on the index rather than through lookup_cpe(), which would answer the same
+        # either way thanks to its token-subset fallback.
+        _make_chunk(
+            self.nvd_dir / "nvdcpe-2.0-chunks" / "chunk-00002.json",
+            [
+                _product("cpe:2.3:a:acme:gizmo:1.0:*:*:*:*:*:*:*", "Acme Gizmo 1.0"),
+                _product("cpe:2.3:a:acme:gizmo:2.4.1:*:*:*:*:*:*:*", "Acme Gizmo 2.4.1"),
+            ],
+        )
+        index = ensure_title_index(get_nvd_dir())
+        # Two releases, one key, and it is the title with the version cut off.
+        self.assertEqual([key for key in index if key.startswith("acme gizmo")], ["acme gizmo"])
+        self.assertNotIn("acme gizmo 1 0", index)
+        self.assertNotIn("acme gizmo 2 4 1", index)
+        # The value is the family CPE, with the version slot wildcarded.
+        self.assertEqual(index["acme gizmo"], "cpe:2.3:a:acme:gizmo:*:*:*:*:*:*:*:*")
+
+    def test_version_stripped_from_title_key(self) -> None:
+        _make_chunk(
+            self.nvd_dir / "nvdcpe-2.0-chunks" / "chunk-00002.json",
+            [
+                _product(
+                    "cpe:2.3:a:joomlaworks:k2:2.8.0:*:*:*:*:joomla\\!:*:*",
+                    "JoomlaWorks K2 2.8.0 for Joomla!",
+                ),
+                _product(
+                    "cpe:2.3:a:joomlaworks:k2:2.9.0:*:*:*:*:joomla\\!:*:*",
+                    "JoomlaWorks K2 2.9.0 for Joomla!",
+                ),
+            ],
+        )
+        # Both releases collapse onto one key holding the version-wildcarded CPE
+        # (target_sw is part of the family and is kept).
         self.assertEqual(
-            lookup_cpe("Duplicated Product"),
-            "cpe:2.3:a:dupx:product_x:*:*:*:*:*:*:*:*",
+            lookup_cpe("JoomlaWorks K2 for Joomla"),
+            "cpe:2.3:a:joomlaworks:k2:*:*:*:*:*:joomla\\!:*:*",
+        )
+
+    def test_digits_in_product_name_are_kept(self) -> None:
+        # The version comes from the CPE, so digits belonging to the name survive.
+        _make_chunk(
+            self.nvd_dir / "nvdcpe-2.0-chunks" / "chunk-00002.json",
+            [
+                _product(
+                    "cpe:2.3:o:microsoft:windows_server_2022:10.0.20348:*:*:*:*:*:*:*",
+                    "Microsoft Windows Server 2022 10.0.20348",
+                ),
+            ],
+        )
+        self.assertEqual(
+            lookup_cpe("Microsoft Windows Server 2022"),
+            "cpe:2.3:o:microsoft:windows_server_2022:*:*:*:*:*:*:*:*",
+        )
+
+    def test_titles_differing_only_by_version_do_not_become_ambiguous(self) -> None:
+        # Same family, many releases: still a single unambiguous answer.
+        _make_chunk(
+            self.nvd_dir / "nvdcpe-2.0-chunks" / "chunk-00002.json",
+            [
+                _product("cpe:2.3:a:acme:gadget:1.0:*:*:*:*:*:*:*", "Acme Gadget 1.0"),
+                _product("cpe:2.3:a:acme:gadget:2.0:*:*:*:*:*:*:*", "Acme Gadget 2.0"),
+            ],
+        )
+        self.assertEqual(
+            lookup_cpe("Acme Gadget"),
+            "cpe:2.3:a:acme:gadget:*:*:*:*:*:*:*:*",
+        )
+
+    def test_version_stripping_can_make_a_title_ambiguous(self) -> None:
+        # "Google Chrome 1.0" and "Google Chrome 1.0" as :a: and :o: share a key once the
+        # version is cut off; the lookup reports no match rather than picking one.
+        _make_chunk(
+            self.nvd_dir / "nvdcpe-2.0-chunks" / "chunk-00002.json",
+            [
+                _product("cpe:2.3:a:google:chrome:1.0:*:*:*:*:*:*:*", "Google Chrome 1.0"),
+                _product("cpe:2.3:o:google:chrome:1.0:*:*:*:*:*:*:*", "Google Chrome 1.0"),
+            ],
+        )
+        self.assertIsNone(lookup_cpe("Google Chrome"))
+        # And a query that is only a subset of that title is no less ambiguous.
+        self.assertIsNone(lookup_cpe("Chrome"))
+
+    def test_title_naming_a_product_outranks_a_trimmed_one(self) -> None:
+        # NVD names the product outright in the versionless entry, so that entry wins over
+        # the key left over after trimming a release of a different family.
+        _make_chunk(
+            self.nvd_dir / "nvdcpe-2.0-chunks" / "chunk-00002.json",
+            [
+                _product("cpe:2.3:a:acme:relay:1.0:*:*:*:*:*:*:*", "Acme Relay 1.0"),
+                _product("cpe:2.3:h:acme:relay:-:*:*:*:*:*:*:*", "Acme Relay"),
+                _product("cpe:2.3:o:acme:relay_firmware:2.0:*:*:*:*:*:*:*", "Acme Relay 2.0"),
+            ],
+        )
+        self.assertEqual(
+            lookup_cpe("Acme Relay"),
+            "cpe:2.3:h:acme:relay:*:*:*:*:*:*:*:*",
         )
 
     def test_unknown_product_returns_none(self) -> None:

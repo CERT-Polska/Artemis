@@ -8,8 +8,7 @@ from karton.core import Task
 from artemis import http_requests, load_risk_class
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
-from artemis.cpe_tools.cpe_main_process import split_cpe
-from artemis.cpe_tools.cpe_utils import with_version
+from artemis.cpe_tools.cpe_main_process import split_cpe, with_version
 from artemis.module_base import ArtemisBase
 
 NVD_RESPONSE_MAX_BYTES = 5 * 1024 * 1024

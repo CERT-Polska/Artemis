@@ -1,9 +1,8 @@
-from http import HTTPMethod
-
 import collections
 import json
 import os
 import urllib.parse
+from http import HTTPMethod
 from typing import Any, Callable, Counter, Dict, List, Optional
 
 from artemis.config import Config

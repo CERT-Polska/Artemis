@@ -9,7 +9,7 @@ alabaster==1.0.0
 alembic==1.18.5
 annotated-doc==0.0.5
 annotated-types==0.8.0
-anyio==4.14.2
+anyio==4.15.1
 anytree==2.13.0
 argon2-cffi==25.1.0
 argon2-cffi-bindings==25.1.0
@@ -27,7 +27,7 @@ cffi==2.1.1
 chardet==7.4.3
 charset-normalizer==3.5.1
 checkdmarc==5.17.3
-click==8.4.2
+click==8.5.0
 click-plugins==1.1.1.2
 colorama==0.4.6
 coverage==7.16.0
@@ -47,7 +47,7 @@ frozenlist==1.8.0
 gmpy2==2.3.1
 greenlet==3.5.5
 h11==0.16.0
-idna==3.18
+idna==3.19
 imagesize==2.0.1
 importlib-resources==7.1.0
 invoke==3.0.3
@@ -83,7 +83,7 @@ prometheus-client==0.26.0
 propcache==0.5.2
 psutil==7.2.2
 psycopg2-binary==2.9.12
-publicsuffixlist==1.0.2.20260830
+publicsuffixlist==1.0.2.20260906
 py==1.11.0
 pycparser==3.0
 pycryptodome==3.23.0
@@ -134,7 +134,7 @@ sqlalchemy==2.0.52
 starlette==1.6.0
 termcolor==3.3.0
 timeout-decorator==0.5.0
-tldextract==5.3.1
+tldextract==5.3.2
 toml==0.10.2
 tqdm==4.70.0
 typer==0.27.2

@@ -160,12 +160,13 @@ def _record_title(titles: dict[str, str], named: set[str], key: str, cpe: str, n
     """Add one title claim to the title index, resolving collisions between families."""
     previous = titles.get(key)
     previously_named = key in named
+    loses_to_previous = previously_named and not names_a_product
     if names_a_product:
         named.add(key)
 
     if previous is None or (names_a_product and not previously_named):
         titles[key] = cpe
-    elif names_a_product is previously_named and previous != AMBIGUOUS_TITLE and family(previous) != family(cpe):
+    elif not loses_to_previous and previous != AMBIGUOUS_TITLE and family(previous) != family(cpe):
         titles[key] = AMBIGUOUS_TITLE
 
 

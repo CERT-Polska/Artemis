@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 from artemis.cpe_tools.cpe_main_process import (
+    AMBIGUOUS_TITLE,
     ensure_plugin_index,
     ensure_title_index,
     ensure_url_index,
@@ -9,7 +10,7 @@ from artemis.cpe_tools.cpe_main_process import (
     get_nvd_dir,
     normalize,
     normalize_url,
-    split_cpe,
+    with_version,
 )
 
 logger = logging.getLogger(__name__)
@@ -36,19 +37,6 @@ _STOPWORDS = frozenset(
 )
 
 
-def with_version(cpe: str, version: str) -> str:
-    # Components are: cpe, 2.3, part, vendor, product, version, update, edition,
-    # language, sw_edition, target_sw, target_hw, other. Replace the version field
-    # (index 5) and re-join;
-    VERSION_FIELD_INDEX = 5
-
-    parts = split_cpe(cpe)
-    if len(parts) <= VERSION_FIELD_INDEX:
-        return cpe
-    parts[VERSION_FIELD_INDEX] = version
-    return ":".join(parts)
-
-
 def resolve(nvd_dir: Path, normalized: str) -> str | None:
     def _tokens(normalized: str) -> list[str]:
         return [t for t in normalized.split() if len(t) > 1 and t not in _STOPWORDS]
@@ -57,7 +45,7 @@ def resolve(nvd_dir: Path, normalized: str) -> str | None:
 
     cpe = index.get(normalized)
     if cpe is not None:
-        return with_version(cpe, "*")
+        return None if cpe == AMBIGUOUS_TITLE else cpe
 
     tokens = _tokens(normalized)
     if not tokens:
@@ -67,9 +55,11 @@ def resolve(nvd_dir: Path, normalized: str) -> str | None:
     candidates: dict[str, str] = {}
     for title, cpe in index.items():
         if token_set.issubset(title.split()):
+            if cpe == AMBIGUOUS_TITLE:
+                return None
             candidates.setdefault(family(cpe), cpe)
 
-    return with_version(next(iter(candidates.values())), "*") if len(candidates) == 1 else None
+    return next(iter(candidates.values())) if len(candidates) == 1 else None
 
 
 def lookup_cpe(name: str, version: str | None = None) -> str | None:
@@ -87,7 +77,7 @@ def lookup_cpe(name: str, version: str | None = None) -> str | None:
     family_cpe = resolve(nvd_dir, normalized)
     if family_cpe is None:
         return None
-    return with_version(family_cpe, version) if version else family_cpe
+    return with_version(family_cpe, version)
 
 
 def lookup_cpe_by_plugin_slug(slug: str, cms: str, version: str | None = None) -> str | None:
@@ -104,7 +94,8 @@ def lookup_cpe_by_plugin_slug(slug: str, cms: str, version: str | None = None) -
     cpe = plugins.get(f"{cms}:{slug.strip().lower()}")
     if cpe is None:
         return None
-    return with_version(cpe, version) if version else with_version(cpe, "*")
+    family = with_version(cpe, "*")
+    return with_version(family, version)
 
 
 def lookup_cpe_by_url(url: str, version: str | None = None) -> str | None:
@@ -126,4 +117,5 @@ def lookup_cpe_by_url(url: str, version: str | None = None) -> str | None:
     cpe = urls.get(key)
     if cpe is None:
         return None
-    return with_version(cpe, version) if version else with_version(cpe, "*")
+    family = with_version(cpe, "*")
+    return with_version(family, version)

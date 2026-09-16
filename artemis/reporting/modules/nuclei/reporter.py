@@ -26,10 +26,9 @@ from artemis.reporting.utils import (
     get_target_url,
     get_top_level_target,
 )
-from artemis.utils import get_host_from_url, build_logger
+from artemis.utils import build_logger, get_host_from_url
 
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
-
 
 logger = build_logger(__name__)
 
@@ -114,9 +113,15 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
         logger.error("Unable to extract request URL for: %s", request)
         return None
 
+    if target.startswith("sip:"):
+        return None
+
     assert method in [method.value for method in HTTPMethod], f"{method} is not a standard HTTP verb"
     assert (
-        target.startswith("http://") or target.startswith("https://") or target.startswith("/")
+        target.startswith("http://")
+        or target.startswith("https://")
+        or target.startswith("/")
+        or target.startswith("./")
     ), f"{target} should start with proto or /"
     assert protocol.startswith("HTTP/"), f"{protocol} should start with HTTP/"
 

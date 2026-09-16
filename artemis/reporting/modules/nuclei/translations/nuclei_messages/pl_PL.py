@@ -997,7 +997,9 @@ TRANSLATIONS = {
     "Parallels H-Sphere 3.0.0 P9 and 3.1 P1 contains multiple cross-site scripting vulnerabilities in login.php in webshell4. An attacker can inject arbitrary web script or HTML via the err, errorcode, and login parameters, thus allowing theft of cookie-based authentication credentials and launch of other attacks.": "Parallels H-Sphere 3.0.0 P9 i 3.1 P1 zawiera podatność "
     + REFLECTED_XSS_DESCRIPTION
     + UPDATE_HINT,
+    "CargoCollective takeover was detected.": "Wykryto domenę kierującą do serwisu CargoCollective, ale strona docelowa nie istnieje. Atakujący może zarejestrować taką stronę i serwować tam swoje treści.",
     "WP Go Maps WordPress plugin < 10.0.10 contains an information disclosure vulnerability caused by improper enforcement of marker approval filter in admin-ajax fallback for datatables route, letting unauthenticated visitors retrieve unapproved marker records.": "Wtyczka WordPress o nazwie WP Go Maps w wersji poniżej 10.0.10 zawiera podatność o identyfikatorze CVE-2026-8385 umożliwiającą atakującemu odczyt niezatwierdzonych znaczników.",
+    "Deltek Maconomy 2.2.5 is prone to local file inclusion via absolute path traversal in the WS.macx1.W_MCS/ PATH_INFO, as demonstrated by a cgi-bin/Maconomy/MaconomyWS.macx1.W_MCS/etc/passwd URI.": "Wykryto, że system Deltek Maconomy w wersji 2.2.5 zawiera podatność Local File Inclusion o identyfikatorze CVE-2019-12314, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
     "Directory traversal vulnerability in the Helpdesk Pro plugin before 1.4.0 for Joomla! allows remote attackers to read arbitrary files via a .. (dot dot) in the filename parameter in a ticket.download_attachment task.": "Wykryto, że wtyczka Helpdesk Pro dla systemu Joomla! w wersji poniżej 1.4.0 zawiera podatność Directory Traversal o identyfikatorze CVE-2015-4074, umożliwiającą atakującemu odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "Copyparty is a portable file server. Versions prior to 1.8.2 are subject to a path traversal vulnerability detected in the `.cpr` subfolder. The Path Traversal attack technique allows an attacker access to files, directories, and commands that reside outside the web document root directory. This issue has been addressed in commit `043e3c7d` which has been included in release 1.8.2. Users are advised to upgrade. There are no known workarounds for this vulnerability.": "Wykryto, że system Copyparty w wersji poniżej 1.8.2 zawiera podatność Directory Traversal o identyfikatorze CVE-2023-37474, umożliwiającą atakującemu odczyt dowolnych plików z serwera.",
@@ -2924,4 +2926,6 @@ TRANSLATIONS = {
     "SigNoz open-source observability platform web interface was detected.": "Wykryto panel SigNoz.",
     "Cyberoam UTM firewall login panel detected.": "Wykryto panel logowania do Cyberoam UTM.",
     "Couchbase Server administrative console was discovered.": "Wykryto panel administracyjny Couchbase Server.",
+    "Kestra login interface was discovered.": "Wykryto panel logowania Kestra.",
+    "Netgate pfSense Plus firewall login panel detected.": "Wykryto panel logowania Netgate pfSense Plus.",
 }

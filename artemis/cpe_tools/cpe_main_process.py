@@ -165,7 +165,7 @@ def _record_title(titles: dict[str, str], named: set[str], key: str, cpe: str, n
 
     if previous is None or (names_a_product and not previously_named):
         titles[key] = cpe
-    elif names_a_product == previously_named and previous != AMBIGUOUS_TITLE and family(previous) != family(cpe):
+    elif names_a_product is previously_named and previous != AMBIGUOUS_TITLE and family(previous) != family(cpe):
         titles[key] = AMBIGUOUS_TITLE
 
 

@@ -261,6 +261,11 @@ services:
   test-smtp-server:
     hostname: test-smtp-server.artemis
     image: bytemark/smtp
+    networks:
+      default:
+        # The IP address must be from a public range, as the mailgoose library refuses
+        # to test private IP addresses (which is good).
+        ipv4_address: 1.2.3.4
 
   test-nginx:
     image: nginx:latest
@@ -428,3 +433,9 @@ services:
 
 volumes:
   data-test:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 1.2.3.0/24

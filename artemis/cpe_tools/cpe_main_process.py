@@ -157,23 +157,16 @@ def _iter_entries(chunks_dir: Path) -> Iterator[tuple[str, str, list[str]]]:
 
 
 def _record_title(titles: dict[str, str], named: set[str], key: str, cpe: str, names_a_product: bool) -> None:
-    """Add one title claim to the title index, resolving collisions between families.
-
-    Cutting the version off merges the releases of a product, which is the point, but it
-    also merges products that differ only by version; a key several families claim is
-    marked ambiguous rather than given to whichever chunk sorted first. Claims are
-    ranked, though: an untrimmed title is a name NVD published, a trimmed key is our own
-    inference, so a full title outranks every derived one and only equals can collide.
-    """
+    """Add one title claim to the title index, resolving collisions between families."""
     previous = titles.get(key)
-    outranks = names_a_product and key not in named
-    outranked = not names_a_product and key in named
-    if previous is None or outranks:
-        titles[key] = cpe
-    elif not outranked and previous != AMBIGUOUS_TITLE and family(previous) != family(cpe):
-        titles[key] = AMBIGUOUS_TITLE
+    previously_named = key in named
     if names_a_product:
         named.add(key)
+
+    if previous is None or (names_a_product and not previously_named):
+        titles[key] = cpe
+    elif names_a_product == previously_named and previous != AMBIGUOUS_TITLE and family(previous) != family(cpe):
+        titles[key] = AMBIGUOUS_TITLE
 
 
 def _build_indices(chunks_dir: Path) -> dict[str, dict[str, str]]:

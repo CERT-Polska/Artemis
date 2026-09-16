@@ -5,6 +5,13 @@ x-artemis-build:
      dockerfile: docker/Dockerfile
 
 services:
+  test-smtp-server:
+    networks:
+      default:
+        # The IP address must be from a public range, as the mailgoose library refuses
+        # to test private IP addresses (which is good).
+        ipv4_address: 1.2.3.4
+
   web:
     env_file: env.test
     environment:
@@ -61,3 +68,9 @@ services:
   karton-system:
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 1.2.3.0/24

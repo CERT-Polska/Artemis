@@ -26,7 +26,7 @@ certifi==2026.7.22
 cffi==2.1.1
 chardet==7.4.3
 charset-normalizer==3.5.1
-checkdmarc==5.17.3
+checkdmarc==6.0.1
 click==8.5.0
 click-plugins==1.1.1.2
 colorama==0.4.6

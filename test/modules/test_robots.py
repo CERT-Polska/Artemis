@@ -1,5 +1,8 @@
+import logging
+import unittest
 from test.base import ArtemisModuleTestCase
 from typing import NamedTuple
+from unittest.mock import MagicMock
 
 from karton.core import Task
 
@@ -56,3 +59,42 @@ class RobotsTest(ArtemisModuleTestCase):
                 [path["url"] for path in call.kwargs["data"]["result"]["found_urls"]],
                 ["http://test-robots-service:80/secret-url/"],
             )
+
+
+class RobotsParserTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.scanner = RobotsScanner.__new__(RobotsScanner)
+        self.scanner.log = MagicMock(spec=logging.Logger)
+
+    def test_normal_robots_txt(self) -> None:
+        content = "User-agent: *\nDisallow: /admin/\nAllow: /public/\n"
+        groups = self.scanner._parse_robots(content)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0].user_agents, ["*"])
+        self.assertEqual(groups[0].disallow, ["/admin/"])
+        self.assertEqual(groups[0].allow, ["/public/"])
+
+    def test_multiple_user_agents_in_group(self) -> None:
+        content = "User-agent: Googlebot\nUser-agent: Bingbot\nDisallow: /private/\n"
+        groups = self.scanner._parse_robots(content)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0].user_agents, ["Googlebot", "Bingbot"])
+        self.assertEqual(groups[0].disallow, ["/private/"])
+
+    def test_disallow_rule_before_user_agent_does_not_crash(self) -> None:
+        content = "Disallow: /early/\nUser-agent: *\nDisallow: /admin/\n"
+        groups = self.scanner._parse_robots(content)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0].disallow, ["/admin/"])
+        self.scanner.log.warning.assert_called()
+
+    def test_allow_rule_before_user_agent_does_not_crash(self) -> None:
+        content = "Allow: /early/\nUser-agent: *\nDisallow: /private/\n"
+        groups = self.scanner._parse_robots(content)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0].disallow, ["/private/"])
+        self.scanner.log.warning.assert_called()
+
+    def test_empty_content(self) -> None:
+        groups = self.scanner._parse_robots("")
+        self.assertEqual(groups, [])

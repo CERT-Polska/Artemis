@@ -145,6 +145,16 @@ class TestNucleiBatchGroupKey(unittest.TestCase):
             self.module.get_batch_group_key(task_medium),
         )
 
+    def test_scan_mode_yields_different_keys(self) -> None:
+        from artemis.modules.nuclei_router import NUCLEI_ROUTER_SCAN_MODE_KEY, NucleiScanMode
+
+        task_http = Task({"type": TaskType.NUCLEI_TARGET}, payload={NUCLEI_ROUTER_SCAN_MODE_KEY: NucleiScanMode.HTTP.value})
+        task_other = Task({"type": TaskType.NUCLEI_TARGET}, payload={NUCLEI_ROUTER_SCAN_MODE_KEY: NucleiScanMode.OTHER.value})
+        self.assertNotEqual(
+            self.module.get_batch_group_key(task_http),
+            self.module.get_batch_group_key(task_other),
+        )
+
 
 class TestMailDNSScannerBatchGroupKey(unittest.TestCase):
     module: MailDNSScanner

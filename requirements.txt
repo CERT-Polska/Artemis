@@ -14,7 +14,7 @@ argon2-cffi==25.1.0
 argon2-cffi-bindings==25.1.0
 attrs==26.1.0
 babel==2.18.0
-badkeys==0.0.17
+badkeys==0.0.20
 bcrypt==5.0.0
 beautifulsoup4==4.15.0
 blinker==1.9.0
@@ -25,12 +25,12 @@ certifi==2026.7.22
 cffi==2.1.1
 chardet==7.4.3
 charset-normalizer==3.5.1
-checkdmarc==5.17.3
+checkdmarc==6.0.1
 click==8.4.2
 click-plugins==1.1.1.2
 colorama==0.4.6
 coverage==7.15.4
-cryptography==48.0.1
+cryptography==50.0.1
 decorator==5.3.1
 defusedxml==0.7.1
 dkimpy==1.1.8
@@ -57,7 +57,7 @@ jsonschema-path==0.4.5
 jsonschema-specifications==2025.9.1
 karton-core==5.9.1
 lazy-object-proxy==1.12.0
-libmailgoose @ git+https://github.com/CERT-Polska/mailgoose@v1.4.16#subdirectory=scan
+libmailgoose @ git+https://github.com/CERT-Polska/mailgoose@v1.4.19#subdirectory=scan
 liccheck==0.9.2
 mako==1.4.1
 markdown==3.10.3
@@ -91,7 +91,7 @@ pygments==2.21.0
 pyleri==1.5.1
 pymysql==1.2.0
 pynacl==1.6.2
-pyopenssl==26.2.0
+pyopenssl==26.4.0
 pyspf==2.0.14
 python-dateutil==2.9.0.post0
 python-decouple==3.8

@@ -37,7 +37,9 @@ _STOPWORDS = frozenset(
 )
 
 
-def resolve(nvd_dir: Path, normalized: str) -> str | None:
+def resolve(nvd_dir: Path, normalized: str, *, exact_only: bool = False) -> str | None:
+    """Resolve a normalized title to a versionless CPE family."""
+
     def _tokens(normalized: str) -> list[str]:
         return [t for t in normalized.split() if len(t) > 1 and t not in _STOPWORDS]
 
@@ -46,6 +48,9 @@ def resolve(nvd_dir: Path, normalized: str) -> str | None:
     cpe = index.get(normalized)
     if cpe is not None:
         return None if cpe == AMBIGUOUS_TITLE else cpe
+
+    if exact_only:
+        return None
 
     tokens = _tokens(normalized)
     if not tokens:
@@ -62,11 +67,11 @@ def resolve(nvd_dir: Path, normalized: str) -> str | None:
     return next(iter(candidates.values())) if len(candidates) == 1 else None
 
 
-def lookup_cpe(name: str, version: str | None = None) -> str | None:
-    """Resolve a free-form product name to an authoritative NVD CPE 2.3 name.
+def lookup_cpe(name: str, version: str | None = None, *, exact_only: bool = False) -> str | None:
+    """Resolve a free-form product name to an authoritative NVD CPE 2.3 name, or ``None``.
 
-    Returns ``None`` when there is no match, the dictionary is unavailable, or
-    the match is ambiguous across more than one vendor:product family.
+    With ``exact_only`` the name has to be a title the dictionary carries, rather than a
+    subset of one.
     """
     if not isinstance(name, str) or not name.strip():
         return None
@@ -74,7 +79,7 @@ def lookup_cpe(name: str, version: str | None = None) -> str | None:
     normalized = normalize(name)
     if not normalized:
         return None
-    family_cpe = resolve(nvd_dir, normalized)
+    family_cpe = resolve(nvd_dir, normalized, exact_only=exact_only)
     if family_cpe is None:
         return None
     return with_version(family_cpe, version)

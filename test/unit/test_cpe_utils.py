@@ -137,6 +137,15 @@ class CpeUtilsTest(unittest.TestCase):
             "cpe:2.3:a:cisco:anyconnect_secure_mobility_client:*:*:*:*:*:*:*:*",
         )
 
+    def test_exact_only_skips_the_token_fallback(self) -> None:
+        # "Ivanti Connect Secure" is a title in the index; "Cisco AnyConnect" is only a
+        # token subset of one, so it resolves without the flag and not with it.
+        self.assertEqual(
+            lookup_cpe("Ivanti Connect Secure", exact_only=True),
+            "cpe:2.3:a:ivanti:connect_secure:*:*:*:*:*:*:*:*",
+        )
+        self.assertIsNone(lookup_cpe("Cisco AnyConnect", exact_only=True))
+
     def test_normalizes_case_and_whitespace(self) -> None:
         self.assertEqual(
             lookup_cpe("  cisco  ANYCONNECT "),

@@ -1,5 +1,6 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
+from artemis.cpe_tools.cpe_utils import lookup_cpe
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.cpe import extract_cpe
@@ -7,14 +8,12 @@ from artemis.reporting.base.reporter import Reporter
 from artemis.web_technology_identification import Technology
 
 
-def _iter_technologies(result: Dict[str, Any]) -> List[Technology]:
-    """
-    Return technologies from a ``webapp_identifier`` task result.
+def _cpe(raw_cpe: Any, name: str) -> Optional[str]:
+    return extract_cpe(raw_cpe) or lookup_cpe(name, exact_only=True)
 
-    Prefers the structured ``technologies`` list; falls back to the legacy
-    ``technology_tags`` string list so reports for older task results still
-    render (those don't carry the CPE, therefore it stays None there).
-    """
+
+def _iter_technologies(result: Dict[str, Any]) -> List[Technology]:
+    """Return technologies from a ``webapp_identifier`` task result."""
     technologies: List[Technology] = []
 
     structured = result.get("technologies")
@@ -30,7 +29,7 @@ def _iter_technologies(result: Dict[str, Any]) -> List[Technology]:
                 Technology(
                     name=str(name),
                     version=str(version) if version else None,
-                    cpe=extract_cpe(tech.get("cpe", None)),
+                    cpe=_cpe(tech.get("cpe", None), str(name)),
                 )
             )
         return technologies
@@ -40,9 +39,9 @@ def _iter_technologies(result: Dict[str, Any]) -> List[Technology]:
             continue
         if ":" in tag:
             name, version = tag.split(":", 1)
-            technologies.append(Technology(name=name, version=version or None))
+            technologies.append(Technology(name=name, version=version or None, cpe=_cpe(None, name)))
         else:
-            technologies.append(Technology(name=tag))
+            technologies.append(Technology(name=tag, cpe=_cpe(None, tag)))
     return technologies
 
 

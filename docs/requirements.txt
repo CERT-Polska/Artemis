@@ -136,7 +136,7 @@ termcolor==3.3.0
 timeout-decorator==0.5.0
 tldextract==5.3.2
 toml==0.10.2
-tqdm==4.70.0
+tqdm==4.70.1
 typer==0.27.2
 typing-extensions==4.16.0
 typing-inspection==0.4.4

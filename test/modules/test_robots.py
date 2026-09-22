@@ -67,12 +67,12 @@ class RobotsParserTest(unittest.TestCase):
         self.scanner.log = MagicMock(spec=logging.Logger)
 
     def test_normal_robots_txt(self) -> None:
-        content = "User-agent: *\nDisallow: /admin/\nAllow: /public/\n"
+        content = "User-agent: *\nDisallow: /admin/\nAllow: /pub/\n"
         groups = self.scanner._parse_robots(content)
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].user_agents, ["*"])
         self.assertEqual(groups[0].disallow, ["/admin/"])
-        self.assertEqual(groups[0].allow, ["/public/"])
+        self.assertEqual(groups[0].allow, ["/pub/"])
 
     def test_multiple_user_agents_in_group(self) -> None:
         content = "User-agent: Googlebot\nUser-agent: Bingbot\nDisallow: /private/\n"

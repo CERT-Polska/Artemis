@@ -72,6 +72,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "link-manager",
     "login-logo",
     "page-or-post-clone",
+    "persian-woocommerce-shipping",
     "search-meter",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",

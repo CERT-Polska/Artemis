@@ -189,27 +189,26 @@ class SubdomainEnumeration(ArtemisBase):
         Running subfinder twice and merging the results helps reduce the chance of missing subdomains.
         """
         # Run with -all
-        all_result = (
-            self.get_subdomains_from_tool(
-                "subfinder",
-                ["-d", domain, "-silent", "-all"],
-                domain,
-            )
-            or set()
+        all_result = self.get_subdomains_from_tool(
+            "subfinder",
+            ["-d", domain, "-silent", "-all"],
+            domain,
         )
 
         # Run with -all -recursive
-        recursive_result = (
-            self.get_subdomains_from_tool(
-                "subfinder",
-                ["-d", domain, "-silent", "-all", "-recursive"],
-                domain,
-            )
-            or set()
+        recursive_result = self.get_subdomains_from_tool(
+            "subfinder",
+            ["-d", domain, "-silent", "-all", "-recursive"],
+            domain,
         )
 
+        # If neither run produced anything, report the failure instead of an empty set,
+        # which the caller would read as "subfinder found no subdomains" and not retry.
+        if all_result is None and recursive_result is None:
+            return None
+
         # Merge both results
-        return all_result.union(recursive_result)
+        return (all_result or set()).union(recursive_result or set())
 
     def get_subdomains_from_gau(self, domain: str) -> Optional[Set[str]]:
         return self.get_subdomains_from_tool(

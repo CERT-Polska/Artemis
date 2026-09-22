@@ -105,7 +105,7 @@ class AssetDeduplicationTest(unittest.TestCase):
         asset = _cms_asset([_wp_scanner_result(version="5.9.3")])
 
         self.assertEqual(asset.version, "5.9.3")
-        self.assertIsNone(asset.cpe)
+        self.assertEqual(asset.cpe, WORDPRESS_CPE)
 
 
 if __name__ == "__main__":

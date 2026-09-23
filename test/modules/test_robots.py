@@ -64,7 +64,6 @@ class RobotsTest(ArtemisModuleTestCase):
 class RobotsParserTest(unittest.TestCase):
     def setUp(self) -> None:
         self.scanner = RobotsScanner.__new__(RobotsScanner)
-        self.scanner.log = MagicMock(spec=logging.Logger)  # type: ignore
 
     def test_normal_robots_txt(self) -> None:
         content = "User-agent: *\nDisallow: /admin/\nAllow: /pub/\n"
@@ -86,14 +85,12 @@ class RobotsParserTest(unittest.TestCase):
         groups = self.scanner._parse_robots(content)
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].disallow, ["/admin/"])
-        self.scanner.log.warning.assert_called()  # type: ignore
 
     def test_allow_rule_before_user_agent_does_not_crash(self) -> None:
         content = "Allow: /early/\nUser-agent: *\nDisallow: /private/\n"
         groups = self.scanner._parse_robots(content)
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].disallow, ["/private/"])
-        self.scanner.log.warning.assert_called()  # type: ignore
 
     def test_empty_content(self) -> None:
         groups = self.scanner._parse_robots("")

@@ -1,8 +1,6 @@
-import logging
 import unittest
 from test.base import ArtemisModuleTestCase
 from typing import NamedTuple
-from unittest.mock import MagicMock
 
 from karton.core import Task
 

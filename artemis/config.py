@@ -57,7 +57,7 @@ class Config:
                 int,
                 "How old the task results need to be to be archived (in seconds) for tasks that have status=INTERESTING",
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS_INTERESTING", default=180 * 24 * 60 * 60, cast=int
+                "AUTOARCHIVER_MIN_AGE_SECONDS_INTERESTING", default=365 * 24 * 60 * 60, cast=int
             )  # 180 days
             AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING: Annotated[
                 int,

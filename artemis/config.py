@@ -567,6 +567,9 @@ class Config:
                         "http/technologies/tech-detect.yaml",
                         # Too many FP
                         "http/technologies/waf-detect.yaml",
+                        # wordpress plugins detections, we have separate module
+                        "http/technologies/wordpress/plugins/wordpress-plugin-detect.yaml",
+                        "http/technologies/wordpress/themes/wordpress-theme-detect.yaml",
                         # We have a separate module for that, checking whethet the repository is a copy of a public one
                         "http/exposures/configs/exposed-svn.yaml",
                         "http/exposures/configs/git-config.yaml",

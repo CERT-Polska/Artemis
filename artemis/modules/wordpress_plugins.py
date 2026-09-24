@@ -67,6 +67,7 @@ PLUGINS_TO_SKIP_STABLE_TAG = [
     "testimonial-slider-and-showcase",
 ]
 PLUGINS_BAD_VERSION_IN_README = [
+    "admin-site-enhancements",
     "icon-element",
     "learnpress-wishlist",
     "link-manager",

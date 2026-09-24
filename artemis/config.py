@@ -565,6 +565,7 @@ class Config:
                     [
                         # We already have Wappalyzer
                         "http/technologies/tech-detect.yaml",
+                        "http/technologies/fingerprinthub-web-fingerprints.yaml",
                         # Too many FP
                         "http/technologies/waf-detect.yaml",
                         # wordpress plugins detections, we have separate module

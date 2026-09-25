@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" method="upgrade">
+    <name>Slideshow CK</name>
+    <version>2.9.6</version>
+</extension>

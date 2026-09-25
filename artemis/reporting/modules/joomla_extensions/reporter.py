@@ -26,8 +26,15 @@ class JoomlaExtensionsReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
+        extensions_by_name = {
+            item["name"]: item for item in task_result["result"].get("extensions", []) if item.get("name")
+        }
+
         result = []
-        for item in task_result["result"].get("outdated_extensions", []):
+        for name in task_result["result"].get("outdated", []):
+            item = extensions_by_name.get(name)
+            if item is None:
+                continue
             result.append(
                 Report(
                     top_level_target=get_top_level_target(task_result),
@@ -56,7 +63,7 @@ class JoomlaExtensionsReporter(Reporter):
                     "type": report.report_type,
                     "target": get_url_normal_form(report.target),
                     "extension_name": report.additional_data["name"],
-                    "extension_version_on_website": report.additional_data["version_on_website"],
+                    "extension_version_on_website": report.additional_data["version"],
                 }
             ),
         }
@@ -74,7 +81,8 @@ class JoomlaExtensionsReporter(Reporter):
                 asset_type=AssetType.CMS_PLUGIN,
                 name=get_target_url(task_result),
                 additional_type="joomla-extension:" + item["name"],
-                version=item.get("version_on_website", ""),
+                version=item.get("version", ""),
             )
-            for item in task_result["result"].get("outdated_extensions", [])
+            for item in task_result["result"].get("extensions", [])
+            if item.get("name")
         ]

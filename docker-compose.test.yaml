@@ -262,6 +262,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
 
+  test-joomla-with-extensions:
+    build:
+      context: ./test/data/joomla_with_extensions
+      dockerfile: Dockerfile
+
   test-smtp-server:
     hostname: test-smtp-server.artemis
     image: bytemark/smtp

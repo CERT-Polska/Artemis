@@ -52,7 +52,7 @@ hpack==4.2.0
 httpcore==1.0.9
 httpx==0.28.1
 hyperframe==6.1.0
-idna==3.19
+idna==3.20
 imagesize==2.0.1
 importlib-resources==7.1.0
 invoke==3.0.3

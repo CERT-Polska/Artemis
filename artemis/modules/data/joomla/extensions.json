@@ -1,6 +1,5 @@
 {
- "_fetch_date": "2026-09-25",
- "count": 5736,
+ "_fetch_date": "2026-09-28",
  "extensions": [
   {
    "extension_name": null,
@@ -2422,8 +2421,8 @@
    "extension_id": "457",
    "jed_url": "https://extensions.joomla.org/extension/modules-anywhere/",
    "install_url": "https://regularlabs.com/modulesanywhere/features",
-   "latest_version": "9.0.5",
-   "last_updated": "Sep 13 2026",
+   "latest_version": "10.0.0",
+   "last_updated": "Sep 27 2026",
    "developer": "Regular Labs",
    "type": "Free",
    "includes": {
@@ -13569,6 +13568,27 @@
    }
   },
   {
+   "extension_name": "Revealing Photo Slider",
+   "extension_id": "3132",
+   "jed_url": "https://extensions.joomla.org/extension/revealing-photo-slider/",
+   "install_url": "https://joomlax.com/revealing-photo-slider.html#download",
+   "latest_version": "2.0.0",
+   "last_updated": "Sep 28 2026",
+   "developer": "Infyways Solutions",
+   "type": "Paid",
+   "includes": {
+    "component": false,
+    "module": true,
+    "plugin": false
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": true,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
    "extension_name": "Advertise Scroller",
    "extension_id": "3136",
    "jed_url": "https://extensions.joomla.org/extension/advertise-scroller/",
@@ -14361,6 +14381,27 @@
    },
    "joomla_compatibility": {
     "j3": true,
+    "j4": true,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "Diapo Slideshow",
+   "extension_id": "3290",
+   "jed_url": "https://extensions.joomla.org/extension/diapo-slideshow/",
+   "install_url": "https://joomlax.com/diapo-slideshow.html#download",
+   "latest_version": "3.5",
+   "last_updated": "Sep 28 2026",
+   "developer": "Infyways Solutions",
+   "type": "Paid",
+   "includes": {
+    "component": false,
+    "module": true,
+    "plugin": false
+   },
+   "joomla_compatibility": {
+    "j3": false,
     "j4": true,
     "j5": true,
     "j6": true
@@ -16722,9 +16763,9 @@
    "extension_name": "Auto onPageLoad Popup",
    "extension_id": "3939",
    "jed_url": "https://extensions.joomla.org/extension/auto-onpageload-popup/",
-   "install_url": "https://joomlax.com/auto-onpageload-popup.html",
-   "latest_version": "13.1",
-   "last_updated": "Aug 06 2026",
+   "install_url": "https://joomlax.com/auto-onpageload-popup.html#download",
+   "latest_version": "13.2",
+   "last_updated": "Sep 25 2026",
    "developer": "Infyways Solutions",
    "type": "Paid",
    "includes": {
@@ -25795,8 +25836,8 @@
    "extension_id": "6474",
    "jed_url": "https://extensions.joomla.org/extension/askmyadmin/",
    "install_url": "https://mokhin-tech.ru/askmyadmin",
-   "latest_version": "1.6.3",
-   "last_updated": "Jun 01 2019",
+   "latest_version": "2.0.0",
+   "last_updated": "Sep 26 2026",
    "developer": "Denis Mokhin",
    "type": "Free",
    "includes": {
@@ -25805,10 +25846,10 @@
     "plugin": true
    },
    "joomla_compatibility": {
-    "j3": true,
-    "j4": true,
-    "j5": false,
-    "j6": false
+    "j3": false,
+    "j4": false,
+    "j5": true,
+    "j6": true
    }
   },
   {
@@ -27307,8 +27348,8 @@
    "extension_id": "6804",
    "jed_url": "https://extensions.joomla.org/extension/jsitemap/",
    "install_url": "https://storejextensions.org/extensions/jsitemap_professional.html",
-   "latest_version": "4.31.7",
-   "last_updated": "Sep 18 2026",
+   "latest_version": "4.31.8",
+   "last_updated": "Sep 25 2026",
    "developer": "J!Extensions Store",
    "type": "Paid",
    "includes": {
@@ -35330,7 +35371,7 @@
    "jed_url": "https://extensions.joomla.org/extension/infinite-scroll-for-virtuemart/",
    "install_url": "https://www.virtuemartoz.com/other-virtuemart-extensions/infinite-scroll-for-virtuemart.html",
    "latest_version": "1.1",
-   "last_updated": "May 28 2025",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -37677,27 +37718,6 @@
    }
   },
   {
-   "extension_name": "Phoca Photo",
-   "extension_id": "8776",
-   "jed_url": "https://extensions.joomla.org/extension/phoca-photo/",
-   "install_url": "https://www.phoca.cz/download/category/98-phoca-photo-component",
-   "latest_version": "3.0.2, 4.0.0, 5.0.0, 6.0.0",
-   "last_updated": "May 25 2026",
-   "developer": "Jan Pavelka",
-   "type": "Free",
-   "includes": {
-    "component": true,
-    "module": false,
-    "plugin": false
-   },
-   "joomla_compatibility": {
-    "j3": true,
-    "j4": true,
-    "j5": true,
-    "j6": true
-   }
-  },
-  {
    "extension_name": "Jitbit Helpdesk Ticketing System",
    "extension_id": "8777",
    "jed_url": "https://extensions.joomla.org/extension/jitbit-helpdesk/",
@@ -39004,8 +39024,8 @@
    "extension_id": "9048",
    "jed_url": "https://extensions.joomla.org/extension/timetable-responsive-schedule-for-joomla/",
    "install_url": null,
-   "latest_version": "3.0",
-   "last_updated": "Jul 28 2026",
+   "latest_version": "3.1",
+   "last_updated": "Sep 25 2026",
    "developer": "QuanticaLabs",
    "type": "Paid",
    "includes": {
@@ -54523,8 +54543,8 @@
    "extension_id": "12561",
    "jed_url": "https://extensions.joomla.org/extension/logo-slider/",
    "install_url": "http://logichunt.com/product/joomla-logo-slider/",
-   "latest_version": "6.0.0",
-   "last_updated": "Aug 21 2026",
+   "latest_version": "6.1.0",
+   "last_updated": "Sep 25 2026",
    "developer": "LogicHunt",
    "type": "Paid",
    "includes": {
@@ -55721,7 +55741,7 @@
    "jed_url": "https://extensions.joomla.org/extension/jlex-comment/",
    "install_url": "https://www.jlexart.com/jlex-comment",
    "latest_version": "3.7.3",
-   "last_updated": "Sep 12 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "JLexArt",
    "type": "Paid",
    "includes": {
@@ -56141,7 +56161,7 @@
    "jed_url": "https://extensions.joomla.org/extension/dublin-core-extended-metadata/",
    "install_url": "https://webgobe.com/downloads/joomla-3-0/plugins/dublin-core-extended-metadata-plugin.html",
    "latest_version": "1.2",
-   "last_updated": "Jun 18 2026",
+   "last_updated": "Sep 26 2026",
    "developer": "Dénes Székely (webGóbé)",
    "type": "Free",
    "includes": {
@@ -59648,7 +59668,7 @@
    "jed_url": "https://extensions.joomla.org/extension/securepay-for-virtuemart/",
    "install_url": "https://www.virtuemartoz.com/virtuemart-payment-plugins/securepay-for-virtuemart-2.html",
    "latest_version": "1.0.0",
-   "last_updated": "Sep 23 2023",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -59669,7 +59689,7 @@
    "jed_url": "https://extensions.joomla.org/extension/eway-payment-for-virtuemart/",
    "install_url": "http://virtuemartoz.com/virtuemart-payment-plugins/eway-for-virtuemart-2.html",
    "latest_version": "1.0",
-   "last_updated": "Sep 23 2023",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -59690,7 +59710,7 @@
    "jed_url": "https://extensions.joomla.org/extension/category-discount-for-virtuemart/",
    "install_url": "https://www.virtuemartoz.com/other-virtuemart-extensions/category-discount-for-virtuemart.html",
    "latest_version": "1.2",
-   "last_updated": "Sep 23 2023",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -60593,7 +60613,7 @@
    "jed_url": "https://extensions.joomla.org/extension/vmcalculation-wholesale-price-discount-for-virtuemart/",
    "install_url": "https://www.virtuemartoz.com/other-virtuemart-extensions/wholesale-price-discount.html",
    "latest_version": "1.0",
-   "last_updated": "Sep 23 2023",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -60614,7 +60634,7 @@
    "jed_url": "https://extensions.joomla.org/extension/vmpayment-dps-for-virtuemart/",
    "install_url": "https://www.virtuemartoz.com/virtuemart-payment-plugins/dps-for-virtuemart.html",
    "latest_version": "1.0",
-   "last_updated": "Sep 23 2023",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -60635,7 +60655,7 @@
    "jed_url": "https://extensions.joomla.org/extension/vmpayment-offline-creditcard-for-virtuemart/",
    "install_url": "https://www.virtuemartoz.com/virtuemart-payment-plugins/offline-creditcard-virtuemart.html",
    "latest_version": "1.0",
-   "last_updated": "Sep 23 2023",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -61055,7 +61075,7 @@
    "jed_url": "https://extensions.joomla.org/extension/nzpost-for-virtuemart/",
    "install_url": "https://www.virtuemartoz.com/virtuemart-shipping-plugins/nzpost-for-virtuemart.html",
    "latest_version": "1.0",
-   "last_updated": "Sep 23 2023",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -65506,8 +65526,8 @@
    "extension_id": "14206",
    "jed_url": "https://extensions.joomla.org/extension/facebook-feed-pro/",
    "install_url": "https://allforjoomla.com/premium/item/facebook-feed-photo-video-gallery-joomla",
-   "latest_version": "4.7.1",
-   "last_updated": "Aug 18 2026",
+   "latest_version": "4.7.4",
+   "last_updated": "Sep 28 2026",
    "developer": "Oleg Micriucov",
    "type": "Paid",
    "includes": {
@@ -67355,7 +67375,7 @@
    "jed_url": "https://extensions.joomla.org/extension/prayer/",
    "install_url": "https://webgobe.com/downloads/joomla-3-0/components/prayer.html",
    "latest_version": "1.3.5",
-   "last_updated": "Jun 18 2026",
+   "last_updated": "Sep 26 2026",
    "developer": "Dénes Székely (webGóbé)",
    "type": "Free",
    "includes": {
@@ -69392,7 +69412,7 @@
    "jed_url": "https://extensions.joomla.org/extension/tf-mail/",
    "install_url": "https://joomlafry.com/joomla-extensions/email-marketing-joomla-extension",
    "latest_version": "3.3.7",
-   "last_updated": "Jun 10 2026",
+   "last_updated": "Sep 28 2026",
    "developer": "Joomla Fry",
    "type": "Free",
    "includes": {
@@ -70542,27 +70562,6 @@
    }
   },
   {
-   "extension_name": "Ol Testimonials",
-   "extension_id": "14628",
-   "jed_url": "https://extensions.joomla.org/extension/ol-testimonials/",
-   "install_url": "https://www.olwebdesign.com/joomla-extensions/testimonials-joomla-module.html",
-   "latest_version": "4.2.7",
-   "last_updated": "Aug 17 2026",
-   "developer": "olwebdesign",
-   "type": "Free",
-   "includes": {
-    "component": false,
-    "module": true,
-    "plugin": false
-   },
-   "joomla_compatibility": {
-    "j3": true,
-    "j4": true,
-    "j5": true,
-    "j6": true
-   }
-  },
-  {
    "extension_name": "AA 360° Image Virtual Tour",
    "extension_id": "14630",
    "jed_url": "https://extensions.joomla.org/extension/aa-360-image-virtual-tour/",
@@ -70883,7 +70882,7 @@
    "jed_url": "https://extensions.joomla.org/extension/side-panel/",
    "install_url": "https://www.olwebdesign.com/joomla-extensions/side-panel-module.html",
    "latest_version": "5.0.7",
-   "last_updated": "Sep 23 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "olwebdesign",
    "type": "Paid",
    "includes": {
@@ -71931,9 +71930,9 @@
    "extension_name": "EB Page Reading Progressbar",
    "extension_id": "14767",
    "jed_url": "https://extensions.joomla.org/extension/eb-page-reading-progressbar/",
-   "install_url": "https://www.extnbakers.com/extensions/36-eb-page-reading-progressbar",
+   "install_url": "https://www.extnbakers.com/extensions/eb-page-reading-progressbar",
    "latest_version": "1.8",
-   "last_updated": "Jul 14 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "Extnbakers",
    "type": "Paid",
    "includes": {
@@ -73213,8 +73212,8 @@
    "extension_id": "14846",
    "jed_url": "https://extensions.joomla.org/extension/products-carousel-for-virtuemart/",
    "install_url": "https://www.olwebdesign.com/joomla-extensions/virtuemart-product-carousel.html",
-   "latest_version": "4.2.6",
-   "last_updated": "Sep 18 2026",
+   "latest_version": "4.2.7",
+   "last_updated": "Sep 28 2026",
    "developer": "olwebdesign",
    "type": "Paid",
    "includes": {
@@ -74075,7 +74074,7 @@
    "jed_url": "https://extensions.joomla.org/extension/es-youtube-playlist-embed/",
    "install_url": "https://extensionspot.com/joomla-extensions/es-youtube-playlist-embed/",
    "latest_version": "2.0.4",
-   "last_updated": "Sep 21 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "ExtensionSpot",
    "type": "Paid",
    "includes": {
@@ -74997,9 +74996,9 @@
    "extension_name": "UP",
    "extension_id": "15005",
    "jed_url": "https://extensions.joomla.org/extension/up/",
-   "install_url": "https://up.lomart.fr/telechargements",
-   "latest_version": "6.0.29",
-   "last_updated": "Jul 18 2026",
+   "install_url": "https://github.com/conseilgouz/up/releases/download/6.1.2/plg_content_up-v6.1.2.zip",
+   "latest_version": "6.1.2",
+   "last_updated": "Sep 28 2026",
    "developer": "LOMART",
    "type": "Free",
    "includes": {
@@ -75817,8 +75816,8 @@
    "extension_id": "15088",
    "jed_url": "https://extensions.joomla.org/extension/sticky-sidebar/",
    "install_url": "https://logichunt.com/product/joomla-sticky-sidebar/",
-   "latest_version": "1.1.0",
-   "last_updated": "Feb 04 2025",
+   "latest_version": "2.0",
+   "last_updated": "Sep 27 2026",
    "developer": "LogicHunt",
    "type": "Paid",
    "includes": {
@@ -75830,7 +75829,7 @@
     "j3": true,
     "j4": true,
     "j5": true,
-    "j6": false
+    "j6": true
    }
   },
   {
@@ -76112,7 +76111,7 @@
    "jed_url": "https://extensions.joomla.org/extension/tf-learn/",
    "install_url": "https://joomlafry.com/joomla-extensions/learn-joomla-extension",
    "latest_version": "2.6.1",
-   "last_updated": "Jun 11 2026",
+   "last_updated": "Sep 28 2026",
    "developer": "Joomla Fry",
    "type": "Free",
    "includes": {
@@ -78694,8 +78693,8 @@
    "extension_id": "15309",
    "jed_url": "https://extensions.joomla.org/extension/mx-team/",
    "install_url": "https://www.mixwebtemplates.com/joomla-extensions/team-module",
-   "latest_version": "4.2.13",
-   "last_updated": "Sep 22 2026",
+   "latest_version": "4.2.16",
+   "last_updated": "Sep 28 2026",
    "developer": "mixwebtemplates",
    "type": "Paid",
    "includes": {
@@ -81887,7 +81886,7 @@
    "jed_url": "https://extensions.joomla.org/extension/google-reviews-pro/",
    "install_url": "https://allforjoomla.com/premium/item/google-business-reviews-joomla",
    "latest_version": "2.17.3",
-   "last_updated": "Sep 18 2026",
+   "last_updated": "Sep 27 2026",
    "developer": "Oleg Micriucov",
    "type": "Paid",
    "includes": {
@@ -83503,8 +83502,8 @@
    "extension_id": "15621",
    "jed_url": "https://extensions.joomla.org/extension/attach-pdf-invoice-for-hikashop/",
    "install_url": "https://www.hikashop.com/marketplace/product/18-plugin-pdf.html",
-   "latest_version": "5.1.1",
-   "last_updated": "Sep 21 2026",
+   "latest_version": "5.1.2",
+   "last_updated": "Sep 26 2026",
    "developer": "Hikari Software Team",
    "type": "Paid",
    "includes": {
@@ -84910,8 +84909,8 @@
    "extension_id": "15715",
    "jed_url": "https://extensions.joomla.org/extension/ol-liquid-slider/",
    "install_url": "https://www.olwebdesign.com/joomla-extensions/liquid-slider-joomla-module.html",
-   "latest_version": "4.2.6",
-   "last_updated": "Aug 09 2026",
+   "latest_version": "4.2.7",
+   "last_updated": "Sep 28 2026",
    "developer": "olwebdesign",
    "type": "Paid",
    "includes": {
@@ -87011,7 +87010,7 @@
    "jed_url": "https://extensions.joomla.org/extension/tf-page-builder/",
    "install_url": "https://joomlafry.com/joomla-extensions/tf-page-builder",
    "latest_version": "1.3.1",
-   "last_updated": "Jun 09 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "Joomla Fry",
    "type": "Free",
    "includes": {
@@ -88375,8 +88374,8 @@
    "extension_id": "15923",
    "jed_url": "https://extensions.joomla.org/extension/tabs-accordions/",
    "install_url": "https://regularlabs.com/tabsaccordions/features",
-   "latest_version": "3.1.0",
-   "last_updated": "Sep 13 2026",
+   "latest_version": "3.2.0",
+   "last_updated": "Sep 27 2026",
    "developer": "Regular Labs",
    "type": "Free",
    "includes": {
@@ -89111,7 +89110,7 @@
    "jed_url": "https://extensions.joomla.org/extension/jmp-delete-my-account/",
    "install_url": "https://joomhelper.com/Lm4Pk1Y",
    "latest_version": "1.2.7",
-   "last_updated": "Sep 22 2026",
+   "last_updated": "Sep 28 2026",
    "developer": "JoomHelper",
    "type": "Paid",
    "includes": {
@@ -92786,7 +92785,7 @@
    "jed_url": "https://extensions.joomla.org/extension/shipment-tracking-for-virtuemart/",
    "install_url": "https://www.virtuemartoz.com/virtuemart-shipping-plugins/shipment-tracking-for-virtuemart.html",
    "latest_version": "1.0",
-   "last_updated": "Oct 14 2023",
+   "last_updated": "Sep 27 2026",
    "developer": "virtuemart australia",
    "type": "Paid",
    "includes": {
@@ -94970,7 +94969,7 @@
    "jed_url": "https://extensions.joomla.org/extension/youtube-channel-pro/",
    "install_url": "https://allforjoomla.com/premium/item/youtube-channel-videos-joomla",
    "latest_version": "2.1.1",
-   "last_updated": "Sep 16 2026",
+   "last_updated": "Sep 28 2026",
    "developer": "Oleg Micriucov",
    "type": "Paid",
    "includes": {
@@ -96292,8 +96291,8 @@
    "extension_id": "16388",
    "jed_url": "https://extensions.joomla.org/extension/gptranslate/",
    "install_url": "https://storejextensions.org/extensions/gptranslate.html",
-   "latest_version": "2.34.8",
-   "last_updated": "Sep 14 2026",
+   "latest_version": "2.34.9",
+   "last_updated": "Sep 27 2026",
    "developer": "J!Extensions Store",
    "type": "Paid",
    "includes": {
@@ -96713,7 +96712,7 @@
    "jed_url": "https://extensions.joomla.org/extension/logo-showcase/",
    "install_url": "https://www.mixwebtemplates.com/joomla-extensions/logo-showcase-joomla-module",
    "latest_version": "4.2.7",
-   "last_updated": "Sep 24 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "mixwebtemplates",
    "type": "Paid",
    "includes": {
@@ -96775,8 +96774,8 @@
    "extension_id": "16419",
    "jed_url": "https://extensions.joomla.org/extension/astroid-framework/",
    "install_url": "https://github.com/templaza/astroid-framework/releases/latest",
-   "latest_version": "3.4.3",
-   "last_updated": "Jul 31 2026",
+   "latest_version": "3.5.0",
+   "last_updated": "Sep 28 2026",
    "developer": "TemPlaza",
    "type": "Free",
    "includes": {
@@ -98728,8 +98727,8 @@
    "extension_id": "16522",
    "jed_url": "https://extensions.joomla.org/extension/tiktok-feed-pro/",
    "install_url": "https://allforjoomla.com/premium/item/tiktok-feed-videos-joomla",
-   "latest_version": "1.6.0",
-   "last_updated": "Aug 18 2026",
+   "latest_version": "1.6.1",
+   "last_updated": "Sep 27 2026",
    "developer": "Oleg Micriucov",
    "type": "Paid",
    "includes": {
@@ -100744,8 +100743,8 @@
    "extension_id": "16635",
    "jed_url": "https://extensions.joomla.org/extension/jo-header-footer-override/",
    "install_url": "https://jewelosman.com/extensions/plugins/jo-header-footer-override",
-   "latest_version": "1.1.0",
-   "last_updated": "Dec 10 2025",
+   "latest_version": "1.3.0",
+   "last_updated": "Sep 27 2026",
    "developer": "JewelOsman",
    "type": "Free",
    "includes": {
@@ -102394,6 +102393,27 @@
    "joomla_compatibility": {
     "j3": false,
     "j4": false,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "BarrierFree",
+   "extension_id": "16727",
+   "jed_url": "https://extensions.joomla.org/extension/barrierfree/",
+   "install_url": "https://der-it-blog.de/downloads/plg_system_barrierfree_2.2.1.zip",
+   "latest_version": "2.2.1",
+   "last_updated": "Sep 26 2026",
+   "developer": "Mertsch-Web",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": true,
     "j5": true,
     "j6": true
    }
@@ -105616,8 +105636,8 @@
    "extension_id": "16907",
    "jed_url": "https://extensions.joomla.org/extension/linkedin-company-feed/",
    "install_url": "https://allforjoomla.com/premium/item/linkedin-company-feed-joomla",
-   "latest_version": "1.3.0",
-   "last_updated": "Aug 18 2026",
+   "latest_version": "1.4.0",
+   "last_updated": "Sep 25 2026",
    "developer": "Oleg Micriucov",
    "type": "Paid",
    "includes": {
@@ -106939,8 +106959,8 @@
    "extension_id": "16975",
    "jed_url": "https://extensions.joomla.org/extension/ai-chatbot/",
    "install_url": "https://templateplazza.com/joomla-extensions/ai-chatbot",
-   "latest_version": "1.2.0",
-   "last_updated": "Sep 23 2026",
+   "latest_version": "1.2.1",
+   "last_updated": "Sep 26 2026",
    "developer": "TemplatePlazza",
    "type": "Paid",
    "includes": {
@@ -107087,7 +107107,7 @@
    "jed_url": "https://extensions.joomla.org/extension/wt-indexnow/",
    "install_url": "https://web-tolk.ru/en/dev/joomla-plugins/wt-indexnow?utm_source=jed",
    "latest_version": "1.0.1",
-   "last_updated": "Aug 17 2026",
+   "last_updated": "Sep 27 2026",
    "developer": "Sergey Tolkachyov",
    "type": "Free",
    "includes": {
@@ -109018,8 +109038,8 @@
    "extension_id": "17083",
    "jed_url": "https://extensions.joomla.org/extension/nexusconsent/",
    "install_url": "https://nexusplugins.com/products/nexusconsent",
-   "latest_version": "1.7.4",
-   "last_updated": "Sep 13 2026",
+   "latest_version": "1.8.0",
+   "last_updated": "Sep 27 2026",
    "developer": "Zoran Tanevski",
    "type": "Free",
    "includes": {
@@ -109039,8 +109059,8 @@
    "extension_id": "17084",
    "jed_url": "https://extensions.joomla.org/extension/nxp-easy-forms/",
    "install_url": "https://nexusplugins.com/products/nxp-easy-forms",
-   "latest_version": "1.3.0",
-   "last_updated": "Sep 13 2026",
+   "latest_version": "1.3.1",
+   "last_updated": "Sep 28 2026",
    "developer": "Zoran Tanevski",
    "type": "Free",
    "includes": {
@@ -109269,9 +109289,9 @@
    "extension_name": "Smart Cookie Notice for Joomla",
    "extension_id": "17097",
    "jed_url": "https://extensions.joomla.org/extension/smart-cookie-notice-for-joomla/",
-   "install_url": "https://github.com/joomtheme/joomla-cookienotice-plugin/releases/tag/v1.1.2",
-   "latest_version": "1.1.2",
-   "last_updated": "Sep 21 2026",
+   "install_url": "https://github.com/joomtheme/joomla-cookienotice-plugin/releases/tag/v1.1.3",
+   "latest_version": "1.1.3",
+   "last_updated": "Sep 25 2026",
    "developer": "Joomtheme",
    "type": "Free",
    "includes": {
@@ -110299,8 +110319,8 @@
    "extension_id": "17155",
    "jed_url": "https://extensions.joomla.org/extension/se-ai-chatbot/",
    "install_url": "https://se24media.co.uk/extensions/se-ai-chatbot",
-   "latest_version": "3.6.8",
-   "last_updated": "Sep 01 2026",
+   "latest_version": "3.7.0",
+   "last_updated": "Sep 25 2026",
    "developer": "SE24MEDIA",
    "type": "Free",
    "includes": {
@@ -110551,8 +110571,8 @@
    "extension_id": "17168",
    "jed_url": "https://extensions.joomla.org/extension/se-ai-seo/",
    "install_url": "https://se24media.co.uk/component/subseller/se-ai-seo",
-   "latest_version": "2.2.3",
-   "last_updated": "Aug 28 2026",
+   "latest_version": "2.2.4",
+   "last_updated": "Sep 25 2026",
    "developer": "SE24MEDIA",
    "type": "Paid",
    "includes": {
@@ -112440,9 +112460,9 @@
    "extension_name": "Cassiopeia Themer",
    "extension_id": "17267",
    "jed_url": "https://extensions.joomla.org/extension/cassiopeia-themer/",
-   "install_url": "/ https://www.multizone.co.uk/index.php?option=com_subsmgr&task=download.latest&extension=pkg_themer&src=jed",
-   "latest_version": "3.5.82",
-   "last_updated": "Sep 13 2026",
+   "install_url": "https://www.multizone.co.uk/index.php?option=com_subsmgr&task=download.latest&extension=pkg_themer&src=jed",
+   "latest_version": "3.5.88",
+   "last_updated": "Sep 27 2026",
    "developer": "Multizone Limited",
    "type": "Free",
    "includes": {
@@ -113344,8 +113364,8 @@
    "extension_id": "17317",
    "jed_url": "https://extensions.joomla.org/extension/repeatable-group-field-for-rsform-pro/",
    "install_url": "https://extensions.blaho.hu/rsform-pro-extensions/repeatable-group-field",
-   "latest_version": "v1.6.2",
-   "last_updated": "Sep 24 2026",
+   "latest_version": "v1.7.9",
+   "last_updated": "Sep 26 2026",
    "developer": "extensions.blaho.hu",
    "type": "Paid",
    "includes": {
@@ -113617,8 +113637,8 @@
    "extension_id": "17331",
    "jed_url": "https://extensions.joomla.org/extension/devart-news/",
    "install_url": "https://github.com/devartgr/joomla-devart-news/releases",
-   "latest_version": "1.1.0",
-   "last_updated": "Sep 04 2026",
+   "latest_version": "1.2.1",
+   "last_updated": "Sep 28 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -113701,8 +113721,8 @@
    "extension_id": "17335",
    "jed_url": "https://extensions.joomla.org/extension/devart-gallery/",
    "install_url": "https://github.com/devartgr/joomla-devart-gallery/releases",
-   "latest_version": "1.2.1",
-   "last_updated": "Sep 22 2026",
+   "latest_version": "1.2.3",
+   "last_updated": "Sep 28 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -114772,8 +114792,8 @@
    "extension_id": "17392",
    "jed_url": "https://extensions.joomla.org/extension/price-per-category-for-hikashop/",
    "install_url": "https://www.hikashop.com/marketplace/product/307-price-per-category.html",
-   "latest_version": "1.2.2",
-   "last_updated": "Sep 24 2026",
+   "latest_version": "1.2.3",
+   "last_updated": "Sep 25 2026",
    "developer": "Hikari Software Team",
    "type": "Paid",
    "includes": {
@@ -114828,6 +114848,27 @@
     "j4": false,
     "j5": true,
     "j6": false
+   }
+  },
+  {
+   "extension_name": "ConsentX",
+   "extension_id": "17396",
+   "jed_url": "https://extensions.joomla.org/extension/consentx/",
+   "install_url": "https://consentx.io/joomla",
+   "latest_version": "1.0.0",
+   "last_updated": "Sep 28 2026",
+   "developer": "IntelligenceX",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": true,
+    "j6": true
    }
   },
   {
@@ -114919,8 +114960,8 @@
    "extension_id": "17401",
    "jed_url": "https://extensions.joomla.org/extension/devart-business/",
    "install_url": "https://github.com/devartgr/joomla-devart-business/releases",
-   "latest_version": "1.1.6",
-   "last_updated": "Sep 24 2026",
+   "latest_version": "1.1.7",
+   "last_updated": "Sep 28 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -115150,8 +115191,8 @@
    "extension_id": "17412",
    "jed_url": "https://extensions.joomla.org/extension/devart-events/",
    "install_url": "https://github.com/devartgr/joomla-devart-events/releases",
-   "latest_version": "1.1.2",
-   "last_updated": "Sep 24 2026",
+   "latest_version": "1.1.3",
+   "last_updated": "Sep 28 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -115192,8 +115233,8 @@
    "extension_id": "17414",
    "jed_url": "https://extensions.joomla.org/extension/nxcart/",
    "install_url": "https://nexusplugins.com/products/nxcart",
-   "latest_version": "1.0.2",
-   "last_updated": "Sep 07 2026",
+   "latest_version": "1.1.0",
+   "last_updated": "Sep 27 2026",
    "developer": "Zoran Tanevski",
    "type": "Free",
    "includes": {
@@ -115465,8 +115506,8 @@
    "extension_id": "17432",
    "jed_url": "https://extensions.joomla.org/extension/devart-video/",
    "install_url": "https://github.com/devartgr/joomla-devart-video/releases",
-   "latest_version": "1.1.5",
-   "last_updated": "Sep 21 2026",
+   "latest_version": "1.1.6",
+   "last_updated": "Sep 28 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -115570,8 +115611,8 @@
    "extension_id": "17437",
    "jed_url": "https://extensions.joomla.org/extension/devart-forms/",
    "install_url": "https://github.com/devartgr/joomla-devart-forms/releases",
-   "latest_version": "1.0.7",
-   "last_updated": "Sep 24 2026",
+   "latest_version": "1.0.8",
+   "last_updated": "Sep 28 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -115633,8 +115674,8 @@
    "extension_id": "17440",
    "jed_url": "https://extensions.joomla.org/extension/qc-memberships-meetings/",
    "install_url": "https://www.quantacade.com/qc-extensions/qc-memberships-meetings?view=plans",
-   "latest_version": "2.0.13",
-   "last_updated": "Sep 23 2026",
+   "latest_version": "2.0.20",
+   "last_updated": "Sep 26 2026",
    "developer": "QuantaCade",
    "type": "Free",
    "includes": {
@@ -115675,8 +115716,8 @@
    "extension_id": "17444",
    "jed_url": "https://extensions.joomla.org/extension/htprotect-security-firewall-auto-updates/",
    "install_url": "https://htprotect.org/en/#htprotect",
-   "latest_version": "2.7.10",
-   "last_updated": "Sep 08 2026",
+   "latest_version": "2.7.16",
+   "last_updated": "Sep 26 2026",
    "developer": "Pascal Lohmann",
    "type": "Free",
    "includes": {
@@ -115927,8 +115968,8 @@
    "extension_id": "17469",
    "jed_url": "https://extensions.joomla.org/extension/crusco-agentic-content/",
    "install_url": "https://www.htmlcrusco.it/en/joomla-extensions/crusco-agentic-content",
-   "latest_version": "4.6.0",
-   "last_updated": "Sep 14 2026",
+   "latest_version": "4.6.2",
+   "last_updated": "Sep 25 2026",
    "developer": "HTML Crusco",
    "type": "Free",
    "includes": {
@@ -116201,7 +116242,7 @@
    "jed_url": "https://extensions.joomla.org/extension/qc-digital-signature/",
    "install_url": "https://www.quantacade.com/qc-extensions/qc-digital-signature?view=plans",
    "latest_version": "2.0.7",
-   "last_updated": "Sep 24 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "QuantaCade",
    "type": "Free",
    "includes": {
@@ -117019,8 +117060,8 @@
    "extension_id": "17525",
    "jed_url": "https://extensions.joomla.org/extension/strip-comments/",
    "install_url": "https://github.com/FGcodework/plg_system_fgstripcomments/releases",
-   "latest_version": "2.0.1",
-   "last_updated": "Sep 17 2026",
+   "latest_version": "2.0.7",
+   "last_updated": "Sep 25 2026",
    "developer": "ferino",
    "type": "Free",
    "includes": {
@@ -117141,6 +117182,27 @@
    }
   },
   {
+   "extension_name": "Webshop Keurmerk",
+   "extension_id": "17532",
+   "jed_url": "https://extensions.joomla.org/extension/webshop-keurmerk/",
+   "install_url": "https://www.keurmerk.info/wp-content/uploads/2026/08/webshop-keurmerk-joomla-1.0.4.zip",
+   "latest_version": "1.0.4",
+   "last_updated": "Sep 27 2026",
+   "developer": "Stichting Webshop Keurmerk",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": true,
+    "plugin": false
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": true,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
    "extension_name": "PluggerBox Community Stats For JomSocial",
    "extension_id": "17535",
    "jed_url": "https://extensions.joomla.org/extension/pluggerbox-community-stats-for-jomsocial/",
@@ -117188,7 +117250,7 @@
    "jed_url": "https://extensions.joomla.org/extension/scan-malware/",
    "install_url": "https://joomsafe.com/pricing",
    "latest_version": "1.1.3",
-   "last_updated": "Sep 22 2026",
+   "last_updated": "Sep 28 2026",
    "developer": "JoomSAFE",
    "type": "Paid",
    "includes": {
@@ -117481,8 +117543,8 @@
    "extension_id": "17551",
    "jed_url": "https://extensions.joomla.org/extension/devart-documents/",
    "install_url": "https://github.com/devartgr/joomla-devart-documents/releases",
-   "latest_version": "1.1.2",
-   "last_updated": "Sep 24 2026",
+   "latest_version": "1.1.3",
+   "last_updated": "Sep 28 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -117586,8 +117648,8 @@
    "extension_id": "17556",
    "jed_url": "https://extensions.joomla.org/extension/devart-polls/",
    "install_url": "https://github.com/devartgr/joomla-devart-polls/releases",
-   "latest_version": "1.2.9",
-   "last_updated": "Sep 07 2026",
+   "latest_version": "1.2.10",
+   "last_updated": "Sep 28 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -118908,9 +118970,9 @@
    "extension_name": "Scorpion FAQ Package",
    "extension_id": "17623",
    "jed_url": "https://extensions.joomla.org/extension/scorpion-faq-package/",
-   "install_url": "https://joomlaupdates.scorpioncomputers.nl/extensions/pkg_scorpion_faq_v1.0.4.zip",
-   "latest_version": "1.0.4",
-   "last_updated": "Sep 01 2026",
+   "install_url": "https://joomlaupdates.scorpioncomputers.nl/extensions/pkg_scorpion_faq_v1.0.5.zip",
+   "latest_version": "1.0.5",
+   "last_updated": "Sep 28 2026",
    "developer": "Scorpion Computers & Software",
    "type": "Free",
    "includes": {
@@ -118951,8 +119013,8 @@
    "extension_id": "17626",
    "jed_url": "https://extensions.joomla.org/extension/update-log/",
    "install_url": "https://joomla.center/en/downloads/components/extensionlog/versions",
-   "latest_version": "1.0.24",
-   "last_updated": "Sep 03 2026",
+   "latest_version": "1.0.25",
+   "last_updated": "Sep 25 2026",
    "developer": "joomla.center",
    "type": "Free",
    "includes": {
@@ -119120,8 +119182,29 @@
    "jed_url": "https://extensions.joomla.org/extension/binev-short-url/",
    "install_url": "https://github.com/Bahram-PAB/plg_system_shorturl",
    "latest_version": "1.2.5",
-   "last_updated": "Sep 03 2026",
+   "last_updated": "Sep 26 2026",
    "developer": "Bahram PAB",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": false,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "FG AutoLightbox",
+   "extension_id": "17637",
+   "jed_url": "https://extensions.joomla.org/extension/fg-autolightbox/",
+   "install_url": "https://github.com/FGcodework/plg_content_fgautolightbox/releases/download/v2.3.10/plg_content_fgautolightbox_v2.3.10_j6x.zip",
+   "latest_version": "2.3.10",
+   "last_updated": "Sep 28 2026",
+   "developer": "ferino",
    "type": "Free",
    "includes": {
     "component": false,
@@ -119623,8 +119706,8 @@
    "extension_id": "17662",
    "jed_url": "https://extensions.joomla.org/extension/yandex-metrica-integrator/",
    "install_url": "https://joomla.center/en/downloads/plugins/yandex-metrica",
-   "latest_version": "1.0.3",
-   "last_updated": "Sep 07 2026",
+   "latest_version": "1.0.4",
+   "last_updated": "Sep 28 2026",
    "developer": "joomla.center",
    "type": "Free",
    "includes": {
@@ -119729,7 +119812,7 @@
    "jed_url": "https://extensions.joomla.org/extension/softmedia/",
    "install_url": "https://www.dlejproducts.pro",
    "latest_version": "2.1.3",
-   "last_updated": "Sep 13 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "DleJProducts",
    "type": "Paid",
    "includes": {
@@ -119739,7 +119822,7 @@
    },
    "joomla_compatibility": {
     "j3": false,
-    "j4": true,
+    "j4": false,
     "j5": true,
     "j6": true
    }
@@ -119876,7 +119959,7 @@
    "jed_url": "https://extensions.joomla.org/extension/wt-image-resize-and-convert/",
    "install_url": "https://web-tolk.ru/en/dev/joomla-plugins/wt-image-resize-and-convert?utm_source=jed",
    "latest_version": "1.0.0",
-   "last_updated": "Sep 22 2026",
+   "last_updated": "Sep 27 2026",
    "developer": "Sergey Tolkachyov",
    "type": "Free",
    "includes": {
@@ -119980,8 +120063,8 @@
    "extension_id": "17689",
    "jed_url": "https://extensions.joomla.org/extension/senso-mcp/",
    "install_url": "https://www.sensomcp.com/en/downloads/senso-mcp-pack-free",
-   "latest_version": "1.2.4",
-   "last_updated": "Sep 23 2026",
+   "latest_version": "1.2.7",
+   "last_updated": "Sep 27 2026",
    "developer": "Fred Oliver",
    "type": "Free",
    "includes": {
@@ -120043,8 +120126,8 @@
    "extension_id": "17694",
    "jed_url": "https://extensions.joomla.org/extension/content-portfolio-ajax/",
    "install_url": "https://www.mixwebtemplates.com/joomla-extensions/content-portfolio-joomla-module",
-   "latest_version": "4.2.6",
-   "last_updated": "Sep 18 2026",
+   "latest_version": "4.2.8",
+   "last_updated": "Sep 26 2026",
    "developer": "mixwebtemplates",
    "type": "Paid",
    "includes": {
@@ -120127,8 +120210,8 @@
    "extension_id": "17703",
    "jed_url": "https://extensions.joomla.org/extension/devart-liveblog/",
    "install_url": "https://github.com/devartgr/joomla-devart-liveblog/releases",
-   "latest_version": "1.1.3",
-   "last_updated": "Sep 18 2026",
+   "latest_version": "1.1.4",
+   "last_updated": "Sep 25 2026",
    "developer": "Kostas Stathopoulos",
    "type": "Free",
    "includes": {
@@ -120186,12 +120269,33 @@
    }
   },
   {
+   "extension_name": "FG Remove Generator",
+   "extension_id": "17707",
+   "jed_url": "https://extensions.joomla.org/extension/fg-remove-generator/",
+   "install_url": "https://github.com/FGcodework/plg_system_fgremovegenerator/releases/download/v1.5.4/plg_system_fgremovegenerator_v1.5.4.zip",
+   "latest_version": "1.5.4",
+   "last_updated": "Sep 25 2026",
+   "developer": "ferino",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
    "extension_name": "Trustpilot Reviews Pro",
    "extension_id": "17708",
    "jed_url": "https://extensions.joomla.org/extension/trustpilot-reviews-pro/",
    "install_url": "https://allforjoomla.com/premium/item/trustpilot-reviews-joomla",
    "latest_version": "1.0.2",
-   "last_updated": "Sep 18 2026",
+   "last_updated": "Sep 25 2026",
    "developer": "Oleg Micriucov",
    "type": "Paid",
    "includes": {
@@ -120202,8 +120306,8 @@
    "joomla_compatibility": {
     "j3": true,
     "j4": true,
-    "j5": false,
-    "j6": false
+    "j5": true,
+    "j6": true
    }
   },
   {
@@ -120438,6 +120542,27 @@
    }
   },
   {
+   "extension_name": "hutko for VirtueMart",
+   "extension_id": "17723",
+   "jed_url": "https://extensions.joomla.org/extension/hutko-for-virtuemart/",
+   "install_url": "https://github.com/hutko-service/virtuemart",
+   "latest_version": "1.0.0",
+   "last_updated": "Sep 27 2026",
+   "developer": "Hutko Service",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": true,
+    "j4": true,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
    "extension_name": "ochProjects",
    "extension_id": "17724",
    "jed_url": "https://extensions.joomla.org/extension/ochprojects/",
@@ -120448,6 +120573,216 @@
    "type": "Paid",
    "includes": {
     "component": true,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": false,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "Mail Log Pro",
+   "extension_id": "17725",
+   "jed_url": "https://extensions.joomla.org/extension/mail-log-pro/",
+   "install_url": "https://www.graup-it.de/benutzermenue/meine-downloads",
+   "latest_version": "1.2",
+   "last_updated": "Sep 28 2026",
+   "developer": "Norbert Graup",
+   "type": "Paid",
+   "includes": {
+    "component": true,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": false,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "RadarAddress for AcyMailing",
+   "extension_id": "17726",
+   "jed_url": "https://extensions.joomla.org/extension/radaraddress-for-acymailing/",
+   "install_url": "https://www.radaraddress.com/en/acymailing-add-on",
+   "latest_version": "1.0.4",
+   "last_updated": "Sep 28 2026",
+   "developer": "Gianluca Sordiglioni",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": true,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "NEWSMAX NEWS",
+   "extension_id": "17727",
+   "jed_url": "https://extensions.joomla.org/extension/newsmax-news/",
+   "install_url": "https://treybraid.com/newsmax-news-module.html",
+   "latest_version": "1.0.5",
+   "last_updated": "Sep 28 2026",
+   "developer": "Trey Braid",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": true,
+    "plugin": false
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "NEWSMAX NEWS Slideshow",
+   "extension_id": "17728",
+   "jed_url": "https://extensions.joomla.org/extension/newsmax-news-slideshow/",
+   "install_url": "https://treybraid.com/newsmax-news-slideshow-module.html",
+   "latest_version": "1.1.0",
+   "last_updated": "Sep 28 2026",
+   "developer": "Trey Braid",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": true,
+    "plugin": false
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "NEWSMAX NEWS Slideshow Deluxe (DX)",
+   "extension_id": "17729",
+   "jed_url": "https://extensions.joomla.org/extension/newsmax-news-slideshow-deluxe-dx/",
+   "install_url": "https://treybraid.com/newsmax-news-slideshow-dx-module.html",
+   "latest_version": "1.0.3",
+   "last_updated": "Sep 28 2026",
+   "developer": "Trey Braid",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": true,
+    "plugin": false
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "A4p Bridge YOOtheme Pro - Event Booking",
+   "extension_id": "17730",
+   "jed_url": "https://extensions.joomla.org/extension/a4p-bridge-yootheme-pro-event-booking/",
+   "install_url": "https://addons4.pro/shop/yootheme-pro-extensions/a4p-bridge-yootheme-pro-event-booking-system-plugin/",
+   "latest_version": "2.0.8",
+   "last_updated": "Sep 28 2026",
+   "developer": "addons4.pro",
+   "type": "Paid",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": false,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "RadarAddress for Community Builder",
+   "extension_id": "17731",
+   "jed_url": "https://extensions.joomla.org/extension/radaraddress-for-community-builder/",
+   "install_url": "https://www.radaraddress.com/en/community-builder-plugin",
+   "latest_version": "1.0.1",
+   "last_updated": "Sep 28 2026",
+   "developer": "Gianluca Sordiglioni",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": true,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "RadarAddress for Convert Forms",
+   "extension_id": "17732",
+   "jed_url": "https://extensions.joomla.org/extension/radaraddress-for-convert-forms/",
+   "install_url": "https://www.radaraddress.com/en/convert-forms-plugin",
+   "latest_version": "1.0.2",
+   "last_updated": "Sep 28 2026",
+   "developer": "Gianluca Sordiglioni",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": true,
+    "j5": true,
+    "j6": true
+   }
+  },
+  {
+   "extension_name": "Personyze for Joomla",
+   "extension_id": "17733",
+   "jed_url": "https://extensions.joomla.org/extension/personyze-personalization-for-joomla/",
+   "install_url": "https://github.com/personyze/personyze-joomla/releases/download/1.0.2/plg_system_personyze-1.0.2.zip",
+   "latest_version": "1.0.2",
+   "last_updated": "Sep 28 2026",
+   "developer": "Personyze",
+   "type": "Free",
+   "includes": {
+    "component": false,
+    "module": false,
+    "plugin": true
+   },
+   "joomla_compatibility": {
+    "j3": false,
+    "j4": true,
+    "j5": true,
+    "j6": false
+   }
+  },
+  {
+   "extension_name": "FG Admin Login Customizer",
+   "extension_id": "17741",
+   "jed_url": "https://extensions.joomla.org/extension/fg-admin-login-customizer/",
+   "install_url": "https://github.com/FGcodework/plg_system_fgadminlogincustom/releases/download/v1.18.6/plg_system_fgadminlogincustom_v1.18.6.zip",
+   "latest_version": "1.18.6",
+   "last_updated": "Sep 28 2026",
+   "developer": "ferino",
+   "type": "Free",
+   "includes": {
+    "component": false,
     "module": false,
     "plugin": true
    },

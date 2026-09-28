@@ -32,6 +32,11 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.ip_utils import is_ip_address
+from artemis.log_context import (
+    RunContextFilter,
+    reset_current_root_uids,
+    set_current_root_uids,
+)
 from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
@@ -136,6 +141,8 @@ class ArtemisBase(Karton):
 
         for handler in self.log.handlers:
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
+
+        self.log.addFilter(RunContextFilter())
 
         faulthandler.register(signal.SIGUSR1)
 
@@ -620,11 +627,13 @@ class ArtemisBase(Karton):
 
             saved_exception = None
             try:
+                set_current_root_uids([task.root_uid for task in tasks_filtered])
                 self.process_multiple(tasks_filtered)
             except Exception as exc:
                 saved_exception = exc
                 raise
             finally:
+                reset_current_root_uids()
                 self._run_post_hooks(saved_exception)
 
             self.log.info("%s tasks done - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered]))

@@ -12,7 +12,7 @@ annotated-types==0.8.0
 anyio==4.15.1
 anytree==2.13.0
 argon2-cffi==25.1.0
-argon2-cffi-bindings==25.1.0
+argon2-cffi-bindings==26.1.0
 attrs==26.1.0
 babel==2.18.0
 badkeys==0.0.20

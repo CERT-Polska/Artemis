@@ -116,7 +116,10 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
     if target.startswith("sip:"):
         return None
 
-    assert method in [method.value for method in HTTPMethod], f"{method} is not a standard HTTP verb"
+    # NONEXISTENT is used in some 403 circumvention templates
+    assert (
+        method in [method.value for method in HTTPMethod] or method == "NONEXISTENT"
+    ), f"{method} is not a standard HTTP verb"
     assert (
         target.startswith("http://")
         or target.startswith("https://")

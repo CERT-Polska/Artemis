@@ -263,9 +263,9 @@ services:
       MYSQL_ROOT_PASSWORD: example
 
   test-joomla-with-extensions:
-    build:
-      context: ./test/data/joomla_with_extensions
-      dockerfile: Dockerfile
+    image: nginx:latest
+    volumes:
+      - ./test/data/joomla_with_extensions/:/usr/share/nginx/html/
 
   test-smtp-server:
     hostname: test-smtp-server.artemis

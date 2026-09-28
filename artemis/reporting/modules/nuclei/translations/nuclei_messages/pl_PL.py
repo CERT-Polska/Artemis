@@ -2393,6 +2393,31 @@ TRANSLATIONS = {
     "Gitea versions 1.22.1 through 1.27.0 initialize the go-org markup renderer without replacing its default ReadFile callback. An unauthenticated attacker can submit Org-mode markup containing an #+INCLUDE directive with an absolute path to the repository markup endpoint of any public repository, causing the server to read and render arbitrary files accessible to the Gitea service user.": "System Gitea w wersjach od 1.22.1 do 1.27.0 zawiera podatność o identyfikatorze CVE-2026-59774 umożliwiającą atakującemu nieuprawniony odczyt dowolnych plików z serwera."
     + UPDATE_HINT,
     "Attempts to list all users on a MySQL server.": "Wykryto błędną konfigurację polegającą na możliwości odczytu wszystkich użytkowników w publicznie dostepnej bazie MySQL.",
+    "The ElementsKit Elementor Addons Lite (elementskit-lite) plugin for WordPress before 3.7.9 registers the REST route /wp-json/elementskit/v1/widget/mailchimp/subscribe with no authentication or capability check (CWE-306). The handler accepts client-supplied Mailchimp API credentials and a `list` parameter and issues upstream Mailchimp API requests, letting an unauthenticated attacker use the site as an open proxy to Mailchimp.": "Wtyczka WordPress o nazwie ElementsKit Elementor Addons Lite (elementskit-lite) w wersji poniżej 3.7.9 zawiera podatność o identyfikatorze CVE-2026-23693, która umożliwia wykonywanie zapytań do usługi Mailchimp, co może skutkować manipulowaniem danymi dotyczącymi subskrypcji lub wykonywaniem innych nieautoryzowanych czynności."
+    + PLUGIN_UPDATE_HINT,
+    "In PHP-FPM before 7.1.33, 7.2.x before 7.2.24, and 7.3.x before 7.3.11, when deployed in certain Nginx configurations with the fastcgi_split_path_info directive, a crafted request with an empty PATH_INFO can trigger a buffer underflow in the php-fpm code. This may allow an unauthenticated remote attacker to execute arbitrary code through specially crafted URLs by manipulating the PATH_INFO, leading to potential remote code execution. This template checks for the presence of the vulnerable misconfiguration without performing exploitation.": "Narzędzie PHP-FPM w wersji poniżej 7.1.33, w gałęzi 7.2.x poniżej 7.2.24 i w gałęzi 7.3.x poniżej 7.3.11, w niektórych konfiguracjach serwera Nginx z dyrektywą fastcgi_split_path_info, zawiera podatność o identyfikatorze CVE-2019-11043, która może umożliwić zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Campaign Monitor for WordPress plugin for WordPress versions up to 2.8.15 contains a full path disclosure caused by improper access restriction and enabled display_errors in /forms/views/admin/create.php, letting unauthenticated attackers retrieve server paths, exploit requires display_errors to be enabled.": "Wtyczka WordPress o nazwie Campaign Monitor for WordPress w wersji do 2.8.15 włącznie zawiera podatność o identyfikatorze CVE-2024-6569 umożliwiającą atakującemu poznanie ścieżek systemowych na serwerze."
+    + PLUGIN_UPDATE_HINT,
+    "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 18.2 before 18.11.11, 19.0 before 19.0.8, 19.1 before 19.1.6, and 19.2 before 19.2.4 that under certain conditions could allow an unauthenticated user to remotely modify or delete public projects and user data via a GraphQL directive.": "Narzędzie GitLab CE/EE w wersjach od 18.2 poniżej 18.11.11, od 19.0 poniżej 19.0.8, od 19.1 poniżej 19.1.6 i od 19.2 poniżej 19.2.4 zawiera podatność o identyfikatorze CVE-2026-19478 umożliwiającą atakującemu modyfikację i usuwanie publicznych projektów i danych użytkowników bez uwierzytelnienia."
+    + UPDATE_HINT,
+    "NextGEN Gallery through 4.2.3 reflects a URL-decoded `ngg_tag` route value into the generated tag page without the context-specific escaping added in 4.2.4. An unauthenticated attacker can break out of the tag context and inject an auto-executing script. This template injects an `svg onload` payload carrying a random nonce and matches its unencoded reflection; slash and backtick syntax keep the request off common WAF signatures.": "Wtyczka WordPress o nazwie NextGEN Gallery w wersji do 4.2.3 włącznie zawiera podatność Reflected XSS o identyfikatorze CVE-2026-28141, umożliwiającą atakującemu wstrzyknięcie i wykonanie kodu JavaScript bez interakcji użytkownika."
+    + REFLECTED_XSS_DESCRIPTION
+    + PLUGIN_UPDATE_HINT,
+    "mongo-express before 0.54.0 is vulnerable to remote code execution via endpoints that uses the `toBSON` method and misuse the `vm` dependency to perform `exec` commands in a non-safe environment.": "Narzędzie mongo-express w wersji poniżej 0.54.0 zawiera podatność o identyfikatorze CVE-2019-10758 umożliwiającą atakującym zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "GitLab CE/EE contains an unauthenticated arbitrary file read. Workhorse, the reverse proxy in front of Rails, matches upload routes using EscapedPath() and path.Clean without decoding percent sequences, while Puma decodes them before routing to Grape. Appending a trailing slash to commits or percent-encoding a static path segment as %63ommits therefore bypasses Workhorse upload route rewriting, and Rails reaches file_params_from_body_upload() which opens the path given in the file.path parameter before authenticate! is enforced. On the application/x-www-form-urlencoded branch the file bytes are handed to Rack::Utils.parse_nested_query, and any invalid percent sequence raises an ArgumentError whose message is interpolated into the HTTP 400 response body, disclosing file content to an unauthenticated caller.": "Narzędzie GitLab CE/EE zawiera podatność o identyfikatorze CVE-2026-85706 umożliwiającą atakującemu odczyt dowolnych plików z serwera bez uwierzytelnienia."
+    + UPDATE_HINT,
+    "Metabase contains a sql injection caused by improper sanitization of input in the '/reset_password' database endpoint, letting remote unauthenticated attackers gain administrator access, exploit requires no special privileges.": "Narzędzie Metabase zawiera podatność SQL Injection o identyfikatorze CVE-2026-72898, umożliwiającą atakującemu uzyskanie dostępu administracyjnego do systemu."
+    + UPDATE_HINT,
+    "Monsta FTP = 2.11 contains an unrestricted file upload vulnerability caused by lack of authentication on file uploads, letting unauthenticated attackers execute arbitrary code by uploading crafted files.": "Narzędzie Monsta FTP w wersji do 2.11 włącznie zawiera podatność Unrestricted File Upload o identyfikatorze CVE-2025-34299."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "H3c IMC allows remote unauthenticated attackers to cause the remote web application to execute arbitrary commands via the 'dynamiccontent.properties.xhtml' endpoint.": "Narzędzie H3C IMC zawiera podatność umożliwiającą atakującym zdalne wykonanie kodu bez uwierzytelnienia."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2928,4 +2953,7 @@ TRANSLATIONS = {
     "Couchbase Server administrative console was discovered.": "Wykryto panel administracyjny Couchbase Server.",
     "Kestra login interface was discovered.": "Wykryto panel logowania Kestra.",
     "Netgate pfSense Plus firewall login panel detected.": "Wykryto panel logowania Netgate pfSense Plus.",
+    "Planka is an open source kanban-style project management board. The login panel was detected.": "Wykryto panel logowania narzędzia Planka.",
+    "Druid Monitor login panel was detected.": "Wykryto panel logowania Druid Monitor.",
+    "Avigilon login panel was detected.": "Wykryto panel logowania Avigilon.",
 }

@@ -12,7 +12,7 @@ import subprocess
 import time
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, Tuple
 
 import more_itertools
 from karton.core import Task
@@ -286,7 +286,8 @@ class ScanUsing(enum.Enum):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class Nuclei(ArtemisBase):
     """
-    Runs Nuclei templates on URLs. To use Nuclei, enable both nuclei-module and nuclei-router modules.
+    Runs Nuclei templates on URLs and non-HTTP services (e.g. Redis, MySQL). To use Nuclei, enable both nuclei-module
+    and nuclei-router modules.
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
@@ -817,16 +818,128 @@ class Nuclei(ArtemisBase):
 
         return findings
 
+    def _scan_http_targets(
+        self, tasks: List[Task], templates: List[str], scan_tag_args: List[str]
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, List[str]]]:
+        """
+        Scans HTTP services: runs templates and workflows on the target URLs, DAST templates, and then
+        templates on links crawled from the homepage. Returns the findings and the links scanned per task.
+        """
+        targets = [get_target_url(task) for task in tasks]
+
+        findings = self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args)
+        findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=scan_tag_args))
+
+        # DAST scanning
+        dast_targets: List[str] = []
+        for task in tasks:
+            param_url = get_target_url(task)
+            for _, template_data in DAST_SCANNING.items():
+                param_url = add_injectable_params_and_common_params_from_wordlist(
+                    param_url, template_data["params_wordlist"], template_data["param_default_value"]
+                )
+            dast_targets.append(param_url)
+
+        # Running all dast templates at once on all dast targets constructed
+        all_dast_templates = []
+        for keyword in DAST_SCANNING.keys():
+            all_dast_templates.extend(self._dast_templates[keyword])
+        all_dast_templates.extend(self._dast_templates["other"])
+
+        findings.extend(
+            self._scan(
+                [NUCLEI_TEMPLATES_LOCATION + item for item in all_dast_templates],
+                ScanUsing.TEMPLATES,
+                dast_targets,
+                use_fake_home=True,
+                extra_nuclei_args=[
+                    "-dast",
+                    "-fuzzing-mode",
+                    "multiple",
+                    "-fuzz-param-frequency",
+                    str(get_max_num_parameters(dast_targets)),
+                ],
+            )
+        )
+
+        links_per_task: Dict[str, List[str]] = {}
+        for task in tasks:
+            links = self._get_links(get_target_url(task))
+            # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
+            # of them.
+            links = list(set(links) | set([self._strip_query_string(link) for link in links]))
+
+            random.shuffle(links)
+            links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
+
+            links_per_task[task.uid] = links
+            self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
+
+        # That way, if we have 20 links for a webpage, we won't run 100 concurrent scans for that webpage
+        for link_package in itertools.zip_longest(*list(links_per_task.values())):
+            findings.extend(
+                self._scan(
+                    [
+                        NUCLEI_TEMPLATES_LOCATION + item
+                        for item in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
+                        if not item.startswith("dast/")
+                    ],
+                    ScanUsing.TEMPLATES,
+                    [item for item in link_package if item],
+                    extra_nuclei_args=scan_tag_args,
+                )
+            )
+
+            dast_targets.clear()
+
+            for item in link_package:
+                if item:
+                    param_url = item
+                    for _, template_data in DAST_SCANNING.items():
+                        param_url = add_injectable_params_and_common_params_from_wordlist(
+                            param_url, template_data["params_wordlist"], template_data["param_default_value"]
+                        )
+                    dast_targets.append(param_url)
+
+            findings.extend(
+                self._scan(
+                    [
+                        NUCLEI_TEMPLATES_LOCATION + template
+                        for template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
+                        if template.startswith("dast/")
+                    ],
+                    ScanUsing.TEMPLATES,
+                    dast_targets,
+                    use_fake_home=True,
+                    extra_nuclei_args=[
+                        "-dast",
+                        "-fuzzing-mode",
+                        "multiple",
+                        "-fuzz-param-frequency",
+                        str(get_max_num_parameters(dast_targets)),
+                    ],
+                )
+            )
+
+        return findings, links_per_task
+
+    def _scan_non_http_targets(
+        self, tasks: List[Task], templates: List[str], scan_tag_args: List[str]
+    ) -> List[Dict[str, Any]]:
+        """
+        Scans non-HTTP services (e.g. Redis, MySQL, FTP). Network and JavaScript templates connect to
+        {{Hostname}} (host:port), so targets are passed as host:port - a URL scheme would have no meaning here.
+        HTTP templates, workflows, DAST and link crawling are skipped, as they only apply to web services.
+        """
+        targets = [get_target_endpoint(task) for task in tasks]
+        return self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args + ["-ept", "http"])
+
     def run_multiple(self, tasks: List[Task]) -> None:
         scan_mode = tasks[0].get_payload(NUCLEI_ROUTER_SCAN_MODE_KEY, NucleiScanMode.HTTP.value)
-        is_http_scan = scan_mode == NucleiScanMode.HTTP.value
 
         scan_tag_args = ["-itags", ",".join(TAGS_TO_INCLUDE)]
         router_flags = self._get_nuclei_router_flags(tasks)
         scan_tag_args.extend(router_flags)
-
-        if not is_http_scan:
-            scan_tag_args.extend(["-ept", "http"])
 
         self.log.info("Using router flags: %s", router_flags)
 
@@ -849,128 +962,31 @@ class Nuclei(ArtemisBase):
 
         self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
 
-        targets: List[str] = []
-        for task in tasks:
-            if is_http_scan:
-                targets.append(get_target_url(task))
-            else:
-                targets.append(get_target_endpoint(task))
-
-        findings = self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args)
-        if is_http_scan:
-            findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=scan_tag_args))
-
-        links_per_task: Dict[str, List[str]] = collections.defaultdict(list)
-
-        if is_http_scan:
-            # DAST scanning
-            dast_targets: List[str] = []
-            for task in tasks:
-                param_url = get_target_url(task)
-                for _, template_data in DAST_SCANNING.items():
-                    param_url = add_injectable_params_and_common_params_from_wordlist(
-                        param_url, template_data["params_wordlist"], template_data["param_default_value"]
-                    )
-                dast_targets.append(param_url)
-
-            # Running all dast templates at once on all dast targets constructed
-            all_dast_templates = []
-            for keyword in DAST_SCANNING.keys():
-                all_dast_templates.extend(self._dast_templates[keyword])
-            all_dast_templates.extend(self._dast_templates["other"])
-
-            findings.extend(
-                self._scan(
-                    [NUCLEI_TEMPLATES_LOCATION + item for item in all_dast_templates],
-                    ScanUsing.TEMPLATES,
-                    dast_targets,
-                    use_fake_home=True,
-                    extra_nuclei_args=[
-                        "-dast",
-                        "-fuzzing-mode",
-                        "multiple",
-                        "-fuzz-param-frequency",
-                        str(get_max_num_parameters(dast_targets)),
-                    ],
-                )
-            )
-
-            for task in tasks:
-                links = self._get_links(get_target_url(task))
-                # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
-                # of them.
-                links = list(set(links) | set([self._strip_query_string(link) for link in links]))
-
-                random.shuffle(links)
-                links = links[: Config.Modules.Nuclei.NUCLEI_MAX_NUM_LINKS_TO_PROCESS]
-
-                links_per_task[task.uid] = links
-                self.log.info("Links for %s: %s", get_target_url(task), links_per_task[task.uid])
-
-            # That way, if we have 20 links for a webpage, we won't run 100 concurrent scans for that webpage
-            for link_package in itertools.zip_longest(*list(links_per_task.values())):
-                findings.extend(
-                    self._scan(
-                        [
-                            NUCLEI_TEMPLATES_LOCATION + item
-                            for item in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
-                            if not item.startswith("dast/")
-                        ],
-                        ScanUsing.TEMPLATES,
-                        [item for item in link_package if item],
-                        extra_nuclei_args=scan_tag_args,
-                    )
-                )
-
-                dast_targets.clear()
-
-                for item in link_package:
-                    if item:
-                        param_url = item
-                        for _, template_data in DAST_SCANNING.items():
-                            param_url = add_injectable_params_and_common_params_from_wordlist(
-                                param_url, template_data["params_wordlist"], template_data["param_default_value"]
-                            )
-                        dast_targets.append(param_url)
-
-                findings.extend(
-                    self._scan(
-                        [
-                            NUCLEI_TEMPLATES_LOCATION + template
-                            for template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
-                            if template.startswith("dast/")
-                        ],
-                        ScanUsing.TEMPLATES,
-                        dast_targets,
-                        use_fake_home=True,
-                        extra_nuclei_args=[
-                            "-dast",
-                            "-fuzzing-mode",
-                            "multiple",
-                            "-fuzz-param-frequency",
-                            str(get_max_num_parameters(dast_targets)),
-                        ],
-                    )
-                )
+        # Addresses under which findings for a given task may be reported
+        targets_per_task: Dict[str, List[str]]
+        if scan_mode == NucleiScanMode.HTTP.value:
+            findings, links_per_task = self._scan_http_targets(tasks, templates, scan_tag_args)
+            targets_per_task = {task.uid: [get_target_url(task)] + links_per_task[task.uid] for task in tasks}
+        else:
+            findings = self._scan_non_http_targets(tasks, templates, scan_tag_args)
+            targets_per_task = {task.uid: [get_target_endpoint(task)] for task in tasks}
 
         findings_per_task = collections.defaultdict(list)
         findings_unmatched = []
         for finding in findings:
             found = False
             for task in tasks:
-                matches = [get_target_endpoint(task)] + links_per_task[task.uid]
-                if is_http_scan:
-                    matches.append(get_target_url(task))
-                hosts_with_port = [
-                    urllib.parse.urlparse(item).netloc for item in matches if ":" in urllib.parse.urlparse(item).netloc
-                ]
+                urls = targets_per_task[task.uid]
                 if "url" in finding:
-                    if finding["url"] in matches + hosts_with_port:
+                    if finding["url"] in urls:
                         findings_per_task[task.uid].append(finding)
                         found = True
                         break
                 elif "matched-at" in finding:
-                    if finding["matched-at"] in matches + hosts_with_port:
+                    hosts_with_port = [
+                        urllib.parse.urlparse(item).netloc for item in urls if ":" in urllib.parse.urlparse(item).netloc
+                    ]
+                    if finding["matched-at"] in urls or finding["matched-at"] in hosts_with_port:
                         findings_per_task[task.uid].append(finding)
                         found = True
                         break

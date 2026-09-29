@@ -7,6 +7,7 @@ from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
 from artemis.modules.nuclei import Nuclei
+from artemis.modules.nuclei_router import NUCLEI_ROUTER_SCAN_MODE_KEY, NucleiScanMode
 
 
 def _param_names(url: str) -> list[str]:
@@ -210,3 +211,47 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage\.local/xss\.php\?.*?"
             r"Reflected Cross-Site Scripting",
         )
+
+
+class NucleiNonHttpServiceTest(ArtemisModuleTestCase):
+    # The reason for ignoring mypy error is https://github.com/CERT-Polska/karton/issues/201
+    karton_class = Nuclei  # type: ignore
+
+    def setUp(self) -> None:
+        # An HTTP template is included to check that HTTP templates are not run on non-HTTP services
+        self.patcher = patch(
+            "artemis.config.Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN",
+            [
+                "network/exposures/exposed-redis.yaml",
+                "http/exposures/configs/apache-config.yaml",
+            ],
+        )
+        self.patcher.start()
+        self.addCleanup(self.patcher.stop)
+
+        return super().setUp()
+
+    def test_unauthenticated_redis(self) -> None:
+        task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-redis",
+                "port": 6379,
+                NUCLEI_ROUTER_SCAN_MODE_KEY: NucleiScanMode.OTHER.value,
+            },
+        )
+        with (
+            patch.object(self.karton, "_get_links") as get_links,
+            patch.object(self.karton, "_scan", wraps=self.karton._scan) as scan,
+        ):
+            self.run_task(task)
+
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertIn("[high] test-redis:6379: Redis Server - Unauthenticated Access", call.kwargs["status_reason"])
+
+        # Only the templates are run, on host:port - no workflows, DAST or link crawling, as they are HTTP-only
+        (scan_call,) = scan.call_args_list
+        self.assertEqual(scan_call.args[2], ["test-redis:6379"])
+        self.assertIn("-ept", scan_call.kwargs["extra_nuclei_args"])
+        get_links.assert_not_called()

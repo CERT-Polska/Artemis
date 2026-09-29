@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from enum import Enum
 from typing import Any
 
@@ -66,6 +67,7 @@ class NucleiRouter(ArtemisBase):
     def run(self, current_task: Task) -> None:
         is_http_service = current_task.headers.get("service") == Service.HTTP
 
+        target_url: str | None
         if is_http_service:
             target_url = get_target_url(current_task)
             nuclei_additional_flags = self.get_nuclei_additional_flags_for_task(target_url)
@@ -93,22 +95,15 @@ class NucleiRouter(ArtemisBase):
         if current_task.headers.get("receiver", None) == "nuclei":
             current_task.headers["receiver"] = "nuclei-router"
             current_task.headers["original_receiver"] = "nuclei"
-
-        result_data = {
-            "routed_task_type": TaskType.NUCLEI_TARGET,
-            "host": get_target_host(current_task),
-            "port": current_task.get_payload("port"),
-            "ssl": current_task.get_payload("ssl"),
-            "nuclei_scan_mode": nuclei_scan_mode.value,
-            "nuclei_additional_flags": nuclei_additional_flags,
-        }
-        if target_url:
-            result_data["url"] = target_url
-
         self.save_task_result(
             task=current_task,
             status=TaskStatus.OK,
-            data=result_data,
+            data={
+                "routed_task_type": TaskType.NUCLEI_TARGET,
+                "url": target_url,
+                "nuclei_scan_mode": nuclei_scan_mode.value,
+                "nuclei_additional_flags": nuclei_additional_flags,
+            },
         )
 
 

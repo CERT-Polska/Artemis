@@ -353,6 +353,12 @@ class Nuclei(ArtemisBase):
             sort_keys=True,
         )
 
+    def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
+        # Non-HTTP services (e.g. Redis) have no base URL to connect to
+        if task.get_payload(NUCLEI_ROUTER_SCAN_MODE_KEY, NucleiScanMode.HTTP.value) != NucleiScanMode.HTTP.value:
+            return True
+        return super().check_connection_to_base_url_and_save_error(task)
+
     def _should_scan_template(self, template: str) -> bool:
         if Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN:
             return template in Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN

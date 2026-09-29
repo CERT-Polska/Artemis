@@ -17,7 +17,7 @@ class NucleiRouterTest(ArtemisModuleTestCase):
 
     def test_http_service(self) -> None:
         task = Task(
-            {"type": TaskType.SERVICE, "service": Service.HTTP},
+            {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
             payload={"host": "test-service-with-exposed-apache-config.local", "port": 80},
         )
         self.assertTrue(task.matches_filters(NucleiRouter.filters))
@@ -35,7 +35,7 @@ class NucleiRouterTest(ArtemisModuleTestCase):
     def test_non_http_service(self) -> None:
         # Port scanner reports services without a dedicated Service value (such as Redis) as UNKNOWN
         task = Task(
-            {"type": TaskType.SERVICE, "service": Service.UNKNOWN},
+            {"type": TaskType.SERVICE.value, "service": Service.UNKNOWN.value},
             payload={"host": "test-redis", "port": 6379},
         )
         # Previously the router accepted only HTTP services, so such services were never scanned with Nuclei

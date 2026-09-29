@@ -30,7 +30,7 @@ class NucleiRouterTest(ArtemisModuleTestCase):
 
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.OK)
-        self.assertEqual(call.kwargs["data"]["url"], "http://test-service-with-exposed-apache-config.local:80")
+        self.assertEqual(call.kwargs["data"]["target"], "http://test-service-with-exposed-apache-config.local:80")
 
     def test_non_http_service(self) -> None:
         # Port scanner reports services without a dedicated Service value (such as Redis) as UNKNOWN
@@ -51,4 +51,4 @@ class NucleiRouterTest(ArtemisModuleTestCase):
 
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.OK)
-        self.assertIsNone(call.kwargs["data"]["url"])
+        self.assertEqual(call.kwargs["data"]["target"], "test-redis:6379")

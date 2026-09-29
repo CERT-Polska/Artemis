@@ -34,8 +34,7 @@ from artemis.domains import is_domain
 from artemis.ip_utils import is_ip_address
 from artemis.log_context import (
     RunContextFilter,
-    reset_current_root_uids,
-    set_current_root_uids,
+    run_hash_scope,
 )
 from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 from artemis.output_redirector import OutputRedirector
@@ -307,7 +306,8 @@ class ArtemisBase(Karton):
                     self.log.info("Binds changed, shutting down.")
                     break
 
-                num_tasks_done = self._single_iteration()
+                with run_hash_scope():
+                    num_tasks_done = self._single_iteration()
 
                 with task_counter.get_lock():
                     task_counter.value += num_tasks_done
@@ -627,13 +627,11 @@ class ArtemisBase(Karton):
 
             saved_exception = None
             try:
-                set_current_root_uids([task.root_uid for task in tasks_filtered])
                 self.process_multiple(tasks_filtered)
             except Exception as exc:
                 saved_exception = exc
                 raise
             finally:
-                reset_current_root_uids()
                 self._run_post_hooks(saved_exception)
 
             self.log.info("%s tasks done - %s", len(tasks_filtered), ", ".join([task.uid for task in tasks_filtered]))

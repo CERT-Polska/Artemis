@@ -12,10 +12,12 @@ from whoisdomain import Domain, WhoisQuotaExceeded  # type: ignore
 from whoisdomain import query as whois_query
 
 from artemis.config import Config
+from artemis.log_context import RunContextFilter
 
 CONSOLE_LOG_HANDLER = logging.StreamHandler()
 CONSOLE_LOG_HANDLER.setLevel(getattr(logging, Config.Miscellaneous.LOG_LEVEL))
 CONSOLE_LOG_HANDLER.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
+CONSOLE_LOG_HANDLER.addFilter(RunContextFilter())
 
 
 class CalledProcessErrorWithMessage(subprocess.CalledProcessError):

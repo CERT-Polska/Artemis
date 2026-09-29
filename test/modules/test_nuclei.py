@@ -255,3 +255,49 @@ class NucleiNonHttpServiceTest(ArtemisModuleTestCase):
         self.assertEqual(scan_call.args[2], ["test-redis:6379"])
         self.assertIn("-ept", scan_call.kwargs["extra_nuclei_args"])
         get_links.assert_not_called()
+
+    def test_unauthenticated_redis_on_non_standard_port(self) -> None:
+        # The template lists ports 6379 and 6380 - the port of the scanned service should be used instead
+        task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-redis-non-standard-port",
+                "port": 7000,
+                NUCLEI_ROUTER_SCAN_MODE_KEY: NucleiScanMode.OTHER.value,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertIn(
+            "[high] test-redis-non-standard-port:7000: Redis Server - Unauthenticated Access",
+            call.kwargs["status_reason"],
+        )
+
+    def test_redis_on_host_with_http_is_found_only_by_non_http_scan(self) -> None:
+        # TCP (network) templates run as a part of an HTTP scan connect only to the HTTP port, so they don't
+        # detect Redis running on the same host - it needs to be scanned as a separate service.
+        http_task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={"host": "test-redis-with-http", "port": 80},
+        )
+        self.run_task(http_task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.OK)
+
+        self.mock_db.reset_mock()
+
+        redis_task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-redis-with-http",
+                "port": 6379,
+                NUCLEI_ROUTER_SCAN_MODE_KEY: NucleiScanMode.OTHER.value,
+            },
+        )
+        self.run_task(redis_task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertIn(
+            "[high] test-redis-with-http:6379: Redis Server - Unauthenticated Access", call.kwargs["status_reason"]
+        )

@@ -58,6 +58,19 @@ services:
   test-redis:
     image: redis:7.0.5
 
+  # Unauthenticated Redis on a port that is not the Nuclei template default (6379)
+  test-redis-non-standard-port:
+    image: redis:7.0.5
+    command: redis-server --port 7000
+
+  # A host that exposes both HTTP (port 80) and unauthenticated Redis (port 6379)
+  test-redis-with-http:
+    image: redis:7.0.5
+
+  test-redis-with-http-web:
+    image: php:7.4-apache
+    network_mode: "service:test-redis-with-http"
+
   postgres-test:
     image: postgres
     restart: always

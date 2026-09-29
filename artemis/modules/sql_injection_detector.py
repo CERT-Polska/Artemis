@@ -298,8 +298,9 @@ class SqlInjectionDetector(ArtemisBase):
         for current_url in urls:
             parameters = get_injectable_parameters(current_url)
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
+            parameters_to_scan = list(dict.fromkeys(parameters + URL_PARAMS))
 
-            for param_batch in more_itertools.batched(parameters + URL_PARAMS, 75):
+            for param_batch in more_itertools.batched(parameters_to_scan, 75):
                 time_start = time.time()
                 max_url_length = 0
                 if self.is_url_with_parameters(current_url):

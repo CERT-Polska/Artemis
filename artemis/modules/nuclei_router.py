@@ -7,7 +7,7 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
-from artemis.task_utils import get_target_host, get_target_url
+from artemis.task_utils import get_target_endpoint, get_target_host, get_target_url
 from artemis.web_technology_identification import run_tech_detection, to_tag_strings
 
 TECHNOLOGY_DETECTION_TAGS_TO_EXCLUDE = {"wordpress": ["wordpress"]}
@@ -67,13 +67,12 @@ class NucleiRouter(ArtemisBase):
     def run(self, current_task: Task) -> None:
         is_http_service = current_task.headers.get("service") == Service.HTTP
 
-        target_url: str | None
         if is_http_service:
-            target_url = get_target_url(current_task)
-            nuclei_additional_flags = self.get_nuclei_additional_flags_for_task(target_url)
+            target = get_target_url(current_task)
+            nuclei_additional_flags = self.get_nuclei_additional_flags_for_task(target)
             nuclei_scan_mode = NucleiScanMode.HTTP
         else:
-            target_url = None
+            target = get_target_endpoint(current_task)
             nuclei_additional_flags = []
             nuclei_scan_mode = NucleiScanMode.OTHER
 
@@ -100,7 +99,7 @@ class NucleiRouter(ArtemisBase):
             status=TaskStatus.OK,
             data={
                 "routed_task_type": TaskType.NUCLEI_TARGET,
-                "url": target_url,
+                "target": target,
                 "nuclei_scan_mode": nuclei_scan_mode.value,
                 "nuclei_additional_flags": nuclei_additional_flags,
             },

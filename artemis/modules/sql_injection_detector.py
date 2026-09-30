@@ -40,7 +40,7 @@ class SqlInjectionDetector(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def scan_http(self, session: requests.Session, *args: Any, **kwargs: Any) -> HTTPResponse | None:
+    def forgiving_probe_http_get(self, session: requests.Session, *args: Any, **kwargs: Any) -> HTTPResponse | None:
         # Keep probes independent while retaining the underlying connection pool.
         session.cookies.clear()
         try:
@@ -98,9 +98,9 @@ class SqlInjectionDetector(ArtemisBase):
         start = timer()
         try:
             if "headers" not in kwargs:
-                self.scan_http(session, url)
+                self.forgiving_probe_http_get(session, url)
             else:
-                self.scan_http(session, url, headers=kwargs.get("headers"))
+                self.forgiving_probe_http_get(session, url, headers=kwargs.get("headers"))
         except requests.exceptions.Timeout:
             return Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
 
@@ -161,8 +161,8 @@ class SqlInjectionDetector(ArtemisBase):
             )
 
             if minimization_mode == "error":
-                error = self.contains_error(url_with, self.scan_http(session, url_with))
-                if not self.contains_error(url_without, self.scan_http(session, url_without)) and error:
+                error = self.contains_error(url_with, self.forgiving_probe_http_get(session, url_with))
+                if not self.contains_error(url_without, self.forgiving_probe_http_get(session, url_without)) and error:
                     minimal_params.append(param)
             elif (
                 self.measure_request_time(url_without, session)
@@ -222,8 +222,11 @@ class SqlInjectionDetector(ArtemisBase):
             no_effect_header = {header_name: HEADERS[header_name] + payload_without_effect}
 
             if minimization_mode == "error":
-                error = self.contains_error(url, self.scan_http(session, url, headers=single_header))
-                if not self.contains_error(url, self.scan_http(session, url, headers=no_effect_header)) and error:
+                error = self.contains_error(url, self.forgiving_probe_http_get(session, url, headers=single_header))
+                if (
+                    not self.contains_error(url, self.forgiving_probe_http_get(session, url, headers=no_effect_header))
+                    and error
+                ):
                     minimal_headers[header_name] = header_value
             elif (
                 self.measure_request_time(url, session, headers=no_effect_header)
@@ -313,10 +316,14 @@ class SqlInjectionDetector(ArtemisBase):
                             url=current_url, payload=not_error_payload, param_batch=param_batch
                         )
 
-                        error = self.contains_error(url_with_payload, self.scan_http(session, url_with_payload))
+                        error = self.contains_error(
+                            url_with_payload, self.forgiving_probe_http_get(session, url_with_payload)
+                        )
 
                         if (
-                            not self.contains_error(url_without_payload, self.scan_http(session, url_without_payload))
+                            not self.contains_error(
+                                url_without_payload, self.forgiving_probe_http_get(session, url_without_payload)
+                            )
                             and error
                         ):
                             minimal_params = self.minimize_parameters(
@@ -398,10 +405,14 @@ class SqlInjectionDetector(ArtemisBase):
                         url=current_url, param_batch=param_batch, payload=not_error_payload
                     )
 
-                    error = self.contains_error(url_with_payload, self.scan_http(session, url_with_payload))
+                    error = self.contains_error(
+                        url_with_payload, self.forgiving_probe_http_get(session, url_with_payload)
+                    )
 
                     if (
-                        not self.contains_error(url_with_no_payload, self.scan_http(session, url_with_no_payload))
+                        not self.contains_error(
+                            url_with_no_payload, self.forgiving_probe_http_get(session, url_with_no_payload)
+                        )
                         and error
                     ):
                         minimal_params = self.minimize_parameters(
@@ -484,11 +495,13 @@ class SqlInjectionDetector(ArtemisBase):
                 headers = self.create_headers(payload=error_payload)
                 headers_no_payload = self.create_headers(payload=not_error_payload)
 
-                error = self.contains_error(current_url, self.scan_http(session, current_url, headers=headers))
+                error = self.contains_error(
+                    current_url, self.forgiving_probe_http_get(session, current_url, headers=headers)
+                )
 
                 if (
                     not self.contains_error(
-                        current_url, self.scan_http(session, current_url, headers=headers_no_payload)
+                        current_url, self.forgiving_probe_http_get(session, current_url, headers=headers_no_payload)
                     )
                     and error
                 ):

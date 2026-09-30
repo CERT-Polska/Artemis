@@ -1,0 +1,40 @@
+{% if "nosql_injection" in data.contains_type %}
+    <li>{% trans %}We identified that the following URLs are vulnerable to NoSQL injection:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "nosql_injection" %}
+                    {% for message in report.additional_data.result %}
+                        <li>
+                            {{ message.url }} ({% trans %}method:{% endtrans %} {{ message.method }}, {% trans %}parameters:{% endtrans %} {{ message.parameters|join(", ") }})
+                            {% if message.code == report.additional_data.statements.nosql_injection_json_body %}
+                                :
+                                {% trans trimmed %}
+                                    NoSQL injection through a JSON request body: user input is passed directly into a
+                                    database query, so an attacker can send query operators instead of plain values to
+                                    change what the query matches. This can be used to bypass authentication or read
+                                    records the query was not meant to return.
+                                {% endtrans %}
+                            {% else %}
+                                :
+                                {% trans trimmed %}
+                                    NoSQL injection: user input is passed directly into a database query, so an attacker
+                                    can send query operators instead of plain values to change what the query matches.
+                                    This can be used to bypass authentication or read records the query was not meant to
+                                    return.
+                                {% endtrans %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                NoSQL injection occurs when user input reaches a database query without validation, letting an attacker
+                supply query operators (for example the MongoDB operators $ne, $gt or $regex) in place of ordinary
+                values. To fix this, validate that each parameter is of the expected type and reject values that are
+                objects or that contain operator keys before passing them to the database.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

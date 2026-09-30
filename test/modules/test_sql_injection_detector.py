@@ -248,7 +248,7 @@ class SqlInjectionHeaderMinimizationTestCase(ArtemisModuleTestCase):
                 return "error"
             return None
 
-        def mocked_http_get(url: str, headers: dict[str, str] | None = None) -> str | None:
+        def mocked_http_get(url: str, session: requests.Session, headers: dict[str, str] | None = None) -> str | None:
             if headers is None:
                 return None
             header_name = list(headers.keys())[0]

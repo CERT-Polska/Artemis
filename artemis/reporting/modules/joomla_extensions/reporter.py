@@ -1,7 +1,9 @@
 import os
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from artemis import utils
+from artemis.cpe_tools.cpe_plugin_slug import plugin_slug
+from artemis.cpe_tools.cpe_utils import lookup_cpe_by_plugin_slug
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
@@ -69,12 +71,25 @@ class JoomlaExtensionsReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
+        def get_cpe(urls: List[Any]) -> Optional[str]:
+            for url in urls:
+                if not isinstance(url, str):
+                    continue
+                cms, slug = plugin_slug(url) or (None, None)
+                if cms != "joomla" or not slug:
+                    continue
+                cpe = lookup_cpe_by_plugin_slug(slug, "joomla")
+                if cpe is not None:
+                    return cpe
+            return None
+
         return [
             Asset(
                 asset_type=AssetType.CMS_PLUGIN,
                 name=get_target_url(task_result),
                 additional_type="joomla-extension:" + item["name"],
                 version=item.get("version_on_website", ""),
+                cpe=get_cpe(item.get("urls", [])),
             )
             for item in task_result["result"].get("outdated_extensions", [])
         ]

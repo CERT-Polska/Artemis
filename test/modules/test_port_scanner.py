@@ -1,9 +1,11 @@
 from socket import gethostbyname
 from test.base import ArtemisModuleTestCase
+from unittest.mock import patch
 
 from karton.core import Task
 
 from artemis.binds import TaskStatus, TaskType
+from artemis.config import Config
 from artemis.modules.port_scanner import PortScanner
 
 
@@ -55,3 +57,31 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.assertEqual(
             call_domain.kwargs["status_reason"], "Found ports: 443 (service: http ssl: True, version: nginx/1.29.0)"
         )
+
+    def test_ldap_is_fingerprinted_by_protocol_and_risky_ports_do_not_spawn_tasks(self) -> None:
+        task = Task(
+            {"type": TaskType.DOMAIN},
+            payload={TaskType.DOMAIN: "test-openldap"},
+        )
+        with patch("artemis.modules.port_scanner.PORTS", [389, 636]):
+            results = self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        (ports,) = call.kwargs["data"].values()
+        self.assertEqual(ports["389"]["service"], "ldap")
+        self.assertEqual(ports["636"]["service"], "ldap")
+        self.assertTrue(ports["636"]["ssl"])
+
+        # 636 is a risky port that is only reported by default (389 is spawned as a standard service)
+        self.assertEqual([result.payload["port"] for result in results], [389])
+
+    def test_risky_ports_spawn_tasks_when_enabled(self) -> None:
+        task = Task(
+            {"type": TaskType.DOMAIN},
+            payload={TaskType.DOMAIN: "test-openldap"},
+        )
+        with (
+            patch("artemis.modules.port_scanner.PORTS", [389, 636]),
+            patch.object(Config.Modules.PortScanner, "PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS", True),
+        ):
+            results = self.run_task(task)
+        self.assertEqual(sorted(result.payload["port"] for result in results), [389, 636])

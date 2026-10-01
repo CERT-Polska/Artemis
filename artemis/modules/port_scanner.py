@@ -71,7 +71,12 @@ else:
     PORTS_SET_SHORT = load_ports("ports-artemis-short.txt")
     PORTS_SET_TOP10 = load_ports("ports-artemis-top10.txt")
 
-PORTS = sorted(list(PORTS_SET))
+PORTS_RISKY = load_ports("ports-artemis-risky.txt")
+# Risky ports that are not part of the standard list - we scan them and report them, but by default we don't
+# let other modules scan them (see PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS).
+PORTS_RISKY_ONLY = PORTS_RISKY - PORTS_SET
+
+PORTS = sorted(list(PORTS_SET | PORTS_RISKY))
 
 SSL_CONTEXT = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 SSL_CONTEXT.check_hostname = False
@@ -196,7 +201,9 @@ class PortScanner(ArtemisBase):
                         Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS,
                         ip,
                     )
-                    found_ports[ip] = [port_str for port_str in found_ports[ip] if int(port_str) in PORTS_SET_TOP10]
+                    found_ports[ip] = [
+                        port_str for port_str in found_ports[ip] if int(port_str) in PORTS_SET_TOP10 | PORTS_RISKY
+                    ]
 
             for ip in found_ports:
                 for port_str in found_ports[ip]:
@@ -289,7 +296,11 @@ class PortScanner(ArtemisBase):
                         },
                     )
 
-                    self.add_task(task, new_task)
+                    if (
+                        int(port) not in PORTS_RISKY_ONLY
+                        or Config.Modules.PortScanner.PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS
+                    ):
+                        self.add_task(task, new_task)
                     open_ports.append(int(port))
 
                     interesting_port_descriptions.append(

@@ -2,7 +2,7 @@ name: "refresh joomla extensions"
 
 on:
   schedule:
-    - cron: "0 12 * * 1,2,5"
+    - cron: "0 8 * * 2"
   workflow_dispatch:
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 300
     steps:
       - name: Checkout source code
         uses: actions/checkout@v7.0.1
@@ -25,7 +25,7 @@ jobs:
         run: pip install requests beautifulsoup4
 
       - name: Run recent refresh
-        run: python artemis/modules/data/joomla/refresh_extensions.py --recent -o artemis/modules/data/joomla/extensions.json
+        run: python artemis/modules/data/joomla/refresh_extensions.py -o artemis/modules/data/joomla/extensions.json
 
       - name: Commit updated extensions.json
         run: |

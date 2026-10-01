@@ -101,21 +101,23 @@ def extract_jed_slug(jed_url: str) -> str:
     return m.group(1) if m else ""
 
 
+_VERSION_PAREN_RE = re.compile(r"\([^)]*\)")
+_VERSION_SEP_RE = re.compile(r"[\s,;/]+")
+
+
 def parse_version_string(raw: str | None) -> version.Version | None:
     if not raw:
         return None
-    raw = raw.strip()
-    if " " in raw:
-        for part in raw.split():
-            try:
-                return version.parse(part)
-            except version.InvalidVersion:
-                continue
-        return None
-    try:
-        return version.parse(raw)
-    except version.InvalidVersion:
-        return None
+    raw = _VERSION_PAREN_RE.sub(" ", raw.strip())
+    candidates: list[version.Version] = []
+    for token in _VERSION_SEP_RE.split(raw):
+        if not token:
+            continue
+        try:
+            candidates.append(version.parse(token))
+        except version.InvalidVersion:
+            continue
+    return max(candidates) if candidates else None
 
 
 def parse_manifest_xml(xml_text: str) -> dict[str, str | None] | None:
@@ -288,11 +290,9 @@ class JoomlaExtensions(ArtemisBase):
             if match:
                 latest = match.get("latest_version")
                 entry["latest_version"] = latest
-                if latest and site_version:
-                    try:
-                        entry["outdated"] = site_version < version.parse(latest)
-                    except version.InvalidVersion:
-                        entry["outdated"] = None
+                latest_version = parse_version_string(latest)
+                if site_version and latest_version:
+                    entry["outdated"] = site_version < latest_version
 
             extensions.append(entry)
             if entry["outdated"] is True:

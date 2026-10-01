@@ -50,6 +50,9 @@ from artemis.utils import (
 EXPOSED_PANEL_TEMPLATE_PATH_PREFIX = "http/exposed-panels/"
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
+# Directories of nuclei-templates with templates that can't be run against a bare host:port (HTTP ones need a URL,
+# the others require flags such as -headless or -code that we don't pass).
+TEMPLATE_DIRECTORIES_NOT_APPLICABLE_TO_NON_HTTP_SERVICES = ("http/", "dast/", "headless/", "cloud/", "code/", "file/")
 NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
 
 
@@ -938,6 +941,13 @@ class Nuclei(ArtemisBase):
         HTTP templates, workflows, DAST and link crawling are skipped, as they only apply to web services.
         """
         targets = [get_target_endpoint(task) for task in tasks]
+        # Nuclei runs are done in batches and every batch has a fixed cost (loading templates), so we don't want
+        # to spend time on batches of templates that would be all filtered out anyway.
+        templates = [
+            template
+            for template in templates
+            if not template.startswith(TEMPLATE_DIRECTORIES_NOT_APPLICABLE_TO_NON_HTTP_SERVICES)
+        ]
         return self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args + ["-ept", "http"])
 
     def run_multiple(self, tasks: List[Task]) -> None:

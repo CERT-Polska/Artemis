@@ -254,6 +254,9 @@ class NucleiNonHttpServiceTest(ArtemisModuleTestCase):
         (scan_call,) = scan.call_args_list
         self.assertEqual(scan_call.args[2], ["test-redis:6379"])
         self.assertIn("-ept", scan_call.kwargs["extra_nuclei_args"])
+        # Templates that can't apply to non-HTTP services are not even passed to nuclei (each batch has a fixed cost)
+        self.assertIn("network/exposures/exposed-redis.yaml", scan_call.args[0])
+        self.assertNotIn("http/exposures/configs/apache-config.yaml", scan_call.args[0])
         get_links.assert_not_called()
 
     def test_unauthenticated_redis_on_non_standard_port(self) -> None:

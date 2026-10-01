@@ -312,6 +312,7 @@ def scrape_extensions(
         entry, st = _scrape_one(session, jed_url, timeout, retries)
         if st == "failed":
             failed += 1
+            continue
         elif st == "no_meta":
             no_meta += 1
             continue

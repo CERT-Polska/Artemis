@@ -103,6 +103,7 @@ def extract_jed_slug(jed_url: str) -> str:
 
 _VERSION_PAREN_RE = re.compile(r"\([^)]*\)")
 _VERSION_SEP_RE = re.compile(r"[\s,;/]+")
+_VERSION_NUM_RE = re.compile(r"\d+(?:\.\d+)*")
 
 
 def parse_version_string(raw: str | None) -> version.Version | None:
@@ -116,7 +117,12 @@ def parse_version_string(raw: str | None) -> version.Version | None:
         try:
             candidates.append(version.parse(token))
         except version.InvalidVersion:
-            continue
+            m = _VERSION_NUM_RE.search(token)
+            if m:
+                try:
+                    candidates.append(version.parse(m.group(0)))
+                except version.InvalidVersion:
+                    continue
     return max(candidates) if candidates else None
 
 
@@ -126,7 +132,7 @@ def parse_manifest_xml(xml_text: str) -> dict[str, str | None] | None:
     except ET.ParseError:
         return None
 
-    if not root.tag.endswith("extension") and root.tag != "extension":
+    if not root.tag.endswith("extension"):
         for child in root.iter():
             if child.tag.endswith("extension") or child.tag == "extension":
                 root = child
@@ -164,19 +170,28 @@ class JoomlaExtensions(ArtemisBase):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._by_name: dict[str, dict[str, Any]] = {}
-        self._by_normalized: dict[str, dict[str, Any]] = {}
+        self._by_name: dict[str, dict[str, dict[str, Any]]] = {}
+        self._by_normalized: dict[str, dict[str, dict[str, Any]]] = {}
         with open(EXTENSIONS_FILE, encoding="utf-8") as f:
             data = json.load(f)
         entries = data.get("extensions", data) if isinstance(data, dict) else data
         for ext in entries:
             name = ext.get("extension_name")
+            includes = ext.get("includes", {})
+            types = [t for t in ("component", "module", "plugin") if includes.get(t)]
+            if not types:
+                types = ["component", "module", "plugin"]
             if name:
-                self._by_name[name.lower()] = ext
+                by_name = self._by_name.setdefault(name.lower(), {})
+                for t in types:
+                    by_name.setdefault(t, ext)
             slug = extract_jed_slug(ext.get("jed_url", ""))
-            for nk in (normalize_key(slug), normalize_key(name)):
-                if nk:
-                    self._by_normalized.setdefault(nk, ext)
+            for nk in {normalize_key(slug), normalize_key(name)}:
+                if not nk:
+                    continue
+                by_norm = self._by_normalized.setdefault(nk, {})
+                for t in types:
+                    by_norm.setdefault(t, ext)
 
     def fetch_manifest(self, url: str) -> dict[str, str | None] | None:
         response = self.forgiving_http_get(url)
@@ -213,17 +228,18 @@ class JoomlaExtensions(ArtemisBase):
                 return result
         return None
 
-    def check_for_plugin(self, base_url: str, plg_name: str) -> dict[str, str | None] | None:
-        for group in CORE_PLUGIN_GROUPS:
-            path = "/plugins/" + group + "/" + plg_name + "/" + plg_name + ".xml"
+    def check_for_plugin(self, base_url: str, plg_name: str, group: str | None = None) -> dict[str, str | None] | None:
+        groups: tuple[str, ...] = (group,) if group else CORE_PLUGIN_GROUPS
+        for g in groups:
+            path = "/plugins/" + g + "/" + plg_name + "/" + plg_name + ".xml"
             result = self.fetch_manifest(base_url + path)
             if result:
                 return result
         return None
 
-    def _result_body(self, type: str, key: Any, result: dict[str, Any]) -> dict[str, Any]:
+    def _result_body(self, ext_type: str, key: Any, result: dict[str, Any]) -> dict[str, Any]:
         return {
-            "type": type,
+            "type": ext_type,
             "key": key,
             "name": result["name"],
             "version": result["version"],
@@ -255,8 +271,12 @@ class JoomlaExtensions(ArtemisBase):
                 detected.append(self._result_body("module", key, result))
 
         for key in sorted(index_plugins):
-            plg_name = key[4:] if key.startswith("plg_") else key
-            result = self.check_for_plugin(base_url, plg_name)
+            rest = key[4:] if key.startswith("plg_") else key
+            parts = rest.split("_", 1)
+            if len(parts) == 2:
+                result = self.check_for_plugin(base_url, parts[1], parts[0])
+            else:
+                result = self.check_for_plugin(base_url, rest)
             if result:
                 detected.append(self._result_body("plugin", key, result))
 
@@ -279,13 +299,14 @@ class JoomlaExtensions(ArtemisBase):
             }
 
             match: dict[str, Any] | None = None
+            ext_type = ext["type"]
             site_key_norm = normalize_key(ext["key"])
             if site_key_norm:
-                match = self._by_normalized.get(site_key_norm)
+                match = self._by_normalized.get(site_key_norm, {}).get(ext_type)
             if match is None and ext["name"]:
-                match = self._by_normalized.get(normalize_key(ext["name"]))
+                match = self._by_normalized.get(normalize_key(ext["name"]), {}).get(ext_type)
             if match is None and ext["name"]:
-                match = self._by_name.get(ext["name"].lower())
+                match = self._by_name.get(ext["name"].lower(), {}).get(ext_type)
 
             if match:
                 latest = match.get("latest_version")

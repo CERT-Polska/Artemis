@@ -26,14 +26,9 @@ class JoomlaExtensionsReporter(Reporter):
         if not isinstance(task_result["result"], dict):
             return []
 
-        extensions_by_key = {
-            item["key"]: item for item in task_result["result"].get("extensions", []) if item.get("key")
-        }
-
         result = []
-        for key in task_result["result"].get("outdated", []):
-            item = extensions_by_key.get(key)
-            if item is None:
+        for item in task_result["result"].get("extensions", []):
+            if item.get("outdated") is not True:
                 continue
             result.append(
                 Report(

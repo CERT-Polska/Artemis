@@ -74,6 +74,17 @@ def get_target_host(task: Task) -> str:
     raise ValueError(f"Unknown target found: {task_type}")
 
 
+def get_target_endpoint(task: Task) -> str:
+    """
+    Build a host:port endpoint string from a Karton task.
+    """
+    host = get_target_host(task)
+    port = task.get_payload("port")
+    if port is None:
+        raise ValueError(f"Port not found in task payload: {task}")
+    return f"{host}:{port}"
+
+
 def get_target_url(task: Task) -> str:
     """
     Build or extract a complete URL from a Karton task.

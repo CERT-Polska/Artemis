@@ -36,6 +36,7 @@ SEVERITY_MAP = {
     ReportType("exposed_configuration_file"): Severity.HIGH,
     ReportType("exposed_sql_dump"): Severity.HIGH,
     ReportType("exposed_ssh_with_easy_password"): Severity.HIGH,
+    ReportType("heartbleed"): Severity.HIGH,
     ReportType("ssh_known_bad_key"): Severity.HIGH,
     ReportType("sql_injection:core"): Severity.HIGH,
     ReportType("leaked_sensitive_data"): Severity.MEDIUM,

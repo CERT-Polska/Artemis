@@ -66,6 +66,7 @@ SEVERITY_MAP = {
     ReportType("open_port_smb"): Severity.LOW,
     ReportType("exposed_php_var_dump"): Severity.LOW,
     ReportType("exposed_phpinfo"): Severity.LOW,
+    ReportType("robot"): Severity.LOW,
     ReportType("nuclei_exposed_panel"): Severity.LOW,
     ReportType("missing_security_headers"): Severity.LOW,
     ReportType("exposed_ntlm_endpoint"): Severity.LOW,

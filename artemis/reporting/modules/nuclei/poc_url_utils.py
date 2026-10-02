@@ -17,6 +17,7 @@ import urllib.parse
 from typing import Callable, List, Optional, Sequence, Tuple, TypeVar
 
 from artemis.config import Config
+from artemis.log_context import RunContextFilter
 
 # The default limit of Nuclei re-fuzzes for one finding, the final check
 # included; nuclei.py passes NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING instead.
@@ -32,6 +33,8 @@ summary_logger.propagate = False
 if not summary_logger.handlers:
     _handler = logging.StreamHandler()
     _handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
+    # LOGGING_FORMAT_STRING references run_hash, which this filter sets.
+    _handler.addFilter(RunContextFilter())
     summary_logger.addHandler(_handler)
 
 T = TypeVar("T")

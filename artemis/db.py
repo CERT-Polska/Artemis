@@ -530,7 +530,11 @@ class DB:
         Records that a module has started a task. Returns True if this is the first time
         this module started this task, False if it was already started.
         """
-        self.logger.info("Saving module started task: %s", self._get_task_deduplication_data(task))
+        self.logger.info(
+            "Saving module started task: module_identity=%s, deduplication_data=%s",
+            module_identity,
+            self._get_task_deduplication_data(task),
+        )
         record = {
             "module_identity": module_identity,
             "analysis_id": task.root_uid,

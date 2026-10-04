@@ -1,0 +1,126 @@
+import logging
+from pathlib import Path
+
+from artemis.cpe_tools.cpe_main_process import (
+    AMBIGUOUS_TITLE,
+    ensure_plugin_index,
+    ensure_title_index,
+    ensure_url_index,
+    family,
+    get_nvd_dir,
+    normalize,
+    normalize_url,
+    with_version,
+)
+
+logger = logging.getLogger(__name__)
+
+
+# Words that carry no discriminative value for product matching.
+_STOPWORDS = frozenset(
+    {
+        "the",
+        "and",
+        "of",
+        "for",
+        "a",
+        "an",
+        "inc",
+        "llc",
+        "ltd",
+        "corp",
+        "co",
+        "gmbh",
+        "plc",
+        "sa",
+    }
+)
+
+
+def resolve(nvd_dir: Path, normalized: str, *, exact_only: bool = False) -> str | None:
+    """Resolve a normalized title to a versionless CPE family."""
+
+    def _tokens(normalized: str) -> list[str]:
+        return [t for t in normalized.split() if len(t) > 1 and t not in _STOPWORDS]
+
+    index = ensure_title_index(nvd_dir)
+
+    cpe = index.get(normalized)
+    if cpe is not None:
+        return None if cpe == AMBIGUOUS_TITLE else cpe
+
+    if exact_only:
+        return None
+
+    tokens = _tokens(normalized)
+    if not tokens:
+        return None
+
+    token_set = frozenset(tokens)
+    candidates: dict[str, str] = {}
+    for title, cpe in index.items():
+        if token_set.issubset(title.split()):
+            if cpe == AMBIGUOUS_TITLE:
+                return None
+            candidates.setdefault(family(cpe), cpe)
+
+    return next(iter(candidates.values())) if len(candidates) == 1 else None
+
+
+def lookup_cpe(name: str, version: str | None = None, *, exact_only: bool = False) -> str | None:
+    """Resolve a free-form product name to an authoritative NVD CPE 2.3 name, or ``None``.
+
+    With ``exact_only`` the name has to be a title the dictionary carries, rather than a
+    subset of one.
+    """
+    if not isinstance(name, str) or not name.strip():
+        return None
+    nvd_dir = get_nvd_dir()
+    normalized = normalize(name)
+    if not normalized:
+        return None
+    family_cpe = resolve(nvd_dir, normalized, exact_only=exact_only)
+    if family_cpe is None:
+        return None
+    return with_version(family_cpe, version)
+
+
+def lookup_cpe_by_plugin_slug(slug: str, cms: str, version: str | None = None) -> str | None:
+    """Resolve a CMS plugin slug to an authoritative NVD CPE 2.3 name.
+
+    The plugin index stores slugs namespaced by CMS (e.g. ``wordpress:<slug>``)
+
+    Returns ``None`` when the dictionary is unavailable or no plugin CPE
+    references that slug.
+    """
+    if not isinstance(slug, str) or not slug.strip():
+        return None
+    plugins = ensure_plugin_index(get_nvd_dir())
+    cpe = plugins.get(f"{cms}:{slug.strip().lower()}")
+    if cpe is None:
+        return None
+    family = with_version(cpe, "*")
+    return with_version(family, version)
+
+
+def lookup_cpe_by_url(url: str, version: str | None = None) -> str | None:
+    """Resolve a reference URL to an authoritative NVD CPE 2.3 name.
+
+    The url index stores every ref URL seen on a CPE, keyed by
+    its normalized form. First-seen wins when the same normalized URL appears on more
+    than one CPE.
+
+    Returns ``None`` when the dictionary is unavailable or no CPE
+    references that URL.
+    """
+    if not isinstance(url, str) or not url.strip():
+        return None
+    key = normalize_url(url)
+    if not key:
+        return None
+    urls = ensure_url_index(get_nvd_dir())
+    cpe = urls.get(key)
+    if cpe is None:
+        return None
+    family = with_version(cpe, "*")
+    return with_version(family, version)

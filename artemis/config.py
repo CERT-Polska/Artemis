@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Annotated, Any, List, Optional, get_type_hints
 
 import decouple
@@ -56,7 +57,7 @@ class Config:
                 int,
                 "How old the task results need to be to be archived (in seconds) for tasks that have status=INTERESTING",
             ] = get_config(
-                "AUTOARCHIVER_MIN_AGE_SECONDS_INTERESTING", default=180 * 24 * 60 * 60, cast=int
+                "AUTOARCHIVER_MIN_AGE_SECONDS_INTERESTING", default=365 * 24 * 60 * 60, cast=int
             )  # 180 days
             AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING: Annotated[
                 int,
@@ -199,6 +200,29 @@ class Config:
             """,
         ] = get_config("REQUESTS_PER_SECOND", default=0, cast=float)
 
+    class CpeDictionary:
+        CPE_NVD_DIR: Annotated[
+            str,
+            "Directory where the NVD CPE dictionary is stored (inside the container). "
+            "Defaults to the bundled artemis/cpe_tools/nvdcpe-2.0 directory.",
+        ] = get_config(
+            "CPE_NVD_DIR",
+            default=str(Path(__file__).resolve().parent / "cpe_tools" / "nvdcpe-2.0"),
+        )
+
+        CPE_NVD_DOWNLOAD_URL: Annotated[
+            str,
+            "URL of the NVD CPE 2.0 feed tarball. Re-downloaded every CPE_NVD_REFRESH_INTERVAL_SECONDS to keep CPE lookups current.",
+        ] = get_config(
+            "CPE_NVD_DOWNLOAD_URL",
+            default="https://nvd.nist.gov/feeds/json/cpe/2.0/nvdcpe-2.0.tar.gz",
+        )
+
+        CPE_NVD_REFRESH_INTERVAL_SECONDS: Annotated[
+            int,
+            "How often (in seconds) the NVD CPE dictionary is re-downloaded and the title index rebuilt. Default is 24 h.",
+        ] = get_config("CPE_NVD_REFRESH_INTERVAL_SECONDS", default=24 * 3600, cast=int)
+
     class Miscellaneous:
         DEFAULT_MODULE_NUM_RETRIES: Annotated[
             int, "The number of times a module will be executed in an attempt to obtain a non-error status."
@@ -254,7 +278,7 @@ class Config:
             "Logging format string (according to the syntax in https://docs.python.org/3/library/logging.html#logrecord-attributes)",
         ] = get_config(
             "LOGGING_FORMAT_STRING",
-            default="%(processName)s | [%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): %(message)s",
+            default="%(processName)s | [%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): [%(run_hash)s] %(message)s",
         )
 
         PASSWORD_BRUTER_ADDITIONAL_PASSWORDS: Annotated[
@@ -296,7 +320,7 @@ class Config:
             int,
             "After this number of module running time, each scanning module will get restarted. This is to prevent situations "
             "such as slow memory leaks.",
-        ] = get_config("MAX_MODULE_TASK_PROCESSING_TIME__SECONDS", default=3 * 24 * 3600 * 3600, cast=int)
+        ] = get_config("MAX_MODULE_TASK_PROCESSING_TIME__SECONDS", default=24 * 3600, cast=int)
 
         CONTENT_PREFIX_SIZE: Annotated[
             int,
@@ -308,7 +332,7 @@ class Config:
             "Artemis modules that are disabled by default (but may easily be enabled in the UI)",
         ] = get_config(
             "MODULES_DISABLED_BY_DEFAULT",
-            default="admin_panel_login_bruter,api_scanner,dangling_dns_detector,example,humble,leak_scanner,ssh_bruter,xss_scanner",
+            default="admin_panel_login_bruter,dangling_dns_detector,example,humble,leak_scanner,ssh_bruter,xss_scanner",
             cast=decouple.Csv(str, delimiter=","),
         )
         SUBDOMAIN_ENUMERATION_TTL_DAYS: Annotated[
@@ -325,7 +349,7 @@ class Config:
         MAX_URLS_TO_SCAN: Annotated[
             int,
             "Maximum number of URLs to scan per target for modules that crawl like lfi_detector, Nuclei, sq_injection_detector, etc.",
-        ] = get_config("MAX_URLS_TO_SCAN", default=25, cast=int)
+        ] = get_config("MAX_URLS_TO_SCAN", default=15, cast=int)
 
         CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES: Annotated[
             bool, "Raise error in case cleanup task did not found unfinished analyses."
@@ -414,6 +438,22 @@ class Config:
                 "retry sooner.",
             ] = get_config("KATANA_TIMEOUT_CACHE_TTL_SECONDS", default=60 * 60, cast=int)
 
+        class CveLookup:
+            CVE_LOOKUP_NVD_REQUESTS_PER_SECOND: Annotated[
+                float,
+                "Rate limit for NVD API queries. NVD allows 5 requests per 30 seconds (~0.166 r/s).",
+            ] = get_config("CVE_LOOKUP_NVD_REQUESTS_PER_SECOND", default=0.16, cast=float)
+
+            CVE_LOOKUP_NVD_API_URL: Annotated[
+                str,
+                "Base URL of the NVD CVE API. Overridable mainly so the integration tests can point "
+                "the module at a local mock instead of the live NVD service.",
+            ] = get_config(
+                "CVE_LOOKUP_NVD_API_URL",
+                default="https://services.nvd.nist.gov/rest/json/cves/2.0",
+                cast=str,
+            )
+
         class DanglingDnsDetector:
             DANGLING_DNS_SKIP_ROOT_DOMAIN: Annotated[
                 bool, "If set to True, detector will not perform checks against the root domain."
@@ -462,10 +502,10 @@ class Config:
                 "Which template lists to use besides the ones defined by NUCLEI_SEVERITY_THRESHOLD. Available: "
                 "known_exploited_vulnerabilities (from https://github.com/Ostorlab/KEV/), "
                 "log_exposures (http/exposures/logs folder in https://github.com/projectdiscovery/nuclei-templates/), "
-                "exposed_panels (http/exposed-panels/ folder).",
+                "technologies (http/exposed-panels/ and http/technologies/ folders).",
             ] = get_config(
                 "NUCLEI_TEMPLATE_LISTS",
-                default="known_exploited_vulnerabilities,log_exposures,exposed_panels",
+                default="known_exploited_vulnerabilities,log_exposures,technologies",
                 cast=decouple.Csv(str, delimiter=","),
             )
 
@@ -535,6 +575,14 @@ class Config:
                 "NUCLEI_TEMPLATES_TO_SKIP",
                 default=",".join(
                     [
+                        # We already have Wappalyzer
+                        "http/technologies/tech-detect.yaml",
+                        "http/technologies/fingerprinthub-web-fingerprints.yaml",
+                        # Too many FP
+                        "http/technologies/waf-detect.yaml",
+                        # wordpress plugins detections, we have separate module
+                        "http/technologies/wordpress/plugins/wordpress-plugin-detect.yaml",
+                        "http/technologies/wordpress/themes/wordpress-theme-detect.yaml",
                         # We have a separate module for that, checking whethet the repository is a copy of a public one
                         "http/exposures/configs/exposed-svn.yaml",
                         "http/exposures/configs/git-config.yaml",
@@ -654,6 +702,12 @@ class Config:
                         "http/cves/2024/CVE-2024-42009.yaml",
                         # wildcard sites will match this template very often, block till fixed
                         "http/exposures/logs/opencart-error-log.yaml",
+                        # DAST templates that might produce false positives
+                        # TODO: to remove after implementing FP validation for these templates
+                        "dast/vulnerabilities/injection/unix-command-injection.yaml",
+                        "dast/vulnerabilities/injection/windows-command-injection.yaml",
+                        "dast/vulnerabilities/sqli/time-based-sqli.yaml",
+                        "http/cves/2022/CVE-2022-44727.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),
@@ -983,7 +1037,7 @@ class Config:
                 "Maximum number of links to be checked with the templates provided in "
                 "NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS (if more are seen, random "
                 "NUCLEI_MAX_NUM_LINKS_TO_PROCESS are chosen).",
-            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=20, cast=int)
+            ] = get_config("NUCLEI_MAX_NUM_LINKS_TO_PROCESS", default=15, cast=int)
 
             NUCLEI_CHUNK_SIZE: Annotated[
                 int,
@@ -1146,6 +1200,15 @@ class Config:
                 "SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS", default="", cast=decouple.Csv(str, delimiter=" ")
             )
 
+            LARGE_SUBDOMAIN_COUNT_VERIFICATION_THRESHOLD: Annotated[
+                int,
+                "When the total number of discovered subdomains exceeds this value, a wildcard DNS "
+                "filter is applied before dispatching tasks. A sample random subdomains of the parent "
+                "domain is resolved to build a wildcard IP baseline; any candidate subdomain whose "
+                "resolved IPs are all within that baseline (indicating an ISP catch-all or wildcard "
+                "DNS configuration) is dropped. Set to 0 to disable (default).",
+            ] = get_config("SUBDOMAIN_ENUMERATION_LARGE_COUNT_VERIFICATION_THRESHOLD", default=0, cast=int)
+
         class VCS:
             VCS_MAX_DB_SIZE_BYTES: Annotated[
                 int,
@@ -1213,6 +1276,25 @@ class Config:
                 int,
                 "Seconds to sleep using the sleep() or pg_sleep() methods",
             ] = get_config("SQL_INJECTION_TIME_THRESHOLD", default=5, cast=int)
+
+        class CommandInjectionDetector:
+            COMMAND_INJECTION_STOP_ON_FIRST_MATCH: Annotated[
+                bool,
+                "Whether to display only the first OS command injection and stop scanning.",
+            ] = get_config("COMMAND_INJECTION_STOP_ON_FIRST_MATCH", default=True, cast=bool)
+            COMMAND_INJECTION_MINIMAL_PARAMS_MAX_LEN: Annotated[
+                int,
+                "Maximum number of parameters kept after OS command injection parameter minimization.",
+            ] = get_config("COMMAND_INJECTION_MINIMAL_PARAMS_MAX_LEN", default=5, cast=int)
+            COMMAND_INJECTION_NUM_RETRIES_TIME_BASED: Annotated[
+                int,
+                "How many times to re-check whether a long request duration with the injected sleep (and a short "
+                "one without it) is indeed a vulnerability rather than a random fluctuation.",
+            ] = get_config("COMMAND_INJECTION_NUM_RETRIES_TIME_BASED", default=10, cast=int)
+            COMMAND_INJECTION_TIME_THRESHOLD: Annotated[
+                int,
+                "Seconds to sleep using the sleep command in time-based OS command injection detection.",
+            ] = get_config("COMMAND_INJECTION_TIME_THRESHOLD", default=5, cast=int)
 
         class LFIDetector:
             LFI_STOP_ON_FIRST_MATCH: Annotated[

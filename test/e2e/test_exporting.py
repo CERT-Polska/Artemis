@@ -190,6 +190,7 @@ class ExportingTestCase(BaseE2ETestCase):
                     [
                         {
                             "version": None,
+                            "cpe": None,
                             "additional_type": None,
                             "asset_type": "domain",
                             "domain_ips": [gethostbyname("test-smtp-server.artemis")],

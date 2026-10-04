@@ -12,7 +12,7 @@ from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
 from artemis.resolvers import lookup
 from artemis.task_utils import get_target_url
-from artemis.utils import perform_whois_or_sleep
+from artemis.utils import perform_whois
 
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
@@ -59,7 +59,7 @@ class ScriptsUnregisteredDomains(ArtemisBase):
             pass
 
         try:
-            return perform_whois_or_sleep(domain, self.log) is not None
+            return perform_whois(domain, self.log) is not None
         except Exception as e:
             # When there is whois error, we treat the domain as unregistered - let's see whether
             # it doesn't cause too many false positives.

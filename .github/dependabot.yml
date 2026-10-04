@@ -19,6 +19,15 @@ updates:
     cooldown:
       default-days: 7
 
+  # Go modules of the Wappalyzer wrapper used for web technology identification. Its wappalyzergo
+  # dependency carries the fingerprint database, so these bumps also refresh technology detection.
+  - package-ecosystem: "gomod"
+    directory: "/artemis/modules/utils/wappalyzer/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+
   # Python packages in root
   - package-ecosystem: "pip"
     directory: "/"

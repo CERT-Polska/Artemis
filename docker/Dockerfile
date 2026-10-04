@@ -31,6 +31,14 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
 
 WORKDIR /opt
 
+# Download the dependencies of the Wappalyzer wrapper (used for web technology identification) at build time.
+# Without this, the first `go run` would fetch them - both the module and the Go toolchain go.mod asks for -
+# from the network at scan time, and a failure to reach it makes technology detection report no technologies.
+# Only the module files are copied at this point so that a change in the Python code doesn't invalidate this
+# layer and re-download everything.
+COPY "artemis/modules/utils/wappalyzer/go.mod" "artemis/modules/utils/wappalyzer/go.sum" "artemis/modules/utils/wappalyzer/"
+RUN cd artemis/modules/utils/wappalyzer && go mod download
+
 COPY "artemis/" "artemis/"
 COPY "alembic.ini" "alembic.ini"
 COPY "migrations/" "migrations/"

@@ -2,6 +2,7 @@ import functools
 import os
 from typing import Any, Dict, List, Type
 
+from .asset import Asset
 from .language import Language
 
 
@@ -33,7 +34,7 @@ def get_all_reporters() -> List[Type[Any]]:
     return reporters
 
 
-def assets_from_task_result(task_result: Dict[str, Any]) -> List[Any]:
+def assets_from_task_result(task_result: Dict[str, Any]) -> List[Asset]:
     """
     Converts a task result as saved by an Artemis task to (one or many) found assets.
     """

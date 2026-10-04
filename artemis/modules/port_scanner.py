@@ -69,6 +69,7 @@ else:
         }
 
     PORTS_SET_SHORT = load_ports("ports-artemis-short.txt")
+    PORTS_SET_TOP10 = load_ports("ports-artemis-top10.txt")
 
 PORTS = sorted(list(PORTS_SET))
 
@@ -191,11 +192,11 @@ class PortScanner(ArtemisBase):
             for ip in found_ports.keys():
                 if len(found_ports[ip]) > Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS:
                     self.log.warning(
-                        "We observed more than %s open ports on %s, trimming to most popular ones",
+                        "We observed more than %s open ports on %s, trimming to top10 most popular ones",
                         Config.Modules.PortScanner.PORT_SCANNER_MAX_NUM_PORTS,
                         ip,
                     )
-                    found_ports[ip] = [port_str for port_str in found_ports[ip] if int(port_str) in PORTS_SET_SHORT]
+                    found_ports[ip] = [port_str for port_str in found_ports[ip] if int(port_str) in PORTS_SET_TOP10]
 
             for ip in found_ports:
                 for port_str in found_ports[ip]:

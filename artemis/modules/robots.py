@@ -62,11 +62,13 @@ class RobotsScanner(ArtemisBase):
                 current_group.user_agents.append(agent_match.group(1))
             elif allow_path := self._parse_rule(line, RE_ALLOW):
                 if len(current_group.user_agents) == 0:
-                    raise ValueError("'allow' rule before start group line")
+                    self.log.warning("Skipping 'allow' rule before any 'user-agent' line in robots.txt: %s", line)
+                    continue
                 current_group.allow.append(allow_path)
             elif disallow_path := self._parse_rule(line, RE_DISALLOW):
                 if len(current_group.user_agents) == 0:
-                    raise ValueError("'disallow' rule before start group line")
+                    self.log.warning("Skipping 'disallow' rule before any 'user-agent' line in robots.txt: %s", line)
+                    continue
                 current_group.disallow.append(disallow_path)
 
         if len(current_group.user_agents) > 0:

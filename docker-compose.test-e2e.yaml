@@ -61,3 +61,5 @@ services:
   karton-system:
     env_file: env.test
     volumes: ["./docker/karton-test.ini:/etc/karton/karton.ini"]
+  cpe-nvd-service:
+    scale: 0

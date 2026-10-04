@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import dataclasses
+import json
 import os
 from typing import List, Optional
 
@@ -57,7 +58,13 @@ class MailDNSScanner(ArtemisBase):
 
     def get_batch_group_key(self, task: Task) -> str | None:
         configuration = self.get_runtime_configuration(task)
-        return "report_warnings" if configuration.report_warnings else "no_report_warnings"
+        return json.dumps(
+            {
+                "report_warnings": configuration.report_warnings,
+                "requests_per_second_override": self._get_requests_per_second_batch_key(task),
+            },
+            sort_keys=True,
+        )
 
     @staticmethod
     def _filter_warnings(warnings: List[str]) -> List[str]:

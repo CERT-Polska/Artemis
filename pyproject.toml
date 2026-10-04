@@ -25,6 +25,7 @@ authorized_licenses = [
     "gnu library or lesser general public license (lgpl)",
     "mozilla public license 2.0 (mpl 2.0)",
     "mit",
+    "mit-0",
     "python software foundation",
     "PSF-2.0",
     "MIT AND PSF-2.0",

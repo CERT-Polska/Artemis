@@ -27,6 +27,9 @@ class WPScannerAutoreporterIntegrationTest(BaseReportingTest):
                     name="http://test-old-wordpress:80/",
                     additional_type="wordpress",
                     version="5.9.3",
+                    # Resolved through the CPE dictionary (test/data/mock_nvd_cpe). The detected version
+                    # stays in `version`; the CPE names the product, so its version slot stays "*".
+                    cpe="cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*",
                     original_karton_name=None,
                     last_domain=None,
                 )

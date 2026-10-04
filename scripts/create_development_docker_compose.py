@@ -40,7 +40,7 @@ class VolumeDevelopStrategy(YamlProcessor):
         karton_services = [
             name
             for name in services
-            if name.startswith("karton") or name == "web" or data["services"][name]["image"] in ARTEMIS_IMAGES
+            if name.startswith("karton") or name == "web" or data["services"][name].get("image") in ARTEMIS_IMAGES
         ]
 
         return karton_services

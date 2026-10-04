@@ -2,15 +2,18 @@ import collections
 import json
 import os
 import urllib.parse
-from typing import Any, Callable, Counter, Dict, List
+from http import HTTPMethod
+from typing import Any, Callable, Counter, Dict, List, Optional
 
 from artemis.config import Config
 from artemis.domains import is_domain
 from artemis.modules.nuclei import (
     EXPOSED_PANEL_TEMPLATE_PATH_PREFIX,
+    TECHNOLOGY_TEMPLATE_PATH_PREFIX,
 )
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
+from artemis.reporting.base.cpe import extract_cpe
 from artemis.reporting.base.language import Language
 from artemis.reporting.base.normal_form import NormalForm, get_domain_normal_form
 from artemis.reporting.base.report import Report
@@ -23,14 +26,121 @@ from artemis.reporting.utils import (
     get_target_url,
     get_top_level_target,
 )
-from artemis.utils import get_host_from_url
+from artemis.utils import build_logger, get_host_from_url
 
 from .translations.nuclei_messages import pl_PL as translations_nuclei_messages_pl_PL
+
+logger = build_logger(__name__)
+
+
+TECHNOLOGY_NAME_MAPPINGS = {
+    "Apache": "Apache HTTP Server",
+}
 
 SEVERITY_OVERRIDES = {
     "http/exposures/logs/": "medium",
     "http/misconfiguration/server-status.yaml": "medium",
 }
+
+ADDITIONAL_REFERENCES: dict[tuple[Language, str], list[str]] = {
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/sqli/sqli-error-based.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/sqli/time-based-sqli.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/xss/reflected-xss.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/cross-site-scripting/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/lfi/linux-lfi-fuzz.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/lfi/windows-lfi-fuzz.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/lfi/lfi-keyed.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/file-inclusion/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/redirect/open-redirect-bypass.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/open-redir/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "artemis/modules/data/nuclei_templates_custom/open-redirect-simplified.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/open-redir/"],
+}
+
+
+def _get_cpe(vulnerability: Dict[str, Any]) -> Optional[str]:
+    """Returns the CPE of the software the Nuclei template matched, if the template provides one.
+
+    Nuclei templates may contain it in the info.classification.cpe field, e.g.:
+
+        info:
+          classification:
+            cpe: cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*
+
+    When a template doesn't describe a concrete piece of software, None is returned.
+    """
+    info = vulnerability.get("info", None)
+
+    if not isinstance(info, dict):
+        return None
+
+    classification = info.get("classification", None)
+
+    if not isinstance(classification, dict):
+        return None
+
+    return extract_cpe(classification.get("cpe", None))
+
+
+def extract_request_target(host: str, request: str | None) -> tuple[str, str] | None:
+    """Extract path and query from the request-line of a raw HTTP request."""
+    if not isinstance(request, str):
+        return None
+
+    try:
+        method, target, protocol = request.splitlines()[0].split(" ", 3)
+    except (IndexError, ValueError):
+        logger.error("Unable to extract request URL for: %s", request)
+        return None
+
+    if target.startswith("sip:"):
+        return None
+
+    # NONEXISTENT is used in some 403 circumvention templates
+    assert (
+        method in [method.value for method in HTTPMethod] or method == "NONEXISTENT"
+    ), f"{method} is not a standard HTTP verb"
+    assert (
+        target.startswith("http://")
+        or target.startswith("https://")
+        or target.startswith("/")
+        or target.startswith("./")
+    ), f"{target} should start with proto or /"
+    assert protocol.startswith("HTTP/"), f"{protocol} should start with HTTP/"
+
+    if target == "*":
+        return None
+
+    if target.startswith("/"):
+        path, _, query = target.partition("?")
+        return path, query
+
+    parsed = urllib.parse.urlsplit(target)
+    if not parsed.path:
+        return None
+
+    assert get_host_from_url(target) == host
+    return parsed.path, parsed.query
 
 
 class NucleiReporter(Reporter):
@@ -104,6 +214,10 @@ class NucleiReporter(Reporter):
             if template in templates_seen:
                 continue
 
+            if template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX):
+                # Report this only as assets
+                continue
+
             templates_seen.add(template)
 
             if (
@@ -161,6 +275,22 @@ class NucleiReporter(Reporter):
                     if original_template_name.startswith(prefix):
                         severity = severity_override
 
+                additional_references: list[str] = ADDITIONAL_REFERENCES.get((language, original_template_name), [])
+
+                path_query_fragment = (
+                    matched_at_parsed.path
+                    + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
+                    + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else "")
+                )
+
+                # This is to support the case of e.g. XSS detected after redirect. The request contains
+                # the final path.
+                request_target = extract_request_target(get_host_from_url(matched_at), vulnerability.get("request"))
+                if request_target is not None:
+                    request_path, request_query = request_target
+                    if request_path != matched_at_parsed.path:
+                        path_query_fragment = request_path + (f"?{request_query}" if request_query else "")
+
                 result.append(
                     Report(
                         top_level_target=get_top_level_target(task_result),
@@ -169,14 +299,12 @@ class NucleiReporter(Reporter):
                         additional_data={
                             "is_url_without_query_fragment": _is_url_without_query_fragment(matched_at),
                             "hostname": matched_at_parsed.hostname,
-                            "path_query_fragment": matched_at_parsed.path
-                            + (("?" + matched_at_parsed.query) if matched_at_parsed.query else "")
-                            + (("#" + matched_at_parsed.fragment) if matched_at_parsed.fragment else ""),
+                            "path_query_fragment": path_query_fragment,
                             "description_en": description,
                             "description_translated": NucleiReporter._translate_description(
                                 template, description, language
                             ),
-                            "reference": vulnerability["info"].get("reference", []),
+                            "reference": vulnerability["info"].get("reference", []) + additional_references,
                             "severity": severity,
                             "matched_at": matched_at,
                             "template_name": template,
@@ -260,12 +388,32 @@ class NucleiReporter(Reporter):
             if template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP:
                 continue
 
-            if not template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+            if not template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX) and not template.startswith(
+                TECHNOLOGY_TEMPLATE_PATH_PREFIX
+            ):
                 continue
 
-            panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
+            if template.startswith(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX):
+                panel = template.removeprefix(EXPOSED_PANEL_TEMPLATE_PATH_PREFIX).removesuffix(".yaml")
+                asset_type = AssetType.EXPOSED_PANEL
+            else:
+                assert template.startswith(TECHNOLOGY_TEMPLATE_PATH_PREFIX)
+                asset_type = AssetType.TECHNOLOGY
+                panel = (
+                    vulnerability["info"]["name"]
+                    .removesuffix(" Detect")
+                    .removesuffix(" Detection")
+                    .removesuffix(" -")
+                    .removesuffix(" End-of-Life")
+                )
+                panel = TECHNOLOGY_NAME_MAPPINGS.get(panel, panel)
 
             result.append(
-                Asset(asset_type=AssetType.EXPOSED_PANEL, name=vulnerability["matched-at"], additional_type=panel)
+                Asset(
+                    asset_type=asset_type,
+                    name=vulnerability["matched-at"],
+                    additional_type=panel,
+                    cpe=_get_cpe(vulnerability),
+                )
             )
         return result

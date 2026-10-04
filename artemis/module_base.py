@@ -20,16 +20,22 @@ from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
 from multiprocessing_logging import install_mp_handler
+from publicsuffixlist import PublicSuffixList
 from redis import Redis
 from requests.exceptions import RequestException
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
+from artemis.cdn_ip_ranges import is_cdn_ip
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
 from artemis.ip_utils import is_ip_address
+from artemis.log_context import (
+    RunContextFilter,
+    run_hash_scope,
+)
 from artemis.modules.base.module_runtime_configuration import ModuleRuntimeConfiguration
 from artemis.output_redirector import OutputRedirector
 from artemis.placeholder_page_detector import PlaceholderPageDetector
@@ -47,6 +53,7 @@ from artemis.task_utils import (
 from artemis.utils import throttle_request
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
+PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 setup_retrying_resolver()
 install_mp_handler()
@@ -135,6 +142,8 @@ class ArtemisBase(Karton):
         for handler in self.log.handlers:
             handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
 
+        self.log.addFilter(RunContextFilter())
+
         faulthandler.register(signal.SIGUSR1)
 
     def get_default_configuration(self) -> ModuleRuntimeConfiguration:
@@ -150,9 +159,13 @@ class ArtemisBase(Karton):
     def get_runtime_configuration(self, _task: Task) -> ModuleRuntimeConfiguration:
         return self.get_default_configuration()
 
-    def get_batch_group_key(self, _task: Task) -> str | None:
+    def _get_requests_per_second_batch_key(self, task: Task) -> str:
+        override = task.payload_persistent.get("requests_per_second_override")
+        return str(override) if override is not None else str(Config.Limits.REQUESTS_PER_SECOND)
+
+    def get_batch_group_key(self, task: Task) -> str | None:
         """Return a grouping key used when taking a batch of tasks from queue."""
-        return None
+        return self._get_requests_per_second_batch_key(task)
 
     def add_task(self, current_task: Task, new_task: Task) -> None:
         analysis = self.db.get_analysis_by_id(current_task.root_uid)
@@ -268,12 +281,6 @@ class ArtemisBase(Karton):
             cls().single_process_loop(task_counter)
 
     def single_process_loop(self, task_counter: Any) -> None:
-        """
-        Differs from the original karton implementation: consumes the tasks in random order, so that
-        there is lower chance that multiple tasks associated with the same IP (e.g. coming from subdomain
-        enumeration) will be taken by multiple threads, thus slowing down the process, as requests for
-        the same IP are throttled.
-        """
         self.log.info("Service %s started", self.identity)
 
         # Get the old binds and set the new ones atomically
@@ -297,7 +304,8 @@ class ArtemisBase(Karton):
                     self.log.info("Binds changed, shutting down.")
                     break
 
-                num_tasks_done = self._single_iteration()
+                with run_hash_scope():
+                    num_tasks_done = self._single_iteration()
 
                 with task_counter.get_lock():
                     task_counter.value += num_tasks_done
@@ -353,12 +361,20 @@ class ArtemisBase(Karton):
         for task in tasks:
             increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=1)
 
-        requests_per_second_overrides = [
-            task.payload_persistent.get("requests_per_second_override")
+        distinct_override_values = {
+            override
             for task in tasks
-            if "requests_per_second_override" in task.payload_persistent
-        ]
+            if (override := task.payload_persistent.get("requests_per_second_override")) is not None
+        }
+        if len(distinct_override_values) > 1:
+            self.log.error(
+                "Batching produced tasks with multiple different overrides, this is unexpected: %s",
+                distinct_override_values,
+            )
+        requests_per_second_overrides = list(distinct_override_values)
 
+        # To clear the confusion, the below code introduces another RPS override, it's not added to batching for
+        # simplicity of the key generation.
         for task in tasks:
             destination = self._get_scan_destination(task)
             for key, value in self._scan_speed_overrides.items():
@@ -370,7 +386,7 @@ class ArtemisBase(Karton):
                 if ipaddress.ip_address(destination) in ipaddress.ip_network(key):
                     requests_per_second_overrides.append(value)
 
-        self.requests_per_second_for_current_tasks = min(  # type: ignore
+        self.requests_per_second_for_current_tasks = min(
             requests_per_second_overrides if requests_per_second_overrides else [Config.Limits.REQUESTS_PER_SECOND]
         )
 
@@ -768,29 +784,29 @@ class ArtemisBase(Karton):
             # resolves to (e.g. in port_scan karton), sometimes the domain itself (e.g. the DNS kartons) or
             # even the MX servers. Therefore this will not map 1:1 to the actual host being scanned.
             try:
-                result = self._get_ip_for_locking(task.payload["domain"])
+                result = self._get_key_for_locking(task.payload["domain"])
             except UnknownIPException:
                 result = task.payload["domain"]
         elif task.headers["type"] == TaskType.WEBAPP:
             host = urllib.parse.urlparse(task.payload["url"]).hostname
             try:
-                result = self._get_ip_for_locking(host)
+                result = self._get_key_for_locking(host)
             except UnknownIPException:
                 result = host
         elif task.headers["type"] == TaskType.URL:
             host = urllib.parse.urlparse(task.payload["url"]).hostname
             try:
-                result = self._get_ip_for_locking(host)
+                result = self._get_key_for_locking(host)
             except UnknownIPException:
                 result = host
         elif task.headers["type"] == TaskType.SERVICE or task.headers["type"] == TaskType.NUCLEI_TARGET:
             try:
-                result = self._get_ip_for_locking(task.payload["host"])
+                result = self._get_key_for_locking(task.payload["host"])
             except UnknownIPException:
                 result = task.payload["host"]
         elif task.headers["type"] == TaskType.DEVICE:
             try:
-                result = self._get_ip_for_locking(task.payload["host"])
+                result = self._get_key_for_locking(task.payload["host"])
             except UnknownIPException:
                 result = task.payload["host"]
 
@@ -798,7 +814,7 @@ class ArtemisBase(Karton):
         self.cache.set(cache_key, result.encode("utf-8"))
         return result
 
-    def _get_ip_for_locking(self, host: str) -> str:
+    def _get_key_for_locking(self, host: str) -> str:
         try:
             # if this doesn't throw then we have an IP address
             ipaddress.ip_address(host)
@@ -818,6 +834,12 @@ class ArtemisBase(Karton):
 
         if not ip_addresses:
             raise UnknownIPException(f"Unknown IP for host {host}")
+
+        if all(is_cdn_ip(ip) for ip in ip_addresses):
+            # If all the IPs are CDN IPs, we use the public suffix of the domain as the key for locking,
+            # so that many tasks don't wait for a single CDN IP to be free, but rather limit the scanning
+            # of a given domain.
+            return PUBLIC_SUFFIX_LIST.privatesuffix(host)  # type: ignore
 
         return random.choice(ip_addresses)
 

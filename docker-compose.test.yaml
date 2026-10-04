@@ -24,7 +24,6 @@ services:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379
       BRUTER_FILE_LIST: full
-      RUNNING_TESTS: "true"
 
       # Use only one provider to speed up the tests
       SUBDOMAIN_ENUMERATION_GAU_ADDITIONAL_OPTIONS: "--providers wayback --timeout 60"
@@ -40,6 +39,16 @@ services:
       REQUESTS_PER_SECOND: 0
       CUSTOM_PORT_SCANNER_PORTS: 21,80,443,6379
       NUCLEI_CHECK_TEMPLATE_LIST: "false"
+
+      # Point cve_lookup at the local mock NVD service so its integration test exercises the real
+      # HTTP path without hitting (and being throttled by) the live NVD API.
+      CVE_LOOKUP_NVD_API_URL: http://test-mock-nvd.local/
+      CVE_LOOKUP_NVD_REQUESTS_PER_SECOND: 100
+
+      # Point the CPE lookups at a small stand-in dictionary (mounted with the rest of ./test/), so that
+      # the reporters that name an asset's software have something to resolve against. Without it the
+      # directory is empty in CI, every lookup returns None and the assertions check nothing.
+      CPE_NVD_DIR: /opt/test/data/mock_nvd_cpe
     env_file: env.test
     volumes:
       # We don't copy the test code into the image so that we don't pollute production image
@@ -86,6 +95,17 @@ services:
       default:
         aliases:
           - test-dast-vuln-app.local
+
+  test-redirect-reflect-app:
+    build:
+      context: .
+      dockerfile: test/data/redirect_reflect_app/Dockerfile
+    volumes:
+      - ./test/data/redirect_reflect_app/:/app/
+    networks:
+      default:
+        aliases:
+          - test-redirect-reflect-app.local
 
   test-flask-vulnerable-api:
     build:
@@ -178,6 +198,15 @@ services:
         aliases:
           - test-php-mock-CVE-2020-28976.local
 
+  test-mock-nvd:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/mock_nvd/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-mock-nvd.local
+
   test-php-rate-limited:
     image: php:8.0-apache
     volumes:
@@ -205,6 +234,15 @@ services:
       default:
         aliases:
           - test-php-xss-but-not-on-homepage.local
+
+  test-php-xss-requiring-second-param:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_xss_requiring_second_param/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-php-xss-requiring-second-param.local
 
   test-ftp-server-with-easy-password:
     image: stilliard/pure-ftpd:latest
@@ -248,6 +286,11 @@ services:
     image: mysql:5.6
     environment:
       MYSQL_ROOT_PASSWORD: example
+
+  test-wordpress-with-plugins:
+    image: nginx:latest
+    volumes:
+      - ./test/data/wordpress_with_plugins/:/usr/share/nginx/html/
 
   test-service-with-directory-index:
     image: nginx:latest
@@ -330,6 +373,15 @@ services:
       default:
         aliases:
           - test-apache-with-lfi-and-rce.local
+
+  test-apache-with-command-injection:
+    image: php:7.4-apache
+    volumes:
+      - ./test/data/command_injection/:/var/www/html/
+    networks:
+      default:
+        aliases:
+          - test-apache-with-command-injection.local
 
   test-django-with-orm-injection:
     build:

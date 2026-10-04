@@ -13,6 +13,7 @@ class Severity(str, Enum):
 
 
 SEVERITY_MAP = {
+    ReportType("command_injection"): Severity.HIGH,
     ReportType("xss_scanner"): Severity.HIGH,
     ReportType("forti_vuln"): Severity.HIGH,
     ReportType("globalprotect_vuln"): Severity.HIGH,
@@ -35,6 +36,7 @@ SEVERITY_MAP = {
     ReportType("exposed_configuration_file"): Severity.HIGH,
     ReportType("exposed_sql_dump"): Severity.HIGH,
     ReportType("exposed_ssh_with_easy_password"): Severity.HIGH,
+    ReportType("heartbleed"): Severity.HIGH,
     ReportType("ssh_known_bad_key"): Severity.HIGH,
     ReportType("sql_injection:core"): Severity.HIGH,
     ReportType("leaked_sensitive_data"): Severity.MEDIUM,
@@ -65,6 +67,7 @@ SEVERITY_MAP = {
     ReportType("open_port_smb"): Severity.LOW,
     ReportType("exposed_php_var_dump"): Severity.LOW,
     ReportType("exposed_phpinfo"): Severity.LOW,
+    ReportType("robot"): Severity.LOW,
     ReportType("nuclei_exposed_panel"): Severity.LOW,
     ReportType("missing_security_headers"): Severity.LOW,
     ReportType("exposed_ntlm_endpoint"): Severity.LOW,
@@ -86,6 +89,8 @@ SEVERITY_MAP = {
     ReportType(
         "dangling_dns_record"
     ): Severity.MEDIUM,  # High if it's not a FP, but there is a significant percentage of unexploitable reports
+    # Default for technology_cve_found; overridden by max-CVSS rule in get_severity().
+    ReportType("technology_cve_found"): Severity.MEDIUM,
 }
 
 if Config.Reporting.ADDITIONAL_SEVERITY_FILE:
@@ -102,6 +107,14 @@ def get_severity(report: Any) -> Severity:
         and report.additional_data["cves"]
     ):
         cvss = max((item.get("cvss") or 0) for item in report.additional_data["cves"])
+        if cvss < 4.0:
+            return Severity.LOW
+        if cvss < 7.0:
+            return Severity.MEDIUM
+        return Severity.HIGH
+
+    if report.report_type == ReportType("technology_cve_found"):
+        cvss = report.additional_data.get("max_cvss") or 0
         if cvss < 4.0:
             return Severity.LOW
         if cvss < 7.0:

@@ -87,6 +87,7 @@ def request(
     session: Optional[requests.Session] = None,
     max_size: int = Config.Miscellaneous.CONTENT_PREFIX_SIZE,
     requests_per_second: float = Config.Limits.REQUESTS_PER_SECOND,
+    timeout: Optional[float] = None,
     **kwargs: Any,
 ) -> HTTPResponse:
     if "RUNNING_TESTS" in os.environ:
@@ -127,7 +128,7 @@ def request(
             cookies=cookies,
             verify=False,
             stream=True,
-            timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
+            timeout=timeout if timeout is not None else Config.Limits.REQUEST_TIMEOUT_SECONDS,
             headers=headers,
         )
 

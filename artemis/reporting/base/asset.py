@@ -15,6 +15,24 @@ class Asset:
     additional_type: Optional[str] = None
     version: Optional[str] = None
 
+    # Common Platform Enumeration (https://en.wikipedia.org/wiki/Common_Platform_Enumeration) name of the
+    # software the asset runs, e.g. cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*. Being a structured and
+    # standardized identifier, it makes it possible to match an asset against e.g. the CVE database, which
+    # the free-form `additional_type` doesn't.
+    #
+    # The CPE is saved as reported by the source, which means the version slot is usually a wildcard even if we
+    # do know the version - the version is kept in the `version` field above instead. A consumer that needs a
+    # versioned CPE (e.g. to query the NVD API) should combine the two.
+    #
+    # For the same reason the binding isn't guaranteed either: this is usually a CPE 2.3 formatted string
+    # (cpe:2.3:a:vendor:product:...), but a source may as well provide the older CPE 2.2 URI
+    # (cpe:/a:vendor:product) - a consumer parsing the value needs to handle both.
+    #
+    # Not all modules are able to provide it, and even the ones that are can only pass on what the source
+    # knows - both the Nuclei templates and the Wappalyzer fingerprint database describe a CPE for a minority
+    # of what they detect. An empty `cpe` is the normal case, not a sign that something went wrong.
+    cpe: Optional[str] = None
+
     # Data about the IP address of the asset
     domain_ips: Optional[List[str]] = field(init=False)
 

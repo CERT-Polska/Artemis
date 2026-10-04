@@ -1,7 +1,6 @@
 import datetime
-import random
 import re
-import urllib
+import time
 from enum import Enum
 from timeit import default_timer as timer
 from typing import Any, Dict, List, Literal, Optional
@@ -14,14 +13,10 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
-from artemis.crawling import (
-    crawl_and_filter,
-    get_injectable_parameters,
-)
+from artemis.crawling import get_injectable_parameters, get_links_to_scan
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.parameters import URL_PARAMS
-from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.sql_injection_data import HEADERS, SQL_ERROR_MESSAGES
 from artemis.task_utils import get_target_url
 
@@ -45,10 +40,13 @@ class SqlInjectionDetector(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    @staticmethod
-    def _strip_query_string(url: str) -> str:
-        url_parsed = urllib.parse.urlparse(url)
-        return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
+    def forgiving_probe_http_get(self, session: requests.Session, *args: Any, **kwargs: Any) -> HTTPResponse | None:
+        # Keep probes independent while retaining the underlying connection pool.
+        session.cookies.clear()
+        try:
+            return self.forgiving_http_get(*args, session=session, **kwargs)
+        finally:
+            session.cookies.clear()
 
     def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any, ...], payload: str) -> str:
         assignments = {key: payload for key in param_batch}
@@ -96,13 +94,13 @@ class SqlInjectionDetector(ArtemisBase):
         new_url = f"{new_url}" + concatenation + "&".join([f"{key}={value}" for key, value in assignments.items()])
         return unquote(new_url)
 
-    def measure_request_time(self, url: str, **kwargs: Dict[str, Any]) -> float:
+    def measure_request_time(self, url: str, session: requests.Session, **kwargs: Dict[str, Any]) -> float:
         start = timer()
         try:
             if "headers" not in kwargs:
-                self.forgiving_http_get(url)
+                self.forgiving_probe_http_get(session, url)
             else:
-                self.forgiving_http_get(url, headers=kwargs.get("headers"))
+                self.forgiving_probe_http_get(session, url, headers=kwargs.get("headers"))
         except requests.exceptions.Timeout:
             return Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
 
@@ -133,6 +131,7 @@ class SqlInjectionDetector(ArtemisBase):
         payload: str,
         use_change_url_params: bool,
         minimization_mode: Literal["error", "time"],
+        session: requests.Session,
         baseline_payload: Optional[str] = None,
     ) -> List[str]:
         """
@@ -162,13 +161,13 @@ class SqlInjectionDetector(ArtemisBase):
             )
 
             if minimization_mode == "error":
-                error = self.contains_error(url_with, self.forgiving_http_get(url_with))
-                if not self.contains_error(url_without, self.forgiving_http_get(url_without)) and error:
+                error = self.contains_error(url_with, self.forgiving_probe_http_get(session, url_with))
+                if not self.contains_error(url_without, self.forgiving_probe_http_get(session, url_without)) and error:
                     minimal_params.append(param)
             elif (
-                self.measure_request_time(url_without)
+                self.measure_request_time(url_without, session)
                 < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
-                and self.measure_request_time(url_with)
+                and self.measure_request_time(url_with, session)
                 >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
             ):
                 minimal_params.append(param)
@@ -201,6 +200,7 @@ class SqlInjectionDetector(ArtemisBase):
         headers: Dict[str, str],
         payload: str,
         minimization_mode: Literal["error", "time"],
+        session: requests.Session,
         baseline_payload: Optional[str] = None,
     ) -> Dict[str, str]:
         """
@@ -222,13 +222,16 @@ class SqlInjectionDetector(ArtemisBase):
             no_effect_header = {header_name: HEADERS[header_name] + payload_without_effect}
 
             if minimization_mode == "error":
-                error = self.contains_error(url, self.forgiving_http_get(url, headers=single_header))
-                if not self.contains_error(url, self.forgiving_http_get(url, headers=no_effect_header)) and error:
+                error = self.contains_error(url, self.forgiving_probe_http_get(session, url, headers=single_header))
+                if (
+                    not self.contains_error(url, self.forgiving_probe_http_get(session, url, headers=no_effect_header))
+                    and error
+                ):
                     minimal_headers[header_name] = header_value
             elif (
-                self.measure_request_time(url, headers=no_effect_header)
+                self.measure_request_time(url, session, headers=no_effect_header)
                 < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
-                and self.measure_request_time(url, headers=single_header)
+                and self.measure_request_time(url, session, headers=single_header)
                 >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
             ):
                 minimal_headers[header_name] = header_value
@@ -280,7 +283,7 @@ class SqlInjectionDetector(ArtemisBase):
         }
         return data  # type: ignore
 
-    def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
+    def scan(self, urls: List[str], task: Task, session: requests.Session) -> List[Dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
 
         sql_injection_sleep_payloads = [
@@ -298,21 +301,31 @@ class SqlInjectionDetector(ArtemisBase):
         for current_url in urls:
             parameters = get_injectable_parameters(current_url)
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
+            # using dict for deduplication to preserve the order
+            # we want to use discovered parameters first
+            parameters_to_scan = dict.fromkeys(parameters + URL_PARAMS)
 
-            for param_batch in more_itertools.batched(parameters + URL_PARAMS, 75):
+            for param_batch in more_itertools.batched(parameters_to_scan, 75):
+                time_start = time.time()
+                max_url_length = 0
                 if self.is_url_with_parameters(current_url):
                     for error_payload in sql_injection_error_payloads:
                         url_with_payload = self.change_url_params(
                             url=current_url, payload=error_payload, param_batch=param_batch
                         )
+                        max_url_length = max(max_url_length, len(url_with_payload))
                         url_without_payload = self.change_url_params(
                             url=current_url, payload=not_error_payload, param_batch=param_batch
                         )
 
-                        error = self.contains_error(url_with_payload, self.forgiving_http_get(url_with_payload))
+                        error = self.contains_error(
+                            url_with_payload, self.forgiving_probe_http_get(session, url_with_payload)
+                        )
 
                         if (
-                            not self.contains_error(url_without_payload, self.forgiving_http_get(url_without_payload))
+                            not self.contains_error(
+                                url_without_payload, self.forgiving_probe_http_get(session, url_without_payload)
+                            )
                             and error
                         ):
                             minimal_params = self.minimize_parameters(
@@ -322,6 +335,7 @@ class SqlInjectionDetector(ArtemisBase):
                                 baseline_payload=not_error_payload,
                                 use_change_url_params=True,
                                 minimization_mode="error",
+                                session=session,
                             )
                             minimal_url = self.change_url_params(
                                 url=current_url, payload=error_payload, param_batch=tuple(minimal_params)
@@ -345,14 +359,15 @@ class SqlInjectionDetector(ArtemisBase):
                         url_with_sleep_payload = self.change_url_params(
                             url=current_url, payload=sleep_payload, param_batch=param_batch
                         )
+                        max_url_length = max(max_url_length, len(url_with_sleep_payload))
 
                         flags = []
                         for _ in range(Config.Modules.SqlInjectionDetector.SQL_INJECTION_NUM_RETRIES_TIME_BASED):
                             # We explicitely want to re-check whether current URL is still time efficient
                             if (
-                                self.measure_request_time(url_with_no_sleep_payload)
+                                self.measure_request_time(url_with_no_sleep_payload, session)
                                 < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
-                                and self.measure_request_time(url_with_sleep_payload)
+                                and self.measure_request_time(url_with_sleep_payload, session)
                                 >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
                             ):
                                 flags.append(True)
@@ -367,6 +382,7 @@ class SqlInjectionDetector(ArtemisBase):
                                 payload=sleep_payload,
                                 use_change_url_params=True,
                                 minimization_mode="time",
+                                session=session,
                             )
                             minimal_url = self.change_url_params(
                                 url=current_url, payload=sleep_payload, param_batch=tuple(minimal_params)
@@ -386,14 +402,19 @@ class SqlInjectionDetector(ArtemisBase):
                     url_with_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=error_payload
                     )
+                    max_url_length = max(max_url_length, len(url_with_payload))
                     url_with_no_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=not_error_payload
                     )
 
-                    error = self.contains_error(url_with_payload, self.forgiving_http_get(url_with_payload))
+                    error = self.contains_error(
+                        url_with_payload, self.forgiving_probe_http_get(session, url_with_payload)
+                    )
 
                     if (
-                        not self.contains_error(url_with_no_payload, self.forgiving_http_get(url_with_no_payload))
+                        not self.contains_error(
+                            url_with_no_payload, self.forgiving_probe_http_get(session, url_with_no_payload)
+                        )
                         and error
                     ):
                         minimal_params = self.minimize_parameters(
@@ -403,6 +424,7 @@ class SqlInjectionDetector(ArtemisBase):
                             baseline_payload=not_error_payload,
                             use_change_url_params=False,
                             minimization_mode="error",
+                            session=session,
                         )
                         minimal_url = self.create_url_with_batch_payload(
                             url=current_url, param_batch=tuple(minimal_params), payload=error_payload
@@ -424,6 +446,7 @@ class SqlInjectionDetector(ArtemisBase):
                     url_with_sleep_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=sleep_payload
                     )
+                    max_url_length = max(max_url_length, len(url_with_sleep_payload))
                     url_with_no_sleep_payload = self.create_url_with_batch_payload(
                         url=current_url, param_batch=param_batch, payload=self.change_sleep_to_0(sleep_payload)
                     )
@@ -431,9 +454,9 @@ class SqlInjectionDetector(ArtemisBase):
                     for _ in range(Config.Modules.SqlInjectionDetector.SQL_INJECTION_NUM_RETRIES_TIME_BASED):
                         # We explicitely want to re-check whether current URL is still time efficient
                         if (
-                            self.measure_request_time(url_with_no_sleep_payload)
+                            self.measure_request_time(url_with_no_sleep_payload, session)
                             < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
-                            and self.measure_request_time(url_with_sleep_payload)
+                            and self.measure_request_time(url_with_sleep_payload, session)
                             >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
                         ):
                             flags.append(True)
@@ -448,6 +471,7 @@ class SqlInjectionDetector(ArtemisBase):
                             payload=sleep_payload,
                             use_change_url_params=False,
                             minimization_mode="time",
+                            session=session,
                         )
                         minimal_url = self.create_url_with_batch_payload(
                             url=current_url, param_batch=tuple(minimal_params), payload=sleep_payload
@@ -462,16 +486,24 @@ class SqlInjectionDetector(ArtemisBase):
                         )
                         if Config.Modules.SqlInjectionDetector.SQL_INJECTION_STOP_ON_FIRST_MATCH:
                             return message
+                self.log.info(
+                    "Param batch of %d parameters took %f seconds, max_url_length=%d",
+                    len(param_batch),
+                    time.time() - time_start,
+                    max_url_length,
+                )
 
             for error_payload in sql_injection_error_payloads:
                 headers = self.create_headers(payload=error_payload)
                 headers_no_payload = self.create_headers(payload=not_error_payload)
 
-                error = self.contains_error(current_url, self.forgiving_http_get(current_url, headers=headers))
+                error = self.contains_error(
+                    current_url, self.forgiving_probe_http_get(session, current_url, headers=headers)
+                )
 
                 if (
                     not self.contains_error(
-                        current_url, self.forgiving_http_get(current_url, headers=headers_no_payload)
+                        current_url, self.forgiving_probe_http_get(session, current_url, headers=headers_no_payload)
                     )
                     and error
                 ):
@@ -481,6 +513,7 @@ class SqlInjectionDetector(ArtemisBase):
                         payload=error_payload,
                         baseline_payload=not_error_payload,
                         minimization_mode="error",
+                        session=session,
                     )
                     message.append(
                         {
@@ -502,9 +535,9 @@ class SqlInjectionDetector(ArtemisBase):
                 for _ in range(Config.Modules.SqlInjectionDetector.SQL_INJECTION_NUM_RETRIES_TIME_BASED):
                     # We explicitely want to re-check whether current URL is still time efficient
                     if (
-                        self.measure_request_time(current_url, headers=headers_no_sleep_payload)
+                        self.measure_request_time(current_url, session, headers=headers_no_sleep_payload)
                         < Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD / 2
-                        and self.measure_request_time(current_url, headers=headers)
+                        and self.measure_request_time(current_url, session, headers=headers)
                         >= Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
                     ):
                         flags.append(True)
@@ -518,6 +551,7 @@ class SqlInjectionDetector(ArtemisBase):
                         headers=headers,
                         payload=sleep_payload,
                         minimization_mode="time",
+                        session=session,
                     )
                     message.append(
                         {
@@ -534,20 +568,10 @@ class SqlInjectionDetector(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
+        links = get_links_to_scan(url)
 
-        links = crawl_and_filter(url)
-        links.append(url)
-        links = list(set(links) | set([self._strip_query_string(link) for link in links]))
-
-        links = [
-            link.split("#")[0]
-            for link in links
-            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-        ]
-
-        random.shuffle(links)
-
-        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], task=current_task)
+        with requests.Session() as session:
+            message = self.scan(urls=links, task=current_task, session=session)
 
         if message:
             status = TaskStatus.INTERESTING

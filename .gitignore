@@ -150,3 +150,6 @@ output
 
 # Artemis additional modules
 Artemis-modules-extra
+
+# NVD CPE dictionary downloaded by cpe_main_process (default CPE_NVD_DIR)
+artemis/cpe_tools/nvdcpe-2.0/

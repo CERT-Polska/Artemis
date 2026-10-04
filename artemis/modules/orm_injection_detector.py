@@ -1,6 +1,4 @@
 import json
-import random
-import urllib
 import uuid
 from difflib import SequenceMatcher
 from enum import Enum
@@ -13,13 +11,13 @@ from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.crawling import (
-    crawl_and_filter,
     get_injectable_parameters,
+    get_links_to_scan,
+    strip_query_string,
 )
 from artemis.http_requests import HTTPResponse
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.parameters import URL_PARAMS
-from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.orm_injection_data import (
     ORM_LOOKUP_SUFFIXES,
     SENSITIVE_FIELD_PROBES,
@@ -50,11 +48,6 @@ class OrmInjectionDetector(ArtemisBase):
     filters = [
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
-
-    @staticmethod
-    def _strip_query_string(url: str) -> str:
-        url_parsed = urllib.parse.urlparse(url)
-        return urllib.parse.urlunparse(url_parsed._replace(query="", fragment=""))
 
     @staticmethod
     def _get_response_text(response: Optional[HTTPResponse]) -> str:
@@ -106,7 +99,7 @@ class OrmInjectionDetector(ArtemisBase):
         # Preserve sibling query params, replacing only the param under test
         parsed = urlparse(original_url)
         siblings = {k: v[0] for k, v in parse_qs(parsed.query).items() if k != param_name}
-        base = self._strip_query_string(original_url)
+        base = strip_query_string(original_url)
 
         url_likely = self._build_url_with_params(base, {**siblings, param_with_suffix: likely_value})
         url_unlikely = self._build_url_with_params(
@@ -262,7 +255,7 @@ class OrmInjectionDetector(ArtemisBase):
         for current_url in urls:
             parsed = urlparse(current_url)
             query_params = parse_qs(parsed.query)
-            base_url = self._strip_query_string(current_url)
+            base_url = strip_query_string(current_url)
 
             injectable = get_injectable_parameters(current_url)
             all_param_names = list(dict.fromkeys(list(query_params.keys()) + injectable + list(URL_PARAMS)))
@@ -308,20 +301,9 @@ class OrmInjectionDetector(ArtemisBase):
 
     def run(self, current_task: Task) -> None:
         url = get_target_url(current_task)
+        links = get_links_to_scan(url)
 
-        links = crawl_and_filter(url)
-        links.append(url)
-        links = list(set(links) | set([self._strip_query_string(link) for link in links]))
-
-        links = [
-            link.split("#")[0]
-            for link in links
-            if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
-        ]
-
-        random.shuffle(links)
-
-        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN])
+        message = self.scan(urls=links)
 
         if message:
             status = TaskStatus.INTERESTING

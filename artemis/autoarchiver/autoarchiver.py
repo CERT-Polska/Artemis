@@ -14,6 +14,8 @@ from artemis.json_utils import JSONEncoderAdditionalTypes
 db = DB()
 LOGGER = utils.build_logger(__name__)
 
+MIN_TASK_AGE_BEFORE_ARCHIVING = datetime.timedelta(hours=24)
+
 
 def _save_and_delete_items(items: Iterator[dict[str, Any]], path_suffix: str) -> int:
     output_dir = pathlib.Path(Config.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH)
@@ -73,6 +75,7 @@ def archive_tag(tag: str) -> int:
         db.iter_oldest_task_results_with_tag(
             tag=tag,
             max_length=Config.Data.Autoarchiver.AUTOARCHIVER_PACK_SIZE,
+            time_to=datetime.datetime.now() - MIN_TASK_AGE_BEFORE_ARCHIVING,
         ),
         "_tag_" + tag,
     )
@@ -87,6 +90,11 @@ def archive_old_results(interesting: bool) -> None:
         archive_age_timedelta = datetime.timedelta(
             seconds=Config.Data.Autoarchiver.AUTOARCHIVER_MIN_AGE_SECONDS_NOT_INTERESTING
         )
+
+    archive_age_timedelta = max(
+        archive_age_timedelta,
+        MIN_TASK_AGE_BEFORE_ARCHIVING,
+    )
 
     time_to = datetime.datetime.now() - archive_age_timedelta
     count = db.count_oldest_task_results_before(

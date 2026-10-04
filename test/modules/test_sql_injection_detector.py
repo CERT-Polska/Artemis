@@ -2,12 +2,14 @@
 from test.base import ArtemisModuleTestCase
 from unittest.mock import patch
 
+import requests
 from karton.core import Task
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.http_requests import HTTPResponse
-from artemis.modules.sql_injection_detector import SqlInjectionDetector
+from artemis.modules.sql_injection_detector import SqlInjectionDetector, Statements
+from artemis.sql_injection_data import HEADERS as HEADERS_DATA
 
 
 class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
@@ -55,11 +57,15 @@ class PostgresSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         )
         url_to_headers_vuln = "http://test-apache-with-sql-injection-postgres.local/headers_vuln.php"
 
-        self.assertTrue(self.karton.measure_request_time(current_url) < 1)
-        self.assertTrue(self.karton.measure_request_time(url_with_sleep_payload) >= 5)
-        self.assertTrue(
-            self.karton.measure_request_time(url_to_headers_vuln, headers={"User-Agent": "'||pg_sleep(5)||'"}) >= 5
-        )
+        with requests.Session() as session:
+            self.assertTrue(self.karton.measure_request_time(current_url, session) < 1)
+            self.assertTrue(self.karton.measure_request_time(url_with_sleep_payload, session) >= 5)
+            self.assertTrue(
+                self.karton.measure_request_time(
+                    url_to_headers_vuln, session, headers={"User-Agent": "'||pg_sleep(5)||'"}
+                )
+                >= 5
+            )
 
     def test_contains_error(self) -> None:
         current_url = "http://test-apache-with-sql-injection-postgres.local/sql_injection.php?id=5"
@@ -116,13 +122,12 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
             "http://test-apache-with-sql-injection-mysql.local/sql_injection.php?id='||sleep(5)||'"
             ": It appears that this URL is vulnerable to time-based SQL injection"
         )
+        headers_vuln_url = "http://test-apache-with-sql-injection-mysql.local/headers_vuln.php"
         sqli_by_headers_message = (
-            "http://test-apache-with-sql-injection-mysql.local/headers_vuln.php: "
-            "It appears that this URL is vulnerable to SQL injection through HTTP Headers"
+            f"{headers_vuln_url}: It appears that this URL is vulnerable to SQL injection through HTTP Headers"
         )
         time_base_sqli_by_headers_message = (
-            "http://test-apache-with-sql-injection-mysql.local/headers_vuln.php: "
-            "It appears that this URL is vulnerable to time-based SQL injection "
+            f"{headers_vuln_url}: It appears that this URL is vulnerable to time-based SQL injection "
             "through HTTP Headers"
         )
 
@@ -132,6 +137,24 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         self.assertTrue(sqli_by_headers_message in call.kwargs["status_reason"])
         self.assertTrue(time_base_sqli_by_headers_message in call.kwargs["status_reason"])
         self.assertEqual(len(call.kwargs["data"]["result"]), 4)
+
+        headers_msgs = [item for item in call.kwargs["data"]["result"] if item["url"] == headers_vuln_url]
+        self.assertEqual(len(headers_msgs), 2)
+        self.assertEqual(
+            [headers_msgs[0]["code"], headers_msgs[1]["code"]],
+            [
+                Statements.headers_sql_injection.value,
+                Statements.headers_time_based_sql_injection.value,
+            ],
+        )
+        expected_headers_by_code = {
+            Statements.headers_sql_injection.value: {"User-Agent": HEADERS_DATA["User-Agent"] + "'\""},
+            Statements.headers_time_based_sql_injection.value: {
+                "User-Agent": HEADERS_DATA["User-Agent"] + "'||sleep(5)||'"
+            },
+        }
+        for msg in headers_msgs:
+            self.assertEqual(msg["headers"], expected_headers_by_code[msg["code"]])
 
     def test_is_url_with_parameters(self) -> None:
         current_url = "http://test-apache-with-sql-injection-mysql.local"
@@ -145,11 +168,13 @@ class MysqlSqlInjectionDetectorTestCase(ArtemisModuleTestCase):
         url_with_sleep_payload = "http://test-apache-with-sql-injection-mysql.local/sql_injection.php?id='||sleep(5)||'"
         url_to_headers_vuln = "http://test-apache-with-sql-injection-mysql.local/headers_vuln.php"
 
-        self.assertTrue(self.karton.measure_request_time(current_url) < 1)
-        self.assertTrue(self.karton.measure_request_time(url_with_sleep_payload) >= 5)
-        self.assertTrue(
-            self.karton.measure_request_time(url_to_headers_vuln, headers={"User-Agent": "'||sleep(5)||'"}) >= 5
-        )
+        with requests.Session() as session:
+            self.assertTrue(self.karton.measure_request_time(current_url, session) < 1)
+            self.assertTrue(self.karton.measure_request_time(url_with_sleep_payload, session) >= 5)
+            self.assertTrue(
+                self.karton.measure_request_time(url_to_headers_vuln, session, headers={"User-Agent": "'||sleep(5)||'"})
+                >= 5
+            )
 
     def test_contains_error(self) -> None:
         current_url = "http://test-apache-with-sql-injection-mysql.local/sql_injection.php?id=1"
@@ -185,14 +210,16 @@ class SqlInjectionParameterMinimizationTestCase(ArtemisModuleTestCase):
             with patch.object(self.karton, "_create_injected_url", side_effect=mocked_create_url):
                 with patch.object(self.karton, "contains_error", side_effect=mocked_contains_error):
                     with patch.object(self.karton, "forgiving_http_get", return_value=None):
-                        minimal_params = self.karton.minimize_parameters(
-                            url="http://example.com/login",
-                            params=params,
-                            payload="'\"",
-                            baseline_payload="-1",
-                            use_change_url_params=True,
-                            minimization_mode="error",
-                        )
+                        with requests.Session() as session:
+                            minimal_params = self.karton.minimize_parameters(
+                                url="http://example.com/login",
+                                params=params,
+                                payload="'\"",
+                                baseline_payload="-1",
+                                use_change_url_params=True,
+                                minimization_mode="error",
+                                session=session,
+                            )
 
         self.assertEqual(minimal_params, ["a", "b", "c", "d", "e"])
 
@@ -221,7 +248,7 @@ class SqlInjectionHeaderMinimizationTestCase(ArtemisModuleTestCase):
                 return "error"
             return None
 
-        def mocked_http_get(url: str, headers: dict[str, str] | None = None) -> str | None:
+        def mocked_http_get(url: str, session: requests.Session, headers: dict[str, str] | None = None) -> str | None:
             if headers is None:
                 return None
             header_name = list(headers.keys())[0]
@@ -245,12 +272,14 @@ class SqlInjectionHeaderMinimizationTestCase(ArtemisModuleTestCase):
                 mocked_config.SQL_INJECTION_MINIMAL_HEADERS_MAX_LEN = 5
                 with patch.object(self.karton, "contains_error", side_effect=mocked_contains_error):
                     with patch.object(self.karton, "forgiving_http_get", side_effect=mocked_http_get):
-                        minimal_headers = self.karton.minimize_headers(
-                            url="http://example.com/login",
-                            headers=headers,
-                            payload="'\"",
-                            baseline_payload="-1",
-                            minimization_mode="error",
-                        )
+                        with requests.Session() as session:
+                            minimal_headers = self.karton.minimize_headers(
+                                url="http://example.com/login",
+                                headers=headers,
+                                payload="'\"",
+                                baseline_payload="-1",
+                                minimization_mode="error",
+                                session=session,
+                            )
 
         self.assertEqual(list(minimal_headers.keys()), ["Header-A", "Header-B", "Header-C", "Header-D", "Header-E"])

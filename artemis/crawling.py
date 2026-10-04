@@ -1,7 +1,9 @@
 import functools
 import hashlib
 import json
+import random
 import subprocess
+import time
 from typing import List, Tuple
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -12,6 +14,7 @@ from redis import Redis
 
 from artemis import http_requests, utils
 from artemis.config import Config
+from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.redis_cache import RedisCache
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 
@@ -58,6 +61,7 @@ def get_injectable_parameters(url: str) -> List[str]:
 
 @functools.lru_cache(maxsize=1024)
 def _fetch_wayback_parameters(domain: str) -> Tuple[str, ...]:
+    time_start = time.time()
     response = requests.get(
         WAYBACK_CDX_URL,
         params={
@@ -79,6 +83,7 @@ def _fetch_wayback_parameters(domain: str) -> Tuple[str, ...]:
             params.update(parse_qs(parsed.query).keys())
         except IndexError:
             continue
+    logger.info("_fetch_wayback_parameters took %f seconds", time.time() - time_start)
     return tuple(params)
 
 
@@ -230,3 +235,21 @@ def crawl_and_filter(url: str) -> List[str]:
                 lock.release()
 
     return list(deduped)
+
+
+def strip_query_string(url: str) -> str:
+    parsed = urlparse(url)
+    return urlunparse(parsed._replace(query="", fragment=""))
+
+
+def get_links_to_scan(url: str) -> List[str]:
+    links = crawl_and_filter(url)
+    links.append(url)
+    links = list(set(links) | set([strip_query_string(link) for link in links]))
+    links = [
+        link.split("#")[0]
+        for link in links
+        if not any(link.split("?")[0].lower().endswith(extension) for extension in STATIC_EXTENSIONS)
+    ]
+    random.shuffle(links)
+    return links[: Config.Miscellaneous.MAX_URLS_TO_SCAN]

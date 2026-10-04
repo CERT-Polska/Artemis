@@ -69,6 +69,10 @@ class ModuleStartedTask(Base):  # type: ignore
     __tablename__ = "module_started_task"
     module_identity = Column(String, primary_key=True)
     analysis_id = Column(String, primary_key=True)
+    # The purpose of this column is to be able to quickly find identical scheduled tasks. Therefore
+    # we convert them to a string form (created by the
+    # _get_task_deduplication_data method) and store the hash of the string in the indexed
+    # deduplication_data column (because PostgreSQL limits the max length of indexed column).
     deduplication_data = Column(String, primary_key=True)
     created_at = Column(DateTime, server_default=text("NOW()"))
 

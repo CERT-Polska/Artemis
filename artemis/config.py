@@ -363,7 +363,7 @@ class Config:
             "just because it was reachable via different original hosts. Can be extended with custom modules.",
         ] = get_config(
             "MODULES_WHITELIST_FOR_ORIGINAL_HOST_DEDUPLICATION",
-            default="nuclei-router,nuclei-module,admin_panel_login_bruter,xss_scanner,lfi_detector,sqlmap,sql_injection_detector,dangling_dns_detector",
+            default="nuclei-router,nuclei-module,command_injection_detector,admin_panel_login_bruter,xss_scanner,lfi_detector,sqlmap,sql_injection_detector,dangling_dns_detector",
             cast=decouple.Csv(str, delimiter=","),
         )
 

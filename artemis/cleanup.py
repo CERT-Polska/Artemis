@@ -87,7 +87,7 @@ def _cleanup_queues() -> None:
         logger.info("Queue for %s is cleaned up", old_module)
 
 
-def _cleanup_scheduled_tasks() -> None:
+def _cleanup_module_started_tasks() -> None:
     karton_backend = KartonBackend(config=KartonConfig())
 
     # First we take the set of all analyses, and then remove the ones that have tasks (i.e. unfinished). That way we result in the set of finished analyses.
@@ -120,7 +120,7 @@ def _cleanup_scheduled_tasks() -> None:
             analysis_ids = finished_analyses_ids[i : i + BATCH]
             removed_rows += db.delete_module_started_tasks_for_analyses(analysis_ids)
 
-            logger.debug("Cleaned up ScheduledTask table for analyses: %s", ",".join(analysis_ids))
+            logger.debug("Cleaned up ModuleStartedTask table for analyses: %s", ",".join(analysis_ids))
         logger.info(
             "Removed %d rows in ModuleStartedTask table for %d finished analyses. "
             "Number of remaining unfinished analyses: %d.",
@@ -135,7 +135,7 @@ def cleanup() -> None:
     _migrate_nuclei_queues()
     _cleanup_tasks_not_in_queues()
     _cleanup_queues()
-    _cleanup_scheduled_tasks()
+    _cleanup_module_started_tasks()
 
 
 if __name__ == "__main__":

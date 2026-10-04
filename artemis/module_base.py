@@ -346,6 +346,7 @@ class ArtemisBase(Karton):
             resource_lock = None
 
         tasks, locks, num_task_removed_from_queue = self._take_and_lock_tasks(self.task_max_batch_size)
+        assert len(tasks) == len(locks)
         self._current_task_locks = {task.uid: lock for task, lock in zip(tasks, locks)}
         self._log_tasks(tasks)
 

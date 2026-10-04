@@ -64,7 +64,7 @@ class TSVector(TypeDecorator):  # type: ignore
 
 
 class ModuleStartedTask(Base):  # type: ignore
-    """Tracks which tasks have already been processed by each module, for per-module deduplication."""
+    """Tracks which tasks have already been started by each module, for per-module deduplication."""
 
     __tablename__ = "module_started_task"
     module_identity = Column(String, primary_key=True)
@@ -466,6 +466,7 @@ class DB:
         Records that a module has started a task. Returns True if this is the first time
         this module started this task, False if it was already started.
         """
+        self.logger.info("Saving module started task: %s", self._get_task_deduplication_data(task))
         record = {
             "module_identity": module_identity,
             "analysis_id": task.root_uid,

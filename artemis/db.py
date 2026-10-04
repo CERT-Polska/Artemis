@@ -739,6 +739,8 @@ class DB:
         if "start_time" in task_as_dict["payload"]:
             del task_as_dict["payload"]["start_time"]
         if task.receiver in Config.Miscellaneous.MODULES_WHITELIST_FOR_ORIGINAL_HOST_DEDUPLICATION:
+            if "original_target" in task_as_dict["payload_persistent"]:
+                del task_as_dict["payload_persistent"]["original_target"]
             if "original_ip" in task_as_dict["payload_persistent"]:
                 del task_as_dict["payload_persistent"]["original_ip"]
             if "original_domain" in task_as_dict["payload_persistent"]:

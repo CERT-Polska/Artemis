@@ -615,7 +615,7 @@ class DB:
         # regardless of how are the items ordered internally.
         for key, value in sorted(d.items()):
             if isinstance(value, dict):
-                result += f"{key}={{DB.dict_to_str(value)}}"
+                result += f"{key}={{{DB.dict_to_str(value)}}}"
             else:
                 if result:
                     result += ", "

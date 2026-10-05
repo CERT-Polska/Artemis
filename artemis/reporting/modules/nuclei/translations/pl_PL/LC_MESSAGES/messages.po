@@ -16,7 +16,10 @@ msgstr ""
 "Aby zmniejszyć prawdopodobieństwo ataku (spowodowanego np. słabym hasłem,"
 " wykorzystaniem hasła zamieszczonego w wycieku, lub podatnością w "
 "usłudze) rekomendujemy, aby jak najmniej takich zasobów było dostępnych "
-"publicznie."
+"publicznie. Więcej informacji: <a href='http://wiedza.cert.pl/odpornosc-"
+"infrastruktury/bezpieczenstwo-sieci/uslugi-dostepne-"
+"publicznie/'>http://wiedza.cert.pl/odpornosc-infrastruktury"
+"/bezpieczenstwo-sieci/uslugi-dostepne-publicznie/</a>."
 
 #: artemis/reporting/modules/nuclei/template_nuclei_exposed_panel.jinja2:27
 msgid ""

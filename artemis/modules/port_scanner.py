@@ -72,9 +72,6 @@ else:
     PORTS_SET_TOP10 = load_ports("ports-artemis-top10.txt")
 
 PORTS_RISKY = load_ports("ports-artemis-risky.txt")
-# Risky ports that are not part of the standard list - we scan them and report them, but by default we don't
-# let other modules scan them (see PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS).
-PORTS_RISKY_ONLY = PORTS_RISKY - PORTS_SET
 
 PORTS = sorted(list(PORTS_SET | PORTS_RISKY))
 
@@ -297,7 +294,7 @@ class PortScanner(ArtemisBase):
                     )
 
                     if (
-                        int(port) not in PORTS_RISKY_ONLY
+                        int(port) not in PORTS_RISKY
                         or Config.Modules.PortScanner.PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS
                     ):
                         self.add_task(task, new_task)

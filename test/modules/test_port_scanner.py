@@ -71,8 +71,11 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.assertEqual(ports["636"]["service"], "ldap")
         self.assertTrue(ports["636"]["ssl"])
 
-        # 636 is a risky port that is only reported by default (389 is spawned as a standard service)
-        self.assertEqual([result.payload["port"] for result in results], [389])
+        # 636 is a risky port - reported but no task spawned by default; 389 is a standard port with a task
+        spawned_ports = [result.payload["port"] for result in results]
+        self.assertIn(389, spawned_ports)
+        self.assertNotIn(636, spawned_ports)
+        self.assertEqual(len(spawned_ports), 1)
 
     def test_risky_ports_spawn_tasks_when_enabled(self) -> None:
         task = Task(
@@ -84,4 +87,6 @@ class PortScannerTest(ArtemisModuleTestCase):
             patch.object(Config.Modules.PortScanner, "PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS", True),
         ):
             results = self.run_task(task)
-        self.assertEqual(sorted(result.payload["port"] for result in results), [389, 636])
+        spawned_ports = sorted(result.payload["port"] for result in results)
+        self.assertIn(636, spawned_ports)
+        self.assertEqual(spawned_ports, [389, 636])

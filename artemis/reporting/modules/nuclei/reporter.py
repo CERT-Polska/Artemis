@@ -53,6 +53,18 @@ ADDITIONAL_REFERENCES: dict[tuple[Language, str], list[str]] = {
     ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/"],
     (
         Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/cmdi/python-code-injection.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/command-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/cmdi/ruby-open-rce.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/command-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/cmdi/blind-oast-polyglots.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/command-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
         "dast/vulnerabilities/xss/reflected-xss.yaml",
     ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/cross-site-scripting/"],
     (

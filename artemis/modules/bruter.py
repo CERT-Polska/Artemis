@@ -7,6 +7,7 @@ from difflib import SequenceMatcher
 from typing import IO, List, Set
 
 from karton.core import Task
+from requests import Session
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
@@ -66,7 +67,7 @@ class Bruter(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def scan(self, task: Task) -> BruterResult:
+    def scan(self, task: Task, session: Session) -> BruterResult:
         """
         Brute-forces URLs. Returns two lists: all found URLs and the ones detected to be
         a directory index.
@@ -77,7 +78,7 @@ class Bruter(ArtemisBase):
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = base_url + "/" + dummy_random_token
         try:
-            dummy_content = self.http_get(dummy_url).content
+            dummy_content = self.probe_http_get(session, dummy_url).content
         except Exception:
             dummy_content = ""
 
@@ -95,7 +96,9 @@ class Bruter(ArtemisBase):
             self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
             full_url = base_url + "/" + url
             try:
-                response = self.http_get(full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS)
+                response = self.probe_http_get(
+                    session, full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS
+                )
             except Exception:
                 self.log.warning("Failed to scan URL %s", full_url)
                 continue
@@ -140,7 +143,8 @@ class Bruter(ArtemisBase):
         if not self.check_connection_to_base_url_and_save_error(task):
             return
 
-        scan_result = self.scan(task)
+        with Session() as session:
+            scan_result = self.scan(task, session)
 
         if len(scan_result.found_urls) > 0:
             status = TaskStatus.INTERESTING

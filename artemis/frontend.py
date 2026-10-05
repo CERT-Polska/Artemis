@@ -102,7 +102,7 @@ if not Config.Miscellaneous.API_TOKEN:
 
 @router.get("/login", include_in_schema=False)
 def get_login(request: Request) -> Response:
-    if request.session.get(auth.SESSION_KEY_AUTHENTICATED):
+    if auth.is_authenticated(request):
         return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
     return templates.TemplateResponse(
@@ -132,13 +132,13 @@ async def post_login(
             status_code=401,
         )
 
-    request.session[auth.SESSION_KEY_AUTHENTICATED] = True
+    auth.create_session(request)
     return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)
 
 
 @router.post("/logout", include_in_schema=False)
 async def post_logout(request: Request) -> Response:
-    request.session.clear()
+    auth.destroy_session(request)
     return RedirectResponse("/login", status_code=303)
 
 

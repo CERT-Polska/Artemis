@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.7.1
 aiohttp==3.14.3
@@ -30,12 +30,12 @@ checkdmarc==6.0.3
 click==8.5.0
 click-plugins==1.1.1.2
 colorama==0.4.6
-coverage==7.16.1
+coverage==7.16.2
 cryptography==50.0.1
 decorator==5.3.1
 defusedxml==0.7.1
 dkimpy==1.1.8
-dnspython==2.8.0
+dnspython[doh]==2.8.0
 docutils==0.22.4
 expiringdict==1.2.2
 fastapi==0.141.1

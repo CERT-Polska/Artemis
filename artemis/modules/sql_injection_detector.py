@@ -40,14 +40,6 @@ class SqlInjectionDetector(ArtemisBase):
         {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
     ]
 
-    def forgiving_probe_http_get(self, session: requests.Session, *args: Any, **kwargs: Any) -> HTTPResponse | None:
-        # Keep probes independent while retaining the underlying connection pool.
-        session.cookies.clear()
-        try:
-            return self.forgiving_http_get(*args, session=session, **kwargs)
-        finally:
-            session.cookies.clear()
-
     def create_url_with_batch_payload(self, url: str, param_batch: tuple[Any, ...], payload: str) -> str:
         assignments = {key: payload for key in param_batch}
         concatenation = "&" if self.is_url_with_parameters(url) else "?"

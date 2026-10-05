@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from karton.core import Task
+from requests import Session
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
@@ -87,7 +88,7 @@ class LFIDetector(ArtemisBase):
         return None
 
     def minimize_parameters(
-        self, url: str, params: List[str], payload: str, original_response: HTTPResponse
+        self, url: str, params: List[str], payload: str, original_response: HTTPResponse, session: Session
     ) -> List[str]:
         """
         Try to find the minimal set of parameters that still triggers LFI. Currently minimizes to single parameters only.
@@ -97,7 +98,7 @@ class LFIDetector(ArtemisBase):
 
         for param in params:
             test_url = self.create_url_with_batch_payload(url, [param], payload)
-            response = self.http_get(test_url)
+            response = self.probe_http_get(session, test_url)
 
             if self.contains_lfi_indicator(original_response, response):
                 minimal_params.append(param)
@@ -115,12 +116,12 @@ class LFIDetector(ArtemisBase):
         # fallback if no single param triggers LFI
         return params
 
-    def scan(self, urls: List[str], task: Task) -> List[Dict[str, Any]]:
+    def scan(self, urls: List[str], session: Session) -> List[Dict[str, Any]]:
         """Scan URLs for LFI vulnerabilities."""
         messages: List[Dict[str, Any]] = []
 
         for current_url in urls:
-            original_response = self.http_get(current_url)
+            original_response = self.probe_http_get(session, current_url)
 
             parameters = get_injectable_parameters(current_url)
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
@@ -141,7 +142,7 @@ class LFIDetector(ArtemisBase):
                         #
                         # We can't have constant chunk size as the payloads have varied length.
                         if len(url_with_payload) >= 1600 or i == len(total_params) - 1:
-                            response = self.http_get(url_with_payload)
+                            response = self.probe_http_get(session, url_with_payload)
 
                             if indicator := self.contains_lfi_indicator(original_response, response):
 
@@ -150,6 +151,7 @@ class LFIDetector(ArtemisBase):
                                     param_batch,
                                     payload,
                                     original_response,
+                                    session,
                                 )
 
                                 minimal_url = self.create_url_with_batch_payload(
@@ -179,7 +181,8 @@ class LFIDetector(ArtemisBase):
             url = get_target_url(current_task)
             links = get_links_to_scan(url)
 
-            messages = self.scan(urls=links, task=current_task)
+            with Session() as session:
+                messages = self.scan(urls=links, session=session)
 
             if messages:
                 status = TaskStatus.INTERESTING

@@ -277,9 +277,13 @@ class WordpressPlugins(ArtemisBase):
         return plugin_data
 
     def run(self, current_task: Task) -> None:
+        with requests.Session() as session:
+            self._run(current_task, session)
+
+    def _run(self, current_task: Task, session: requests.Session) -> None:
         url = current_task.get_payload("url")
 
-        response = self.http_get(url)
+        response = self.probe_http_get(session, url)
         not_scanning_redirect_message = None
         if response.is_redirect:
             redirect_url = response.url
@@ -346,7 +350,8 @@ class WordpressPlugins(ArtemisBase):
 
             try:
                 if plugin["slug"] in self._readme_file_names:
-                    response = self.http_get(
+                    response = self.probe_http_get(
+                        session,
                         urllib.parse.urljoin(
                             url,
                             "/wp-content/plugins/"
@@ -359,7 +364,8 @@ class WordpressPlugins(ArtemisBase):
                     )
                 else:
                     for file_name in FILE_NAME_CANDIDATES:
-                        response = self.http_get(
+                        response = self.probe_http_get(
+                            session,
                             urllib.parse.urljoin(
                                 url, "/wp-content/plugins/" + plugin["slug"] + "/" + file_name + cachebuster
                             ),

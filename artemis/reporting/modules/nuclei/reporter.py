@@ -139,6 +139,9 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
     if not parsed.path:
         return None
 
+    if not parsed.hostname:
+        return None
+
     assert get_host_from_url(target) == host
     return parsed.path, parsed.query
 

@@ -73,22 +73,22 @@ class CommandInjectionDetector(ArtemisBase):
             return False
         return marker in response.content
 
-    def measure_request_time(self, url: str) -> float:
+    def measure_request_time(self, url: str, session: requests.Session) -> float:
         start = timer()
         try:
-            self.forgiving_http_get(url)
+            self.forgiving_probe_http_get(session, url)
         except requests.exceptions.Timeout:
             return Config.Modules.CommandInjectionDetector.COMMAND_INJECTION_TIME_THRESHOLD
         return datetime.timedelta(seconds=timer() - start).seconds
 
-    def _confirm_time_based(self, url_with_sleep: str, url_without_sleep: str) -> bool:
+    def _confirm_time_based(self, url_with_sleep: str, url_without_sleep: str, session: requests.Session) -> bool:
         # Re-check across several rounds that the injected sleep is slow and its neutralized baseline
         # is fast; a single fluke round is enough to reject the candidate (kills timing false positives).
         threshold = Config.Modules.CommandInjectionDetector.COMMAND_INJECTION_TIME_THRESHOLD
         for _ in range(Config.Modules.CommandInjectionDetector.COMMAND_INJECTION_NUM_RETRIES_TIME_BASED):
             if not (
-                self.measure_request_time(url_without_sleep) < threshold / 2
-                and self.measure_request_time(url_with_sleep) >= threshold
+                self.measure_request_time(url_without_sleep, session) < threshold / 2
+                and self.measure_request_time(url_with_sleep, session) >= threshold
             ):
                 return False
         return True
@@ -99,6 +99,7 @@ class CommandInjectionDetector(ArtemisBase):
         params: list[str],
         payload: str,
         minimization_mode: Literal["output", "time"],
+        session: requests.Session,
         marker: str | None = None,
     ) -> list[str]:
         """
@@ -112,12 +113,13 @@ class CommandInjectionDetector(ArtemisBase):
         for param in params:
             if minimization_mode == "output" and marker is not None:
                 confirmed = self.response_contains_marker(
-                    self.forgiving_http_get(self._url_with_payload(url, (param,), payload)), marker
+                    self.forgiving_probe_http_get(session, self._url_with_payload(url, (param,), payload)), marker
                 )
             else:
                 confirmed = (
-                    self.measure_request_time(self._url_with_payload(url, (param,), baseline_payload)) < threshold / 2
-                    and self.measure_request_time(self._url_with_payload(url, (param,), payload)) >= threshold
+                    self.measure_request_time(self._url_with_payload(url, (param,), baseline_payload), session)
+                    < threshold / 2
+                    and self.measure_request_time(self._url_with_payload(url, (param,), payload), session) >= threshold
                 )
             if confirmed:
                 minimal_params.append(param)
@@ -125,7 +127,7 @@ class CommandInjectionDetector(ArtemisBase):
                 break
         return minimal_params or params
 
-    def scan(self, urls: list[str]) -> list[dict[str, Any]]:
+    def scan(self, urls: list[str], session: requests.Session) -> list[dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
         message: list[dict[str, Any]] = []
 
@@ -156,13 +158,16 @@ class CommandInjectionDetector(ArtemisBase):
                 # injected arithmetic, so a match proves execution rather than reflection.
                 for injection, expected_marker in output_payloads:
                     injected_url = self._url_with_payload(current_url, param_batch, injection)
-                    if self.response_contains_marker(self.forgiving_http_get(injected_url), expected_marker):
+                    if self.response_contains_marker(
+                        self.forgiving_probe_http_get(session, injected_url), expected_marker
+                    ):
                         self.log.info("Matched command injection: %s on %s", injection, current_url)
                         minimal_params = self._minimize_parameters(
                             current_url,
                             list(param_batch),
                             injection,
                             minimization_mode="output",
+                            session=session,
                             marker=expected_marker,
                         )
                         message.append(
@@ -183,10 +188,14 @@ class CommandInjectionDetector(ArtemisBase):
                     url_without_sleep = self._url_with_payload(
                         current_url, param_batch, self.change_sleep_to_0(sleep_payload)
                     )
-                    if self._confirm_time_based(url_with_sleep, url_without_sleep):
+                    if self._confirm_time_based(url_with_sleep, url_without_sleep, session):
                         self.log.info("Matched time-based command injection: %s on %s", sleep_payload, current_url)
                         minimal_params = self._minimize_parameters(
-                            current_url, list(param_batch), sleep_payload, minimization_mode="time"
+                            current_url,
+                            list(param_batch),
+                            sleep_payload,
+                            minimization_mode="time",
+                            session=session,
                         )
                         message.append(
                             {
@@ -239,7 +248,8 @@ class CommandInjectionDetector(ArtemisBase):
 
         random.shuffle(links)
 
-        message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN])
+        with requests.Session() as session:
+            message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], session=session)
 
         if message:
             status = TaskStatus.INTERESTING

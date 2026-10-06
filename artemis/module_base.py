@@ -13,7 +13,7 @@ import sys
 import time
 import traceback
 import urllib.parse
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
 import timeout_decorator
 from karton.core import Karton, Task
@@ -22,6 +22,7 @@ from karton.core.task import TaskState as KartonTaskState
 from multiprocessing_logging import install_mp_handler
 from publicsuffixlist import PublicSuffixList
 from redis import Redis
+from requests import Session
 from requests.exceptions import RequestException
 
 from artemis import http_requests
@@ -57,6 +58,8 @@ PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 setup_retrying_resolver()
 install_mp_handler()
+
+ProbeResponse = TypeVar("ProbeResponse")
 
 
 class UnknownIPException(Exception):
@@ -908,6 +911,9 @@ class ArtemisBase(Karton):
     def http_post(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
         return self._http_request("post", *args, **kwargs)
 
+    def session_clear_cookies_http_get(self, session: Session, *args: Any, **kwargs: Any) -> http_requests.HTTPResponse:
+        return self._session_clear_cookies_http_request(self.http_get, session, *args, **kwargs)
+
     # Sometimes a module needs to make a large number of HTTP requests and a small number of failures is OK.
     # These two methods allow to do that.
     def forgiving_http_get(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
@@ -915,6 +921,25 @@ class ArtemisBase(Karton):
 
     def forgiving_http_post(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
         return self._forgiving_http_request("post", *args, **kwargs)
+
+    def session_clear_cookies_forgiving_http_get(
+        self, session: Session, *args: Any, **kwargs: Any
+    ) -> http_requests.HTTPResponse | None:
+        return self._session_clear_cookies_http_request(self.forgiving_http_get, session, *args, **kwargs)
+
+    def _session_clear_cookies_http_request(
+        self,
+        method: Callable[..., ProbeResponse],
+        session: Session,
+        *args: Any,
+        **kwargs: Any,
+    ) -> ProbeResponse:
+        # Keep probes independent while retaining the underlying connection pool.
+        session.cookies.clear()
+        try:
+            return method(*args, session=session, **kwargs)
+        finally:
+            session.cookies.clear()
 
     def _forgiving_http_request(self, method: str, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
         try:

@@ -90,9 +90,9 @@ class SqlInjectionDetector(ArtemisBase):
         start = timer()
         try:
             if "headers" not in kwargs:
-                self.forgiving_probe_http_get(session, url)
+                self.session_clear_cookies_forgiving_http_get(session, url)
             else:
-                self.forgiving_probe_http_get(session, url, headers=kwargs.get("headers"))
+                self.session_clear_cookies_forgiving_http_get(session, url, headers=kwargs.get("headers"))
         except requests.exceptions.Timeout:
             return Config.Modules.SqlInjectionDetector.SQL_INJECTION_TIME_THRESHOLD
 
@@ -153,8 +153,13 @@ class SqlInjectionDetector(ArtemisBase):
             )
 
             if minimization_mode == "error":
-                error = self.contains_error(url_with, self.forgiving_probe_http_get(session, url_with))
-                if not self.contains_error(url_without, self.forgiving_probe_http_get(session, url_without)) and error:
+                error = self.contains_error(url_with, self.session_clear_cookies_forgiving_http_get(session, url_with))
+                if (
+                    not self.contains_error(
+                        url_without, self.session_clear_cookies_forgiving_http_get(session, url_without)
+                    )
+                    and error
+                ):
                     minimal_params.append(param)
             elif (
                 self.measure_request_time(url_without, session)
@@ -214,9 +219,13 @@ class SqlInjectionDetector(ArtemisBase):
             no_effect_header = {header_name: HEADERS[header_name] + payload_without_effect}
 
             if minimization_mode == "error":
-                error = self.contains_error(url, self.forgiving_probe_http_get(session, url, headers=single_header))
+                error = self.contains_error(
+                    url, self.session_clear_cookies_forgiving_http_get(session, url, headers=single_header)
+                )
                 if (
-                    not self.contains_error(url, self.forgiving_probe_http_get(session, url, headers=no_effect_header))
+                    not self.contains_error(
+                        url, self.session_clear_cookies_forgiving_http_get(session, url, headers=no_effect_header)
+                    )
                     and error
                 ):
                     minimal_headers[header_name] = header_value
@@ -311,12 +320,13 @@ class SqlInjectionDetector(ArtemisBase):
                         )
 
                         error = self.contains_error(
-                            url_with_payload, self.forgiving_probe_http_get(session, url_with_payload)
+                            url_with_payload, self.session_clear_cookies_forgiving_http_get(session, url_with_payload)
                         )
 
                         if (
                             not self.contains_error(
-                                url_without_payload, self.forgiving_probe_http_get(session, url_without_payload)
+                                url_without_payload,
+                                self.session_clear_cookies_forgiving_http_get(session, url_without_payload),
                             )
                             and error
                         ):
@@ -400,12 +410,13 @@ class SqlInjectionDetector(ArtemisBase):
                     )
 
                     error = self.contains_error(
-                        url_with_payload, self.forgiving_probe_http_get(session, url_with_payload)
+                        url_with_payload, self.session_clear_cookies_forgiving_http_get(session, url_with_payload)
                     )
 
                     if (
                         not self.contains_error(
-                            url_with_no_payload, self.forgiving_probe_http_get(session, url_with_no_payload)
+                            url_with_no_payload,
+                            self.session_clear_cookies_forgiving_http_get(session, url_with_no_payload),
                         )
                         and error
                     ):
@@ -490,12 +501,13 @@ class SqlInjectionDetector(ArtemisBase):
                 headers_no_payload = self.create_headers(payload=not_error_payload)
 
                 error = self.contains_error(
-                    current_url, self.forgiving_probe_http_get(session, current_url, headers=headers)
+                    current_url, self.session_clear_cookies_forgiving_http_get(session, current_url, headers=headers)
                 )
 
                 if (
                     not self.contains_error(
-                        current_url, self.forgiving_probe_http_get(session, current_url, headers=headers_no_payload)
+                        current_url,
+                        self.session_clear_cookies_forgiving_http_get(session, current_url, headers=headers_no_payload),
                     )
                     and error
                 ):

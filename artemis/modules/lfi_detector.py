@@ -98,7 +98,7 @@ class LFIDetector(ArtemisBase):
 
         for param in params:
             test_url = self.create_url_with_batch_payload(url, [param], payload)
-            response = self.probe_http_get(session, test_url)
+            response = self.session_clear_cookies_http_get(session, test_url)
 
             if self.contains_lfi_indicator(original_response, response):
                 minimal_params.append(param)
@@ -121,7 +121,7 @@ class LFIDetector(ArtemisBase):
         messages: List[Dict[str, Any]] = []
 
         for current_url in urls:
-            original_response = self.probe_http_get(session, current_url)
+            original_response = self.session_clear_cookies_http_get(session, current_url)
 
             parameters = get_injectable_parameters(current_url)
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
@@ -142,7 +142,7 @@ class LFIDetector(ArtemisBase):
                         #
                         # We can't have constant chunk size as the payloads have varied length.
                         if len(url_with_payload) >= 1600 or i == len(total_params) - 1:
-                            response = self.probe_http_get(session, url_with_payload)
+                            response = self.session_clear_cookies_http_get(session, url_with_payload)
 
                             if indicator := self.contains_lfi_indicator(original_response, response):
 

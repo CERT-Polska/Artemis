@@ -76,7 +76,7 @@ class CommandInjectionDetector(ArtemisBase):
     def measure_request_time(self, url: str, session: requests.Session) -> float:
         start = timer()
         try:
-            self.forgiving_probe_http_get(session, url)
+            self.session_clear_cookies_forgiving_http_get(session, url)
         except requests.exceptions.Timeout:
             return Config.Modules.CommandInjectionDetector.COMMAND_INJECTION_TIME_THRESHOLD
         return datetime.timedelta(seconds=timer() - start).seconds
@@ -113,7 +113,10 @@ class CommandInjectionDetector(ArtemisBase):
         for param in params:
             if minimization_mode == "output" and marker is not None:
                 confirmed = self.response_contains_marker(
-                    self.forgiving_probe_http_get(session, self._url_with_payload(url, (param,), payload)), marker
+                    self.session_clear_cookies_forgiving_http_get(
+                        session, self._url_with_payload(url, (param,), payload)
+                    ),
+                    marker,
                 )
             else:
                 confirmed = (
@@ -159,7 +162,7 @@ class CommandInjectionDetector(ArtemisBase):
                 for injection, expected_marker in output_payloads:
                     injected_url = self._url_with_payload(current_url, param_batch, injection)
                     if self.response_contains_marker(
-                        self.forgiving_probe_http_get(session, injected_url), expected_marker
+                        self.session_clear_cookies_forgiving_http_get(session, injected_url), expected_marker
                     ):
                         self.log.info("Matched command injection: %s on %s", injection, current_url)
                         minimal_params = self._minimize_parameters(

@@ -911,8 +911,8 @@ class ArtemisBase(Karton):
     def http_post(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
         return self._http_request("post", *args, **kwargs)
 
-    def probe_http_get(self, session: Session, *args: Any, **kwargs: Any) -> http_requests.HTTPResponse:
-        return self._probe_http_request(self.http_get, session, *args, **kwargs)
+    def session_clear_cookies_http_get(self, session: Session, *args: Any, **kwargs: Any) -> http_requests.HTTPResponse:
+        return self._session_clear_cookies_http_request(self.http_get, session, *args, **kwargs)
 
     # Sometimes a module needs to make a large number of HTTP requests and a small number of failures is OK.
     # These two methods allow to do that.
@@ -922,12 +922,12 @@ class ArtemisBase(Karton):
     def forgiving_http_post(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
         return self._forgiving_http_request("post", *args, **kwargs)
 
-    def forgiving_probe_http_get(
+    def session_clear_cookies_forgiving_http_get(
         self, session: Session, *args: Any, **kwargs: Any
     ) -> http_requests.HTTPResponse | None:
-        return self._probe_http_request(self.forgiving_http_get, session, *args, **kwargs)
+        return self._session_clear_cookies_http_request(self.forgiving_http_get, session, *args, **kwargs)
 
-    def _probe_http_request(
+    def _session_clear_cookies_http_request(
         self,
         method: Callable[..., ProbeResponse],
         session: Session,

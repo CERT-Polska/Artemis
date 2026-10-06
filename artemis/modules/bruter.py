@@ -78,7 +78,7 @@ class Bruter(ArtemisBase):
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
         dummy_url = base_url + "/" + dummy_random_token
         try:
-            dummy_content = self.probe_http_get(session, dummy_url).content
+            dummy_content = self.session_clear_cookies_http_get(session, dummy_url).content
         except Exception:
             dummy_content = ""
 
@@ -96,7 +96,7 @@ class Bruter(ArtemisBase):
             self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
             full_url = base_url + "/" + url
             try:
-                response = self.probe_http_get(
+                response = self.session_clear_cookies_http_get(
                     session, full_url, allow_redirects=Config.Modules.Bruter.BRUTER_FOLLOW_REDIRECTS
                 )
             except Exception:

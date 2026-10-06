@@ -52,7 +52,8 @@ REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 setup_retrying_resolver()
-install_mp_handler()
+if multiprocessing.get_start_method() == "fork":
+    install_mp_handler()
 
 
 class UnknownIPException(Exception):

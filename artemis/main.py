@@ -10,7 +10,11 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from artemis import csrf
 from artemis.api import router as router_api
-from artemis.auth import FrontendAuthMiddleware, generate_session_secret
+from artemis.auth import (
+    SESSION_MAX_AGE_SECONDS,
+    FrontendAuthMiddleware,
+    generate_session_secret,
+)
 from artemis.config import Config
 from artemis.db import DB
 from artemis.frontend import error_content_not_found
@@ -32,6 +36,7 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=generate_session_secret(),
     session_cookie="artemis_session",
+    max_age=SESSION_MAX_AGE_SECONDS,
     same_site="strict",
     https_only=False,
 )

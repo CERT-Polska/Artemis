@@ -48,7 +48,7 @@ def get_cloudflare_ips() -> list[Any]:
 
     payload = response.json()
     if not payload.get("success"):
-        raise RuntimeError("Cloudflare API error: {payload['errors']}")
+        raise RuntimeError(f"Cloudflare API error: {payload['errors']}")
 
     result = payload["result"]
     return [ipaddress.ip_network(item) for item in result["ipv4_cidrs"] + result["ipv6_cidrs"]]

@@ -117,7 +117,7 @@ def get_cdn_ip_ranges() -> set[Any]:
             for network in get_ranges():
                 result.add(network)
         except Exception:
-            logger.exception(f"Unable to obtain networks for %s", get_ranges.__name__)
+            logger.exception("Unable to obtain networks for %s", get_ranges.__name__)
     return result
 
 

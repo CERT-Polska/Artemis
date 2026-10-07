@@ -5,6 +5,10 @@ from typing import Any
 
 import requests
 
+from artemis import utils
+
+logger = utils.build_logger(__name__)
+
 
 def get_azure_front_door_ips() -> list[Any]:
     response = requests.get(
@@ -101,17 +105,20 @@ def get_bunnycdn_ips() -> list[Any]:
 
 @functools.lru_cache(maxsize=1)
 def get_cdn_ip_ranges() -> set[Any]:
-    return {
-        network
-        for get_ranges in (
-            get_azure_front_door_ips,
-            get_cloudflare_ips,
-            get_cloudfront_ips,
-            get_fastly_ips,
-            get_bunnycdn_ips,
-        )
-        for network in get_ranges()
-    }
+    result = set()
+    for get_ranges in [
+        get_azure_front_door_ips,
+        get_cloudflare_ips,
+        get_cloudfront_ips,
+        get_fastly_ips,
+        get_bunnycdn_ips,
+    ]:
+        try:
+            for network in get_ranges():
+                result.add(network)
+        except:
+            LOGGER.exception(f"Unable to obtain networks for %s", get_ranges.__name__)
+    return result
 
 
 def is_cdn_ip(ip: str) -> bool:

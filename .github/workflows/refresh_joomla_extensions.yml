@@ -1,0 +1,36 @@
+name: "refresh joomla extensions"
+
+on:
+  schedule:
+    - cron: "0 8 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run recent refresh
+        run: python artemis/modules/data/joomla/refresh_extensions.py -o artemis/modules/data/joomla/extensions.json
+
+      - name: Commit updated extensions.json
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add artemis/modules/data/joomla/extensions.json
+          git commit -m "chore: refresh joomla extensions.json"
+          git push

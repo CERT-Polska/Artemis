@@ -48,7 +48,7 @@ def get_cloudflare_ips() -> list[Any]:
 
     payload = response.json()
     if not payload.get("success"):
-        raise RuntimeError(f"Cloudflare API error: {payload['errors']}")
+        raise RuntimeError("Cloudflare API error: {payload['errors']}")
 
     result = payload["result"]
     return [ipaddress.ip_network(item) for item in result["ipv4_cidrs"] + result["ipv6_cidrs"]]
@@ -116,8 +116,8 @@ def get_cdn_ip_ranges() -> set[Any]:
         try:
             for network in get_ranges():
                 result.add(network)
-        except:
-            LOGGER.exception(f"Unable to obtain networks for %s", get_ranges.__name__)
+        except Exception:
+            logger.exception(f"Unable to obtain networks for %s", get_ranges.__name__)
     return result
 
 

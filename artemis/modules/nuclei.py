@@ -12,7 +12,7 @@ import subprocess
 import time
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, Tuple
 
 import more_itertools
 from karton.core import Task
@@ -27,7 +27,11 @@ from artemis.crawling import (
 )
 from artemis.module_base import ArtemisBase
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
-from artemis.modules.nuclei_router import NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY
+from artemis.modules.nuclei_router import (
+    NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY,
+    NUCLEI_ROUTER_SCAN_MODE_KEY,
+    NucleiScanMode,
+)
 from artemis.modules.runtime_configuration.nuclei_configuration import (
     NucleiConfiguration,
     SeverityThreshold,
@@ -35,7 +39,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 from artemis.reporting.modules.nuclei.poc_url_utils import (
     minimize_nuclei_matched_at_url,
 )
-from artemis.task_utils import get_target_host, get_target_url
+from artemis.task_utils import get_target_endpoint, get_target_host, get_target_url
 from artemis.utils import (
     CalledProcessErrorWithMessage,
     check_output_log_on_error,
@@ -49,6 +53,9 @@ TECHNOLOGIES_TEMPLATE_PATH_PREFIXES = [EXPOSED_PANEL_TEMPLATE_PATH_PREFIX, TECHN
 
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
+# Directories of nuclei-templates with templates that can't be run against a bare host:port (HTTP ones need a URL,
+# the others require flags such as -headless or -code that we don't pass).
+TEMPLATE_DIRECTORIES_NOT_APPLICABLE_TO_NON_HTTP_SERVICES = ("http/", "dast/", "headless/", "cloud/", "code/", "file/")
 NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
 
 
@@ -285,7 +292,8 @@ class ScanUsing(enum.Enum):
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
 class Nuclei(ArtemisBase):
     """
-    Runs Nuclei templates on URLs. To use Nuclei, enable both nuclei-module and nuclei-router modules.
+    Runs Nuclei templates on URLs and non-HTTP services (e.g. Redis, MySQL). To use Nuclei, enable both nuclei-module
+    and nuclei-router modules.
     """
 
     num_retries = Config.Miscellaneous.SLOW_MODULE_NUM_RETRIES
@@ -340,14 +348,22 @@ class Nuclei(ArtemisBase):
     def get_batch_group_key(self, task: Task) -> str | None:
         router_flags = self._get_nuclei_router_flags([task])
         configuration = self.get_runtime_configuration(task)
+        scan_mode = task.get_payload(NUCLEI_ROUTER_SCAN_MODE_KEY, NucleiScanMode.HTTP.value)
         return json.dumps(
             {
                 "nuclei_router_flags": router_flags,
                 "configuration_runtime": configuration.serialize(),
                 "requests_per_second_override": self._get_requests_per_second_batch_key(task),
+                "nuclei_scan_mode": scan_mode,
             },
             sort_keys=True,
         )
+
+    def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
+        # Non-HTTP services (e.g. Redis) have no base URL to connect to
+        if task.get_payload(NUCLEI_ROUTER_SCAN_MODE_KEY, NucleiScanMode.HTTP.value) != NucleiScanMode.HTTP.value:
+            return True
+        return super().check_connection_to_base_url_and_save_error(task)
 
     def _should_scan_template(self, template: str) -> bool:
         if Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN:
@@ -821,35 +837,14 @@ class Nuclei(ArtemisBase):
 
         return findings
 
-    def run_multiple(self, tasks: List[Task]) -> None:
-        scan_tag_args = ["-itags", ",".join(TAGS_TO_INCLUDE)]
-        router_flags = self._get_nuclei_router_flags(tasks)
-        scan_tag_args.extend(router_flags)
-
-        self.log.info("Using router flags: %s", router_flags)
-
-        templates = []
-        configuration = self.get_runtime_configuration(tasks[0])
-
-        severity_levels = configuration.get_severity_options()
-
-        self.log.info("Using severity levels %s for scanning", severity_levels)
-
-        for template_list in self._template_lists.keys():
-            if template_list in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):
-                if template_list in severity_levels:
-                    templates.extend(self._template_lists[template_list])
-            else:
-                templates.extend(self._template_lists[template_list])
-
-        # Remove duplicates
-        templates = list(set(templates))
-
-        self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
-
-        targets: List[str] = []
-        for task in tasks:
-            targets.append(get_target_url(task))
+    def _scan_http_targets(
+        self, tasks: List[Task], templates: List[str], scan_tag_args: List[str]
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, List[str]]]:
+        """
+        Scans HTTP services: runs templates and workflows on the target URLs, DAST templates, and then
+        templates on links crawled from the homepage. Returns the findings and the links scanned per task.
+        """
+        targets = [get_target_url(task) for task in tasks]
 
         findings = self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args)
         findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=scan_tag_args))
@@ -886,7 +881,7 @@ class Nuclei(ArtemisBase):
             )
         )
 
-        links_per_task = {}
+        links_per_task: Dict[str, List[str]] = {}
         for task in tasks:
             links = self._get_links(get_target_url(task))
             # Let's scan both links with stripped query strings and with original one. We may catch a bug on either
@@ -945,18 +940,75 @@ class Nuclei(ArtemisBase):
                 )
             )
 
+        return findings, links_per_task
+
+    def _scan_non_http_targets(
+        self, tasks: List[Task], templates: List[str], scan_tag_args: List[str]
+    ) -> List[Dict[str, Any]]:
+        """
+        Scans non-HTTP services (e.g. Redis, MySQL, FTP). Network and JavaScript templates connect to
+        {{Hostname}} (host:port), so targets are passed as host:port - a URL scheme would have no meaning here.
+        HTTP templates, workflows, DAST and link crawling are skipped, as they only apply to web services.
+        """
+        targets = [get_target_endpoint(task) for task in tasks]
+        # Nuclei runs are done in batches and every batch has a fixed cost (loading templates), so we don't want
+        # to spend time on batches of templates that would be all filtered out anyway.
+        templates = [
+            template
+            for template in templates
+            if not template.startswith(TEMPLATE_DIRECTORIES_NOT_APPLICABLE_TO_NON_HTTP_SERVICES)
+        ]
+        return self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args + ["-ept", "http"])
+
+    def run_multiple(self, tasks: List[Task]) -> None:
+        scan_mode = tasks[0].get_payload(NUCLEI_ROUTER_SCAN_MODE_KEY, NucleiScanMode.HTTP.value)
+
+        scan_tag_args = ["-itags", ",".join(TAGS_TO_INCLUDE)]
+        router_flags = self._get_nuclei_router_flags(tasks)
+        scan_tag_args.extend(router_flags)
+
+        self.log.info("Using router flags: %s", router_flags)
+
+        templates = []
+        configuration = self.get_runtime_configuration(tasks[0])
+
+        severity_levels = configuration.get_severity_options()
+
+        self.log.info("Using severity levels %s for scanning", severity_levels)
+
+        for template_list in self._template_lists.keys():
+            if template_list in SeverityThreshold.get_severity_list(SeverityThreshold.ALL):
+                if template_list in severity_levels:
+                    templates.extend(self._template_lists[template_list])
+            else:
+                templates.extend(self._template_lists[template_list])
+
+        # Remove duplicates
+        templates = list(set(templates))
+
+        self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
+
+        # Addresses under which findings for a given task may be reported
+        targets_per_task: Dict[str, List[str]]
+        if scan_mode == NucleiScanMode.HTTP.value:
+            findings, links_per_task = self._scan_http_targets(tasks, templates, scan_tag_args)
+            targets_per_task = {task.uid: [get_target_url(task)] + links_per_task[task.uid] for task in tasks}
+        else:
+            findings = self._scan_non_http_targets(tasks, templates, scan_tag_args)
+            targets_per_task = {task.uid: [get_target_endpoint(task)] for task in tasks}
+
         findings_per_task = collections.defaultdict(list)
         findings_unmatched = []
         for finding in findings:
             found = False
             for task in tasks:
+                urls = targets_per_task[task.uid]
                 if "url" in finding:
-                    if finding["url"] in [get_target_url(task)] + links_per_task[task.uid]:
+                    if finding["url"] in urls:
                         findings_per_task[task.uid].append(finding)
                         found = True
                         break
                 elif "matched-at" in finding:
-                    urls = [get_target_url(task)] + links_per_task[task.uid]
                     hosts_with_port = [
                         urllib.parse.urlparse(item).netloc for item in urls if ":" in urllib.parse.urlparse(item).netloc
                     ]

@@ -1104,6 +1104,15 @@ class Config:
                 "open ports, we trim by performing an intersection of the result with the list of 100 most popular ones.",
             ] = get_config("PORT_SCANNER_MAX_NUM_PORTS", default=100, cast=int)
 
+            PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS: Annotated[
+                bool,
+                "Besides the standard port list, we scan a list of risky ports (e.g. LDAPS and global catalog ports "
+                "of domain controllers), the exposure of which is reported by itself. If this option is set to True, "
+                "we will also create service tasks for such ports (so that other modules will scan them). If it is "
+                "False, such ports will be only reported as open. Ports present in the standard list or in "
+                "CUSTOM_PORT_SCANNER_PORTS are always scanned by other modules.",
+            ] = get_config("PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS", default=False, cast=bool)
+
         class Postman:
             POSTMAN_MAIL_FROM: Annotated[
                 str,

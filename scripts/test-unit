@@ -19,6 +19,7 @@ for attempt in 1 2 3; do
                       test-ftp-server-with-easy-password:21 test-old-joomla:80 \
                       test-smtp-server:25 test-service-with-exposed-git:80 \
                       test-old-wordpress:80 test-wordpress-with-plugins:80 \
+                      test-joomla-with-extensions:80 \
                       test-service-with-directory-index:80 \
                     test-redirect-reflect-app:5000; do
                 /wait-for-it.sh --quiet --timeout=30 "$endpoint"

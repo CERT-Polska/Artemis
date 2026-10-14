@@ -8,7 +8,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
     SeverityThreshold as NucleiSeverityThreshold,
 )
 
-DEFAULTS = {}
+DEFAULTS: dict[str, Any] = {}
 
 
 def get_config(name: str, **kwargs) -> Any:  # type: ignore

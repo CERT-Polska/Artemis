@@ -84,12 +84,12 @@ class MailDNSScanner(ArtemisBase):
         except dns.resolver.NoAnswer:
             pass
 
-        try:
-            has_mx_records = (
-                has_mx_records or len(dns.resolver.resolve(PUBLIC_SUFFIX_LIST.privatesuffix(domain), "MX")) > 0
-            )
-        except dns.resolver.NoAnswer:
-            pass
+        private_suffix = PUBLIC_SUFFIX_LIST.privatesuffix(domain)
+        if private_suffix is not None:
+            try:
+                has_mx_records = has_mx_records or len(dns.resolver.resolve(private_suffix, "MX")) > 0
+            except dns.resolver.NoAnswer:
+                pass
 
         if is_running_tests:
             has_mx_records = True

@@ -93,8 +93,8 @@ publicsuffixlist==1.0.2.20260921
 py==1.11.0
 pycparser==3.0
 pycryptodome==3.23.0
-pydantic==2.13.4
-pydantic-core==2.46.4
+pydantic==2.13.5
+pydantic-core==2.46.5
 pydantic-settings==2.15.0
 pygments==2.21.0
 pyleri==1.5.1

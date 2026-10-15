@@ -2436,6 +2436,14 @@ TRANSLATIONS = {
     "An unauthenticated attacker can make `get_page_template()` page-template resolution include a chosen readable local `.php` file outside the active theme directories. If relevant pre-conditions for both the server and the active theme are met, this can lead to RCE.": "Wykryto podatność w Wordpress Core o identyfikatorze CVE-2026-87902 umożliwiającą zdalne wykonanie kodu."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    'D-Link products such as DIR-655C, DIR-866L, DIR-652, and DHP-1565 contain an unauthenticated remote code execution vulnerability. The issue occurs when the attacker sends an arbitrary input to a "PingTest" device common gateway interface that could lead to common injection. An attacker who successfully triggers the command injection could achieve full system compromise. Later, it was independently found that these issues also affected; DIR-855L, DAP-1533, DIR-862L, DIR-615, DIR-835, and DIR-825.': "Urządzenia D-Link DIR-655C, DIR-866L, DIR-652, DHP-1565, DIR-855L, DAP-1533, DIR-862L, DIR-615, DIR-835 i DIR-825 zawierają podatność Remote Code Execution o identyfikatorze CVE-2019-16920, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    'Logstash is susceptible to Log4j JNDI remote code execution. Logstash is a free and open server-side data processing pipeline that ingests data from a multitude of sources, transforms it, and then sends it to your favorite "stash."': "Logstash zawiera podatność Remote Code Execution wynikającą z użycia podatnej wersji Log4j JNDI."
+    + RCE_EFFECT_DESCRIPTION,
+    "Roundcube Webmail before 1.4.4 contains a command injection caused by shell metacharacters in configuration settings for im_convert_path or im_identify_path, letting attackers execute arbitrary code, exploit requires attacker to control configuration settings.": "Roundcube Webmail w wersji poniżej 1.4.4 zawiera podatność Command Injection o identyfikatorze CVE-2020-12641, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress contains a client-side selector injection in the theme installer preview route. A crafted URL opened by an authenticated administrator can cause WordPress to automatically install and preview an attacker-selected inactive theme from WordPress.org. The issue can be chained with a separate vulnerability in an installed theme to achieve code execution.": "System WordPress zawiera podatność Client-Side Selector Injection, umożliwiającą atakującemu instalację wybranego szablonu przez administratora.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2980,4 +2988,6 @@ TRANSLATIONS = {
     "Aruba AirWave Management Platform web management interface was detected.": "Wykryto panel Aruba AirWave Management Platform.",
     "Detected Docmost (docmost.com / github.com/docmost/docmost) was an open-source self-hosted wiki and documentation collaboration platform. Default Docker port 3000. Exposed instances may reveal internal spaces, pages and workspace member details.": "Wykryto panel Docmost.",
     "Hillstone Networks SSL VPN (SG-6000 series) is an enterprise network security\ngateway with SSL VPN capabilities. The web login portal is frequently exposed\non standard HTTPS ports.": "Wykryto panel logowania Hillstone Networks SSL VPN.",
+    "cPanel login panel was detected.": "Wykryto panel cPanel.",
+    "linkding (github.com/sissbruecker/linkding) is a popular open-source self-hosted bookmark manager built on Django. Default Docker port 9090. Exposed instances may reveal users' saved bookmarks, tags, and archived pages.": "Wykryto panel linkding.",
 }

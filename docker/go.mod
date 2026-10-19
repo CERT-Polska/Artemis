@@ -8,7 +8,7 @@ require (
 	github.com/projectdiscovery/katana v1.8.0
 	github.com/projectdiscovery/naabu/v2 v2.3.3
 	github.com/projectdiscovery/nuclei/v3 v3.11.1
-	github.com/projectdiscovery/subfinder/v2 v2.16.0
+	github.com/projectdiscovery/subfinder/v2 v2.17.0
 )
 
 require (
@@ -35,7 +35,7 @@ require (
 	github.com/Mzack9999/goimpacket v0.0.0-20260422121140-7085336a0415 // indirect
 	github.com/Mzack9999/jsluice v0.0.0-20260306161058-30114a312f98 // indirect
 	github.com/ProtonMail/go-crypto v1.1.6 // indirect
-	github.com/PuerkitoBio/goquery v1.12.0 // indirect
+	github.com/PuerkitoBio/goquery v1.13.0 // indirect
 	github.com/RedTeamPentesting/adauth v0.5.4-0.20260511073005-3d18e8a5a687 // indirect
 	github.com/STARRY-S/zip v0.2.3 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
@@ -48,7 +48,7 @@ require (
 	github.com/alexsnet/go-vnc v0.1.0 // indirect
 	github.com/alitto/pond v1.9.2 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
-	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/andybalholm/cascadia v1.3.4 // indirect
 	github.com/andygrunwald/go-jira v1.16.1 // indirect
 	github.com/antchfx/htmlquery v1.3.5 // indirect
 	github.com/antchfx/xmlquery v1.4.4 // indirect
@@ -262,7 +262,7 @@ require (
 	github.com/mholt/archives v0.1.5 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/microsoft/go-mssqldb v1.9.2 // indirect
-	github.com/miekg/dns v1.1.72 // indirect
+	github.com/miekg/dns v1.1.73 // indirect
 	github.com/mikelolasagasti/xz v1.0.1 // indirect
 	github.com/minio/minlz v1.0.1 // indirect
 	github.com/minio/selfupdate v0.6.1-0.20230907112617-f11e74f84ca7 // indirect
@@ -299,10 +299,10 @@ require (
 	github.com/praetorian-inc/titus v1.2.0 // indirect
 	github.com/projectdiscovery/asnmap v1.1.1 // indirect
 	github.com/projectdiscovery/blackrock v0.0.2 // indirect
-	github.com/projectdiscovery/cdncheck v1.2.49 // indirect
+	github.com/projectdiscovery/cdncheck v1.3.1 // indirect
 	github.com/projectdiscovery/chaos-client v0.5.2 // indirect
-	github.com/projectdiscovery/clistats v0.1.4 // indirect
-	github.com/projectdiscovery/dnsx v1.3.0 // indirect
+	github.com/projectdiscovery/clistats v0.1.6 // indirect
+	github.com/projectdiscovery/dnsx v1.3.1 // indirect
 	github.com/projectdiscovery/dsl v0.8.21 // indirect
 	github.com/projectdiscovery/fastdialer v0.5.23 // indirect
 	github.com/projectdiscovery/fasttemplate v0.0.2 // indirect
@@ -428,17 +428,17 @@ require (
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
 	goftp.io/server/v2 v2.0.1 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/exp v0.0.0-20260527015227-08cc5374adb3 // indirect
-	golang.org/x/mod v0.38.0 // indirect
-	golang.org/x/net v0.58.0 // indirect
+	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/net v0.59.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/sync v0.22.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/term v0.45.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/term v0.46.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
-	golang.org/x/tools v0.48.0 // indirect
+	golang.org/x/tools v0.49.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260414002931-afd174a4e478 // indirect
 	google.golang.org/grpc v1.82.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect

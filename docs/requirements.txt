@@ -35,7 +35,7 @@ cryptography==50.0.1
 decorator==5.3.1
 defusedxml==0.7.1
 dkimpy==1.1.8
-dnspython==2.8.0
+dnspython==2.9.0
 docutils==0.22.4
 expiringdict==1.2.2
 fastapi==0.142.2
@@ -50,7 +50,9 @@ h11==0.16.0
 h2==4.4.1
 hpack==4.2.0
 httpcore==1.0.9
+httpcore2==2.14.0
 httpx==0.28.1
+httpx2==2.14.0
 hyperframe==6.1.0
 idna==3.20
 imagesize==2.0.1
@@ -142,6 +144,7 @@ timeout-decorator==0.5.0
 tldextract==5.3.2
 toml==0.10.2
 tqdm==4.70.1
+truststore==0.10.5
 typer==0.27.2
 typing-extensions==4.16.0
 typing-inspection==0.4.4

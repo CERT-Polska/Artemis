@@ -138,7 +138,7 @@ sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==2.0.0
 sphinxcontrib-serializinghtml==2.0.0
 sqlalchemy==2.0.52
-starlette==1.6.0
+starlette==1.7.0
 termcolor==3.3.0
 timeout-decorator==0.5.0
 tldextract==5.3.2

@@ -262,6 +262,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
 
+  test-joomla-with-extensions:
+    image: nginx:latest
+    volumes:
+      - ./test/data/joomla_with_extensions/:/usr/share/nginx/html/
+
   test-smtp-server:
     hostname: test-smtp-server.artemis
     image: bytemark/smtp

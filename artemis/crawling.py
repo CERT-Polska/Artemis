@@ -3,11 +3,9 @@ import hashlib
 import json
 import random
 import subprocess
-import time
 from typing import List, Tuple
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
-import requests
 from bs4 import BeautifulSoup
 from bs4.exceptions import ParserRejectedMarkup  # type: ignore
 from redis import Redis

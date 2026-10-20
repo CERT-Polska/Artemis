@@ -12,7 +12,7 @@ import subprocess
 import time
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
 
 import more_itertools
 from karton.core import Task
@@ -33,6 +33,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
     SeverityThreshold,
 )
 from artemis.reporting.modules.nuclei.poc_url_utils import (
+    RefuzzError,
     minimize_nuclei_matched_at_url,
 )
 from artemis.task_utils import get_target_host, get_target_url
@@ -142,32 +143,11 @@ DAST_SCANNING: Dict[str, Dict[str, Any]] = {
 }
 
 
-@functools.lru_cache(maxsize=1)
-def _get_dast_param_defaults() -> Dict[str, str]:
-    """Map each DAST wordlist parameter name to its default value.
-
-    Used to rebuild a re-fuzz target: parameters that Artemis injected are
-    reset to their family default (so Nuclei re-fuzzes them from a clean base,
-    exactly like the original scan did), rather than being left carrying the
-    payload from the multiple-mode hit. If a name appears in several wordlists,
-    the first family wins (DAST_SCANNING order keeps ssrf/redirect/lfi on top).
-    """
-    defaults: Dict[str, str] = {}
-    for template_data in DAST_SCANNING.values():
-        default_value = template_data["param_default_value"]
-        with open(template_data["params_wordlist"], "r") as wordlist_file:
-            for line in wordlist_file:
-                name = line.strip()
-                if name and not name.startswith("#") and name not in defaults:
-                    defaults[name] = default_value
-    return defaults
-
-
 def build_common_nuclei_command() -> List[str]:
     """Return the Nuclei flags shared by every invocation Artemis makes.
 
     Both the batch scan (:meth:`Nuclei._scan`) and the single-URL re-fuzz used
-    to shorten PoC URLs (:func:`_refuzz_single_with_nuclei`) start from this
+    to shorten PoC URLs (:func:`_reproduces_with_nuclei`) start from this
     list, so a re-fuzz reproduces the finding under the same conditions the
     scan found it (user agent, rate limit, timeout, resolvers, interactsh).
     Flags that only make sense for a batch (parallelism, stats, per-batch rate
@@ -197,74 +177,53 @@ def build_common_nuclei_command() -> List[str]:
     return command
 
 
-def _refuzz_single_with_nuclei(url: str, template_path: str) -> Set[str]:
-    """Re-run Nuclei in single fuzzing mode and return the set of parameter
-    names Nuclei reported the finding for.
-
-    Injected (wordlist) parameters are reset to their default value so Nuclei
-    fuzzes them from a clean base; the site's own parameters (not in any
-    wordlist) keep their matched-at value. Returns an empty set on any failure
-    (binary missing, timeout, no hit) - the caller then falls back to the full
-    PoC.
-
-    Single mode mutates one parameter per request but still sends the others,
-    so a reported name is not proof that it suffices on its own -
-    ``minimize_nuclei_matched_at_url`` calls this again on the shortened URL to
-    check that.
+def _is_dast_finding(finding: Dict[str, Any]) -> bool:
+    """Whether a finding comes from a DAST template - the only ones whose
+    matched-at URL carries the wordlist parameters and can be re-fuzzed with
+    ``-dast``.
     """
-    parsed = urllib.parse.urlparse(url)
-    if not parsed.query:
-        return set()
+    dast_directory = os.path.join(os.path.normpath(NUCLEI_TEMPLATES_LOCATION), "dast") + os.sep
+    template = finding.get("template") or ""
+    template_path = os.path.normpath(finding.get("template-path") or "")
+    return template.startswith("dast/") or template_path.startswith(dast_directory)
 
-    defaults = _get_dast_param_defaults()
 
-    rebuilt_pairs = []
-    for raw_pair in parsed.query.split("&"):
-        if not raw_pair:
-            continue
-        raw_name = raw_pair.split("=", 1)[0]
-        name = urllib.parse.unquote_plus(raw_name)
-        if name in defaults:
-            rebuilt_pairs.append(raw_name + "=" + urllib.parse.quote(defaults[name], safe="/:@!$&'()*+,;="))
-        else:
-            rebuilt_pairs.append(raw_pair)
-    refuzz_url = urllib.parse.urlunparse(parsed._replace(query="&".join(rebuilt_pairs)))
-
+def _reproduces_with_nuclei(url: str, template_path: str) -> bool:
+    """Check whether Nuclei in multiple fuzzing mode still reports the finding
+    of ``template_path`` on ``url``.
+    """
     # Batch-only flags (rate-limit-duration, bulk-size, concurrency, stats,
     # trace log) are intentionally left out of the shared command builder -
     # they are meaningless for a single-URL re-fuzz.
     command = build_common_nuclei_command() + [
         "-u",
-        refuzz_url,
+        url,
         "-t",
         template_path,
         "-dast",
         "-fuzzing-mode",
-        "single",
+        "multiple",
         "-silent",
     ]
 
     try:
-        result = subprocess.check_output(command, stderr=subprocess.DEVNULL)
-        confirmed: Set[str] = set()
-        for line in result.strip().splitlines():
-            try:
-                hit = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            # "fuzzing_parameter" is the name Nuclei mutated for this hit. A hit
-            # without it tells us nothing usable, so it is skipped - if that
-            # leaves us with nothing, the caller keeps the full PoC URL.
-            param = hit.get("fuzzing_parameter")
-            if param:
-                confirmed.add(param)
-        return confirmed
+        result = subprocess.check_output(
+            command, stderr=subprocess.DEVNULL, timeout=Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS
+        )
     except FileNotFoundError:
-        logger.warning("Nuclei binary not found, skipping URL minimization")
-        return set()
+        raise RefuzzError("nuclei_missing")
+    except subprocess.TimeoutExpired:
+        raise RefuzzError("timeout")
     except subprocess.CalledProcessError as e:
-        logger.warning("Nuclei single-mode re-fuzz failed on %s: %s", url, e)
-        return set()
+        raise RefuzzError(f"exit_code_{e.returncode}")
+
+    for line in result.strip().splitlines():
+        try:
+            json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        return True
+    return False
 
 
 UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
@@ -984,14 +943,16 @@ class Nuclei(ArtemisBase):
             messages = []
 
             for finding in findings_per_task[task.uid]:
-                if "matched-at" in finding:
-                    template_path = finding.get(
-                        "template-path",
-                        os.path.join(NUCLEI_TEMPLATES_LOCATION, finding["template-id"]),
+                # Only DAST findings carry the wordlist parameters worth shortening.
+                if "matched-at" in finding and _is_dast_finding(finding):
+                    template_path = finding.get("template-path") or os.path.join(
+                        NUCLEI_TEMPLATES_LOCATION, finding.get("template") or finding["template-id"]
                     )
                     finding["matched-at"] = minimize_nuclei_matched_at_url(
                         finding["matched-at"],
-                        refuzz_fn=lambda url: _refuzz_single_with_nuclei(url, template_path),
+                        reproduces_fn=functools.partial(_reproduces_with_nuclei, template_path=template_path),
+                        template_id=finding["template-id"],
+                        max_refuzz_calls=Config.Modules.Nuclei.NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING,
                     )
                 result.append(finding)
                 messages.append(

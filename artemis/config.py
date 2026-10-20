@@ -547,6 +547,20 @@ class Config:
                 "NUCLEI_SECONDS_PER_REQUEST_ON_RETRY), NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY) if enabled.",
             ] = get_config("NUCLEI_MAX_SECONDS_PER_REQUEST_ON_RETRY", default=2.0, cast=float)
 
+            NUCLEI_REFUZZ_TIMEOUT_SECONDS: Annotated[
+                int,
+                "Timeout of a single Nuclei re-fuzz used to check whether a subset of parameters still "
+                "reproduces a DAST finding while shortening its PoC URL.",
+            ] = get_config("NUCLEI_REFUZZ_TIMEOUT_SECONDS", default=150, cast=int)
+
+            NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING: Annotated[
+                int,
+                "The maximum number of Nuclei re-fuzzes run to shorten the PoC URL of one DAST finding, the final "
+                "check included. One vulnerable parameter among ~120 needs up to 16, a finding that needs two "
+                "parameters 11-24; when the limit is hit, the shortest PoC found so far is used. Together with "
+                "NUCLEI_REFUZZ_TIMEOUT_SECONDS it bounds the time spent per finding.",
+            ] = get_config("NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING", default=20, cast=int)
+
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,
                 "A path (inside Docker container) of a file with JSON dictionary of template group assignments: "

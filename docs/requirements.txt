@@ -141,7 +141,7 @@ sqlalchemy==2.0.52
 starlette==1.7.0
 termcolor==3.3.0
 timeout-decorator==0.5.0
-tldextract==5.3.2
+tldextract==5.4.0
 toml==0.10.2
 tqdm==4.70.1
 truststore==0.10.5

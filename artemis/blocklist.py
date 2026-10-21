@@ -8,10 +8,10 @@ from typing import List, Optional, Union
 import yaml
 
 from artemis import utils
-from artemis.widely_used_ip_ranges import is_widely_used_ip
 from artemis.domains import is_domain, is_subdomain
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
+from artemis.widely_used_ip_ranges import is_widely_used_ip
 
 logger = utils.build_logger(__name__)
 

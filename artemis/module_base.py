@@ -28,7 +28,6 @@ from requests.exceptions import RequestException
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
-from artemis.widely_used_ip_ranges import is_widely_used_ip
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
@@ -52,6 +51,7 @@ from artemis.task_utils import (
     increment_interesting_tasks_number,
 )
 from artemis.utils import throttle_request
+from artemis.widely_used_ip_ranges import is_widely_used_ip
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 PUBLIC_SUFFIX_LIST = PublicSuffixList()

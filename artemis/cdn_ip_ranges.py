@@ -110,7 +110,10 @@ def get_custom_ips() -> list[Any]:
 
 
 @functools.lru_cache(maxsize=1)
-def get_cdn_ip_ranges() -> set[Any]:
+def get_widely_used_ip_ranges() -> set[Any]:
+    """
+    Return IP ranges of shared hostings or CDNs, where per-ip locking would limit the scanning speed too much.
+    """
     result = set()
     for get_ranges in [
         get_azure_front_door_ips,
@@ -128,7 +131,10 @@ def get_cdn_ip_ranges() -> set[Any]:
     return result
 
 
-def is_cdn_ip(ip: str) -> bool:
+def is_widely_used_ip(ip: str) -> bool:
+    """
+    Check whether an IP is a shared hosting or CDN, where per-ip locking would limit the scanning speed too much.
+    """
     address = ipaddress.ip_address(ip)
 
-    return any(address in network for network in get_cdn_ip_ranges())
+    return any(address in network for network in get_widely_used_ip_ranges())

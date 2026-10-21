@@ -28,7 +28,6 @@ from requests.exceptions import RequestException
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
-from artemis.cdn_ip_ranges import is_cdn_ip
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
@@ -52,6 +51,7 @@ from artemis.task_utils import (
     increment_interesting_tasks_number,
 )
 from artemis.utils import throttle_request
+from artemis.widely_used_ip_ranges import is_widely_used_ip
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
@@ -839,7 +839,7 @@ class ArtemisBase(Karton):
         if not ip_addresses:
             raise UnknownIPException(f"Unknown IP for host {host}")
 
-        if all(is_cdn_ip(ip) for ip in ip_addresses):
+        if all(is_widely_used_ip(ip) for ip in ip_addresses):
             # If all the IPs are CDN IPs, we use the public suffix of the domain as the key for locking,
             # so that many tasks don't wait for a single CDN IP to be free, but rather limit the scanning
             # of a given domain.

@@ -1,6 +1,7 @@
 import functools
 import ipaddress
 import re
+import socket
 from typing import Any
 
 import requests
@@ -104,8 +105,8 @@ def get_bunnycdn_ips() -> list[Any]:
 
 
 def get_custom_ips() -> list[Any]:
-    host = "ssl0.ovh.net"
-    return [ipaddress.ip_network(gethostbyname(host) + "\32") for host in hosts]
+    hosts = ["ssl0.ovh.net"]
+    return [ipaddress.ip_network(socket.gethostbyname(host) + "/32") for host in hosts]
 
 
 @functools.lru_cache(maxsize=1)

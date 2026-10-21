@@ -21,6 +21,7 @@ class CdnIpRangesTest(unittest.TestCase):
 
     def test_is_cdn_ip(self) -> None:
         self.assertTrue(is_cdn_ip(socket.gethostbyname("cloudflare.com")))
+        self.assertTrue(is_cdn_ip(socket.gethostbyname("ssl0.ovh.net")))
 
     def test_azure_front_door_ips(self) -> None:
         self._assert_non_empty_ip_networks(get_azure_front_door_ips())

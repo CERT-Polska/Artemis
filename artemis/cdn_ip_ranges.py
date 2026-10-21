@@ -103,6 +103,11 @@ def get_bunnycdn_ips() -> list[Any]:
     return ips
 
 
+def get_custom_ips() -> list[Any]:
+    host = "ssl0.ovh.net"
+    return [ipaddress.ip_network(gethostbyname(host) + "\32") for host in hosts]
+
+
 @functools.lru_cache(maxsize=1)
 def get_cdn_ip_ranges() -> set[Any]:
     result = set()
@@ -112,6 +117,7 @@ def get_cdn_ip_ranges() -> set[Any]:
         get_cloudfront_ips,
         get_fastly_ips,
         get_bunnycdn_ips,
+        get_custom_ips,
     ]:
         try:
             for network in get_ranges():

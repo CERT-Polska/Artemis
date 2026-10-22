@@ -20,13 +20,13 @@ http:
 
     payloads:
       redirect:
-        - '.example.com'
-        - 'example.com/'
-        - 'example.com'
-        - '/%5C%5Cexample.com/%252e%252e%252f'
-        - '//example.com/%2f..'
-        - '/http%3A%2F%2Fexample.com'
-        - '/example.com/'
+        - '.artemis-redirect-test.example.com'
+        - 'artemis-redirect-test.example.com/'
+        - 'artemis-redirect-test.example.com'
+        - '/%5C%5Cartemis-redirect-test.example.com/%252e%252e%252f'
+        - '//artemis-redirect-test.example.com/%2f..'
+        - '/http%3A%2F%2Fartemis-redirect-test.example.com'
+        - '/artemis-redirect-test.example.com/'
 
     stop-at-first-match: true
 
@@ -35,7 +35,9 @@ http:
       - type: regex
         part: header
         regex:
-          - '(?m)^(?:Location\s*?:\s*?)(?:https?:\/\/|\/\/|\/\\\\|\/\\)(?:[a-zA-Z0-9\-_\.@]*)example\.com\/?(\/|[^.].*)?$' # https://regex101.com/r/ZDYhFh/1
+          # Regex matchers don't render runtime variables such as the payloads, so the label is repeated here.
+          # Based on https://regex101.com/r/ZDYhFh/1
+          - '(?m)^(?:Location\s*?:\s*?)(?:https?:\/\/|\/\/|\/\\\\|\/\\)(?:[a-zA-Z0-9\-_\.@]*)artemis-redirect-test\.example\.com\/?(\/|[^.].*)?$'
 
       - type: status
         status:

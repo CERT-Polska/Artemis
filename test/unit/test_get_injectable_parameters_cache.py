@@ -24,9 +24,8 @@ class TestGetInjectableParametersCache(unittest.TestCase):
     def tearDown(self) -> None:
         _fetch_injectable_parameters.cache_clear()
 
-    @patch("artemis.crawling._fetch_wayback_parameters", return_value=())
     @patch("artemis.crawling.http_requests.get")
-    def test_failure_then_success_returns_fresh_result(self, mock_get: MagicMock, mock_wayback: MagicMock) -> None:
+    def test_failure_then_success_returns_fresh_result(self, mock_get: MagicMock) -> None:
         """This is the original bug: a transient failure followed by a
         successful request for the same URL must return the real params,
         not a stale empty list from the cache."""
@@ -41,13 +40,9 @@ class TestGetInjectableParametersCache(unittest.TestCase):
         self.assertEqual(get_injectable_parameters(url), ["q"])
 
         self.assertEqual(mock_get.call_count, 2)
-        self.assertEqual(mock_wayback.call_count, 2)
 
-    @patch("artemis.crawling._fetch_wayback_parameters", return_value=())
     @patch("artemis.crawling.http_requests.get")
-    def test_different_urls_are_cached_independently_success_and_failure(
-        self, mock_get: MagicMock, mock_wayback: MagicMock
-    ) -> None:
+    def test_different_urls_are_cached_independently_success_and_failure(self, mock_get: MagicMock) -> None:
         """Sanity check that the cache is keyed on the URL — a failure for
         one URL must not shadow a successful response for a different one."""
         mock_get.side_effect = [
@@ -59,12 +54,11 @@ class TestGetInjectableParametersCache(unittest.TestCase):
         self.assertEqual(get_injectable_parameters("http://b.example/y"), ["email"])
 
         self.assertEqual(mock_get.call_count, 2)
-        self.assertEqual(mock_wayback.call_count, 2)
 
-    @patch("artemis.crawling._fetch_wayback_parameters", return_value=())
     @patch("artemis.crawling.http_requests.get")
     def test_different_urls_are_cached_independently_two_successes(
-        self, mock_get: MagicMock, mock_wayback: MagicMock
+        self,
+        mock_get: MagicMock,
     ) -> None:
         """Sanity check that the cache is keyed on the URL — data for
         one URL must not shadow a response for a different one."""
@@ -77,7 +71,6 @@ class TestGetInjectableParametersCache(unittest.TestCase):
         self.assertEqual(get_injectable_parameters("http://b.example/y"), ["email"])
 
         self.assertEqual(mock_get.call_count, 2)
-        self.assertEqual(mock_wayback.call_count, 2)
 
 
 if __name__ == "__main__":

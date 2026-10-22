@@ -210,3 +210,48 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             r"(?s)\[medium\]\s+http://test-php-xss-but-not-on-homepage\.local/xss\.php\?.*?"
             r"Reflected Cross-Site Scripting",
         )
+
+    def test_open_redirect_not_reported_for_static_redirect_to_example_com(self) -> None:
+        # Checking the connection to the target, collecting the parameters to fuzz and crawling follow the redirect,
+        # so here they would send requests to the real example.com. Let's replace them: the target is reachable and
+        # there is nothing to collect. The redirect is then seen only by Nuclei, which doesn't follow it.
+        for patcher in [
+            patch.object(self.karton, "check_connection_to_base_url_and_save_error", return_value=True),
+            patch("artemis.crawling._fetch_injectable_parameters", return_value=()),
+            patch.object(self.karton, "_get_links", return_value=[]),
+        ]:
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+        for port in [80, 8080, 8081, 8082, 8083]:
+            with self.subTest(port=port):
+                self.mock_db.reset_mock()
+                task = Task(
+                    {"type": TaskType.NUCLEI_TARGET},
+                    payload={
+                        "host": "test-static-redirect-to-example-com.local",
+                        "port": port,
+                    },
+                )
+                self.run_task(task)
+                (call,) = self.mock_db.save_task_result.call_args_list
+                self.assertNotIn(
+                    "open-redirect-simplified", [finding["template-id"] for finding in call.kwargs["data"]]
+                )
+
+    def test_open_redirect_reported_when_request_path_decides_target_host(self) -> None:
+        task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-php-trailing-slash-open-redirect.local",
+                "port": 80,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        self.assertIn(
+            "[medium] http://test-php-trailing-slash-open-redirect.local:80//example.com/: "
+            "Open Redirect - Simplified Detection",
+            call.kwargs["status_reason"],
+        )

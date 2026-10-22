@@ -223,7 +223,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             patcher.start()
             self.addCleanup(patcher.stop)
 
-        for port in [80, 8080]:
+        for port in [80, 8080, 8081, 8082, 8083]:
             with self.subTest(port=port):
                 self.mock_db.reset_mock()
                 task = Task(
@@ -251,7 +251,7 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
         self.assertIn(
-            "[medium] http://test-php-trailing-slash-open-redirect.local:80//artemis-redirect-test.example.com/: "
+            "[medium] http://test-php-trailing-slash-open-redirect.local:80//example.com/: "
             "Open Redirect - Simplified Detection",
             call.kwargs["status_reason"],
         )

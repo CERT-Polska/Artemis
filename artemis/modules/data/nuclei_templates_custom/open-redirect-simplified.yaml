@@ -14,19 +14,28 @@ info:
   tags: redirect,generic
 
 http:
+  # A control request to a random path, without a payload. Some servers redirect requests to a fixed host, e.g. to an
+  # https://example.com/ placeholder left in their configuration, sometimes with the request path appended - such a
+  # redirect doesn't depend on the payload, so it is not an open redirect. A random path rather than / also covers
+  # servers that serve / and redirect everything else. Thanks to the id, the response is available below as control_*.
+  - method: GET
+    id: control
+    path:
+      - "{{RootURL}}/{{randstr}}"
+
   - method: GET
     path:
       - "{{RootURL}}/{{redirect}}"
 
     payloads:
       redirect:
-        - '.artemis-redirect-test.example.com'
-        - 'artemis-redirect-test.example.com/'
-        - 'artemis-redirect-test.example.com'
-        - '/%5C%5Cartemis-redirect-test.example.com/%252e%252e%252f'
-        - '//artemis-redirect-test.example.com/%2f..'
-        - '/http%3A%2F%2Fartemis-redirect-test.example.com'
-        - '/artemis-redirect-test.example.com/'
+        - '.example.com'
+        - 'example.com/'
+        - 'example.com'
+        - '/%5C%5Cexample.com/%252e%252e%252f'
+        - '//example.com/%2f..'
+        - '/http%3A%2F%2Fexample.com'
+        - '/example.com/'
 
     stop-at-first-match: true
 
@@ -35,9 +44,7 @@ http:
       - type: regex
         part: header
         regex:
-          # Regex matchers don't render runtime variables such as the payloads, so the label is repeated here.
-          # Based on https://regex101.com/r/ZDYhFh/1
-          - '(?m)^(?:Location\s*?:\s*?)(?:https?:\/\/|\/\/|\/\\\\|\/\\)(?:[a-zA-Z0-9\-_\.@]*)artemis-redirect-test\.example\.com\/?(\/|[^.].*)?$'
+          - '(?m)^(?:Location\s*?:\s*?)(?:https?:\/\/|\/\/|\/\\\\|\/\\)(?:[a-zA-Z0-9\-_\.@]*)example\.com\/?(\/|[^.].*)?$' # https://regex101.com/r/ZDYhFh/1
 
       - type: status
         status:
@@ -46,3 +53,13 @@ http:
           - 307
           - 308
         condition: or
+
+      # Evaluated only when the matchers above have matched (the AND condition stops at the first failed one), so
+      # the Location header is present. The match is kept only if the redirect points to a different host than the
+      # control request was redirected to. If the control request wasn't redirected, replace_regex returns the whole
+      # header unchanged, which never equals a host. The regexes contain no backslashes, as the DSL strips them.
+      - type: dsl
+        dsl:
+          - >-
+            replace_regex(location, "(?s)^(?:https?:)?//([^/?#]*).*$", "$1") !=
+            replace_regex(control_header, "(?ism)^.*?^location: *(?:https?:)?//([^/?#[:space:]]*).*$", "$1")

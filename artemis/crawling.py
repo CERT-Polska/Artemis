@@ -3,11 +3,9 @@ import hashlib
 import json
 import random
 import subprocess
-import time
 from typing import List, Tuple
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
-import requests
 from bs4 import BeautifulSoup
 from bs4.exceptions import ParserRejectedMarkup  # type: ignore
 from redis import Redis
@@ -19,9 +17,6 @@ from artemis.redis_cache import RedisCache
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 
 logger = utils.build_logger(__name__)
-
-WAYBACK_CDX_URL = "https://web.archive.org/cdx/search/cdx"
-WAYBACK_CDX_LIMIT = 5000
 
 _REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 _CRAWL_CACHE = RedisCache(_REDIS, "crawl_pipeline", duration=Config.Modules.Crawling.CRAWL_CACHE_TTL_SECONDS)
@@ -50,52 +45,7 @@ def get_injectable_parameters(url: str) -> List[str]:
         html_params = list(_fetch_injectable_parameters(url))
     except Exception:
         html_params = []
-
-    try:
-        wayback_params = get_wayback_parameters(url)
-    except Exception:
-        wayback_params = []
-
-    return list(set(html_params + wayback_params))
-
-
-@functools.lru_cache(maxsize=1024)
-def _fetch_wayback_parameters(domain: str) -> Tuple[str, ...]:
-    time_start = time.time()
-    response = requests.get(
-        WAYBACK_CDX_URL,
-        params={
-            "url": f"{domain}/*",
-            "output": "json",
-            "fl": "original",
-            "collapse": "urlkey",
-            "limit": str(WAYBACK_CDX_LIMIT),
-        },
-        timeout=30,
-    )
-    response.raise_for_status()
-    rows = response.json()
-
-    params: set[str] = set()
-    for row in rows[1:]:  # skip header row
-        try:
-            parsed = urlparse(row[0])
-            params.update(parse_qs(parsed.query).keys())
-        except IndexError:
-            continue
-    logger.info("_fetch_wayback_parameters took %f seconds", time.time() - time_start)
-    return tuple(params)
-
-
-def get_wayback_parameters(url: str) -> List[str]:
-    domain = urlparse(url).hostname
-    if not domain:
-        return []
-    try:
-        return list(_fetch_wayback_parameters(domain))
-    except Exception:
-        logger.exception("Failed to fetch Wayback CDX data for %s", domain)
-        return []
+    return list(set(html_params))
 
 
 def add_injectable_params_and_common_params_from_wordlist(

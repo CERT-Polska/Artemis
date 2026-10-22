@@ -49,6 +49,7 @@ TECHNOLOGIES_TEMPLATE_PATH_PREFIXES = [EXPOSED_PANEL_TEMPLATE_PATH_PREFIX, TECHN
 
 CUSTOM_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "data/nuclei_templates_custom/")
 TAGS_TO_INCLUDE = ["fuzz", "fuzzing"]
+TAGS_TO_EXCLUDE = ["intrusive"]
 NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
 
 
@@ -388,7 +389,7 @@ class Nuclei(ArtemisBase):
                 except subprocess.CalledProcessError:
                     self.log.error("Failed to update nuclei templates")
 
-            templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE)]
+            templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE), "-etags", ",".join(TAGS_TO_EXCLUDE)]
 
             template_lists_raw: Dict[str, List[str]] = {}
 
@@ -822,7 +823,7 @@ class Nuclei(ArtemisBase):
         return findings
 
     def run_multiple(self, tasks: List[Task]) -> None:
-        scan_tag_args = ["-itags", ",".join(TAGS_TO_INCLUDE)]
+        scan_tag_args = ["-itags", ",".join(TAGS_TO_INCLUDE), "-etags", ",".join(TAGS_TO_EXCLUDE)]
         router_flags = self._get_nuclei_router_flags(tasks)
         scan_tag_args.extend(router_flags)
 

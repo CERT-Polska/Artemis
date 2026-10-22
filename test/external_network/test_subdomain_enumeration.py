@@ -49,5 +49,5 @@ class SubdomainEnumerationScannerTest(ArtemisModuleTestCase):
         result = set(self.karton.get_subdomains_by_dns_brute_force(set(), "cert.pl"))
         self.assertIn("www.cert.pl", result)
         self.assertIn("hack.cert.pl", result)
-        self.assertIn("challenge.cert.pl", result)
+        self.assertIn("upload.cert.pl", result)
         self.assertIn("analytics.cert.pl", result)

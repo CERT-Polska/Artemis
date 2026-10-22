@@ -2418,6 +2418,32 @@ TRANSLATIONS = {
     "H3c IMC allows remote unauthenticated attackers to cause the remote web application to execute arbitrary commands via the 'dynamiccontent.properties.xhtml' endpoint.": "Narzędzie H3C IMC zawiera podatność umożliwiającą atakującym zdalne wykonanie kodu bez uwierzytelnienia."
     + RCE_EFFECT_DESCRIPTION
     + UPDATE_HINT,
+    "The AudioIgniter plugin for WordPress is vulnerable to Insecure Direct Object Reference in versions up to, and including, 2.0.2. The handle_playlist_endpoint() function accepted a user-controlled playlist ID and returned track data without authentication.": "Wtyczka WordPress o nazwie AudioIgniter w wersji do 2.0.2 włącznie zawiera podatność Insecure Direct Object Reference o identyfikatorze CVE-2026-8679 umożliwiającą atakującemu dostęp do danych utworów bez uwierzytelnienia."
+    + UPDATE_HINT,
+    "W3 Total Cache WordPress plugin <= 2.9.4 contains a directory traversal caused by improper handling in setupSources function, letting unauthenticated attackers read arbitrary files, exploit requires manual minify mode enabled with specific filename.": "Wtyczka WordPress o nazwie W3 Total Cache w wersji do 2.9.4 włącznie zawiera podatność Directory Traversal o identyfikatorze CVE-2026-9282 umożliwiającą atakującemu w niektórych konfiguracjach odczyt dowolnych plików bez uwierzytelnienia."
+    + UPDATE_HINT,
+    "The JMS over HTTP Invocation Layer in JBossMQ, as implemented in HTTPServerILServlet.java in JBoss Application Server (AS) 4.x and earlier, does not properly restrict the classes that can be deserialized from the raw POST body. This allows remote attackers to execute arbitrary code or cause a denial of service (application crash or other impacts) via crafted serialized objects, due to insecure Java object deserialization.": "Narzędzie JBoss Application Server (AS) w wersji 4.x i wcześniejszych zawiera podatność o identyfikatorze CVE-2017-7504 umożliwiającą zdalne wykonanie kodu lub spowodowanie odmowy usługi poprzez niebezpieczną deserializację obiektów Java."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "GoAhead camera credential disclosure vulnerability in system.ini. The vulnerability affects certain Wireless IP Camera (P2P) WIFICAM devices and allows unauthenticated remote attackers to access the system.ini configuration file through a crafted HTTP request. The exposed configuration may contain sensitive authentication credentials, including usernames and passwords.": "Kamera GoAhead zawiera podatność o identyfikatorze CVE-2017-8225 umożliwiającą atakującym odczyt pliku system.ini bez uwierzytelnienia. Ten plik może zawierać m. in. dane logowania.",
+    "Telerik UI for ASP.NET AJAX before R2 2017 SP2 uses hard-coded, publicly known default encryption keys for RadAsyncUpload, allowing unauthenticated attackers to upload files and achieve remote code execution. This template detects an exposed RadAsyncUpload handler; confirming default keys requires exploitation and is out of scope for a passive check.": "Narzędzie Telerik UI for ASP.NET AJAX w wersji wcześniejszej niż R2 2017 SP2 zawiera podatność o identyfikatorze CVE-2017-11317 umożliwiającą atakującym zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Ruijie EWEB Gateway Platform is susceptible to remote command injection attacks.": "Narzędzie Ruijie EWEB Gateway Platform zawiera podatność umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "Detected Kanboard SQLite database file was found to be exposed, containing sensitive information including user credentials, project data, tasks, and comments.": "Wykryto ujawniony plik bazy danych SQLite narzędzia Kanboard zawierający wrażliwe informacje, w tym dane uwierzytelniające użytkowników, dane projektów, zadania i komentarze.",
+    "An unauthenticated attacker can make `get_page_template()` page-template resolution include a chosen readable local `.php` file outside the active theme directories. If relevant pre-conditions for both the server and the active theme are met, this can lead to RCE.": "Wykryto podatność w Wordpress Core o identyfikatorze CVE-2026-87902 umożliwiającą zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    'D-Link products such as DIR-655C, DIR-866L, DIR-652, and DHP-1565 contain an unauthenticated remote code execution vulnerability. The issue occurs when the attacker sends an arbitrary input to a "PingTest" device common gateway interface that could lead to common injection. An attacker who successfully triggers the command injection could achieve full system compromise. Later, it was independently found that these issues also affected; DIR-855L, DAP-1533, DIR-862L, DIR-615, DIR-835, and DIR-825.': "Urządzenia D-Link DIR-655C, DIR-866L, DIR-652, DHP-1565, DIR-855L, DAP-1533, DIR-862L, DIR-615, DIR-835 i DIR-825 zawierają podatność Remote Code Execution o identyfikatorze CVE-2019-16920, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION,
+    'Logstash is susceptible to Log4j JNDI remote code execution. Logstash is a free and open server-side data processing pipeline that ingests data from a multitude of sources, transforms it, and then sends it to your favorite "stash."': "Logstash zawiera podatność Remote Code Execution wynikającą z użycia podatnej wersji Log4j JNDI."
+    + RCE_EFFECT_DESCRIPTION,
+    "Roundcube Webmail before 1.4.4 contains a command injection caused by shell metacharacters in configuration settings for im_convert_path or im_identify_path, letting attackers execute arbitrary code, exploit requires attacker to control configuration settings.": "Roundcube Webmail w wersji poniżej 1.4.4 zawiera podatność Command Injection o identyfikatorze CVE-2020-12641, umożliwiającą atakującemu zdalne wykonanie kodu."
+    + RCE_EFFECT_DESCRIPTION
+    + UPDATE_HINT,
+    "WordPress contains a client-side selector injection in the theme installer preview route. A crafted URL opened by an authenticated administrator can cause WordPress to automatically install and preview an attacker-selected inactive theme from WordPress.org. The issue can be chained with a separate vulnerability in an installed theme to achieve code execution.": "System WordPress zawiera podatność Client-Side Selector Injection, umożliwiającą atakującemu instalację wybranego szablonu przez administratora.",
     "WordPress login panel was detected.": "wykryto panel logowania systemu WordPress.",
     "NPM log file is exposed to external users.": "Wykryto dziennik zdarzeń narzędzia npm.",
     "Wpmudev Wordpress Plugin public key leaked.": "Wykryto klucz publiczny wtyczki WordPress o nazwie wpmudev.",
@@ -2956,4 +2982,12 @@ TRANSLATIONS = {
     "Planka is an open source kanban-style project management board. The login panel was detected.": "Wykryto panel logowania narzędzia Planka.",
     "Druid Monitor login panel was detected.": "Wykryto panel logowania Druid Monitor.",
     "Avigilon login panel was detected.": "Wykryto panel logowania Avigilon.",
+    "ArangoDB Web Interface was detected.": "Wykryto panel ArangoDB.",
+    "wallabag (wallabag.org / github.com/wallabag/wallabag) is a popular open-source self-hosted read-it-later application built on Symfony. The login page and the anonymous /api/info.json endpoint expose the running instance and its version.": "Wykryto panel logowania wallabag.",
+    "wg-easy is the easiest way to run WireGuard VPN with a web-based admin UI.\nIt exposes a management interface for creating and managing WireGuard peers.": "Wykryto panel wg-easy.",
+    "Aruba AirWave Management Platform web management interface was detected.": "Wykryto panel Aruba AirWave Management Platform.",
+    "Detected Docmost (docmost.com / github.com/docmost/docmost) was an open-source self-hosted wiki and documentation collaboration platform. Default Docker port 3000. Exposed instances may reveal internal spaces, pages and workspace member details.": "Wykryto panel Docmost.",
+    "Hillstone Networks SSL VPN (SG-6000 series) is an enterprise network security\ngateway with SSL VPN capabilities. The web login portal is frequently exposed\non standard HTTPS ports.": "Wykryto panel logowania Hillstone Networks SSL VPN.",
+    "cPanel login panel was detected.": "Wykryto panel cPanel.",
+    "linkding (github.com/sissbruecker/linkding) is a popular open-source self-hosted bookmark manager built on Django. Default Docker port 9090. Exposed instances may reveal users' saved bookmarks, tags, and archived pages.": "Wykryto panel linkding.",
 }

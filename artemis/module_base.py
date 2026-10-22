@@ -13,7 +13,7 @@ import sys
 import time
 import traceback
 import urllib.parse
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
 import timeout_decorator
 from karton.core import Karton, Task
@@ -22,12 +22,12 @@ from karton.core.task import TaskState as KartonTaskState
 from multiprocessing_logging import install_mp_handler
 from publicsuffixlist import PublicSuffixList
 from redis import Redis
+from requests import Session
 from requests.exceptions import RequestException
 
 from artemis import http_requests
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.blocklist import load_blocklist, should_block_scanning
-from artemis.cdn_ip_ranges import is_cdn_ip
 from artemis.config import Config
 from artemis.db import DB
 from artemis.domains import is_domain
@@ -51,12 +51,16 @@ from artemis.task_utils import (
     increment_interesting_tasks_number,
 )
 from artemis.utils import throttle_request
+from artemis.widely_used_ip_ranges import is_widely_used_ip
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 setup_retrying_resolver()
-install_mp_handler()
+if multiprocessing.get_start_method() == "fork":
+    install_mp_handler()
+
+ProbeResponse = TypeVar("ProbeResponse")
 
 
 class UnknownIPException(Exception):
@@ -105,6 +109,7 @@ class ArtemisBase(Karton):
         self.setup_logger(Config.Miscellaneous.LOG_LEVEL)
         self.taking_tasks_from_queue_lock = ResourceLock(res_name=f"taking-tasks-from-queue-{self.identity}")
         self.redis = REDIS
+        self._current_task_locks: Dict[str, Optional[ResourceLock]] = {}
 
         if Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH:
             with open(Config.Miscellaneous.ADDITIONAL_HOSTS_FILE_PATH, "r") as additional_data_file:
@@ -185,11 +190,8 @@ class ArtemisBase(Karton):
         elif "last_domain" in current_task.payload:
             new_task.payload["last_domain"] = current_task.payload["last_domain"]
 
-        if self.db.save_scheduled_task(new_task):
-            self.log.info("Task is a new task, adding: %s", new_task)
-            self.send_task(new_task)
-        else:
-            self.log.info("Task is not a new task, not adding: %s", new_task)
+        self.log.info("Adding task: %s", new_task)
+        self.send_task(new_task)
 
     def add_task_if_domain_exists(self, current_task: Task, new_task: Task) -> bool:
         """
@@ -356,6 +358,8 @@ class ArtemisBase(Karton):
             resource_lock = None
 
         tasks, locks, num_task_removed_from_queue = self._take_and_lock_tasks(self.task_max_batch_size)
+        assert len(tasks) == len(locks)
+        self._current_task_locks = {task.uid: lock for task, lock in zip(tasks, locks)}
         self._log_tasks(tasks)
 
         for task in tasks:
@@ -407,9 +411,10 @@ class ArtemisBase(Karton):
             increase_analysis_num_finished_tasks(REDIS, task.root_uid)
             increase_analysis_num_in_progress_tasks(REDIS, task.root_uid, by=-1)
 
-        for lock in locks:
+        for lock in self._current_task_locks.values():
             if lock:
                 lock.release()
+        self._current_task_locks = {}
 
         if resource_lock:
             resource_lock.release()
@@ -667,6 +672,24 @@ class ArtemisBase(Karton):
 
         self._forgiven_http_requests = 0
 
+        tasks_to_release_lock = []
+        tasks_not_yet_started = []
+        for task in tasks:
+            if self.db.save_module_started_task(self.identity, task):
+                tasks_not_yet_started.append(task)
+            else:
+                self.log.info("Task %s already started or processed by module %s, skipping", task.uid, self.identity)
+                tasks_to_release_lock.append(task)
+
+        for task in tasks_to_release_lock:
+            lock = self._current_task_locks.pop(task.uid, None)
+            if lock:
+                lock.release()
+
+        tasks = tasks_not_yet_started
+        if not tasks:
+            return
+
         tasks_filtered = []
         for task in tasks:
             should_check_connection = False
@@ -816,7 +839,7 @@ class ArtemisBase(Karton):
         if not ip_addresses:
             raise UnknownIPException(f"Unknown IP for host {host}")
 
-        if all(is_cdn_ip(ip) for ip in ip_addresses):
+        if all(is_widely_used_ip(ip) for ip in ip_addresses):
             # If all the IPs are CDN IPs, we use the public suffix of the domain as the key for locking,
             # so that many tasks don't wait for a single CDN IP to be free, but rather limit the scanning
             # of a given domain.
@@ -834,7 +857,11 @@ class ArtemisBase(Karton):
     def check_connection_to_base_url_and_save_error(self, task: Task) -> bool:
         base_url = get_target_url(task)
         scan_destination = self._get_scan_destination(task)
-        lock = ResourceLock(f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES)
+
+        def _release_lock() -> None:
+            lock = self._current_task_locks.pop(task.uid, None)
+            if lock:
+                lock.release()
 
         try:
             response = self.http_get(base_url)
@@ -863,7 +890,7 @@ class ArtemisBase(Karton):
                 self.log.info(
                     f"Unable to connect to base URL: {base_url}: WAF detected, task skipped, releasing lock for {scan_destination}"
                 )
-                lock.release()
+                _release_lock()
                 return False
 
             return True
@@ -876,7 +903,7 @@ class ArtemisBase(Karton):
             self.log.info(
                 f"Unable to connect to base URL: {base_url}: {repr(e)}, task skipped, releasing lock for {scan_destination}"
             )
-            lock.release()
+            _release_lock()
             return False
 
     def http_get(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
@@ -885,6 +912,9 @@ class ArtemisBase(Karton):
     def http_post(self, *args, **kwargs) -> http_requests.HTTPResponse:  # type: ignore
         return self._http_request("post", *args, **kwargs)
 
+    def session_clear_cookies_http_get(self, session: Session, *args: Any, **kwargs: Any) -> http_requests.HTTPResponse:
+        return self._session_clear_cookies_http_request(self.http_get, session, *args, **kwargs)
+
     # Sometimes a module needs to make a large number of HTTP requests and a small number of failures is OK.
     # These two methods allow to do that.
     def forgiving_http_get(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
@@ -892,6 +922,25 @@ class ArtemisBase(Karton):
 
     def forgiving_http_post(self, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
         return self._forgiving_http_request("post", *args, **kwargs)
+
+    def session_clear_cookies_forgiving_http_get(
+        self, session: Session, *args: Any, **kwargs: Any
+    ) -> http_requests.HTTPResponse | None:
+        return self._session_clear_cookies_http_request(self.forgiving_http_get, session, *args, **kwargs)
+
+    def _session_clear_cookies_http_request(
+        self,
+        method: Callable[..., ProbeResponse],
+        session: Session,
+        *args: Any,
+        **kwargs: Any,
+    ) -> ProbeResponse:
+        # Keep probes independent while retaining the underlying connection pool.
+        session.cookies.clear()
+        try:
+            return method(*args, session=session, **kwargs)
+        finally:
+            session.cookies.clear()
 
     def _forgiving_http_request(self, method: str, *args, **kwargs) -> Optional[http_requests.HTTPResponse]:  # type: ignore
         try:

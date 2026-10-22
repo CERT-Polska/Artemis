@@ -1,7 +1,7 @@
 import html
 import textwrap
 from os import path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, Set
 
 import markdown
 from fastapi import Request
@@ -33,7 +33,7 @@ templates.env.filters["dedent"] = dedent
 templates.env.filters["render_markdown"] = render_markdown
 
 
-def render_task_table_row(request: Request, task_result: Dict[str, Any]) -> List[str]:
+def render_task_table_row(request: Request, task_result: Dict[str, Any]) -> list[str | None]:
     return [
         html.escape(task_result["created_at"].strftime("%Y-%m-%d %H:%M:%S")) if "created_at" in task_result else None,
         html.escape(task_result["tag"] or ""),
@@ -49,7 +49,7 @@ def render_analyses_table_row(
     entry: Dict[str, Any],
     all_bind_identities: Set[str],
     disableable_bind_identities: Set[str],
-) -> List[str]:
+) -> list[str | None]:
     if entry["disabled_modules"]:
         enabled_modules = ", ".join(
             sorted(

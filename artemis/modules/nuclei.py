@@ -354,7 +354,9 @@ class Nuclei(ArtemisBase):
         assert len(self._excluded_templates) > 0
         if Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN:
             return template in Config.Modules.Nuclei.OVERRIDE_STANDARD_NUCLEI_TEMPLATES_TO_RUN
-        return template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP and template not in self._excluded_templates
+        return (
+            template not in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP and template not in self._excluded_templates
+        )
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -390,15 +392,16 @@ class Nuclei(ArtemisBase):
                 except subprocess.CalledProcessError:
                     self.log.error("Failed to update nuclei templates")
 
-            self._excluded_templates = [
-                    item
-                    for item in check_output_log_on_error(["nuclei", "-tl", '-tags', ",".join(TAGS_TO_EXCLUDE)] + templates_list_command, self.log)
-                    .decode("ascii")
-                    .split()
-                    if item.endswith(".yml") or item.endswith(".yaml")
-                ]
-
             templates_list_command = ["-tl", "-it", ",".join(TAGS_TO_INCLUDE), "-etags", ",".join(TAGS_TO_EXCLUDE)]
+            self._excluded_templates = [
+                item
+                for item in check_output_log_on_error(
+                    ["nuclei", "-tl", "-tags", ",".join(TAGS_TO_EXCLUDE)] + templates_list_command, self.log
+                )
+                .decode("ascii")
+                .split()
+                if item.endswith(".yml") or item.endswith(".yaml")
+            ]
 
             template_lists_raw: Dict[str, List[str]] = {}
 

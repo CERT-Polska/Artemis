@@ -95,4 +95,5 @@ class FrontendAuthMiddleware(BaseHTTPMiddleware):
         if is_authenticated(request):
             return await call_next(request)
 
+        destroy_session(request)
         return RedirectResponse(url="/login", status_code=303)

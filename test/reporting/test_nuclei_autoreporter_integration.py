@@ -50,7 +50,7 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
         )
         message = self.task_result_to_message(data)
         # this should not be reported as WordPress panel detection template is skipped from reporting (but not from running)
-        self.assertNotIn("test-old-wordpress", message)
+        self.assertNotIn("wp-login.php", message)
         assets = assets_from_task_result(data)
         self.assertEqual(
             assets,

@@ -281,6 +281,12 @@ class Config:
             default="%(processName)s | [%(levelname)s] - [%(asctime)s] %(filename)s - in %(funcName)s() (line %(lineno)d): [%(run_hash)s] %(message)s",
         )
 
+        CUSTOM_WIDELY_USED_HOSTS: Annotated[
+            List[str], "Additional hosts (comma-separated) that are used by multiple domains. For these hosts, if "
+            "LOCK_SCANNED_TARGETS is enabled, instead of ip-based blocking we will use private suffix-based blocking, "
+            "so that many tasks won't wait for a single CDN IP to be free, but rather limit the scanning of a given domain."
+        ] = get_config("CUSTOM_WIDELY_USED_HOSTS", default="", cast=decouple.Csv(str))
+
         PASSWORD_BRUTER_ADDITIONAL_PASSWORDS: Annotated[
             List[str], "Additional passwords (besides the top10 ones) to be used in brute forcing."
         ] = get_config("PASSWORD_BRUTER_ADDITIONAL_PASSWORDS", default="", cast=decouple.Csv(str))

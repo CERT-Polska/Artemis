@@ -1,3 +1,4 @@
+from artemis.config import Config
 import functools
 import ipaddress
 import re
@@ -105,8 +106,14 @@ def get_bunnycdn_ips() -> list[Any]:
 
 
 def get_custom_ips() -> list[Any]:
-    hosts = ["ssl0.ovh.net"]
-    return [ipaddress.ip_network(socket.gethostbyname(host) + "/32") for host in hosts]
+    hosts = ["ssl0.ovh.net"] + Config.Miscellaneous.CUSTOM_WIDELY_USED_HOSTS
+    result =[]
+    for host in hosts:
+        try:
+            result.append(ipaddress.ip_network(socket.gethostbyname(host) + "/32"))
+        except socket.gaierror:
+            pass
+    return result
 
 
 @functools.lru_cache(maxsize=1)

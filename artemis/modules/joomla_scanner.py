@@ -55,7 +55,7 @@ class JoomlaScanner(BaseNewerVersionComparerModule):
 
                 if gh_api_response.json()["tag_name"] != joomla_version and self.is_version_obsolete(joomla_version):
                     found_problems.append(f"Joomla version is too old: {joomla_version}")
-                    result["joomla_version_is_too_old"] = True
+                    esult["joomla_version_is_too_old"] = True
                 break
         else:
             # Check version via README.txt

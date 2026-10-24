@@ -76,6 +76,7 @@ PLUGINS_BAD_VERSION_IN_README = [
     "search-meter",
     "website-monetization-by-magenet",
     "wp-maximum-execution-time-exceeded",
+    "wp-phpmyadmin-extension",
     "zapier",
 ]
 

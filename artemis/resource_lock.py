@@ -8,8 +8,7 @@ from random import uniform
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
-import redis.exceptions.TimeoutError  # type: ignore
-from redis import Redis
+from redis import Redis, TimeoutError
 
 from artemis.config import Config
 
@@ -93,7 +92,7 @@ class ResourceLock:
                     with LOCKS_TO_SUSTAIN_LOCK:
                         LOCKS_TO_SUSTAIN[self.res_name] = self.lid
                     return
-            except redis.exceptions.TimeoutError:
+            except TimeoutError:
                 continue
 
             attempts += 1

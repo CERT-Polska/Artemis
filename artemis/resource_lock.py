@@ -8,6 +8,7 @@ from random import uniform
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
+import redis.exceptions.TimeoutError  # type: ignore
 from redis import Redis
 
 from artemis.config import Config

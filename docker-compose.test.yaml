@@ -218,7 +218,7 @@ services:
       - ./test/data/php_rate_limited_discovery/:/var/www/html/
 
   test-php-403-bypass:
-    image: php:8.0-apache
+    image: php:8.2.35-apache
     volumes:
       - ./test/data/php_403_bypass/:/var/www/html/
     networks:

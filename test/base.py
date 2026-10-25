@@ -3,7 +3,7 @@ import tempfile
 import urllib
 from pathlib import Path
 from typing import Any, Dict, List
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from jinja2 import BaseLoader, Environment, StrictUndefined, Template
 from karton.core import Task
@@ -41,14 +41,10 @@ class ArtemisModuleTestCase(KartonTestCase):
     def setUp(self) -> None:
         self.mock_db = MagicMock()
         self.mock_db.get_analysis_by_id.return_value = {}
-        self.mock_db.contains_scheduled_task.return_value = False
+        self.mock_db.save_module_started_task.return_value = True
         self.karton = self.karton_class(  # type: ignore
             config=ConfigMock(), backend=KartonBackendMockWithRedis(), db=self.mock_db
         )
-
-        self.wayback_patch = patch("artemis.crawling._fetch_wayback_parameters", return_value=())
-        self.wayback_patch.start()
-        self.addCleanup(self.wayback_patch.stop)
 
 
 class BaseReportingTest(ArtemisModuleTestCase):

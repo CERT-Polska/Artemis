@@ -218,7 +218,7 @@ services:
       - ./test/data/php_rate_limited_discovery/:/var/www/html/
 
   test-php-403-bypass:
-    image: php:8.0-apache
+    image: php:8.2.35-apache
     volumes:
       - ./test/data/php_403_bypass/:/var/www/html/
     networks:
@@ -252,6 +252,25 @@ services:
       default:
         aliases:
           - test-php-open-redirect-in-site-param.local
+
+  test-static-redirect-to-example-com:
+    image: nginx:latest
+    volumes:
+      - ./test/data/static_redirect_to_example_com/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      default:
+        aliases:
+          - test-static-redirect-to-example-com.local
+
+  test-php-trailing-slash-open-redirect:
+    image: php:8.0-apache
+    volumes:
+      - ./test/data/php_trailing_slash_open_redirect/:/var/www/html/
+      - ./test/data/php_trailing_slash_open_redirect/front-controller.conf:/etc/apache2/conf-enabled/front-controller.conf
+    networks:
+      default:
+        aliases:
+          - test-php-trailing-slash-open-redirect.local
 
   test-ftp-server-with-easy-password:
     image: stilliard/pure-ftpd:latest

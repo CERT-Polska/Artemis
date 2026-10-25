@@ -53,6 +53,18 @@ ADDITIONAL_REFERENCES: dict[tuple[Language, str], list[str]] = {
     ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/sql-injection/"],
     (
         Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/cmdi/python-code-injection.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/command-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/cmdi/ruby-open-rce.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/command-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
+        "dast/vulnerabilities/cmdi/blind-oast-polyglots.yaml",
+    ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/command-injection/"],
+    (
+        Language.pl_PL,  # type: ignore
         "dast/vulnerabilities/xss/reflected-xss.yaml",
     ): ["https://wiedza.cert.pl/odpornosc-infrastruktury/bezpieczenstwo-webowe/cross-site-scripting/"],
     (
@@ -117,9 +129,10 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
         return None
 
     # NONEXISTENT is used in some 403 circumvention templates
-    assert (
-        method in [method.value for method in HTTPMethod] or method == "NONEXISTENT"
-    ), f"{method} is not a standard HTTP verb"
+    assert method in [method.value for method in HTTPMethod] or method in [
+        "NONEXISTENT",
+        "DEBUG",
+    ], f"{method} is not a standard HTTP verb"
     assert (
         target.startswith("http://")
         or target.startswith("https://")
@@ -137,6 +150,9 @@ def extract_request_target(host: str, request: str | None) -> tuple[str, str] | 
 
     parsed = urllib.parse.urlsplit(target)
     if not parsed.path:
+        return None
+
+    if not parsed.hostname:
         return None
 
     assert get_host_from_url(target) == host

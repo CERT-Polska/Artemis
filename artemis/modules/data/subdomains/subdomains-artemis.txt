@@ -1,3 +1,5 @@
 # Additional list of subdomains to brute-force
 bip
+ezd
+ezdrp
 ipa

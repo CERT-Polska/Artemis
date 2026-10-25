@@ -85,6 +85,17 @@ class FrontendAuthenticationTestCase(BaseE2ETestCase):
             self.assertEqual(response.status_code, 303)
             self.assertTrue(response.headers["location"].endswith("/login"))
 
+    def test_logout_invalidates_session_on_server(self) -> None:
+        with requests.Session() as s:
+            self._login_frontend(s)
+            stolen_cookie = s.cookies["artemis_session"]
+            s.post(BACKEND_URL + "logout")
+
+        # A copy of the cookie made before logging out must not work afterwards
+        response = requests.get(BACKEND_URL, cookies={"artemis_session": stolen_cookie}, allow_redirects=False)
+        self.assertEqual(response.status_code, 303)
+        self.assertTrue(response.headers["location"].endswith("/login"))
+
     def test_static_assets_are_public(self) -> None:
         # The login page must be able to load its own CSS, so /static/* bypasses
         # the session check.

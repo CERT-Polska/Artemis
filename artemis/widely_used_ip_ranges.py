@@ -1,9 +1,14 @@
 import functools
 import ipaddress
 import re
+import socket
 from typing import Any
 
 import requests
+
+from artemis import utils
+
+logger = utils.build_logger(__name__)
 
 
 def get_azure_front_door_ips() -> list[Any]:
@@ -99,22 +104,37 @@ def get_bunnycdn_ips() -> list[Any]:
     return ips
 
 
+def get_custom_ips() -> list[Any]:
+    hosts = ["ssl0.ovh.net"]
+    return [ipaddress.ip_network(socket.gethostbyname(host) + "/32") for host in hosts]
+
+
 @functools.lru_cache(maxsize=1)
-def get_cdn_ip_ranges() -> set[Any]:
-    return {
-        network
-        for get_ranges in (
-            get_azure_front_door_ips,
-            get_cloudflare_ips,
-            get_cloudfront_ips,
-            get_fastly_ips,
-            get_bunnycdn_ips,
-        )
-        for network in get_ranges()
-    }
+def get_widely_used_ip_ranges() -> set[Any]:
+    """
+    Return IP ranges of shared hostings or CDNs, where per-ip locking would limit the scanning speed too much.
+    """
+    result = set()
+    for get_ranges in [
+        get_azure_front_door_ips,
+        get_cloudflare_ips,
+        get_cloudfront_ips,
+        get_fastly_ips,
+        get_bunnycdn_ips,
+        get_custom_ips,
+    ]:
+        try:
+            for network in get_ranges():
+                result.add(network)
+        except Exception:
+            logger.exception("Unable to obtain networks for %s", get_ranges.__name__)
+    return result
 
 
-def is_cdn_ip(ip: str) -> bool:
+def is_widely_used_ip(ip: str) -> bool:
+    """
+    Check whether an IP is a shared hosting or CDN, where per-ip locking would limit the scanning speed too much.
+    """
     address = ipaddress.ip_address(ip)
 
-    return any(address in network for network in get_cdn_ip_ranges())
+    return any(address in network for network in get_widely_used_ip_ranges())

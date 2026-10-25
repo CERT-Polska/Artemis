@@ -14,6 +14,15 @@ info:
   tags: redirect,generic
 
 http:
+  # A control request to a random path, without a payload. Some servers redirect requests to a fixed host, e.g. to an
+  # https://example.com/ placeholder left in their configuration, sometimes with the request path appended - such a
+  # redirect doesn't depend on the payload, so it is not an open redirect. A random path rather than / also covers
+  # servers that serve / and redirect everything else. Thanks to the id, the response is available below as control_*.
+  - method: GET
+    id: control
+    path:
+      - "{{RootURL}}/{{randstr}}"
+
   - method: GET
     path:
       - "{{RootURL}}/{{redirect}}"
@@ -44,3 +53,13 @@ http:
           - 307
           - 308
         condition: or
+
+      # Evaluated only when the matchers above have matched (the AND condition stops at the first failed one), so
+      # the Location header is present. The match is kept only if the redirect points to a different host than the
+      # control request was redirected to. If the control request wasn't redirected, replace_regex returns the whole
+      # header unchanged, which never equals a host. The regexes contain no backslashes, as the DSL strips them.
+      - type: dsl
+        dsl:
+          - >-
+            replace_regex(location, "(?s)^(?:https?:)?//([^/?#]*).*$", "$1") !=
+            replace_regex(control_header, "(?ism)^.*?^location: *(?:https?:)?//([^/?#[:space:]]*).*$", "$1")

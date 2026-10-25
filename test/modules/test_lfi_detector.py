@@ -3,6 +3,7 @@ from test.base import ArtemisModuleTestCase
 from unittest.mock import patch
 
 from karton.core import Task
+from requests import Session
 
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.modules.lfi_detector import LFIDetector
@@ -60,13 +61,15 @@ class LFIParameterMinimizationTestCase(ArtemisModuleTestCase):
         with patch("artemis.config.Config.Modules.LFIDetector") as mocked_config:
             mocked_config.LFI_MINIMAL_PARAMS_MAX_LEN = 5
             with patch.object(self.karton, "create_url_with_batch_payload", side_effect=mocked_create_url):
-                with patch.object(self.karton, "http_get", side_effect=lambda test_url: test_url):
+                with patch.object(self.karton, "http_get", side_effect=lambda test_url, **_kwargs: test_url):
                     with patch.object(self.karton, "contains_lfi_indicator", side_effect=mocked_indicator):
-                        minimal_params = self.karton.minimize_parameters(
-                            url="http://example.com/login",
-                            params=params,
-                            payload="../../etc/passwd",
-                            original_response=object(),
-                        )
+                        with Session() as session:
+                            minimal_params = self.karton.minimize_parameters(
+                                url="http://example.com/login",
+                                params=params,
+                                payload="../../etc/passwd",
+                                original_response=object(),
+                                session=session,
+                            )
 
         self.assertEqual(minimal_params, ["a", "b", "c", "d", "e"])

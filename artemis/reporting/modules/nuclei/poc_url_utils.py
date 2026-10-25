@@ -11,31 +11,17 @@ parse_qs/urlencode would normalise payloads (``%2F%2F`` -> ``//``) and could
 break them.
 """
 
-import logging
 import time
 import urllib.parse
 from typing import Callable, List, Optional, Sequence, Tuple, TypeVar
 
-from artemis.config import Config
-from artemis.log_context import RunContextFilter
+from artemis.utils import build_logger
 
 # The default limit of Nuclei re-fuzzes for one finding, the final check
 # included; nuclei.py passes NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING instead.
 MAX_REFUZZ_CALLS_PER_FINDING = 20
 
-# One summary line per minimized finding, without the URL, host or payload, so
-# that the outcome rate can be tracked. It gets its own handler: module loggers
-# have none and inherit the root logger's default WARNING level, so these INFO
-# lines would otherwise never reach the logs.
-summary_logger = logging.getLogger("artemis.poc_minimization")
-summary_logger.setLevel(logging.INFO)
-summary_logger.propagate = False
-if not summary_logger.handlers:
-    _handler = logging.StreamHandler()
-    _handler.setFormatter(logging.Formatter(Config.Miscellaneous.LOGGING_FORMAT_STRING))
-    # LOGGING_FORMAT_STRING references run_hash, which this filter sets.
-    _handler.addFilter(RunContextFilter())
-    summary_logger.addHandler(_handler)
+summary_logger = build_logger("artemis.poc_minimization")
 
 T = TypeVar("T")
 

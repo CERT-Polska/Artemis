@@ -8,7 +8,7 @@ from random import uniform
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
-from redis import Redis
+from redis import Redis, TimeoutError
 
 from artemis.config import Config
 
@@ -87,10 +87,13 @@ class ResourceLock:
         """
         attempts = 0
         while self.max_tries is None or attempts < self.max_tries:
-            if REDIS.set(self.res_name, self.lid, nx=True, ex=LOCK_HEARTBEAT_TIMEOUT):
-                with LOCKS_TO_SUSTAIN_LOCK:
-                    LOCKS_TO_SUSTAIN[self.res_name] = self.lid
-                return
+            try:
+                if REDIS.set(self.res_name, self.lid, nx=True, ex=LOCK_HEARTBEAT_TIMEOUT):
+                    with LOCKS_TO_SUSTAIN_LOCK:
+                        LOCKS_TO_SUSTAIN[self.res_name] = self.lid
+                    return
+            except TimeoutError:
+                continue
 
             attempts += 1
             time.sleep(uniform(Config.Locking.LOCK_SLEEP_MIN_SECONDS, Config.Locking.LOCK_SLEEP_MAX_SECONDS))

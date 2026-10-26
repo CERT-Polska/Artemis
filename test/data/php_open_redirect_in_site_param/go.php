@@ -6,4 +6,13 @@
 //
 // Only `goto` matters, so the PoC URL must be shortened to `?goto=...` rather
 // than kept whole.
-header("Location: " . ($_GET["goto"] ?? "/"));
+//
+// The link itself (an empty `goto`) renders a page instead of redirecting: the
+// crawler does not report a link whose response is a redirect, so the DAST
+// target would never be built from it.
+$goto = $_GET["goto"] ?? "";
+if ($goto === "") {
+    echo "Where to?";
+} else {
+    header("Location: " . $goto);
+}

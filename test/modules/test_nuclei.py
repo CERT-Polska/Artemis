@@ -13,11 +13,6 @@ def _param_names(url: str) -> list[str]:
     return list(urllib.parse.parse_qs(urllib.parse.urlparse(url).query, keep_blank_values=True).keys())
 
 
-def _urls_with_path(status_reason: str, path: str) -> list[str]:
-    """The PoC URLs reported for findings on ``path``."""
-    return [url for url in re.findall(r"\]\s+(\S+):", status_reason) if urllib.parse.urlparse(url).path == path]
-
-
 def _reflected_xss_urls(status_reason: str) -> list[str]:
     """The PoC URLs reported for the reflected XSS DAST template."""
     return re.findall(r"\[medium\]\s+(\S+): Reflected Cross-Site Scripting", status_reason)
@@ -202,12 +197,16 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         )
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
-        self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
-        self.assertIn("Open Redirect", call.kwargs["status_reason"])
-        urls = _urls_with_path(call.kwargs["status_reason"], "/go.php")
-        self.assertTrue(urls)
-        for url in urls:
-            self.assertEqual(_param_names(url), ["goto"])
+        # Only the findings on /go.php - the host has others, e.g. for the PHP
+        # version of the container, which say nothing about this test.
+        findings = [
+            finding
+            for finding in call.kwargs["data"]
+            if urllib.parse.urlparse(finding.get("matched-at", "")).path == "/go.php"
+        ]
+        self.assertTrue(any(finding["template-id"].startswith("open-redirect") for finding in findings))
+        for finding in findings:
+            self.assertEqual(_param_names(finding["matched-at"]), ["goto"])
 
     def test_links(self) -> None:
         task = Task(

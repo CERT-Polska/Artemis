@@ -1,5 +1,5 @@
 <html>
     <body>
-        <a href="go.php?goto=/index.php">go</a>
+        <a href="go.php?goto=">go</a>
     </body>
 </html>

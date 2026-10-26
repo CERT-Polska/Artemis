@@ -161,12 +161,11 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         for url in urls:
             self.assertEqual(_param_names(url), ["search"])
 
-    def test_poc_url_kept_whole_when_the_finding_needs_a_second_param(self) -> None:
-        """The app reflects `search` only if `login` is present. Nuclei's
-        single-mode re-fuzz reports `search` alone, because it keeps sending
-        `login` alongside it - so shortening the PoC to `?search=...` would
-        produce a URL that no longer reproduces the vulnerability. Artemis
-        must notice that and report the full URL instead."""
+    def test_poc_url_keeps_both_params_when_the_finding_needs_a_second_param(self) -> None:
+        """The app reflects `search` only if `login` is present, so a PoC
+        shortened to `?search=...` would no longer reproduce the
+        vulnerability. Minimization must keep both parameters - and still
+        drop the 100+ others."""
         task = Task(
             {"type": TaskType.NUCLEI_TARGET},
             payload={
@@ -183,6 +182,31 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
             param_names = _param_names(url)
             self.assertIn("search", param_names)
             self.assertIn("login", param_names)
+            self.assertLess(len(param_names), 10)
+
+    def test_poc_url_shortened_to_the_vulnerable_site_param(self) -> None:
+        """/go.php has an open redirect in `goto`, a parameter of the site
+        found through a link on the homepage. The PoC URL - that parameter
+        plus 100+ wordlist ones - must be shortened to `goto` alone."""
+        task = Task(
+            {"type": TaskType.NUCLEI_TARGET},
+            payload={
+                "host": "test-php-open-redirect-in-site-param.local",
+                "port": 80,
+            },
+        )
+        self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        # Only the findings on /go.php - the host has others, e.g. for the PHP
+        # version of the container, which say nothing about this test.
+        findings = [
+            finding
+            for finding in call.kwargs["data"]
+            if urllib.parse.urlparse(finding.get("matched-at", "")).path == "/go.php"
+        ]
+        self.assertTrue(any(finding["template-id"].startswith("open-redirect") for finding in findings))
+        for finding in findings:
+            self.assertEqual(_param_names(finding["matched-at"]), ["goto"])
 
     def test_links(self) -> None:
         task = Task(

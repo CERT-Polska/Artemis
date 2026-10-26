@@ -21,7 +21,7 @@ from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
 from multiprocessing_logging import install_mp_handler
 from publicsuffixlist import PublicSuffixList
-from redis import Redis
+from redis import Redis, TimeoutError
 from requests import Session
 from requests.exceptions import RequestException
 
@@ -484,10 +484,10 @@ class ArtemisBase(Karton):
                             f"lock-{scan_destination}", max_tries=Config.Locking.SCAN_DESTINATION_LOCK_MAX_TRIES
                         )
 
-                        if lock.is_acquired():
-                            continue
-                        else:
-                            try:
+                        try:
+                            if lock.is_acquired():
+                                continue
+                            else:
                                 lock.acquire()
                                 tasks.append(task)
                                 locks.append(lock)
@@ -507,14 +507,14 @@ class ArtemisBase(Karton):
                                 self.backend.redis.lrem(queue, 1, item)
                                 if len(tasks) >= num_tasks:
                                     break
-                            except FailedToAcquireLockException:
-                                self.log.warning(
-                                    "Failed to lock task %s (orig_uid=%s destination=%s)",
-                                    task.uid,
-                                    task.orig_uid,
-                                    scan_destination,
-                                )
-                                continue
+                        except (TimeoutError, FailedToAcquireLockException):
+                            self.log.warning(
+                                "Failed to lock task %s (orig_uid=%s destination=%s)",
+                                task.uid,
+                                task.orig_uid,
+                                scan_destination,
+                            )
+                            continue
                     else:
                         tasks.append(task)
                         locks.append(None)

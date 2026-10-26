@@ -242,29 +242,28 @@ class TestMinimizationSummaryLog(unittest.TestCase):
             r"params=122->122 outcome=fallback_error ddmin_calls=1 elapsed=\d+s error=timeout$",
         )
 
-    def test_logger_does_not_depend_on_the_root_level(self) -> None:
-        """Production runs with the root logger at WARNING; the summary line has
-        its own handler and level, so it is still emitted."""
+    def test_line_goes_through_the_console_handler(self) -> None:
+        """The summary line goes through the shared console handler, in the
+        same format as the other Artemis logs. That format references run_hash,
+        which a handler without RunContextFilter fails to fill in - the line is
+        then dropped with only a "--- Logging error ---" on stderr."""
         import logging
 
-        logger = logging.getLogger("artemis.poc_minimization")
-        self.assertEqual(logger.level, logging.INFO)
-        self.assertFalse(logger.propagate)
+        from artemis.utils import CONSOLE_LOG_HANDLER
 
-        # Through the real handler (not assertLogs, which swaps the handlers),
-        # with the root logger at WARNING.
-        (handler,) = logger.handlers
-        assert isinstance(handler, logging.StreamHandler)
+        logger = logging.getLogger("artemis.poc_minimization")
+        self.assertIn(CONSOLE_LOG_HANDLER, logger.handlers)
+        if not logger.isEnabledFor(logging.INFO):
+            self.skipTest("LOG_LEVEL is above INFO, so the summary line is not emitted")
+
+        # Through the real handler, not assertLogs, which swaps the handlers.
         stream = io.StringIO()
-        previous_stream = handler.setStream(stream)
-        root = logging.getLogger()
-        previous_root_level = root.level
-        root.setLevel(logging.WARNING)
+        previous_stream = CONSOLE_LOG_HANDLER.stream
+        CONSOLE_LOG_HANDLER.setStream(stream)
         try:
             minimize_nuclei_matched_at_url(self.URL, reproduces_fn=lambda _: False, template_id="x")
         finally:
-            root.setLevel(previous_root_level)
-            handler.setStream(previous_stream)
+            CONSOLE_LOG_HANDLER.setStream(previous_stream)
         self.assertIn("PoC minimization: template=x params=122->122 outcome=fallback_no_reproduce", stream.getvalue())
 
     def test_reimport_does_not_add_handlers(self) -> None:

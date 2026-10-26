@@ -3,6 +3,8 @@ import threading
 import unittest
 from unittest.mock import MagicMock, patch
 
+from redis import TimeoutError
+
 from artemis.resource_lock import (
     LOCKS_TO_SUSTAIN,
     LOCKS_TO_SUSTAIN_LOCK,
@@ -160,6 +162,38 @@ class TestResourceLockBasics(unittest.TestCase):
 
         with LOCKS_TO_SUSTAIN_LOCK:
             self.assertNotIn("lock-contended", LOCKS_TO_SUSTAIN)
+
+    @patch("artemis.resource_lock.uniform", return_value=0)
+    @patch("artemis.resource_lock.REDIS")
+    def test_timeouts_count_toward_max_tries(self, mock_redis: MagicMock, mock_uniform: MagicMock) -> None:
+        # A third successful response makes an unbounded retry fail promptly.
+        mock_redis.set.side_effect = [TimeoutError(), TimeoutError(), True]
+        lock = ResourceLock("lock-timeout", max_tries=2)
+
+        with self.assertRaises(FailedToAcquireLockException):
+            lock.acquire()
+
+        self.assertEqual(mock_redis.set.call_count, 2)
+        self.assertEqual(mock_uniform.call_count, 2)
+        with LOCKS_TO_SUSTAIN_LOCK:
+            self.assertNotIn("lock-timeout", LOCKS_TO_SUSTAIN)
+
+    @patch("artemis.resource_lock.uniform", return_value=0)
+    @patch("artemis.resource_lock.REDIS")
+    def test_acquire_recovers_after_timeout(self, mock_redis: MagicMock, mock_uniform: MagicMock) -> None:
+        for max_tries in (2, None):
+            with self.subTest(max_tries=max_tries):
+                mock_redis.reset_mock(side_effect=True)
+                mock_uniform.reset_mock()
+                mock_redis.set.side_effect = [TimeoutError(), True]
+                lock = ResourceLock("lock-recovered", max_tries=max_tries)
+                lock.acquire()
+
+                self.assertEqual(mock_redis.set.call_count, 2)
+                self.assertEqual(mock_uniform.call_count, 1)
+                with LOCKS_TO_SUSTAIN_LOCK:
+                    self.assertEqual(LOCKS_TO_SUSTAIN["lock-recovered"], lock.lid)
+                    del LOCKS_TO_SUSTAIN["lock-recovered"]
 
     @patch("artemis.resource_lock.REDIS")
     def test_context_manager_releases_on_exit(self, mock_redis: MagicMock) -> None:

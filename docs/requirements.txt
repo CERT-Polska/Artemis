@@ -105,7 +105,7 @@ pynacl==1.6.2
 pyspf==2.0.14
 python-dateutil==2.9.0.post0
 python-decouple==3.8
-python-dotenv==1.2.3
+python-dotenv==1.2.4
 python-multipart==0.0.32
 pytz==2026.4
 pyyaml==6.0.3

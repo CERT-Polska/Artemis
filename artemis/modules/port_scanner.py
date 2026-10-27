@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import collections
+import copy
 import enum
 import json
 import os
@@ -110,6 +111,8 @@ def _tls_handshake_attempt(ip: str, port: int, domain: str, timeout: float) -> T
         reason = e.reason or ""
         if reason == "TLSV1_UNRECOGNIZED_NAME":
             return TlsCheckResult.NAME_REJECTED, reason
+        # OpenSSL's reason when the server's first bytes aren't a TLS record header ("Doesn't look like TLS"
+        # in its source), e.g. a plain HTTP response or an SSH banner
         if reason == "WRONG_VERSION_NUMBER":
             return TlsCheckResult.NOT_TLS, reason
         if reason.startswith(TLS_ALERT_REASON_PREFIXES):
@@ -323,7 +326,7 @@ class PortScanner(ArtemisBase):
 
                 for port, scan_result in scan_results.get(host, {}).items():
                     # A copy, as the scan results of an IP are shared by all tasks for domains with that IP
-                    result = dict(scan_result)
+                    result = copy.deepcopy(scan_result)
                     all_results[host][port] = result
                     create_service = True
                     if task.headers["type"] == TaskType.DOMAIN:

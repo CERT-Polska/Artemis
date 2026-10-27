@@ -93,7 +93,7 @@ class ResourceLock:
                         LOCKS_TO_SUSTAIN[self.res_name] = self.lid
                     return
             except TimeoutError:
-                continue
+                pass
 
             attempts += 1
             time.sleep(uniform(Config.Locking.LOCK_SLEEP_MIN_SECONDS, Config.Locking.LOCK_SLEEP_MAX_SECONDS))

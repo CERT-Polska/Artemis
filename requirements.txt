@@ -14,7 +14,7 @@ argon2-cffi==25.1.0
 argon2-cffi-bindings==26.1.0
 attrs==26.1.0
 babel==2.18.0
-badkeys==0.0.20
+badkeys==0.0.21
 bcrypt==5.0.0
 beautifulsoup4==4.15.0
 blinker==1.9.0
@@ -99,6 +99,7 @@ pygments==2.21.0
 pyleri==1.5.1
 pymysql==1.2.3
 pynacl==1.6.2
+pyopenssl==26.4.0
 pyspf==2.0.14
 python-dateutil==2.9.0.post0
 python-decouple==3.8

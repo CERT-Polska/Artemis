@@ -443,6 +443,11 @@ services:
     build:
       context: test/images/nginx-with-sni-tls
       dockerfile: Dockerfile
+    networks:
+      default:
+        aliases:
+          # A name this nginx doesn't serve over TLS, like a domain without a certificate on a shared hosting server
+          - test-nginx-with-sni-tls-other-name
 
   test-grafana:
     image: grafana/grafana:latest

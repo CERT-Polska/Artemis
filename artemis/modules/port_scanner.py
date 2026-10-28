@@ -87,6 +87,12 @@ TLS_ALERT_REASON_PREFIXES = ("SSLV3_ALERT_", "TLSV1_ALERT_", "TLSV13_ALERT_")
 # and no support for secure renegotiation (RFC 5746), as on servers from before it
 TLS_SERVER_HELLO_REFUSED_REASONS = ("UNSUPPORTED_PROTOCOL", "UNSAFE_LEGACY_RENEGOTIATION_DISABLED")
 
+# Parts of the body of the 400 a TLS port answers a plain HTTP request with
+HTTPS_PORT_ERRORS = (
+    "The plain HTTP request was sent to HTTPS port",  # nginx
+    "speaking plain HTTP to an SSL-enabled server port",  # Apache
+)
+
 
 class TlsCheckResult(enum.Enum):
     # The handshake succeeded, or the server answered with a TLS alert or a ServerHello this client refuses
@@ -122,6 +128,12 @@ def _tls_handshake_attempt(ip: str, port: int, domain: str, timeout: float) -> T
         return TlsCheckResult.UNKNOWN, f"{type(e).__name__}: {reason or e}"
     except Exception as e:
         return TlsCheckResult.UNKNOWN, f"{type(e).__name__}: {e}"
+
+
+def _port_description(port: str, result: Dict[str, Any], note: str = "") -> str:
+    """A port in the status reason, e.g. "443 (service: http ssl: True, version: nginx)", with an optional note."""
+    description = f"{port} (service: {result['service']} ssl: {result['ssl']}, version: {result['version']}"
+    return f"{description}, {note})" if note else f"{description})"
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.MEDIUM)
@@ -297,6 +309,22 @@ class PortScanner(ArtemisBase):
             self.log.info("TLS check of %s on %s:%s inconclusive twice, last time: %s", domain, ip, port, failure)
         return result
 
+    def plain_http_gets_https_port_error(
+        self, ip: str, port: int, domain: str, timeout: float = 3.0
+    ) -> Tuple[bool, str]:
+        """Sends one plain HTTP request with the domain as Host. Returns whether the answer is the error of a TLS port
+        (see HTTPS_PORT_ERRORS) and a short description of the answer."""
+        try:
+            response = self.http_get(
+                f"http://{ip}:{port}/", headers={"Host": domain}, allow_redirects=False, timeout=timeout
+            )
+        except Exception as e:
+            return False, f"{type(e).__name__}: {e}"
+        is_https_port_error = response.status_code == 400 and any(
+            error in response.content for error in HTTPS_PORT_ERRORS
+        )
+        return is_https_port_error, f"HTTP {response.status_code}"
+
     def run_multiple(self, tasks: List[Task]) -> None:
         hosts_per_task = {}
         hosts: List[str] = []
@@ -325,58 +353,70 @@ class PortScanner(ArtemisBase):
                 all_results[host] = {}
 
                 for port, scan_result in scan_results.get(host, {}).items():
-                    # A copy, as the scan results of an IP are shared by all tasks for domains with that IP
+                    # A copy, as the scan results of an IP are shared by all tasks in the batch with that IP
                     result = copy.deepcopy(scan_result)
                     all_results[host][port] = result
-                    create_service = True
+                    is_http = result["service"].lower() == Service.HTTP
                     if task.headers["type"] == TaskType.DOMAIN:
                         # we want to perform tls_hadnshake if target is a domain cause TLS can be hostname dependent (SNI)
                         # ip deduplication therefore can lead to false negatives
                         # Retried only where fingerprintx saw HTTP: there a wrong result creates an HTTP service
                         # the HTTP modules can't scan. Other services, e.g. Redis, may never answer a ClientHello,
                         # and a retry would only add another timeout for each of them.
-                        tls_check = self.tls_handshake(
-                            ip=host, port=int(port), domain=target, retry=result["service"].lower() == Service.HTTP
-                        )
+                        tls_check = self.tls_handshake(ip=host, port=int(port), domain=target, retry=is_http)
                         if tls_check in (TlsCheckResult.TLS, TlsCheckResult.NAME_REJECTED):
                             result["ssl"] = True
                         elif tls_check == TlsCheckResult.NOT_TLS:
                             result["ssl"] = False
                         # On an inconclusive answer, the fingerprintx result for the IP stays.
 
-                        # Such a port answers plain HTTP requests only with an error (e.g. nginx: "The plain HTTP
-                        # request was sent to HTTPS port") and doesn't serve this domain over TLS, so there is
-                        # nothing to scan.
-                        if tls_check == TlsCheckResult.NAME_REJECTED and result["service"].lower() == Service.HTTP:
-                            create_service = False
-                            self.log.info(
-                                "Not creating an HTTP service for %s:%s: the server speaks TLS but rejects this name",
-                                target,
-                                port,
+                        if tls_check == TlsCheckResult.NAME_REJECTED and is_http:
+                            # A port may speak TLS and plain HTTP at once (e.g. behind sslh, or HAProxy choosing the
+                            # backend by the first bytes), so the service is skipped only if plain HTTP gets the
+                            # error of a TLS port: then the domain is served neither over TLS nor without it.
+                            is_https_port_error, answer = self.plain_http_gets_https_port_error(
+                                ip=host, port=int(port), domain=target
                             )
+                            if is_https_port_error:
+                                self.log.info(
+                                    "Not creating an HTTP service for %s on %s:%s: TLS rejects this name and plain "
+                                    "HTTP gets the error of a TLS port (%s)",
+                                    target,
+                                    host,
+                                    port,
+                                    answer,
+                                )
+                                open_ports.append(int(port))
+                                interesting_port_descriptions.append(
+                                    _port_description(port, result, "not scanned: TLS rejects this name")
+                                )
+                                continue
 
-                    if create_service:
-                        new_task = Task(
-                            {
-                                "type": TaskType.SERVICE,
-                                "service": Service(result["service"].lower()),
-                            },
-                            payload={
-                                "host": target,
-                                "port": int(port),
-                                "ssl": result["ssl"],
-                            },
-                        )
+                            self.log.info(
+                                "Creating an HTTP service without TLS for %s on %s:%s: TLS rejects this name, but "
+                                "plain HTTP got %s",
+                                target,
+                                host,
+                                port,
+                                answer,
+                            )
+                            result["ssl"] = False
 
-                        self.add_task(task, new_task)
-                    open_ports.append(int(port))
-
-                    description = (
-                        f"{port} (service: {result['service']} ssl: {result['ssl']}, version: {result['version']}"
+                    new_task = Task(
+                        {
+                            "type": TaskType.SERVICE,
+                            "service": Service(result["service"].lower()),
+                        },
+                        payload={
+                            "host": target,
+                            "port": int(port),
+                            "ssl": result["ssl"],
+                        },
                     )
-                    if not create_service:
-                        description += ", not scanned: TLS rejects this name"
-                    interesting_port_descriptions.append(description + ")")
+
+                    self.add_task(task, new_task)
+                    open_ports.append(int(port))
+                    interesting_port_descriptions.append(_port_description(port, result))
 
             if len(interesting_port_descriptions):
                 status = TaskStatus.INTERESTING

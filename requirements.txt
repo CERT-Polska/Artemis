@@ -43,7 +43,6 @@ flask==3.1.3
 freezegun==1.5.5
 frozenlist==1.8.0
 gmpy2==2.3.2
-greenlet==3.5.5
 h11==0.16.0
 h2==4.4.1
 hpack==4.2.0
@@ -124,7 +123,7 @@ shellingham==1.5.4
 shodan==1.31.0
 six==1.17.0
 soupsieve==2.9.2
-sqlalchemy==2.0.52
+sqlalchemy==2.1.5
 starlette==0.52.1
 termcolor==3.3.0
 timeout-decorator==0.5.0

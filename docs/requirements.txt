@@ -75,7 +75,7 @@ markdown-it-py==4.2.0
 markupsafe==3.0.3
 mdurl==0.1.2
 minio==7.2.20
-more-itertools==11.1.0
+more-itertools==11.2.1
 multidict==6.9.0
 multiprocessing-logging==0.4.0
 openapi-schema-validator==0.9.0

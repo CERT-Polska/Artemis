@@ -22,7 +22,7 @@ if "POSTGRES_CONN_STR" not in os.environ:
         "Unable to find the POSTGRES_CONN_STR environment variable. Artemis was migrated to store task results in "
         "PostgreSQL - you might have an old .env file where a PostgreSQL connection string is not provided. To use "
         "the default PostgreSQL container started by Artemis, add "
-        "POSTGRES_CONN_STR=postgresql://postgres:postgres@postgres/artemis to the .env file."
+        "POSTGRES_CONN_STR=postgresql+psycopg2://postgres:postgres@postgres/artemis to the .env file."
     )
 
 

@@ -9,7 +9,7 @@ updates:
       - dependency-name: "python"
         versions: ["4.x"]  # Stick to Python 3.x
     cooldown:
-      default-days: 7
+      default-days: 3
 
   # Go modules
   - package-ecosystem: "gomod"
@@ -17,7 +17,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      default-days: 7
+      default-days: 3
 
   # Go modules of the Wappalyzer wrapper used for web technology identification. Its wappalyzergo
   # dependency carries the fingerprint database, so these bumps also refresh technology detection.
@@ -26,7 +26,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      default-days: 7
+      default-days: 3
 
   # Python packages in root
   - package-ecosystem: "pip"
@@ -36,7 +36,7 @@ updates:
     allow:
       - dependency-name: "*"  # Allow all packages from requirements.txt
     cooldown:
-      default-days: 7
+      default-days: 3
 
   # Python packages in /docs/
   - package-ecosystem: "pip"
@@ -46,7 +46,7 @@ updates:
     allow:
       - dependency-name: "*"  # Allow all packages from requirements.txt
     cooldown:
-      default-days: 7
+      default-days: 3
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -54,4 +54,4 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      default-days: 7
+      default-days: 3

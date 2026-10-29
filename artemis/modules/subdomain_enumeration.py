@@ -285,6 +285,35 @@ class SubdomainEnumeration(ArtemisBase):
         )
         return kept
 
+    def _get_domains_on_shared_ip(self, domains: Set[str]) -> Set[str]:
+        threshold = Config.Limits.SHARED_IP_RPS_NUM_DOMAINS_THRESHOLD
+        if threshold <= 0:
+            return set()
+
+        ip_to_domains: Dict[str, Set[str]] = {}
+        for candidate in domains:
+            try:
+                candidate_ips = lookup(candidate)
+            except ResolutionException:
+                continue
+            for candidate_ip in candidate_ips:
+                ip_to_domains.setdefault(candidate_ip, set()).add(candidate)
+
+        shared_ips = {ip for ip, ip_domains in ip_to_domains.items() if len(ip_domains) >= threshold}
+        if shared_ips:
+            self.log.info("Detected %d shared IPs (>= %d domains each)", len(shared_ips), threshold)
+
+        result: Set[str] = set()
+        for candidate in domains:
+            try:
+                candidate_ips = lookup(candidate)
+            except ResolutionException:
+                continue
+            if candidate_ips & shared_ips:
+                result.add(candidate)
+
+        return result
+
     def run(self, current_task: Task) -> None:
         if current_task.headers.get("origin", "") == self.identity:
             return
@@ -376,6 +405,8 @@ class SubdomainEnumeration(ArtemisBase):
                 )
             pipe.execute()
 
+        domains_on_shared_ip = self._get_domains_on_shared_ip(valid_subdomains | {domain})
+
         for subdomain in valid_subdomains:
             if subdomain != domain:  # ensure we are not adding the parent domain again
                 # If the initial source of the scanning was an IP or an IP range, only scan the subdomains
@@ -386,11 +417,16 @@ class SubdomainEnumeration(ArtemisBase):
                     if not (len(matches) and all(matches)):
                         continue
 
+                payload_persistent = {}
+                if subdomain in domains_on_shared_ip:
+                    payload_persistent["requests_per_second_override"] = Config.Limits.SHARED_IP_RPS_OVERRIDE
+
                 task = Task(
                     {"type": TaskType.DOMAIN},
                     payload={
                         "domain": subdomain,
                     },
+                    payload_persistent=payload_persistent,
                 )
                 if self.add_task_if_domain_exists(current_task, task):
                     existing_subdomains.add(subdomain)
@@ -400,6 +436,7 @@ class SubdomainEnumeration(ArtemisBase):
                     payload={
                         "domain": subdomain,
                     },
+                    payload_persistent=payload_persistent,
                 )
                 self.add_task(current_task, task)
 

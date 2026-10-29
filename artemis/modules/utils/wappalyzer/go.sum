@@ -1,8 +1,8 @@
-github.com/projectdiscovery/wappalyzergo v0.3.6 h1:1FXCMeCa1xVu2zaW+eeBcbVxtlMStqGOlKcMLyh2pzI=
-github.com/projectdiscovery/wappalyzergo v0.3.6/go.mod h1:4E6+fh/ckaY3wo5tlM7lNYSkhuTYRHzu2YmGIRraXP0=
+github.com/projectdiscovery/wappalyzergo v0.3.7 h1:EITzdN07LR+opmKWT0iEaki366CVB57EBbjq9llsbf0=
+github.com/projectdiscovery/wappalyzergo v0.3.7/go.mod h1:7gTNIjQSXsVmFDJJ3PT8+FhYE+dv6hZLGZSsRAEjVSw=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
-golang.org/x/net v0.59.0 h1:5zfYln+w5XCxwrnMMJPufRgNoXEaGxl0wo5GqPXyues=
-golang.org/x/net v0.59.0/go.mod h1:2DA/G1UfVbCpQPeWTmMPGY7Cs2PkBkwu743bVX5PIVg=
+golang.org/x/net v0.61.0 h1:RR+6j/BTBCrggOLugxa+66R8FvoN6MHlzDlZIbN9YFw=
+golang.org/x/net v0.61.0/go.mod h1:WgDCOTH8iwtB66T4/GfI94AHo/hhdb7Hah9NDseQfiI=

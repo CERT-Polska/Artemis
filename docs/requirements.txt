@@ -145,7 +145,7 @@ tldextract==5.4.0
 toml==0.10.2
 tqdm==4.70.1
 truststore==0.10.5
-typer==0.27.2
+typer==0.27.3
 typing-extensions==4.16.0
 typing-inspection==0.4.4
 unittest-parallel==1.8.6

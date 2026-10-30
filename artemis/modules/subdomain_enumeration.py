@@ -283,11 +283,10 @@ class SubdomainEnumeration(ArtemisBase):
             len(subdomains),
             len(wildcard_ips),
         )
-        if not kept:
-            if "www" in subdomains:
-                kept.add("www")  # run at least one
-            elif subdomains:
-                kept.add(list(subdomains)[0])
+        if "www" in subdomains:  # even if we have wildcard, let's keep at least one domain with the 'wildcard' config
+            kept.add("www")
+        elif subdomains:
+            kept.add(sorted(list(subdomains))[0])
         return kept
 
     def run(self, current_task: Task) -> None:

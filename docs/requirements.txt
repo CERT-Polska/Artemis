@@ -150,7 +150,7 @@ typing-extensions==4.16.0
 typing-inspection==0.4.4
 unittest-parallel==1.8.6
 url-normalize==3.0.1
-urllib3==2.7.0
+urllib3==2.8.0
 uro==1.0.2
 uvicorn==0.54.0
 validators==0.35.0

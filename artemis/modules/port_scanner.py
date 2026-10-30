@@ -117,8 +117,11 @@ def _tls_handshake_attempt(ip: str, port: int, domain: str, timeout: float) -> T
         reason = e.reason or ""
         if reason == "TLSV1_UNRECOGNIZED_NAME":
             return TlsCheckResult.NAME_REJECTED, reason
-        # OpenSSL's reason when the server's first bytes aren't a TLS record header ("Doesn't look like TLS"
-        # in its source), e.g. a plain HTTP response or an SSH banner
+        # OpenSSL reports WRONG_VERSION_NUMBER when a record from the server has an unexpected version, e.g.:
+        # - the first one, when the port doesn't speak TLS at all ("Doesn't look like TLS" in the OpenSSL source),
+        #   such as a plain HTTP response or an SSH banner,
+        # - an alert a TLS server sends after its ServerHello in a record with another version.
+        # The reason alone can't tell these apart, so all of them end up as NOT_TLS.
         if reason == "WRONG_VERSION_NUMBER":
             return TlsCheckResult.NOT_TLS, reason
         if reason.startswith(TLS_ALERT_REASON_PREFIXES):

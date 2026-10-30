@@ -284,8 +284,8 @@ class SubdomainEnumeration(ArtemisBase):
             len(wildcard_ips),
         )
         if not kept:
-            if 'www' in subdomains:
-                kept.add(subdomains)  # run at least one
+            if "www" in subdomains:
+                kept.add("www")  # run at least one
             elif subdomains:
                 kept.add(list(subdomains)[0])
         return kept

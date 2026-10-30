@@ -283,6 +283,12 @@ class SubdomainEnumeration(ArtemisBase):
             len(subdomains),
             len(wildcard_ips),
         )
+        if "www" in (
+            subdomains - kept
+        ):  # even if we have wildcard, let's keep at least one domain with the 'wildcard' config
+            kept.add("www")
+        elif subdomains - kept:
+            kept.add(sorted(list(subdomains - kept))[0])
         return kept
 
     def run(self, current_task: Task) -> None:
@@ -357,14 +363,7 @@ class SubdomainEnumeration(ArtemisBase):
                     continue
                 valid_subdomains.add(subdomain)
 
-        threshold = Config.Modules.SubdomainEnumeration.LARGE_SUBDOMAIN_COUNT_VERIFICATION_THRESHOLD
-        if threshold > 0 and len(valid_subdomains) >= threshold:
-            self.log.info(
-                "Found %d subdomains, exceeding threshold of %d. Running wildcard DNS filter.",
-                len(valid_subdomains),
-                threshold,
-            )
-            valid_subdomains = self._filter_wildcard_subdomains(wildcard_ips, valid_subdomains, domain)
+        valid_subdomains = self._filter_wildcard_subdomains(wildcard_ips, valid_subdomains, domain)
 
         with self.redis.pipeline() as pipe:
             for subdomain in valid_subdomains:

@@ -305,9 +305,11 @@ class SubdomainEnumeration(ArtemisBase):
 
         return {domain for ip in shared_ips for domain in ip_to_domains[ip]}
 
-    def higher_rps(self, first_rps: float, second_rps: float) -> float:
+    def higher_rps(self, first_rps: float | None, second_rps: float | None) -> float | None:
         if first_rps == 0 or second_rps == 0:
             return 0.0
+        if not first_rps or not second_rps:
+            return first_rps or second_rps
 
         return max(first_rps, second_rps)
 
@@ -415,8 +417,9 @@ class SubdomainEnumeration(ArtemisBase):
                         continue
 
                 current_rps = current_task.get_payload("requests_per_second_override")
-                # karton merging strategy takes parents value as priority
-                current_task.remove_payload("requests_per_second_override")
+                if current_rps:
+                    # karton merging strategy takes parents value as priority
+                    current_task.remove_payload("requests_per_second_override")
 
                 if subdomain in domains_on_shared_ip:
                     new_rps = self.higher_rps(current_rps, Config.Limits.SHARED_IP_RPS_OVERRIDE)

@@ -1,0 +1,2 @@
+# Ports whose exposure is a finding by itself (e.g. domain controller services). They are scanned and reported, but see PORT_SCANNER_SPAWN_TASKS_FOR_RISKY_PORTS
+636,3268,3269

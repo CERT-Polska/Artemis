@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
@@ -46,9 +47,19 @@ class FrontendSessionInvalidationTest(unittest.TestCase):
         self.assertEqual(self.client.get("/protected").status_code, 303)
 
     def test_health_is_accessible_without_authentication(self) -> None:
-        response = self.client.get("/health")
-        self.assertIn(response.status_code, (200, 503))
-        self.assertEqual(response.headers["content-type"], "application/json")
+        with (
+            patch("artemis.health.psutil.virtual_memory") as memory,
+            patch("artemis.health.shutil.disk_usage") as disk,
+        ):
+            memory.return_value.total = 100
+            memory.return_value.available = 50
+            disk.return_value.total = 100
+            disk.return_value.free = 50
+
+            response = self.client.get("/health")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
 
     def test_login_grants_access(self) -> None:
         self.client.post("/login")

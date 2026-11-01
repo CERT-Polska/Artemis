@@ -18,10 +18,12 @@ class HealthTest(unittest.TestCase):
         cases = [
             (50, 50, 200, {"status": "ok"}),
             (20, 20, 200, {"status": "ok"}),
-            (19, 50, 503, {"error": "Available RAM is below 20%"}),
-            (50, 19, 503, {"error": "Free disk space is below 20%"}),
-            (19, 19, 503, {"error": "Available RAM is below 20%; Free disk space is below 20%"}),
-            (0, 0, 503, {"error": "Available RAM is below 20%; Free disk space is below 20%"}),
+            (19.99, 20, 503, {"error": "unhealthy"}),
+            (20, 19.99, 503, {"error": "unhealthy"}),
+            (19, 50, 503, {"error": "unhealthy"}),
+            (50, 19, 503, {"error": "unhealthy"}),
+            (19, 19, 503, {"error": "unhealthy"}),
+            (0, 0, 503, {"error": "unhealthy"}),
         ]
         for available_memory, free_disk, status_code, body in cases:
             with self.subTest(available_memory=available_memory, free_disk=free_disk):

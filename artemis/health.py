@@ -19,5 +19,5 @@ def health() -> JSONResponse:
         problems.append("Free disk space is below 20%")
 
     if problems:
-        return JSONResponse(status_code=503, content={"error": "; ".join(problems)})
+        return JSONResponse(status_code=503, content={"error": "Unhealthy")
     return JSONResponse(content={"status": "ok"})

@@ -6,12 +6,14 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.testclient import TestClient
 
 from artemis import auth
+from artemis.health import router as router_health
 
 SESSION_COOKIE = "artemis_session"
 
 
 def build_app() -> FastAPI:
     app = FastAPI()
+    app.include_router(router_health)
 
     @app.post("/login")
     async def login(request: Request) -> PlainTextResponse:
@@ -42,6 +44,11 @@ class FrontendSessionInvalidationTest(unittest.TestCase):
 
     def test_unauthenticated_request_is_redirected(self) -> None:
         self.assertEqual(self.client.get("/protected").status_code, 303)
+
+    def test_health_is_accessible_without_authentication(self) -> None:
+        response = self.client.get("/health")
+        self.assertIn(response.status_code, (200, 503))
+        self.assertEqual(response.headers["content-type"], "application/json")
 
     def test_login_grants_access(self) -> None:
         self.client.post("/login")

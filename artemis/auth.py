@@ -22,9 +22,9 @@ _redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 # Paths that bypass the frontend session check: /api/* has its own X-API-Token
 # auth, /static/* must stay reachable so that the login page can load its own
-# CSS, and /login and /logout are the auth endpoints themselves.
+# CSS, /health is used by monitoring, and /login and /logout are the auth endpoints themselves.
 UNPROTECTED_PATH_PREFIXES = ("/api/", "/static/")
-UNPROTECTED_PATHS = ("/login", "/logout")
+UNPROTECTED_PATHS = ("/login", "/logout", "/health")
 
 
 def generate_session_secret() -> str:

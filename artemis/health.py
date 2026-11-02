@@ -51,6 +51,6 @@ def health() -> JSONResponse:
     if errors:
         return JSONResponse(
             status_code=503,
-            content={"error": "unhealthy", "errors": errors, "last_consumed_task_time": last_consumed_task_time},
+            content={"status": "unhealthy", "errors": errors, "last_consumed_task_time": last_consumed_task_time},
         )
     return JSONResponse(content={"status": "ok", "last_consumed_task_time": last_consumed_task_time})

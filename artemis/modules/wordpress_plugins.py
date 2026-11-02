@@ -42,6 +42,7 @@ PLUGINS_WITH_REVERSED_CHANGELOGS = [
     "zarinpal-woocommerce-payment-gateway",
 ]
 PLUGINS_TO_SKIP_CHANGELOG = [
+    "advanced-coupons-for-woocommerce-free",
     "adapta-rgpd",
     "backwpup",
     "boldgrid-easy-seo",

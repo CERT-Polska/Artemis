@@ -420,10 +420,11 @@ class SubdomainEnumeration(ArtemisBase):
                 if "requests_per_second_override" in current_task.payload_persistent:
                     # karton merging strategy takes parents value as priority
                     del current_task.payload_persistent["requests_per_second_override"]
+                assert current_task.get_payload("requests_per_second_override") is None
 
                 if subdomain in domains_on_shared_ip:
                     new_rps = self.higher_rps(current_rps, Config.Limits.SHARED_IP_RPS_OVERRIDE)
-                    self.log.info("Increased the RPS for %s to %s", subdomain, new_rps)
+                    self.log.info("Increased the RPS for %s from %s to %s", subdomain, current_rps, new_rps)
                 else:
                     new_rps = current_rps
 
@@ -446,6 +447,8 @@ class SubdomainEnumeration(ArtemisBase):
                     payload_persistent={"requests_per_second_override": new_rps},
                 )
                 self.add_task(current_task, task)
+                # we want to give it back for log purpose but also to not downgrade RPS if the initial one was bigger
+                current_task.payload_persistent["requests_per_second_override"] = current_rps
 
         if valid_subdomains:
             self.save_task_result(

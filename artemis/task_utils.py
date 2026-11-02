@@ -9,6 +9,10 @@ from artemis.binds import Service, TaskType
 from artemis.ip_utils import to_ip_range
 
 
+# Shared by all scanning processes and the health endpoint; Unix time in seconds.
+LAST_CONSUMED_TASK_TIME_KEY = "artemis:last_consumed_task_time"
+
+
 def get_target_host(task: Task) -> str:
     """
     Extract the target host (domain, ip) from a Karton task based on its type.

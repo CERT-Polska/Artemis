@@ -417,9 +417,9 @@ class SubdomainEnumeration(ArtemisBase):
                         continue
 
                 current_rps = current_task.get_payload("requests_per_second_override")
-                if current_rps:
+                if "requests_per_second_override" in current_task.payload_persistent:
                     # karton merging strategy takes parents value as priority
-                    current_task.remove_payload("requests_per_second_override")
+                    del current_task.payload_persistent["requests_per_second_override"]
 
                 if subdomain in domains_on_shared_ip:
                     new_rps = self.higher_rps(current_rps, Config.Limits.SHARED_IP_RPS_OVERRIDE)

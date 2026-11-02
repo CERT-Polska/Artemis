@@ -7,6 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.testclient import TestClient
 
 from artemis import auth
+from artemis.config import Config
 from artemis.health import router as router_health
 
 SESSION_COOKIE = "artemis_session"
@@ -46,20 +47,32 @@ class FrontendSessionInvalidationTest(unittest.TestCase):
     def test_unauthenticated_request_is_redirected(self) -> None:
         self.assertEqual(self.client.get("/protected").status_code, 303)
 
-    def test_health_is_accessible_without_authentication(self) -> None:
+    def test_health_requires_api_authentication_without_frontend_session(self) -> None:
+        response = self.client.get("/health")
+        self.assertEqual(response.status_code, 422)
+
+        with patch.object(Config.Miscellaneous, "API_TOKEN", "test-token"):
+            response = self.client.get("/health", headers={"X-API-Token": "wrong-token"})
+        self.assertEqual(response.status_code, 401)
+
+    def test_health_accepts_api_token_without_frontend_session(self) -> None:
         with (
+            patch.object(Config.Miscellaneous, "API_TOKEN", "test-token"),
             patch("artemis.health.psutil.virtual_memory") as memory,
             patch("artemis.health.shutil.disk_usage") as disk,
+            patch("artemis.health.redis") as redis,
+            patch("artemis.health.time.time", return_value=100000),
         ):
             memory.return_value.total = 100
             memory.return_value.available = 50
             disk.return_value.total = 100
             disk.return_value.free = 50
+            redis.get.return_value = b"100000"
 
-            response = self.client.get("/health")
+            response = self.client.get("/health", headers={"X-API-Token": "test-token"})
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"status": "ok"})
+        self.assertEqual(response.json(), {"status": "ok", "last_consumed_task_time": 100000})
 
     def test_login_grants_access(self) -> None:
         self.client.post("/login")

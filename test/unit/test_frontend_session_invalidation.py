@@ -15,7 +15,7 @@ SESSION_COOKIE = "artemis_session"
 
 def build_app() -> FastAPI:
     app = FastAPI()
-    app.include_router(router_health)
+    app.include_router(router_health, prefix="/api")
 
     @app.post("/login")
     async def login(request: Request) -> PlainTextResponse:
@@ -48,11 +48,11 @@ class FrontendSessionInvalidationTest(unittest.TestCase):
         self.assertEqual(self.client.get("/protected").status_code, 303)
 
     def test_health_requires_api_authentication_without_frontend_session(self) -> None:
-        response = self.client.get("/health")
+        response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 422)
 
         with patch.object(Config.Miscellaneous, "API_TOKEN", "test-token"):
-            response = self.client.get("/health", headers={"X-API-Token": "wrong-token"})
+            response = self.client.get("/api/health", headers={"X-API-Token": "wrong-token"})
         self.assertEqual(response.status_code, 401)
 
     def test_health_accepts_api_token_without_frontend_session(self) -> None:
@@ -69,7 +69,7 @@ class FrontendSessionInvalidationTest(unittest.TestCase):
             disk.return_value.free = 50
             redis.get.return_value = b"100000"
 
-            response = self.client.get("/health", headers={"X-API-Token": "test-token"})
+            response = self.client.get("/api/health", headers={"X-API-Token": "test-token"})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok", "last_consumed_task_time": 100000})

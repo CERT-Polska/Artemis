@@ -46,7 +46,7 @@ db = DB()
 
 app.include_router(router_front, prefix="")
 app.include_router(router_api, prefix="/api")
-app.include_router(router_health)
+app.include_router(router_health, prefix="/api")
 app.mount("/static", StaticFiles(directory=path.join(path.dirname(__file__), "..", "static")), name="static")
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ from artemis.task_utils import LAST_CONSUMED_TASK_TIME_KEY
 class HealthTest(unittest.TestCase):
     def setUp(self) -> None:
         app = FastAPI()
-        app.include_router(router)
+        app.include_router(router, prefix="/api")
         self.client = TestClient(app)
         self.client.headers["X-API-Token"] = "test-token"
         self.enterContext(patch.object(Config.Miscellaneous, "API_TOKEN", "test-token"))
@@ -42,7 +42,7 @@ class HealthTest(unittest.TestCase):
                 # Available RAM includes reclaimable cache, unlike strictly free RAM.
                 self.memory.return_value.available = available_memory
                 self.disk.return_value.free = free_disk
-                response = self.client.get("/health")
+                response = self.client.get("/api/health")
                 self.assertEqual(response.status_code, 503 if error_keys else 200)
                 self.assertEqual(set(response.json().get("errors", {})), set(error_keys))
                 self.assertEqual(response.json()["last_consumed_task_time"], 100000)
@@ -59,7 +59,7 @@ class HealthTest(unittest.TestCase):
             with self.subTest(age=age):
                 timestamp = 100000 - age
                 self.redis.get.return_value = str(timestamp).encode()
-                response = self.client.get("/health")
+                response = self.client.get("/api/health")
                 self.assertEqual(response.status_code, expected_status)
                 self.assertEqual(response.json()["last_consumed_task_time"], timestamp)
                 if expected_status == 503:
@@ -72,14 +72,14 @@ class HealthTest(unittest.TestCase):
         for timestamp in [None, b"invalid", b"nan", b"inf"]:
             with self.subTest(timestamp=timestamp):
                 self.redis.get.return_value = timestamp
-                response = self.client.get("/health")
+                response = self.client.get("/api/health")
                 self.assertEqual(response.status_code, 503)
                 self.assertIsNone(response.json()["last_consumed_task_time"])
                 self.assertIn("worker", response.json()["errors"])
 
     def test_redis_failure_is_unhealthy(self) -> None:
         self.redis.get.side_effect = RedisError("unavailable")
-        response = self.client.get("/health")
+        response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.json()["errors"]["worker"], "Unable to read last_consumed_task_time from Redis")
 
@@ -87,19 +87,19 @@ class HealthTest(unittest.TestCase):
         self.memory.return_value.available = 10
         self.disk.return_value.free = 10
         self.redis.get.return_value = b"0"
-        response = self.client.get("/health")
+        response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 503)
         self.assertEqual(set(response.json()["errors"]), {"memory", "disk", "worker"})
 
     def test_missing_token_uses_standard_api_validation(self) -> None:
         self.client.headers.pop("X-API-Token")
-        self.assertEqual(self.client.get("/health").status_code, 422)
+        self.assertEqual(self.client.get("/api/health").status_code, 422)
         self.memory.assert_not_called()
         self.redis.get.assert_not_called()
 
     def test_invalid_token_is_rejected(self) -> None:
         self.client.headers["X-API-Token"] = "wrong-token"
-        response = self.client.get("/health")
+        response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json(), {"detail": "Invalid API token"})
         self.memory.assert_not_called()
@@ -107,6 +107,6 @@ class HealthTest(unittest.TestCase):
 
     def test_api_must_be_configured(self) -> None:
         with patch.object(Config.Miscellaneous, "API_TOKEN", None):
-            response = self.client.get("/health")
+            response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 401)
         self.assertIn("API_TOKEN", response.json()["detail"])

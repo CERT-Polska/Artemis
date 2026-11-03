@@ -2,6 +2,8 @@ name: "tests / e2e"
 on:
   pull_request:
     branches: [ '**' ]
+    paths-ignore:
+      - 'docs/**'
 
 jobs:
   e2e:

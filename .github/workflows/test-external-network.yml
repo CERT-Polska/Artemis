@@ -3,6 +3,8 @@ name: "tests / external network"
 on:
   pull_request:
     branches: [ '**' ]
+    paths-ignore:
+      - 'docs/**'
 
 jobs:
   external-network:

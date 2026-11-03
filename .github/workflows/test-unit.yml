@@ -2,6 +2,8 @@ name: "tests / unit"
 on:
   pull_request:
     branches: [ '**' ]
+    paths-ignore:
+      - 'docs/**'
 
 jobs:
   unit:

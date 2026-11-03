@@ -30,7 +30,7 @@ class TaskConsumptionHealthTest(unittest.TestCase):
 
                 self.assertEqual(consumed, task_count)
                 self.assertEqual(len(returned_tasks), 0 if blocklisted else task_count)
-                writes = [call for call in redis.set.call_args_list if call.args[0] == LAST_CONSUMED_TASK_TIME_KEY]
+                writes = [call for call in redis.hset.call_args_list if call.args[0] == LAST_CONSUMED_TASK_TIME_KEY]
                 self.assertEqual(len(writes), 1 if task_count else 0)
                 if task_count:
-                    self.assertEqual(writes[0].args[1], 100000)
+                    self.assertEqual(writes[0].args[1:], ("test-worker", 100000))

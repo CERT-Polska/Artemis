@@ -5,6 +5,8 @@ import time
 import psutil
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from karton.core.backend import KartonBackend
+from karton.core.config import Config as KartonConfig
 from redis import Redis, RedisError
 
 from artemis.api import verify_api_token
@@ -19,10 +21,11 @@ redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 def health() -> JSONResponse:
     """Check available RAM, root disk space, and consumption across scanning workers.
 
-    last_consumed_task_time is Unix time in seconds, or null if unavailable.
-    Workers that have never consumed a task are unhealthy, as are idle workers.
+    last_consumed_task_time maps queued module identities to Unix timestamps
+    (or null if unavailable). Only modules with queued tasks are checked for
+    missing, invalid, or stale consumption timestamps.
     """
-    errors = {}
+    errors: dict[str, str | dict[str, str]] = {}
     memory = psutil.virtual_memory()
     disk = shutil.disk_usage("/")
     if memory.available / memory.total * 100 < Config.Health.HEALTH_MIN_AVAILABLE_MEMORY_PERCENT:
@@ -36,25 +39,39 @@ def health() -> JSONResponse:
             f"at least {Config.Health.HEALTH_MIN_FREE_DISK_PERCENT:g}% is required"
         )
 
-    last_consumed_task_time = None
+    last_consumed_task_time: dict[str, float | None] = {}
+    worker_errors: dict[str, str] = {}
     try:
-        stored_time = redis.get(LAST_CONSUMED_TASK_TIME_KEY)
-        if stored_time is None:
-            errors["worker"] = "No task consumption has been recorded"
-        else:
-            last_consumed_task_time = float(stored_time)
-            if not math.isfinite(last_consumed_task_time):
-                raise ValueError("Non-finite task consumption timestamp")
-            if last_consumed_task_time < time.time() - Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS:
-                errors["worker"] = (
-                    "No task has been consumed in the last "
+        backend = KartonBackend(config=KartonConfig())
+        queued_by_module: dict[str, int] = {}
+        for key in backend.redis.scan_iter("karton.queue.*"):
+            queued = backend.redis.llen(key)
+            if queued:
+                queue_name = key.decode() if isinstance(key, bytes) else key
+                identity = queue_name.rsplit(":", 1)[-1]
+                queued_by_module[identity] = queued_by_module.get(identity, 0) + queued
+
+        cutoff = time.time() - Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS
+        for identity, queued in queued_by_module.items():
+            stored_time = redis.hget(LAST_CONSUMED_TASK_TIME_KEY, identity)
+            timestamp = None
+            if stored_time is not None:
+                try:
+                    timestamp = float(stored_time)
+                    if not math.isfinite(timestamp):
+                        timestamp = None
+                except ValueError:
+                    pass
+            last_consumed_task_time[identity] = timestamp
+            if timestamp is None or timestamp < cutoff:
+                worker_errors[identity] = (
+                    f"{queued} tasks queued, but none consumed in the last "
                     f"{Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS / 3600:g} hours"
                 )
+        if worker_errors:
+            errors["worker"] = worker_errors
     except RedisError:
-        errors["worker"] = "Unable to read last_consumed_task_time from Redis"
-    except ValueError:
-        last_consumed_task_time = None
-        errors["worker"] = "Invalid last_consumed_task_time stored in Redis"
+        errors["worker"] = "Unable to read task queues or consumption timestamps from Redis"
 
     if errors:
         return JSONResponse(

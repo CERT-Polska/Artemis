@@ -27,7 +27,10 @@ class HealthTest(unittest.TestCase):
         self.enterContext(patch("artemis.health.time.time", return_value=100000))
         self.memory.return_value = SimpleNamespace(total=100, available=50, free=0)
         self.disk.return_value = SimpleNamespace(total=100, free=50)
-        self.redis.get.return_value = b"100000"
+        self.backend = self.enterContext(patch("artemis.health.KartonBackend")).return_value
+        self.backend.redis.scan_iter.return_value = [b"karton.queue.normal:nuclei"]
+        self.backend.redis.llen.return_value = 1
+        self.redis.hget.return_value = b"100000"
 
     def test_resource_thresholds(self) -> None:
         cases = [
@@ -48,7 +51,7 @@ class HealthTest(unittest.TestCase):
                 response = self.client.get("/api/health")
                 self.assertEqual(response.status_code, 503 if error_keys else 200)
                 self.assertEqual(set(response.json().get("errors", {})), set(error_keys))
-                self.assertEqual(response.json()["last_consumed_task_time"], 100000)
+                self.assertEqual(response.json()["last_consumed_task_time"], {"nuclei": 100000})
                 for error in response.json().get("errors", {}).values():
                     self.assertIn("at least 20% is required", error)
         self.disk.assert_called_with("/")
@@ -61,15 +64,16 @@ class HealthTest(unittest.TestCase):
         ]:
             with self.subTest(age=age):
                 timestamp = 100000 - age
-                self.redis.get.return_value = str(timestamp).encode()
+                self.redis.hget.return_value = str(timestamp).encode()
                 response = self.client.get("/api/health")
                 self.assertEqual(response.status_code, expected_status)
-                self.assertEqual(response.json()["last_consumed_task_time"], timestamp)
+                self.assertEqual(response.json()["last_consumed_task_time"], {"nuclei": timestamp})
                 if expected_status == 503:
                     self.assertEqual(
-                        response.json()["errors"]["worker"], "No task has been consumed in the last 4 hours"
+                        response.json()["errors"]["worker"],
+                        {"nuclei": "1 tasks queued, but none consumed in the last 4 hours"}
                     )
-        self.redis.get.assert_called_with(LAST_CONSUMED_TASK_TIME_KEY)
+        self.redis.hget.assert_called_with(LAST_CONSUMED_TASK_TIME_KEY, "nuclei")
 
     def test_configured_resource_thresholds(self) -> None:
         with (
@@ -91,32 +95,89 @@ class HealthTest(unittest.TestCase):
 
     def test_configured_task_inactivity_threshold(self) -> None:
         with patch.object(Config.Health, "HEALTH_MAX_TASK_INACTIVITY_SECONDS", 1800):
-            self.redis.get.return_value = b"98200"
+            self.redis.hget.return_value = b"98200"
             self.assertEqual(self.client.get("/api/health").status_code, 200)
-            self.redis.get.return_value = b"98199"
+            self.redis.hget.return_value = b"98199"
             response = self.client.get("/api/health")
             self.assertEqual(response.status_code, 503)
-            self.assertEqual(response.json()["errors"]["worker"], "No task has been consumed in the last 0.5 hours")
+            self.assertEqual(
+                response.json()["errors"]["worker"],
+                {"nuclei": "1 tasks queued, but none consumed in the last 0.5 hours"},
+            )
 
     def test_missing_or_invalid_timestamp_is_unhealthy(self) -> None:
         for timestamp in [None, b"invalid", b"nan", b"inf"]:
             with self.subTest(timestamp=timestamp):
-                self.redis.get.return_value = timestamp
+                self.redis.hget.return_value = timestamp
                 response = self.client.get("/api/health")
                 self.assertEqual(response.status_code, 503)
-                self.assertIsNone(response.json()["last_consumed_task_time"])
+                self.assertEqual(response.json()["last_consumed_task_time"], {"nuclei": None})
                 self.assertIn("worker", response.json()["errors"])
 
     def test_redis_failure_is_unhealthy(self) -> None:
-        self.redis.get.side_effect = RedisError("unavailable")
+        self.redis.hget.side_effect = RedisError("unavailable")
         response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 503)
-        self.assertEqual(response.json()["errors"]["worker"], "Unable to read last_consumed_task_time from Redis")
+        self.assertEqual(response.json()["errors"]["worker"], "Unable to read task queues or consumption timestamps from Redis")
+
+    def test_idle_modules_are_healthy(self) -> None:
+        for queues in [[], [b"karton.queue.normal:nuclei"]]:
+            for timestamp in [None, b"0", b"invalid"]:
+                with self.subTest(queues=queues, timestamp=timestamp):
+                    self.backend.redis.scan_iter.return_value = queues
+                    self.backend.redis.llen.return_value = 0
+                    self.redis.hget.return_value = timestamp
+                    response = self.client.get("/api/health")
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(response.json()["last_consumed_task_time"], {})
+        self.redis.hget.assert_not_called()
+
+    def test_busy_module_does_not_hide_stuck_modules(self) -> None:
+        self.backend.redis.scan_iter.return_value = [
+            b"karton.queue.normal:nuclei",
+            b"karton.queue.high:nuclei",
+            b"karton.queue.normal:port_scanner",
+            b"karton.queue.normal:classifier",
+            b"karton.queue.normal:idle",
+        ]
+        self.backend.redis.llen.side_effect = [2, 3, 1, 4, 0]
+        self.redis.hget.side_effect = lambda key, identity: {
+            "nuclei": b"0",
+            "port_scanner": b"100000",
+            "classifier": None,
+        }[identity]
+        response = self.client.get("/api/health")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.json()["errors"]["worker"],
+            {
+                "nuclei": "5 tasks queued, but none consumed in the last 4 hours",
+                "classifier": "4 tasks queued, but none consumed in the last 4 hours",
+            },
+        )
+        self.assertEqual(
+            response.json()["last_consumed_task_time"],
+            {"nuclei": 0, "port_scanner": 100000, "classifier": None},
+        )
+
+    def test_decoded_queue_names_are_supported(self) -> None:
+        self.backend.redis.scan_iter.return_value = ["karton.queue.normal:nuclei"]
+        self.assertEqual(self.client.get("/api/health").status_code, 200)
+        self.redis.hget.assert_called_once_with(LAST_CONSUMED_TASK_TIME_KEY, "nuclei")
+
+    def test_queue_read_failures_are_unhealthy(self) -> None:
+        for operation in [self.backend.redis.scan_iter, self.backend.redis.llen]:
+            with self.subTest(operation=operation):
+                operation.side_effect = RedisError("unavailable")
+                response = self.client.get("/api/health")
+                self.assertEqual(response.status_code, 503)
+                self.assertIn("Redis", response.json()["errors"]["worker"])
+                operation.side_effect = None
 
     def test_all_failures_are_reported(self) -> None:
         self.memory.return_value.available = 10
         self.disk.return_value.free = 10
-        self.redis.get.return_value = b"0"
+        self.redis.hget.return_value = b"0"
         response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 503)
         self.assertEqual(set(response.json()["errors"]), {"memory", "disk", "worker"})
@@ -125,7 +186,7 @@ class HealthTest(unittest.TestCase):
         self.client.headers.pop("X-API-Token")
         self.assertEqual(self.client.get("/api/health").status_code, 422)
         self.memory.assert_not_called()
-        self.redis.get.assert_not_called()
+        self.redis.hget.assert_not_called()
 
     def test_invalid_token_is_rejected(self) -> None:
         self.client.headers["X-API-Token"] = "wrong-token"
@@ -133,7 +194,7 @@ class HealthTest(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json(), {"detail": "Invalid API token"})
         self.memory.assert_not_called()
-        self.redis.get.assert_not_called()
+        self.redis.hget.assert_not_called()
 
     def test_api_must_be_configured(self) -> None:
         with patch.object(Config.Miscellaneous, "API_TOKEN", None):

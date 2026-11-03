@@ -8,8 +8,9 @@ from redis import Redis
 from artemis.binds import Service, TaskType
 from artemis.ip_utils import to_ip_range
 
-# Shared by all scanning processes and the health endpoint; Unix time in seconds.
-LAST_CONSUMED_TASK_TIME_KEY = "artemis:last_consumed_task_time"
+# Hash of module identity to Unix consumption time, shared by workers and /health.
+# Use a separate key from the legacy global string timestamp for safe upgrades.
+LAST_CONSUMED_TASK_TIME_KEY = "artemis:last_consumed_task_time_by_module"
 
 
 def get_target_host(task: Task) -> str:

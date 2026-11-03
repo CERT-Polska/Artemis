@@ -200,6 +200,25 @@ class Config:
             """,
         ] = get_config("REQUESTS_PER_SECOND", default=0, cast=float)
 
+        SHARED_IP_RPS_NUM_DOMAINS_THRESHOLD: Annotated[
+            int,
+            """
+            When at least this many domains in a single scan resolve to
+            the same IP, that IP is treated as a shared-hosting server and the tasks Artemis spawns
+            for the domains on it get the SHARED_IP_RPS_OVERRIDE rate.
+            0 disables the mechanism.
+            """,
+        ] = get_config("SHARED_IP_RPS_NUM_DOMAINS_THRESHOLD", default=0, cast=int)
+
+        SHARED_IP_RPS_OVERRIDE: Annotated[
+            float,
+            """
+            The requests-per-second rate that will be used for the tasks
+            concerning domains that sit on a shared IP (see SHARED_IP_RPS_NUM_DOMAINS_THRESHOLD).
+            The purpose of this configuration is to have higher RPS for shared IPs
+            """,
+        ] = get_config("SHARED_IP_RPS_OVERRIDE", default=0, cast=float)
+
     class CpeDictionary:
         CPE_NVD_DIR: Annotated[
             str,

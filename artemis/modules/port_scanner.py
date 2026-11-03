@@ -371,7 +371,8 @@ class PortScanner(ArtemisBase):
                             result["ssl"] = True
                         elif tls_check == TlsCheckResult.NOT_TLS:
                             result["ssl"] = False
-                        # On an inconclusive answer, the fingerprintx result for the IP stays.
+                        # On an inconclusive answer, the fingerprintx result for the IP stays, unless plain HTTP
+                        # shows a TLS port (below).
 
                         if tls_check == TlsCheckResult.NAME_REJECTED and is_http:
                             # A port may speak TLS and plain HTTP at once (e.g. behind sslh, or HAProxy choosing the
@@ -404,6 +405,25 @@ class PortScanner(ArtemisBase):
                                 answer,
                             )
                             result["ssl"] = False
+                        elif tls_check == TlsCheckResult.UNKNOWN and is_http and not result["ssl"]:
+                            # fingerprintx connects without SNI, so it reports plain HTTP for a port that completes
+                            # TLS only for the names it serves: its plain HTTP request gets the error of a TLS port.
+                            # If plain HTTP with this domain gets that error too, the port speaks TLS. The service
+                            # isn't skipped, as an inconclusive handshake (e.g. two timeouts) doesn't show that the
+                            # name is rejected; over plain HTTP the HTTP modules would only get that error.
+                            is_https_port_error, answer = self.plain_http_gets_https_port_error(
+                                ip=host, port=int(port), domain=target
+                            )
+                            if is_https_port_error:
+                                self.log.info(
+                                    "Creating an HTTP service with TLS for %s on %s:%s: the TLS check was "
+                                    "inconclusive, but plain HTTP gets the error of a TLS port (%s)",
+                                    target,
+                                    host,
+                                    port,
+                                    answer,
+                                )
+                                result["ssl"] = True
 
                     new_task = Task(
                         {

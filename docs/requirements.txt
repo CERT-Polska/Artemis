@@ -35,7 +35,7 @@ cryptography==50.0.2
 decorator==5.3.1
 defusedxml==0.7.1
 dkimpy==1.1.8
-dnspython==2.9.0
+dnspython==2.9.1
 docutils==0.22.4
 expiringdict==1.2.2
 fastapi==0.142.2

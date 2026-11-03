@@ -1,0 +1,16 @@
+name: "tests / docs"
+on:
+  pull_request:
+    branches: [ '**' ]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+      - name: set RUNNING_ON_GITHUB in env.test
+        run: echo RUNNING_ON_GITHUB=1 >> env.test
+      - name: run documentation tests
+        run: bash ./scripts/test-docs

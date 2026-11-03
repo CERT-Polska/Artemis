@@ -2,11 +2,12 @@ import asyncio
 import dataclasses
 import datetime
 import hmac
+from pathlib import Path
 from typing import Annotated, Any, Dict, List, Optional, Type
 
 import aiohttp
 from fastapi import APIRouter, Body, Depends, Header, HTTPException
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from karton.core.task import TaskPriority as KartonTaskPriority
@@ -230,6 +231,50 @@ def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
 @router.post("/archive-tag", dependencies=[Depends(verify_api_token)])
 def archive_tag(tag: str) -> Dict[str, bool]:
     db.create_tag_archive_request(tag)
+    return {"ok": True}
+
+
+def _is_completed_archive(path: Path) -> bool:
+    return (
+        path.name.endswith(".json.gz")
+        and not path.name.startswith(("tmp_", "."))
+        and not path.is_symlink()
+        and path.is_file()
+    )
+
+
+def _get_archive_path(filename: str) -> Path:
+    if Path(filename).name != filename or "\\" in filename or "/" in filename:
+        raise HTTPException(status_code=404, detail="Archive not found")
+    path = Path(Config.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH) / filename
+    if not _is_completed_archive(path):
+        raise HTTPException(status_code=404, detail="Archive not found")
+    return path
+
+
+@router.get("/archived-task-results", dependencies=[Depends(verify_api_token)])
+def list_archived_task_results() -> list[str]:
+    """List completed archive filenames in alphabetical order. In-progress archives are excluded."""
+    output_dir = Path(Config.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH)
+    if not output_dir.exists():
+        return []
+    return sorted(path.name for path in output_dir.iterdir() if _is_completed_archive(path))
+
+
+@router.get("/archived-task-results/{filename}", dependencies=[Depends(verify_api_token)])
+def download_archived_task_results(filename: str) -> FileResponse:
+    """Download a completed archive as a gzip-compressed JSON attachment."""
+    return FileResponse(_get_archive_path(filename), media_type="application/gzip", filename=filename)
+
+
+@router.delete("/archived-task-results/{filename}", dependencies=[Depends(verify_api_token)])
+def delete_archived_task_results(filename: str) -> Dict[str, bool]:
+    """Permanently remove a completed archive."""
+    path = _get_archive_path(filename)
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Archive not found")
     return {"ok": True}
 
 

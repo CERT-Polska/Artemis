@@ -279,6 +279,37 @@ Response:
 
    {"ok": true}
 
+Archived task results
+^^^^^^^^^^^^^^^^^^^^^
+
+All archive endpoints require the ``X-API-Token`` header. They operate on completed
+``.json.gz`` files in ``AUTOARCHIVER_OUTPUT_PATH``; files still being written are
+excluded. The web and autoarchiver services must share this directory (the default
+Docker Compose configuration mounts it for both).
+
+* ``GET /api/archived-task-results`` returns a sorted JSON array of archive
+  filenames, or ``[]`` if no archives exist.
+* ``GET /api/archived-task-results/{filename}`` downloads an archive as a
+  gzip-compressed JSON attachment.
+* ``DELETE /api/archived-task-results/{filename}`` permanently removes an archive
+  and returns ``{"ok": true}``.
+
+Download and deletion return HTTP 404 for missing archives or invalid filenames.
+Use a filename returned by the list endpoint, URL-encoded when necessary.
+
+.. code-block:: bash
+
+   curl -s http://localhost:5000/api/archived-task-results \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+   curl -s -o results.json.gz \
+      "http://localhost:5000/api/archived-task-results/2024-01-01_00_00_00-2024-01-02_00_00_00_interesting.json.gz" \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
+   curl -s -X DELETE \
+      "http://localhost:5000/api/archived-task-results/2024-01-01_00_00_00-2024-01-02_00_00_00_interesting.json.gz" \
+      -H "X-API-Token: YOUR_API_TOKEN"
+
 Archiving tags
 ^^^^^^^^^^^^^^
 

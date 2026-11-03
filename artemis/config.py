@@ -27,6 +27,17 @@ if "POSTGRES_CONN_STR" not in os.environ:
 
 
 class Config:
+    class Health:
+        HEALTH_MIN_AVAILABLE_MEMORY_PERCENT: Annotated[
+            float, "Minimum available RAM percentage (0-100) required by the health endpoint."
+        ] = get_config("HEALTH_MIN_AVAILABLE_MEMORY_PERCENT", default=20.0, cast=float)
+        HEALTH_MIN_FREE_DISK_PERCENT: Annotated[
+            float, "Minimum free space percentage (0-100) on the root filesystem required by the health endpoint."
+        ] = get_config("HEALTH_MIN_FREE_DISK_PERCENT", default=20.0, cast=float)
+        HEALTH_MAX_TASK_INACTIVITY_SECONDS: Annotated[
+            int, "Maximum time since a scanning worker last consumed a task, in seconds, before health is unhealthy."
+        ] = get_config("HEALTH_MAX_TASK_INACTIVITY_SECONDS", default=4 * 60 * 60, cast=int)
+
     class Data:
         POSTGRES_CONN_STR: Annotated[str, "Connection string to the PostgreSQL database."] = get_config(
             "POSTGRES_CONN_STR"

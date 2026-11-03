@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from redis import RedisError
 
 from artemis.config import Config
-from artemis.health import MAX_TASK_INACTIVITY_SECONDS, router
+from artemis.health import router
 from artemis.task_utils import LAST_CONSUMED_TASK_TIME_KEY
 
 
@@ -18,6 +18,9 @@ class HealthTest(unittest.TestCase):
         self.client = TestClient(app)
         self.client.headers["X-API-Token"] = "test-token"
         self.enterContext(patch.object(Config.Miscellaneous, "API_TOKEN", "test-token"))
+        self.enterContext(patch.object(Config.Health, "HEALTH_MIN_AVAILABLE_MEMORY_PERCENT", 20.0))
+        self.enterContext(patch.object(Config.Health, "HEALTH_MIN_FREE_DISK_PERCENT", 20.0))
+        self.enterContext(patch.object(Config.Health, "HEALTH_MAX_TASK_INACTIVITY_SECONDS", 14400))
         self.memory = self.enterContext(patch("artemis.health.psutil.virtual_memory"))
         self.disk = self.enterContext(patch("artemis.health.shutil.disk_usage"))
         self.redis = self.enterContext(patch("artemis.health.redis"))
@@ -53,8 +56,8 @@ class HealthTest(unittest.TestCase):
     def test_task_inactivity_threshold(self) -> None:
         for age, expected_status in [
             (0, 200),
-            (MAX_TASK_INACTIVITY_SECONDS, 200),
-            (MAX_TASK_INACTIVITY_SECONDS + 1, 503),
+            (Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS, 200),
+            (Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS + 1, 503),
         ]:
             with self.subTest(age=age):
                 timestamp = 100000 - age
@@ -67,6 +70,33 @@ class HealthTest(unittest.TestCase):
                         response.json()["errors"]["worker"], "No task has been consumed in the last 4 hours"
                     )
         self.redis.get.assert_called_with(LAST_CONSUMED_TASK_TIME_KEY)
+
+    def test_configured_resource_thresholds(self) -> None:
+        with (
+            patch.object(Config.Health, "HEALTH_MIN_AVAILABLE_MEMORY_PERCENT", 60.5),
+            patch.object(Config.Health, "HEALTH_MIN_FREE_DISK_PERCENT", 10.5),
+        ):
+            response = self.client.get("/api/health")
+            self.assertEqual(response.status_code, 503)
+            self.assertEqual(set(response.json()["errors"]), {"memory"})
+            self.assertIn("at least 60.5% is required", response.json()["errors"]["memory"])
+            self.memory.return_value.available = 60.5
+            self.disk.return_value.free = 10.5
+            self.assertEqual(self.client.get("/api/health").status_code, 200)
+            self.disk.return_value.free = 10.49
+            response = self.client.get("/api/health")
+            self.assertEqual(response.status_code, 503)
+            self.assertEqual(set(response.json()["errors"]), {"disk"})
+            self.assertIn("at least 10.5% is required", response.json()["errors"]["disk"])
+
+    def test_configured_task_inactivity_threshold(self) -> None:
+        with patch.object(Config.Health, "HEALTH_MAX_TASK_INACTIVITY_SECONDS", 1800):
+            self.redis.get.return_value = b"98200"
+            self.assertEqual(self.client.get("/api/health").status_code, 200)
+            self.redis.get.return_value = b"98199"
+            response = self.client.get("/api/health")
+            self.assertEqual(response.status_code, 503)
+            self.assertEqual(response.json()["errors"]["worker"], "No task has been consumed in the last 0.5 hours")
 
     def test_missing_or_invalid_timestamp_is_unhealthy(self) -> None:
         for timestamp in [None, b"invalid", b"nan", b"inf"]:

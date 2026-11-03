@@ -13,7 +13,6 @@ from artemis.task_utils import LAST_CONSUMED_TASK_TIME_KEY
 
 router = APIRouter()
 redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
-MAX_TASK_INACTIVITY_SECONDS = 4 * 60 * 60
 
 
 @router.get("/health", dependencies=[Depends(verify_api_token)])
@@ -26,10 +25,16 @@ def health() -> JSONResponse:
     errors = {}
     memory = psutil.virtual_memory()
     disk = shutil.disk_usage("/")
-    if memory.available / memory.total < 0.2:
-        errors["memory"] = f"Available RAM is {memory.available / memory.total:.2%}; at least 20% is required"
-    if disk.free / disk.total < 0.2:
-        errors["disk"] = f"Free space on / is {disk.free / disk.total:.1%}; at least 20% is required"
+    if memory.available / memory.total * 100 < Config.Health.HEALTH_MIN_AVAILABLE_MEMORY_PERCENT:
+        errors["memory"] = (
+            f"Available RAM is {memory.available / memory.total:.2%}; "
+            f"at least {Config.Health.HEALTH_MIN_AVAILABLE_MEMORY_PERCENT:g}% is required"
+        )
+    if disk.free / disk.total * 100 < Config.Health.HEALTH_MIN_FREE_DISK_PERCENT:
+        errors["disk"] = (
+            f"Free space on / is {disk.free / disk.total:.1%}; "
+            f"at least {Config.Health.HEALTH_MIN_FREE_DISK_PERCENT:g}% is required"
+        )
 
     last_consumed_task_time = None
     try:
@@ -40,8 +45,11 @@ def health() -> JSONResponse:
             last_consumed_task_time = float(stored_time)
             if not math.isfinite(last_consumed_task_time):
                 raise ValueError("Non-finite task consumption timestamp")
-            if last_consumed_task_time < time.time() - MAX_TASK_INACTIVITY_SECONDS:
-                errors["worker"] = "No task has been consumed in the last 4 hours"
+            if last_consumed_task_time < time.time() - Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS:
+                errors["worker"] = (
+                    "No task has been consumed in the last "
+                    f"{Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS / 3600:g} hours"
+                )
     except RedisError:
         errors["worker"] = "Unable to read last_consumed_task_time from Redis"
     except ValueError:

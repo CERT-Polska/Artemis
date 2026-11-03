@@ -80,7 +80,7 @@ class HealthTest(unittest.TestCase):
                 if expected_status == 503:
                     self.assertEqual(
                         response.json()["errors"]["worker"],
-                        {"nuclei": "1 tasks queued, but none consumed in the last 4 hours"}
+                        {"nuclei": "1 tasks queued, but none consumed in the last 4 hours"},
                     )
         self.redis.hget.assert_called_with(LAST_CONSUMED_TASK_TIME_KEY, "nuclei")
 
@@ -127,7 +127,9 @@ class HealthTest(unittest.TestCase):
         self.redis.hget.side_effect = RedisError("unavailable")
         response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 503)
-        self.assertEqual(response.json()["errors"]["worker"], "Unable to read task queues or consumption timestamps from Redis")
+        self.assertEqual(
+            response.json()["errors"]["worker"], "Unable to read task queues or consumption timestamps from Redis"
+        )
 
     def test_idle_modules_are_healthy(self) -> None:
         for queues in [[], [b"karton.queue.normal:nuclei"]]:

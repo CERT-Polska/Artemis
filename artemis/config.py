@@ -32,7 +32,8 @@ class Config:
             str, "Path inside the web container whose filesystem free space is checked by the health endpoint."
         ] = get_config("HEALTH_DISK_PATH", default="/")
         HEALTH_MIN_AVAILABLE_MEMORY_PERCENT: Annotated[
-            float, "Minimum available host RAM percentage (0-100) required by the health endpoint; ignores cgroup limits."
+            float,
+            "Minimum available host RAM percentage (0-100) required by the health endpoint; ignores cgroup limits.",
         ] = get_config("HEALTH_MIN_AVAILABLE_MEMORY_PERCENT", default=20.0, cast=float)
         HEALTH_MIN_FREE_DISK_PERCENT: Annotated[
             float, "Minimum free space percentage (0-100) on the filesystem containing HEALTH_DISK_PATH."

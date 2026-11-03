@@ -244,7 +244,7 @@ def _is_completed_archive(path: Path) -> bool:
 
 
 def _get_archive_path(filename: str) -> Path:
-    if Path(filename).name != filename or "\\" in filename:
+    if Path(filename).name != filename or "\\" in filename or "/" in filename:
         raise HTTPException(status_code=404, detail="Archive not found")
     path = Path(Config.Data.Autoarchiver.AUTOARCHIVER_OUTPUT_PATH) / filename
     if not _is_completed_archive(path):

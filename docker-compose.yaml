@@ -119,6 +119,7 @@ services:
     volumes:
       - data-web:/data
       - ./output/autoreporter/:/opt/output/autoreporter
+      - ./archived-task-results/:/opt/archived-task-results/
       - ${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/
 
   karton-api_scanner:

@@ -28,11 +28,14 @@ if "POSTGRES_CONN_STR" not in os.environ:
 
 class Config:
     class Health:
+        HEALTH_DISK_PATH: Annotated[
+            str, "Path inside the web container whose filesystem free space is checked by the health endpoint."
+        ] = get_config("HEALTH_DISK_PATH", default="/")
         HEALTH_MIN_AVAILABLE_MEMORY_PERCENT: Annotated[
-            float, "Minimum available RAM percentage (0-100) required by the health endpoint."
+            float, "Minimum available host RAM percentage (0-100) required by the health endpoint; ignores cgroup limits."
         ] = get_config("HEALTH_MIN_AVAILABLE_MEMORY_PERCENT", default=20.0, cast=float)
         HEALTH_MIN_FREE_DISK_PERCENT: Annotated[
-            float, "Minimum free space percentage (0-100) on the root filesystem required by the health endpoint."
+            float, "Minimum free space percentage (0-100) on the filesystem containing HEALTH_DISK_PATH."
         ] = get_config("HEALTH_MIN_FREE_DISK_PERCENT", default=20.0, cast=float)
         HEALTH_MAX_TASK_INACTIVITY_SECONDS: Annotated[
             int, "Maximum time since a scanning worker last consumed a task, in seconds, before health is unhealthy."

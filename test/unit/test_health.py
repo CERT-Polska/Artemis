@@ -18,6 +18,7 @@ class HealthTest(unittest.TestCase):
         self.client = TestClient(app)
         self.client.headers["X-API-Token"] = "test-token"
         self.enterContext(patch.object(Config.Miscellaneous, "API_TOKEN", "test-token"))
+        self.enterContext(patch.object(Config.Health, "HEALTH_DISK_PATH", "/"))
         self.enterContext(patch.object(Config.Health, "HEALTH_MIN_AVAILABLE_MEMORY_PERCENT", 20.0))
         self.enterContext(patch.object(Config.Health, "HEALTH_MIN_FREE_DISK_PERCENT", 20.0))
         self.enterContext(patch.object(Config.Health, "HEALTH_MAX_TASK_INACTIVITY_SECONDS", 14400))
@@ -55,6 +56,14 @@ class HealthTest(unittest.TestCase):
                 for error in response.json().get("errors", {}).values():
                     self.assertIn("at least 20% is required", error)
         self.disk.assert_called_with("/")
+
+    def test_configured_disk_path(self) -> None:
+        with patch.object(Config.Health, "HEALTH_DISK_PATH", "/mnt/scan-data"):
+            self.disk.return_value.free = 10
+            response = self.client.get("/api/health")
+        self.disk.assert_called_once_with("/mnt/scan-data")
+        self.assertEqual(response.status_code, 503)
+        self.assertIn("Free space on /mnt/scan-data is 10.0%", response.json()["errors"]["disk"])
 
     def test_task_inactivity_threshold(self) -> None:
         for age, expected_status in [

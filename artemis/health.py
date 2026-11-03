@@ -19,7 +19,7 @@ redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
 @router.get("/health", dependencies=[Depends(verify_api_token)])
 def health() -> JSONResponse:
-    """Check available RAM, root disk space, and consumption across scanning workers.
+    """Check available host RAM, configured disk space, and scanning worker consumption.
 
     last_consumed_task_time maps queued module identities to Unix timestamps
     (or null if unavailable). Only modules with queued tasks are checked for
@@ -27,7 +27,8 @@ def health() -> JSONResponse:
     """
     errors: dict[str, str | dict[str, str]] = {}
     memory = psutil.virtual_memory()
-    disk = shutil.disk_usage("/")
+    disk_path = Config.Health.HEALTH_DISK_PATH
+    disk = shutil.disk_usage(disk_path)
     if memory.available / memory.total * 100 < Config.Health.HEALTH_MIN_AVAILABLE_MEMORY_PERCENT:
         errors["memory"] = (
             f"Available RAM is {memory.available / memory.total:.2%}; "
@@ -35,7 +36,7 @@ def health() -> JSONResponse:
         )
     if disk.free / disk.total * 100 < Config.Health.HEALTH_MIN_FREE_DISK_PERCENT:
         errors["disk"] = (
-            f"Free space on / is {disk.free / disk.total:.1%}; "
+            f"Free space on {disk_path} is {disk.free / disk.total:.1%}; "
             f"at least {Config.Health.HEALTH_MIN_FREE_DISK_PERCENT:g}% is required"
         )
 

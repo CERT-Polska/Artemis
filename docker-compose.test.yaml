@@ -54,6 +54,7 @@ services:
       # We don't copy the test code into the image so that we don't pollute production image
       # with test data.
       - ./test/:/opt/test/
+      - data-test:/data/
       - ./docker/karton.ini:/etc/karton/karton.ini
     depends_on:
       test-grafana:

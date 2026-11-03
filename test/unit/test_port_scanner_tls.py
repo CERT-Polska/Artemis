@@ -209,6 +209,17 @@ class TestRunMultipleUsesTlsCheck(unittest.TestCase):
         return services
 
     NAME_REJECTED_ON_443 = {("a.example", 443): TlsCheckResult.NAME_REJECTED, ("a.example", 22): TlsCheckResult.NOT_TLS}
+    INCONCLUSIVE_ON_443 = {("a.example", 443): TlsCheckResult.UNKNOWN, ("a.example", 22): TlsCheckResult.NOT_TLS}
+    # Answers to plain HTTP other than the error of a TLS port
+    OTHER_PLAIN_HTTP_ANSWERS: List[HTTPResponse | Exception] = [
+        _http_response(200, "<html>a.example</html>"),
+        _http_response(301, ""),
+        _http_response(400, "Bad Request"),
+        # The status matters too, e.g. for a page that quotes the error
+        _http_response(200, NGINX_HTTPS_PORT_ERROR),
+        requests.ConnectionError("Connection aborted."),
+        requests.Timeout("Read timed out."),
+    ]
 
     def test_name_rejected_http_port_gets_no_service_if_plain_http_gets_the_https_port_error(self) -> None:
         for server, body in [("nginx", NGINX_HTTPS_PORT_ERROR), ("Apache", APACHE_HTTPS_PORT_ERROR)]:
@@ -230,16 +241,7 @@ class TestRunMultipleUsesTlsCheck(unittest.TestCase):
 
     def test_name_rejected_http_port_gets_a_service_without_tls_if_plain_http_gets_another_answer(self) -> None:
         """E.g. a port where a multiplexer (sslh, HAProxy) passes plain HTTP to another backend than TLS."""
-        answers: List[HTTPResponse | Exception] = [
-            _http_response(200, "<html>a.example</html>"),
-            _http_response(301, ""),
-            _http_response(400, "Bad Request"),
-            # The status matters too, e.g. for a page that quotes the error
-            _http_response(200, NGINX_HTTPS_PORT_ERROR),
-            requests.ConnectionError("Connection aborted."),
-            requests.Timeout("Read timed out."),
-        ]
-        for answer in answers:
+        for answer in self.OTHER_PLAIN_HTTP_ANSWERS:
             with self.subTest(answer=answer):
                 scanner = self._run(["a.example"], self.NAME_REJECTED_ON_443, plain_http=answer)
                 service = self._services(scanner)[("a.example", 443)]
@@ -251,17 +253,51 @@ class TestRunMultipleUsesTlsCheck(unittest.TestCase):
                 self.assertFalse(result_call.kwargs["data"]["10.0.0.1"]["443"]["ssl"])
                 scanner.log.info.assert_called_once()
 
-    def test_plain_http_is_checked_only_for_a_name_rejected_http_port(self) -> None:
-        scanner = self._run(
-            ["a.example", "b.example"],
-            {
-                ("a.example", 443): TlsCheckResult.TLS,
-                ("a.example", 22): TlsCheckResult.NAME_REJECTED,
-                ("b.example", 443): TlsCheckResult.UNKNOWN,
-                ("b.example", 22): TlsCheckResult.NOT_TLS,
-            },
-        )
-        scanner.http_get.assert_not_called()
+    def test_inconclusive_http_port_without_tls_gets_tls_if_plain_http_gets_the_https_port_error(self) -> None:
+        """E.g. a server that closes the connection after the ClientHello, on a port that fingerprintx (without SNI)
+        reported as plain HTTP because its plain HTTP request got the error of a TLS port."""
+        for server, body in [("nginx", NGINX_HTTPS_PORT_ERROR), ("Apache", APACHE_HTTPS_PORT_ERROR)]:
+            with self.subTest(server=server):
+                scanner = self._run(["a.example"], self.INCONCLUSIVE_ON_443, plain_http=_http_response(400, body))
+                service = self._services(scanner)[("a.example", 443)]
+                self.assertEqual(service.headers["service"], Service.HTTP)
+                self.assertTrue(service.payload["ssl"])
+                (result_call,) = scanner.save_task_result.call_args_list
+                self.assertIn("443 (service: http ssl: True, version: nginx)", result_call.kwargs["status_reason"])
+                self.assertNotIn("not scanned", result_call.kwargs["status_reason"])
+                self.assertTrue(result_call.kwargs["data"]["10.0.0.1"]["443"]["ssl"])
+                scanner.http_get.assert_called_once_with(
+                    "http://10.0.0.1:443/", headers={"Host": "a.example"}, allow_redirects=False, timeout=3.0
+                )
+                scanner.log.info.assert_called_once()
+
+    def test_inconclusive_http_port_without_tls_stays_without_tls_if_plain_http_gets_another_answer(self) -> None:
+        for answer in self.OTHER_PLAIN_HTTP_ANSWERS:
+            with self.subTest(answer=answer):
+                scanner = self._run(["a.example"], self.INCONCLUSIVE_ON_443, plain_http=answer)
+                service = self._services(scanner)[("a.example", 443)]
+                self.assertEqual(service.headers["service"], Service.HTTP)
+                self.assertFalse(service.payload["ssl"])
+                (result_call,) = scanner.save_task_result.call_args_list
+                self.assertIn("443 (service: http ssl: False, version: nginx)", result_call.kwargs["status_reason"])
+                self.assertFalse(result_call.kwargs["data"]["10.0.0.1"]["443"]["ssl"])
+                scanner.http_get.assert_called_once()
+                scanner.log.info.assert_not_called()
+
+    def test_plain_http_is_checked_only_where_it_may_change_the_result(self) -> None:
+        """Only on an HTTP port, if the name is rejected or if the handshake is inconclusive and fingerprintx saw no
+        TLS (see the tests above)."""
+        for case, fingerprintx_ssl_on_443, tls_checks in [
+            ("TLS", False, {443: TlsCheckResult.TLS, 22: TlsCheckResult.NOT_TLS}),
+            ("NOT_TLS", False, {443: TlsCheckResult.NOT_TLS, 22: TlsCheckResult.NOT_TLS}),
+            ("inconclusive, TLS from fingerprintx", True, {443: TlsCheckResult.UNKNOWN, 22: TlsCheckResult.NOT_TLS}),
+            ("not HTTP, name rejected", False, {443: TlsCheckResult.TLS, 22: TlsCheckResult.NAME_REJECTED}),
+            ("not HTTP, inconclusive", False, {443: TlsCheckResult.TLS, 22: TlsCheckResult.UNKNOWN}),
+        ]:
+            with self.subTest(case=case):
+                self.scan_results["10.0.0.1"]["443"]["ssl"] = fingerprintx_ssl_on_443
+                scanner = self._run(["a.example"], {("a.example", port): check for port, check in tls_checks.items()})
+                scanner.http_get.assert_not_called()
 
     def test_tls_and_inconclusive_results(self) -> None:
         scanner = self._run(
@@ -277,7 +313,9 @@ class TestRunMultipleUsesTlsCheck(unittest.TestCase):
         self.scan_results["10.0.0.1"]["443"]["ssl"] = True
         scanner = self._run(
             ["a.example"],
-            {("a.example", 443): TlsCheckResult.UNKNOWN, ("a.example", 22): TlsCheckResult.NOT_TLS},
+            self.INCONCLUSIVE_ON_443,
+            # Not the error of a TLS port, so that a plain HTTP check couldn't bring ssl=True back
+            plain_http=_http_response(200, "<html>a.example</html>"),
         )
         self.assertTrue(self._services(scanner)[("a.example", 443)].payload["ssl"])
         (result_call,) = scanner.save_task_result.call_args_list

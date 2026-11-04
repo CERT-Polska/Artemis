@@ -55,3 +55,18 @@ class PortScannerTest(ArtemisModuleTestCase):
         self.assertEqual(
             call_domain.kwargs["status_reason"], "Found ports: 443 (service: http ssl: True, version: nginx/1.29.0)"
         )
+
+    def test_no_service_for_a_name_rejected_over_tls(self) -> None:
+        # The same nginx, but under a name it doesn't serve over TLS. Plain HTTP requests to that port only get
+        # an error, so no HTTP service should be created.
+        task = Task(
+            {"type": TaskType.DOMAIN},
+            payload={TaskType.DOMAIN: "test-nginx-with-sni-tls-other-name"},
+        )
+        produced_tasks = self.run_task(task)
+        (call,) = self.mock_db.save_task_result.call_args_list
+        self.assertEqual(
+            call.kwargs["status_reason"],
+            "Found ports: 443 (service: http ssl: True, version: nginx/1.29.0, not scanned: TLS rejects this name)",
+        )
+        self.assertEqual([produced for produced in produced_tasks if produced.headers["type"] == TaskType.SERVICE], [])

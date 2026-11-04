@@ -514,6 +514,32 @@ class DB:
             session.delete(analysis)
             session.commit()
 
+    def get_analysis_ids_created_before(self, created_before: datetime) -> List[str]:
+        """
+        Retrieve the IDs of the :class:`~artemis.db.Analysis` entries created before a given time.
+
+        :param created_before: Only analyses created before this time will be returned.
+        :return: List of analysis IDs.
+        """
+        with self.session() as session:
+            return [
+                analysis_id
+                for (analysis_id,) in session.query(Analysis.id).filter(Analysis.created_at < created_before).all()
+            ]
+
+    def delete_analyses_by_ids(self, ids: List[str]) -> int:
+        """
+        Delete multiple :class:`~artemis.db.Analysis` entries by their IDs.
+
+        :param ids: The IDs of the analyses to be deleted.
+        :return: The number of deleted analyses.
+        """
+        query = delete(Analysis).where(Analysis.id.in_(ids))  # type: ignore
+        with self.session() as session:
+            result = session.execute(query)
+            session.commit()
+            return int(result.rowcount)
+
     def delete_task_result(self, id: str) -> None:
         with self.session() as session:
             task_result = session.query(TaskResult).get(id)

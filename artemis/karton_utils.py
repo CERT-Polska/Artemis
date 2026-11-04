@@ -45,6 +45,20 @@ def get_num_pending_tasks(karton_backend: KartonBackend) -> Dict[str, int]:
     return result
 
 
+def is_analysis_finished(analysis_id: str, num_pending_tasks: Dict[str, int]) -> bool:
+    """
+    The single definition of a finished analysis used across the codebase: an analysis is finished
+    when it has no pending Karton tasks. Analyses missing from `num_pending_tasks` have no pending
+    tasks and are considered finished as well.
+
+    :param analysis_id: The ID of the analysis to check.
+    :param num_pending_tasks: The number of pending tasks for each analysis, as returned by
+        :func:`~artemis.karton_utils.get_num_pending_tasks`.
+    :return: True if the analysis is finished, False otherwise.
+    """
+    return num_pending_tasks.get(analysis_id, 0) == 0
+
+
 def change_priority_for_analyses(
     analyses_ids: list[str], karton_state: KartonState, new_priority: str, push_to_queue_end: bool = True
 ) -> None:

@@ -44,6 +44,7 @@ from artemis.resolvers import NoAnswer, ResolutionException, lookup
 from artemis.resource_lock import FailedToAcquireLockException, ResourceLock
 from artemis.retrying_resolver import setup_retrying_resolver
 from artemis.task_utils import (
+    LAST_CONSUMED_TASK_TIME_KEY,
     get_target_host,
     get_target_url,
     increase_analysis_num_finished_tasks,
@@ -544,6 +545,9 @@ class ArtemisBase(Karton):
             raise
         finally:
             self.taking_tasks_from_queue_lock.release()
+
+        if tasks:
+            REDIS.hset(LAST_CONSUMED_TASK_TIME_KEY, self.identity, time.time())
 
         self.log.debug("[taking tasks] Tasks from queue taken")
 

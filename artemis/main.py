@@ -19,6 +19,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.frontend import error_content_not_found
 from artemis.frontend import router as router_front
+from artemis.health import router as router_health
 
 faulthandler.register(signal.SIGUSR1)
 
@@ -45,6 +46,7 @@ db = DB()
 
 app.include_router(router_front, prefix="")
 app.include_router(router_api, prefix="/api")
+app.include_router(router_health, prefix="/api")
 app.mount("/static", StaticFiles(directory=path.join(path.dirname(__file__), "..", "static")), name="static")
 
 if __name__ == "__main__":

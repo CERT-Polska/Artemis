@@ -308,7 +308,7 @@ class NucleiReporter(Reporter):
                         path_query_fragment = request_path + (f"?{request_query}" if request_query else "")
 
                 if len(path_query_fragment) >= 4096:
-                    path_query_fragment = None
+                    path_query_fragment = None  # type: ignore
 
                 result.append(
                     Report(

@@ -124,7 +124,7 @@ shodan==1.31.0
 six==1.17.0
 soupsieve==2.9.2
 sqlalchemy==2.1.5
-starlette==0.52.1
+starlette==1.10.0
 termcolor==3.3.0
 timeout-decorator==0.5.0
 tldextract==5.3.2

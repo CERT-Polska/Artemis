@@ -93,7 +93,7 @@ psycopg2-binary==2.9.13
 publicsuffixlist==1.0.2.20260921
 py==1.11.0
 pycparser==3.12
-pycryptodome==3.23.0
+pycryptodome==4.2.0
 pydantic==2.14.1
 pydantic-core==2.50.1
 pydantic-settings==2.15.0

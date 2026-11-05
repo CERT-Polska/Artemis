@@ -33,6 +33,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 10
     allow:
       - dependency-name: "*"  # Allow all packages from requirements.txt
     cooldown:
@@ -43,6 +44,7 @@ updates:
     directory: "/docs/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 10
     allow:
       - dependency-name: "*"  # Allow all packages from requirements.txt
     cooldown:

@@ -1,6 +1,6 @@
 import unittest
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -28,8 +28,11 @@ class HealthTest(unittest.TestCase):
         self.enterContext(patch("artemis.health.time.time", return_value=100000))
         self.memory.return_value = SimpleNamespace(total=100, available=50, free=0)
         self.disk.return_value = SimpleNamespace(total=100, free=50)
-        self.backend = self.enterContext(patch("artemis.health.KartonBackend")).return_value
-        self.backend.redis.scan_iter.return_value = [b"karton.queue.normal:nuclei"]
+        self.enterContext(patch("artemis.health._backend", None))
+        self.backend_class = self.enterContext(patch("artemis.health.KartonBackend"))
+        self.backend = self.backend_class.return_value
+        self.backend.get_binds.return_value = [SimpleNamespace(identity="nuclei")]
+        self.backend.get_queue_names.return_value = ["karton.queue.normal:nuclei"]
         self.backend.redis.llen.return_value = 1
         self.redis.hget.return_value = b"100000"
 
@@ -132,10 +135,10 @@ class HealthTest(unittest.TestCase):
         )
 
     def test_idle_modules_are_healthy(self) -> None:
-        for queues in [[], [b"karton.queue.normal:nuclei"]]:
+        for identities in [[], ["nuclei"]]:
             for timestamp in [None, b"0", b"invalid"]:
-                with self.subTest(queues=queues, timestamp=timestamp):
-                    self.backend.redis.scan_iter.return_value = queues
+                with self.subTest(identities=identities, timestamp=timestamp):
+                    self.backend.get_binds.return_value = [SimpleNamespace(identity=name) for name in identities]
                     self.backend.redis.llen.return_value = 0
                     self.redis.hget.return_value = timestamp
                     response = self.client.get("/api/health")
@@ -144,13 +147,14 @@ class HealthTest(unittest.TestCase):
         self.redis.hget.assert_not_called()
 
     def test_busy_module_does_not_hide_stuck_modules(self) -> None:
-        self.backend.redis.scan_iter.return_value = [
-            b"karton.queue.normal:nuclei",
-            b"karton.queue.high:nuclei",
-            b"karton.queue.normal:port_scanner",
-            b"karton.queue.normal:classifier",
-            b"karton.queue.normal:idle",
+        self.backend.get_binds.return_value = [
+            SimpleNamespace(identity=name) for name in ["nuclei", "port_scanner", "classifier", "idle"]
         ]
+        self.backend.get_queue_names.side_effect = lambda identity: (
+            [f"karton.queue.normal:{identity}", f"karton.queue.high:{identity}"]
+            if identity == "nuclei"
+            else [f"karton.queue.normal:{identity}"]
+        )
         self.backend.redis.llen.side_effect = [2, 3, 1, 4, 0]
         self.redis.hget.side_effect = lambda key, identity: {
             "nuclei": b"0",
@@ -170,14 +174,39 @@ class HealthTest(unittest.TestCase):
             response.json()["last_consumed_task_time"],
             {"nuclei": 0, "port_scanner": 100000, "classifier": None},
         )
+        self.assertEqual(
+            self.backend.get_queue_names.call_args_list,
+            [call(name) for name in ["nuclei", "port_scanner", "classifier", "idle"]],
+        )
+        self.assertEqual(
+            self.backend.redis.llen.call_args_list,
+            [
+                call("karton.queue.normal:nuclei"),
+                call("karton.queue.high:nuclei"),
+                call("karton.queue.normal:port_scanner"),
+                call("karton.queue.normal:classifier"),
+                call("karton.queue.normal:idle"),
+            ],
+        )
+        self.backend.redis.scan_iter.assert_not_called()
 
-    def test_decoded_queue_names_are_supported(self) -> None:
-        self.backend.redis.scan_iter.return_value = ["karton.queue.normal:nuclei"]
+    def test_backend_is_reused_across_requests(self) -> None:
         self.assertEqual(self.client.get("/api/health").status_code, 200)
-        self.redis.hget.assert_called_once_with(LAST_CONSUMED_TASK_TIME_KEY, "nuclei")
+        self.assertEqual(self.client.get("/api/health").status_code, 200)
+        self.backend_class.assert_called_once()
+        self.assertEqual(self.backend.get_binds.call_count, 2)
+
+    def test_backend_initialization_failure_is_unhealthy_and_retried(self) -> None:
+        self.backend_class.side_effect = RuntimeError("invalid S3 configuration")
+        response = self.client.get("/api/health")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()["errors"]["worker"], "Unable to initialize or access the Karton backend")
+        self.backend_class.side_effect = None
+        self.assertEqual(self.client.get("/api/health").status_code, 200)
+        self.assertEqual(self.backend_class.call_count, 2)
 
     def test_queue_read_failures_are_unhealthy(self) -> None:
-        for operation in [self.backend.redis.scan_iter, self.backend.redis.llen]:
+        for operation in [self.backend.get_binds, self.backend.get_queue_names, self.backend.redis.llen]:
             with self.subTest(operation=operation):
                 operation.side_effect = RedisError("unavailable")
                 response = self.client.get("/api/health")

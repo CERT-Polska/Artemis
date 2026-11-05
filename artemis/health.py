@@ -15,6 +15,14 @@ from artemis.task_utils import LAST_CONSUMED_TASK_TIME_KEY
 
 router = APIRouter()
 redis = Redis.from_url(Config.Data.REDIS_CONN_STR)
+_backend: KartonBackend | None = None
+
+
+def _karton_backend() -> KartonBackend:
+    global _backend
+    if _backend is None:
+        _backend = KartonBackend(config=KartonConfig())
+    return _backend
 
 
 @router.get("/health", dependencies=[Depends(verify_api_token)])
@@ -43,14 +51,12 @@ def health() -> JSONResponse:
     last_consumed_task_time: dict[str, float | None] = {}
     worker_errors: dict[str, str] = {}
     try:
-        backend = KartonBackend(config=KartonConfig())
+        backend = _karton_backend()
         queued_by_module: dict[str, int] = {}
-        for key in backend.redis.scan_iter("karton.queue.*"):
-            queued = backend.redis.llen(key)
+        for bind in backend.get_binds():
+            queued = sum(backend.redis.llen(name) for name in backend.get_queue_names(bind.identity))
             if queued:
-                queue_name = key.decode() if isinstance(key, bytes) else key
-                identity = queue_name.rsplit(":", 1)[-1]
-                queued_by_module[identity] = queued_by_module.get(identity, 0) + queued
+                queued_by_module[bind.identity] = queued
 
         cutoff = time.time() - Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS
         for identity, queued in queued_by_module.items():
@@ -73,6 +79,8 @@ def health() -> JSONResponse:
             errors["worker"] = worker_errors
     except RedisError:
         errors["worker"] = "Unable to read task queues or consumption timestamps from Redis"
+    except RuntimeError:
+        errors["worker"] = "Unable to initialize or access the Karton backend"
 
     if errors:
         return JSONResponse(

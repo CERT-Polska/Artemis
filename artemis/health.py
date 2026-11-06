@@ -1,6 +1,7 @@
 import math
 import shutil
 import time
+from typing import Optional
 
 import psutil
 from fastapi import APIRouter, Depends
@@ -48,8 +49,7 @@ def health() -> JSONResponse:
             f"at least {Config.Health.HEALTH_MIN_FREE_DISK_PERCENT:g}% is required"
         )
 
-    last_consumed_task_time: dict[str, float | None] = {}
-    worker_errors: dict[str, str] = {}
+    last_consumed_task_time: Optional[float] = None
     try:
         backend = _karton_backend()
         queued_by_module: dict[str, int] = {}
@@ -69,18 +69,19 @@ def health() -> JSONResponse:
                         timestamp = None
                 except ValueError:
                     pass
-            last_consumed_task_time[identity] = timestamp
-            if timestamp is None or timestamp < cutoff:
-                worker_errors[identity] = (
-                    f"{queued} tasks queued, but none consumed in the last "
-                    f"{Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS / 3600:g} hours"
-                )
-        if worker_errors:
-            errors["worker"] = worker_errors
+            if last_consumed_task_time is not None:
+                last_consumed_task_time = max(last_consumed_task_time, timestamp)  # type: ignore
+            else:
+                last_consumed_task_time = timestamp
     except RedisError:
         errors["worker"] = "Unable to read task queues or consumption timestamps from Redis"
     except RuntimeError:
         errors["worker"] = "Unable to initialize or access the Karton backend"
+
+    if last_consumed_task_time is None or last_consumed_task_time < cutoff:
+        errors["worker"] = (
+            "No tasks consumed in the last {Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS / 3600:g} hours"
+        )
 
     if errors:
         return JSONResponse(

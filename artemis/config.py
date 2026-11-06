@@ -272,9 +272,18 @@ class Config:
 
         REMOVE_FINISHED_ANALYSES_AFTER_DAYS: Annotated[
             int,
-            "After what number of days a finished analysis gets removed from the analyses list. "
-            "The corresponding task results stay in the database. Set to 0 to disable the removal.",
+            "After what number of days a finished analysis gets removed from the analyses list (counted from "
+            "the moment the analysis finished, not when it was created). The corresponding task results "
+            "stay in the database. Set to 0 to disable the removal.",
         ] = get_config("REMOVE_FINISHED_ANALYSES_AFTER_DAYS", default=31, cast=int)
+
+        ANALYSIS_FINISHED_TIME_TTL_DAYS: Annotated[
+            int,
+            "How many days the information about when an analysis finished is kept in Redis. Nothing deletes it "
+            "explicitly, so we rely on Redis garbage collection (key expiration) - hence the TTL. Must be larger "
+            "than REMOVE_FINISHED_ANALYSES_AFTER_DAYS, otherwise the information may expire before the analysis "
+            "gets removed, restarting the removal countdown.",
+        ] = get_config("ANALYSIS_FINISHED_TIME_TTL_DAYS", default=61, cast=int)
 
         STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB: Annotated[
             int,

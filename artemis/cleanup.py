@@ -10,6 +10,11 @@ from artemis import utils
 from artemis.config import Config
 from artemis.db import DB
 from artemis.karton_utils import get_num_pending_tasks, is_analysis_finished
+from artemis.task_utils import (
+    delete_analysis_finished_time,
+    get_analysis_finished_time,
+    set_analysis_finished_time,
+)
 
 logger = utils.build_logger(__name__)
 
@@ -134,21 +139,48 @@ def _cleanup_module_started_tasks() -> None:
         )
 
 
+def _update_analysis_finished_times() -> None:
+    """
+    Mark each analysis with the time we first saw it finished, so that it can be removed
+    N days after it finished. An analysis can already be finished without being declared as such -
+    we observe the analyses only once per cleanup run. If Redis restarts and the finished timestamps
+    get lost, analysis also behaves as "finished but not yet marked finished".
+    """
+    if Config.Miscellaneous.REMOVE_FINISHED_ANALYSES_AFTER_DAYS <= 0:
+        return
+
+    karton_backend = KartonBackend(config=KartonConfig())
+    num_pending_tasks = get_num_pending_tasks(karton_backend)
+    redis = karton_backend.redis
+
+    # An unfinished analysis may still carry a mark - e.g. its crashed tasks were restarted after it
+    # was marked - so stale marks are deleted here, before _cleanup_old_finished_analyses() sees them.
+    for analysis in db.list_analysis():
+        if not is_analysis_finished(analysis, num_pending_tasks):
+            delete_analysis_finished_time(redis, analysis["id"])
+        elif get_analysis_finished_time(redis, analysis["id"]) is None:
+            set_analysis_finished_time(
+                redis,
+                analysis["id"],
+                datetime.datetime.now(),
+                ttl_seconds=Config.Miscellaneous.ANALYSIS_FINISHED_TIME_TTL_DAYS * 24 * 3600,
+            )
+
+
 def _cleanup_old_finished_analyses() -> None:
     max_age_days = Config.Miscellaneous.REMOVE_FINISHED_ANALYSES_AFTER_DAYS
     if max_age_days <= 0:
         return
 
     cutoff = datetime.datetime.now() - datetime.timedelta(days=max_age_days)
-
-    num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
+    redis = KartonBackend(config=KartonConfig()).redis
 
     analysis_ids_to_remove = [
-        analysis_id
-        for analysis_id in db.get_analysis_ids_created_before(cutoff)
-        if is_analysis_finished(analysis_id, num_pending_tasks)
+        analysis["id"]
+        for analysis in db.list_analysis()
+        if (finished_at := get_analysis_finished_time(redis, analysis["id"])) is not None and finished_at < cutoff
     ]
-    logger.info("Found %d finished analyses older than %d days", len(analysis_ids_to_remove), max_age_days)
+    logger.info("Found %d analyses finished for more than %d days", len(analysis_ids_to_remove), max_age_days)
 
     # introducing batches to not overwhelm database
     BATCH = 100
@@ -162,7 +194,7 @@ def _cleanup_old_finished_analyses() -> None:
         # exist, so it would not remove rows of the analyses deleted below.
         db.delete_module_started_tasks_for_analyses(analysis_ids)
 
-    logger.info("Removed %d finished analyses older than %d days", removed_analyses, max_age_days)
+    logger.info("Removed %d analyses finished for more than %d days", removed_analyses, max_age_days)
 
 
 def cleanup() -> None:
@@ -171,6 +203,7 @@ def cleanup() -> None:
     _cleanup_tasks_not_in_queues()
     _cleanup_queues()
     _cleanup_module_started_tasks()
+    _update_analysis_finished_times()
     _cleanup_old_finished_analyses()
 
 

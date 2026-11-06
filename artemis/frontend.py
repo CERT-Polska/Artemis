@@ -147,9 +147,7 @@ def get_root(request: Request, csrf_protect: CsrfProtect = Depends()) -> Respons
     has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
 
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
-    has_finished_analyses = any(
-        is_analysis_finished(analysis["id"], num_pending_tasks) for analysis in db.list_analysis()
-    )
+    has_finished_analyses = any(is_analysis_finished(analysis, num_pending_tasks) for analysis in db.list_analysis())
 
     return csrf.csrf_form_template_response(
         "index.jinja2",
@@ -390,7 +388,7 @@ async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProt
     def _remove_finished_analyses() -> None:
         num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
         for analysis in db.list_analysis():
-            if is_analysis_finished(analysis["id"], num_pending_tasks):
+            if is_analysis_finished(analysis, num_pending_tasks):
                 db.delete_analysis(analysis["id"])
                 # The deduplication information makes no sense without the analysis, so we remove
                 # it together with the analysis (delete_analysis() doesn't do that on its own).

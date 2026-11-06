@@ -285,6 +285,13 @@ class Config:
             get_config("REMOVE_LOGS_AFTER_DAYS", default=30)
         )
 
+        REMOVE_FINISHED_ANALYSES_AFTER_DAYS: Annotated[
+            int,
+            "After what number of days a finished analysis gets removed from the analyses list (counted from "
+            "the moment the analysis finished, not when it was created). The corresponding task results "
+            "stay in the database. Set to 0 to disable the removal.",
+        ] = get_config("REMOVE_FINISHED_ANALYSES_AFTER_DAYS", default=31, cast=int)
+
         STOP_SCANNING_MODULES_IF_FREE_DISK_SPACE_LOWER_THAN_MB: Annotated[
             int,
             "If free disk space on / becomes lower than this value, scanning will stop so that we don't end up being unable to save the results.",

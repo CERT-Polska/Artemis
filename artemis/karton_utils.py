@@ -1,4 +1,5 @@
-from typing import Dict, List
+import datetime
+from typing import Any, Dict, List
 
 from karton.core.backend import KartonBackend, KartonBind
 from karton.core.config import Config as KartonConfig
@@ -43,6 +44,21 @@ def get_num_pending_tasks(karton_backend: KartonBackend) -> Dict[str, int]:
         else:
             assert task.status in [TaskState.FINISHED, TaskState.CRASHED], "Unknown task status: " + str(task.status)
     return result
+
+
+MIN_ANALYSIS_AGE_TO_BE_CONSIDERED_FINISHED = datetime.timedelta(hours=24)
+
+
+def is_analysis_finished(analysis: Dict[str, Any], num_pending_tasks: Dict[str, int]) -> bool:
+    """
+    The single definition of a finished analysis used across the codebase. The minimum age is needed
+    because a fresh analysis temporarily has no Karton tasks - create_tasks() in producer.py sends
+    them after db.create_analysis() - so it would otherwise look finished.
+    """
+    return (
+        datetime.datetime.now() - analysis["created_at"] >= MIN_ANALYSIS_AGE_TO_BE_CONSIDERED_FINISHED
+        and num_pending_tasks.get(analysis["id"], 0) == 0
+    )
 
 
 def change_priority_for_analyses(

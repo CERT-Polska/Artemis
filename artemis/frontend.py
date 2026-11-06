@@ -23,7 +23,6 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_csrf_protect import CsrfProtect
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
-from karton.core.inspect import KartonState
 from karton.core.task import TaskPriority, TaskState
 from redis import Redis
 from starlette.datastructures import Headers
@@ -36,6 +35,7 @@ from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import (
     get_binds_that_can_be_disabled,
     get_num_pending_tasks,
+    is_analysis_finished,
     restart_crashed_tasks,
 )
 from artemis.modules.classifier import Classifier
@@ -145,13 +145,9 @@ async def post_logout(request: Request) -> Response:
 @router.get("/", include_in_schema=False)
 def get_root(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
-    has_finished_analyses = False
 
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
-
-    for analysis in db.list_analysis():
-        if analysis["id"] not in num_pending_tasks or num_pending_tasks[analysis["id"]] == 0:
-            has_finished_analyses = True
+    has_finished_analyses = any(is_analysis_finished(analysis, num_pending_tasks) for analysis in db.list_analysis())
 
     return csrf.csrf_form_template_response(
         "index.jinja2",
@@ -390,13 +386,13 @@ async def post_export(
 @csrf.validate_csrf
 async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     def _remove_finished_analyses() -> None:
-        karton_state = KartonState(backend=KartonBackend(config=KartonConfig()))
+        num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
         for analysis in db.list_analysis():
-            if (
-                analysis["id"] not in karton_state.analyses
-                or len(karton_state.analyses[analysis["id"]].pending_tasks) == 0
-            ):
+            if is_analysis_finished(analysis, num_pending_tasks):
                 db.delete_analysis(analysis["id"])
+                # The deduplication information makes no sense without the analysis, so we remove
+                # it together with the analysis (delete_analysis() doesn't do that on its own).
+                db.delete_module_started_tasks_for_analyses([analysis["id"]])
 
     await asyncio.to_thread(_remove_finished_analyses)
     return RedirectResponse(request.app.url_path_for("get_root"), status_code=303)

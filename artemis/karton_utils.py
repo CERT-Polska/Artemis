@@ -46,7 +46,7 @@ def get_num_pending_tasks(karton_backend: KartonBackend) -> Dict[str, int]:
     return result
 
 
-MIN_ANALYSIS_AGE_TO_BE_CONSIDERED_FINISHED = datetime.timedelta(minutes=15)
+MIN_ANALYSIS_AGE_TO_BE_CONSIDERED_FINISHED = datetime.timedelta(hours=24)
 
 
 def is_analysis_finished(analysis: Dict[str, Any], num_pending_tasks: Dict[str, int]) -> bool:

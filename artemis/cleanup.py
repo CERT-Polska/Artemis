@@ -189,9 +189,9 @@ def _cleanup_old_finished_analyses() -> None:
         analysis_ids = analysis_ids_to_remove[i : i + BATCH]
         removed_analyses += db.delete_analyses_by_ids(analysis_ids)
 
-        # The deduplication information makes no sense without the analysis. We need to remove it
-        # here because _cleanup_module_started_tasks() iterates only over the analyses that still
-        # exist, so it would not remove rows of the analyses deleted below.
+        # ModuleStartedTask rows are deduplication markers: "this module already dispatched this
+        # task for this analysis". They're of no use once the analysis is gone, and nobody else
+        # removes them (_cleanup_module_started_tasks() iterates only over the existing analyses).
         db.delete_module_started_tasks_for_analyses(analysis_ids)
 
     logger.info("Removed %d analyses finished for more than %d days", removed_analyses, max_age_days)

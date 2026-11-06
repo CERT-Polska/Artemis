@@ -98,11 +98,13 @@ class Analysis(Base):  # type: ignore
     :ivar disabled_modules: Comma-separated list of disabled modules for this analysis.
     :ivar priority: Priority of tasks created by the analysis.
     :ivar desired_priority: Target priority of tasks. If different to `priority`, Artemis will try to reprioritize `Analysis`.
+    :ivar finished_at: Time the analysis was first seen as finished (None if not finished).
     """
 
     __tablename__ = "analysis"
     id = Column(String, primary_key=True)
     created_at = Column(DateTime, server_default=text("NOW()"))
+    finished_at = Column(DateTime)
     target = Column(String, index=True)
     tag = Column(String, index=True)
     stopped = Column(Boolean, index=True)
@@ -259,6 +261,20 @@ class DB:
             analysis = session.query(Analysis).get(analysis_id)
             analysis.stopped = True
             session.add(analysis)
+            session.commit()
+
+    def set_analysis_finished_time(self, analysis_id: str, finished_at: datetime) -> None:
+        """Sets the finish time only if it's not set yet."""
+        with self.session() as session:
+            analysis = session.query(Analysis).get(analysis_id)
+            if analysis.finished_at is None:
+                analysis.finished_at = finished_at
+                session.commit()
+
+    def delete_analysis_finished_time(self, analysis_id: str) -> None:
+        with self.session() as session:
+            analysis = session.query(Analysis).get(analysis_id)
+            analysis.finished_at = None
             session.commit()
 
     def save_task_logs(self, task_id: str, logs: bytes) -> None:

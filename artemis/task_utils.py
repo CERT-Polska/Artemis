@@ -1,6 +1,6 @@
 import urllib
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List
 
 from karton.core import Task
 from redis import Redis
@@ -127,30 +127,6 @@ def increase_analysis_num_in_progress_tasks(redis: Redis, root_uid: str, by: int
 
 def get_analysis_num_in_progress_tasks(redis: Redis, root_uid: str) -> int:  # type: ignore[type-arg]
     return int(redis.get(ANALYSIS_NUM_IN_PROGRESS_TASKS_KEY_PREFIX + root_uid.encode("ascii")) or 0)
-
-
-# The time an analysis was first observed to be finished - there is no record of the actual finishing time.
-ARTEMIS_ANALYSIS_FINISHED_AT_KEY_PREFIX = "artemis-analysis-finished-at:"
-
-
-def set_analysis_finished_time(
-    redis: Redis,  # type: ignore[type-arg]
-    analysis_id: str,
-    finished_at: datetime,
-    ttl_seconds: int,
-) -> None:
-    redis.set(ARTEMIS_ANALYSIS_FINISHED_AT_KEY_PREFIX + analysis_id, finished_at.isoformat(), ex=ttl_seconds)
-
-
-def get_analysis_finished_time(redis: Redis, analysis_id: str) -> Optional[datetime]:  # type: ignore[type-arg]
-    value = redis.get(ARTEMIS_ANALYSIS_FINISHED_AT_KEY_PREFIX + analysis_id)
-    if value is None:
-        return None
-    return datetime.fromisoformat(value.decode("utf-8"))
-
-
-def delete_analysis_finished_time(redis: Redis, analysis_id: str) -> None:  # type: ignore[type-arg]
-    redis.delete(ARTEMIS_ANALYSIS_FINISHED_AT_KEY_PREFIX + analysis_id)
 
 
 def increment_interesting_tasks_number(redis: Redis, receiver: str) -> None:  # type: ignore[type-arg]

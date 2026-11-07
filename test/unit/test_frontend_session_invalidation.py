@@ -60,6 +60,7 @@ class FrontendSessionInvalidationTest(unittest.TestCase):
             patch.object(Config.Miscellaneous, "API_TOKEN", "test-token"),
             patch("artemis.health.psutil.virtual_memory") as memory,
             patch("artemis.health.shutil.disk_usage") as disk,
+            patch("artemis.health._backend", None),
             patch("artemis.health.KartonBackend") as backend,
             patch("artemis.health.time.time", return_value=100000),
         ):
@@ -67,12 +68,12 @@ class FrontendSessionInvalidationTest(unittest.TestCase):
             memory.return_value.available = 50
             disk.return_value.total = 100
             disk.return_value.free = 50
-            backend.return_value.redis.scan_iter.return_value = []
+            backend.return_value.get_binds.return_value = []
 
             response = self.client.get("/api/health", headers={"X-API-Token": "test-token"})
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"status": "ok", "last_consumed_task_time": {}})
+        self.assertEqual(response.json(), {"status": "ok", "last_consumed_task_time": None})
 
     def test_login_grants_access(self) -> None:
         self.client.post("/login")

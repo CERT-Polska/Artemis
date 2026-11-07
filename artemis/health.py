@@ -30,11 +30,11 @@ def _karton_backend() -> KartonBackend:
 def health() -> JSONResponse:
     """Check available host RAM, configured disk space, and scanning worker consumption.
 
-    last_consumed_task_time maps queued module identities to Unix timestamps
-    (or null if unavailable). Only modules with queued tasks are checked for
-    missing, invalid, or stale consumption timestamps.
+    last_consumed_task_time is the latest valid Unix timestamp among modules
+    with queued tasks, or null if unavailable. Queued work is unhealthy only
+    when none of these modules has consumed a task recently.
     """
-    errors: dict[str, str | dict[str, str]] = {}
+    errors: dict[str, str] = {}
     memory = psutil.virtual_memory()
     disk_path = Config.Health.HEALTH_DISK_PATH
     disk = shutil.disk_usage(disk_path)
@@ -58,8 +58,7 @@ def health() -> JSONResponse:
             if queued:
                 queued_by_module[bind.identity] = queued
 
-        cutoff = time.time() - Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS
-        for identity, queued in queued_by_module.items():
+        for identity in queued_by_module:
             stored_time = redis.hget(LAST_CONSUMED_TASK_TIME_KEY, identity)
             timestamp = None
             if stored_time is not None:
@@ -69,19 +68,21 @@ def health() -> JSONResponse:
                         timestamp = None
                 except ValueError:
                     pass
-            if last_consumed_task_time is not None:
-                last_consumed_task_time = max(last_consumed_task_time, timestamp)  # type: ignore
-            else:
-                last_consumed_task_time = timestamp
+            if timestamp is not None:
+                if last_consumed_task_time is None:
+                    last_consumed_task_time = timestamp
+                else:
+                    last_consumed_task_time = max(last_consumed_task_time, timestamp)
     except RedisError:
         errors["worker"] = "Unable to read task queues or consumption timestamps from Redis"
     except RuntimeError:
         errors["worker"] = "Unable to initialize or access the Karton backend"
-
-    if last_consumed_task_time is None or last_consumed_task_time < cutoff:
-        errors["worker"] = (
-            "No tasks consumed in the last {Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS / 3600:g} hours"
-        )
+    else:
+        cutoff = time.time() - Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS
+        if queued_by_module and (last_consumed_task_time is None or last_consumed_task_time < cutoff):
+            errors["worker"] = (
+                f"No tasks consumed in the last {Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS / 3600:g} hours"
+            )
 
     if errors:
         return JSONResponse(

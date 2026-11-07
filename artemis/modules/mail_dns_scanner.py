@@ -76,20 +76,20 @@ class MailDNSScanner(ArtemisBase):
         has_mx_records = False
         is_running_tests = "RUNNING_TESTS" in os.environ
 
-        # Try to find an SMTP for current domain or for the private suffix domain - let's treat a domain
-        # as parked if we don't see a MX record on either of them, as some DMARC checks are performed
-        # on the private suffix domain.
-        try:
-            has_mx_records = len(dns.resolver.resolve(domain, "MX")) > 0
-        except dns.resolver.NoAnswer:
-            pass
-
+        # Walk from the current domain up to its private suffix, looking for MX records.
+        # Treat the domain as parked only if no level has MX records, as some DMARC checks
+        # are performed on parent domains.
         private_suffix = PUBLIC_SUFFIX_LIST.privatesuffix(domain)
-        if private_suffix is not None:
+        mx_domain = domain
+        while True:
             try:
-                has_mx_records = has_mx_records or len(dns.resolver.resolve(private_suffix, "MX")) > 0
-            except dns.resolver.NoAnswer:
+                has_mx_records = len(dns.resolver.resolve(mx_domain, "MX")) > 0
+            except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
                 pass
+
+            if has_mx_records or private_suffix is None or mx_domain == private_suffix:
+                break
+            mx_domain = mx_domain.split(".", 1)[1]
 
         if is_running_tests:
             has_mx_records = True

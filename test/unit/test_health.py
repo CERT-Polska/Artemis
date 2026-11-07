@@ -1,6 +1,6 @@
 import unittest
 from types import SimpleNamespace
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -8,7 +8,6 @@ from redis import RedisError
 
 from artemis.config import Config
 from artemis.health import router
-from artemis.task_utils import LAST_CONSUMED_TASK_TIME_KEY
 
 
 class HealthTest(unittest.TestCase):

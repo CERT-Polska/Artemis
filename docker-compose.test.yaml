@@ -11,7 +11,7 @@ services:
       # with test data.
       - ./test/:/opt/test/
       - ./docs/:/opt/docs/
-      - ./docker/karton.ini:/etc/karton/karton.ini
+      - ./docker/karton-test.ini:/etc/karton/karton.ini
       - data-test:/data/
 
   test:
@@ -55,7 +55,7 @@ services:
       # with test data.
       - ./test/:/opt/test/
       - data-test:/data/
-      - ./docker/karton.ini:/etc/karton/karton.ini
+      - ./docker/karton-test.ini:/etc/karton/karton.ini
     depends_on:
       test-grafana:
         condition: service_healthy

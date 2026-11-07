@@ -113,9 +113,8 @@ class MailDNSScanner(ArtemisBase):
         except ScanningException:
             self.log.exception("Unable to check domain %s", domain)
 
-        # For Artemis we have a slightly relaxed requirement than mail_check - if a domain is not used for
-        # sending e-mail, we don't require SPF (but require DMARC). Mail_check can't be modified as it's
-        # used by CERT internal tools as well.
+        # For Artemis we have a slightly relaxed requirement than libmailgoose - if a domain is not used for
+        # sending e-mail, we don't require SPF (but require DMARC).
         #
         # We won't report lack of SPF record, but we should report if it's invalid.
         if (

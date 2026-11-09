@@ -271,12 +271,6 @@ class DB:
                 analysis.finished_at = finished_at
                 session.commit()
 
-    def delete_analysis_finished_time(self, analysis_id: str) -> None:
-        with self.session() as session:
-            analysis = session.query(Analysis).get(analysis_id)
-            analysis.finished_at = None
-            session.commit()
-
     def save_task_logs(self, task_id: str, logs: bytes) -> None:
         with self.session() as session:
             try:
@@ -573,6 +567,17 @@ class DB:
 
     def delete_module_started_tasks_for_analyses(self, analysis_ids: list[str]) -> int:
         query = delete(ModuleStartedTask).where(ModuleStartedTask.analysis_id.in_(analysis_ids))  # type: ignore
+        with self.session() as session:
+            result = session.execute(query)
+            session.commit()
+            return int(result.rowcount)
+
+    def delete_module_started_tasks_for_finished_analyses(self) -> int:
+        query = delete(ModuleStartedTask).where(  # type: ignore
+            ModuleStartedTask.analysis_id.in_(
+                select(Analysis.id).where(Analysis.finished_at.isnot(None))  # type: ignore
+            )
+        )
         with self.session() as session:
             result = session.execute(query)
             session.commit()

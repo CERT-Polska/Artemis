@@ -89,70 +89,21 @@ def _cleanup_queues() -> None:
 
 
 def _cleanup_module_started_tasks() -> None:
-    karton_backend = KartonBackend(config=KartonConfig())
-
-    # First we take the set of all analyses, and then remove the ones that have any (also finished or
-    # crashed) tasks. The result is the set of analyses that have no tasks in Karton at all. This is
-    # deliberately more strict than is_analysis_finished(): crashed tasks can still be restarted, so
-    # we keep the deduplication information as long as any task of the analysis exists.
-    finished_analyses_ids_set = set()
-    has_unfinished_analyses = False
-    for analysis in db.list_analysis():
-        finished_analyses_ids_set.add(analysis["id"])
-
-    logger.info("Found %d analyses", len(finished_analyses_ids_set))
-
-    kept_analyses = 0
-    karton_existing_tasks = 0
-    for task in karton_backend.iter_all_tasks():
-        karton_existing_tasks += 1
-        if task.root_uid in finished_analyses_ids_set:
-            finished_analyses_ids_set.remove(task.root_uid)
-            has_unfinished_analyses = True
-            kept_analyses += 1
-
-    if not has_unfinished_analyses and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:
-        raise AssertionError("Did not found unfinished analyses during cleanup.")
-
-    logger.info("Iterated over %d karton tasks", karton_existing_tasks)
-    finished_analyses_ids = list(finished_analyses_ids_set)
-    if finished_analyses_ids:
-        # introducing batches to not overwhelm database
-        BATCH = 100
-        removed_rows = 0
-        for i in range(0, len(finished_analyses_ids), BATCH):
-            analysis_ids = finished_analyses_ids[i : i + BATCH]
-            removed_rows += db.delete_module_started_tasks_for_analyses(analysis_ids)
-
-            logger.debug("Cleaned up ModuleStartedTask table for analyses: %s", ",".join(analysis_ids))
-        logger.info(
-            "Removed %d rows in ModuleStartedTask table for %d finished analyses. "
-            "Number of remaining unfinished analyses: %d.",
-            removed_rows,
-            len(finished_analyses_ids),
-            kept_analyses,
-        )
+    removed_rows = db.delete_module_started_tasks_for_finished_analyses()
+    if removed_rows:
+        logger.info("Removed %d deduplication markers for finished analyses.", removed_rows)
 
 
 def _update_analysis_finished_times() -> None:
-    """
-    Mark each analysis with the time we first saw it finished, so that it can be removed
-    N days after it finished. An analysis can already be finished without being declared as such -
-    we observe the analyses only once per cleanup run.
-    """
-    if Config.Miscellaneous.REMOVE_FINISHED_ANALYSES_AFTER_DAYS <= 0:
-        return
-
+    """Marks finished analyses with the time we first saw them finished, so they can be removed N days later."""
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
 
-    now = datetime.datetime.now()
+    if not num_pending_tasks and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:
+        raise AssertionError("Did not found unfinished analyses during cleanup.")
 
-    # An unfinished analysis may still carry a mark - e.g. its crashed tasks were restarted after it
-    # was marked - so stale marks are deleted here, before _cleanup_old_finished_analyses() sees them.
+    now = datetime.datetime.now()
     for analysis in db.list_analysis():
-        if not is_analysis_finished(analysis, num_pending_tasks):
-            db.delete_analysis_finished_time(analysis["id"])
-        elif analysis["finished_at"] is None:
+        if is_analysis_finished(analysis, num_pending_tasks):
             db.set_analysis_finished_time(analysis["id"], now)
 
 
@@ -179,7 +130,7 @@ def _cleanup_old_finished_analyses() -> None:
 
         # ModuleStartedTask rows are deduplication markers: "this module already dispatched this
         # task for this analysis". They're of no use once the analysis is gone, and nobody else
-        # removes them (_cleanup_module_started_tasks() iterates only over the existing analyses).
+        # removes them (_cleanup_module_started_tasks() handles only the existing analyses).
         db.delete_module_started_tasks_for_analyses(analysis_ids)
 
     logger.info("Removed %d analyses finished for more than %d days", removed_analyses, max_age_days)
@@ -190,8 +141,8 @@ def cleanup() -> None:
     _migrate_nuclei_queues()
     _cleanup_tasks_not_in_queues()
     _cleanup_queues()
-    _cleanup_module_started_tasks()
     _update_analysis_finished_times()
+    _cleanup_module_started_tasks()
     _cleanup_old_finished_analyses()
 
 

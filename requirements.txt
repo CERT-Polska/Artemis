@@ -10,8 +10,6 @@ annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.14.2
 anytree==2.13.0
-argon2-cffi==25.1.0
-argon2-cffi-bindings==26.1.0
 attrs==26.1.0
 babel==2.18.0
 badkeys==0.0.21
@@ -70,7 +68,6 @@ markdown==3.11
 markdown-it-py==4.2.0
 markupsafe==3.0.3
 mdurl==0.1.2
-minio==7.2.20
 more-itertools==11.1.0
 multidict==6.7.1
 multiprocessing-logging==0.4.0
@@ -90,7 +87,6 @@ psycopg2-binary==2.9.13
 publicsuffixlist==1.0.2.20260716
 py==1.11.0
 pycparser==3.12
-pycryptodome==3.23.0
 pydantic==2.12.5
 pydantic-core==2.41.5
 pydantic-settings==2.15.0

@@ -98,10 +98,9 @@ MIN_ANALYSIS_AGE_TO_BE_CONSIDERED_FINISHED = datetime.timedelta(hours=24)
 
 
 def _update_analysis_finished_times() -> None:
-    """The only place that decides whether an analysis is finished: marks analyses that have no pending
-    Karton tasks with the time we first saw them finished, so they can be removed N days later. The minimum
-    age is needed because a fresh analysis temporarily has no Karton tasks - create_tasks() in producer.py
-    sends them after db.create_analysis() - so it would otherwise look finished."""
+    """Marks analyses that have no pending Karton tasks as finished. A fresh analysis also temporarily
+    has no Karton tasks (create_tasks() in producer.py sends them after db.create_analysis()), hence
+    the minimum age."""
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
 
     if not num_pending_tasks and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:

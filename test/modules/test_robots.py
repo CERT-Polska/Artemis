@@ -90,6 +90,16 @@ class RobotsParserTest(unittest.TestCase):
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].disallow, ["/private/"])
 
+    def test_inline_comments_are_ignored(self) -> None:
+        content = (
+            "# full-line comment\nUser-agent: * # everyone\nDisallow: /admin/ # private area\nAllow: /pub/#public\n"
+        )
+        groups = self.scanner._parse_robots(content)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0].user_agents, ["*"])
+        self.assertEqual(groups[0].disallow, ["/admin/"])
+        self.assertEqual(groups[0].allow, ["/pub/"])
+
     def test_empty_content(self) -> None:
         groups = self.scanner._parse_robots("")
         self.assertEqual(groups, [])

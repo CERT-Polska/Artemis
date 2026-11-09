@@ -30,12 +30,17 @@ from starlette.datastructures import Headers
 from artemis import auth, csrf
 from artemis.binds import TaskType
 from artemis.config import Config
-from artemis.db import DB, ColumnOrdering, ReportGenerationTaskStatus, TaskFilter
+from artemis.db import (
+    DB,
+    ColumnOrdering,
+    ReportGenerationTaskStatus,
+    TaskFilter,
+    is_analysis_finished,
+)
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.karton_utils import (
     get_binds_that_can_be_disabled,
     get_num_pending_tasks,
-    is_analysis_finished,
     restart_crashed_tasks,
 )
 from artemis.modules.classifier import Classifier
@@ -147,7 +152,7 @@ def get_root(request: Request, csrf_protect: CsrfProtect = Depends()) -> Respons
     has_analyses = len(list(db.get_paginated_analyses(0, 1, [ColumnOrdering("target", True)]).data)) > 0
 
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
-    has_finished_analyses = any(is_analysis_finished(analysis, num_pending_tasks) for analysis in db.list_analysis())
+    has_finished_analyses = any(is_analysis_finished(analysis) for analysis in db.list_analysis())
 
     return csrf.csrf_form_template_response(
         "index.jinja2",
@@ -386,9 +391,9 @@ async def post_export(
 @csrf.validate_csrf
 async def post_remove_finished_analyses(request: Request, csrf_protect: CsrfProtect = Depends()) -> Response:
     def _remove_finished_analyses() -> None:
-        num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
+        # TODO: this should be implemented by some atomic backend function without logic here
         for analysis in db.list_analysis():
-            if is_analysis_finished(analysis, num_pending_tasks):
+            if is_analysis_finished(analysis):
                 db.delete_analysis(analysis["id"])
                 # The deduplication information makes no sense without the analysis, so we remove
                 # it together with the analysis (delete_analysis() doesn't do that on its own).

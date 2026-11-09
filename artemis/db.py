@@ -98,7 +98,7 @@ class Analysis(Base):  # type: ignore
     :ivar disabled_modules: Comma-separated list of disabled modules for this analysis.
     :ivar priority: Priority of tasks created by the analysis.
     :ivar desired_priority: Target priority of tasks. If different to `priority`, Artemis will try to reprioritize `Analysis`.
-    :ivar finished_at: Time the analysis was first seen as finished (None if not finished).
+    :ivar finished_at: Time the cleanup process first saw the analysis as finished (None if not finished).
     """
 
     __tablename__ = "analysis"
@@ -118,6 +118,11 @@ class Analysis(Base):  # type: ignore
     )
 
     __table_args__ = (Index("analysis_fulltext", fulltext, postgresql_using="gin"),)
+
+
+def is_analysis_finished(analysis: Dict[str, Any]) -> bool:
+    """The marker (Analysis.finished_at) is computed by artemis.cleanup._update_analysis_finished_times."""
+    return analysis["finished_at"] is not None
 
 
 class TaskResult(Base):  # type: ignore

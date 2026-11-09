@@ -9,7 +9,7 @@ from karton.core.config import Config as KartonConfig
 from artemis import utils
 from artemis.config import Config
 from artemis.db import DB
-from artemis.karton_utils import get_num_pending_tasks, is_analysis_finished
+from artemis.karton_utils import get_num_pending_tasks
 
 logger = utils.build_logger(__name__)
 
@@ -94,8 +94,14 @@ def _cleanup_module_started_tasks() -> None:
         logger.info("Removed %d deduplication markers for finished analyses.", removed_rows)
 
 
+MIN_ANALYSIS_AGE_TO_BE_CONSIDERED_FINISHED = datetime.timedelta(hours=24)
+
+
 def _update_analysis_finished_times() -> None:
-    """Marks finished analyses with the time we first saw them finished, so they can be removed N days later."""
+    """The only place that decides whether an analysis is finished: marks analyses that have no pending
+    Karton tasks with the time we first saw them finished, so they can be removed N days later. The minimum
+    age is needed because a fresh analysis temporarily has no Karton tasks - create_tasks() in producer.py
+    sends them after db.create_analysis() - so it would otherwise look finished."""
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
 
     if not num_pending_tasks and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:
@@ -103,7 +109,10 @@ def _update_analysis_finished_times() -> None:
 
     now = datetime.datetime.now()
     for analysis in db.list_analysis():
-        if is_analysis_finished(analysis, num_pending_tasks):
+        if (
+            now - analysis["created_at"] >= MIN_ANALYSIS_AGE_TO_BE_CONSIDERED_FINISHED
+            and num_pending_tasks.get(analysis["id"], 0) == 0
+        ):
             db.set_analysis_finished_time(analysis["id"], now)
 
 

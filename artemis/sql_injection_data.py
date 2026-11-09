@@ -214,7 +214,6 @@ HEADERS: Dict[str, str] = {
     "cf-ipcountry": "cfipcountry",
     "cf-visitor": "cfvisitor",
     "client-ip": "clientip",
-    "authorization": "authorization",
     "dnt": "dnt",
     "forwarded-for": "forwardedfor",
     "forwarded": "forwarded",

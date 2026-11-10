@@ -54,12 +54,13 @@ class RobotsScanner(ArtemisBase):
         groups: List[RobotsGroup] = list()
         current_group = RobotsGroup([], [], [])
 
-        for line in content.splitlines():
+        for raw_line in content.splitlines():
+            line = raw_line.split("#", 1)[0]
             if agent_match := re.match(RE_USER_AGENT, line):
                 if len(current_group.allow) > 0 or len(current_group.disallow) > 0:
                     groups.append(current_group)
                     current_group = RobotsGroup([], [], [])
-                current_group.user_agents.append(agent_match.group(1))
+                current_group.user_agents.append(agent_match.group(1).strip())
             elif allow_path := self._parse_rule(line, RE_ALLOW):
                 if len(current_group.user_agents) == 0:
                     self.log.warning("Skipping 'allow' rule before any 'user-agent' line in robots.txt: %s", line)

@@ -3,7 +3,7 @@
 import dataclasses
 import random
 import urllib.parse
-from typing import List
+from typing import List, Optional, Tuple
 
 from bs4 import BeautifulSoup
 from karton.core import Task
@@ -19,6 +19,19 @@ from artemis.utils import is_directory_index
 MAX_DIRS_PER_PATH = 4
 MAX_TESTS_PER_URL = 20
 S3_BASE_DOMAIN = "s3.amazonaws.com"
+DEFAULT_PORTS = {"http": 80, "https": 443}
+
+
+def _get_origin(url_parsed: urllib.parse.ParseResult) -> Optional[Tuple[str, str, Optional[int]]]:
+    try:
+        port = url_parsed.port
+    except ValueError:
+        return None
+    if not url_parsed.hostname:
+        return None
+    if port is None:
+        port = DEFAULT_PORTS.get(url_parsed.scheme)
+    return url_parsed.scheme, url_parsed.hostname, port
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.LOW)
@@ -36,6 +49,7 @@ class DirectoryIndex(ArtemisBase):
         response = self.http_get(base_url)
         soup = BeautifulSoup(response.content, "html.parser")
         original_base_url_parsed = urllib.parse.urlparse(base_url)
+        original_origin = _get_origin(original_base_url_parsed)
 
         path_candidates = set()
         for tag in soup.find_all():
@@ -57,7 +71,7 @@ class DirectoryIndex(ArtemisBase):
                                 path_candidates.add("https://" + new_url_parsed.netloc + path)
                             break
 
-                if original_base_url_parsed.netloc == new_url_parsed.netloc:
+                if original_origin is not None and _get_origin(new_url_parsed) == original_origin:
                     path = urllib.parse.urljoin(new_url_parsed.path, ".")
 
                     for i in range(MAX_DIRS_PER_PATH):

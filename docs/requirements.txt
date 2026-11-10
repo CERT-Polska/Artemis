@@ -75,7 +75,7 @@ markupsafe==3.0.4
 mdurl==0.1.2
 minio==7.2.20
 more-itertools==11.2.1
-multidict==6.9.0
+multidict==7.2.1
 multiprocessing-logging==0.4.0
 openapi-schema-validator==0.9.0
 openapi-spec-validator==0.9.0

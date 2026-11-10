@@ -38,7 +38,7 @@ dkimpy==1.1.8
 dnspython==2.9.1
 docutils==0.22.4
 expiringdict==1.2.2
-fastapi==0.142.2
+fastapi==0.162.0
 fastapi-csrf-protect==1.0.7
 filelock==4.2.9
 flask==3.1.3

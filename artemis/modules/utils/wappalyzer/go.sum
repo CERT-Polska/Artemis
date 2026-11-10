@@ -1,5 +1,5 @@
-github.com/projectdiscovery/wappalyzergo v0.3.7 h1:EITzdN07LR+opmKWT0iEaki366CVB57EBbjq9llsbf0=
-github.com/projectdiscovery/wappalyzergo v0.3.7/go.mod h1:7gTNIjQSXsVmFDJJ3PT8+FhYE+dv6hZLGZSsRAEjVSw=
+github.com/projectdiscovery/wappalyzergo v0.3.8 h1:bjQ99Lanzj8l+2ENwt24/LdZ09uR9IxkamXssBXahIQ=
+github.com/projectdiscovery/wappalyzergo v0.3.8/go.mod h1:7gTNIjQSXsVmFDJJ3PT8+FhYE+dv6hZLGZSsRAEjVSw=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=

@@ -38,10 +38,17 @@ def generate_session_secret() -> str:
 
     secret = base64.b64encode(os.urandom(32)).decode("ascii")
 
-    # This will raise if someone else is also creating the secret
-    fd = os.open(session_secret_path, os.O_RDWR | os.O_CREAT | os.O_EXCL)
-    os.write(fd, secret.encode("ascii"))
-    os.close(fd)
+    # Write atomically: populate a temp file, fsync, then rename into place so a crash mid-write
+    # can never leave an empty file in the target path (which would otherwise make every
+    # subsequent startup fail).
+    tmp_path = session_secret_path + ".tmp"
+    fd = os.open(tmp_path, os.O_RDWR | os.O_CREAT | os.O_TRUNC)
+    try:
+        os.write(fd, secret.encode("ascii"))
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    os.replace(tmp_path, session_secret_path)
 
     return secret
 

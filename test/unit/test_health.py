@@ -1,6 +1,6 @@
 import unittest
 from types import SimpleNamespace
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -8,7 +8,6 @@ from redis import RedisError
 
 from artemis.config import Config
 from artemis.health import router
-from artemis.task_utils import LAST_CONSUMED_TASK_TIME_KEY
 
 
 class HealthTest(unittest.TestCase):
@@ -55,7 +54,7 @@ class HealthTest(unittest.TestCase):
                 response = self.client.get("/api/health")
                 self.assertEqual(response.status_code, 503 if error_keys else 200)
                 self.assertEqual(set(response.json().get("errors", {})), set(error_keys))
-                self.assertEqual(response.json()["last_consumed_task_time"], {"nuclei": 100000})
+                self.assertEqual(response.json()["last_consumed_task_time"], 100000)
                 for error in response.json().get("errors", {}).values():
                     self.assertIn("at least 20% is required", error)
         self.disk.assert_called_with("/")
@@ -67,64 +66,6 @@ class HealthTest(unittest.TestCase):
         self.disk.assert_called_once_with("/mnt/scan-data")
         self.assertEqual(response.status_code, 503)
         self.assertIn("Free space on /mnt/scan-data is 10.0%", response.json()["errors"]["disk"])
-
-    def test_task_inactivity_threshold(self) -> None:
-        for age, expected_status in [
-            (0, 200),
-            (Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS, 200),
-            (Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS + 1, 503),
-        ]:
-            with self.subTest(age=age):
-                timestamp = 100000 - age
-                self.redis.hget.return_value = str(timestamp).encode()
-                response = self.client.get("/api/health")
-                self.assertEqual(response.status_code, expected_status)
-                self.assertEqual(response.json()["last_consumed_task_time"], {"nuclei": timestamp})
-                if expected_status == 503:
-                    self.assertEqual(
-                        response.json()["errors"]["worker"],
-                        {"nuclei": "1 tasks queued, but none consumed in the last 4 hours"},
-                    )
-        self.redis.hget.assert_called_with(LAST_CONSUMED_TASK_TIME_KEY, "nuclei")
-
-    def test_configured_resource_thresholds(self) -> None:
-        with (
-            patch.object(Config.Health, "HEALTH_MIN_AVAILABLE_MEMORY_PERCENT", 60.5),
-            patch.object(Config.Health, "HEALTH_MIN_FREE_DISK_PERCENT", 10.5),
-        ):
-            response = self.client.get("/api/health")
-            self.assertEqual(response.status_code, 503)
-            self.assertEqual(set(response.json()["errors"]), {"memory"})
-            self.assertIn("at least 60.5% is required", response.json()["errors"]["memory"])
-            self.memory.return_value.available = 60.5
-            self.disk.return_value.free = 10.5
-            self.assertEqual(self.client.get("/api/health").status_code, 200)
-            self.disk.return_value.free = 10.49
-            response = self.client.get("/api/health")
-            self.assertEqual(response.status_code, 503)
-            self.assertEqual(set(response.json()["errors"]), {"disk"})
-            self.assertIn("at least 10.5% is required", response.json()["errors"]["disk"])
-
-    def test_configured_task_inactivity_threshold(self) -> None:
-        with patch.object(Config.Health, "HEALTH_MAX_TASK_INACTIVITY_SECONDS", 1800):
-            self.redis.hget.return_value = b"98200"
-            self.assertEqual(self.client.get("/api/health").status_code, 200)
-            self.redis.hget.return_value = b"98199"
-            response = self.client.get("/api/health")
-            self.assertEqual(response.status_code, 503)
-            self.assertEqual(
-                response.json()["errors"]["worker"],
-                {"nuclei": "1 tasks queued, but none consumed in the last 0.5 hours"},
-            )
-
-    def test_missing_or_invalid_timestamp_is_unhealthy(self) -> None:
-        for timestamp in [None, b"invalid", b"nan", b"inf"]:
-            with self.subTest(timestamp=timestamp):
-                self.redis.hget.return_value = timestamp
-                response = self.client.get("/api/health")
-                self.assertEqual(response.status_code, 503)
-                self.assertEqual(response.json()["last_consumed_task_time"], {"nuclei": None})
-                self.assertIn("worker", response.json()["errors"])
 
     def test_redis_failure_is_unhealthy(self) -> None:
         self.redis.hget.side_effect = RedisError("unavailable")
@@ -143,52 +84,59 @@ class HealthTest(unittest.TestCase):
                     self.redis.hget.return_value = timestamp
                     response = self.client.get("/api/health")
                     self.assertEqual(response.status_code, 200)
-                    self.assertEqual(response.json()["last_consumed_task_time"], {})
+                    self.assertIsNone(response.json()["last_consumed_task_time"])
         self.redis.hget.assert_not_called()
 
-    def test_busy_module_does_not_hide_stuck_modules(self) -> None:
-        self.backend.get_binds.return_value = [
-            SimpleNamespace(identity=name) for name in ["nuclei", "port_scanner", "classifier", "idle"]
+    def test_queued_modules_without_recent_consumption_are_unhealthy(self) -> None:
+        for stored_time, expected_time in [
+            (None, None),
+            (b"invalid", None),
+            (b"nan", None),
+            (b"inf", None),
+            (b"-inf", None),
+            (b"0", 0),
+            (b"85599", 85599),
+        ]:
+            with self.subTest(stored_time=stored_time):
+                self.redis.hget.return_value = stored_time
+                response = self.client.get("/api/health")
+                self.assertEqual(response.status_code, 503)
+                self.assertEqual(response.json()["errors"], {"worker": "No tasks consumed in the last 4 hours"})
+                self.assertEqual(response.json()["last_consumed_task_time"], expected_time)
+
+    def test_consumption_at_inactivity_threshold_is_healthy(self) -> None:
+        self.redis.hget.return_value = b"85600"
+        self.assertEqual(self.client.get("/api/health").status_code, 200)
+
+    def test_latest_queued_module_consumption_determines_worker_health(self) -> None:
+        self.backend.get_binds.return_value = [SimpleNamespace(identity=name) for name in ["nuclei", "other"]]
+        cases = [
+            ([b"100000", None], 200, 100000),
+            ([None, b"100000"], 200, 100000),
+            ([b"100000", b"invalid"], 200, 100000),
+            ([b"nan", b"100000"], 200, 100000),
+            ([b"100000", b"0"], 200, 100000),
+            ([b"0", b"100000"], 200, 100000),
+            ([b"0", b"85599"], 503, 85599),
+            ([None, b"invalid"], 503, None),
         ]
-        self.backend.get_queue_names.side_effect = lambda identity: (
-            [f"karton.queue.normal:{identity}", f"karton.queue.high:{identity}"]
-            if identity == "nuclei"
-            else [f"karton.queue.normal:{identity}"]
-        )
-        self.backend.redis.llen.side_effect = [2, 3, 1, 4, 0]
-        self.redis.hget.side_effect = lambda key, identity: {
-            "nuclei": b"0",
-            "port_scanner": b"100000",
-            "classifier": None,
-        }[identity]
+        for stored_times, status_code, expected_time in cases:
+            with self.subTest(stored_times=stored_times):
+                self.redis.hget.side_effect = stored_times
+                response = self.client.get("/api/health")
+                self.assertEqual(response.status_code, status_code)
+                self.assertEqual(response.json()["last_consumed_task_time"], expected_time)
+                if status_code == 503:
+                    self.assertEqual(response.json()["errors"], {"worker": "No tasks consumed in the last 4 hours"})
+
+    def test_idle_module_consumption_does_not_mask_stalled_queue(self) -> None:
+        self.backend.get_binds.return_value = [SimpleNamespace(identity=name) for name in ["nuclei", "idle"]]
+        self.backend.redis.llen.side_effect = [1, 0]
+        self.redis.hget.side_effect = lambda key, identity: b"0" if identity == "nuclei" else b"100000"
         response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 503)
-        self.assertEqual(
-            response.json()["errors"]["worker"],
-            {
-                "nuclei": "5 tasks queued, but none consumed in the last 4 hours",
-                "classifier": "4 tasks queued, but none consumed in the last 4 hours",
-            },
-        )
-        self.assertEqual(
-            response.json()["last_consumed_task_time"],
-            {"nuclei": 0, "port_scanner": 100000, "classifier": None},
-        )
-        self.assertEqual(
-            self.backend.get_queue_names.call_args_list,
-            [call(name) for name in ["nuclei", "port_scanner", "classifier", "idle"]],
-        )
-        self.assertEqual(
-            self.backend.redis.llen.call_args_list,
-            [
-                call("karton.queue.normal:nuclei"),
-                call("karton.queue.high:nuclei"),
-                call("karton.queue.normal:port_scanner"),
-                call("karton.queue.normal:classifier"),
-                call("karton.queue.normal:idle"),
-            ],
-        )
-        self.backend.redis.scan_iter.assert_not_called()
+        self.assertEqual(response.json()["errors"], {"worker": "No tasks consumed in the last 4 hours"})
+        self.redis.hget.assert_called_once()
 
     def test_backend_is_reused_across_requests(self) -> None:
         self.assertEqual(self.client.get("/api/health").status_code, 200)

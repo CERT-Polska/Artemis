@@ -122,7 +122,7 @@ semver==3.1.0
 shellingham==1.5.4
 shodan==1.31.0
 six==1.17.0
-soupsieve==2.9.2
+soupsieve==4.0.1
 sqlalchemy==2.1.5
 starlette==0.52.1
 termcolor==3.3.0

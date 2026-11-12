@@ -247,6 +247,9 @@
 /maintenance/test2.php
 /maintenance/test.php
 /master.passwd
+/media
+/media/docs
+/media/files
 /.mc
 /.mc/
 /mysql/

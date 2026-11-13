@@ -27,6 +27,7 @@ from artemis.config import Config
 from artemis.db import DB
 from artemis.json_utils import JSONEncoderAdditionalTypes
 from artemis.reporting.base.language import Language
+from artemis.reporting.base.missing_translations import collecting_missing_translations
 from artemis.reporting.base.templating import build_message_template
 from artemis.reporting.export.common import OUTPUT_LOCATION
 from artemis.reporting.export.custom_template_arguments import (
@@ -259,7 +260,10 @@ def export(
             run_export_hooks(output_dir, export_data, silent)
 
         message_template = build_message_template_and_print_path(environment, output_dir, silent)
-        _build_messages_and_print_path(message_template, export_data, output_dir, silent)
+        with collecting_missing_translations() as missing_translations:
+            _build_messages_and_print_path(message_template, export_data, output_dir, silent)
+            # Fail before output.json, stats, and the output path, so a gap is still a failed export.
+            missing_translations.raise_if_any()
         _dump_export_data_and_print_path(export_data, output_dir, silent)
 
         print_and_save_stats(export_data, output_dir, silent)

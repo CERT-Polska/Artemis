@@ -9,19 +9,30 @@ from typing import Any
 from jinja2 import Environment
 
 from artemis.reporting.base.language import Language
+from artemis.reporting.base.missing_translations import current_missing_translations
 from artemis.reporting.exceptions import TranslationNotFoundException
 
 
 class TranslationRaiseException(gettext.GNUTranslations):
     """This class is used instead of GNUTranslations and raises exception when a message is not found,
-    so that we don't allow untranslated strings into the messages."""
+    so that we don't allow untranslated strings into the messages. With a collector active, the miss is
+    recorded and the English source is returned so the export can raise once with every gap."""
 
-    class _TranslationAlwaysRaiseException(gettext.GNUTranslations):
+    class _MissingTranslationFallback(gettext.GNUTranslations):
         def gettext(self, message: str) -> str:
-            raise TranslationNotFoundException(f"Unable to translate '{message}'")
+            return self._fallback_message(message)
 
-        def ngettext(self, *args: Any) -> Any:
-            raise NotImplementedError()
+        def ngettext(self, msgid1: str, msgid2: str, n: int) -> str:
+            # English source text: only n == 1 is singular. A found translation uses the catalog's plural formula.
+            return self._fallback_message(msgid1 if n == 1 else msgid2)
+
+        def _fallback_message(self, message: str) -> str:
+            reported = f"Unable to translate '{message}'"
+            collector = current_missing_translations()
+            if collector is None:
+                raise TranslationNotFoundException(reported)
+            collector.add(reported)
+            return message
 
         def pgettext(self, *args: Any) -> Any:
             raise NotImplementedError()
@@ -32,14 +43,15 @@ class TranslationRaiseException(gettext.GNUTranslations):
     def __init__(self, fp=None):  # type: ignore
         super().__init__(fp)
 
-        self.add_fallback(self._TranslationAlwaysRaiseException())
+        self.add_fallback(self._MissingTranslationFallback())
 
     def gettext(self, message: str) -> str:
         message_translated = super().gettext(message)
         return message_translated
 
-    def ngettext(self, *args: Any) -> Any:
-        raise NotImplementedError()
+    def ngettext(self, msgid1: str, msgid2: str, n: int) -> str:
+        message_translated = super().ngettext(msgid1, msgid2, n)
+        return message_translated
 
     def pgettext(self, *args: Any) -> Any:
         raise NotImplementedError()

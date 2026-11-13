@@ -20,6 +20,12 @@ services:
       dockerfile: docker/Dockerfile
     entrypoint: ""
     command: bash -c "alembic upgrade head && unittest-parallel -j 4 -t . -s test.modules && unittest-parallel -j 4 -t . -s test.reporting && unittest-parallel -j 4 -t . -s test.unit"
+    # test.unit.test_sandbox runs syd inside this container, which needs the same
+    # adjustments as the module containers in docker-compose.yaml (docker/seccomp/README.txt)
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:./docker/seccomp/syd.json
     environment:
       TEST_REDIS_HOST: test-redis
       TEST_REDIS_PORT: 6379

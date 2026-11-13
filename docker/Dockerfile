@@ -1,3 +1,11 @@
+# Syd sandbox, used by /sandbox.sh (see docker/sandbox.sh). Rust's musl target links
+# statically - the binary is self-contained, so the runtime stage needs no libseccomp.
+# syd needs libseccomp>=2.6 (seccomp_export_bpf_mem), hence Alpine>=3.22 in the build
+# stage (3.20 shipped 2.5.5); the static link needs the split libseccomp-static package.
+FROM rust:1-alpine3.22 AS syd-build
+RUN apk add --no-cache libseccomp-dev libseccomp-static pkgconfig
+RUN cargo install --locked --version 3.59.0 syd
+
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 FROM python:3.13.3-alpine3.20
 
@@ -38,6 +46,9 @@ WORKDIR /opt
 # is needed at scan time. The wappalyzergo version is pinned by go.mod here.
 COPY "artemis/modules/utils/wappalyzer/" "artemis/modules/utils/wappalyzer/"
 RUN cd artemis/modules/utils/wappalyzer && go mod download && go build -o /usr/local/bin/wappalyzer .
+
+COPY "docker/sandbox.sh" "/sandbox.sh"
+COPY --from=syd-build /usr/local/cargo/bin/syd /usr/local/bin/syd
 
 COPY "artemis/" "artemis/"
 COPY "alembic.ini" "alembic.ini"

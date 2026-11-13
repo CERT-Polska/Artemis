@@ -3,7 +3,9 @@ repos:
   rev: v6.0.0
   hooks:
   - id: end-of-file-fixer
-    exclude: offat_artemis.patch
+    # We want docker/seccomp/default.json to be byte-exact with the upstream file
+    # (which has no trailing newline), but the pre-commit hook requires that newline
+    exclude: (offat_artemis.patch|^docker/seccomp/default\.json$)
   - id: trailing-whitespace
     exclude: offat_artemis.patch
   - id: check-merge-conflict

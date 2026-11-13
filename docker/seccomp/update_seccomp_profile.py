@@ -7,7 +7,7 @@ More info: docker/seccomp/README.txt.
 import json
 from pathlib import Path
 
-DIR = Path(__file__).resolve().parent.parent / "docker" / "seccomp"
+DIR = Path(__file__).resolve().parent
 RULE = {
     "names": ["unshare"],
     "action": "SCMP_ACT_ALLOW",

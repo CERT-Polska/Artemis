@@ -17,5 +17,5 @@ For syd (docker/sandbox.sh), docker-compose.yaml overrides that policy in two wa
   Namespace creation stays blocked - by the rule's mask and by the lack of CAP_SYS_ADMIN.
 
 docker-compose.yaml loads syd.json: default.json plus that rule - a gitignored
-artifact. scripts/start generates it via scripts/update_seccomp_profile.py before
+artifact. scripts/start generates it via docker/seccomp/update_seccomp_profile.py before
 starting the stack; if you call docker compose directly, run the script first.

@@ -34,18 +34,18 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     git clone https://github.com/CERT-Polska/joomla-scanner.git --branch main /joomla-scanner && \
     git clone https://github.com/Ostorlab/KEV.git --branch main /known-exploited-vulnerabilities && \
     pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt $ADDITIONAL_REQUIREMENTS && \
+    badkeys --update-bl && \
     apk del .build-deps && \
     nuclei -update-templates
 
 WORKDIR /opt
 
-# Download the dependencies of the Wappalyzer wrapper (used for web technology identification) at build time.
-# Without this, the first `go run` would fetch them - both the module and the Go toolchain go.mod asks for -
-# from the network at scan time, and a failure to reach it makes technology detection report no technologies.
-# Only the module files are copied at this point so that a change in the Python code doesn't invalidate this
-# layer and re-download everything.
-COPY "artemis/modules/utils/wappalyzer/go.mod" "artemis/modules/utils/wappalyzer/go.sum" "artemis/modules/utils/wappalyzer/"
-RUN cd artemis/modules/utils/wappalyzer && go mod download
+# Build the Wappalyzer wrapper (used for web technology identification) at image build time:
+# while `go run` compiled it at scan time, the sandbox (docker/sandbox.sh) forbids executing
+# binaries that aren't a frozen part of the image, and prebuilding also means no Go toolchain
+# is needed at scan time. The wappalyzergo version is pinned by go.mod here.
+COPY "artemis/modules/utils/wappalyzer/" "artemis/modules/utils/wappalyzer/"
+RUN cd artemis/modules/utils/wappalyzer && go mod download && go build -o /usr/local/bin/wappalyzer .
 
 COPY "docker/sandbox.sh" "/sandbox.sh"
 COPY --from=syd-build /usr/local/cargo/bin/syd /usr/local/bin/syd

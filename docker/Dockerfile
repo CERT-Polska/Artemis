@@ -26,6 +26,7 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     git clone https://github.com/CERT-Polska/joomla-scanner.git --branch main /joomla-scanner && \
     git clone https://github.com/Ostorlab/KEV.git --branch main /known-exploited-vulnerabilities && \
     pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt $ADDITIONAL_REQUIREMENTS && \
+    badkeys --update-bl && \
     apk del .build-deps && \
     nuclei -update-templates
 

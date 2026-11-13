@@ -1,6 +1,15 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
   image: "${ARTEMIS_BUILD_IMAGE:-certpl/artemis:latest}"
+  # Syd (docker/sandbox.sh) needs CAP_SYS_PTRACE and a non-default seccomp profile:
+  # Docker's default profile gates ptrace(2)/kcmp(2) behind the capability, and denies
+  # the unshare(2) call syd's monitor thread makes. The profile in docker/seccomp-syd.json
+  # is Docker's default plus allow-unshare-without-namespace-flags; namespace creation
+  # stays blocked (both by the profile mask and by the lack of CAP_SYS_ADMIN).
+  cap_add:
+    - SYS_PTRACE
+  security_opt:
+    - seccomp:./docker/seccomp-syd.json
   # Prevent NDOTS-based DNS search domain expansion for short hostnames such as
   # "s3mock", "redis", "postgres".  Without this, a host whose /etc/resolv.conf
   # contains e.g. "search corp.example.com" causes every DNS lookup for "s3mock"
@@ -69,6 +78,8 @@ services:
     restart: always
     environment:
       - CPE_NVD_DIR=/data/cpe-nvd
+      # not a scan module - sandboxing brings no benefit and would block writes to the mounted report dirs
+      - SANDBOX=off
     volumes:
       - ./output/autoreporter/:/opt/output/autoreporter
       - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
@@ -79,6 +90,8 @@ services:
     command: "bash -c 'alembic upgrade head && python3 -m artemis.cleanup'"
     env_file: .env
     restart: always
+    environment:
+      - SANDBOX=off
 
   metrics:
     <<: [*logging, *artemis-build-or-image]
@@ -86,6 +99,8 @@ services:
     restart: always
     volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
     command: "python3 -m artemis.metrics"
+    environment:
+      - SANDBOX=off
 
   cpe-nvd-service:
     <<: [*logging, *artemis-build-or-image]
@@ -93,6 +108,7 @@ services:
     env_file: .env
     environment:
       - CPE_NVD_DIR=/data/cpe-nvd
+      - SANDBOX=off
     volumes:
       - cpe-nvd-data:/data/cpe-nvd
     restart: always
@@ -104,18 +120,25 @@ services:
       - ./archived-task-results/:/opt/archived-task-results/
     command: "bash -c 'alembic upgrade head && python3 -m artemis.autoarchiver.autoarchiver'"
     restart: always
+    environment:
+      - SANDBOX=off
 
   reprioritizer:
     <<: [*logging, *artemis-build-or-image]
     command: "bash -c 'alembic upgrade head && python3 -m artemis.reprioritizer.reprioritizer'"
     env_file: .env
     restart: always
+    environment:
+      - SANDBOX=off
 
   web:
     <<: [*logging, *artemis-build-or-image]
     env_file: .env
     ports: ["5000:5000"]
     restart: always
+    # listens on a port and serves the UI/API
+    environment:
+      - SANDBOX=off
     volumes:
       - data-web:/data
       - ./output/autoreporter/:/opt/output/autoreporter

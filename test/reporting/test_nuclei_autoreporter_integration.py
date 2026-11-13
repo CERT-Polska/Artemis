@@ -122,5 +122,6 @@ class NucleiAutoreporterIntegrationTest(BaseReportingTest):
         message = self.task_result_to_message(data, custom_template_arguments={"always_show_full_poc": True})
         self.assertRegex(
             " ".join(message.split()),
-            r"http://test-redirect-reflect-app:5000 under /\?\w+=%27%3E%22%3Csvg",
+            # The parameter name depends on which XSS template matched first (some names contain hyphens).
+            r"http://test-redirect-reflect-app:5000 under /\?[^=&\s]+=%27%3E%22%3Csvg",
         )

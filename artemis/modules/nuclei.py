@@ -319,9 +319,7 @@ class Nuclei(ArtemisBase):
 
         # We are cloning the KEV repository and updating templates in the Dockerfile
         # so we don't need to do every time we start the module.
-        # under /root so that the sandbox (docker/sandbox.sh) allows updating it:
-        # outside of /root only read-only image content may exist
-        kev_directory = "/root/known-exploited-vulnerabilities/"
+        kev_directory = "/known-exploited-vulnerabilities/"
         if os.path.exists(kev_directory) and os.path.getctime(kev_directory) < time.time() - UPDATE_INTERVAL:
             try:
                 with directory_backup(kev_directory, logger=self.log):
@@ -368,7 +366,7 @@ class Nuclei(ArtemisBase):
                 template_lists_raw["known_exploited_vulnerabilities"] = [
                     item
                     for item in check_output_log_on_error(
-                        ["find", "/root/known-exploited-vulnerabilities/nuclei/"], self.log
+                        ["find", "/known-exploited-vulnerabilities/nuclei/"], self.log
                     )
                     .decode("ascii")
                     .split()
@@ -706,9 +704,8 @@ class Nuclei(ArtemisBase):
                 if use_fake_home:
                     # That way Nuclei will only load the specified templates, not all in /root/nuclei-templates/,
                     # which will be way faster for small template lists on some installations where IO is slow.
-                    # Under /root because that's where the sandbox (docker/sandbox.sh) allows writing.
-                    os.makedirs("/root/fake-home/nuclei-templates", exist_ok=True)
-                    env["HOME"] = "/root/fake-home/"
+                    os.makedirs("/fake-home/nuclei-templates", exist_ok=True)
+                    env["HOME"] = "/fake-home/"
 
                 command_start_time = time.time()
                 try:

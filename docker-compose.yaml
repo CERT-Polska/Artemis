@@ -320,10 +320,6 @@ services:
       prometheus.port: "9001"
     env_file: .env
     restart: always
-    # sandbox off until the module's writable dirs (/known-exploited-vulnerabilities,
-    # /fake-home) move into the sandbox allowlist - the lock layer blocks their updates
-    environment:
-      - SANDBOX=off
     volumes:
       - "${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"
       - data-nuclei-templates:/root/nuclei-templates

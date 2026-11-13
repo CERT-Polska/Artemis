@@ -10,7 +10,22 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7.0.1
+      # TEMPORARY: shows what takes space on the runner, so that the cleanup below can be extended.
+      # Remove once the list of directories to delete is settled.
+      - name: Disk usage report
+        run: |
+          df -h
+          sudo du -hs /usr/local/lib/* /usr/local/share/* /usr/share/* /usr/lib/* /opt/* /opt/hostedtoolcache/* 2>/dev/null | sort -rh | head -40
+      # The tests run entirely in Docker containers, so the tools preinstalled on the runner aren't needed
+      # (same cleanup as in docker_nightly.yml and docker_release.yml).
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/lib/jvm /usr/share/dotnet /usr/share/swift /usr/local/.ghcup /usr/local/lib/android/sdk
+          df -h /
       - name: set RUNNING_ON_GITHUB in env.test
         run: echo RUNNING_ON_GITHUB=1 >> env.test
       - name: run documentation tests
         run: bash ./scripts/test-docs
+      - name: Disk usage after tests
+        if: always()
+        run: df -h / && docker system df

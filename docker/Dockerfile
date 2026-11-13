@@ -12,6 +12,8 @@ ARG ADDITIONAL_REQUIREMENTS
 # remove some apk packages.
 # Whois here is important - if we wouldn't install it, we would default to busybox whois,
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
+# `go clean -modcache` drops the sources of the Go tools' dependencies once the binaries are in /usr/local/bin.
+# The Wappalyzer wrapper (run with `go run` at scan time) downloads its own modules in a later layer.
 RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois coreutils && \
     cd /go && \
@@ -22,6 +24,7 @@ RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev li
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/katana/cmd/katana && \
     cd / && \
+    go clean -modcache && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
     git clone https://github.com/CERT-Polska/joomla-scanner.git --branch main /joomla-scanner && \
     git clone https://github.com/Ostorlab/KEV.git --branch main /known-exploited-vulnerabilities && \

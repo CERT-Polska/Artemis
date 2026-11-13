@@ -26,7 +26,14 @@ class BruterParallelizationE2ETestCase(BaseE2ETestCase):
                 start_times.append(datetime.datetime.fromisoformat(task_result["task"]["payload"]["start_time"]))
 
         self.assertEqual(num_bruter_results, 5)
-        self.assertTrue(max(start_times) - min(start_times) < datetime.timedelta(seconds=5))
+        # Workers poll the queue every task_poll_interval_seconds (10s), so tasks that arrive a moment apart
+        # can be picked up one poll later. A single bruter scan takes ~20s here (~400 paths at 20 requests
+        # per second), so a missing worker would push the last start time to at least ~20s.
+        self.assertLess(
+            max(start_times) - min(start_times),
+            datetime.timedelta(seconds=15),
+            f"bruter start times: {sorted(start_times)}",
+        )
 
         for target in targets:
             self.assertMessagesContain(tag, "Found URLs: http://%s/localhost.sql" % target)

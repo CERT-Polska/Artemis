@@ -14,6 +14,7 @@ docker compose \
     up \
     -d \
     --build \
+    --quiet-pull \
     --scale test=0 \
     --scale test-e2e=0
 

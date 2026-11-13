@@ -1,15 +1,12 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
   image: "${ARTEMIS_BUILD_IMAGE:-certpl/artemis:latest}"
-  # Syd (docker/sandbox.sh) needs CAP_SYS_PTRACE and a non-default seccomp profile:
-  # Docker's default profile gates ptrace(2)/kcmp(2) behind the capability, and denies
-  # the unshare(2) call syd's monitor thread makes. The profile in docker/seccomp-syd.json
-  # is Docker's default plus allow-unshare-without-namespace-flags; namespace creation
-  # stays blocked (both by the profile mask and by the lack of CAP_SYS_ADMIN).
+  # Override Docker's default seccomp policy to allow unshare(2).
+  # More info: docker/seccomp/README.txt
   cap_add:
     - SYS_PTRACE
   security_opt:
-    - seccomp:./docker/seccomp-syd.json
+    - seccomp:./docker/seccomp/syd.json
   # Prevent NDOTS-based DNS search domain expansion for short hostnames such as
   # "s3mock", "redis", "postgres".  Without this, a host whose /etc/resolv.conf
   # contains e.g. "search corp.example.com" causes every DNS lookup for "s3mock"

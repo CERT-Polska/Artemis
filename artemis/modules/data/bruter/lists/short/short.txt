@@ -403,3 +403,7 @@
 /x.php
 /xsl/
 /.zip
+# Additional paths observed in the wild
+/media
+/media/docs
+/media/files

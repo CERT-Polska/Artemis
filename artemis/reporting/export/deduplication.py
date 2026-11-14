@@ -47,12 +47,9 @@ def deduplicate_reports(previous_reports: List[Report], reports_to_send: List[Re
 
         if report_normal_form in previous_reports_normalized.by_normal_forms:
             previous_reports_for_same_problem = previous_reports_normalized.by_normal_forms[report_normal_form]
-            if _all_reports_are_old(previous_reports_for_same_problem, report):
-                reports_scoring_dict[report_normal_form] = _build_subsequent_reminder(
-                    previous_reports_for_same_problem,
-                    report,
-                )
-            continue
+            if not _all_reports_are_old(previous_reports_for_same_problem, report):
+                continue
+            report = _build_subsequent_reminder(previous_reports_for_same_problem, report)
 
         if report_normal_form not in reports_scoring_dict:
             reports_scoring_dict[report_normal_form] = report

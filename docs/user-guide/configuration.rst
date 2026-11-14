@@ -12,6 +12,9 @@ Additional scanned asset API
 Set ``SCANNED_ASSETS_API_URL`` to supplement discovery with an external asset source.
 Requests use
 ``REQUEST_TIMEOUT_SECONDS``; failures are logged and scanning continues with existing sources.
+When configured, Artemis's ``/api/health`` endpoint also checks the API's ``/health``
+endpoint using the same timeout. An HTTP error, connection failure, or timeout
+makes Artemis report HTTP 503 with a ``scanned_assets_api`` error.
 
 The API must accept GET requests and return a JSON array of strings:
 

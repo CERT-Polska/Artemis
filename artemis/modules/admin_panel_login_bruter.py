@@ -242,7 +242,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         """
 
         found_paths = []
-        paths = list(dict.fromkeys(COMMON_LOGIN_PATHS + scanned_assets_api.get_paths("get_admin_panel_urls", base_url)))
+        paths = list(
+            dict.fromkeys(COMMON_LOGIN_PATHS + scanned_assets_api.get_assets("get_admin_panel_urls", base_url))
+        )
         for path in paths:
             full_url = urllib.parse.urljoin(base_url, path)
             if self._is_login_path(full_url):

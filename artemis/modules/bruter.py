@@ -74,7 +74,7 @@ class Bruter(ArtemisBase):
         """
         base_url = get_target_url(task)
         filenames_to_scan = FILENAMES_TO_SCAN | {
-            path.lstrip("/") for path in scanned_assets_api.get_paths("get_files", base_url)
+            path.lstrip("/") for path in scanned_assets_api.get_assets("get_files", base_url)
         }
 
         # random endpoint to filter out custom 404 pages

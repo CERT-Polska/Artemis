@@ -2,7 +2,6 @@
 
 import random
 import re
-from urllib.parse import urljoin, urlparse, urlunparse
 
 import requests
 
@@ -12,15 +11,15 @@ from artemis.utils import build_logger
 logger = build_logger(__name__)
 
 
-def _get_regex_for_output_validation(endpoint: str) -> re.Pattern:
+def _get_regex_for_output_validation(endpoint: str) -> re.Pattern[str]:
     if endpoint == "get_subdomains":
-        return re.compile(rf"([a-z0-9-\.]+)", re.IGNORECASE)
+        return re.compile(r"([a-z0-9-\.]+)", re.IGNORECASE)
     elif endpoint == "get_parameters":
         return re.compile(r"^[a-zA-Z0-9_.\-]{1,30}$")
     elif endpoint == "get_files":
-        return re.compile(rf"([a-z0-9-]+\.//)", re.IGNORECASE)
+        return re.compile(r"([a-z0-9-]+\.//)", re.IGNORECASE)
     elif endpoint == "get_admin_panel_urls":
-        return re.compile(rf"([a-z0-9-]+\.//)", re.IGNORECASE)
+        return re.compile(r"([a-z0-9-]+\.//)", re.IGNORECASE)
     else:
         raise NotImplementedError()
 
@@ -31,11 +30,6 @@ def get_assets(endpoint: str, target: str, max_count: int = 100, max_length: int
         return []
 
     assert endpoint in ["get_subdomains", "get_files", "get_parameters", "get_admin_panel_urls"]
-
-    root = _target_root(target)
-    if endpoint != "get_parameters" and not root:
-        logger.warning("Cannot parse host from target %s", target)
-        return []
 
     parameter = "domain" if endpoint == "get_subdomains" else "url"
     try:

@@ -6,6 +6,23 @@ directives, e.g. ``SCANNING_PACKETS_PER_SECOND=5``):
 
 .. include:: config-docs.inc
 
+Additional scanned asset API
+----------------------------
+
+Set ``SCANNED_ASSETS_API_URL`` to supplement discovery with an external asset source.
+Requests use
+``REQUEST_TIMEOUT_SECONDS``; failures are logged and scanning continues with existing sources.
+
+The API must accept GET requests and return a JSON array of strings:
+
+* ``/get_subdomains?domain=example.com`` returns subdomains.
+* ``/get_files?url=https%3A%2F%2Fexample.com`` returns file paths or URLs.
+* ``/get_parameters?url=https%3A%2F%2Fexample.com%2Fsearch`` returns parameter names.
+* ``/get_admin_panel_urls?url=https%3A%2F%2Fexample.com`` returns login paths or URLs.
+
+File and login URLs must belong to the target origin. Subdomains go through the
+usual domain and wildcard filters. Parameters supplement HTML input discovery.
+
 Extra modules
 -------------
 Additionally, you can configure modules from the ``Artemis-modules-extra`` repository (https://github.com/CERT-Polska/Artemis-modules-extra) using

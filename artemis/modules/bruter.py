@@ -9,7 +9,7 @@ from typing import IO, List, Set
 from karton.core import Task
 from requests import Session
 
-from artemis import load_risk_class
+from artemis import load_risk_class, scanned_assets_api
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.models import FoundURL
@@ -73,6 +73,9 @@ class Bruter(ArtemisBase):
         a directory index.
         """
         base_url = get_target_url(task)
+        filenames_to_scan = FILENAMES_TO_SCAN | {
+            path.lstrip("/") for path in scanned_assets_api.get_paths("get_files", base_url)
+        }
 
         # random endpoint to filter out custom 404 pages
         dummy_random_token = "".join(random.choices(string.ascii_letters + string.digits, k=16))
@@ -82,7 +85,7 @@ class Bruter(ArtemisBase):
         except Exception:
             dummy_content = ""
 
-        self.log.info(f"bruter scanning {base_url}: {len(FILENAMES_TO_SCAN)} paths to scan")
+        self.log.info(f"bruter scanning {base_url}: {len(filenames_to_scan)} paths to scan")
 
         # For downloading URLs, we don't use an existing tool (such as e.g. dirbuster or gobuster) as we
         # need to have a custom logic to filter custom 404 pages and if we used a separate tool, we would
@@ -92,8 +95,8 @@ class Bruter(ArtemisBase):
         # memory used gigabytes of RAM on the full list, while only the handful of matching URLs is needed.
         # Iterating a sorted list keeps the output order that sorted(results.items()) produced before.
         found_urls = []
-        for i, url in enumerate(sorted(FILENAMES_TO_SCAN)):
-            self.log.info(f"bruter url {i}/{len(FILENAMES_TO_SCAN)}: {url}")
+        for i, url in enumerate(sorted(filenames_to_scan)):
+            self.log.info(f"bruter url {i}/{len(filenames_to_scan)}: {url}")
             full_url = base_url + "/" + url
             try:
                 response = self.session_clear_cookies_http_get(
@@ -124,19 +127,19 @@ class Bruter(ArtemisBase):
 
         self.log.info("bruter finished")
 
-        if len(found_urls) > len(FILENAMES_TO_SCAN) * Config.Modules.Bruter.BRUTER_FALSE_POSITIVE_THRESHOLD:
+        if len(found_urls) > len(filenames_to_scan) * Config.Modules.Bruter.BRUTER_FALSE_POSITIVE_THRESHOLD:
             return BruterResult(
                 content_404=dummy_content,
                 too_many_urls_detected=True,
                 found_urls=[],
-                checked_paths=list(FILENAMES_TO_SCAN),
+                checked_paths=list(filenames_to_scan),
             )
 
         return BruterResult(
             content_404=dummy_content,
             too_many_urls_detected=False,
             found_urls=found_urls,
-            checked_paths=list(FILENAMES_TO_SCAN),
+            checked_paths=list(filenames_to_scan),
         )
 
     def run(self, task: Task) -> None:

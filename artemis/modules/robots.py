@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import re
 from dataclasses import asdict, dataclass
-from typing import List, Optional, Pattern
+from typing import List, Optional, Pattern, Set
 
 from karton.core import Task
 
@@ -83,6 +83,7 @@ class RobotsScanner(ArtemisBase):
 
         # Iterate over all paths from all groups
         found_urls = []
+        checked_urls: Set[str] = set()
         for g in groups:
             for path in g.allow + g.disallow:
                 if not any([re.match(p, path) for p in NOT_INTERESTING_PATHS]):
@@ -92,6 +93,9 @@ class RobotsScanner(ArtemisBase):
                     path = path.rstrip("$")
 
                     full_url = f"{url}{path}"
+                    if full_url in checked_urls:
+                        continue
+                    checked_urls.add(full_url)
                     content = self.http_get(full_url).content
                     if is_directory_index(content):
                         found_urls.append(

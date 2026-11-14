@@ -1,6 +1,7 @@
 import unittest
 from test.base import ArtemisModuleTestCase
 from typing import NamedTuple
+from unittest.mock import MagicMock, patch
 
 from karton.core import Task
 
@@ -103,3 +104,26 @@ class RobotsParserTest(unittest.TestCase):
     def test_empty_content(self) -> None:
         groups = self.scanner._parse_robots("")
         self.assertEqual(groups, [])
+
+
+class RobotsDownloadTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.scanner = RobotsScanner.__new__(RobotsScanner)
+
+    def test_path_listed_in_several_groups_is_requested_once(self) -> None:
+        groups = self.scanner._parse_robots(
+            "User-agent: Googlebot\nDisallow: /backup/\n\n"
+            "User-agent: Bingbot\nDisallow: /backup/\n\n"
+            "User-agent: *\nDisallow: /backup/\nAllow: /backup/$\nDisallow: /private/\n"
+        )
+        requested_urls: list[str] = []
+
+        def http_get(url: str) -> MagicMock:
+            requested_urls.append(url)
+            return MagicMock(content="<title>Index of /backup</title>" if url.endswith("/backup/") else "")
+
+        with patch.object(self.scanner, "http_get", side_effect=http_get):
+            found_urls = self.scanner._download(MagicMock(), "http://example.com:80", groups)
+
+        self.assertEqual(sorted(requested_urls), ["http://example.com:80/backup/", "http://example.com:80/private/"])
+        self.assertEqual([item.url for item in found_urls], ["http://example.com:80/backup/"])

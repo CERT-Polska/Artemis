@@ -13,7 +13,7 @@ from karton.core import Consumer, Task
 from karton.core.config import Config as KartonConfig
 from publicsuffixlist import PublicSuffixList
 
-from artemis import load_risk_class
+from artemis import load_risk_class, scanned_assets_api
 from artemis.binds import TaskStatus, TaskType
 from artemis.config import Config
 from artemis.db import DB
@@ -210,6 +210,9 @@ class SubdomainEnumeration(ArtemisBase):
         # Merge both results
         return (all_result or set()).union(recursive_result or set())
 
+    def get_subdomains_from_additional_assets_api(self, domain: str) -> Set[str]:
+        return set(scanned_assets_api.get_assets("get_subdomains", domain))
+
     def get_subdomains_from_gau(self, domain: str) -> Optional[Set[str]]:
         return self.get_subdomains_from_tool(
             "gau",
@@ -367,6 +370,7 @@ class SubdomainEnumeration(ArtemisBase):
         subdomain_tools = [
             self.get_subdomains_from_subfinder,
             self.get_subdomains_from_gau,
+            self.get_subdomains_from_additional_assets_api,
             lambda domain: self.get_subdomains_by_dns_brute_force(wildcard_ips, domain),
         ]
 

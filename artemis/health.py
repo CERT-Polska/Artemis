@@ -4,6 +4,7 @@ import time
 from typing import Optional
 
 import psutil
+import requests
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from karton.core.backend import KartonBackend
@@ -28,7 +29,7 @@ def _karton_backend() -> KartonBackend:
 
 @router.get("/health", dependencies=[Depends(verify_api_token)])
 def health() -> JSONResponse:
-    """Check available host RAM, configured disk space, and scanning worker consumption.
+    """Check host resources, scanning worker consumption, and the optional scanned assets API.
 
     last_consumed_task_time is the latest valid Unix timestamp among modules
     with queued tasks, or null if unavailable. Queued work is unhealthy only
@@ -83,6 +84,19 @@ def health() -> JSONResponse:
             errors["worker"] = (
                 f"No tasks consumed in the last {Config.Health.HEALTH_MAX_TASK_INACTIVITY_SECONDS / 3600:g} hours"
             )
+
+    assets_api_url = Config.ScannedAssetsAPI.SCANNED_ASSETS_API_URL
+    if assets_api_url:
+        try:
+            response = requests.get(
+                f"{assets_api_url.rstrip('/')}/health",
+                timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
+            )
+            response.raise_for_status()
+            if response.json()["status"] != "ok":
+                errors["scanned_assets_api"] = "Additional scanned assets API health check failed"
+        except requests.RequestException:
+            errors["scanned_assets_api"] = "Additional scanned assets API health check failed"
 
     if errors:
         return JSONResponse(

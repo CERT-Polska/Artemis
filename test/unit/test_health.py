@@ -2,6 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import requests
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from redis import RedisError
@@ -21,6 +22,8 @@ class HealthTest(unittest.TestCase):
         self.enterContext(patch.object(Config.Health, "HEALTH_MIN_AVAILABLE_MEMORY_PERCENT", 20.0))
         self.enterContext(patch.object(Config.Health, "HEALTH_MIN_FREE_DISK_PERCENT", 20.0))
         self.enterContext(patch.object(Config.Health, "HEALTH_MAX_TASK_INACTIVITY_SECONDS", 14400))
+        self.enterContext(patch.object(Config.ScannedAssetsAPI, "SCANNED_ASSETS_API_URL", ""))
+        self.assets_api_get = self.enterContext(patch("artemis.health.requests.get"))
         self.memory = self.enterContext(patch("artemis.health.psutil.virtual_memory"))
         self.disk = self.enterContext(patch("artemis.health.shutil.disk_usage"))
         self.redis = self.enterContext(patch("artemis.health.redis"))
@@ -34,6 +37,39 @@ class HealthTest(unittest.TestCase):
         self.backend.get_queue_names.return_value = ["karton.queue.normal:nuclei"]
         self.backend.redis.llen.return_value = 1
         self.redis.hget.return_value = b"100000"
+
+    def test_disabled_scanned_assets_api_is_not_checked(self) -> None:
+        self.assertEqual(self.client.get("/api/health").status_code, 200)
+        self.assets_api_get.assert_not_called()
+
+    def test_scanned_assets_api_health_is_checked(self) -> None:
+        for base_url in ["https://assets.example/api", "https://assets.example/api/"]:
+            with self.subTest(base_url=base_url):
+                with patch.object(Config.ScannedAssetsAPI, "SCANNED_ASSETS_API_URL", base_url):
+                    response = self.client.get("/api/health")
+                self.assertEqual(response.status_code, 200)
+                self.assets_api_get.assert_called_with(
+                    "https://assets.example/api/health", timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS
+                )
+        self.assertEqual(self.assets_api_get.return_value.raise_for_status.call_count, 2)
+
+    def test_scanned_assets_api_failures_are_unhealthy(self) -> None:
+        with patch.object(Config.ScannedAssetsAPI, "SCANNED_ASSETS_API_URL", "https://assets.example"):
+            for error in [requests.Timeout(), requests.ConnectionError(), requests.HTTPError()]:
+                with self.subTest(error=type(error).__name__):
+                    self.assets_api_get.side_effect = None
+                    self.assets_api_get.return_value.raise_for_status.side_effect = None
+                    if isinstance(error, requests.HTTPError):
+                        self.assets_api_get.return_value.raise_for_status.side_effect = error
+                    else:
+                        self.assets_api_get.side_effect = error
+                    response = self.client.get("/api/health")
+                    self.assertEqual(response.status_code, 503)
+                    self.assertEqual(response.json()["status"], "unhealthy")
+                    self.assertEqual(
+                        response.json()["errors"],
+                        {"scanned_assets_api": "Additional scanned assets API health check failed"},
+                    )
 
     def test_resource_thresholds(self) -> None:
         cases = [
@@ -166,9 +202,11 @@ class HealthTest(unittest.TestCase):
         self.memory.return_value.available = 10
         self.disk.return_value.free = 10
         self.redis.hget.return_value = b"0"
-        response = self.client.get("/api/health")
+        self.assets_api_get.side_effect = requests.Timeout()
+        with patch.object(Config.ScannedAssetsAPI, "SCANNED_ASSETS_API_URL", "https://assets.example"):
+            response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 503)
-        self.assertEqual(set(response.json()["errors"]), {"memory", "disk", "worker"})
+        self.assertEqual(set(response.json()["errors"]), {"memory", "disk", "worker", "scanned_assets_api"})
 
     def test_missing_token_uses_standard_api_validation(self) -> None:
         self.client.headers.pop("X-API-Token")

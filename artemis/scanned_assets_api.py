@@ -50,6 +50,8 @@ def get_assets(endpoint: str, target: str, max_count: int = 100, max_length: int
             if asset.strip() and len(asset) < max_length and pattern.fullmatch(asset.strip()):
                 results.append(asset.strip())
 
+        logger.info("Obtained additional assets for %s %s: %s", endpoint, target, results)
+
     except (requests.RequestException, ValueError):
         logger.warning("Unable to obtain assets from scanned asset API endpoint %s", endpoint, exc_info=True)
         return []

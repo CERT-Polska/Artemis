@@ -36,7 +36,7 @@ def get_assets(endpoint: str, target: str, max_count: int = 100, max_length: int
         response = requests.get(
             f"{base_url.rstrip('/')}/{endpoint}",
             params={parameter: target},
-            timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS,
+            timeout=120,  # Make the timeout large, it might need heavy queries
         )
         response.raise_for_status()
         assets = response.json()

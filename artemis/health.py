@@ -11,7 +11,7 @@ from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
 from redis import Redis, RedisError
 
-from artemis.api import verify_api_token
+from artemis.api_auth import verify_api_token
 from artemis.config import Config
 from artemis.task_utils import LAST_CONSUMED_TASK_TIME_KEY
 

@@ -1042,6 +1042,7 @@ class Config:
                         "http/vulnerabilities/other/wems-manager-xss.yaml",
                         "http/vulnerabilities/wordpress/wp-touch-redirect.yaml",
                         "http/fuzzing/iis-shortname.yaml",
+                        "http/exposed-panels/lmstudio-panel.yaml",
                     ]
                 ),
                 cast=decouple.Csv(str),

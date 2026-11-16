@@ -29,7 +29,7 @@ def is_output_line_correct(output_line: str, endpoint: str, max_length: int = 30
     return bool(output_line.strip() and len(output_line) < max_length and pattern.fullmatch(output_line.strip()))
 
 
-def get_assets(endpoint: str, target: str, max_count: int = 100) -> list[str]:
+def get_assets(endpoint: str, target: str, max_count: int = 200) -> list[str]:
     base_url = Config.ScannedAssetsAPI.SCANNED_ASSETS_API_URL
     if not base_url:
         return []

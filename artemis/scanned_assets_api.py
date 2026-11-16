@@ -24,7 +24,12 @@ def _get_regex_for_output_validation(endpoint: str) -> re.Pattern[str]:
         raise NotImplementedError()
 
 
-def get_assets(endpoint: str, target: str, max_count: int = 100, max_length: int = 30) -> list[str]:
+def is_output_line_correct(output_line: str, endpoint: str, max_length: int = 30) -> bool:
+    pattern = _get_regex_for_output_validation(endpoint)
+    return bool(output_line.strip() and len(output_line) < max_length and pattern.fullmatch(output_line.strip()))
+
+
+def get_assets(endpoint: str, target: str, max_count: int = 100) -> list[str]:
     base_url = Config.ScannedAssetsAPI.SCANNED_ASSETS_API_URL
     if not base_url:
         return []
@@ -44,10 +49,9 @@ def get_assets(endpoint: str, target: str, max_count: int = 100, max_length: int
             raise ValueError("Expected a JSON array of strings")
 
         random.shuffle(assets)
-        pattern = _get_regex_for_output_validation(endpoint)
         results = []
         for asset in assets[:max_count]:
-            if asset.strip() and len(asset) < max_length and pattern.fullmatch(asset.strip()):
+            if is_output_line_correct(asset, endpoint):
                 results.append(asset.strip())
 
         logger.info("Obtained additional assets for %s %s: %s", endpoint, target, results)

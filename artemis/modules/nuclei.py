@@ -157,6 +157,7 @@ def build_common_nuclei_command() -> List[str]:
     command = [
         "nuclei",
         "-disable-update-check",
+        "-restrict-local-network-access",
         "-timeout",
         str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
         "-jsonl",

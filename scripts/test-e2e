@@ -6,33 +6,34 @@ if [ ! -f .env ]; then
     cp env.example .env
 fi
 
+COMPOSE=(docker compose -f docker-compose.test.yaml -f docker-compose.yaml -f docker-compose.test-e2e.yaml)
+
+# Build before `up`: most services use the certpl/artemis:latest image that is built here. With `up --build`,
+# Compose first pulls that image from Docker Hub separately for each of these services (in parallel), which
+# fills the runner disk, and only then builds it.
+if ! "${COMPOSE[@]}" build; then
+    echo "Building the images failed" >&2
+    exit 1
+fi
+
 # Let's first start everything except the test container and perform relevant setup
-docker compose \
-    -f docker-compose.test.yaml \
-    -f docker-compose.yaml \
-    -f docker-compose.test-e2e.yaml \
-    up \
-    -d \
-    --build \
-    --quiet-pull \
-    --scale test=0 \
-    --scale test-e2e=0
+if ! "${COMPOSE[@]}" up -d --quiet-pull --scale test=0 --scale test-e2e=0; then
+    echo "Starting the containers failed" >&2
+    "${COMPOSE[@]}" ps -a
+    "${COMPOSE[@]}" down --remove-orphans
+    exit 1
+fi
 
 # Now we are ready to start the tests
-docker compose \
-    -f docker-compose.test.yaml \
-    -f docker-compose.yaml \
-    -f docker-compose.test-e2e.yaml \
-    run \
-    test-e2e
+"${COMPOSE[@]}" run test-e2e
 
 EXIT_CODE=$?
 
-docker compose \
-    -f docker-compose.test.yaml \
-    -f docker-compose.yaml \
-    -f docker-compose.test-e2e.yaml \
-    down \
-    --remove-orphans
+if [ $EXIT_CODE -ne 0 ]; then
+    "${COMPOSE[@]}" ps -a
+    "${COMPOSE[@]}" logs --no-color --tail=200 web
+fi
+
+"${COMPOSE[@]}" down --remove-orphans
 
 exit $EXIT_CODE

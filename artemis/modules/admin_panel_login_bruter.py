@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from karton.core import Task
 from pydantic import BaseModel
 
-from artemis import http_requests, load_risk_class
+from artemis import http_requests, load_risk_class, scanned_assets_api
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.config import Config
 from artemis.module_base import ArtemisBase
@@ -242,7 +242,10 @@ class AdminPanelLoginBruter(ArtemisBase):
         """
 
         found_paths = []
-        for path in COMMON_LOGIN_PATHS:
+        paths = list(
+            dict.fromkeys(COMMON_LOGIN_PATHS + scanned_assets_api.get_assets("get_admin_panel_urls", base_url))
+        )
+        for path in paths:
             full_url = urllib.parse.urljoin(base_url, path)
             if self._is_login_path(full_url):
                 self.log.info("Discovered login path: %s", full_url)

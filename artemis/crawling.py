@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from bs4.exceptions import ParserRejectedMarkup  # type: ignore
 from redis import Redis
 
-from artemis import http_requests, utils
+from artemis import http_requests, scanned_assets_api, utils
 from artemis.config import Config
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.redis_cache import RedisCache
@@ -45,7 +45,7 @@ def get_injectable_parameters(url: str) -> List[str]:
         html_params = list(_fetch_injectable_parameters(url))
     except Exception:
         html_params = []
-    return list(set(html_params))
+    return list(set(html_params) | set(scanned_assets_api.get_assets("get_parameters", url)))
 
 
 def add_injectable_params_and_common_params_from_wordlist(

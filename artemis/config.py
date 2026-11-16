@@ -89,6 +89,11 @@ class Config:
                 "Where the archived task results will be saved (remember that this is a path inside the container).",
             ] = get_config("AUTOARCHIVER_OUTPUT_PATH", default="/opt/archived-task-results/")
 
+    class ScannedAssetsAPI:
+        SCANNED_ASSETS_API_URL: Annotated[
+            str, "Base URL of the additional scanned asset API. Empty disables the integration."
+        ] = get_config("SCANNED_ASSETS_API_URL", default="")
+
     class Reporting:
         REPORTING_MAX_VULN_AGE_DAYS: Annotated[
             int, "When creating e-mail reports, what is the vulnerability maximum age (in days) for it to be reported."

@@ -1,12 +1,11 @@
 import asyncio
 import dataclasses
 import datetime
-import hmac
 from pathlib import Path
-from typing import Annotated, Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 import aiohttp
-from fastapi import APIRouter, Body, Depends, Header, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import FileResponse, Response
 from karton.core.backend import KartonBackend
 from karton.core.config import Config as KartonConfig
@@ -14,6 +13,7 @@ from karton.core.task import TaskPriority as KartonTaskPriority
 from pydantic import BaseModel
 from redis import Redis
 
+from artemis.api_auth import verify_api_token
 from artemis.blocklist import (
     BlocklistItem,
     load_blocklist,
@@ -68,16 +68,6 @@ class ReportGenerationTaskModel(BaseModel):
     error: Optional[str]
     alerts: Any
     include_only_results_since: Optional[datetime.datetime]
-
-
-def verify_api_token(x_api_token: Annotated[str, Header()]) -> None:
-    if not Config.Miscellaneous.API_TOKEN:
-        raise HTTPException(
-            status_code=401,
-            detail="Please fill the API_TOKEN variable in .env in order to use the API",
-        )
-    elif not hmac.compare_digest(x_api_token, Config.Miscellaneous.API_TOKEN):
-        raise HTTPException(status_code=401, detail="Invalid API token")
 
 
 @router.post("/add", dependencies=[Depends(verify_api_token)])

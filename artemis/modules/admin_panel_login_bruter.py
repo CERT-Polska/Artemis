@@ -242,6 +242,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         """
 
         found_paths = []
+        not_found_paths = []
         paths = list(
             dict.fromkeys(COMMON_LOGIN_PATHS + scanned_assets_api.get_assets("get_admin_panel_urls", base_url))
         )
@@ -250,6 +251,9 @@ class AdminPanelLoginBruter(ArtemisBase):
             if self._is_login_path(full_url):
                 self.log.info("Discovered login path: %s", full_url)
                 found_paths.append(path)
+            else:
+                not_found_paths.append(path)
+        self.log.info("Not found login paths on: %s", not_found_paths)
         return found_paths
 
     def detect_redirect(self, response: requests.Response, login_url: str) -> bool:
@@ -432,6 +436,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         rate_limited = False
         try:
             for path in login_paths:
+                self.log.info("Checking login path: %s", path)
                 num_rechecked_credentials = 0
                 credentials = list(itertools.product(COMMON_USERNAMES, get_passwords(task)))
                 credentials += COMMON_CREDENTIAL_PAIRS

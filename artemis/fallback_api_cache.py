@@ -72,7 +72,9 @@ class FallbackAPICache:
 
         if found:
             if not found.validator(response.json()):
-                raise InvalidResponseException()
+                raise InvalidResponseException(
+                    f"Unexpected response from {url}: HTTP {response.status_code}, {response.text[:300]!r}"
+                )
 
         return response
 

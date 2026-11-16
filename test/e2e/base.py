@@ -23,6 +23,22 @@ FRONTEND_PASSWORD = "testpass"
 NUM_RETRIES = 100
 RETRY_TIME_SECONDS = 2
 
+# Without a timeout a hung backend makes a test wait until the job's timeout-minutes runs out, which
+# GitHub shows as a cancelled job instead of a failure with a traceback. Patching Session.request also
+# covers requests.get() / requests.post(), as they use a Session under the hood.
+REQUEST_TIMEOUT_SECONDS = 120
+_original_session_request = requests.Session.request
+
+
+def _session_request_with_timeout(
+    self: requests.Session, method: str | bytes, url: str | bytes, **kwargs: Any
+) -> requests.Response:
+    kwargs.setdefault("timeout", REQUEST_TIMEOUT_SECONDS)
+    return _original_session_request(self, method, url, **kwargs)
+
+
+requests.Session.request = _session_request_with_timeout  # type: ignore[method-assign,assignment]
+
 
 TaskListRow = namedtuple("TaskListRow", ["created_at", "tag", "receiver", "task_link", "headers_html", "message"])
 
@@ -108,6 +124,7 @@ class BaseE2ETestCase(TestCase):
                     return
                 self._logger.info("There are still pending tasks, retrying")
                 time.sleep(retry_time_seconds)
+        self.fail(f"Tasks didn't finish in {num_retries * retry_time_seconds:.0f}s")
 
     def get_task_results(self) -> Dict[str, Any]:
         with requests.Session() as s:
@@ -157,3 +174,4 @@ class BaseE2ETestCase(TestCase):
             except Exception as e:
                 self._logger.error("Error when trying to access backend: %s try %d/%d", e, retry + 1, num_retries)
             time.sleep(retry_time_seconds)
+        self.fail(f"Backend didn't come up in {num_retries * retry_time_seconds:.0f}s")

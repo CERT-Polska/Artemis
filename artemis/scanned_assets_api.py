@@ -17,9 +17,9 @@ def _get_regex_for_output_validation(endpoint: str) -> re.Pattern[str]:
     elif endpoint == "get_parameters":
         return re.compile(r"^[a-zA-Z0-9_.\-]{1,30}$")
     elif endpoint == "get_files":
-        return re.compile(r"[a-z0-9-/.]+", re.IGNORECASE)
+        return re.compile(r"[a-z0-9-/._]+", re.IGNORECASE)
     elif endpoint == "get_admin_panel_urls":
-        return re.compile(r"[a-z0-9-/.]+", re.IGNORECASE)
+        return re.compile(r"[a-z0-9-/._]+", re.IGNORECASE)
     else:
         raise NotImplementedError()
 

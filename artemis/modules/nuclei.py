@@ -167,6 +167,9 @@ def build_common_nuclei_command() -> List[str]:
         "1048576",
     ]
 
+    if "RUNNING_TESTS" not in os.environ:
+        command.append("-restrict-local-network-access")
+
     if Config.Miscellaneous.CUSTOM_USER_AGENT:
         command.extend(["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT])
 

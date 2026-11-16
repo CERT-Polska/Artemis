@@ -13,7 +13,7 @@ logger = build_logger(__name__)
 
 def _get_regex_for_output_validation(endpoint: str) -> re.Pattern[str]:
     if endpoint == "get_subdomains":
-        return re.compile(r"([a-z0-9-\.]+)", re.IGNORECASE)
+        return re.compile(r"([a-zA-Z0-9-\.]+)", re.IGNORECASE)
     elif endpoint == "get_parameters":
         return re.compile(r"^[a-zA-Z0-9_.\-]{1,30}$")
     elif endpoint == "get_files":

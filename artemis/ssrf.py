@@ -34,7 +34,8 @@ _BAD_NETS = tuple(
         "fc00::/7",
         "fe80::/10",
         "ff00::/8",
-    ) + tuple(Config.SSRF.SSRF_ADDITIONAL_BLOCKED_NETWORKS)
+    )
+    + tuple(Config.SSRF.SSRF_ADDITIONAL_BLOCKED_NETWORKS)
 )
 
 

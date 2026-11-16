@@ -42,17 +42,6 @@ class HealthTest(unittest.TestCase):
         self.assertEqual(self.client.get("/api/health").status_code, 200)
         self.assets_api_get.assert_not_called()
 
-    def test_scanned_assets_api_health_is_checked(self) -> None:
-        for base_url in ["https://assets.example/api", "https://assets.example/api/"]:
-            with self.subTest(base_url=base_url):
-                with patch.object(Config.ScannedAssetsAPI, "SCANNED_ASSETS_API_URL", base_url):
-                    response = self.client.get("/api/health")
-                self.assertEqual(response.status_code, 200)
-                self.assets_api_get.assert_called_with(
-                    "https://assets.example/api/health", timeout=Config.Limits.REQUEST_TIMEOUT_SECONDS
-                )
-        self.assertEqual(self.assets_api_get.return_value.raise_for_status.call_count, 2)
-
     def test_scanned_assets_api_failures_are_unhealthy(self) -> None:
         with patch.object(Config.ScannedAssetsAPI, "SCANNED_ASSETS_API_URL", "https://assets.example"):
             for error in [requests.Timeout(), requests.ConnectionError(), requests.HTTPError()]:

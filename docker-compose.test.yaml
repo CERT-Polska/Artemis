@@ -468,7 +468,7 @@ volumes:
   data-test:
 
 networks:
-  backend:
+  default:
     driver: bridge
     ipam:
       driver: default

@@ -42,6 +42,7 @@ class WordPressBruter(ArtemisBase):
 
         credentials = []
         for username in usernames:
+            num_working_passwords_for_user = 0
             for password in passwords:
                 content = self.http_post(
                     url + "/wp-login.php",
@@ -55,7 +56,13 @@ class WordPressBruter(ArtemisBase):
                     cookies={"wordpress_test_cookie": "WP%20Cookie%20check"},
                 ).content
                 if "<title>Dashboard" in content or '<form class="admin-email-confirm-form"' in content:
+                    num_working_passwords_for_user += 1
                     credentials.append((username, password))
+
+            if num_working_passwords_for_user > 1:
+                # It's not possible for multiple passwords for a single user to work - a sign of FP
+                credentials = []
+                break
 
         if credentials:
             status = TaskStatus.INTERESTING

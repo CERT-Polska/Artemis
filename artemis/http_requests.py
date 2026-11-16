@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional
 import chardet
 import requests
 
+from artemis.ssrf import ssrf_fence
 from artemis.config import Config
 from artemis.utils import build_logger, throttle_request
 
@@ -121,16 +122,17 @@ def request(
         else:
             LOGGER.debug("%s %s", method_name, url)
 
-        response = getattr(session, method_name)(
-            url,
-            allow_redirects=allow_redirects,
-            data=data,
-            cookies=cookies,
-            verify=False,
-            stream=True,
-            timeout=timeout if timeout is not None else Config.Limits.REQUEST_TIMEOUT_SECONDS,
-            headers=headers,
-        )
+        with ssrf_fence():                        
+            response = getattr(session, method_name)(
+                url,
+                allow_redirects=allow_redirects,
+                data=data,
+                cookies=cookies,
+                verify=False,
+                stream=True,
+                timeout=timeout if timeout is not None else Config.Limits.REQUEST_TIMEOUT_SECONDS,
+                headers=headers,
+            )
 
         try:
             # Handling situations where the response is very long, which is not handled by requests timeout

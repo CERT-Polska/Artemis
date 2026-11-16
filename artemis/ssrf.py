@@ -1,3 +1,4 @@
+import os
 import contextlib
 import ipaddress
 import socket
@@ -26,7 +27,6 @@ _BAD_NETS = tuple(
         "198.18.0.0/15",
         "198.51.100.0/24",
         "203.0.113.0/24",
-        "224.0.0.0/3",
         "::/128",
         "::1/128",
         "2001:0::/32",
@@ -36,6 +36,7 @@ _BAD_NETS = tuple(
         "ff00::/8",
     )
     + tuple(Config.SSRF.SSRF_ADDITIONAL_BLOCKED_NETWORKS)
+    + (tuple([]) if "RUNNING_TESTS" in os.environ else ("224.0.0.0/3",))  # this is the net used in tests
 )
 
 

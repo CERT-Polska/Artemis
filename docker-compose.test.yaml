@@ -466,3 +466,11 @@ services:
 
 volumes:
   data-test:
+
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 240.0.0.0/24  # use a reserved, but non-private IP range, as (some) modules are not allowed to connect to local networks

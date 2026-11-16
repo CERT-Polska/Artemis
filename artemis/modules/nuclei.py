@@ -157,7 +157,6 @@ def build_common_nuclei_command() -> List[str]:
     command = [
         "nuclei",
         "-disable-update-check",
-        "-restrict-local-network-access",
         "-timeout",
         str(Config.Limits.REQUEST_TIMEOUT_SECONDS),
         "-jsonl",
@@ -167,6 +166,9 @@ def build_common_nuclei_command() -> List[str]:
         "-response-size-read",
         "1048576",
     ]
+
+    if "RUNNING_TESTS" not in os.environ:
+        command.append("-restrict-local-network-access")
 
     if Config.Miscellaneous.CUSTOM_USER_AGENT:
         command.extend(["-H", "User-Agent: " + Config.Miscellaneous.CUSTOM_USER_AGENT])

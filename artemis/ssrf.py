@@ -4,6 +4,8 @@ import socket
 import threading
 from typing import Any, Iterator
 
+from artemis.config import Config
+
 
 class SSRFDetected(Exception):
     pass
@@ -32,7 +34,7 @@ _BAD_NETS = tuple(
         "fc00::/7",
         "fe80::/10",
         "ff00::/8",
-    )
+    ) + tuple(Config.SSRF.SSRF_ADDITIONAL_BLOCKED_NETWORKS)
 )
 
 

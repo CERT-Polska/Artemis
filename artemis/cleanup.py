@@ -98,9 +98,14 @@ MIN_ANALYSIS_AGE_TO_BE_CONSIDERED_FINISHED = datetime.timedelta(hours=24)
 
 
 def _update_analysis_finished_times() -> None:
-    """Marks analyses that have no pending Karton tasks as finished. A fresh analysis also temporarily
-    has no Karton tasks (create_tasks() in producer.py sends them after db.create_analysis()), hence
-    the minimum age."""
+    """Marks analyses that have no pending Karton tasks as finished.
+
+    - Crashed tasks count as pending (see get_num_pending_tasks), so an analysis gets finished
+      only after karton-system garbage-collected its crashed tasks ([system] task_crashed_timeout,
+      see docker/karton.ini) - afterwards nothing is restatable.
+    - A fresh analysis also temporarily has no Karton tasks (create_tasks() in producer.py sends
+      them after db.create_analysis()), hence the minimum age.
+    """
     num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
 
     if not num_pending_tasks and Config.Miscellaneous.CLEANUP_RAISE_ERROR_ON_NON_UNFINISHED_ANALYSES:

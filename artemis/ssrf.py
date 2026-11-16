@@ -2,7 +2,7 @@ import contextlib
 import ipaddress
 import socket
 import threading
-import urllib.parse
+from typing import Any, Iterator
 
 
 class SSRFDetected(Exception):
@@ -36,7 +36,7 @@ _BAD_NETS = tuple(
 )
 
 
-def _ip_bad(addr: str) -> bool:
+def ip_bad(addr: str) -> bool:
     try:
         ip = ipaddress.ip_address(addr)
         if ip.version == 6 and ip.ipv4_mapped:
@@ -50,18 +50,16 @@ _fence = threading.local()
 _getaddrinfo = socket.getaddrinfo
 
 
-def _fenced_getaddrinfo(
-    host: str, port: int, family: int = 0, type: int = 0, proto: int = 0, flags: int = 0
-) -> socket.addrinfo:
+def _fenced_getaddrinfo(host: str, port: int, family: int = 0, type: int = 0, proto: int = 0, flags: int = 0) -> Any:
     if getattr(_fence, "on", False) and isinstance(host, str):
         infos = _getaddrinfo(host, port, family, type, proto, flags)
-        if not infos or any(_ip_bad(i[4][0]) for i in infos):
+        if not infos or any(ip_bad(i[4][0]) for i in infos):  # type: ignore
             raise SSRFDetected()
         return infos
     return _getaddrinfo(host, port, family, type, proto, flags)
 
 
-socket.getaddrinfo = _fenced_getaddrinfo
+socket.getaddrinfo = _fenced_getaddrinfo  # type: ignore
 
 
 @contextlib.contextmanager

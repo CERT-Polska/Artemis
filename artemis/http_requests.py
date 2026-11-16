@@ -10,8 +10,9 @@ from typing import Any, Dict, Optional
 import chardet
 import requests
 
-from artemis.ssrf import ssrf_fence
 from artemis.config import Config
+from artemis.ip_utils import is_ip_address
+from artemis.ssrf import SSRFDetected, ip_bad, ssrf_fence
 from artemis.utils import build_logger, throttle_request
 
 LOGGER = build_logger(__name__)
@@ -122,7 +123,10 @@ def request(
         else:
             LOGGER.debug("%s %s", method_name, url)
 
-        with ssrf_fence():                        
+        with ssrf_fence():
+            if url_parsed.hostname and is_ip_address(url_parsed.hostname) and ip_bad(url_parsed.hostname):
+                raise SSRFDetected()
+
             response = getattr(session, method_name)(
                 url,
                 allow_redirects=allow_redirects,

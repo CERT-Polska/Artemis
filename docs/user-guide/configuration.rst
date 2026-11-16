@@ -18,12 +18,11 @@ makes Artemis report HTTP 503 with a ``scanned_assets_api`` error.
 The API must accept GET requests and return a JSON array of strings:
 
 * ``/get_subdomains?domain=example.com`` returns subdomains.
-* ``/get_files?url=https%3A%2F%2Fexample.com`` returns file paths or URLs.
+* ``/get_files?url=https%3A%2F%2Fexample.com`` returns file paths.
 * ``/get_parameters?url=https%3A%2F%2Fexample.com%2Fsearch`` returns parameter names.
-* ``/get_admin_panel_urls?url=https%3A%2F%2Fexample.com`` returns login paths or URLs.
+* ``/get_admin_panel_urls?url=https%3A%2F%2Fexample.com`` returns login paths.
 
-File and login URLs must belong to the target origin. Subdomains go through the
-usual domain and wildcard filters. Parameters supplement HTML input discovery.
+Subdomains go through the usual domain and wildcard filters. Parameters supplement HTML input discovery.
 
 Extra modules
 -------------

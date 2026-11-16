@@ -11,6 +11,8 @@ import chardet
 import requests
 
 from artemis.config import Config
+from artemis.ip_utils import is_ip_address
+from artemis.ssrf import SSRFDetected, ip_bad, ssrf_fence
 from artemis.utils import build_logger, throttle_request
 
 LOGGER = build_logger(__name__)
@@ -121,16 +123,20 @@ def request(
         else:
             LOGGER.debug("%s %s", method_name, url)
 
-        response = getattr(session, method_name)(
-            url,
-            allow_redirects=allow_redirects,
-            data=data,
-            cookies=cookies,
-            verify=False,
-            stream=True,
-            timeout=timeout if timeout is not None else Config.Limits.REQUEST_TIMEOUT_SECONDS,
-            headers=headers,
-        )
+        with ssrf_fence():
+            if url_parsed.hostname and is_ip_address(url_parsed.hostname) and ip_bad(url_parsed.hostname):
+                raise SSRFDetected()
+
+            response = getattr(session, method_name)(
+                url,
+                allow_redirects=allow_redirects,
+                data=data,
+                cookies=cookies,
+                verify=False,
+                stream=True,
+                timeout=timeout if timeout is not None else Config.Limits.REQUEST_TIMEOUT_SECONDS,
+                headers=headers,
+            )
 
         try:
             # Handling situations where the response is very long, which is not handled by requests timeout

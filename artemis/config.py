@@ -27,6 +27,13 @@ if "POSTGRES_CONN_STR" not in os.environ:
 
 
 class Config:
+    class SSRF:
+        SSRF_ADDITIONAL_BLOCKED_NETWORKS: Annotated[
+            List[str],
+            "Comma-separated IPv4 and IPv6 networks in CIDR notation to block in addition to the built-in SSRF "
+            "blocklist. Invalid networks cause startup to fail. Example: 8.8.8.0/24,2606:4700::/32.",
+        ] = get_config("SSRF_ADDITIONAL_BLOCKED_NETWORKS", default="", cast=decouple.Csv(str))
+
     class Health:
         HEALTH_DISK_PATH: Annotated[
             str, "Path inside the web container whose filesystem free space is checked by the health endpoint."

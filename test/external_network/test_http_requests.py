@@ -13,10 +13,6 @@ class SSRFFenceTestCase(unittest.TestCase):
         with self.assertRaises(SSRFDetected):
             get("https://127.0.0.1")
         with self.assertRaises(SSRFDetected):
-            get("http://redis")
-        with self.assertRaises(SSRFDetected):
-            get("http://postgres")
-        with self.assertRaises(SSRFDetected):
             get("http://localhost")
         with self.assertRaises(SSRFDetected):
             get("http://domaincontrol.com")

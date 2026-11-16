@@ -1,6 +1,6 @@
-import os
 import contextlib
 import ipaddress
+import os
 import socket
 import threading
 from typing import Any, Iterator

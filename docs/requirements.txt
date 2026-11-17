@@ -124,7 +124,7 @@ shodan==1.31.0
 six==1.17.0
 snowballstemmer==3.1.1
 soupsieve==4.1
-sphinx==9.0.4
+sphinx==9.2.0
 sphinx-rtd-theme==3.1.0
 sphinxcontrib-applehelp==2.0.0
 sphinxcontrib-devhelp==2.0.0

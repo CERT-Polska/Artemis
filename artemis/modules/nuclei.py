@@ -965,7 +965,9 @@ class Nuclei(ArtemisBase):
 
             if messages:
                 status = TaskStatus.INTERESTING
-                status_reason = ", ".join(sorted(messages))
+                # A template without stop-at-first-match reports one finding per matching payload, and
+                # those render as identical lines. Show each line once; the findings stay intact in `data`.
+                status_reason = ", ".join(sorted(set(messages)))
             else:
                 status = TaskStatus.OK
                 status_reason = None

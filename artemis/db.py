@@ -98,11 +98,13 @@ class Analysis(Base):  # type: ignore
     :ivar disabled_modules: Comma-separated list of disabled modules for this analysis.
     :ivar priority: Priority of tasks created by the analysis.
     :ivar desired_priority: Target priority of tasks. If different to `priority`, Artemis will try to reprioritize `Analysis`.
+    :ivar finished_at: Time the cleanup process first saw the analysis as finished (None if not finished).
     """
 
     __tablename__ = "analysis"
     id = Column(String, primary_key=True)
     created_at = Column(DateTime, server_default=text("NOW()"))
+    finished_at = Column(DateTime)
     target = Column(String, index=True)
     tag = Column(String, index=True)
     stopped = Column(Boolean, index=True)
@@ -116,6 +118,11 @@ class Analysis(Base):  # type: ignore
     )
 
     __table_args__ = (Index("analysis_fulltext", fulltext, postgresql_using="gin"),)
+
+
+def is_analysis_finished(analysis: Dict[str, Any]) -> bool:
+    """The marker (Analysis.finished_at) is computed by artemis.cleanup._update_analysis_finished_times."""
+    return analysis["finished_at"] is not None
 
 
 class TaskResult(Base):  # type: ignore
@@ -260,6 +267,14 @@ class DB:
             analysis.stopped = True
             session.add(analysis)
             session.commit()
+
+    def set_analysis_finished_time(self, analysis_id: str, finished_at: datetime) -> None:
+        """Sets the finish time only if it's not set yet."""
+        with self.session() as session:
+            analysis = session.query(Analysis).get(analysis_id)
+            if analysis.finished_at is None:
+                analysis.finished_at = finished_at
+                session.commit()
 
     def save_task_logs(self, task_id: str, logs: bytes) -> None:
         with self.session() as session:
@@ -514,6 +529,13 @@ class DB:
             session.delete(analysis)
             session.commit()
 
+    def delete_analyses_by_ids(self, ids: List[str]) -> int:
+        query = delete(Analysis).where(Analysis.id.in_(ids))  # type: ignore
+        with self.session() as session:
+            result = session.execute(query)
+            session.commit()
+            return int(result.rowcount)
+
     def delete_task_result(self, id: str) -> None:
         with self.session() as session:
             task_result = session.query(TaskResult).get(id)
@@ -550,6 +572,17 @@ class DB:
 
     def delete_module_started_tasks_for_analyses(self, analysis_ids: list[str]) -> int:
         query = delete(ModuleStartedTask).where(ModuleStartedTask.analysis_id.in_(analysis_ids))  # type: ignore
+        with self.session() as session:
+            result = session.execute(query)
+            session.commit()
+            return int(result.rowcount)
+
+    def delete_module_started_tasks_for_finished_analyses(self) -> int:
+        query = delete(ModuleStartedTask).where(  # type: ignore
+            ModuleStartedTask.analysis_id.in_(
+                select(Analysis.id).where(Analysis.finished_at.isnot(None))  # type: ignore
+            )
+        )
         with self.session() as session:
             result = session.execute(query)
             session.commit()

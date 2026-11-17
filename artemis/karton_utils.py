@@ -38,10 +38,9 @@ def restart_crashed_tasks() -> None:
 def get_num_pending_tasks(karton_backend: KartonBackend) -> Dict[str, int]:
     result: Dict[str, int] = {}
     for task in karton_backend.iter_all_tasks():
-        if task.status in [TaskState.STARTED, TaskState.SPAWNED, TaskState.DECLARED]:
+        # Why crashed tasks also count: see _update_analysis_finished_times in artemis/cleanup.py.
+        if task.status in [TaskState.STARTED, TaskState.SPAWNED, TaskState.DECLARED, TaskState.CRASHED]:
             result[task.root_uid] = result.get(task.root_uid, 0) + 1
-        else:
-            assert task.status in [TaskState.FINISHED, TaskState.CRASHED], "Unknown task status: " + str(task.status)
     return result
 
 

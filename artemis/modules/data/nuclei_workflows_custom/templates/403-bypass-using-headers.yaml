@@ -22,6 +22,10 @@ http:
         - X-Remote-Addr
         - X-Real-IP
 
+    # One bypassing header is enough to prove the finding. Without this, every
+    # header that works produces its own identical result.
+    stop-at-first-match: true
+
     matchers:
       - type: dsl
         dsl:

@@ -119,6 +119,12 @@ class NucleiShortTemplateListTest(ArtemisModuleTestCase):
         self.run_task(task)
         (call,) = self.mock_db.save_task_result.call_args_list
         self.assertEqual(call.kwargs["status"], TaskStatus.INTERESTING)
+        # The mock accepts two of the headers the template tries, so without stop-at-first-match
+        # there would be two findings. The status reason alone can't tell, as identical lines are merged.
+        header_findings = [
+            finding for finding in call.kwargs["data"] if finding["template-id"] == "403-bypass-using-headers"
+        ]
+        self.assertEqual(len(header_findings), 1)
         self.assertEqual(
             call.kwargs["status_reason"],
             "[medium] http://test-php-403-bypass.local:80: 403 Forbidden Bypass Detection with Headers Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).\n",

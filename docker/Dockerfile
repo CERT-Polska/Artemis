@@ -1,6 +1,6 @@
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 # and with the Python version in .readthedocs.yaml
-FROM python:3.13.18-alpine3.24
+FROM python:3.13-alpine
 
 COPY --from=golang:1.25-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
@@ -15,7 +15,8 @@ ARG ADDITIONAL_REQUIREMENTS
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
 # `go clean -modcache` drops the sources of the Go tools' dependencies once the binaries are in /usr/local/bin.
 # The Wappalyzer wrapper (run with `go run` at scan time) downloads its own modules in a later layer.
-RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
+RUN apk upgrade --no-cache && \
+    apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois coreutils && \
     cd /go && \
     GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \

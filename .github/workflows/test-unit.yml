@@ -4,6 +4,7 @@ on:
     branches: [ '**' ]
     paths-ignore:
       - 'docs/**'
+  workflow_call:
 
 jobs:
   unit:

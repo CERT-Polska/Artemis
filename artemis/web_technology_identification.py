@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass, field
@@ -76,27 +77,22 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Dict[str, Lis
     Raises TechDetectionFailedException if the detection itself couldn't be performed - the caller must not
     confuse that with a target running no technologies.
     """
-    wappalyzer_path = os.path.join(os.path.dirname(__file__), "modules", "utils", "wappalyzer")
-    main_go_path = os.path.join(wappalyzer_path, "main.go")
-    if not os.path.exists(main_go_path):
+    wappalyzer_bin = shutil.which("wappalyzer")
+    if not wappalyzer_bin:
         # Same class of failure as the ones below, so it gets the same exception - a caller catching
         # TechDetectionFailedException would otherwise miss this one.
-        raise TechDetectionFailedException(f"Wappalyzer main.go not found at {main_go_path}")
+        raise TechDetectionFailedException(
+            "wappalyzer binary not found in PATH - it is built at Docker image build time (docker/Dockerfile)"
+        )
 
     try:
-        # The wappalyzergo version comes from go.mod. We deliberately don't upgrade it here: doing that on
-        # each call meant production, CI and the pinned version were all running different code, so a broken
-        # upstream release would hit production and CI at the same moment, with no PR to revert. Upgrades
-        # arrive as Dependabot pull requests instead - see .github/dependabot.yml.
         with tempfile.NamedTemporaryFile(mode="w") as temp_file:
             for url in urls:
                 temp_file.write(url + "\n")
             temp_file.flush()
             os.fsync(temp_file.fileno())
 
-            wappalyzer_output = subprocess.check_output(
-                ["go", "run", main_go_path, temp_file.name], cwd=wappalyzer_path
-            )
+            wappalyzer_output = subprocess.check_output([wappalyzer_bin, temp_file.name])
 
         raw = json.loads(wappalyzer_output)
         # Pre-seed every input URL so the result keeps the documented url -> list

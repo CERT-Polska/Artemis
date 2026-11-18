@@ -24,7 +24,7 @@ repos:
     args: [--strict]
     additional_dependencies:
     - aiohttp==3.13.3
-    - alembic==1.18.4
+    - alembic==1.20.1
     - django-stubs==5.2.0
     - dnspython==2.7.0
     - fastapi==0.116.1

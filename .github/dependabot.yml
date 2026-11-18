@@ -11,6 +11,16 @@ updates:
     cooldown:
       default-days: 3
 
+  # Production service images. Test images intentionally include vulnerable versions.
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    exclude-paths:
+      - "docker-compose.test*.yaml"
+    cooldown:
+      default-days: 3
+
   # Go modules
   - package-ecosystem: "gomod"
     directory: "/docker/"
@@ -47,6 +57,22 @@ updates:
     open-pull-requests-limit: 10
     allow:
       - dependency-name: "*"  # Allow all packages from requirements.txt
+    cooldown:
+      default-days: 3
+
+  # Python packages in the slow pusher utility
+  - package-ecosystem: "pip"
+    directory: "/utils/slow_pusher/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 3
+
+  # Pre-commit hook revisions
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
     cooldown:
       default-days: 3
 

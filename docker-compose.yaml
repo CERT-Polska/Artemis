@@ -168,7 +168,7 @@ services:
     <<: *logging
     command: ["/wait-for-dependencies.sh", "karton-dashboard", "run", "--host", "0.0.0.0"]
     env_file: .env
-    image: certpl/karton-dashboard:f719024c3387bab39c21f890af369afb5943d3cf
+    image: certpl/karton-dashboard:latest
     restart: always
     # Prevent NDOTS-based DNS search expansion – see the note on the
     # x-artemis-build-or-image anchor above (#2310).

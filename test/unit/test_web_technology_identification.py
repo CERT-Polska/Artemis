@@ -74,7 +74,7 @@ class TestWebTechnologyIdentification(unittest.TestCase):
                 self.fail(f"subprocess called without a command: {call}")
             commands.append(command)
         for command in commands:
-            self.assertEqual(command[0], "wappalyzer")
+            self.assertEqual(command[0], "/usr/local/bin/wappalyzer")
 
     @patch("artemis.web_technology_identification.subprocess.check_output")
     @patch("artemis.web_technology_identification.shutil.which", return_value="/usr/local/bin/wappalyzer")

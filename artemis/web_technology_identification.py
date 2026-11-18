@@ -86,10 +86,6 @@ def run_tech_detection(urls: List[str], logger: logging.Logger) -> Dict[str, Lis
         )
 
     try:
-        # The wappalyzergo version comes from go.mod. We deliberately don't upgrade it here: doing that on
-        # each call meant production, CI and the pinned version were all running different code, so a broken
-        # upstream release would hit production and CI at the same moment, with no PR to revert. Upgrades
-        # arrive as Dependabot pull requests instead - see .github/dependabot.yml.
         with tempfile.NamedTemporaryFile(mode="w") as temp_file:
             for url in urls:
                 temp_file.write(url + "\n")

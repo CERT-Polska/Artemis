@@ -39,7 +39,9 @@ WORKDIR /opt
 # while `go run` compiled it at scan time, the sandbox (docker/sandbox.sh) forbids executing
 # binaries that aren't a frozen part of the image, and prebuilding also means no Go toolchain
 # is needed at scan time. Note that `go mod download` does not use the in-image /go/go.mod file,
-# it uses the artemis/modules/utils/wappalyzer/go.mod file (same path as in repo).
+# it uses the artemis/modules/utils/wappalyzer/go.mod file (same path as in repo). Never `go get
+# -u` here: upgrades arrive as Dependabot PRs (.github/dependabot.yml), each one reviewable and
+# revertible if an upstream release turns out broken.
 COPY "artemis/modules/utils/wappalyzer/" "artemis/modules/utils/wappalyzer/"
 RUN cd artemis/modules/utils/wappalyzer && go mod download && go build -o /usr/local/bin/wappalyzer .
 

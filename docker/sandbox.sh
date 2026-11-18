@@ -8,7 +8,9 @@
 #
 # Layers:
 #  - exec sandbox: only system/tool directories may be executed, so payloads dropped
-#    in writable directories cannot be run,
+#    in writable directories cannot be run; syd also denies non-PIE executables
+#    (fixed load addresses make ROP out of the seccomp sandbox far easier), so any
+#    tool added to the image (including extra modules' tools in /opt) must be built PIE,
 #  - net sandbox: outgoing connections allowed anywhere (modules scan arbitrary
 #    targets and talk to Redis/S3), but nothing may listen,
 #  - lock (landlock) sandbox: the filesystem is writable only in the directories

@@ -23,12 +23,13 @@ ARG ADDITIONAL_REQUIREMENTS
 RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois coreutils && \
     cd /go && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/lc/gau/v2/cmd/gau && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/katana/cmd/katana && \
+    # -buildmode=pie: the sandbox (docker/sandbox.sh) denies executing non-PIE binaries
+    GOBIN=/usr/local/bin/ go install -buildmode=pie -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
+    GOBIN=/usr/local/bin/ go install -buildmode=pie -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
+    GOBIN=/usr/local/bin/ go install -buildmode=pie -modfile go.mod github.com/lc/gau/v2/cmd/gau && \
+    GOBIN=/usr/local/bin/ go install -buildmode=pie -modfile go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
+    GOBIN=/usr/local/bin/ go install -buildmode=pie -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
+    GOBIN=/usr/local/bin/ go install -buildmode=pie -modfile go.mod github.com/projectdiscovery/katana/cmd/katana && \
     cd / && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
     git clone https://github.com/CERT-Polska/joomla-scanner.git --branch main /joomla-scanner && \
@@ -45,7 +46,7 @@ WORKDIR /opt
 # binaries that aren't a frozen part of the image, and prebuilding also means no Go toolchain
 # is needed at scan time. The wappalyzergo version is pinned by go.mod here.
 COPY "artemis/modules/utils/wappalyzer/" "artemis/modules/utils/wappalyzer/"
-RUN cd artemis/modules/utils/wappalyzer && go mod download && go build -o /usr/local/bin/wappalyzer .
+RUN cd artemis/modules/utils/wappalyzer && go mod download && go build -buildmode=pie -o /usr/local/bin/wappalyzer .
 
 COPY "docker/sandbox.sh" "/sandbox.sh"
 COPY --from=syd-build /usr/local/cargo/bin/syd /usr/local/bin/syd

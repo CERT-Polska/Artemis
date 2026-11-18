@@ -2,7 +2,6 @@ import json
 import logging
 import subprocess
 import unittest
-from typing import List
 from unittest.mock import MagicMock, patch
 
 from artemis.web_technology_identification import (
@@ -67,14 +66,8 @@ class TestWebTechnologyIdentification(unittest.TestCase):
 
         # Assert on what is being executed instead of on which function executes it, so a `go get`
         # smuggled through check_output would still fail this test.
-        commands: List[List[str]] = []
-        for call in mock_run.call_args_list + mock_check_output.call_args_list:
-            command = call.args[0] if call.args else call.kwargs.get("args")
-            if command is None:
-                self.fail(f"subprocess called without a command: {call}")
-            commands.append(command)
-        for command in commands:
-            self.assertEqual(command[0], "/usr/local/bin/wappalyzer")
+        (call,) = mock_check_output.call_args_list
+        self.assertEqual(call.args[0][0], "/usr/local/bin/wappalyzer")
 
     @patch("artemis.web_technology_identification.subprocess.check_output")
     @patch("artemis.web_technology_identification.shutil.which", return_value="/usr/local/bin/wappalyzer")

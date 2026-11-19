@@ -2,6 +2,9 @@
 
 . scripts/check_docker_compose
 
+# Generate docker/seccomp/syd.json for docker-compose.yaml.
+python3 docker/seccomp/update_seccomp_profile.py
+
 if [ ! -f .env ]; then
     cp env.example .env
 fi

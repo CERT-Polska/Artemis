@@ -172,3 +172,36 @@ In order for API to validate the runtime configuration you need to add record to
         "mail_dns_scanner": MailDNSScannerConfiguration,
         "nuclei": NucleiConfiguration,
     }
+
+
+Sandboxing
+----------
+
+Module containers (this includes the modules from ``Artemis-modules-extra``) run
+under a `syd <https://gitlab.exherbo.org/sydbox/sydbox>`_ sandbox, enabled by default,
+which is intended to limit the consequences of e.g. a memory corruption vulnerability in
+one of the tools in case a malicious scanned server exploits it:
+
+* executables may only run from the read-only parts of the container image, so a
+  payload downloaded during a scan can't be executed,
+* the filesystem is writable only in designated directories (``/tmp``, ``/root``,
+  ``/dev/shm``, ``/shared``, ``/karton-logs``, ``/humble``),
+* no network access: nothing may connect or listen on a port,
+* ``io_uring`` is disabled, because it bypasses seccomp-based sandboxing.
+
+The sandbox requires no root, privileges or user namespaces and works with the
+kernel >=5.19 (with ``CONFIG_LSM_LANDLOCK`` - Debian kernels have it). On kernels
+lacking newer landlock features (truncate confinement needs >=6.2, network
+confinement >=6.7) those layers are no-ops - the seccomp-based layers still enforce.
+
+Configuration:
+
+* ``SANDBOX`` - set to ``off`` to disable the sandbox (in ``.env`` to disable it
+  everywhere, or per service via docker-compose ``environment``),
+* ``SANDBOX_WRITABLE`` - colon-separated additional writable directories, e.g. for
+  a module that exchanges data via a mounted volume:
+
+  .. code-block:: yaml
+
+      environment:
+        - SANDBOX_WRITABLE=/my-volume

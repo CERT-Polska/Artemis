@@ -1,3 +1,11 @@
+# Syd sandbox, used by /sandbox.sh (see docker/sandbox.sh). Rust's musl target links
+# statically - the binary is self-contained, so the runtime stage needs no libseccomp.
+# syd needs libseccomp>=2.6 (seccomp_export_bpf_mem), hence Alpine>=3.22 in the build
+# stage (3.20 shipped 2.5.5).
+FROM rust:1-alpine3.22 AS syd-build
+RUN apk add --no-cache libseccomp-dev libseccomp-static pkgconfig
+RUN cargo install --locked --version 3.59.0 syd
+
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 # and with the Python version in .readthedocs.yaml
 FROM python:3.13-alpine

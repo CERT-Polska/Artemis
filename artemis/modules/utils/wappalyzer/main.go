@@ -60,7 +60,7 @@ func scan(url string, wappalyzerClient *wappalyzer.Wappalyze) map[string][]TechI
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run . <path_to_urls_file>")
+		fmt.Println("Usage: wappalyzer <path_to_urls_file>")
 		os.Exit(1)
 	}
 	filePath := os.Args[1]

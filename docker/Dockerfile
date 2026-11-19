@@ -1,6 +1,6 @@
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 # and with the Python version in .readthedocs.yaml
-FROM python:3.13-alpine
+FROM python:3.15-alpine
 
 COPY --from=golang:1.25-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
@@ -19,12 +19,19 @@ RUN apk upgrade --no-cache && \
     apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois coreutils && \
     cd /go && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/naabu/v2/cmd/naabu && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/lc/gau/v2/cmd/gau && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
-    GOBIN=/usr/local/bin/ go install -modfile go.mod github.com/projectdiscovery/katana/cmd/katana && \
+    install_go_tool() { \
+        for attempt in 1 2 3; do \
+            GOBIN=/usr/local/bin/ go install -modfile go.mod "$1" && return 0; \
+            [ "$attempt" = 3 ] || sleep 5; \
+        done; \
+        return 1; \
+    } && \
+    install_go_tool github.com/projectdiscovery/naabu/v2/cmd/naabu && \
+    install_go_tool github.com/praetorian-inc/fingerprintx/cmd/fingerprintx && \
+    install_go_tool github.com/lc/gau/v2/cmd/gau && \
+    install_go_tool github.com/projectdiscovery/subfinder/v2/cmd/subfinder && \
+    install_go_tool github.com/projectdiscovery/nuclei/v3/cmd/nuclei && \
+    install_go_tool github.com/projectdiscovery/katana/cmd/katana && \
     cd / && \
     go clean -modcache && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \

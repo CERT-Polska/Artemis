@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
     container:
-      image: python:3.13-alpine
+      image: python:3-alpine
     permissions:
       contents: write
 

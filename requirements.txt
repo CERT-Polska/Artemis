@@ -32,7 +32,7 @@ cryptography==50.0.2
 decorator==5.3.1
 defusedxml==0.7.1
 dkimpy==1.1.8
-dnspython==2.9.0
+dnspython==2.9.2
 expiringdict==1.2.2
 fastapi==0.162.6
 fastapi-csrf-protect==1.0.7

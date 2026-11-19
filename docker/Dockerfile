@@ -14,7 +14,6 @@ ARG ADDITIONAL_REQUIREMENTS
 # Whois here is important - if we wouldn't install it, we would default to busybox whois,
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
 # `go clean -modcache` drops the sources of the Go tools' dependencies once the binaries are in /usr/local/bin.
-# The Wappalyzer wrapper (run with `go run` at scan time) downloads its own modules in a later layer.
 RUN apk upgrade --no-cache && \
     apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois coreutils && \
@@ -36,13 +35,17 @@ RUN apk upgrade --no-cache && \
 
 WORKDIR /opt
 
-# Download the dependencies of the Wappalyzer wrapper (used for web technology identification) at build time.
-# Without this, the first `go run` would fetch them - both the module and the Go toolchain go.mod asks for -
-# from the network at scan time, and a failure to reach it makes technology detection report no technologies.
-# Only the module files are copied at this point so that a change in the Python code doesn't invalidate this
-# layer and re-download everything.
+# Build the Wappalyzer wrapper (used for web technology identification) at image build time:
+# while `go run` compiled it at scan time, the sandbox (docker/sandbox.sh) forbids executing
+# binaries that aren't a frozen part of the image, and prebuilding also means no Go toolchain
+# is needed at scan time. Note that `go mod download` does not use the in-image /go/go.mod file,
+# it uses the artemis/modules/utils/wappalyzer/go.mod file (same path as in repo). Never `go get
+# -u` here: upgrades arrive as Dependabot PRs (.github/dependabot.yml), each one reviewable and
+# revertible if an upstream release turns out broken.
 COPY "artemis/modules/utils/wappalyzer/go.mod" "artemis/modules/utils/wappalyzer/go.sum" "artemis/modules/utils/wappalyzer/"
 RUN cd artemis/modules/utils/wappalyzer && go mod download
+COPY "artemis/modules/utils/wappalyzer/main.go" "artemis/modules/utils/wappalyzer/"
+RUN cd artemis/modules/utils/wappalyzer && go build -o /usr/local/bin/wappalyzer .
 
 COPY "artemis/" "artemis/"
 COPY "alembic.ini" "alembic.ini"

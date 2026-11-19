@@ -22,7 +22,7 @@ _REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 _CRAWL_CACHE = RedisCache(_REDIS, "crawl_pipeline", duration=Config.Modules.Crawling.CRAWL_CACHE_TTL_SECONDS)
 
 
-@functools.lru_cache(maxsize=8192)
+@functools.lru_cache(maxsize=81920)
 def _fetch_injectable_parameters(url: str) -> Tuple[str, ...]:
     response = http_requests.get(url)
     if not response:
@@ -41,6 +41,10 @@ def _fetch_injectable_parameters(url: str) -> Tuple[str, ...]:
 
 
 def get_injectable_parameters(url: str) -> List[str]:
+    # strip query params so that we don't run multiple calls for all DAST iterations
+    parsed_url = urlparse(url)
+    url = urlunparse(parsed_url._replace(query="", params="", fragment=""))
+
     try:
         html_params = list(_fetch_injectable_parameters(url))
     except Exception:

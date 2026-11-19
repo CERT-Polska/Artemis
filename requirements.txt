@@ -27,7 +27,7 @@ checkdmarc==6.0.3
 click==8.5.0
 click-plugins==1.1.1.2
 colorama==0.4.6
-coverage==7.16.2
+coverage==7.17.3
 cryptography==50.0.2
 decorator==5.3.1
 defusedxml==0.7.1
@@ -69,7 +69,7 @@ markdown-it-py==4.2.0
 markupsafe==3.0.4
 mdurl==0.1.2
 more-itertools==11.2.1
-multidict==6.7.1
+multidict==7.2.1
 multiprocessing-logging==0.4.0
 openapi-schema-validator==0.9.0
 openapi-spec-validator==0.9.0

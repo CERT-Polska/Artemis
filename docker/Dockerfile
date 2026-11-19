@@ -14,7 +14,6 @@ ARG ADDITIONAL_REQUIREMENTS
 # Whois here is important - if we wouldn't install it, we would default to busybox whois,
 # having different output making https://pypi.org/project/whoisdomain/ regexes fail.
 # `go clean -modcache` drops the sources of the Go tools' dependencies once the binaries are in /usr/local/bin.
-# The Wappalyzer wrapper (run with `go run` at scan time) downloads its own modules in a later layer.
 RUN apk add --no-cache --virtual .build-deps gcc git libc-dev make libffi-dev libpcap-dev postgresql-dev && \
     apk add --no-cache bash libpcap libpq git subversion whois coreutils && \
     cd /go && \
@@ -42,8 +41,10 @@ WORKDIR /opt
 # it uses the artemis/modules/utils/wappalyzer/go.mod file (same path as in repo). Never `go get
 # -u` here: upgrades arrive as Dependabot PRs (.github/dependabot.yml), each one reviewable and
 # revertible if an upstream release turns out broken.
-COPY "artemis/modules/utils/wappalyzer/" "artemis/modules/utils/wappalyzer/"
-RUN cd artemis/modules/utils/wappalyzer && go mod download && go build -o /usr/local/bin/wappalyzer .
+COPY "artemis/modules/utils/wappalyzer/go.mod" "artemis/modules/utils/wappalyzer/go.sum" "artemis/modules/utils/wappalyzer/"
+RUN cd artemis/modules/utils/wappalyzer && go mod download
+COPY "artemis/modules/utils/wappalyzer/main.go" "artemis/modules/utils/wappalyzer/"
+RUN cd artemis/modules/utils/wappalyzer && go build -o /usr/local/bin/wappalyzer .
 
 COPY "artemis/" "artemis/"
 COPY "alembic.ini" "alembic.ini"

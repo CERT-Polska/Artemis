@@ -50,7 +50,7 @@ repos:
     - types-PyMySQL==1.1.0.1
     - types-pytz==2023.3.0.1
     - types-PyYAML==6.0.12.11
-    - types-redis==4.6.0.5
+    - types-redis==4.6.0.20241004
     - types-requests==2.31.0.2
     - types-retry==0.9.9.4
     - types-termcolor==1.1.6.2

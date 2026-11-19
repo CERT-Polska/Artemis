@@ -409,7 +409,7 @@ async def post_remove_pending_tasks(
 ) -> Response:
     def _remove_pending_tasks() -> None:
         db.mark_analysis_as_stopped(analysis_id)
-        backend = KartonBackend(config=KartonConfig())
+        backend = KartonBackend(config=KartonConfig(), service_info=None)
         for task in backend.get_all_tasks():
             if task.root_uid == analysis_id:
                 backend.delete_task(task)
@@ -424,7 +424,7 @@ def get_pending_tasks(request: Request, analysis_id: str) -> Response:
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
 
-    backend = KartonBackend(config=KartonConfig())
+    backend = KartonBackend(config=KartonConfig(), service_info=None)
 
     tasks = []
     for task in backend.get_all_tasks():

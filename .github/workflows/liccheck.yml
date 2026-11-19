@@ -17,7 +17,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          # liccheck requires pkg_resources, which was removed in setuptools 82.
+          python -m pip install -r requirements.txt "setuptools<82"
       - name: Remove checkdmarc installed from CERT PL fork from requirements as it's not supported by liccheck
         run: cp requirements.txt requirements.txt.orig; cat requirements.txt.orig | grep -v ^git+.*checkdmarc > requirements.txt
       - name: Run liccheck

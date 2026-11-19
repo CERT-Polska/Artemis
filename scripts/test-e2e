@@ -30,8 +30,13 @@ fi
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
+    echo "======= E2E FAILURE: CONTAINER STATUS ======="
     "${COMPOSE[@]}" ps -a
-    "${COMPOSE[@]}" logs --no-color --tail=200 web
+
+    echo "======= E2E FAILURE: SERVICE LOGS ======="
+    "${COMPOSE[@]}" logs --no-color --tail=500
+
+    echo "======= E2E FAILURE: DIAGNOSTICS END ======="
 fi
 
 "${COMPOSE[@]}" down --remove-orphans

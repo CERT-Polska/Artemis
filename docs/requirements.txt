@@ -90,8 +90,8 @@ psycopg2-binary==2.9.13
 publicsuffixlist==1.1.2.20261115
 py==1.11.0
 pycparser==3.12
-pydantic==2.14.2
-pydantic-core==2.50.2
+pydantic==2.14.3
+pydantic-core==2.50.4
 pydantic-settings==2.16.3
 pygments==2.21.0
 pyleri==1.5.1

@@ -1,6 +1,7 @@
 import os
 from typing import Any, Callable, Dict, List
 
+from artemis.cpe_tools.cpe_utils import lookup_cpe
 from artemis.reporting.base.asset import Asset
 from artemis.reporting.base.asset_type import AssetType
 from artemis.reporting.base.language import Language
@@ -74,5 +75,6 @@ class JoomlaScannerReporter(Reporter):
                 name=get_target_url(task_result),
                 additional_type="joomla",
                 version=task_result["result"].get("joomla_version", None),
+                cpe=lookup_cpe("Joomla"),
             )
         ]

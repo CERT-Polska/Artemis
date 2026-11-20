@@ -1,22 +1,15 @@
 #!/usr/bin/env bash
 
-# landrun-based sandbox for module containers, wrapping Landlock
-# https://github.com/zouuup/landrun
+# landrun-based sandbox (https://github.com/zouuup/landrun), wrapping Landlock - used to
+# isolate code parsing attacker-controlled data (the VCS reporter, see artemis/sandboxing.py).
 #
-# Disabled with SANDBOX=off, extended with SANDBOX_WRITABLE=path:path (extra writable
-# directories, e.g. for modules that mount a data volume).
+# Nothing is readable unless explicitly granted - only what python/git/svn need; writable
+# only /tmp and /dev/null; no TCP connect except 80/443 (Landlock is port-based, so the
+# destination can't be restricted) and no listen. Disabled with SANDBOX=off.
 #
-# Layers:
-#  - only the read-only parts of the image (plus /opt) may be executed, so payloads
-#    dropped in writable directories cannot be run,
-#  - no TCP connect or listen (Landlock is port-based, so UDP can't be restricted here
-#    - internet access is blocked at the Docker level instead),
-#    TODO: block UDP egress at the Docker level (e.g. a DOCKER-USER nftables rule dropping
-#    UDP except the embedded DNS resolver 127.0.0.11:53),
-#  - the filesystem is readable everywhere and writable only in the directories below.
-#
-# TODO: io_uring bypasses Landlock. Ensure that Docker's seccomp blocks io_uring,
-# or block io_uring somehow (e.g. Android blocks io_uring).
+# TODO: restrict TCP egress to github.com/gitlab.com (e.g. an egress proxy container the
+# sandbox connects to, enforcing the host allowlist). Landlock can't restrict UDP egress
+# (block it at the Docker level instead), and io_uring bypasses it - both stay open.
 
 set -eu
 
@@ -24,7 +17,7 @@ if [ "${SANDBOX:-on}" != "on" ]; then
     exec "$@"
 fi
 
-# Network confinement needs Landlock ABI 4 (kernel >=6.7) and is checked below instead
+# Network confinement needs Landlock ABI 4 (kernel >=6.7) and is checked here instead
 # of relying on landrun's --best-effort, which would silently drop it on older kernels.
 # syscall 444 is LANDLOCK_CREATE_RULESET_VERSION, returns the ABI version.
 abi=$(python3 -c 'import ctypes; libc=ctypes.CDLL(None); libc.syscall.restype=ctypes.c_long; print(libc.syscall(444, None, 0, 1))')
@@ -33,18 +26,19 @@ if [ "$abi" -lt 4 ]; then
     exit 1
 fi
 
-writable_dirs=(/tmp /root /dev/shm /shared /karton-logs /humble)
-if [ -n "${SANDBOX_WRITABLE:-}" ]; then
-    IFS=: read -r -a extra_writable <<< "$SANDBOX_WRITABLE"
-    writable_dirs+=("${extra_writable[@]}")
-fi
+# PYTHONDONTWRITEBYTECODE keeps the read-only artemis code tree clean of bytecode.
+export PYTHONDONTWRITEBYTECODE=1
 
-mkdir -p "${writable_dirs[@]}"
-
-args=(--best-effort --ro / --rox /usr,/bin,/sbin,/lib,/opt --rw /dev/null,/etc/hosts)
+# landrun passes no environment to the command by default - forward everything.
+args=(
+    --best-effort
+    --rox /usr,/bin,/sbin,/lib
+    --ro /opt,/etc,/root
+    --rw /tmp,/dev/null
+    --connect-tcp 80,443
+)
 while IFS='=' read -r -d '' var _; do
     args+=(--env "$var")
 done < <(env -0)
-args+=(--rw "$(IFS=,; echo "${writable_dirs[*]}")")
 
 exec landrun "${args[@]}" -- "$@"

@@ -1,3 +1,7 @@
+# The landrun sandbox (https://github.com/zouuup/landrun), used by /sandbox.sh.
+FROM golang:1.25-alpine AS landrun-build
+RUN go install github.com/zouuup/landrun/cmd/landrun@v0.1.17
+
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 # and with the Python version in .readthedocs.yaml
 FROM python:3.15-alpine
@@ -5,6 +9,8 @@ FROM python:3.15-alpine
 COPY --from=golang:1.25-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
 
+COPY --from=landrun-build /go/bin/landrun /usr/local/bin/landrun
+COPY docker/sandbox.sh /sandbox.sh
 COPY docker/wait-for-it.sh /wait-for-it.sh
 COPY requirements.txt requirements.txt
 COPY docker/go.sum docker/go.mod /go/

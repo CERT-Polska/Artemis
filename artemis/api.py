@@ -140,7 +140,7 @@ def add(
 @router.get("/analyses", dependencies=[Depends(verify_api_token)])
 def list_analysis(tag: Optional[str] = None) -> list[Dict[str, Any]]:
     """Returns the list of analysed targets. Any scanned target would be listed here."""
-    num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig()))
+    num_pending_tasks = get_num_pending_tasks(KartonBackend(config=KartonConfig(), service_info=None))
     if tag:
         analyses = db.get_analyses_by_tag(tag)
     else:
@@ -163,7 +163,7 @@ def get_binds_that_can_be_disabled_endpoint() -> list[dict[str, str]]:
     return [
         {
             "identity": bind.identity,
-            "info": render_markdown(dedent(bind.info)),
+            "info": render_markdown(dedent(bind.info or "")),
         }
         for bind in get_binds_that_can_be_disabled()
     ]
@@ -174,7 +174,7 @@ def num_queued_tasks(karton_names: Optional[list[str]] = None) -> int:
     """Return the number of queued tasks for all or only some kartons."""
     # We check the backend redis queue length directly to avoid the long runtimes of
     # KartonState.get_all_tasks()
-    backend = KartonBackend(config=KartonConfig())
+    backend = KartonBackend(config=KartonConfig(), service_info=None)
 
     if karton_names:
         sum_all = 0
@@ -206,7 +206,7 @@ def get_task_results(
 
 @router.post("/stop-and-delete-analysis", dependencies=[Depends(verify_api_token)])
 def stop_and_delete_analysis(analysis_id: str) -> Dict[str, bool]:
-    backend = KartonBackend(config=KartonConfig())
+    backend = KartonBackend(config=KartonConfig(), service_info=None)
 
     for task in backend.get_all_tasks():
         if task.root_uid == analysis_id:

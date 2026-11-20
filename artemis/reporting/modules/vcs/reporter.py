@@ -1,6 +1,4 @@
 import os
-import sqlite3
-import subprocess
 import tempfile
 import urllib.parse
 from typing import Any, Dict, List
@@ -12,6 +10,7 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import cached_get, get_target_url, get_top_level_target
+from artemis.sandboxing import run_sandboxed
 
 logger = utils.build_logger(__name__)
 
@@ -58,12 +57,17 @@ class VCSReporter(Reporter):
                 f.flush()
                 os.fsync(f.fileno())
 
-                con = sqlite3.connect(f.name)
-                cur = con.cursor()
-                cur.execute("select root from REPOSITORY")
-                (remote_url,) = cur.fetchone()
+                # wc.db is attacker-controlled - parse it in the sandboxed worker, not here.
+                remote_url: str = (
+                    run_sandboxed(["python3", "-m", "artemis.reporting.modules.vcs.worker", f.name])
+                    .decode(errors="replace")
+                    .strip()
+                )
         except Exception:
             logger.exception("Unable to obtain repository remote url for %s", repo_url)
+            return []
+
+        if not remote_url:
             return []
 
         if remote_url.startswith("http://") or remote_url.startswith("https://"):
@@ -86,13 +90,7 @@ class VCSReporter(Reporter):
 
         try:
             with tempfile.TemporaryDirectory() as output_dir_name:
-                subprocess.check_call(
-                    ["svn", "co", remote_url, "--depth", "empty", output_dir_name],
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    timeout=30,
-                )
+                run_sandboxed(["svn", "co", remote_url, "--depth", "empty", output_dir_name], timeout=30)
             logger.info("Successfully cloned %s, that means it's a public repo - not reporting", remote_url)
             return []
         except Exception as e:
@@ -127,18 +125,7 @@ class VCSReporter(Reporter):
 
             try:
                 remote_url = (
-                    subprocess.check_output(
-                        [
-                            "git",
-                            "config",
-                            "-f",
-                            f.name,
-                            "--get",
-                            "remote.origin.url",
-                        ]
-                    )
-                    .decode("ascii")
-                    .strip()
+                    run_sandboxed(["git", "config", "-f", f.name, "--get", "remote.origin.url"]).decode("ascii").strip()
                 )
             except Exception:
                 remote_url = None
@@ -174,7 +161,7 @@ class VCSReporter(Reporter):
 
         try:
             with tempfile.TemporaryDirectory() as output_dir_name:
-                subprocess.check_call(
+                run_sandboxed(
                     [
                         "git",
                         "clone",
@@ -185,14 +172,11 @@ class VCSReporter(Reporter):
                         "--no-checkout",
                         output_dir_name,
                     ],
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
+                    timeout=30,
                     env={
                         "GIT_SSH_COMMAND": "ssh -o PasswordAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no",
                         "GIT_TERMINAL_PROMPT": "0",
                     },
-                    timeout=30,
                 )
             logger.info("Successfully cloned %s, that means it's a public repo - not reporting", remote_url)
             return []

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# A stand-in for a malicious module payload: tries to escape the syd sandbox
+# A stand-in for a malicious module payload: tries to escape the sandbox
 # (docker/sandbox.sh) the ways exploited payloads would. Prints one line per
 # vector and exits with the number of successful breakouts, which is every
 # vector when run unsandboxed and none when run through /sandbox.sh - what

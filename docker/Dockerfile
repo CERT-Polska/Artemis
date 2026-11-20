@@ -34,7 +34,6 @@ RUN apk upgrade --no-cache && \
     cd / && \
     go clean -modcache && \
     git clone https://github.com/rfc-st/humble.git --branch master /humble && \
-    git clone https://github.com/CERT-Polska/joomla-scanner.git --branch main /joomla-scanner && \
     git clone https://github.com/Ostorlab/KEV.git --branch main /known-exploited-vulnerabilities && \
     pip install --no-cache-dir -r requirements.txt -r /humble/requirements.txt $ADDITIONAL_REQUIREMENTS && \
     apk del .build-deps && \

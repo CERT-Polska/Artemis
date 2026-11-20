@@ -129,7 +129,7 @@ tqdm==4.70.1
 truststore==0.10.5
 typer==0.27.3
 typing-extensions==4.16.0
-typing-inspection==0.4.4
+typing-inspection==0.4.5
 unittest-parallel==1.8.6
 url-normalize==3.0.1
 urllib3==2.6.3

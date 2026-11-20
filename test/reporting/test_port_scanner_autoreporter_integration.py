@@ -1,4 +1,6 @@
+import socket
 from test.base import BaseReportingTest
+from unittest.mock import patch
 
 from artemis.modules.port_scanner import PortScanner
 from artemis.reporting.base.asset import Asset
@@ -23,3 +25,13 @@ class PortScannerAutoreporterIntegrationTest(BaseReportingTest):
                 Asset(asset_type=AssetType.DOMAIN, name="test-old-wordpress"),
             ],
         )
+
+    def test_open_ldap_port_report(self) -> None:
+        with patch("artemis.modules.port_scanner.PORTS", [389, 636]):
+            data = self.obtain_domain_task_result("port_scanner", "test-openldap")
+        ip = socket.gethostbyname("test-openldap")
+
+        message = self.task_result_to_message(data)
+        self.assertIn("The following servers have open LDAP ports", message)
+        self.assertIn(f"ldap://{ip}:389", message)
+        self.assertIn(f"ldap://{ip}:636", message)

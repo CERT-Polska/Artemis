@@ -65,6 +65,7 @@ SEVERITY_MAP = {
     ReportType("open_port_telnet"): Severity.MEDIUM,
     ReportType("open_port_database"): Severity.LOW,
     ReportType("open_port_smb"): Severity.LOW,
+    ReportType("open_port_ldap"): Severity.LOW,
     ReportType("exposed_php_var_dump"): Severity.LOW,
     ReportType("exposed_phpinfo"): Severity.LOW,
     ReportType("robot"): Severity.LOW,

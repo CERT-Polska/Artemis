@@ -1,0 +1,24 @@
+{% if "open_port_ldap" in data.contains_type %}
+    <li>{% trans %}The following servers have open LDAP ports:{% endtrans %}
+        <ul>
+            {% for report in data.reports %}
+                {% if report.report_type == "open_port_ldap" %}
+                    <li>
+                        {{ report.target }} ({{ report.additional_data.service }})
+                        {{ report_meta(report) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans trimmed %}
+                We do not recommend LDAP ports to be publicly available - they are frequently exposed by Active Directory
+                domain controllers. Although they can be set up to require correct username and password to login, an
+                attack is possible when the password leaks or is too simple, and the directory may disclose information
+                about users and the internal structure of the organization even to an unauthenticated visitor.
+
+                The recommended configuration is to make such services available on an internal network only.
+            {% endtrans %}
+        </p>
+    </li>
+{% endif %}

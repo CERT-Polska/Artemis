@@ -16,7 +16,7 @@ class TestSandbox(unittest.TestCase):
 
         wrapped = self._run(["/sandbox.sh", "bash", str(SCRIPT)])
         if "allowed: execute-frozen-binary" not in wrapped.stdout:
-            raise unittest.SkipTest(f"syd failed to start: {wrapped.stderr.strip()}")
+            raise unittest.SkipTest(f"sandbox failed to start: {wrapped.stderr.strip()}")
 
         unwrapped = self._run(["bash", str(SCRIPT)])
 

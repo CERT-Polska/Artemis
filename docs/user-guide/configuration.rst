@@ -178,22 +178,8 @@ Sandboxing
 ----------
 
 Module containers (this includes the modules from ``Artemis-modules-extra``) run
-under a `syd <https://gitlab.exherbo.org/sydbox/sydbox>`_ sandbox, enabled by default,
-which is intended to limit the consequences of e.g. a memory corruption vulnerability in
-one of the tools in case a malicious scanned server exploits it:
-
-* executables may only run from the read-only parts of the container image, so a
-  payload downloaded during a scan can't be executed,
-* the filesystem is writable only in designated directories (``/tmp``, ``/root``,
-  ``/dev/shm``, ``/shared``, ``/karton-logs``, ``/humble``),
-* no network access: nothing may connect or listen on a port,
-* ``io_uring`` is disabled, because it bypasses seccomp-based sandboxing.
-
-The sandbox requires no root, privileges or user namespaces and works with the
-kernel >=5.19 (with ``CONFIG_LSM_LANDLOCK`` - Debian kernels have it). On kernels
-lacking newer landlock features (truncate confinement needs >=6.2, network
-confinement >=6.7) those layers are no-ops - the seccomp-based layers still enforce.
-
+under a `landrun <https://github.com/zouuup/landrun>`_ sandbox (wrapping Landlock),
+which requires Linux kernel >=6.7 on hosts.
 Configuration:
 
 * ``SANDBOX`` - set to ``off`` to disable the sandbox (in ``.env`` to disable it

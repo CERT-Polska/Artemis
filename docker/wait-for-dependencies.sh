@@ -7,8 +7,10 @@
 /wait-for-it.sh --quiet --timeout=30 -h redis -p 6379
 /wait-for-it.sh --quiet --timeout=30 -h postgres -p 5432
 
-# /sandbox.sh exists only in images built from this repo - e.g. karton-dashboard and
-# karton-system mount this script but don't have syd.
+# /sandbox.sh exists only in images built from this repo.
+# However, we also mount this script (wait-for-dependencies.sh)
+# in `karton-dashboard` and `karton-system mount` images that don't have landrun.
+# Hence the fallback.
 if [ -f /sandbox.sh ]; then
     exec /sandbox.sh "$@"
 fi

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from enum import Enum
 from typing import Any
 
 from karton.core import Task
@@ -6,11 +7,17 @@ from karton.core import Task
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
 from artemis.module_base import ArtemisBase
-from artemis.task_utils import get_target_host, get_target_url
+from artemis.task_utils import get_target_endpoint, get_target_host, get_target_url
 from artemis.web_technology_identification import run_tech_detection, to_tag_strings
 
 TECHNOLOGY_DETECTION_TAGS_TO_EXCLUDE = {"wordpress": ["wordpress"]}
 NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY = "nuclei-routing-additional-flags"
+NUCLEI_ROUTER_SCAN_MODE_KEY = "nuclei-routing-scan-mode"
+
+
+class NucleiScanMode(str, Enum):
+    HTTP = "http"
+    OTHER = "other"
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
@@ -22,7 +29,7 @@ class NucleiRouter(ArtemisBase):
 
     identity = "nuclei-router"
     filters = [
-        {"type": TaskType.SERVICE.value, "service": Service.HTTP.value},
+        {"type": TaskType.SERVICE.value},
     ]
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -58,9 +65,17 @@ class NucleiRouter(ArtemisBase):
         return flags
 
     def run(self, current_task: Task) -> None:
-        target_url = get_target_url(current_task)
+        is_http_service = current_task.headers.get("service") == Service.HTTP
 
-        nuclei_additional_flags = self.get_nuclei_additional_flags_for_task(target_url)
+        if is_http_service:
+            target = get_target_url(current_task)
+            nuclei_additional_flags = self.get_nuclei_additional_flags_for_task(target)
+            nuclei_scan_mode = NucleiScanMode.HTTP
+        else:
+            target = get_target_endpoint(current_task)
+            nuclei_additional_flags = []
+            nuclei_scan_mode = NucleiScanMode.OTHER
+
         routed_task = Task(
             {
                 "type": TaskType.NUCLEI_TARGET,
@@ -69,6 +84,7 @@ class NucleiRouter(ArtemisBase):
                 "host": get_target_host(current_task),
                 "port": current_task.get_payload("port"),
                 "ssl": current_task.get_payload("ssl"),
+                NUCLEI_ROUTER_SCAN_MODE_KEY: nuclei_scan_mode.value,
                 NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY: nuclei_additional_flags,
             },
         )
@@ -83,7 +99,8 @@ class NucleiRouter(ArtemisBase):
             status=TaskStatus.OK,
             data={
                 "routed_task_type": TaskType.NUCLEI_TARGET,
-                "url": target_url,
+                "target": target,
+                "nuclei_scan_mode": nuclei_scan_mode.value,
                 "nuclei_additional_flags": nuclei_additional_flags,
             },
         )

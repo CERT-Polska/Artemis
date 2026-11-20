@@ -1,12 +1,6 @@
 x-artemis-build-or-image:
   &artemis-build-or-image
   image: "${ARTEMIS_BUILD_IMAGE:-certpl/artemis:latest}"
-  # Override Docker's default seccomp policy to allow unshare(2).
-  # More info: docker/seccomp/README.txt
-  cap_add:
-    - SYS_PTRACE
-  security_opt:
-    - seccomp:./docker/seccomp/syd.json
   # Prevent NDOTS-based DNS search domain expansion for short hostnames such as
   # "s3mock", "redis", "postgres".  Without this, a host whose /etc/resolv.conf
   # contains e.g. "search corp.example.com" causes every DNS lookup for "s3mock"

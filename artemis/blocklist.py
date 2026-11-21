@@ -91,7 +91,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
             domain_regex=item.get("domain_regex", None),
             subdomains=item.get("subdomains", None),
             ip_range=ipaddress.ip_network(item["ip_range"], strict=False) if item.get("ip_range", None) else None,
-            until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if item.get("until", None) else None,
+            until=datetime.datetime.strptime(str(item["until"]), "%Y-%m-%d") if item.get("until", None) else None,
             karton_name=item.get("karton_name", None),
             report_target_should_contain=item.get("report_target_should_contain", None),
             report_type=item.get("report_type", None),

@@ -1,15 +1,44 @@
 import datetime
 import ipaddress
+import os
+import tempfile
 import unittest
 
 from artemis.blocklist import (
     BlocklistItem,
     BlocklistMode,
     blocklist_reports,
+    load_blocklist,
     should_block_scanning,
 )
 from artemis.reporting.base.report import Report
 from artemis.reporting.base.report_type import ReportType
+
+
+class LoadBlocklistTest(unittest.TestCase):
+    def _load(self, content: str) -> list[BlocklistItem]:
+        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
+            f.write(content)
+        try:
+            return load_blocklist(f.name)
+        finally:
+            os.unlink(f.name)
+
+    def test_until_unquoted_date(self) -> None:
+        (item,) = self._load("- mode: block_scanning_and_reporting\n  until: 2024-01-09\n")
+        self.assertEqual(item.until, datetime.datetime(2024, 1, 9))
+
+    def test_until_quoted_date(self) -> None:
+        (item,) = self._load("- mode: block_scanning_and_reporting\n  until: '2024-01-09'\n")
+        self.assertEqual(item.until, datetime.datetime(2024, 1, 9))
+
+    def test_until_null(self) -> None:
+        (item,) = self._load("- mode: block_scanning_and_reporting\n  until: null\n")
+        self.assertIsNone(item.until)
+
+    def test_until_unquoted_date_expiry(self) -> None:
+        (item,) = self._load("- mode: block_scanning_and_reporting\n  until: 2023-01-09\n")
+        self.assertEqual(should_block_scanning("domain.com", "1.1.1.1", "nuclei", [item]), False)
 
 
 class ScanningBlocklistTest(unittest.TestCase):

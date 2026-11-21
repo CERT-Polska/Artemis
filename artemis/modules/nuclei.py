@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import collections
-import enum
 import functools
 import itertools
 import json
@@ -54,12 +53,11 @@ TAGS_TO_EXCLUDE = ["intrusive"]
 NUCLEI_TEMPLATES_LOCATION = "/root/nuclei-templates/"
 
 
-METRIC_WORK_UNITS = Counter("nuclei_work_units_total", "Total (targets x templates) processed", ["scan_type"])
+METRIC_WORK_UNITS = Counter("nuclei_work_units_total", "Total (targets x templates) processed")
 
 METRIC_BATCH_COMMAND_DURATION = Histogram(
     "nuclei_batch_command_duration_seconds",
     "Duration per batch",
-    ["scan_type"],
     buckets=(
         1,
         2,
@@ -85,7 +83,6 @@ METRIC_BATCH_COMMAND_DURATION = Histogram(
 METRIC_SCAN_DURATION = Histogram(
     "nuclei_scan_duration_seconds",
     "Duration per scan",
-    ["scan_type"],
     buckets=(
         1,
         2,
@@ -238,11 +235,6 @@ def get_max_num_parameters(targets: List[str]) -> int:
         return 0
 
     return max([len(urllib.parse.parse_qs(urllib.parse.urlparse(item).query)) for item in targets])
-
-
-class ScanUsing(enum.Enum):
-    TEMPLATES = "templates"
-    WORKFLOWS = "workflows"
 
 
 @load_risk_class.load_risk_class(load_risk_class.LoadRiskClass.HIGH)
@@ -445,13 +437,11 @@ class Nuclei(ArtemisBase):
                     key,
                 )
 
-            self._workflows = [os.path.join(os.path.dirname(__file__), "data", "nuclei_workflows_custom", "workflows")]
-
-        self._nuclei_templates_or_workflows_to_skip_probabilistically_set = set()
+        self._nuclei_templates_to_skip_probabilistically_set = set()
         if Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE:
             with open(Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_FILE, encoding="utf-8") as f:
                 for line in f:
-                    self._nuclei_templates_or_workflows_to_skip_probabilistically_set.add(line.strip())
+                    self._nuclei_templates_to_skip_probabilistically_set.add(line.strip())
 
     def _get_links(self, url: str) -> List[str]:
         links = crawl_and_filter(url)
@@ -578,8 +568,7 @@ class Nuclei(ArtemisBase):
 
     def _scan(
         self,
-        templates_or_workflows: List[str],
-        scan_using: ScanUsing,
+        templates: List[str],
         targets: List[str],
         use_fake_home: bool = False,
         extra_nuclei_args: List[str] = [],
@@ -587,35 +576,35 @@ class Nuclei(ArtemisBase):
         if not targets:
             return []
 
-        templates_or_workflows_filtered = []
+        templates_filtered = []
 
-        num_templates_or_workflows_skipped = 0
-        for template_or_workflow in templates_or_workflows:
-            if template_or_workflow not in self._nuclei_templates_or_workflows_to_skip_probabilistically_set:
-                templates_or_workflows_filtered.append(template_or_workflow)
+        num_templates_skipped = 0
+        for template in templates:
+            if template not in self._nuclei_templates_to_skip_probabilistically_set:
+                templates_filtered.append(template)
             elif (
-                template_or_workflow in self._nuclei_templates_or_workflows_to_skip_probabilistically_set
+                template in self._nuclei_templates_to_skip_probabilistically_set
                 and random.uniform(0, 100)
                 >= Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY
             ):
-                templates_or_workflows_filtered.append(template_or_workflow)
+                templates_filtered.append(template)
             else:
-                num_templates_or_workflows_skipped += 1
+                num_templates_skipped += 1
 
         self.log.info(
-            "Requested to skip %d templates or workflows with probability %f, actually skipped %d",
-            len(self._nuclei_templates_or_workflows_to_skip_probabilistically_set),
+            "Requested to skip %d templates with probability %f, actually skipped %d",
+            len(self._nuclei_templates_to_skip_probabilistically_set),
             Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_SKIP_PROBABILISTICALLY_PROBABILITY,
-            num_templates_or_workflows_skipped,
+            num_templates_skipped,
         )
         self.log.info(
-            "After probabilistic skipping, executing %d templates or workflows out of %d",
-            len(templates_or_workflows_filtered),
-            len(templates_or_workflows),
+            "After probabilistic skipping, executing %d templates out of %d",
+            len(templates_filtered),
+            len(templates),
         )
 
-        if not templates_or_workflows_filtered:
-            self.log.info("No templates or workflows left after filtering, skipping scan.")
+        if not templates_filtered:
+            self.log.info("No templates left after filtering, skipping scan.")
             return []
 
         if self.requests_per_second_for_current_tasks:
@@ -645,10 +634,10 @@ class Nuclei(ArtemisBase):
 
         lines = []
         time_start = time.time()
-        for chunk in more_itertools.chunked(templates_or_workflows_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
+        for chunk in more_itertools.chunked(templates_filtered, Config.Modules.Nuclei.NUCLEI_CHUNK_SIZE):
             for milliseconds_per_request in milliseconds_per_request_candidates:
                 self.log.info(
-                    "Running batch of %d templates or workflows on %d target(s), milliseconds_per_request=%d",
+                    "Running batch of %d templates on %d target(s), milliseconds_per_request=%d",
                     len(chunk),
                     len(targets),
                     milliseconds_per_request,
@@ -657,6 +646,8 @@ class Nuclei(ArtemisBase):
                     "-v",
                     "-rate-limit-duration",
                     str(milliseconds_per_request) + "ms",
+                    "-templates",
+                    ",".join(chunk),
                     "-stats-json",
                     "-stats-interval",
                     "1",
@@ -671,30 +662,12 @@ class Nuclei(ArtemisBase):
                 if extra_nuclei_args:
                     command.extend(extra_nuclei_args)
 
-                if scan_using == ScanUsing.TEMPLATES:
-                    command.extend(
-                        [
-                            "-templates",
-                            ",".join(chunk),
-                        ]
-                    )
-                elif scan_using == ScanUsing.WORKFLOWS:
-                    command.extend(
-                        [
-                            "-workflows",
-                            ",".join(chunk),
-                        ]
-                    )
-                else:
-                    assert False
-
-                if scan_using == ScanUsing.TEMPLATES:
-                    # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
-                    # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
-                    for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
-                        if template in chunk:
-                            command.append("-it")
-                            command.append(template)
+                # The `-it` flag will include the templates provided in NUCLEI_ADDITIONAL_TEMPLATES even if
+                # they're marked with as tag such as `fuzz` which prevents them from being executed by default.
+                for template in Config.Modules.Nuclei.NUCLEI_ADDITIONAL_TEMPLATES:
+                    if template in chunk:
+                        command.append("-it")
+                        command.append(template)
 
                 for target in targets:
                     command.append("-target")
@@ -719,10 +692,10 @@ class Nuclei(ArtemisBase):
                     # are skipped.
                     break
 
-                METRIC_BATCH_COMMAND_DURATION.labels(scan_type=scan_using).observe(time.time() - command_start_time)
+                METRIC_BATCH_COMMAND_DURATION.observe(time.time() - command_start_time)
 
                 units = len(targets) * len(chunk)
-                METRIC_WORK_UNITS.labels(scan_type=scan_using).inc(units)
+                METRIC_WORK_UNITS.inc(units)
 
                 stdout_utf8 = stdout.decode("utf-8", errors="ignore")
                 stderr_utf8 = stderr.decode("utf-8", errors="ignore")
@@ -772,13 +745,13 @@ class Nuclei(ArtemisBase):
 
                 findings.append(finding)
         scan_duration = time.time() - time_start
-        METRIC_SCAN_DURATION.labels(scan_type=scan_using).observe(scan_duration)
+        METRIC_SCAN_DURATION.observe(scan_duration)
         self.log.info(
-            "Scanning of %d targets (%s...) with %d templates/workflows (%s...) took %f seconds",
+            "Scanning of %d targets (%s...) with %d templates (%s...) took %f seconds",
             len(targets),
             targets[:3],
-            len(templates_or_workflows_filtered),
-            templates_or_workflows_filtered[:3],
+            len(templates_filtered),
+            templates_filtered[:3],
             scan_duration,
         )
 
@@ -808,14 +781,13 @@ class Nuclei(ArtemisBase):
         # Remove duplicates
         templates = list(set(templates))
 
-        self.log.info(f"running {len(templates)} templates and {len(self._workflows)} workflow on {len(tasks)} hosts.")
+        self.log.info(f"running {len(templates)} templates on {len(tasks)} hosts.")
 
         targets: List[str] = []
         for task in tasks:
             targets.append(get_target_url(task))
 
-        findings = self._scan(templates, ScanUsing.TEMPLATES, targets, extra_nuclei_args=scan_tag_args)
-        findings.extend(self._scan(self._workflows, ScanUsing.WORKFLOWS, targets, extra_nuclei_args=scan_tag_args))
+        findings = self._scan(templates, targets, extra_nuclei_args=scan_tag_args)
 
         # DAST scanning
         dast_targets: List[str] = []
@@ -836,7 +808,6 @@ class Nuclei(ArtemisBase):
         findings.extend(
             self._scan(
                 [NUCLEI_TEMPLATES_LOCATION + item for item in all_dast_templates],
-                ScanUsing.TEMPLATES,
                 dast_targets,
                 use_fake_home=True,
                 extra_nuclei_args=[
@@ -871,7 +842,6 @@ class Nuclei(ArtemisBase):
                         for item in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
                         if not item.startswith("dast/")
                     ],
-                    ScanUsing.TEMPLATES,
                     [item for item in link_package if item],
                     extra_nuclei_args=scan_tag_args,
                 )
@@ -895,7 +865,6 @@ class Nuclei(ArtemisBase):
                         for template in Config.Modules.Nuclei.NUCLEI_TEMPLATES_TO_RUN_ON_HOMEPAGE_LINKS
                         if template.startswith("dast/")
                     ],
-                    ScanUsing.TEMPLATES,
                     dast_targets,
                     use_fake_home=True,
                     extra_nuclei_args=[

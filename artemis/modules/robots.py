@@ -86,11 +86,10 @@ class RobotsScanner(ArtemisBase):
         checked_urls: Set[str] = set()
         for g in groups:
             for path in g.allow + g.disallow:
+                path = path.rstrip("$")
                 if not any([re.match(p, path) for p in NOT_INTERESTING_PATHS]):
                     if "*" in path:
                         continue
-
-                    path = path.rstrip("$")
 
                     full_url = f"{url}{path}"
                     if full_url in checked_urls:

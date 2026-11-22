@@ -127,3 +127,17 @@ class RobotsDownloadTest(unittest.TestCase):
 
         self.assertEqual(sorted(requested_urls), ["http://example.com:80/backup/", "http://example.com:80/private/"])
         self.assertEqual([item.url for item in found_urls], ["http://example.com:80/backup/"])
+
+    def test_anchored_root_path_is_not_requested(self) -> None:
+        groups = self.scanner._parse_robots("User-agent: *\nAllow: /$\nDisallow: /\nDisallow: /admin/$\n")
+        requested_urls: list[str] = []
+
+        def http_get(url: str) -> MagicMock:
+            requested_urls.append(url)
+            return MagicMock(content="<title>Index of /</title>")
+
+        with patch.object(self.scanner, "http_get", side_effect=http_get):
+            found_urls = self.scanner._download(MagicMock(), "http://example.com:80", groups)
+
+        self.assertEqual(requested_urls, ["http://example.com:80/admin/"])
+        self.assertEqual([item.url for item in found_urls], ["http://example.com:80/admin/"])

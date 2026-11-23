@@ -72,19 +72,25 @@ class ScanningBlocklistTest(unittest.TestCase):
         blocklist_item1 = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
             domain_and_subdomains="example.com",
+            allow_domains_and_subdomains="shop.example.com",
         )
         self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), True)
         self.assertEqual(should_block_scanning("www.example.com", None, "karton-name", [blocklist_item1]), True)
+        self.assertEqual(should_block_scanning("shop.example.com", None, "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning("www.shop.example.com", None, "karton-name", [blocklist_item1]), False)
 
     def test_subdomain_matching(self) -> None:
         blocklist_item1 = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
             subdomains="example.com",
+            allow_domains_and_subdomains="shop.example.com",
         )
         self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning("www.example.com", None, "karton-name", [blocklist_item1]), True)
+        self.assertEqual(should_block_scanning("shop.example.com", None, "karton-name", [blocklist_item1]), False)
+        self.assertEqual(should_block_scanning("www.shop.example.com", None, "karton-name", [blocklist_item1]), False)
 
     def test_karton_name_matching(self) -> None:
         blocklist_item1 = BlocklistItem(
@@ -205,11 +211,19 @@ class ReportBlocklistTest(unittest.TestCase):
             report_type=ReportType("exposed_configuration_file"),
             additional_data={},
         )
+        report3 = Report(
+            target="http://example.com/",
+            last_domain="shop.www.example.com",
+            top_level_target="example.com",
+            report_type=ReportType("exposed_configuration_file"),
+            additional_data={},
+        )
         blocklist_item = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
             domain_and_subdomains="www.example.com",
+            allow_domains_and_subdomains="shop.www.example.com",
         )
-        self.assertEqual(blocklist_reports([report1, report2], [blocklist_item]), [report2])
+        self.assertEqual(blocklist_reports([report1, report2, report3], [blocklist_item]), [report2, report3])
 
     def test_report_type_matching(self) -> None:
         report1 = Report(

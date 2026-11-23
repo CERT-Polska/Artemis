@@ -31,7 +31,11 @@ LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
-
+# #################################################################################
+# # BUG_FIX: #3110 
+# Atomicaly delete the lock key only if its stoerd value still matches our lock ID (lid),
+# prevnting a stalled worker from deleting a lock acquired by another worker.
+# #################################################################################
 RELEASE_LOCK_SCRIPT = """
 if redis.call("get", KEYS[1]) == ARGV[1] then
     return redis.call("del", KEYS[1])
@@ -40,6 +44,11 @@ else
 end
 """
 
+# #################################################################################
+# # BUG_FIX: #3110 
+# Atomiclly refersh the lock TTl only if we stil own the lock ID (lid),
+# prevnting the heartbeat thread from overwrting a lock taken over by another worker.
+# #################################################################################
 SUSTAIN_LOCK_SCRIPT = """
 if redis.call("get", KEYS[1]) == ARGV[1] then
     return redis.call("pexpire", KEYS[1], ARGV[2])
@@ -96,7 +105,10 @@ class ResourceLock:
         with LOCKS_TO_SUSTAIN_LOCK:
             for lock, lid in list(LOCKS_TO_SUSTAIN.items()):
                 logger.info(f"Releasing lock: {lock} -> {lid}")
-                REDIS.eval(RELEASE_LOCK_SCRIPT, 1, lock, lid)
+                ##########################################
+                #Runs inisde redis without any interuption
+                ##########################################
+                REDIS.eval(RELEASE_LOCK_SCRIPT, 1, lock, lid) 
             LOCKS_TO_SUSTAIN.clear()
 
     def acquire(self) -> None:
@@ -126,6 +138,9 @@ class ResourceLock:
             # if self.res_name in LOCKS_TO_SUSTAIN:
             if LOCKS_TO_SUSTAIN.get(self.res_name) == self.lid:
                 del LOCKS_TO_SUSTAIN[self.res_name]
+        ##########################################
+        #Runs inisde redis without any interuption
+        ########################################
         REDIS.eval(RELEASE_LOCK_SCRIPT, 1, self.res_name, self.lid)
         # REDIS.delete(self.res_name)
 

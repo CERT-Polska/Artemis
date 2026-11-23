@@ -57,7 +57,7 @@ repos:
     - types-tqdm==4.70.0.20261106
     - uvicorn==0.42.0
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.4.1
+  rev: 7.5.0
   hooks:
   - id: flake8
     args: [artemis]

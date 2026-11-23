@@ -3,6 +3,8 @@ import socket
 from typing import Set
 
 import dns
+import dns.rdatatype
+from dns.rdtypes.mxbase import MXBase
 from dns.resolver import Answer
 
 from artemis.retrying_resolver import retry
@@ -56,6 +58,23 @@ def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[s
     return set(found_results)
 
 
+def _results_from_rrset(answer: Answer, query_type: str) -> Set[str]:
+    """
+    Returns the IPv6 addresses (AAAA) or mail server names (MX) from an answer. dnspython has
+    already followed any CNAME chain, so answer.rrset holds the records of the final name.
+    """
+    rdtype = dns.rdatatype.from_text(query_type)
+    # WrappedResolver answers an AAAA query for a name known to the system resolver with an
+    # A record, so check the record type instead of trusting the query type.
+    if answer.rrset is None or answer.rrset.rdtype != rdtype:
+        return set()
+
+    if rdtype == dns.rdatatype.MX:
+        # A null MX (RFC 7505) points at the root, ".": keep it rather than an empty name.
+        return {rdata.exchange.to_text().rstrip(".") or "." for rdata in answer.rrset if isinstance(rdata, MXBase)}
+    return {rdata.to_text() for rdata in answer.rrset}
+
+
 def _single_resolution_attempt(domain: str, query_type: str = "A") -> Set[str]:
     try:
         answer = dns.resolver.resolve(domain, query_type)
@@ -64,6 +83,8 @@ def _single_resolution_attempt(domain: str, query_type: str = "A") -> Set[str]:
             result_type = 1
         elif query_type == "NS":
             result_type = 2
+        elif query_type in ["AAAA", "MX"]:
+            return _results_from_rrset(answer, query_type)
         else:
             raise NotImplementedError(f"Don't know how to obtain results for query {query_type}")
         return _results_from_answer(domain, answer, result_type)
@@ -79,7 +100,7 @@ def _single_resolution_attempt(domain: str, query_type: str = "A") -> Set[str]:
 @functools.lru_cache(maxsize=8192)
 def lookup(domain: str, query_type: str = "A") -> Set[str]:
     """
-    :return List of IP addresses (or domains, for NS lookup)
+    :return List of IP addresses (or domains, for NS and MX lookups)
 
     :raise ResolutionException if something fails
     """

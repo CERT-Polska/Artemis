@@ -1,5 +1,5 @@
 aioboto3==13.3.0
-aiobotocore==2.16.0
+aiobotocore[boto3]==2.16.0
 aiofiles==25.1.0
 aiohappyeyeballs==2.7.1
 aiohttp==3.14.5
@@ -33,7 +33,7 @@ cryptography==50.0.2
 decorator==5.3.1
 defusedxml==0.7.1
 dkimpy==1.1.8
-dnspython==2.9.2
+dnspython[doh]==2.9.2
 docutils==0.22.4
 expiringdict==1.2.2
 fastapi==0.162.6
@@ -47,9 +47,9 @@ h11==0.16.0
 h2==4.4.1
 hpack==4.2.0
 httpcore==1.0.9
-httpcore2==2.16.0
+httpcore2==2.16.2
 httpx==0.28.1
-httpx2==2.16.0
+httpx2==2.16.2
 hyperframe==6.1.0
 idna==3.20
 imagesize==2.0.1

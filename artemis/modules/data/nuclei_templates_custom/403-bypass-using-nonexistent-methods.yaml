@@ -7,7 +7,7 @@ info:
   description: |
     Detects potential 403 Forbidden bypass vulnerabilities by using nonexistent HTTP methods.
 
-flow: http(1) && http(2)
+flow: http(1) && http(2) && http(3)
 
 http:
   - raw:
@@ -52,3 +52,29 @@ http:
           - "!contains(body, '<title>Request Rejected</title>')"
           - "!contains(body, '<TITLE>Unauthorized Request Blocked</TITLE>')"
         condition: and
+
+  - raw:
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        name: forbidden
+        dsl:
+          # Perform the same request multiple times to make sure it was not a random 403
+          # we do this once again to test that it wasn't a temporary 403 -> 200 change due
+          # to e.g. WAF block expiration.
+          - "status_code_1 == 403"
+          - "status_code_2 == 403"
+          - "status_code_3 == 403"
+        condition: and
+        internal: true

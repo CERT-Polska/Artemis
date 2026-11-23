@@ -42,7 +42,7 @@ repos:
     - requests-mock==1.12.1
     - sqlalchemy-stubs==0.4
     - typer==0.29.1
-    - types-beautifulsoup4==4.12.0.6
+    - types-beautifulsoup4==4.12.0.20250516
     - types-Markdown==3.4.2.10
     - types-paramiko==2.7.2
     - types-psutil==6.1.0.20241221

@@ -72,7 +72,7 @@ class ScanningBlocklistTest(unittest.TestCase):
         blocklist_item1 = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
             domain_and_subdomains="example.com",
-            allow_domains_and_subdomains="shop.example.com",
+            allow_domains_and_subdomains=["shop.example.com"],
         )
         self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), True)
@@ -84,7 +84,7 @@ class ScanningBlocklistTest(unittest.TestCase):
         blocklist_item1 = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
             subdomains="example.com",
-            allow_domains_and_subdomains="shop.example.com",
+            allow_domains_and_subdomains=["shop.example.com"],
         )
         self.assertEqual(should_block_scanning("other.com", None, "karton-name", [blocklist_item1]), False)
         self.assertEqual(should_block_scanning("example.com", None, "karton-name", [blocklist_item1]), False)
@@ -221,7 +221,7 @@ class ReportBlocklistTest(unittest.TestCase):
         blocklist_item = BlocklistItem(
             mode=BlocklistMode.BLOCK_SCANNING_AND_REPORTING,
             domain_and_subdomains="www.example.com",
-            allow_domains_and_subdomains="shop.www.example.com",
+            allow_domains_and_subdomains=["shop.www.example.com"],
         )
         self.assertEqual(blocklist_reports([report1, report2, report3], [blocklist_item]), [report2, report3])
 

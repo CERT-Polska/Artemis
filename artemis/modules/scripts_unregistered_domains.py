@@ -83,24 +83,26 @@ class ScriptsUnregisteredDomains(ArtemisBase):
             if url_parsed.scheme in ["data", "chrome-extension"]:
                 continue
 
-            netloc = url_parsed.netloc.strip()
+            # Unlike netloc, hostname leaves out the port and any credentials (cdn.example.com:8443),
+            # which would otherwise fail the domain check and skip the script.
+            hostname = (url_parsed.hostname or "").strip()
 
-            if netloc and self._is_domain(netloc):
-                privatesuffix = PUBLIC_SUFFIX_LIST.privatesuffix(netloc)
+            if hostname and self._is_domain(hostname):
+                privatesuffix = PUBLIC_SUFFIX_LIST.privatesuffix(hostname)
 
                 if privatesuffix:
                     domain_to_check = privatesuffix
                 else:
                     # if a domain is a public suffix
-                    domain_to_check = netloc
+                    domain_to_check = hostname
 
                 if self._is_domain_registered(domain_to_check):
-                    self.log.info(f"Script on {netloc}, but {domain_to_check} is registered")
+                    self.log.info(f"Script on {hostname}, but {domain_to_check} is registered")
                 else:
-                    self.log.info(f"Script on {netloc} - {domain_to_check} unregistered!")
-                    messages.append(f"{url} loads script from unregistered domain {netloc}")
+                    self.log.info(f"Script on {hostname} - {domain_to_check} unregistered!")
+                    messages.append(f"{url} loads script from unregistered domain {hostname}")
                     scripts_from_unregistered_domains.append(
-                        {"src": src, "domain": netloc, "privatesuffix": privatesuffix}
+                        {"src": src, "domain": hostname, "privatesuffix": privatesuffix}
                     )
 
         if messages:

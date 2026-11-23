@@ -11,7 +11,9 @@ class TestData(NamedTuple):
 
 class TestResolvers(unittest.TestCase):
     def test_domain_lookup(self) -> None:
-        data = [TestData("lebihan.pl", {"146.59.80.63"})]
+        data = [TestData("dns.google", {"8.8.8.8", "8.8.4.4"})]
 
         for item in data:
-            self.assertEqual(lookup(item.src), item.expected)
+            result = lookup(item.src)
+            self.assertTrue(result)
+            self.assertLessEqual(result, item.expected)

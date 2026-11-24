@@ -109,6 +109,12 @@ def build_logger(name: str) -> logging.Logger:
     for handler in logger.handlers:
         logger.removeHandler(handler)
     logger.addHandler(CONSOLE_LOG_HANDLER)
+    # The logger prints through its own handler, so the record must not also
+    # reach the root logger: whoisdomain (imported above) calls
+    # logging.basicConfig() at import time, so in every Artemis process the
+    # root logger has a handler of its own and each line would be printed
+    # twice - once in our format, once as "INFO:<name>:<message>".
+    logger.propagate = False
     return logger
 
 

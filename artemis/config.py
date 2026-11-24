@@ -607,6 +607,20 @@ class Config:
                 "NUCLEI_REFUZZ_TIMEOUT_SECONDS it bounds the time spent per finding.",
             ] = get_config("NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING", default=30, cast=int)
 
+            NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS: Annotated[
+                int,
+                "How long an out-of-band (interactsh) re-fuzz, which shortens the PoC URL of an OOB DAST finding, "
+                "waits for callbacks after its last request "
+                "(Nuclei's -interactions-cooldown-period). The scan sends many more requests after the one that "
+                "triggered a callback, so a slow callback still arrives in time there; a re-fuzz sends one or a few.",
+            ] = get_config("NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS", default=30, cast=int)
+
+            NUCLEI_REFUZZ_OOB_TIMEOUT_SECONDS: Annotated[
+                int,
+                "Timeout of one out-of-band re-fuzz (there are at most two per finding). Must exceed "
+                "NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS plus the interactsh registration.",
+            ] = get_config("NUCLEI_REFUZZ_OOB_TIMEOUT_SECONDS", default=120, cast=int)
+
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,
                 "A path (inside Docker container) of a file with JSON dictionary of template group assignments: "

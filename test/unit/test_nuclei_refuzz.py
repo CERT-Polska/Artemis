@@ -115,6 +115,26 @@ http:
           - "Location: //oast\\\\.me"
 """
 
+OOB_TEMPLATE = """
+id: blind-ssrf
+info:
+  name: Blind SSRF
+  severity: medium
+http:
+  - payloads:
+      ssrf:
+        - "{{interactsh-url}}"
+    fuzzing:
+      - part: query
+        fuzz:
+          - "https://{{ssrf}}"
+    matchers:
+      - type: word
+        part: interactsh_protocol
+        words:
+          - "http"
+"""
+
 NAMES = [f"p{i}" for i in range(30)] + ["next"] + [f"q{i}" for i in range(30)]
 BASE = "http://example.com/go?" + "&".join(f"{name}=http%3A%2F%2F127.0.0.1%2Fabc.html" for name in NAMES)
 MATCHED = BASE.replace("next=http%3A%2F%2F127.0.0.1%2Fabc.html", "next=//oast.me")
@@ -271,6 +291,142 @@ class TestInBandReproducer(unittest.TestCase):
         self.assertRegex(logs.output[-1], r"outcome=shortened .* base=url .* narrowing=narrowed payloads=1/4$")
         # Every call cost one request: with the whole template a miss would cost four.
         self.assertTrue(all(line.endswith("requests=1 request_errors=none") for line in logs.output[:-1]))
+
+
+OOB_NAMES = [f"p{i}" for i in range(30)] + ["next"] + [f"q{i}" for i in range(30)]
+OOB_BASE = "http://example.com/go?" + "&".join(f"{name}=http%3A%2F%2F127.0.0.1%2Fabc.html" for name in OOB_NAMES)
+OOB_MATCHED = OOB_BASE.replace(
+    "http%3A%2F%2F127.0.0.1%2Fabc.html", "https://d4f8a2c1b0e9d4f8a2c1b0e9d4f8a2c1b.oast.fun"
+)
+
+
+class _FakeOobNuclei:
+    """Stands in for subprocess.run with an OOB template: puts a distinct
+    OAST URL into every parameter (as the canary makes Nuclei do) and reports
+    a callback for the one in `next`."""
+
+    def __init__(self, callback: bool = True, timeout: bool = False) -> None:
+        self.callback = callback
+        self.timeout = timeout
+        self.commands: List[List[str]] = []
+        self.templates: List[str] = []
+        self.timeouts: List[int] = []
+
+    def __call__(self, command: List[str], **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
+        self.commands.append(command)
+        self.timeouts.append(kwargs["timeout"])
+        with open(command[command.index("-t") + 1]) as f:
+            self.templates.append(f.read())
+        url = command[command.index("-u") + 1]
+        base, query = url.split("?", 1)
+        tokens = {}
+        pairs = []
+        for i, pair in enumerate(query.split("&")):
+            name = pair.split("=", 1)[0]
+            tokens[name] = f"{i:033d}"
+            pairs.append(f"{name}=https://{tokens[name]}.oast.fun")
+        sent = base + "?" + "&".join(pairs)
+        results = b""
+        if self.callback and "next" in tokens:
+            results = (
+                json.dumps(
+                    # Nuclei may report the interaction against another request.
+                    {
+                        "template-id": "blind-ssrf",
+                        "matched-at": "elsewhere",
+                        "interaction": {"unique-id": tokens["next"]},
+                    }
+                ).encode()
+                + b"\n"
+            )
+        trace = json.dumps(
+            {"template": "t", "type": "http", "input": sent, "address": "a:80", "error": "none"}
+        ).encode()
+        if self.timeout:
+            raise subprocess.TimeoutExpired(cmd=command, timeout=1, output=results, stderr=trace + b"\n")
+        return _completed(results, trace + b"\n")
+
+
+class TestOobFindings(unittest.TestCase):
+    def setUp(self) -> None:
+        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
+            f.write(OOB_TEMPLATE)
+        self.addCleanup(os.unlink, f.name)
+        self.finding = {
+            "template-id": "blind-ssrf",
+            "template-path": f.name,
+            "url": OOB_BASE,
+            "matched-at": OOB_MATCHED,
+            "interaction": {"protocol": "http", "unique-id": "d4f8a2c1b0e9d4f8a2c1b0e9d4f8a2c1b"},
+        }
+
+    def test_shortened_by_the_parameter_that_called_back(self) -> None:
+        fake = _FakeOobNuclei()
+        with patch("artemis.modules.nuclei.subprocess.run", fake):
+            with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+                result = _minimize_dast_finding(self.finding)
+        self.assertEqual(result, "http://example.com/go?next=https://d4f8a2c1b0e9d4f8a2c1b0e9d4f8a2c1b.oast.fun")
+        # One re-fuzz of the whole URL, one of the shortened one.
+        self.assertEqual(len(fake.commands), 2)
+        self.assertEqual(
+            fake.commands[1][fake.commands[1].index("-u") + 1],
+            "http://example.com/go?next=http%3A%2F%2F127.0.0.1%2Fabc.html",
+        )
+        for command, template in zip(fake.commands, fake.templates):
+            self.assertNotIn("-ni", command)
+            self.assertEqual(command[command.index("-fuzzing-mode") + 1], "multiple")
+            self.assertEqual(
+                command[command.index("-interactions-cooldown-period") + 1],
+                str(Config.Modules.Nuclei.NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS),
+            )
+            # The canary: the payload sits in the fuzz expression.
+            self.assertNotIn("payloads", template)
+            self.assertIn("https://{{interactsh-url}}", template)
+        self.assertEqual(fake.timeouts, [Config.Modules.Nuclei.NUCLEI_REFUZZ_OOB_TIMEOUT_SECONDS] * 2)
+        self.assertRegex(logs.output[-1], r"params=61->1 outcome=shortened oob=1 .* refuzz=canary payloads=1$")
+
+    def test_callback_before_a_timeout_counts(self) -> None:
+        with patch("artemis.modules.nuclei.subprocess.run", _FakeOobNuclei(timeout=True)):
+            result = _minimize_dast_finding(self.finding)
+        self.assertEqual(result, "http://example.com/go?next=https://d4f8a2c1b0e9d4f8a2c1b0e9d4f8a2c1b.oast.fun")
+
+    def test_no_callback_keeps_the_full_url(self) -> None:
+        with patch("artemis.modules.nuclei.subprocess.run", _FakeOobNuclei(callback=False)):
+            self.assertEqual(_minimize_dast_finding(self.finding), OOB_MATCHED)
+
+
+class TestOobRouting(unittest.TestCase):
+    def test_template_with_both_kinds_of_matchers(self) -> None:
+        """A finding of a template that also matches the response
+        (generic-xxe, jinjava-oob) without an interaction is in-band."""
+        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
+            f.write(OOB_TEMPLATE)
+        self.addCleanup(os.unlink, f.name)
+        finding = {"template-id": "blind-ssrf", "template-path": f.name, "url": BASE, "matched-at": MATCHED}
+        with patch("artemis.modules.nuclei.subprocess.run", return_value=_completed()) as run:
+            with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+                _minimize_dast_finding(finding)
+        run.assert_called()
+        self.assertNotIn("oob=1", logs.output[-1])
+
+    def test_oob_template_without_a_canary(self) -> None:
+        """The full URL is kept only when no canary can be made - and the
+        summary line says why."""
+        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
+            f.write(OOB_TEMPLATE.replace('"https://{{ssrf}}"', '"{{url_encode(ssrf)}}"'))
+        self.addCleanup(os.unlink, f.name)
+        finding = {
+            "template-id": "blind-ssrf",
+            "template-path": f.name,
+            "url": OOB_BASE,
+            "matched-at": OOB_MATCHED,
+            "interaction": {"unique-id": "d4f8a2c1b0e9d4f8a2c1b0e9d4f8a2c1b"},
+        }
+        with patch("artemis.modules.nuclei.subprocess.run") as run:
+            with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+                self.assertEqual(_minimize_dast_finding(finding), OOB_MATCHED)
+        run.assert_not_called()
+        self.assertRegex(logs.output[0], r"outcome=fallback_error .* error=canary_not_supported$")
 
 
 class TestIsDastFinding(unittest.TestCase):

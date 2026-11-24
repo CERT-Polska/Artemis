@@ -14,7 +14,7 @@ import time
 import traceback
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 import more_itertools
 import timeout_decorator
@@ -43,6 +43,7 @@ from artemis.reporting.modules.nuclei.poc_url_utils import (
     count_query_params,
     log_not_minimized,
     minimize_nuclei_matched_at_url,
+    minimize_oob_matched_at_url,
     summary_logger,
 )
 from artemis.task_utils import get_target_host, get_target_url
@@ -233,6 +234,8 @@ class _RefuzzRun:
     elapsed: float
     # Set instead of raising, so that the caller can log the call first.
     error: str = ""
+    # The URLs of the requests sent, from the trace log.
+    request_urls: List[str] = dataclasses.field(default_factory=list)
 
 
 def _run_refuzz(url: str, template_path: str, extra_args: List[str], timeout: int) -> _RefuzzRun:
@@ -240,7 +243,7 @@ def _run_refuzz(url: str, template_path: str, extra_args: List[str], timeout: in
     # Batch-only flags (rate-limit-duration, bulk-size, concurrency, stats)
     # are intentionally left out of the shared command builder - they are
     # meaningless for a single-URL re-fuzz. The trace log, unlike in the
-    # scan, is only parsed for the request count and the request errors.
+    # scan, is parsed for the requests sent: their count, errors and URLs.
     command = (
         build_common_nuclei_command()
         + ["-u", url, "-t", template_path, "-dast", "-fuzzing-mode", "multiple", "-silent"]
@@ -272,7 +275,7 @@ def _run_refuzz(url: str, template_path: str, extra_args: List[str], timeout: in
         if isinstance(entry, dict):
             results.append(entry)
 
-    requests = 0
+    request_urls = []
     errors: Dict[str, int] = collections.defaultdict(int)
     for line in stderr.decode("utf-8", errors="ignore").splitlines():
         if not line.startswith("{"):
@@ -282,16 +285,17 @@ def _run_refuzz(url: str, template_path: str, extra_args: List[str], timeout: in
         except json.JSONDecodeError:
             continue
         if isinstance(entry, dict) and "address" in entry:
-            requests += 1
+            request_urls.append(str(entry.get("input") or ""))
             if entry.get("error") and entry["error"] != "none":
                 errors[_nuclei_error_category(entry["error"])] += 1
 
     return _RefuzzRun(
         results=results,
-        requests=requests,
+        requests=len(request_urls),
         errors=dict(errors),
         elapsed=time.monotonic() - started,
         error=error,
+        request_urls=request_urls,
     )
 
 
@@ -343,9 +347,18 @@ def _load_template_cached(template_path: str) -> Optional[Dict[str, Any]]:
     return _load_template_at(template_path, mtime)
 
 
+def _is_oob_finding(finding: Dict[str, Any], template_path: str) -> bool:
+    template = _load_template_cached(template_path)
+    return (
+        template is not None
+        and nuclei_refuzz_templates.uses_interactsh_matchers(template)
+        and bool(finding.get("interaction"))
+    )
+
+
 class _InBandReproducer:
-    """``reproduces_fn`` for DAST findings: whether Nuclei, in multiple
-    fuzzing mode, still reports the finding on a URL."""
+    """``reproduces_fn`` for in-band DAST findings: whether Nuclei, in
+    multiple fuzzing mode, still reports the finding on a URL."""
 
     def __init__(self, template_path: str, template_id: str, finding: Dict[str, Any], workdir: str) -> None:
         self.template_path = template_path
@@ -462,6 +475,103 @@ class _InBandReproducer:
         return f"narrowing={self.narrowing} payloads={self.payloads}"
 
 
+class _OobRefuzz:
+    """The two re-fuzzes that shorten the PoC URL of an out-of-band finding
+    (see minimize_oob_matched_at_url), both with a canary copy of the
+    template that gives every parameter an OAST URL of its own."""
+
+    def __init__(self, template_path: str, template_id: str, finding: Dict[str, Any], workdir: str) -> None:
+        self.template_id = template_id
+        self.base_url = str(finding.get("url") or "")
+        self.calls = 0
+        self.canary_path: Optional[str] = None
+        self.payloads = "all"
+        self.state = "none"
+
+        template = _load_template_cached(template_path)
+        if template is None:
+            self.state = "template_unreadable"
+            return
+        aligned = align_query_pairs(self.base_url, finding["matched-at"]) if self.base_url else None
+        # The payload the finding fired with, if it can be told; else all.
+        match = nuclei_refuzz_templates.find_matching_payloads(template, aligned) if aligned else None
+        canary = nuclei_refuzz_templates.oob_canary_template(template, match[1] if match else None)
+        if canary is None and match:
+            canary = nuclei_refuzz_templates.oob_canary_template(template)
+        if canary is None:
+            self.state = "canary_not_supported"
+            return
+        try:
+            self.canary_path = nuclei_refuzz_templates.write_template(canary, workdir, "canary")
+        except OSError:
+            self.state = "write_failed"
+            return
+        self.state = "canary"
+        self.payloads = str(nuclei_refuzz_templates.fuzz_value_count(canary))
+
+    def _run(self, url: str) -> _RefuzzRun:
+        assert self.canary_path is not None
+        self.calls += 1
+        run = _run_refuzz(
+            url,
+            self.canary_path,
+            # No -ni: the callbacks are the evidence.
+            [
+                "-interactions-cooldown-period",
+                str(Config.Modules.Nuclei.NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS),
+            ],
+            Config.Modules.Nuclei.NUCLEI_REFUZZ_OOB_TIMEOUT_SECONDS,
+        )
+        callbacks = [result for result in run.results if result.get("interaction")]
+        _log_refuzz(self.template_id, self.calls, url, self.payloads, run, bool(callbacks))
+        # A callback reported before the timeout still counts.
+        if run.error and not callbacks:
+            raise RefuzzError(run.error)
+        return run
+
+    def attribute(self) -> Set[int]:
+        """Indices of the parameters of the fuzzed URL whose OAST URL called back."""
+        run = self._run(self.base_url)
+        attributed: Set[int] = set()
+        for result in run.results:
+            unique_id = str((result.get("interaction") or {}).get("unique-id") or "").lower()
+            if not unique_id:
+                continue
+            # Nuclei may report the interaction against a later request than
+            # the one that carried its URL, so the request is found by the URL.
+            for request_url in run.request_urls:
+                if unique_id not in request_url.lower():
+                    continue
+                aligned = align_query_pairs(self.base_url, request_url, strict=False)
+                if aligned is None:
+                    continue
+                attributed.update(i for i, (_, sent) in enumerate(aligned) if unique_id in sent.lower())
+        return attributed
+
+    def reproduces(self, url: str) -> bool:
+        return any(result.get("interaction") for result in self._run(url).results)
+
+    def describe(self) -> str:
+        return f"refuzz={self.state} payloads={self.payloads}"
+
+
+def _minimize_oob_finding(finding: Dict[str, Any], template_path: str) -> str:
+    template_id = finding["template-id"]
+    with tempfile.TemporaryDirectory(prefix="artemis-poc-refuzz-") as workdir:
+        refuzz = _OobRefuzz(template_path, template_id, finding, workdir)
+        if refuzz.canary_path is None:
+            log_not_minimized(finding["matched-at"], template_id, "fallback_error", error=refuzz.state)
+            return str(finding["matched-at"])
+        return minimize_oob_matched_at_url(
+            finding["matched-at"],
+            attribute_fn=refuzz.attribute,
+            reproduces_fn=refuzz.reproduces,
+            base_url=finding.get("url"),
+            template_id=template_id,
+            describe_fn=refuzz.describe,
+        )
+
+
 def _minimize_dast_finding(finding: Dict[str, Any]) -> str:
     """Return the shortened matched-at URL of a DAST finding, or the original."""
     try:
@@ -482,6 +592,11 @@ def _minimize_dast_poc(finding: Dict[str, Any]) -> str:
         NUCLEI_TEMPLATES_LOCATION, finding.get("template") or finding["template-id"]
     )
     template_id = finding["template-id"]
+
+    if _is_oob_finding(finding, template_path):
+        # The evidence is an interactsh callback, which may come late or not
+        # at all; ddmin would wait for one per subset.
+        return _minimize_oob_finding(finding, template_path)
 
     with tempfile.TemporaryDirectory(prefix="artemis-poc-refuzz-") as workdir:
         reproducer = _InBandReproducer(template_path, template_id, finding, workdir)

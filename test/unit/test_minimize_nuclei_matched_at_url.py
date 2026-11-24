@@ -10,6 +10,7 @@ from artemis.reporting.modules.nuclei.poc_url_utils import (
     RefuzzError,
     align_query_pairs,
     minimize_nuclei_matched_at_url,
+    minimize_oob_matched_at_url,
 )
 
 
@@ -381,6 +382,91 @@ class TestAlignQueryPairs(unittest.TestCase):
         self.assertIsNone(align_query_pairs("http://e.com/a?x=1&y=2", "http://e.com/a?x=1"))
         self.assertIsNone(align_query_pairs("http://e.com/a?x=1&y=2", "http://e.com/a?y=2&x=1"))
         self.assertIsNone(align_query_pairs("http://e.com/a", "http://e.com/a?x=1"))
+
+    def test_canary_request_not_strict(self) -> None:
+        """A canary's request: every parameter has an OAST URL of its own, and
+        Nuclei has moved the segments that are the same in every parameter
+        behind the first one."""
+        base = "http://e.com/a?x=1&y=2&z=3"
+        sent = "http://e.com/a?x=1&nslookup+aaa.oast.fun&'&'&'&y=2&nslookup+bbb.oast.fun&z=3&nslookup+ccc.oast.fun"
+        self.assertIsNone(align_query_pairs(base, sent))
+        self.assertEqual(
+            align_query_pairs(base, sent, strict=False),
+            [
+                ("x=1", "x=1&nslookup+aaa.oast.fun&'&'&'"),
+                ("y=2", "y=2&nslookup+bbb.oast.fun"),
+                ("z=3", "z=3&nslookup+ccc.oast.fun"),
+            ],
+        )
+
+
+_OOB_NAMES = [f"p{i}" for i in range(50)] + ["cmd"] + [f"q{i}" for i in range(50)]
+_OOB_PAYLOAD = "testing%24%28nslookup+d4f8a2c1b0e9d4f8a2c1b0e9d4f8a2c1b.oast.fun%29"
+
+
+class TestMinimizeOob(unittest.TestCase):
+    BASE = "http://example.com/run?" + "&".join(f"{name}=testing" for name in _OOB_NAMES)
+    PAYLOAD = _OOB_PAYLOAD
+    MATCHED = "http://example.com/run?" + "&".join(f"{name}={_OOB_PAYLOAD}" for name in _OOB_NAMES)
+    CMD = _OOB_NAMES.index("cmd")
+
+    def _minimize(self, attributed: set[int], reproduces: Callable[[str], bool]) -> tuple[str, list[str]]:
+        checked: list[str] = []
+
+        def checking(url: str) -> bool:
+            checked.append(url)
+            return reproduces(url)
+
+        result = minimize_oob_matched_at_url(
+            self.MATCHED, attribute_fn=lambda: attributed, reproduces_fn=checking, base_url=self.BASE
+        )
+        return result, checked
+
+    def test_shortened_to_the_parameter_that_called_back(self) -> None:
+        result, checked = self._minimize({self.CMD}, lambda _: True)
+        self.assertEqual(result, "http://example.com/run?cmd=" + self.PAYLOAD)
+        # The shortened URL is checked from the original values, so that the
+        # canary puts a fresh OAST URL into it.
+        self.assertEqual(checked, ["http://example.com/run?cmd=testing"])
+
+    def test_no_callback_on_the_shortened_url_keeps_the_full_one(self) -> None:
+        """E.g. the parameter only works together with another one."""
+        with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+            result, _ = self._minimize({self.CMD}, lambda _: False)
+        self.assertEqual(result, self.MATCHED)
+        self.assertRegex(logs.output[0], r"outcome=fallback_no_reproduce oob=1 .* error=shortened_no_callback$")
+
+    def test_no_callback_on_the_re_fuzz(self) -> None:
+        result, checked = self._minimize(set(), lambda _: True)
+        self.assertEqual(result, self.MATCHED)
+        self.assertEqual(checked, [])
+
+    def test_every_parameter_called_back(self) -> None:
+        """The target fetches every URL it gets: one parameter will do."""
+        result, checked = self._minimize(set(range(len(_OOB_NAMES))), lambda _: True)
+        self.assertEqual(result, "http://example.com/run?p0=" + self.PAYLOAD)
+        self.assertEqual(checked, ["http://example.com/run?p0=testing"])
+
+    def test_errors_keep_the_full_url(self) -> None:
+        def failing() -> set[int]:
+            raise RefuzzError("timeout")
+
+        self.assertEqual(
+            minimize_oob_matched_at_url(
+                self.MATCHED, attribute_fn=failing, reproduces_fn=lambda _: True, base_url=self.BASE
+            ),
+            self.MATCHED,
+        )
+
+    def test_without_the_fuzzed_url(self) -> None:
+        with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+            result = minimize_oob_matched_at_url(
+                self.MATCHED, attribute_fn=lambda: {self.CMD}, reproduces_fn=lambda _: True, base_url=None
+            )
+        self.assertEqual(result, self.MATCHED)
+        self.assertRegex(logs.output[0], r"outcome=fallback_error oob=1 .*error=url_not_aligned$")
+        self.assertNotIn("example.com", logs.output[0])
+        self.assertNotIn("oast", logs.output[0])
 
 
 class TestMinimizationSummaryLog(unittest.TestCase):

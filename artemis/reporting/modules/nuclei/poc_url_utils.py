@@ -25,6 +25,7 @@ from typing import (
     NamedTuple,
     Optional,
     Sequence,
+    Set,
     Tuple,
     TypeVar,
 )
@@ -131,7 +132,7 @@ def log_not_minimized(url: str, template_id: str, outcome: str, error: str = "")
     )
 
 
-def align_query_pairs(base_url: str, matched_url: str) -> Optional[List[Tuple[str, str]]]:
+def align_query_pairs(base_url: str, matched_url: str, strict: bool = True) -> Optional[List[Tuple[str, str]]]:
     """Pair every parameter of ``base_url`` - the URL Nuclei fuzzed - with its
     raw form in ``matched_url``, the matched-at URL of the finding.
 
@@ -140,6 +141,11 @@ def align_query_pairs(base_url: str, matched_url: str) -> Optional[List[Tuple[st
     under their parameter by walking the base parameters in order. Returns
     None when the two URLs do not line up (another path, a parameter
     missing).
+
+    ``strict=False`` skips the check that every fuzzed parameter got the same
+    text, for the request of a canary: there every parameter carries an OAST
+    URL of its own, and Nuclei moves the segments of a payload with ``&``
+    that are the same in every parameter behind the first one.
     """
     base_before, base_query = _split_url(base_url)
     matched_before, matched_query = _split_url(matched_url)
@@ -162,7 +168,7 @@ def align_query_pairs(base_url: str, matched_url: str) -> Optional[List[Tuple[st
         return None
     aligned = [(raw_base, "&".join(group)) for (_, raw_base), group in zip(base_pairs, groups)]
 
-    if any(len(group) > 1 for group in groups):
+    if strict and any(len(group) > 1 for group in groups):
         # Segments were glued to the parameter before them. That is right for
         # a payload with "&" - but so it would look if matched-at had a
         # parameter the base URL lacks. In multiple mode every fuzzed
@@ -374,3 +380,73 @@ def minimize_nuclei_matched_at_url(
     if stopped == "budget":
         return finish(*poc(kept), "shortened_partial", error="budget")
     return finish(*poc(kept), "shortened")
+
+
+def minimize_oob_matched_at_url(
+    url: str,
+    attribute_fn: Callable[[], Set[int]],
+    reproduces_fn: Callable[[str], bool],
+    base_url: Optional[str],
+    template_id: str = "unknown",
+    params_threshold: int = 2,
+    describe_fn: Optional[Callable[[], str]] = None,
+) -> str:
+    """Shorten the PoC URL of an out-of-band (interactsh) finding.
+
+    ddmin does not work here: every check would wait for a callback. Instead
+    ``attribute_fn`` re-fuzzes the URL Nuclei fuzzed (``base_url``) once, with
+    an OAST URL of its own in every parameter, and returns the indices of the
+    parameters whose URL called back; ``reproduces_fn`` then checks the URL
+    cut down to them, waiting for one more callback - two waits per finding,
+    whatever the number of parameters. If either gets no callback, the full
+    URL is kept.
+    """
+    started = time.monotonic()
+    aligned = align_query_pairs(base_url, url) if base_url else None
+    total = len(aligned) if aligned is not None else count_query_params(url)
+
+    def finish(result: str, kept: int, outcome: str, error: str = "") -> str:
+        details = describe_fn() if describe_fn else ""
+        summary_logger.info(
+            "PoC minimization: template=%s params=%d->%d outcome=%s oob=1 elapsed=%ds url_sha=%s%s%s",
+            template_id,
+            total,
+            kept,
+            outcome,
+            round(time.monotonic() - started),
+            _url_sha(url),
+            f" {details}" if details else "",
+            f" error={error}" if error else "",
+        )
+        return result
+
+    if total <= params_threshold:
+        return url
+    if aligned is None:
+        # The parameters can only be given their own OAST URLs when re-fuzzed
+        # from the URL Nuclei fuzzed.
+        return finish(url, total, "fallback_error", error="url_not_aligned")
+
+    try:
+        attributed = sorted(attribute_fn())
+    except RefuzzError as e:
+        return finish(url, total, "fallback_error", error=str(e))
+    if not attributed:
+        # The target did not call back again.
+        return finish(url, total, "fallback_no_reproduce")
+    if len(attributed) == total:
+        # Every parameter called back - the target fetches whatever URL it
+        # gets, say. Any one of them will do; the check below confirms it.
+        attributed = attributed[:1]
+
+    try:
+        shortened_reproduces = reproduces_fn(
+            _join_url(_split_url(base_url or "")[0], [aligned[i][0] for i in attributed])
+        )
+    except RefuzzError as e:
+        return finish(url, total, "fallback_error", error=str(e))
+    if not shortened_reproduces:
+        # E.g. the parameter only works together with another one.
+        return finish(url, total, "fallback_no_reproduce", error="shortened_no_callback")
+    shown = _with_the_payload(aligned, attributed)
+    return finish(_join_url(_split_url(url)[0], [aligned[i][1] for i in shown]), len(shown), "shortened")

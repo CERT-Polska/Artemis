@@ -5,6 +5,7 @@ import re
 import subprocess
 from typing import List
 
+import idna
 from karton.core import Task
 
 from artemis import direct_url_scanning, http_requests, load_risk_class
@@ -58,7 +59,7 @@ class Classifier(ArtemisBase):
         if is_domain(data):
             # Just in case some downstream modules didn't support Unicode in
             # domains - let's encode them using IDNA
-            data = data.encode("idna").decode("ascii")
+            data = idna.encode(data, uts46=True, transitional=False).decode("ascii")
 
         return data
 

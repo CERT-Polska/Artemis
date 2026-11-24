@@ -122,8 +122,13 @@ class TestPocRefuzzCost(unittest.TestCase):
             self.assertLessEqual(requests, 3)
 
     def test_whole_minimization(self) -> None:
-        result, requests = self._requests_for(_minimize_dast_finding, dict(self.finding))
+        finding = dict(self.finding)
+        result, requests = self._requests_for(_minimize_dast_finding, finding)
         self.assertEqual(urllib.parse.urlparse(result).query, "next=//oast.me")
+        # The outcome is stored with the finding.
+        self.assertEqual(finding["poc_minimization"]["outcome"], "shortened")
+        self.assertEqual(finding["poc_minimization"]["params_after"], 1)
+        json.dumps(finding)
         # The payload comes from matched-at, byte-for-byte.
         self.assertIn("next=//oast.me", self.finding["matched-at"].split("&"))
         # ~10 re-fuzzes of a request or two each - a single miss with the

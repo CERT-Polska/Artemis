@@ -19,7 +19,9 @@ import hashlib
 import time
 import urllib.parse
 from typing import (
+    Any,
     Callable,
+    Dict,
     Generic,
     List,
     NamedTuple,
@@ -118,9 +120,48 @@ def _url_sha(url: str) -> str:
     return hashlib.sha256(url.encode("utf-8", errors="surrogateescape")).hexdigest()[:12]
 
 
-def log_not_minimized(url: str, template_id: str, outcome: str, error: str = "") -> None:
+def _record(
+    summary: Optional[Dict[str, Any]],
+    outcome: str,
+    before: int,
+    after: int,
+    elapsed: float,
+    refuzz_calls: int,
+    details: str,
+    error: str,
+    oob: bool,
+) -> None:
+    """Fill ``summary`` - stored with the finding, so that the outcome can be
+    counted from the database long after the logs are gone. Counts and labels
+    only: never the URL, the host or the payload."""
+    if summary is None:
+        return
+    summary.clear()
+    summary.update(
+        {
+            "outcome": outcome,
+            "params_before": before,
+            "params_after": after,
+            "elapsed_seconds": round(elapsed),
+            "refuzz_calls": refuzz_calls,
+            "oob": oob,
+        }
+    )
+    # describe_fn's "name=value" pairs: narrowing, payloads, refuzz.
+    for part in details.split():
+        name, _, value = part.partition("=")
+        if value:
+            summary[name] = value
+    if error:
+        summary["error"] = error
+
+
+def log_not_minimized(
+    url: str, template_id: str, outcome: str, error: str = "", summary: Optional[Dict[str, Any]] = None
+) -> None:
     """The summary line of a finding that is left unshortened without a re-fuzz."""
     params = count_query_params(url)
+    _record(summary, outcome, params, params, 0, 0, "", error, oob=False)
     summary_logger.info(
         "PoC minimization: template=%s params=%d->%d outcome=%s ddmin_calls=0 elapsed=0s url_sha=%s%s",
         template_id,
@@ -256,9 +297,12 @@ def minimize_nuclei_matched_at_url(
     max_refuzz_calls: int = MAX_REFUZZ_CALLS_PER_FINDING,
     base_url: Optional[str] = None,
     describe_fn: Optional[Callable[[], str]] = None,
+    summary: Optional[Dict[str, Any]] = None,
 ) -> str:
     """Return the shortest PoC URL (a part of ``url``, the matched-at URL)
     that ``reproduces_fn`` still reports, or ``url`` itself.
+
+    ``summary``, if given, gets the outcome (see ``_record``).
 
     ``reproduces_fn`` gets the URL to re-fuzz: a subset of ``base_url`` - the
     URL Nuclei fuzzed - if it lines up with ``url``, else of ``url``.
@@ -309,6 +353,7 @@ def minimize_nuclei_matched_at_url(
 
     def finish(result: str, kept: int, outcome: str, error: str = "") -> str:
         details = describe_fn() if describe_fn else ""
+        _record(summary, outcome, len(result_pairs), kept, time.monotonic() - started, calls, details, error, oob=False)
         summary_logger.info(
             "PoC minimization: template=%s params=%d->%d outcome=%s ddmin_calls=%d elapsed=%ds base=%s url_sha=%s%s%s",
             template_id,
@@ -390,6 +435,7 @@ def minimize_oob_matched_at_url(
     template_id: str = "unknown",
     params_threshold: int = 2,
     describe_fn: Optional[Callable[[], str]] = None,
+    summary: Optional[Dict[str, Any]] = None,
 ) -> str:
     """Shorten the PoC URL of an out-of-band (interactsh) finding.
 
@@ -402,11 +448,13 @@ def minimize_oob_matched_at_url(
     URL is kept.
     """
     started = time.monotonic()
+    calls = 0
     aligned = align_query_pairs(base_url, url) if base_url else None
     total = len(aligned) if aligned is not None else count_query_params(url)
 
     def finish(result: str, kept: int, outcome: str, error: str = "") -> str:
         details = describe_fn() if describe_fn else ""
+        _record(summary, outcome, total, kept, time.monotonic() - started, calls, details, error, oob=True)
         summary_logger.info(
             "PoC minimization: template=%s params=%d->%d outcome=%s oob=1 elapsed=%ds url_sha=%s%s%s",
             template_id,
@@ -428,6 +476,7 @@ def minimize_oob_matched_at_url(
         return finish(url, total, "fallback_error", error="url_not_aligned")
 
     try:
+        calls += 1
         attributed = sorted(attribute_fn())
     except RefuzzError as e:
         return finish(url, total, "fallback_error", error=str(e))
@@ -440,6 +489,7 @@ def minimize_oob_matched_at_url(
         attributed = attributed[:1]
 
     try:
+        calls += 1
         shortened_reproduces = reproduces_fn(
             _join_url(_split_url(base_url or "")[0], [aligned[i][0] for i in attributed])
         )

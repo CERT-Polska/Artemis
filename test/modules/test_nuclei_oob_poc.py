@@ -103,15 +103,21 @@ class TestOobPocShortened(unittest.TestCase):
     def test_shortened_to_the_parameter_that_calls_back(self) -> None:
         assert self.finding is not None
         self.assertTrue(self.finding.get("interaction"))
-        result = _minimize_dast_finding(dict(self.finding))
+        finding = dict(self.finding)
+        result = _minimize_dast_finding(finding)
         self.assertEqual(list(urllib.parse.parse_qs(urllib.parse.urlparse(result).query)), ["cmd"])
+        self.assertEqual(
+            (finding["poc_minimization"]["outcome"], finding["poc_minimization"]["oob"]), ("shortened", True)
+        )
         # The payload is the one of the scan, byte-for-byte.
         self.assertIn(urllib.parse.urlparse(result).query, self.finding["matched-at"].split("&"))
 
     def test_full_url_kept_when_the_target_does_not_call_back_again(self) -> None:
         assert self.finding is not None
         _BlindCommandInjection.calling_back = False
-        self.assertEqual(_minimize_dast_finding(dict(self.finding)), self.finding["matched-at"])
+        finding = dict(self.finding)
+        self.assertEqual(_minimize_dast_finding(finding), self.finding["matched-at"])
+        self.assertEqual(finding["poc_minimization"]["outcome"], "fallback_no_reproduce")
 
 
 class _CmdExeCommandInjection(http.server.BaseHTTPRequestHandler):
@@ -191,6 +197,9 @@ class TestOobPocWithARawAmpersand(unittest.TestCase):
         self.assertTrue(any("nslookup" in segment for segment in segments[1:]), result)
         # Cut out of the scan's matched-at byte-for-byte.
         self.assertIn(query, self.finding["matched-at"])
+        self.assertEqual(
+            (finding["poc_minimization"]["outcome"], finding["poc_minimization"]["params_after"]), ("shortened", 1)
+        )
 
 
 if __name__ == "__main__":

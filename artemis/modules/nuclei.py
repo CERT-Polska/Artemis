@@ -2,6 +2,7 @@
 import collections
 import dataclasses
 import functools
+import hashlib
 import itertools
 import json
 import logging
@@ -315,7 +316,7 @@ def _log_refuzz(template_id: str, call: int, url: str, label: str, run: _RefuzzR
     )
 
 
-def _log_unexpected_error(finding: Dict[str, Any], error: Exception) -> None:
+def _log_unexpected_error(finding: Dict[str, Any], error: Exception, summary: Optional[Dict[str, Any]] = None) -> None:
     # The type and the place only: the message may carry the URL. The place
     # is the last frame in Artemis's own code, if any.
     frames = list(traceback.extract_tb(error.__traceback__))
@@ -327,6 +328,7 @@ def _log_unexpected_error(finding: Dict[str, Any], error: Exception) -> None:
         str(finding.get("template-id")),
         "fallback_error",
         error=f"unexpected_{type(error).__name__}",
+        summary=summary,
     )
 
 
@@ -555,12 +557,13 @@ class _OobRefuzz:
         return f"refuzz={self.state} payloads={self.payloads}"
 
 
-def _minimize_oob_finding(finding: Dict[str, Any], template_path: str) -> str:
+def _minimize_oob_finding(finding: Dict[str, Any], template_path: str, summary: Dict[str, Any]) -> str:
     template_id = finding["template-id"]
     with tempfile.TemporaryDirectory(prefix="artemis-poc-refuzz-") as workdir:
         refuzz = _OobRefuzz(template_path, template_id, finding, workdir)
         if refuzz.canary_path is None:
-            log_not_minimized(finding["matched-at"], template_id, "fallback_error", error=refuzz.state)
+            log_not_minimized(finding["matched-at"], template_id, "fallback_error", error=refuzz.state, summary=summary)
+            summary["oob"] = True
             return str(finding["matched-at"])
         return minimize_oob_matched_at_url(
             finding["matched-at"],
@@ -569,13 +572,38 @@ def _minimize_oob_finding(finding: Dict[str, Any], template_path: str) -> str:
             base_url=finding.get("url"),
             template_id=template_id,
             describe_fn=refuzz.describe,
+            summary=summary,
         )
 
 
+# How many times this process has minimized a PoC of the same template on
+# the same fuzzed URL (not by matched-at, which differs by random payload
+# parts and OAST URLs): another finding of a template without
+# stop-at-first-match, which reports one per payload, or a batch re-run by
+# module_base, where retries are configured.
+_minimization_attempts: Dict[str, int] = {}
+
+
+def _attempt(finding: Dict[str, Any]) -> int:
+    key = hashlib.sha256(
+        "\n".join([str(finding.get("template-id")), str(finding.get("url") or finding.get("matched-at"))]).encode(
+            "utf-8", errors="surrogateescape"
+        )
+    ).hexdigest()
+    if len(_minimization_attempts) > 10000:
+        _minimization_attempts.clear()
+    _minimization_attempts[key] = _minimization_attempts.get(key, 0) + 1
+    return _minimization_attempts[key]
+
+
 def _minimize_dast_finding(finding: Dict[str, Any]) -> str:
-    """Return the shortened matched-at URL of a DAST finding, or the original."""
+    """Return the shortened matched-at URL of a DAST finding, or the original.
+
+    The outcome is stored with the finding (``poc_minimization``), so that it
+    can be counted from the database after the worker's logs are gone."""
+    summary: Dict[str, Any] = {}
     try:
-        return _minimize_dast_poc(finding)
+        return _minimize_dast_poc(finding, summary)
     except timeout_decorator.TimeoutError:
         # module_base's task timeout, raised wherever the batch happens to be
         # (an Exception too): it must end the batch, not just this minimization.
@@ -583,11 +611,15 @@ def _minimize_dast_finding(finding: Dict[str, Any]) -> str:
     except Exception as e:
         # A bug here must not lose the finding - nor the whole batch, which
         # run_multiple would fail with it.
-        _log_unexpected_error(finding, e)
+        _log_unexpected_error(finding, e, summary)
         return str(finding["matched-at"])
+    finally:
+        if summary:
+            summary["attempt"] = _attempt(finding)
+            finding["poc_minimization"] = summary
 
 
-def _minimize_dast_poc(finding: Dict[str, Any]) -> str:
+def _minimize_dast_poc(finding: Dict[str, Any], summary: Dict[str, Any]) -> str:
     template_path = finding.get("template-path") or os.path.join(
         NUCLEI_TEMPLATES_LOCATION, finding.get("template") or finding["template-id"]
     )
@@ -596,7 +628,7 @@ def _minimize_dast_poc(finding: Dict[str, Any]) -> str:
     if _is_oob_finding(finding, template_path):
         # The evidence is an interactsh callback, which may come late or not
         # at all; ddmin would wait for one per subset.
-        return _minimize_oob_finding(finding, template_path)
+        return _minimize_oob_finding(finding, template_path, summary)
 
     with tempfile.TemporaryDirectory(prefix="artemis-poc-refuzz-") as workdir:
         reproducer = _InBandReproducer(template_path, template_id, finding, workdir)
@@ -607,6 +639,7 @@ def _minimize_dast_poc(finding: Dict[str, Any]) -> str:
             max_refuzz_calls=Config.Modules.Nuclei.NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING,
             base_url=finding.get("url"),
             describe_fn=reproducer.describe,
+            summary=summary,
         )
 
 

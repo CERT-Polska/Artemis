@@ -469,6 +469,68 @@ class TestMinimizeOob(unittest.TestCase):
         self.assertNotIn("oast", logs.output[0])
 
 
+class TestSummaryStoredWithTheFinding(unittest.TestCase):
+    """The outcome goes into the finding, which the database keeps after the
+    logs are gone - counts and labels only."""
+
+    URL = _large_dast_url({"sortby": "%27%22%3E%3Cx%3E"})
+
+    def test_shortened(self) -> None:
+        summary: dict[str, object] = {}
+        minimize_nuclei_matched_at_url(
+            self.URL,
+            reproduces_fn=_reproduces_when_present("sortby"),
+            template_id="sqli-error-based",
+            describe_fn=lambda: "narrowing=narrowed payloads=1/3",
+            summary=summary,
+        )
+        calls = summary.pop("refuzz_calls")
+        assert isinstance(calls, int)
+        self.assertGreater(calls, 1)
+        self.assertEqual(
+            summary,
+            {
+                "outcome": "shortened",
+                "params_before": 122,
+                "params_after": 1,
+                "elapsed_seconds": 0,
+                "oob": False,
+                "narrowing": "narrowed",
+                "payloads": "1/3",
+            },
+        )
+
+    def test_fallback_with_error(self) -> None:
+        def failing(called_url: str) -> bool:
+            raise RefuzzError("timeout")
+
+        summary: dict[str, object] = {}
+        minimize_nuclei_matched_at_url(self.URL, reproduces_fn=failing, summary=summary)
+        self.assertEqual(summary["outcome"], "fallback_error")
+        self.assertEqual(summary["error"], "timeout")
+        self.assertEqual((summary["params_before"], summary["params_after"]), (122, 122))
+
+    def test_oob(self) -> None:
+        summary: dict[str, object] = {}
+        minimize_oob_matched_at_url(
+            TestMinimizeOob.MATCHED,
+            attribute_fn=lambda: {TestMinimizeOob.CMD},
+            reproduces_fn=lambda _: True,
+            base_url=TestMinimizeOob.BASE,
+            summary=summary,
+        )
+        self.assertEqual(
+            (summary["outcome"], summary["params_after"], summary["refuzz_calls"], summary["oob"]),
+            ("shortened", 1, 2, True),
+        )
+
+    def test_never_the_url(self) -> None:
+        summary: dict[str, object] = {}
+        minimize_nuclei_matched_at_url(self.URL, reproduces_fn=_reproduces_when_present("sortby"), summary=summary)
+        self.assertNotIn("example.com", repr(summary))
+        self.assertNotIn("sortby", repr(summary))
+
+
 class TestMinimizationSummaryLog(unittest.TestCase):
     URL = _large_dast_url({"sortby": "%27"})
 

@@ -282,6 +282,22 @@ class TestInBandReproducer(unittest.TestCase):
         self.assertNotIn("example.com", line)
         self.assertNotIn("oast", line)
 
+    @patch.dict("artemis.modules.nuclei._minimization_attempts", clear=True)
+    def test_outcome_stored_with_the_finding(self) -> None:
+        findings = [dict(self.finding, **{"template-path": self.template_path}) for _ in range(2)]
+        with patch("artemis.modules.nuclei.subprocess.run", _FakeNuclei()):
+            for finding in findings:
+                _minimize_dast_finding(finding)
+        stored = findings[0]["poc_minimization"]
+        self.assertEqual(stored["outcome"], "shortened")
+        self.assertEqual((stored["params_before"], stored["params_after"]), (61, 1))
+        self.assertEqual((stored["narrowing"], stored["payloads"], stored["oob"]), ("narrowed", "1/4", False))
+        self.assertEqual(stored["attempt"], 1)
+        self.assertNotIn("example.com", json.dumps(stored))
+        self.assertNotIn("oast", json.dumps(stored))
+        # The same finding again, as when module_base re-runs a failed batch.
+        self.assertEqual(findings[1]["poc_minimization"]["attempt"], 2)
+
     def test_whole_minimization_cost(self) -> None:
         fake = _FakeNuclei()
         with patch("artemis.modules.nuclei.subprocess.run", fake):
@@ -477,6 +493,10 @@ class TestUnexpectedErrors(unittest.TestCase):
         self.assertRegex(logs.output[0], r"PoC minimization failed: ValueError at nuclei\.py:\d+$")
         self.assertRegex(logs.output[1], r"outcome=fallback_error .* error=unexpected_ValueError$")
         self.assertNotIn("example.com", "".join(logs.output))
+        self.assertEqual(
+            (finding["poc_minimization"]["outcome"], finding["poc_minimization"]["error"]),
+            ("fallback_error", "unexpected_ValueError"),
+        )
 
     def test_task_timeout_not_swallowed(self) -> None:
         """module_base ends a batch past TASK_TIMEOUT_SECONDS with

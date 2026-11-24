@@ -249,12 +249,15 @@ def minimize_nuclei_matched_at_url(
     params_threshold: int = 2,
     max_refuzz_calls: int = MAX_REFUZZ_CALLS_PER_FINDING,
     base_url: Optional[str] = None,
+    describe_fn: Optional[Callable[[], str]] = None,
 ) -> str:
     """Return the shortest PoC URL (a part of ``url``, the matched-at URL)
     that ``reproduces_fn`` still reports, or ``url`` itself.
 
     ``reproduces_fn`` gets the URL to re-fuzz: a subset of ``base_url`` - the
     URL Nuclei fuzzed - if it lines up with ``url``, else of ``url``.
+    ``describe_fn`` adds fields to the summary line (e.g. how the re-fuzz was
+    narrowed).
     """
     before, query = _split_url(url)
     if not query:
@@ -299,8 +302,9 @@ def minimize_nuclei_matched_at_url(
         return _join_url(before, [result_pairs[i] for i in shown]), len(shown)
 
     def finish(result: str, kept: int, outcome: str, error: str = "") -> str:
+        details = describe_fn() if describe_fn else ""
         summary_logger.info(
-            "PoC minimization: template=%s params=%d->%d outcome=%s ddmin_calls=%d elapsed=%ds base=%s url_sha=%s%s",
+            "PoC minimization: template=%s params=%d->%d outcome=%s ddmin_calls=%d elapsed=%ds base=%s url_sha=%s%s%s",
             template_id,
             len(result_pairs),
             kept,
@@ -309,6 +313,7 @@ def minimize_nuclei_matched_at_url(
             round(time.monotonic() - started),
             "url" if aligned is not None else "matched_at",
             _url_sha(url),
+            f" {details}" if details else "",
             f" error={error}" if error else "",
         )
         return result

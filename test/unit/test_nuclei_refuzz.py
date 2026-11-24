@@ -144,67 +144,133 @@ class _FakeNuclei:
 
 class TestInBandReproducer(unittest.TestCase):
     def setUp(self) -> None:
-        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
+        self.directory = tempfile.mkdtemp()
+        self.template_path = os.path.join(self.directory, "open-redirect-bypass.yaml")
+        with open(self.template_path, "w") as f:
             f.write(TEMPLATE)
-        self.addCleanup(os.unlink, f.name)
-        self.template_path = f.name
-        self.finding: Dict[str, Any] = {
-            "template-id": "open-redirect-bypass",
-            "template-path": f.name,
-            "url": BASE,
-            "matched-at": MATCHED,
-        }
+        self.finding: Dict[str, Any] = {"template-id": "open-redirect-bypass", "url": BASE, "matched-at": MATCHED}
 
-    def test_re_fuzzed_with_the_template(self) -> None:
+    def tearDown(self) -> None:
+        for name in os.listdir(self.directory):
+            os.unlink(os.path.join(self.directory, name))
+        os.rmdir(self.directory)
+
+    def test_narrowed_to_the_payload_that_hit(self) -> None:
         fake = _FakeNuclei()
-        with patch("artemis.modules.nuclei.subprocess.run", fake):
-            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass")
+        with tempfile.TemporaryDirectory() as workdir, patch("artemis.modules.nuclei.subprocess.run", fake):
+            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass", self.finding, workdir)
+            self.assertEqual(reproducer.describe(), "narrowing=narrowed payloads=1/4")
             self.assertTrue(reproducer(BASE))
             self.assertFalse(reproducer(BASE.replace("next=", "other=")))
-        self.assertEqual(fake.templates(), [self.template_path] * 2)
+            # Both checks used the narrowed copy, without interactsh.
+            self.assertTrue(all(path != self.template_path for path in fake.templates()))
+            self.assertTrue(all("-ni" in command for command in fake.commands))
+
+    def test_misidentified_payload_is_found_by_bisection(self) -> None:
+        """If the narrowed template misses on the full URL - which the scan
+        has just reported - a payload that fires is looked for by bisecting
+        the list on that URL, and used from then on."""
+        self.finding["matched-at"] = BASE.replace("next=http%3A%2F%2F127.0.0.1%2Fabc.html", "next=oast.me")
+        fake = _FakeNuclei()
+        with tempfile.TemporaryDirectory() as workdir, patch("artemis.modules.nuclei.subprocess.run", fake):
+            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass", self.finding, workdir)
+            self.assertTrue(reproducer(BASE))
+            self.assertEqual(reproducer.describe(), "narrowing=bisected payloads=1/4")
+            # narrowed (miss), the first half (hit), its first half (miss),
+            # then the last candidate, which no check has confirmed yet.
+            self.assertEqual(
+                [os.path.basename(path) for path in fake.templates()],
+                ["narrowed.yaml", "bisect2.yaml", "bisect1.yaml", "bisected.yaml"],
+            )
+            self.assertFalse(reproducer(BASE.replace("next=", "other=")))
+            self.assertEqual(os.path.basename(fake.templates()[-1]), "bisected.yaml")
+            self.assertIn("//oast.me", fake.texts[-1])
+            self.assertNotIn("{{Hostname}}", fake.texts[-1])
+
+    def test_bisected_without_the_fuzzed_url(self) -> None:
+        del self.finding["url"]
+        fake = _FakeNuclei()
+        with tempfile.TemporaryDirectory() as workdir, patch("artemis.modules.nuclei.subprocess.run", fake):
+            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass", self.finding, workdir)
+            self.assertEqual(reproducer.describe(), "narrowing=url_not_aligned payloads=all")
+            self.assertTrue(reproducer(MATCHED))
+            self.assertEqual(reproducer.describe(), "narrowing=bisected payloads=1/4")
+            self.assertNotIn(self.template_path, fake.templates())
+
+    def test_bisection_cost(self) -> None:
+        """A payload list of 64, the one that fires at the end: ~6 re-fuzzes
+        once, then every check costs one request."""
+        entries = [f"'/x{i}'" for i in range(63)] + ['"//oast.me"']
+        with open(self.template_path, "w") as f:
+            f.write(
+                TEMPLATE.replace('        - "{{Hostname}}.oast.me"\n', "".join(f"        - {e}\n" for e in entries))
+            )
+        self.finding["matched-at"] = BASE.replace("next=http%3A%2F%2F127.0.0.1%2Fabc.html", "next=unknown")
+        fake = _FakeNuclei()
+        with tempfile.TemporaryDirectory() as workdir, patch("artemis.modules.nuclei.subprocess.run", fake):
+            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass", self.finding, workdir)
+            self.assertTrue(reproducer(BASE))
+            self.assertLessEqual(len(fake.commands), 8)
+            self.assertEqual(reproducer.describe(), "narrowing=bisected payloads=1/67")
+            before = len(fake.commands)
+            self.assertFalse(reproducer(BASE.replace("next=", "other=")))
+            self.assertEqual(len(fake.commands), before + 1)
+
+    def test_interactsh_kept_for_templates_that_send_oast_urls(self) -> None:
+        with open(self.template_path, "w") as f:
+            f.write(TEMPLATE.replace('"oast.me"', '"http://{{interactsh-url}}"'))
+        self.finding["matched-at"] = BASE.replace("next=http%3A%2F%2F127.0.0.1%2Fabc.html", "next=http://ab12.oast.fun")
+        fake = _FakeNuclei()
+        with tempfile.TemporaryDirectory() as workdir, patch("artemis.modules.nuclei.subprocess.run", fake):
+            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass", self.finding, workdir)
+            reproducer(BASE)
+        self.assertIn("{{interactsh-url}}", fake.texts[0])
+        for command, text in zip(fake.commands, fake.texts):
+            self.assertEqual("-ni" in command, "{{interactsh-url}}" not in text)
 
     def test_hit_before_a_timeout_counts(self) -> None:
-        with patch(
-            "artemis.modules.nuclei.subprocess.run",
-            side_effect=subprocess.TimeoutExpired(cmd="nuclei", timeout=1, output=HIT, stderr=_trace("none")),
+        with (
+            tempfile.TemporaryDirectory() as workdir,
+            patch(
+                "artemis.modules.nuclei.subprocess.run",
+                side_effect=subprocess.TimeoutExpired(cmd="nuclei", timeout=1, output=HIT, stderr=_trace("none")),
+            ),
         ):
-            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass")
+            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass", self.finding, workdir)
             with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
                 self.assertTrue(reproducer(BASE))
         self.assertRegex(logs.output[0], r"reproduced=yes .* error=timeout$")
 
     def test_error_logged_then_raised(self) -> None:
-        with patch(
-            "artemis.modules.nuclei.subprocess.run",
-            side_effect=subprocess.TimeoutExpired(cmd="nuclei", timeout=1, stderr=_trace("none")),
+        with (
+            tempfile.TemporaryDirectory() as workdir,
+            patch(
+                "artemis.modules.nuclei.subprocess.run",
+                side_effect=subprocess.TimeoutExpired(cmd="nuclei", timeout=1, stderr=_trace("none")),
+            ),
         ):
-            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass")
+            reproducer = _InBandReproducer(self.template_path, "open-redirect-bypass", self.finding, workdir)
             with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
                 with self.assertRaisesRegex(RefuzzError, "timeout"):
                     reproducer(BASE)
         (line,) = logs.output
         self.assertRegex(
             line,
-            r"PoC minimization re-fuzz: template=open-redirect-bypass call=1 params=61 payloads=all "
+            r"PoC minimization re-fuzz: template=open-redirect-bypass call=1 params=61 payloads=1/4 "
             r"reproduced=error elapsed=\d+\.\ds requests=1 request_errors=none error=timeout$",
         )
         self.assertNotIn("example.com", line)
         self.assertNotIn("oast", line)
 
-    def test_whole_minimization(self) -> None:
+    def test_whole_minimization_cost(self) -> None:
         fake = _FakeNuclei()
         with patch("artemis.modules.nuclei.subprocess.run", fake):
             with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
-                result = _minimize_dast_finding(dict(self.finding))
+                result = _minimize_dast_finding(dict(self.finding, **{"template-path": self.template_path}))
         self.assertEqual(result, "http://example.com/go?next=//oast.me")
-        self.assertRegex(logs.output[-1], r"params=61->1 outcome=shortened .* base=url url_sha=[0-9a-f]{12}$")
-        # Subsets are re-fuzzed from the URL Nuclei fuzzed, with the original values.
-        for command in fake.commands:
-            self.assertNotIn("//oast.me", command[command.index("-u") + 1])
-        # A miss goes through the whole payload list: four requests here.
-        self.assertTrue(
-            any("reproduced=no" in line and line.endswith("requests=4 request_errors=none") for line in logs.output)
-        )
+        self.assertRegex(logs.output[-1], r"outcome=shortened .* base=url .* narrowing=narrowed payloads=1/4$")
+        # Every call cost one request: with the whole template a miss would cost four.
+        self.assertTrue(all(line.endswith("requests=1 request_errors=none") for line in logs.output[:-1]))
 
 
 class TestIsDastFinding(unittest.TestCase):
@@ -277,7 +343,11 @@ class TestUnexpectedErrors(unittest.TestCase):
 class TestRefuzzConfig(unittest.TestCase):
     def test_timeout_used(self) -> None:
         with patch("artemis.modules.nuclei.subprocess.run", return_value=_completed()) as run:
-            _InBandReproducer("template.yaml", "t")(MATCHED)
+            with tempfile.TemporaryDirectory() as workdir:
+                with tempfile.NamedTemporaryFile("w", suffix=".yaml", dir=workdir, delete=False) as f:
+                    f.write(TEMPLATE)
+                reproducer = _InBandReproducer(f.name, "t", {"matched-at": MATCHED}, workdir)
+                reproducer(MATCHED)
         self.assertEqual(run.call_args.kwargs["timeout"], Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS)
 
 

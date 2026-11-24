@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import collections
 import dataclasses
+import functools
 import itertools
 import json
 import logging
@@ -8,14 +9,16 @@ import os
 import random
 import shutil
 import subprocess
+import tempfile
 import time
 import traceback
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import more_itertools
 import timeout_decorator
+import yaml
 from karton.core import Task
 from prometheus_client import Counter, Histogram, start_http_server
 
@@ -27,6 +30,7 @@ from artemis.crawling import (
     crawl_and_filter,
 )
 from artemis.module_base import ArtemisBase
+from artemis.modules import nuclei_refuzz_templates
 from artemis.modules.data.static_extensions import STATIC_EXTENSIONS
 from artemis.modules.nuclei_router import NUCLEI_ROUTER_FLAGS_PAYLOAD_KEY
 from artemis.modules.runtime_configuration.nuclei_configuration import (
@@ -35,6 +39,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 )
 from artemis.reporting.modules.nuclei.poc_url_utils import (
     RefuzzError,
+    align_query_pairs,
     count_query_params,
     log_not_minimized,
     minimize_nuclei_matched_at_url,
@@ -321,24 +326,140 @@ def _log_unexpected_error(finding: Dict[str, Any], error: Exception) -> None:
     )
 
 
+@functools.lru_cache(maxsize=256)
+def _load_template_at(template_path: str, mtime: float) -> Optional[Dict[str, Any]]:
+    try:
+        return nuclei_refuzz_templates.load_template(template_path)
+    except (OSError, ValueError, yaml.YAMLError):
+        return None
+
+
+def _load_template_cached(template_path: str) -> Optional[Dict[str, Any]]:
+    # Keyed by the modification time too, as the templates get updated.
+    try:
+        mtime = os.path.getmtime(template_path)
+    except OSError:
+        return None
+    return _load_template_at(template_path, mtime)
+
+
 class _InBandReproducer:
     """``reproduces_fn`` for DAST findings: whether Nuclei, in multiple
     fuzzing mode, still reports the finding on a URL."""
 
-    def __init__(self, template_path: str, template_id: str) -> None:
+    def __init__(self, template_path: str, template_id: str, finding: Dict[str, Any], workdir: str) -> None:
         self.template_path = template_path
         self.template_id = template_id
+        self.workdir = workdir
         self.calls = 0
+        self.narrowed_path: Optional[str] = None
+        self.narrowed_without_interactsh = False
+        self.narrowing = "none"
+        self.payloads = "all"
+        self.template = _load_template_cached(template_path)
+        self.payload_set = nuclei_refuzz_templates.payload_set(self.template) if self.template is not None else None
+        self.full_without_interactsh = self.template is not None and not nuclei_refuzz_templates.needs_interactsh(
+            self.template
+        )
+        if self.template is None:
+            self.narrowing = "template_unreadable"
+            return
 
-    def __call__(self, url: str) -> bool:
-        self.calls += 1
-        run = _run_refuzz(url, self.template_path, [], Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS)
+        aligned = align_query_pairs(finding.get("url") or "", finding["matched-at"]) if finding.get("url") else None
+        if aligned is None:
+            # Without the URL Nuclei fuzzed, the payload cannot be read off
+            # the finding (bisection still works).
+            self.narrowing = "url_not_aligned"
+            return
+
+        match = nuclei_refuzz_templates.find_matching_payloads(self.template, aligned)
+        if match is None:
+            self.narrowing = "payload_not_identified"
+            return
+        _, entries, _ = match
+        if self._narrow(entries, "narrowed"):
+            self.narrowing = "narrowed"
+
+    def _narrow(self, entries: List[str], name: str) -> bool:
+        """Use a copy of the template with only ``entries`` from now on."""
+        assert self.template is not None and self.payload_set is not None
+        narrowed = nuclei_refuzz_templates.with_payloads(self.template, self.payload_set[0], entries)
+        try:
+            self.narrowed_path = nuclei_refuzz_templates.write_template(narrowed, self.workdir, name)
+        except OSError:
+            self.narrowing = "write_failed"
+            self.narrowed_path = None
+            return False
+        self.narrowed_without_interactsh = not nuclei_refuzz_templates.needs_interactsh(narrowed)
+        self.payloads = f"{len(entries)}/{len(self.payload_set[1])}"
+        return True
+
+    def _check(self, url: str, template_path: str, without_interactsh: bool, label: str) -> bool:
+        run = _run_refuzz(
+            url,
+            template_path,
+            # -ni only for templates that do not send OAST URLs: response-ssrf
+            # is in-band, but needs a real interactsh URL to fetch.
+            ["-ni"] if without_interactsh else [],
+            Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS,
+        )
         reproduced = bool(run.results)
-        _log_refuzz(self.template_id, self.calls, url, "all", run, reproduced)
+        _log_refuzz(self.template_id, self.calls, url, label, run, reproduced)
         # A finding reported before the timeout still counts.
         if run.error and not reproduced:
             raise RefuzzError(run.error)
         return reproduced
+
+    def _bisect(self, url: str) -> bool:
+        """Narrow the template to one payload that fires on ``url``, the full
+        URL; whether there is one."""
+        assert self.payload_set is not None
+        candidates = list(dict.fromkeys(self.payload_set[1]))
+        confirmed = False
+        while len(candidates) > 1:
+            half = candidates[: len(candidates) // 2]
+            if not self._narrow(half, f"bisect{len(half)}"):
+                return False
+            assert self.narrowed_path is not None
+            if self._check(url, self.narrowed_path, self.narrowed_without_interactsh, f"bisect:{self.payloads}"):
+                candidates, confirmed = half, True
+            else:
+                # Some payload fired in the scan, so it is in the other half -
+                # unless the target stopped reproducing, which the check of
+                # the last candidate shows.
+                candidates, confirmed = candidates[len(half) :], False
+        if not self._narrow(candidates, "bisected"):
+            return False
+        assert self.narrowed_path is not None
+        if not confirmed and not self._check(url, self.narrowed_path, self.narrowed_without_interactsh, self.payloads):
+            self.narrowed_path = None
+            return False
+        self.narrowing = "bisected"
+        return True
+
+    def __call__(self, url: str) -> bool:
+        self.calls += 1
+        if self.calls == 1:
+            # The first check is on the full URL, which the scan has just
+            # reported.
+            if self.narrowed_path is not None:
+                if self._check(url, self.narrowed_path, self.narrowed_without_interactsh, self.payloads):
+                    return True
+                # The payload was misidentified.
+                self.narrowed_path = None
+                self.narrowing = "rejected"
+            if self.payload_set is not None and len(set(self.payload_set[1])) > 1 and self._bisect(url):
+                return True
+            # No single payload found to fire: the whole template decides.
+            self.narrowed_path = None
+            self.payloads = "all"
+
+        if self.narrowed_path is None:
+            return self._check(url, self.template_path, self.full_without_interactsh, "all")
+        return self._check(url, self.narrowed_path, self.narrowed_without_interactsh, self.payloads)
+
+    def describe(self) -> str:
+        return f"narrowing={self.narrowing} payloads={self.payloads}"
 
 
 def _minimize_dast_finding(finding: Dict[str, Any]) -> str:
@@ -361,13 +482,17 @@ def _minimize_dast_poc(finding: Dict[str, Any]) -> str:
         NUCLEI_TEMPLATES_LOCATION, finding.get("template") or finding["template-id"]
     )
     template_id = finding["template-id"]
-    return minimize_nuclei_matched_at_url(
-        finding["matched-at"],
-        reproduces_fn=_InBandReproducer(template_path, template_id),
-        template_id=template_id,
-        max_refuzz_calls=Config.Modules.Nuclei.NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING,
-        base_url=finding.get("url"),
-    )
+
+    with tempfile.TemporaryDirectory(prefix="artemis-poc-refuzz-") as workdir:
+        reproducer = _InBandReproducer(template_path, template_id, finding, workdir)
+        return minimize_nuclei_matched_at_url(
+            finding["matched-at"],
+            reproduces_fn=reproducer,
+            template_id=template_id,
+            max_refuzz_calls=Config.Modules.Nuclei.NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING,
+            base_url=finding.get("url"),
+            describe_fn=reproducer.describe,
+        )
 
 
 UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days

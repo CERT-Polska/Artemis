@@ -1,4 +1,5 @@
 import io
+import re
 import runpy
 import unittest
 import urllib.parse
@@ -453,6 +454,21 @@ class TestMinimizationSummaryLog(unittest.TestCase):
             )
         self.assertNotEqual(result, self.URL)
         self.assertRegex(logs.output[0], r"outcome=shortened_partial .* error=budget$")
+
+    def test_details_and_url_sha(self) -> None:
+        with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+            minimize_nuclei_matched_at_url(
+                self.URL,
+                reproduces_fn=_reproduces_when_present("sortby"),
+                describe_fn=lambda: "narrowing=narrowed payloads=2/106",
+            )
+            minimize_nuclei_matched_at_url(self.URL, reproduces_fn=_reproduces_when_present("sortby"))
+        self.assertRegex(logs.output[0], r" url_sha=[0-9a-f]{12} narrowing=narrowed payloads=2/106$")
+        # The same PoC, the same hash - so repeated minimizations can be counted.
+        self.assertEqual(
+            re.search(r"url_sha=(\w+)", logs.output[0]).group(1),  # type: ignore[union-attr]
+            re.search(r"url_sha=(\w+)", logs.output[1]).group(1),  # type: ignore[union-attr]
+        )
 
     def test_line_goes_through_the_console_handler(self) -> None:
         """The summary line goes through the shared console handler, in the

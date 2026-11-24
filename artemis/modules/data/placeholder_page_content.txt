@@ -2,6 +2,7 @@
 background: url(https://www.cba.pl/img/404.png);
 <BR>Witaj w serwisie <A class=link href="http://hostedwindows.pl/"><B>
 Domena na sprzedaż - zaproponuj cenę już teraz >>></a>&nbsp;&nbsp;</td>
+<FRAME NORESIZE SRC="http://www.kei.pl/landing/domyslna">
 <h1 class="title title_large">Tanie, szybkie serwery i hosting www NVMe
 <h2>Odwiedź <a href='https://domeny.art.pl'>domeny.art.pl</a> w celu poznania szczegółów!</h2>
 <head><title>404 eHost.pl</title>
@@ -17,18 +18,18 @@ jest utrzymywana na serwerach nazwa.pl</title>
 pozostaje na serwerze nazwa.pl</title>
 <p>Witamy w WordPressie. To jest twój pierwszy post. Edytuj go lub usuń, a następnie zacznij pisać!</p>
 Site en construction</title>
+<title qtlid="74178">Miejsce w budowie</title>
+<title qtlid="74178">Strona w budowie</title>
 <title>AfterMarket.pl :: domena
-<title>Apache2 Ubuntu Default Page: It works</title>
 <title>Apache HTTP Server Test Page powered by CentOS</title>
+<title>Apache2 Ubuntu Default Page: It works</title>
 <title>Cyber_Folks Lepsza obsługa i wsparcie bez porównania</title>
 <title>Domena utrzymywana jest w cyber_Folks</title>
 <title>LOGONET Sp. z o.o. [C]</title>
 <title>Oferta sprzedaży domeny
-<title qtlid="74178">Miejsce w budowie</title>
-<title qtlid="74178">Strona w budowie</title>
 <title>Strona w przygotowaniu</title>
-<title>Tanie domeny, Tani hosting, Helpdesk, Pomoc zdalna - NetStrefa.pl</title>
 <title>Tani i szybki hosting WWW. Tanie domeny z hostingiem w SeoHost.pl</title>
+<title>Tanie domeny, Tani hosting, Helpdesk, Pomoc zdalna - NetStrefa.pl</title>
 <title>Web Server's Default Page</title>
 <tr><td>Welcome to the home of <b>
 var f = $('<frame />').attr('src', '//newkf.nazwa.pl/index,' + d);

@@ -402,7 +402,7 @@ services:
     entrypoint: ["/wait-for-dependencies.sh"]
     command: ["karton-system", "--setup-bucket", "--gc-interval", "14400"]
     env_file: .env
-    image: "certpl/karton-system:v5.3.3"
+    image: "certpl/karton-system:v6.0.0"
     # Prevent NDOTS-based DNS search expansion – see the note on the
     # x-artemis-build-or-image anchor above (#2310).
     dns_opt:

@@ -13,7 +13,7 @@ LOGGER = utils.build_logger(__name__)
 
 
 def get_binds_that_can_be_disabled() -> List[KartonBind]:
-    backend = KartonBackend(config=KartonConfig())
+    backend = KartonBackend(config=KartonConfig(), service_info=None)
 
     binds = []
     for bind in backend.get_binds():
@@ -27,7 +27,7 @@ def get_binds_that_can_be_disabled() -> List[KartonBind]:
 
 
 def restart_crashed_tasks() -> None:
-    backend = KartonBackend(config=KartonConfig())
+    backend = KartonBackend(config=KartonConfig(), service_info=None)
     state = KartonState(backend=backend)
 
     for queue in state.queues.values():

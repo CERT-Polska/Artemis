@@ -7,6 +7,7 @@ from typing import Callable
 from artemis.reporting.modules.nuclei.poc_url_utils import (
     MAX_REFUZZ_CALLS_PER_FINDING,
     RefuzzError,
+    align_query_pairs,
     minimize_nuclei_matched_at_url,
 )
 
@@ -163,15 +164,49 @@ class TestMinimizeNucleiMatchedAtUrl(unittest.TestCase):
         self.assertEqual(minimize_nuclei_matched_at_url(url, reproduces_fn=reproduces), url)
         self.assertEqual(len(reproduces.calls), 1)
 
-    def test_nuclei_error_falls_back_to_full(self) -> None:
+    def test_nuclei_error_returns_the_shortest_confirmed_subset(self) -> None:
+        """A re-fuzz that times out half-way must not throw away what ddmin
+        has already confirmed: every subset it kept was reported by a
+        re-fuzz, so the smallest one is a working PoC."""
         url = _large_dast_url({"sortby": self.SORTBY_PAYLOAD})
+        reproduces = _Counted(lambda called_url: "sortby" in _param_names(called_url))
 
         def failing(called_url: str) -> bool:
             if len(_param_names(called_url)) < 50:
                 raise RefuzzError("timeout")
-            return "sortby" in _param_names(called_url)
+            return reproduces(called_url)
+
+        result = minimize_nuclei_matched_at_url(url, reproduces_fn=failing)
+        self.assertNotEqual(result, url)
+        self.assertIn("sortby", _param_names(result))
+        # The result is one of the subsets a re-fuzz reported, cut out of the
+        # matched-at URL byte-for-byte.
+        self.assertIn(_param_names(result), [_param_names(called) for called in reproduces.calls])
+        self.assertLessEqual(set(_raw_query(result).split("&")), set(_raw_query(url).split("&")))
+
+    def test_nuclei_error_before_any_split_falls_back_to_full(self) -> None:
+        url = _large_dast_url({"sortby": self.SORTBY_PAYLOAD})
+
+        def failing(called_url: str) -> bool:
+            if len(_param_names(called_url)) < 122:
+                raise RefuzzError("timeout")
+            return True
 
         self.assertEqual(minimize_nuclei_matched_at_url(url, reproduces_fn=failing), url)
+
+    def test_error_in_the_final_check_keeps_the_confirmed_subset(self) -> None:
+        url = _large_dast_url({"sortby": self.SORTBY_PAYLOAD})
+        seen: list[str] = []
+
+        def reproduces(called_url: str) -> bool:
+            if called_url in seen:
+                # The final check repeats a URL ddmin already re-fuzzed.
+                raise RefuzzError("timeout")
+            seen.append(called_url)
+            return "sortby" in _param_names(called_url)
+
+        result = minimize_nuclei_matched_at_url(url, reproduces_fn=reproduces)
+        self.assertEqual(result, "http://example.com/list.php?sortby=" + self.SORTBY_PAYLOAD)
 
     def test_no_reproduces_fn_returns_full(self) -> None:
         url = _large_dast_url({"sortby": self.SORTBY_PAYLOAD})
@@ -186,6 +221,165 @@ class TestMinimizeNucleiMatchedAtUrl(unittest.TestCase):
     def test_no_query_returned_unchanged(self) -> None:
         url = "http://example.com/path"
         self.assertEqual(minimize_nuclei_matched_at_url(url, reproduces_fn=_reproduces_when_present("a")), url)
+
+
+class TestRefuzzFromTheFuzzedUrl(unittest.TestCase):
+    """With the URL Nuclei fuzzed (the finding's ``url``), subsets are
+    re-fuzzed from the original values - so a rule of type postfix adds the
+    payload once, as in the scan - while the PoC is cut out of matched-at."""
+
+    NAMES = [f"p{i}" for i in range(40)] + ["sortby"] + [f"q{i}" for i in range(80)]
+    BASE = "http://example.com/list.php?" + "&".join(f"{name}=testing" for name in NAMES)
+    MATCHED = "http://example.com/list.php?" + "&".join(f"{name}=testing%27" for name in NAMES)
+
+    def test_subsets_carry_the_original_values_and_the_poc_the_payload(self) -> None:
+        reproduces = _Counted(lambda called_url: "sortby" in _param_names(called_url))
+        result = minimize_nuclei_matched_at_url(self.MATCHED, reproduces_fn=reproduces, base_url=self.BASE)
+        self.assertEqual(result, "http://example.com/list.php?sortby=testing%27")
+        for called_url in reproduces.calls:
+            self.assertNotIn("%27", called_url)
+            self.assertLessEqual(set(_raw_query(called_url).split("&")), set(_raw_query(self.BASE).split("&")))
+
+    def test_urls_that_do_not_line_up_fall_back_to_matched_at(self) -> None:
+        for base_url in (
+            self.BASE.replace("/list.php", "/other.php"),
+            self.BASE.replace("&sortby=testing", ""),
+            "",
+        ):
+            reproduces = _Counted(lambda called_url: "sortby" in _param_names(called_url))
+            result = minimize_nuclei_matched_at_url(self.MATCHED, reproduces_fn=reproduces, base_url=base_url)
+            self.assertEqual(result, "http://example.com/list.php?sortby=testing%27")
+            self.assertTrue(all("%27" in called_url for called_url in reproduces.calls))
+
+    def test_payload_in_the_path_drops_the_whole_query(self) -> None:
+        """reflected-xss also fuzzes the path: matched-at has the payload in
+        the path and the query unchanged, so no parameter is needed."""
+        names = [f"p{i}" for i in range(10)]
+        query = "&".join(f"{name}=testing" for name in names)
+        base = "http://example.com/page?" + query
+        matched = "http://example.com/page%27%22%3E%3Cabc%3E?" + query
+        called: list[str] = []
+
+        def reflects_the_path(called_url: str) -> bool:
+            called.append(called_url)
+            return True
+
+        result = minimize_nuclei_matched_at_url(matched, reproduces_fn=reflects_the_path, base_url=base)
+        self.assertEqual(result, "http://example.com/page%27%22%3E%3Cabc%3E")
+        # Checked from the original path, which Nuclei fuzzes again.
+        self.assertEqual(called[-1], "http://example.com/page")
+
+    def test_payload_in_the_path_but_the_query_needed(self) -> None:
+        names = [f"p{i}" for i in range(10)]
+        query = "&".join(f"{name}=testing" for name in names)
+        result = minimize_nuclei_matched_at_url(
+            "http://example.com/page%27%3E?" + query,
+            reproduces_fn=lambda called_url: "p4=" in called_url,
+            base_url="http://example.com/page?" + query,
+        )
+        self.assertEqual(result, "http://example.com/page%27%3E?p4=testing")
+
+    def test_payload_with_a_raw_hash(self) -> None:
+        """blind-oast-polyglots, time-based-sqli, open-redirect-bypass have
+        payloads with "#"; the PoC keeps everything after it."""
+        names = [f"p{i}" for i in range(10)]
+        base = "http://example.com/?" + "&".join(f"{name}=testing" for name in names)
+        payload = "testing1;nslookup${IFS}x.oast.fun;#${IFS}'"
+        matched = "http://example.com/?" + "&".join(f"{name}={payload}" for name in names)
+        result = minimize_nuclei_matched_at_url(
+            matched, reproduces_fn=lambda called_url: "p3=" in called_url, base_url=base
+        )
+        self.assertEqual(result, "http://example.com/?p3=" + payload)
+
+    def test_payload_with_a_raw_ampersand_stays_whole(self) -> None:
+        """Nuclei does not encode ``&`` in a payload, so a fuzzed value spans
+        several segments of matched-at - they must stay together."""
+        names = [f"p{i}" for i in range(10)]
+        base = "http://example.com/?" + "&".join(f"{name}=testing" for name in names)
+        matched = "http://example.com/?" + "&".join(f"{name}=testing&&id" for name in names)
+        result = minimize_nuclei_matched_at_url(
+            matched, reproduces_fn=lambda called_url: "p7" in _param_names(called_url), base_url=base
+        )
+        self.assertEqual(result, "http://example.com/?p7=testing&&id")
+
+    def test_payload_with_a_raw_ampersand_without_the_fuzzed_url(self) -> None:
+        """Without the URL Nuclei fuzzed, a segment without "=" stays with
+        the parameter before it - it is part of a payload with "&"."""
+        names = [f"p{i}" for i in range(10)]
+        matched = "http://example.com/?" + "&".join(f"{name}=testing&&id&'" for name in names)
+        result = minimize_nuclei_matched_at_url(matched, reproduces_fn=lambda called_url: "p7=" in called_url)
+        self.assertEqual(result, "http://example.com/?p7=testing&&id&'")
+
+    def test_payload_given_to_the_next_parameter_stays_in_the_poc(self) -> None:
+        """A payload with "&p1=" in a keys-restricted rule: align_query_pairs
+        gives its text to p1. The PoC must still show the payload."""
+        names = [f"p{i}" for i in range(10)]
+        base = "http://example.com/?" + "&".join(f"{name}=testing" for name in names)
+        matched = base.replace("p0=testing", "p0=testing&p1=z")
+        result = minimize_nuclei_matched_at_url(
+            matched, reproduces_fn=lambda called_url: "p0=" in called_url, base_url=base
+        )
+        self.assertEqual(result, "http://example.com/?p0=testing&p1=z&p1=testing")
+
+    def test_payload_outside_the_query_and_the_path(self) -> None:
+        """A payload in a header or the body (part: request) leaves the query
+        and the path as they were: no parameter is needed, and none is shown
+        as the vulnerable one."""
+        names = [f"p{i}" for i in range(10)]
+        base = "http://example.com/page?" + "&".join(f"{name}=testing" for name in names)
+        called: list[str] = []
+
+        def in_a_header(called_url: str) -> bool:
+            called.append(called_url)
+            return True
+
+        with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+            result = minimize_nuclei_matched_at_url(base, reproduces_fn=in_a_header, base_url=base)
+        self.assertEqual(result, "http://example.com/page")
+        self.assertEqual(called[-1], "http://example.com/page")
+        self.assertIn("params=10->0 outcome=shortened", logs.output[0])
+
+
+class TestAlignQueryPairs(unittest.TestCase):
+    def test_pairs(self) -> None:
+        self.assertEqual(
+            align_query_pairs("http://e.com/a?x=1&y=2", "http://e.com/a?x=PAYLOAD&y=2"),
+            [("x=1", "x=PAYLOAD"), ("y=2", "y=2")],
+        )
+
+    def test_ampersands_in_a_value(self) -> None:
+        self.assertEqual(
+            align_query_pairs("http://e.com/a?x=1&y=2&z=3", "http://e.com/a?x=1&nslookup+a&&b&y=2&z=3&nslookup+a&&b"),
+            [("x=1", "x=1&nslookup+a&&b"), ("y=2", "y=2"), ("z=3", "z=3&nslookup+a&&b")],
+        )
+
+    def test_hash_in_a_payload_is_part_of_the_query(self) -> None:
+        """Nuclei sends a payload's "#" as it is, so it does not start a
+        fragment: urlparse would cut the query at the first one."""
+        self.assertEqual(
+            align_query_pairs("http://e.com/a?x=1&y=2", "http://e.com/a?x=1;id;#'&y=2;id;#'"),
+            [("x=1", "x=1;id;#'"), ("y=2", "y=2;id;#'")],
+        )
+
+    def test_extra_parameter_is_not_taken_for_a_payload(self) -> None:
+        """matched-at with a parameter the base URL lacks would look like a
+        split payload, but it is glued to one parameter only."""
+        self.assertIsNone(
+            align_query_pairs("http://e.com/a?x=1&y=2&z=3", "http://e.com/a?x=1%27&y=2%27&extra=1%27&z=3%27")
+        )
+
+    def test_encoded_names_match(self) -> None:
+        self.assertEqual(
+            align_query_pairs("http://e.com/a?a%5Bb%5D=1", "http://e.com/a?a[b]=PAYLOAD"),
+            [("a%5Bb%5D=1", "a[b]=PAYLOAD")],
+        )
+
+    def test_not_aligned(self) -> None:
+        self.assertIsNone(align_query_pairs("http://e.com/a?x=1&y=2", "http://e.com/b?x=1&y=2"))
+        self.assertIsNone(align_query_pairs("http://e.com/a?x=1&y=2", "https://e.com/a?x=1&y=2"))
+        self.assertIsNone(align_query_pairs("http://e.com/a?x=1&y=2", "http://e.com/a?x=1"))
+        self.assertIsNone(align_query_pairs("http://e.com/a?x=1&y=2", "http://e.com/a?y=2&x=1"))
+        self.assertIsNone(align_query_pairs("http://e.com/a", "http://e.com/a?x=1"))
 
 
 class TestMinimizationSummaryLog(unittest.TestCase):
@@ -204,13 +398,14 @@ class TestMinimizationSummaryLog(unittest.TestCase):
         self.assertRegex(
             self._log_line(_reproduces_when_present("sortby")),
             r"PoC minimization: template=sqli-error-based params=122->1 outcome=shortened ddmin_calls=\d+ "
-            r"elapsed=\d+s$",
+            r"elapsed=\d+s base=matched_at url_sha=[0-9a-f]{12}$",
         )
 
     def test_fallback_no_reproduce(self) -> None:
         self.assertRegex(
             self._log_line(lambda _: False),
-            r"params=122->122 outcome=fallback_no_reproduce ddmin_calls=1 elapsed=\d+s$",
+            r"params=122->122 outcome=fallback_no_reproduce ddmin_calls=1 elapsed=\d+s base=matched_at "
+            r"url_sha=[0-9a-f]{12}$",
         )
 
     def test_fallback_budget(self) -> None:
@@ -218,7 +413,8 @@ class TestMinimizationSummaryLog(unittest.TestCase):
             minimize_nuclei_matched_at_url(
                 self.URL, reproduces_fn=_reproduces_when_present("sortby"), template_id="x", max_refuzz_calls=2
             )
-        self.assertRegex(logs.output[0], r"params=122->122 outcome=fallback_budget ddmin_calls=1 elapsed=\d+s$")
+        self.assertRegex(logs.output[0], r"params=122->122 outcome=fallback_budget ddmin_calls=1 elapsed=\d+s ")
+        self.assertNotIn("error=", logs.output[0])
 
     def test_limit_below_minimum(self) -> None:
         """A limit below 2 cannot shorten anything; the line says so rather
@@ -230,7 +426,7 @@ class TestMinimizationSummaryLog(unittest.TestCase):
             self.assertEqual(result, self.URL)
             self.assertEqual(reproduces.calls, [])
             self.assertRegex(
-                logs.output[0], r"outcome=fallback_budget ddmin_calls=0 elapsed=\d+s error=limit_below_minimum$"
+                logs.output[0], r"outcome=fallback_budget ddmin_calls=0 elapsed=\d+s .*error=limit_below_minimum$"
             )
 
     def test_fallback_error(self) -> None:
@@ -239,8 +435,24 @@ class TestMinimizationSummaryLog(unittest.TestCase):
 
         self.assertRegex(
             self._log_line(failing),
-            r"params=122->122 outcome=fallback_error ddmin_calls=1 elapsed=\d+s error=timeout$",
+            r"params=122->122 outcome=fallback_error ddmin_calls=1 elapsed=\d+s .* error=timeout$",
         )
+
+    def test_partial_after_a_timeout(self) -> None:
+        def failing(called_url: str) -> bool:
+            if len(_param_names(called_url)) < 50:
+                raise RefuzzError("timeout")
+            return "sortby" in _param_names(called_url)
+
+        self.assertRegex(self._log_line(failing), r"params=122->61 outcome=shortened_partial .* error=timeout$")
+
+    def test_partial_when_the_budget_runs_out(self) -> None:
+        with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+            result = minimize_nuclei_matched_at_url(
+                self.URL, reproduces_fn=_reproduces_when_present("sortby"), max_refuzz_calls=4
+            )
+        self.assertNotEqual(result, self.URL)
+        self.assertRegex(logs.output[0], r"outcome=shortened_partial .* error=budget$")
 
     def test_line_goes_through_the_console_handler(self) -> None:
         """The summary line goes through the shared console handler, in the

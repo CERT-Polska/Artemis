@@ -6,14 +6,28 @@ finds a minimal subset of parameters that still reproduces the finding, within
 a budget; the shortened URL is re-fuzzed and kept only if it still reproduces,
 else the full URL is returned so the PoC always works.
 
+When the URL Nuclei fuzzed is known (the finding's ``url``), the subsets are
+re-fuzzed from it - with the original values, so Nuclei applies the payload
+once, as it did in the scan - while the shortened PoC is cut out of matched-at.
+
 Query parameters are split and preserved byte-for-byte - re-encoding via
 parse_qs/urlencode would normalise payloads (``%2F%2F`` -> ``//``) and could
 break them.
 """
 
+import hashlib
 import time
 import urllib.parse
-from typing import Callable, List, Optional, Sequence, Tuple, TypeVar
+from typing import (
+    Callable,
+    Generic,
+    List,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+)
 
 from artemis.utils import build_logger
 
@@ -28,7 +42,7 @@ T = TypeVar("T")
 
 class RefuzzError(Exception):
     """Raised by a ``reproduces_fn`` that could not get an answer from Nuclei
-    (timeout, crash, missing binary). Minimization is abandoned then."""
+    (timeout, crash, missing binary). Minimization stops then."""
 
 
 class _BudgetExhausted(Exception):
@@ -51,10 +65,135 @@ def _split_query_pairs(query: str) -> List[Tuple[str, str]]:
     return pairs
 
 
-def _ddmin(items: Sequence[T], reproduces: Callable[[List[T]], bool], budget: int) -> Tuple[Optional[List[T]], bool]:
-    """Delta debugging: return a small subset of ``items`` that still
-    reproduces the finding, keeping the original order, and whether the budget
-    ran out.
+def _group_value_segments(query: str) -> List[str]:
+    """Split a raw query into parameters without a base URL to walk (see
+    ``align_query_pairs``): Nuclei leaves ``&`` in a payload unencoded, and a
+    segment without ``=`` cannot be a parameter of its own, so it stays with
+    the one before it."""
+    groups: List[List[str]] = []
+    for segment in query.split("&"):
+        if groups and "=" not in segment:
+            groups[-1].append(segment)
+        elif segment:
+            groups.append([segment])
+    return ["&".join(group) for group in groups]
+
+
+def _with_the_payload(aligned: Optional[List[Tuple[str, str]]], kept: List[int]) -> List[int]:
+    """The parameters a PoC shows: ``kept``, plus - if none of them carries
+    the payload, as when ``align_query_pairs`` gave the text of a payload with
+    "&name=" to the next parameter - the parameters that do."""
+    if aligned is None:
+        return kept
+    changed = [i for i, (base, matched) in enumerate(aligned) if base != matched]
+    if not changed or any(i in changed for i in kept):
+        return kept
+    return sorted(set(kept) | set(changed))
+
+
+def _split_url(url: str) -> Tuple[str, str]:
+    """Split a URL into the part before the query and the raw query.
+
+    The query is everything after the first ``?``: Nuclei sends a ``#`` in a
+    payload as it is (open-redirect-bypass, response-ssrf, time-based-sqli,
+    blind-oast-polyglots have such payloads), so it does not start a fragment
+    there - urlparse would cut the query short at it.
+    """
+    before, _, query = url.partition("?")
+    return before, query
+
+
+def _join_url(before: str, pairs: List[str]) -> str:
+    return before + "?" + "&".join(pairs)
+
+
+def count_query_params(url: str) -> int:
+    return len(_split_query_pairs(_split_url(url)[1]))
+
+
+def _url_sha(url: str) -> str:
+    # Lets the logs show the same PoC minimized more than once without
+    # carrying the URL.
+    return hashlib.sha256(url.encode("utf-8", errors="surrogateescape")).hexdigest()[:12]
+
+
+def log_not_minimized(url: str, template_id: str, outcome: str, error: str = "") -> None:
+    """The summary line of a finding that is left unshortened without a re-fuzz."""
+    params = count_query_params(url)
+    summary_logger.info(
+        "PoC minimization: template=%s params=%d->%d outcome=%s ddmin_calls=0 elapsed=0s url_sha=%s%s",
+        template_id,
+        params,
+        params,
+        outcome,
+        _url_sha(url),
+        f" error={error}" if error else "",
+    )
+
+
+def align_query_pairs(base_url: str, matched_url: str) -> Optional[List[Tuple[str, str]]]:
+    """Pair every parameter of ``base_url`` - the URL Nuclei fuzzed - with its
+    raw form in ``matched_url``, the matched-at URL of the finding.
+
+    Nuclei leaves ``&`` in a payload unencoded, so one fuzzed value can span
+    several ``&``-separated segments of matched-at; they are grouped back
+    under their parameter by walking the base parameters in order. Returns
+    None when the two URLs do not line up (another path, a parameter
+    missing).
+    """
+    base_before, base_query = _split_url(base_url)
+    matched_before, matched_query = _split_url(matched_url)
+    if base_before != matched_before:
+        return None
+    base_pairs = _split_query_pairs(base_query)
+    if not base_pairs:
+        return None
+
+    groups: List[List[str]] = []
+    for segment in matched_query.split("&"):
+        name = urllib.parse.unquote_plus(segment.split("=", 1)[0])
+        if segment and len(groups) < len(base_pairs) and name == base_pairs[len(groups)][0]:
+            groups.append([segment])
+        elif groups:
+            groups[-1].append(segment)
+        else:
+            return None
+    if len(groups) != len(base_pairs):
+        return None
+    aligned = [(raw_base, "&".join(group)) for (_, raw_base), group in zip(base_pairs, groups)]
+
+    if any(len(group) > 1 for group in groups):
+        # Segments were glued to the parameter before them. That is right for
+        # a payload with "&" - but so it would look if matched-at had a
+        # parameter the base URL lacks. In multiple mode every fuzzed
+        # parameter got the same payload, so a real split adds the same text
+        # to all of them.
+        def added(base: str, fuzzed: str) -> str:
+            return fuzzed[len(base) :] if fuzzed.startswith(base) else fuzzed.split("=", 1)[-1]
+
+        if len({added(base, fuzzed) for base, fuzzed in aligned if base != fuzzed}) != 1:
+            return None
+    return aligned
+
+
+class _DdminResult(NamedTuple, Generic[T]):
+    # The subset ddmin arrived at, in the original order; None if the full
+    # set did not reproduce or could not be checked.
+    result: Optional[List[T]]
+    # The smallest subset a re-fuzz actually reported - ``result`` may be a
+    # combination of two parts that was never re-fuzzed as a whole.
+    confirmed: Optional[List[T]]
+    # Why the search stopped early: None, "budget" or the RefuzzError message.
+    stopped: Optional[str]
+
+
+def _ddmin(items: Sequence[T], reproduces: Callable[[List[T]], bool], budget: int) -> _DdminResult[T]:
+    """Delta debugging: find a small subset of ``items`` that still
+    reproduces the finding, keeping the original order.
+
+    Every subset kept along the way was confirmed by a re-fuzz, so when the
+    search stops early (budget, timeout) the smallest one so far is the
+    result.
     """
     calls = 0
     best = list(range(len(items)))
@@ -69,6 +208,9 @@ def _ddmin(items: Sequence[T], reproduces: Callable[[List[T]], bool], budget: in
                 best = sorted(indices)
             return True
         return False
+
+    def subset(indices: List[int]) -> List[T]:
+        return [items[i] for i in sorted(indices)]
 
     def reduce(keep: List[int], candidates: List[int]) -> List[int]:
         # Invariant: keep + candidates reproduces.
@@ -85,15 +227,19 @@ def _ddmin(items: Sequence[T], reproduces: Callable[[List[T]], bool], budget: in
 
     try:
         if not test(best):
-            return None, False
+            return _DdminResult(None, None, None)
     except _BudgetExhausted:
-        return None, True
+        return _DdminResult(None, None, "budget")
+    except RefuzzError as e:
+        return _DdminResult(None, None, str(e))
 
     try:
         result = reduce([], list(range(len(items))))
     except _BudgetExhausted:
-        return [items[i] for i in best], True
-    return [items[i] for i in sorted(result)], False
+        return _DdminResult(subset(best), subset(best), "budget")
+    except RefuzzError as e:
+        return _DdminResult(subset(best), subset(best), str(e))
+    return _DdminResult(subset(result), subset(best), None)
 
 
 def minimize_nuclei_matched_at_url(
@@ -102,14 +248,35 @@ def minimize_nuclei_matched_at_url(
     template_id: str = "unknown",
     params_threshold: int = 2,
     max_refuzz_calls: int = MAX_REFUZZ_CALLS_PER_FINDING,
+    base_url: Optional[str] = None,
 ) -> str:
-    parsed = urllib.parse.urlparse(url)
-    if not parsed.query:
+    """Return the shortest PoC URL (a part of ``url``, the matched-at URL)
+    that ``reproduces_fn`` still reports, or ``url`` itself.
+
+    ``reproduces_fn`` gets the URL to re-fuzz: a subset of ``base_url`` - the
+    URL Nuclei fuzzed - if it lines up with ``url``, else of ``url``.
+    """
+    before, query = _split_url(url)
+    if not query:
         return url
 
-    pairs = _split_query_pairs(parsed.query)
+    aligned = align_query_pairs(base_url, url) if base_url else None
+    if aligned is not None:
+        base_before = _split_url(base_url or "")[0]
+        refuzz_pairs = [base for base, _ in aligned]
+        result_pairs = [matched for _, matched in aligned]
+    else:
+        base_before = before
+        refuzz_pairs = result_pairs = _group_value_segments(query)
 
-    if len(pairs) <= params_threshold:
+    # The payload went elsewhere than the query when the query came back
+    # unchanged: into the path (reflected-xss also fuzzes it), a header or the
+    # body (part: request). Then perhaps no parameter is needed at all, but
+    # ddmin never tries an empty subset - it would keep an arbitrary one,
+    # which the report would show as the vulnerable parameter.
+    outside_query_from = _split_url(base_url)[0] if base_url and _split_url(base_url)[1] == query else None
+
+    if len(result_pairs) <= params_threshold:
         # Don't minimize if there are not many parameters
         return url
 
@@ -124,18 +291,24 @@ def minimize_nuclei_matched_at_url(
         calls += 1
         return reproduces_fn(candidate_url)
 
-    def rebuild(raw_pairs: List[str]) -> str:
-        return urllib.parse.urlunparse(parsed._replace(query="&".join(raw_pairs)))
+    def refuzz_url(indices: List[int]) -> str:
+        return _join_url(base_before, [refuzz_pairs[i] for i in indices])
+
+    def poc(indices: List[int]) -> Tuple[str, int]:
+        shown = _with_the_payload(aligned, indices)
+        return _join_url(before, [result_pairs[i] for i in shown]), len(shown)
 
     def finish(result: str, kept: int, outcome: str, error: str = "") -> str:
         summary_logger.info(
-            "PoC minimization: template=%s params=%d->%d outcome=%s ddmin_calls=%d elapsed=%ds%s",
+            "PoC minimization: template=%s params=%d->%d outcome=%s ddmin_calls=%d elapsed=%ds base=%s url_sha=%s%s",
             template_id,
-            len(pairs),
+            len(result_pairs),
             kept,
             outcome,
             calls,
             round(time.monotonic() - started),
+            "url" if aligned is not None else "matched_at",
+            _url_sha(url),
             f" error={error}" if error else "",
         )
         return result
@@ -145,32 +318,54 @@ def minimize_nuclei_matched_at_url(
         # lower limit (a misconfigured NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING)
         # cannot shorten anything - say so instead of a plain fallback_budget,
         # which would read as "raise the limit a bit".
-        return finish(url, len(pairs), "fallback_budget", error="limit_below_minimum")
+        return finish(url, len(result_pairs), "fallback_budget", error="limit_below_minimum")
 
+    # One call is kept for the final check.
+    search = _ddmin(
+        list(range(len(result_pairs))),
+        lambda subset: counted(refuzz_url(subset)),
+        budget=max_refuzz_calls - 1,
+    )
+    kept, stopped = search.result, search.stopped
+
+    if kept is None or len(kept) == len(result_pairs):
+        # Nothing could be dropped - with 100+ parameters, only when the
+        # search stopped before the first successful split.
+        if stopped == "budget":
+            return finish(url, len(result_pairs), "fallback_budget")
+        if stopped:
+            return finish(url, len(result_pairs), "fallback_error", error=stopped)
+        return finish(url, len(result_pairs), "fallback_no_reproduce")
+
+    if stopped and stopped != "budget":
+        # Nuclei failed (typically a timeout) in the middle of the search.
+        # Every subset ddmin kept was confirmed by a re-fuzz, so the smallest
+        # so far is a working PoC - and one more re-fuzz of a target that
+        # just timed out would most likely time out too.
+        return finish(*poc(kept), "shortened_partial", error=stopped)
+
+    # ddmin's result may be a combination it never tested as a whole, and
+    # a flaky hit may have misled it - re-fuzz the shortened URL to make
+    # sure it still reproduces before replacing the PoC.
     try:
-        # One call is kept for the final check.
-        kept_raw, budget_exhausted = _ddmin(
-            [raw_pair for _, raw_pair in pairs],
-            lambda subset: counted(rebuild(subset)),
-            budget=max_refuzz_calls - 1,
-        )
-
-        if kept_raw is None:
-            return finish(url, len(pairs), "fallback_budget" if budget_exhausted else "fallback_no_reproduce")
-
-        if len(kept_raw) == len(pairs):
-            # Nothing could be dropped - with 100+ parameters, only when the
-            # budget ran out before the first successful split.
-            return finish(url, len(pairs), "fallback_budget" if budget_exhausted else "fallback_no_reproduce")
-
-        minimized = rebuild(kept_raw)
-
-        # ddmin's result may be a combination it never tested as a whole, and
-        # a flaky hit may have misled it - re-fuzz the shortened URL to make
-        # sure it still reproduces before replacing the PoC.
-        if not counted(minimized):
-            return finish(url, len(pairs), "fallback_no_reproduce")
+        if not counted(refuzz_url(kept)):
+            return finish(url, len(result_pairs), "fallback_no_reproduce")
     except RefuzzError as e:
-        return finish(url, len(pairs), "fallback_error", error=str(e))
+        # The check could not be made: fall back to the smallest subset a
+        # re-fuzz did report, if it is shorter than the full URL.
+        confirmed = search.confirmed
+        if confirmed is not None and len(confirmed) < len(result_pairs):
+            return finish(*poc(confirmed), "shortened_partial", error=str(e))
+        return finish(url, len(result_pairs), "fallback_error", error=str(e))
 
-    return finish(minimized, len(kept_raw), "shortened")
+    if outside_query_from is not None:
+        # Re-fuzzed from the original path, which Nuclei fuzzes again.
+        try:
+            if counted(outside_query_from):
+                return finish(before, 0, "shortened")
+        except RefuzzError:
+            pass
+
+    if stopped == "budget":
+        return finish(*poc(kept), "shortened_partial", error="budget")
+    return finish(*poc(kept), "shortened")

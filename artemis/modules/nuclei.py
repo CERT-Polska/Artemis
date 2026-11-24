@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import collections
-import functools
+import dataclasses
 import itertools
 import json
 import logging
@@ -9,11 +9,13 @@ import random
 import shutil
 import subprocess
 import time
+import traceback
 import urllib
 from statistics import StatisticsError, quantiles
 from typing import Any, Dict, List
 
 import more_itertools
+import timeout_decorator
 from karton.core import Task
 from prometheus_client import Counter, Histogram, start_http_server
 
@@ -33,7 +35,10 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 )
 from artemis.reporting.modules.nuclei.poc_url_utils import (
     RefuzzError,
+    count_query_params,
+    log_not_minimized,
     minimize_nuclei_matched_at_url,
+    summary_logger,
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
@@ -141,11 +146,33 @@ DAST_SCANNING: Dict[str, Dict[str, Any]] = {
 }
 
 
+# Error message substrings from https://github.com/projectdiscovery/utils/blob/main/errkit/kind.go
+NUCLEI_ERROR_CATEGORIES = [
+    ("port closed or filtered", "port_closed_or_filtered"),
+    ("connect: connection refused", "connection_refused"),
+    ("no such host", "no_such_host"),
+    ("no address found", "no_address_found"),
+    ("could not resolve host", "could_not_resolve_host"),
+    ("host unreachable", "host_unreachable"),
+    ("Unable to connect", "unable_to_connect"),
+    ("Client.Timeout exceeded while awaiting headers", "timeout_awaiting_headers"),
+    ("context deadline exceeded", "context_deadline_exceeded"),
+    ("i/o timeout", "io_timeout"),
+]
+
+
+def _nuclei_error_category(error: str) -> str:
+    for substring, name in NUCLEI_ERROR_CATEGORIES:
+        if substring in error:
+            return name
+    return "unknown-error"
+
+
 def build_common_nuclei_command() -> List[str]:
     """Return the Nuclei flags shared by every invocation Artemis makes.
 
     Both the batch scan (:meth:`Nuclei._scan`) and the single-URL re-fuzz used
-    to shorten PoC URLs (:func:`_reproduces_with_nuclei`) start from this
+    to shorten PoC URLs (:func:`_run_refuzz`) start from this
     list, so a re-fuzz reproduces the finding under the same conditions the
     scan found it (user agent, rate limit, timeout, resolvers, interactsh).
     Flags that only make sense for a batch (parallelism, stats, per-batch rate
@@ -189,42 +216,158 @@ def _is_dast_finding(finding: Dict[str, Any]) -> bool:
     return template.startswith("dast/") or template_path.startswith(dast_directory)
 
 
-def _reproduces_with_nuclei(url: str, template_path: str) -> bool:
-    """Check whether Nuclei in multiple fuzzing mode still reports the finding
-    of ``template_path`` on ``url``.
-    """
-    # Batch-only flags (rate-limit-duration, bulk-size, concurrency, stats,
-    # trace log) are intentionally left out of the shared command builder -
-    # they are meaningless for a single-URL re-fuzz.
-    command = build_common_nuclei_command() + [
-        "-u",
-        url,
-        "-t",
-        template_path,
-        "-dast",
-        "-fuzzing-mode",
-        "multiple",
-        "-silent",
-    ]
+@dataclasses.dataclass
+class _RefuzzRun:
+    """What one Nuclei re-fuzz returned."""
 
+    results: List[Dict[str, Any]]
+    # Requests Nuclei sent, from its trace log.
+    requests: int
+    # Request errors by category (as in the scan's error summary).
+    errors: Dict[str, int]
+    elapsed: float
+    # Set instead of raising, so that the caller can log the call first.
+    error: str = ""
+
+
+def _run_refuzz(url: str, template_path: str, extra_args: List[str], timeout: int) -> _RefuzzRun:
+    """Re-fuzz ``url`` with ``template_path`` in multiple fuzzing mode (one Nuclei process)."""
+    # Batch-only flags (rate-limit-duration, bulk-size, concurrency, stats)
+    # are intentionally left out of the shared command builder - they are
+    # meaningless for a single-URL re-fuzz. The trace log, unlike in the
+    # scan, is only parsed for the request count and the request errors.
+    command = (
+        build_common_nuclei_command()
+        + ["-u", url, "-t", template_path, "-dast", "-fuzzing-mode", "multiple", "-silent"]
+        + ["-trace-log", "/dev/stderr"]
+        + extra_args
+    )
+
+    started = time.monotonic()
+    error = ""
     try:
-        result = subprocess.check_output(
-            command, stderr=subprocess.DEVNULL, timeout=Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS
-        )
+        # Nuclei reads targets from stdin whenever it is a pipe or a file, and
+        # waits for it up to -input-read-timeout (3 minutes) - longer than the
+        # re-fuzz timeout - if the worker's stdin is a pipe that stays open.
+        process = subprocess.run(command, capture_output=True, stdin=subprocess.DEVNULL, timeout=timeout)
+        stdout, stderr = process.stdout, process.stderr
+        if process.returncode != 0:
+            error = f"exit_code_{process.returncode}"
     except FileNotFoundError:
-        raise RefuzzError("nuclei_missing")
-    except subprocess.TimeoutExpired:
-        raise RefuzzError("timeout")
-    except subprocess.CalledProcessError as e:
-        raise RefuzzError(f"exit_code_{e.returncode}")
+        stdout, stderr, error = b"", b"", "nuclei_missing"
+    except subprocess.TimeoutExpired as e:
+        stdout, stderr, error = e.stdout or b"", e.stderr or b"", "timeout"
 
-    for line in result.strip().splitlines():
+    results = []
+    for line in stdout.decode("utf-8", errors="ignore").splitlines():
         try:
-            json.loads(line)
+            entry = json.loads(line)
         except json.JSONDecodeError:
             continue
-        return True
-    return False
+        if isinstance(entry, dict):
+            results.append(entry)
+
+    requests = 0
+    errors: Dict[str, int] = collections.defaultdict(int)
+    for line in stderr.decode("utf-8", errors="ignore").splitlines():
+        if not line.startswith("{"):
+            continue
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(entry, dict) and "address" in entry:
+            requests += 1
+            if entry.get("error") and entry["error"] != "none":
+                errors[_nuclei_error_category(entry["error"])] += 1
+
+    return _RefuzzRun(
+        results=results,
+        requests=requests,
+        errors=dict(errors),
+        elapsed=time.monotonic() - started,
+        error=error,
+    )
+
+
+def _log_refuzz(template_id: str, call: int, url: str, label: str, run: _RefuzzRun, reproduced: bool) -> None:
+    summary_logger.info(
+        "PoC minimization re-fuzz: template=%s call=%d params=%d payloads=%s reproduced=%s elapsed=%.1fs "
+        "requests=%d request_errors=%s%s",
+        template_id,
+        call,
+        count_query_params(url),
+        label,
+        "yes" if reproduced else ("error" if run.error else "no"),
+        run.elapsed,
+        run.requests,
+        ",".join(f"{category}:{count}" for category, count in sorted(run.errors.items())) or "none",
+        f" error={run.error}" if run.error else "",
+    )
+
+
+def _log_unexpected_error(finding: Dict[str, Any], error: Exception) -> None:
+    # The type and the place only: the message may carry the URL. The place
+    # is the last frame in Artemis's own code, if any.
+    frames = list(traceback.extract_tb(error.__traceback__))
+    frames = [frame for frame in frames if "/artemis/" in frame.filename.replace(os.sep, "/")] or frames
+    where = f"{os.path.basename(frames[-1].filename)}:{frames[-1].lineno}" if frames else "unknown"
+    summary_logger.warning("PoC minimization failed: %s at %s", type(error).__name__, where)
+    log_not_minimized(
+        str(finding["matched-at"]),
+        str(finding.get("template-id")),
+        "fallback_error",
+        error=f"unexpected_{type(error).__name__}",
+    )
+
+
+class _InBandReproducer:
+    """``reproduces_fn`` for DAST findings: whether Nuclei, in multiple
+    fuzzing mode, still reports the finding on a URL."""
+
+    def __init__(self, template_path: str, template_id: str) -> None:
+        self.template_path = template_path
+        self.template_id = template_id
+        self.calls = 0
+
+    def __call__(self, url: str) -> bool:
+        self.calls += 1
+        run = _run_refuzz(url, self.template_path, [], Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS)
+        reproduced = bool(run.results)
+        _log_refuzz(self.template_id, self.calls, url, "all", run, reproduced)
+        # A finding reported before the timeout still counts.
+        if run.error and not reproduced:
+            raise RefuzzError(run.error)
+        return reproduced
+
+
+def _minimize_dast_finding(finding: Dict[str, Any]) -> str:
+    """Return the shortened matched-at URL of a DAST finding, or the original."""
+    try:
+        return _minimize_dast_poc(finding)
+    except timeout_decorator.TimeoutError:
+        # module_base's task timeout, raised wherever the batch happens to be
+        # (an Exception too): it must end the batch, not just this minimization.
+        raise
+    except Exception as e:
+        # A bug here must not lose the finding - nor the whole batch, which
+        # run_multiple would fail with it.
+        _log_unexpected_error(finding, e)
+        return str(finding["matched-at"])
+
+
+def _minimize_dast_poc(finding: Dict[str, Any]) -> str:
+    template_path = finding.get("template-path") or os.path.join(
+        NUCLEI_TEMPLATES_LOCATION, finding.get("template") or finding["template-id"]
+    )
+    template_id = finding["template-id"]
+    return minimize_nuclei_matched_at_url(
+        finding["matched-at"],
+        reproduces_fn=_InBandReproducer(template_path, template_id),
+        template_id=template_id,
+        max_refuzz_calls=Config.Modules.Nuclei.NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING,
+        base_url=finding.get("url"),
+    )
 
 
 UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
@@ -503,20 +646,6 @@ class Nuclei(ArtemisBase):
         )
 
     def _log_nuclei_error_summary(self, lines: List[str]) -> None:
-        # Error message substrings from https://github.com/projectdiscovery/utils/blob/main/errkit/kind.go
-        NUCLEI_ERROR_CATEGORIES = [
-            ("port closed or filtered", "port_closed_or_filtered"),
-            ("connect: connection refused", "connection_refused"),
-            ("no such host", "no_such_host"),
-            ("no address found", "no_address_found"),
-            ("could not resolve host", "could_not_resolve_host"),
-            ("host unreachable", "host_unreachable"),
-            ("Unable to connect", "unable_to_connect"),
-            ("Client.Timeout exceeded while awaiting headers", "timeout_awaiting_headers"),
-            ("context deadline exceeded", "context_deadline_exceeded"),
-            ("i/o timeout", "io_timeout"),
-        ]
-
         error_counts: Dict[str, int] = collections.defaultdict(int)
         context_deadline_exceeded_targets: Dict[str, int] = collections.defaultdict(int)
         for line in lines:
@@ -529,12 +658,7 @@ class Nuclei(ArtemisBase):
             error = entry.get("error", "none")
             if not error or error == "none":
                 continue
-            category = "unknown-error"
-            for substring, name in NUCLEI_ERROR_CATEGORIES:
-                if substring in error:
-                    category = name
-                    break
-            error_counts[category] += 1
+            error_counts[_nuclei_error_category(error)] += 1
 
             if "context deadline exceeded" in error:
                 # Aggregate per target, not per template path. A single unreachable or slow
@@ -918,15 +1042,7 @@ class Nuclei(ArtemisBase):
             for finding in findings_per_task[task.uid]:
                 # Only DAST findings carry the wordlist parameters worth shortening.
                 if "matched-at" in finding and _is_dast_finding(finding):
-                    template_path = finding.get("template-path") or os.path.join(
-                        NUCLEI_TEMPLATES_LOCATION, finding.get("template") or finding["template-id"]
-                    )
-                    finding["matched-at"] = minimize_nuclei_matched_at_url(
-                        finding["matched-at"],
-                        reproduces_fn=functools.partial(_reproduces_with_nuclei, template_path=template_path),
-                        template_id=finding["template-id"],
-                        max_refuzz_calls=Config.Modules.Nuclei.NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING,
-                    )
+                    finding["matched-at"] = _minimize_dast_finding(finding)
                 result.append(finding)
                 messages.append(
                     f"[{finding['info']['severity']}] {finding.get('matched-at', None) or finding.get('url')}: {finding['info'].get('name')} {finding['info'].get('description', '')}"

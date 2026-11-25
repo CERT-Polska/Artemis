@@ -1,6 +1,6 @@
-# The landrun sandbox (https://github.com/zouuup/landrun), used by /sandbox.sh.
+# The landrun sandbox (https://github.com/zouuup/landrun), used by artemis/sandboxing.py.
 FROM golang:1.25-alpine AS landrun-build
-RUN go install github.com/zouuup/landrun/cmd/landrun@v0.1.17
+RUN go install github.com/zouuup/landrun/cmd/landrun@v0.2.0
 
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 # and with the Python version in .readthedocs.yaml
@@ -10,7 +10,6 @@ COPY --from=golang:1.25-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
 
 COPY --from=landrun-build /go/bin/landrun /usr/local/bin/landrun
-COPY docker/sandbox.sh /sandbox.sh
 COPY docker/wait-for-it.sh /wait-for-it.sh
 COPY requirements.txt requirements.txt
 COPY docker/go.sum docker/go.mod /go/
@@ -49,7 +48,7 @@ RUN apk upgrade --no-cache && \
 WORKDIR /opt
 
 # Build the Wappalyzer wrapper (used for web technology identification) at image build time:
-# while `go run` compiled it at scan time, the sandbox (docker/sandbox.sh) forbids executing
+# while `go run` compiled it at scan time, the sandbox (artemis/sandboxing.py) forbids executing
 # binaries that aren't a frozen part of the image, and prebuilding also means no Go toolchain
 # is needed at scan time. Note that `go mod download` does not use the in-image /go/go.mod file,
 # it uses the artemis/modules/utils/wappalyzer/go.mod file (same path as in repo). Never `go get

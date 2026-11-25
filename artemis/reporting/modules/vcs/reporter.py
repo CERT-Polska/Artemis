@@ -10,7 +10,7 @@ from artemis.reporting.base.report_type import ReportType
 from artemis.reporting.base.reporter import Reporter
 from artemis.reporting.base.templating import ReportEmailTemplateFragment
 from artemis.reporting.utils import cached_get, get_target_url, get_top_level_target
-from artemis.sandboxing import run_sandboxed
+from artemis.sandboxing import SandboxProfile, run_sandboxed
 
 logger = utils.build_logger(__name__)
 
@@ -55,11 +55,14 @@ class VCSReporter(Reporter):
 
                 f.write(data)
                 f.flush()
-                os.fsync(f.fileno())
 
                 # wc.db is attacker-controlled - parse it in the sandboxed worker, not here.
                 remote_url: str = (
-                    run_sandboxed(["python3", "-m", "artemis.reporting.modules.vcs.worker", f.name])
+                    run_sandboxed(
+                        ["python3", "-m", "artemis.sandboxing_payloads.read_remote_url_from_repository_sqlite", f.name],
+                        profile=SandboxProfile.LV_PYTHON,
+                        sandbox_paths=[f.name],
+                    )
                     .decode(errors="replace")
                     .strip()
                 )
@@ -90,7 +93,12 @@ class VCSReporter(Reporter):
 
         try:
             with tempfile.TemporaryDirectory() as output_dir_name:
-                run_sandboxed(["svn", "co", remote_url, "--depth", "empty", output_dir_name], timeout=30)
+                run_sandboxed(
+                    ["svn", "co", remote_url, "--depth", "empty", output_dir_name],
+                    profile=SandboxProfile.LV_INTERNET,
+                    timeout=30,
+                    sandbox_paths=[output_dir_name],
+                )
             logger.info("Successfully cloned %s, that means it's a public repo - not reporting", remote_url)
             return []
         except Exception as e:
@@ -116,7 +124,6 @@ class VCSReporter(Reporter):
                 data = cached_get(config_url).content_bytes
                 f.write(data)
                 f.flush()
-                os.fsync(f.fileno())
             except Exception:
                 return []
 
@@ -125,7 +132,13 @@ class VCSReporter(Reporter):
 
             try:
                 remote_url = (
-                    run_sandboxed(["git", "config", "-f", f.name, "--get", "remote.origin.url"]).decode("ascii").strip()
+                    run_sandboxed(
+                        ["git", "config", "-f", f.name, "--get", "remote.origin.url"],
+                        profile=SandboxProfile.LV_VCS,
+                        sandbox_paths=[f.name],
+                    )
+                    .decode("ascii")
+                    .strip()
                 )
             except Exception:
                 remote_url = None
@@ -160,6 +173,7 @@ class VCSReporter(Reporter):
         logger.info("Successfully obtained remote url: %s", remote_url)
 
         try:
+            # TODO: sandbox needed for that? it's level internet anyway
             with tempfile.TemporaryDirectory() as output_dir_name:
                 run_sandboxed(
                     [
@@ -172,7 +186,9 @@ class VCSReporter(Reporter):
                         "--no-checkout",
                         output_dir_name,
                     ],
+                    profile=SandboxProfile.LV_INTERNET,
                     timeout=30,
+                    sandbox_paths=[output_dir_name],
                     env={
                         "GIT_SSH_COMMAND": "ssh -o PasswordAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no",
                         "GIT_TERMINAL_PROMPT": "0",

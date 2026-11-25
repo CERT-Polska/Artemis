@@ -1,16 +1,11 @@
 """
-This should be ran as a sandboxed child process to parse attacker-controlled VCS in reporter.py
+Code to be run only inside the landrun sandbox (artemis/sandboxing): a sandboxed child process
+parsing attacker-controlled VCS data for reporter.py.
 """
 
+import sqlite3
 import sys
 from typing import Optional
-
-from artemis.sandboxing import assert_sandboxed
-
-# Fail closed: refuse to even load (and thus map libsqlite3) outside the sandbox.
-assert_sandboxed()
-
-import sqlite3  # noqa: E402
 
 
 def read_remote_url(db_path: str) -> Optional[str]:

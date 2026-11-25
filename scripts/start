@@ -8,7 +8,6 @@ exists() {
 
 . scripts/check_docker_compose
 
-
 if ! exists .env; then
     cp env.example .env
     ENV_MESSAGE="\e[1mThe .env file has been created. You can access it later to configure any settings you want to change according to https://artemis-scanner.readthedocs.io/en/latest/user-guide/configuration.html .\e[0m"

@@ -23,8 +23,8 @@ repos:
   - id: mypy
     args: [--strict]
     additional_dependencies:
-    - aiohttp==3.13.3
-    - alembic==1.18.4
+    - aiohttp==3.14.5
+    - alembic==1.20.1
     - django-stubs==5.2.0
     - dnspython==2.7.0
     - fastapi==0.116.1
@@ -36,13 +36,13 @@ repos:
     - more-itertools==10.8.0
     - openapi-spec-validator==0.8.4
     - packaging==26.0
-    - prometheus-client==0.24.1
+    - prometheus-client==0.26.0
     - pymongo-stubs==0.2.0
     - requests-cache==1.3.1
     - requests-mock==1.12.1
     - sqlalchemy-stubs==0.4
-    - typer==0.24.1
-    - types-beautifulsoup4==4.12.0.6
+    - typer==0.29.1
+    - types-beautifulsoup4==4.12.0.20250516
     - types-Markdown==3.4.2.10
     - types-paramiko==2.7.2
     - types-psutil==6.1.0.20241221
@@ -50,14 +50,14 @@ repos:
     - types-PyMySQL==1.1.0.1
     - types-pytz==2023.3.0.1
     - types-PyYAML==6.0.12.11
-    - types-redis==4.6.0.5
+    - types-redis==4.6.0.20241004
     - types-requests==2.31.0.2
     - types-retry==0.9.9.4
     - types-termcolor==1.1.6.2
     - types-tqdm==4.70.0.20261106
-    - uvicorn==0.42.0
+    - uvicorn==0.54.0
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.4.1
+  rev: 7.5.0
   hooks:
   - id: flake8
     args: [artemis]

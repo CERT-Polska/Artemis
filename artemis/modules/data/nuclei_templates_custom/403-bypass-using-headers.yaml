@@ -1,0 +1,89 @@
+id: 403-bypass-using-headers
+
+info:
+  name: 403 Forbidden Bypass Detection with Headers
+  author: Dr4g0n
+  severity: medium
+  description: |
+    Detects potential 403 Forbidden bypass vulnerabilities by adding headers (e.g., X-Forwarded-For, X-Original-URL).
+
+flow: http(1) && http(2) && http(3)
+
+http:
+  - raw:
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        name: forbidden
+        dsl:
+          # Perform the same request multiple times to make sure it was not a random 403
+          - "status_code_1 == 403"
+          - "status_code_2 == 403"
+          - "status_code_3 == 403"
+        condition: and
+        internal: true
+
+  - raw:
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+        {{header}}: 127.0.0.1
+
+    attack: batteringram
+    payloads:
+      header:
+        - X-Forwarded-For
+        - X-Remote-IP
+        - X-Remote-Addr
+        - X-Real-IP
+
+    # One bypassing header is enough to prove the finding. Without this, every
+    # header that works produces its own identical result.
+    stop-at-first-match: true
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "status_code >= 200"
+          - "status_code < 300"
+          - "len(body) >= 200"
+          - "!contains(body, '<title>Request Rejected</title>')"
+          - "!contains(body, '<TITLE>Unauthorized Request Blocked</TITLE>')"
+        condition: and
+
+  - raw:
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET {{Path}} HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        name: forbidden
+        dsl:
+          # Perform the same request multiple times to make sure it was not a random 403
+          # we do this once again to test that it wasn't a temporary 403 -> 200 change due
+          # to e.g. WAF block expiration.
+          - "status_code_1 == 403"
+          - "status_code_2 == 403"
+          - "status_code_3 == 403"
+        condition: and
+        internal: true

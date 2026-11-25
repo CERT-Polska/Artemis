@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
+import idna
 import yaml
 from karton.core import Consumer, Task
 from karton.core.config import Config as KartonConfig
@@ -218,7 +219,7 @@ class SubdomainEnumeration(ArtemisBase):
             "gau",
             ["--subs"] + Config.Modules.SubdomainEnumeration.GAU_ADDITIONAL_OPTIONS,
             domain,
-            input=domain.encode("idna"),
+            input=idna.encode(domain, uts46=True, transitional=False),
         )
 
     def _collect_wildcard_ips(self, domain: str, num_samples: int) -> Set[str]:
@@ -355,7 +356,7 @@ class SubdomainEnumeration(ArtemisBase):
                 self.save_task_result(task=current_task, status=TaskStatus.ERROR, status_reason=message)
                 return
 
-        encoded_domain = domain.encode("idna").decode("utf-8")
+        encoded_domain = idna.encode(domain, uts46=True, transitional=False).decode("utf-8")
 
         if self.redis.get(f"subdomain-enumeration-done-{encoded_domain}-{current_task.root_uid}"):
             self.log.info(
@@ -399,7 +400,7 @@ class SubdomainEnumeration(ArtemisBase):
 
         with self.redis.pipeline() as pipe:
             for subdomain in valid_subdomains:
-                encoded_subdomain = subdomain.encode("idna").decode("utf-8")
+                encoded_subdomain = idna.encode(subdomain, uts46=True, transitional=False).decode("utf-8")
                 pipe.setex(
                     f"subdomain-enumeration-done-{encoded_subdomain}-{current_task.root_uid}",
                     Config.Miscellaneous.SUBDOMAIN_ENUMERATION_TTL_DAYS * 24 * 60 * 60,

@@ -19,7 +19,6 @@ import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
-from multiprocessing_logging import install_mp_handler
 from publicsuffixlist import PublicSuffixList
 from redis import Redis, TimeoutError
 from requests import Session
@@ -58,10 +57,12 @@ REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 setup_retrying_resolver()
-if multiprocessing.get_start_method() == "fork":
-    install_mp_handler()
-
 ProbeResponse = TypeVar("ProbeResponse")
+
+
+def run_parallel_worker(karton_class: Any, task_counter: Any) -> None:
+    # We need to create separate class instances for them to have separate locks etc
+    karton_class().single_process_loop(task_counter)
 
 
 class UnknownIPException(Exception):
@@ -266,17 +267,13 @@ class ArtemisBase(Karton):
     def parallel_loop(cls) -> None:
         task_counter = multiprocessing.Value("i", 0)
 
-        def start(task_counter: Any) -> None:
-            # We need to create separate class instances for them to have separate locks etc
-            cls().single_process_loop(task_counter)
-
         num_processes = int(
             os.environ.get("NUM_WORKERS_PER_CONTAINER_%s" % cls.identity.replace("-", "_").upper(), "1")
         )
         if num_processes > 1:
             processes = []
             for _ in range(num_processes):
-                process = multiprocessing.Process(target=start, args=(task_counter,))
+                process = multiprocessing.Process(target=run_parallel_worker, args=(cls, task_counter))
                 process.start()
                 processes.append(process)
 

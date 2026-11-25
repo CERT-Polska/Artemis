@@ -122,13 +122,6 @@ services:
       - ./archived-task-results/:/opt/archived-task-results/
       - ${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/
 
-  karton-api_scanner:
-    <<: [*logging, *artemis-build-or-image]
-    command: "python3 -m artemis.modules.api_scanner"
-    env_file: .env
-    restart: always
-    volumes: ["${DOCKER_COMPOSE_ADDITIONAL_SHARED_DIRECTORY:-./shared}:/shared/"]
-
   karton-admin_panel_login_bruter:
     <<: [*logging, *artemis-build-or-image]
     command: "python3 -m artemis.modules.admin_panel_login_bruter"

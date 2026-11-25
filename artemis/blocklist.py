@@ -36,6 +36,7 @@ class BlocklistItem:
     mode: BlocklistMode
     domain_only: Optional[str] = None
     domain_and_subdomains: Optional[str] = None
+    allow_domains_and_subdomains: Optional[list[str]] = None
     subdomains: Optional[str] = None
     domain_regex: Optional[str] = None
     ip_range: Optional[Union[ipaddress.IPv4Network, ipaddress.IPv6Network]] = None
@@ -60,6 +61,7 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
     expected_keys = {
         "mode",
         "domain_and_subdomains",
+        "allow_domains_and_subdomains",
         "domain_only",
         "domain_regex",
         "subdomains",
@@ -87,11 +89,12 @@ def load_blocklist(file_path: Optional[str]) -> List[BlocklistItem]:
         BlocklistItem(
             mode=BlocklistMode(item["mode"]),
             domain_and_subdomains=item.get("domain_and_subdomains", None),
+            allow_domains_and_subdomains=item.get("allow_domains_and_subdomains", None),
             domain_only=item.get("domain_only", None),
             domain_regex=item.get("domain_regex", None),
             subdomains=item.get("subdomains", None),
             ip_range=ipaddress.ip_network(item["ip_range"], strict=False) if item.get("ip_range", None) else None,
-            until=datetime.datetime.strptime(item["until"], "%Y-%m-%d") if item.get("until", None) else None,
+            until=datetime.datetime.strptime(str(item["until"]), "%Y-%m-%d") if item.get("until", None) else None,
             karton_name=item.get("karton_name", None),
             report_target_should_contain=item.get("report_target_should_contain", None),
             report_type=item.get("report_type", None),
@@ -113,6 +116,15 @@ def should_block_scanning(
 
     for item in blocklist:
         if item.mode != BlocklistMode.BLOCK_SCANNING_AND_REPORTING:
+            continue
+
+        # allow_domains_and_subdomains allows the rule user to forcefully exclude domains
+        # and their subdomains from blocklist rule (e.g. "Don't scan example.com, but scan shop.example.com")
+        if (
+            item.allow_domains_and_subdomains
+            and domain
+            and any([is_subdomain(domain, allow_domain) for allow_domain in item.allow_domains_and_subdomains])
+        ):
             continue
 
         if item.domain_regex:
@@ -188,6 +200,15 @@ def blocklist_reports(reports: List[Report], blocklist: List[BlocklistItem]) -> 
             domain = report.top_level_target if is_domain(report.top_level_target) else None
             if report.last_domain:
                 domain = report.last_domain
+
+            # allow_domains_and_subdomains allows the rule user to forcefully exclude domains
+            # and their subdomains from blocklist rule (e.g. "Don't scan example.com, but scan shop.example.com")
+            if (
+                item.allow_domains_and_subdomains
+                and domain
+                and any([is_subdomain(domain, allow_domain) for allow_domain in item.allow_domains_and_subdomains])
+            ):
+                continue
 
             if item.domain_only:
                 if not domain:

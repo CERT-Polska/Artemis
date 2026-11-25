@@ -124,6 +124,7 @@ class MailDNSScanner(ArtemisBase):
             and not has_mx_records
         ):
             result.spf_dmarc_scan_result.spf.valid = True
+            result.spf_dmarc_scan_result.spf.errors = []
 
         # Some sites have TXT records on all subdomains (e.g. wildcard records) - we don't want
         # to report DMARC problems (e.g. unrelated TXT record found in the '_dmarc' subdomain) in that case,
@@ -137,17 +138,26 @@ class MailDNSScanner(ArtemisBase):
             result.spf_dmarc_scan_result.dmarc.warnings = []
 
         # To decrease the number of false positives, for domains that do have MX records, we require SPF records to
-        # be present only if the domain is directly below a public suffix (so we will require SPF on example.com
-        # but not on www.example.com).
+        # be present only on the base scanned domain.
         if (
             has_mx_records
-            and PUBLIC_SUFFIX_LIST.privatesuffix(domain)
-            and not PUBLIC_SUFFIX_LIST.privatesuffix(domain) == domain
+            and current_task.get_payload("original_domain") != domain
             and result.spf_dmarc_scan_result
             and result.spf_dmarc_scan_result.spf
             and result.spf_dmarc_scan_result.spf.record_not_found
         ):
             result.spf_dmarc_scan_result.spf.valid = True
+            result.spf_dmarc_scan_result.spf.errors = []
+
+        # Similarily for DMARC
+        if (
+            current_task.get_payload("original_domain") != domain
+            and result.spf_dmarc_scan_result
+            and result.spf_dmarc_scan_result.dmarc
+            and result.spf_dmarc_scan_result.dmarc.record_not_found
+        ):
+            result.spf_dmarc_scan_result.dmarc.valid = True
+            result.spf_dmarc_scan_result.dmarc.errors = []
 
         random_token = os.urandom(8).hex()
         try:

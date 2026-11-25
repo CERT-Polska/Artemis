@@ -124,6 +124,7 @@ class MailDNSScanner(ArtemisBase):
             and not has_mx_records
         ):
             result.spf_dmarc_scan_result.spf.valid = True
+            result.spf_dmarc_scan_result.spf.errors = []
 
         # Some sites have TXT records on all subdomains (e.g. wildcard records) - we don't want
         # to report DMARC problems (e.g. unrelated TXT record found in the '_dmarc' subdomain) in that case,
@@ -146,6 +147,7 @@ class MailDNSScanner(ArtemisBase):
             and result.spf_dmarc_scan_result.spf.record_not_found
         ):
             result.spf_dmarc_scan_result.spf.valid = True
+            result.spf_dmarc_scan_result.spf.errors = []
 
         # Similarily for DMARC
         if (
@@ -155,6 +157,7 @@ class MailDNSScanner(ArtemisBase):
             and result.spf_dmarc_scan_result.dmarc.record_not_found
         ):
             result.spf_dmarc_scan_result.dmarc.valid = True
+            result.spf_dmarc_scan_result.dmarc.errors = []
 
         random_token = os.urandom(8).hex()
         try:

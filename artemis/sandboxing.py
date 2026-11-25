@@ -8,7 +8,7 @@ SANDBOX_WRAPPER = "/sandbox.sh"
 def run_sandboxed(args: List[str], timeout: int = 60, env: Optional[Dict[str, str]] = None) -> bytes:
     return subprocess.check_output(
         [SANDBOX_WRAPPER] + args,
-        env={**os.environ, "SANDBOX": "on", **(env or {})},
+        env={**os.environ, **(env or {})},
         stderr=subprocess.DEVNULL,
         timeout=timeout,
     )

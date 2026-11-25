@@ -27,7 +27,6 @@ class TestVCSWorker(unittest.TestCase):
             capture_output=True,
             text=True,
             timeout=60,
-            env={**os.environ, "SANDBOX": "on"},
         )
 
     def test_worker_runs_sandboxed_and_refuses_unsandboxed(self) -> None:

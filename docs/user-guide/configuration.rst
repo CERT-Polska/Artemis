@@ -177,17 +177,12 @@ In order for API to validate the runtime configuration you need to add record to
 Sandboxing
 ----------
 
-Module containers (this includes the modules from ``Artemis-modules-extra``) run
-under a `landrun <https://github.com/zouuup/landrun>`_ sandbox (wrapping Landlock),
-which requires Linux kernel >=6.7 on hosts.
-Configuration:
+We sandbox on a per-process basis, using the ``artemis.sandboxing.run_sandboxed``
+function that internally calls `landrun <https://github.com/zouuup/landrun>`_, a
+Landlock helper (which requires Linux kernel >=6.7 on hosts).
 
-* ``SANDBOX`` - set to ``off`` to disable the sandbox (in ``.env`` to disable it
-  everywhere, or per service via docker-compose ``environment``),
-* ``SANDBOX_WRITABLE`` - colon-separated additional writable directories, e.g. for
-  a module that exchanges data via a mounted volume:
+For now we sandbox the following places:
 
-  .. code-block:: yaml
+* the VCS reporter (parsing attacker-controlled repository metadata),
 
-      environment:
-        - SANDBOX_WRITABLE=/my-volume
+TODO: sandbox nuclei and sqlmap.

@@ -3,19 +3,11 @@
 # landrun-based sandbox (https://github.com/zouuup/landrun), wrapping Landlock - used to
 # isolate code parsing attacker-controlled data (the VCS reporter, see artemis/sandboxing.py).
 #
-# Nothing is readable unless explicitly granted - only what python/git/svn need; writable
-# only /tmp and /dev/null; no TCP connect except 80/443 (Landlock is port-based, so the
-# destination can't be restricted) and no listen. Disabled with SANDBOX=off.
-#
 # TODO: restrict TCP egress to github.com/gitlab.com (e.g. an egress proxy container the
 # sandbox connects to, enforcing the host allowlist). Landlock can't restrict UDP egress
 # (block it at the Docker level instead), and io_uring bypasses it - both stay open.
 
 set -eu
-
-if [ "${SANDBOX:-on}" != "on" ]; then
-    exec "$@"
-fi
 
 # Network confinement needs Landlock ABI 4 (kernel >=6.7) and is checked here instead
 # of relying on landrun's --best-effort, which would silently drop it on older kernels.
@@ -34,7 +26,7 @@ args=(
     --best-effort
     --rox /usr,/bin,/sbin,/lib
     --ro /opt,/etc,/root
-    --rw /tmp,/dev/null
+    --rw /tmp,/dev/null,/dev/shm
     --connect-tcp 80,443
 )
 while IFS='=' read -r -d '' var _; do

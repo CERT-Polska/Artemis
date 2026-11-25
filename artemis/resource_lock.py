@@ -31,13 +31,40 @@ LOCKS_TO_SUSTAIN_LOCK = threading.Lock()
 
 REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 
+# #################################################################################
+# # BUG_FIX: #3110 
+# Atomicaly delete the lock key only if its stoerd value still matches our lock ID (lid),
+# prevnting a stalled worker from deleting a lock acquired by another worker.
+# #################################################################################
+RELEASE_LOCK_SCRIPT = """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("del", KEYS[1])
+else
+    return 0
+end
+"""
+
+# #################################################################################
+# # BUG_FIX: #3110 
+# Atomiclly refersh the lock TTl only if we stil own the lock ID (lid),
+# prevnting the heartbeat thread from overwrting a lock taken over by another worker.
+# #################################################################################
+SUSTAIN_LOCK_SCRIPT = """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("pexpire", KEYS[1], ARGV[2])
+else
+    return 0
+end
+"""
+
 
 def sustain_locks() -> None:
     while True:
         try:
             with LOCKS_TO_SUSTAIN_LOCK:
                 for key, value in LOCKS_TO_SUSTAIN.items():
-                    REDIS.set(key, value, ex=LOCK_HEARTBEAT_TIMEOUT)
+                    REDIS.eval(SUSTAIN_LOCK_SCRIPT, 1, key, value, LOCK_HEARTBEAT_TIMEOUT * 1000)
+                    # REDIS.set(key, value, ex=LOCK_HEARTBEAT_TIMEOUT)
         except Exception:
             logger.exception("Failed to sustain locks, will retry")
         time.sleep(1)
@@ -76,9 +103,12 @@ class ResourceLock:
     @staticmethod
     def release_all_locks(logger: Logger) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            for lock in list(LOCKS_TO_SUSTAIN.keys()):
-                logger.info(f"Releasing lock: {lock} -> {LOCKS_TO_SUSTAIN[lock]}")
-                REDIS.delete(lock)
+            for lock, lid in list(LOCKS_TO_SUSTAIN.items()):
+                logger.info(f"Releasing lock: {lock} -> {lid}")
+                ##########################################
+                #Runs inisde redis without any interuption
+                ##########################################
+                REDIS.eval(RELEASE_LOCK_SCRIPT, 1, lock, lid) 
             LOCKS_TO_SUSTAIN.clear()
 
     def acquire(self) -> None:
@@ -105,9 +135,14 @@ class ResourceLock:
 
     def release(self) -> None:
         with LOCKS_TO_SUSTAIN_LOCK:
-            if self.res_name in LOCKS_TO_SUSTAIN:
+            # if self.res_name in LOCKS_TO_SUSTAIN:
+            if LOCKS_TO_SUSTAIN.get(self.res_name) == self.lid:
                 del LOCKS_TO_SUSTAIN[self.res_name]
-        REDIS.delete(self.res_name)
+        ##########################################
+        #Runs inisde redis without any interuption
+        ########################################
+        REDIS.eval(RELEASE_LOCK_SCRIPT, 1, self.res_name, self.lid)
+        # REDIS.delete(self.res_name)
 
     def __enter__(self) -> None:
         self.acquire()

@@ -18,15 +18,12 @@ if [ "$abi" -lt 4 ]; then
     exit 1
 fi
 
-# PYTHONDONTWRITEBYTECODE keeps the read-only artemis code tree clean of bytecode.
-export PYTHONDONTWRITEBYTECODE=1
-
 # landrun passes no environment to the command by default - forward everything.
 args=(
     --best-effort
     --rox /usr,/bin,/sbin,/lib
     --ro /opt,/etc,/root
-    --rw /tmp,/dev/null,/dev/shm
+    --rw /tmp,/dev/null
     --connect-tcp 80,443
 )
 while IFS='=' read -r -d '' var _; do

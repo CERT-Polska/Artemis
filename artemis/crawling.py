@@ -8,6 +8,7 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from bs4 import BeautifulSoup
 from bs4.exceptions import ParserRejectedMarkup  # type: ignore
+from karton.core.task import TaskPriority
 from redis import Redis
 
 from artemis import http_requests, scanned_assets_api, utils
@@ -40,7 +41,7 @@ def _fetch_injectable_parameters(url: str) -> Tuple[str, ...]:
     return tuple(result)
 
 
-def get_injectable_parameters(url: str) -> List[str]:
+def get_injectable_parameters(priority: TaskPriority, url: str) -> List[str]:
     # strip query params so that we don't run multiple calls for all DAST iterations
     parsed_url = urlparse(url)
     url = urlunparse(parsed_url._replace(query="", params="", fragment=""))
@@ -49,17 +50,17 @@ def get_injectable_parameters(url: str) -> List[str]:
         html_params = list(_fetch_injectable_parameters(url))
     except Exception:
         html_params = []
-    return list(set(html_params) | set(scanned_assets_api.get_assets("get_parameters", url)))
+    return list(set(html_params) | set(scanned_assets_api.get_assets(priority, "get_parameters", url)))
 
 
 def add_injectable_params_and_common_params_from_wordlist(
-    url: str, params_wordlist: str, default_param_value: str = ""
+    priority: TaskPriority, url: str, params_wordlist: str, default_param_value: str = ""
 ) -> str:
     with open(params_wordlist, "r") as file:
         params = file.read().splitlines()
         params = [
             param.strip() for param in params if param.strip() and not param.startswith("#")
-        ] + get_injectable_parameters(url)
+        ] + get_injectable_parameters(priority, url)
 
     parsed_url = urlparse(url)
 

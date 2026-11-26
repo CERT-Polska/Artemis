@@ -9,6 +9,7 @@ from typing import IO, Any, List, Optional, Tuple
 import requests
 from bs4 import BeautifulSoup
 from karton.core import Task
+from karton.core.task import TaskPriority
 from pydantic import BaseModel
 
 from artemis import http_requests, load_risk_class, scanned_assets_api
@@ -236,7 +237,7 @@ class AdminPanelLoginBruter(ArtemisBase):
             )
         return (True, None)
 
-    def discover_login_paths(self, base_url: str) -> List[str]:
+    def discover_login_paths(self, priority: TaskPriority, base_url: str) -> List[str]:
         """
         Discovers common admin login paths by checking predefined URLs.
         """
@@ -244,7 +245,9 @@ class AdminPanelLoginBruter(ArtemisBase):
         found_paths = []
         not_found_paths = []
         paths = list(
-            dict.fromkeys(COMMON_LOGIN_PATHS + scanned_assets_api.get_assets("get_admin_panel_urls", base_url))
+            dict.fromkeys(
+                COMMON_LOGIN_PATHS + scanned_assets_api.get_assets(priority, "get_admin_panel_urls", base_url)
+            )
         )
         for path in paths:
             full_url = urllib.parse.urljoin(base_url, path)
@@ -499,7 +502,7 @@ class AdminPanelLoginBruter(ArtemisBase):
         results: List[AdminPanelLoginBruterResult] = []
         rate_limited = False
         try:
-            login_paths = self.discover_login_paths(url)
+            login_paths = self.discover_login_paths(current_task.priority, url)
 
             # Always include known JSON-only API paths that won't pass the GET check.
             for path in JSON_API_PATHS:

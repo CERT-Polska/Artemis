@@ -6,6 +6,7 @@ from typing import Any, Callable, Optional
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from karton.core import Task
+from karton.core.task import TaskPriority
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
@@ -248,7 +249,7 @@ class OrmInjectionDetector(ArtemisBase):
 
         return results
 
-    def scan(self, urls: list[str]) -> list[dict[str, Any]]:
+    def scan(self, priority: TaskPriority, urls: list[str]) -> list[dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
         message: list[dict[str, Any]] = []
 
@@ -257,7 +258,7 @@ class OrmInjectionDetector(ArtemisBase):
             query_params = parse_qs(parsed.query)
             base_url = strip_query_string(current_url)
 
-            injectable = get_injectable_parameters(current_url)
+            injectable = get_injectable_parameters(priority, current_url)
             all_param_names = list(dict.fromkeys(list(query_params.keys()) + injectable + list(URL_PARAMS)))
             params_to_test = {name: query_params.get(name, ["test"]) for name in all_param_names}
 
@@ -303,7 +304,7 @@ class OrmInjectionDetector(ArtemisBase):
         url = get_target_url(current_task)
         links = get_links_to_scan(url)
 
-        message = self.scan(urls=links)
+        message = self.scan(current_task.priority, urls=links)
 
         if message:
             status = TaskStatus.INTERESTING

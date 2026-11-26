@@ -300,7 +300,7 @@ class SqlInjectionDetector(ArtemisBase):
 
         # The code below may look complicated and repetitive, but it shows how the scanning logic works.
         for current_url in urls:
-            parameters = get_injectable_parameters(current_url)
+            parameters = get_injectable_parameters(task.priority, current_url)
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
             # using dict for deduplication to preserve the order
             # we want to use discovered parameters first

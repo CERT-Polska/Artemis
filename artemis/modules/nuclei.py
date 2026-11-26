@@ -15,6 +15,7 @@ from typing import Any, Dict, List
 
 import more_itertools
 from karton.core import Task
+from karton.core.task import TaskPriority
 from prometheus_client import Counter, Histogram, start_http_server
 
 from artemis import load_risk_class
@@ -795,7 +796,7 @@ class Nuclei(ArtemisBase):
             param_url = get_target_url(task)
             for _, template_data in DAST_SCANNING.items():
                 param_url = add_injectable_params_and_common_params_from_wordlist(
-                    param_url, template_data["params_wordlist"], template_data["param_default_value"]
+                    task.priority, param_url, template_data["params_wordlist"], template_data["param_default_value"]
                 )
             dast_targets.append(param_url)
 
@@ -852,9 +853,19 @@ class Nuclei(ArtemisBase):
             for item in link_package:
                 if item:
                     param_url = item
+                    task_priority = TaskPriority.NORMAL
+                    for task_uid, items in links_per_task.items():
+                        if item in items:
+                            for task in tasks:
+                                if task.uid == task_uid:
+                                    task_priority = task.priority
+
                     for _, template_data in DAST_SCANNING.items():
                         param_url = add_injectable_params_and_common_params_from_wordlist(
-                            param_url, template_data["params_wordlist"], template_data["param_default_value"]
+                            task_priority,
+                            param_url,
+                            template_data["params_wordlist"],
+                            template_data["param_default_value"],
                         )
                     dast_targets.append(param_url)
 

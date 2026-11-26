@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import requests
+from karton.core.task import TaskPriority
 
 from artemis.crawling import _fetch_injectable_parameters, get_injectable_parameters
 
@@ -36,8 +37,8 @@ class TestGetInjectableParametersCache(unittest.TestCase):
 
         url = "http://example.com/search"
 
-        self.assertEqual(get_injectable_parameters(url), [])
-        self.assertEqual(get_injectable_parameters(url), ["q"])
+        self.assertEqual(get_injectable_parameters(TaskPriority.NORMAL, url), [])
+        self.assertEqual(get_injectable_parameters(TaskPriority.NORMAL, url), ["q"])
 
         self.assertEqual(mock_get.call_count, 2)
 
@@ -50,8 +51,8 @@ class TestGetInjectableParametersCache(unittest.TestCase):
             _make_response('<html><input name="email"></html>'),
         ]
 
-        self.assertEqual(get_injectable_parameters("http://a.example/x"), [])
-        self.assertEqual(get_injectable_parameters("http://b.example/y"), ["email"])
+        self.assertEqual(get_injectable_parameters(TaskPriority.NORMAL, "http://a.example/x"), [])
+        self.assertEqual(get_injectable_parameters(TaskPriority.NORMAL, "http://b.example/y"), ["email"])
 
         self.assertEqual(mock_get.call_count, 2)
 
@@ -67,8 +68,8 @@ class TestGetInjectableParametersCache(unittest.TestCase):
             _make_response('<html><input name="email"></html>'),
         ]
 
-        self.assertEqual(get_injectable_parameters("http://a.example/x"), ["name"])
-        self.assertEqual(get_injectable_parameters("http://b.example/y"), ["email"])
+        self.assertEqual(get_injectable_parameters(TaskPriority.NORMAL, "http://a.example/x"), ["name"])
+        self.assertEqual(get_injectable_parameters(TaskPriority.NORMAL, "http://b.example/y"), ["email"])
 
         self.assertEqual(mock_get.call_count, 2)
 

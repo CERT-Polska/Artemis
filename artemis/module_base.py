@@ -1,4 +1,3 @@
-import ctypes
 import datetime
 import faulthandler
 import fcntl
@@ -305,7 +304,6 @@ class ArtemisBase(Karton):
                 and time.time() - time_start < Config.Miscellaneous.MAX_MODULE_TASK_PROCESSING_TIME__SECONDS
             ):
                 gc.collect()
-                ctypes.CDLL(None).malloc_trim(0)
 
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")

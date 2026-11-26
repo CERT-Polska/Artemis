@@ -1,4 +1,5 @@
 import datetime
+from multiprocessing_logging import install_mp_handler
 import faulthandler
 import fcntl
 import gc
@@ -58,6 +59,7 @@ REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 setup_retrying_resolver()
+install_mp_handler()
 ProbeResponse = TypeVar("ProbeResponse")
 
 
@@ -274,7 +276,7 @@ class ArtemisBase(Karton):
         if num_processes > 1:
             processes = []
             for _ in range(num_processes):
-                process = multiprocessing.Process(target=run_parallel_worker, args=(cls, task_counter))
+                process = multiprocessing.get_context("fork").Process(target=run_parallel_worker, args=(cls, task_counter))
                 process.start()
                 processes.append(process)
 

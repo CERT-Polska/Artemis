@@ -14,16 +14,8 @@ import tempfile
 from enum import Enum, auto
 from typing import Dict, List, Optional
 
-# The scratch dir location is exposed to the sandboxed process under this environment variable
-# name (sandbox_checks.sh relies on it, too).
-SANDBOX_TMP = "SANDBOX_TMP"
-# Placeholder in landrun_args, substituted by run_sandboxed with the location of the run's
-# scratch dir (a fresh temp dir under /tmp).
-SCRATCH_DIR = "{scratch_dir}"
-# The sandbox checks (one sh function per check, grouped per level), run inside landrun by the
-# test suite. They live in artemis/sandboxing_payloads, together with the other code that is only
-# ever run inside landrun.
 SANDBOX_CHECKS_SH = os.path.join(os.path.dirname(__file__), "sandboxing_payloads", "sandbox_checks.sh")
+SANDBOX_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 
 class SandboxProfile(Enum):
@@ -34,45 +26,46 @@ class SandboxProfile(Enum):
 
     @property
     def landrun_args(self) -> List[str]:
+        command = ["landrun", "--ro", os.path.dirname(SANDBOX_CHECKS_SH), "--env", f"PATH={SANDBOX_PATH}"]
         if self is SandboxProfile.LV_STRICT:
-            return ["--rox", "/bin/,/usr/bin/,/lib"]
+            return command + ["--rox", "/bin/,/usr/bin/,/usr/lib,/lib"]
         if self is SandboxProfile.LV_VCS:
-            return [
+            return command + [
                 "--rox",
                 "/usr/bin/git,/bin,/usr/bin,/usr/lib,/lib",
                 "--ro",
                 "/etc",
                 "--rw",
-                f"/dev/null,{SCRATCH_DIR}",
+                "/dev/null,{scratch_dir}",
                 "--env",
-                f"{SANDBOX_TMP}={SCRATCH_DIR}",
+                "SANDBOX_TMP={scratch_dir}",
             ]
         if self is SandboxProfile.LV_PYTHON:
-            return [
+            return command + [
                 "--rox",
                 "/usr/local/bin/python3,/bin,/usr/bin,/usr/local/lib,/usr/lib,/lib",
                 "--ro",
                 "/opt",
                 "--rw",
-                SCRATCH_DIR,
+                "/dev/null,{scratch_dir}",
                 "--env",
-                f"{SANDBOX_TMP}={SCRATCH_DIR}",
+                "SANDBOX_TMP={scratch_dir}",
                 # redirect the bytecode cache of the read-only /opt module code into the scratch dir
                 "--env",
-                f"PYTHONPYCACHEPREFIX={SCRATCH_DIR}",
+                "PYTHONPYCACHEPREFIX={scratch_dir}",
             ]
         if self is SandboxProfile.LV_INTERNET:
-            return [
+            return command + [
                 "--rox",
                 "/usr,/bin,/sbin,/lib",
                 "--ro",
                 "/opt,/etc",
                 "--rw",
-                f"/dev/null,{SCRATCH_DIR}",
+                "/dev/null,{scratch_dir}",
                 "--connect-tcp",
                 "80,443",
                 "--env",
-                f"{SANDBOX_TMP}={SCRATCH_DIR}",
+                "SANDBOX_TMP={scratch_dir}",
             ]
 
         assert False
@@ -97,12 +90,10 @@ def run_sandboxed(
 ) -> bytes:
     # TODO: ensure that calling .decode() is safe in Python.
     _assert_landlock_abi()
-    # Every run gets a fresh scratch dir: the host paths in sandbox_paths are copied into it (the
-    # sandboxed process never touches host paths directly) and its location substitutes the
-    # SCRATCH_DIR placeholder in the landrun arguments. Arguments equal to a listed path are
-    # rewritten to the copy.
     with tempfile.TemporaryDirectory() as scratch_dir:
-        command = ["landrun", "--ro", os.path.dirname(SANDBOX_CHECKS_SH), *profile.landrun_args]
+        command = [arg.format(scratch_dir=scratch_dir) for arg in profile.landrun_args]
+        for key, value in (env or {}).items():
+            command += ["--env", f"{key}={value}"]
         for path in sandbox_paths or []:
             destination = os.path.join(scratch_dir, os.path.basename(path))
             if os.path.isdir(path):
@@ -110,10 +101,11 @@ def run_sandboxed(
             else:
                 shutil.copy2(path, destination)
             args = [destination if arg == path else arg for arg in args]
-        command = [arg.replace(SCRATCH_DIR, scratch_dir) for arg in command]
         return subprocess.check_output(
             command + ["--"] + args,
-            env={**os.environ, **(env or {})},
+            # Not sure where we want to pass env by --env, and where by actual env;
+            # but it makes sense to strip the env that gets to landrun at all.
+            env={"PATH": SANDBOX_PATH},
             stderr=subprocess.DEVNULL,
             timeout=timeout,
         )

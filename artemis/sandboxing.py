@@ -18,17 +18,17 @@ SANDBOX_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 
 class SandboxProfile(Enum):
-    STRICT = auto()
-    VCS = auto()
-    PYTHON = auto()
+    NOTCP_STRICT = auto()
+    NOTCP_VCS = auto()
+    NOTCP_PYTHON = auto()
     INTERNET = auto()
 
     @property
     def landrun_args(self) -> List[str]:
         command = ["landrun", "--ro", os.path.dirname(SANDBOX_CHECKS_SH), "--env", f"PATH={SANDBOX_PATH}"]
-        if self is SandboxProfile.STRICT:
+        if self is SandboxProfile.NOTCP_STRICT:
             return command + ["--rox", "/bin/,/usr/bin/,/usr/lib,/lib"]
-        if self is SandboxProfile.VCS:
+        if self is SandboxProfile.NOTCP_VCS:
             return command + [
                 "--rox",
                 "/usr/bin/git,/bin,/usr/bin,/usr/lib,/lib",
@@ -39,7 +39,7 @@ class SandboxProfile(Enum):
                 "--env",
                 "SANDBOX_TMP={scratch_dir}",
             ]
-        if self is SandboxProfile.PYTHON:
+        if self is SandboxProfile.NOTCP_PYTHON:
             return command + [
                 "--rox",
                 "/usr/local/bin/python3,/bin,/usr/bin,/usr/local/lib,/usr/lib,/lib",

@@ -23,7 +23,7 @@ def read_remote_url(db_path: str) -> Optional[str]:
 
 
 def main() -> None:
-    SandboxProfile.PYTHON.assertEnforced()
+    SandboxProfile.NOTCP_PYTHON.assertEnforced()
     remote_url = read_remote_url(sys.argv[1])
     if remote_url is not None:
         print(remote_url)

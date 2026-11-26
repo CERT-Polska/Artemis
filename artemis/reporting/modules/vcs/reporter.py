@@ -60,7 +60,7 @@ class VCSReporter(Reporter):
                 remote_url: str = (
                     run_sandboxed(
                         ["python3", "-m", "artemis.sandboxing_payloads.read_remote_url_from_repository_sqlite", f.name],
-                        profile=SandboxProfile.PYTHON,
+                        profile=SandboxProfile.NOTCP_PYTHON,
                         additional_readonly_paths=[f.name],
                     )
                     .decode(errors="replace")
@@ -134,7 +134,7 @@ class VCSReporter(Reporter):
                 remote_url = (
                     run_sandboxed(
                         ["git", "config", "-f", f.name, "--get", "remote.origin.url"],
-                        profile=SandboxProfile.VCS,
+                        profile=SandboxProfile.NOTCP_VCS,
                         additional_readonly_paths=[f.name],
                     )
                     .decode("ascii")

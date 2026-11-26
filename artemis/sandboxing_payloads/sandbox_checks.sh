@@ -23,7 +23,7 @@ allow_git_config() {
     [ "$(/usr/bin/git config -f "$SANDBOX_TMP/config" --get remote.origin.url)" = "https://example.invalid/r" ]
 }
 
-checks_STRICT() {
+checks_NOTCP_STRICT() {
     allow_frozen_binary
     deny_write_outside_scratch
     deny_read_proc
@@ -34,7 +34,7 @@ checks_STRICT() {
     deny_connect 443
 }
 
-checks_VCS() {
+checks_NOTCP_VCS() {
     allow_git_config
     deny_write_outside_scratch
     deny_read_proc
@@ -45,7 +45,7 @@ checks_VCS() {
     deny_connect 443
 }
 
-checks_PYTHON() {
+checks_NOTCP_PYTHON() {
     allow_python
     allow_scratch_write
     deny_payload_exec

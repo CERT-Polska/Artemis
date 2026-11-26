@@ -145,7 +145,7 @@ class MailDNSScannerReporter(Reporter):
 
                 if report_dmarc_problems:
                     for error in dmarc.get("errors", []):
-                        target = dmarc.get("location") or spf_dmarc_ssl.get("base_domain")
+                        target = dmarc.get("location") or task_result["target_string"]
 
                         messages_with_targets.append(
                             MessageWithTarget(message=error, target=target, type="DMARC", is_warning=False)
@@ -154,7 +154,7 @@ class MailDNSScannerReporter(Reporter):
             # Process DMARC warnings
             if dmarc.get("warnings"):
                 for warning in dmarc["warnings"]:
-                    target = dmarc.get("location") or spf_dmarc_ssl.get("base_domain")
+                    target = dmarc.get("location") or task_result["target_string"]
 
                     messages_with_targets.append(
                         MessageWithTarget(message=warning, target=target, type="DMARC", is_warning=True)

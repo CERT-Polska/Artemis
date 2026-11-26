@@ -1,12 +1,12 @@
 # The landrun sandbox (https://github.com/zouuup/landrun), used by artemis/sandboxing.py.
-FROM golang:1.25-alpine AS landrun-build
+FROM golang:1.26-alpine AS landrun-build
 RUN go install github.com/zouuup/landrun/cmd/landrun@v0.2.0
 
 # Keep it consistent with Python and Linux version in .github/workflows/fix_dependabot_pull_requests.yml
 # and with the Python version in .readthedocs.yaml
 FROM python:3.14-alpine
 
-COPY --from=golang:1.25-alpine /usr/local/go/ /usr/local/go/
+COPY --from=golang:1.26-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="/usr/local/go/bin:$PATH"
 
 COPY --from=landrun-build /go/bin/landrun /usr/local/bin/landrun

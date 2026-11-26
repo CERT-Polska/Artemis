@@ -458,12 +458,3 @@ volumes:
   data-redis:
   data-web:
   cpe-nvd-data:
-
-networks:
-  default:
-    driver: bridge
-    # If this MTU is larger than the MTU of the VPN, packets entering the tunnel
-    # gateway from outside can be dropped server-side, leading to silent timeouts from the
-    # perspective of processes in Docker. Has to be aligned with "mtu" in /etc/docker/daemon.json.
-    driver_opts:
-      com.docker.network.driver.mtu: "1351"

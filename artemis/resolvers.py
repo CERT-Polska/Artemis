@@ -22,9 +22,10 @@ MAX_CNAME_NEST_DEPTH = 5
 def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[str]:
     found_results = []
     response = answer.response
+    domain_name = dns.name.from_text(domain)
 
     for entry in response.answer:
-        if str(entry.name).rstrip(".") != domain:
+        if entry.name != domain_name:
             continue
 
         for item in entry.items:
@@ -40,16 +41,16 @@ def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[s
                     # for the IP - so we cut the trailing dot (kazet.cc. -> kazet.cc) and
                     # look for this domain in other records.
                     for subentry in response.answer:
-                        if str(subentry.name).strip(".") == item and subentry.rdtype == 1:
+                        if subentry.name == dns.name.from_text(item) and subentry.rdtype == 1:
                             found_results.append(subentry.to_text().split(" ")[-1].rstrip("."))
                             break
 
-                        if str(subentry.name).strip(".") == item and subentry.rdtype == 2:
+                        if subentry.name == dns.name.from_text(item) and subentry.rdtype == 2:
                             for rdataset in subentry:
                                 found_results.append(rdataset.to_text().rstrip("."))
                             break
 
-                        if str(subentry.name).strip(".") == item and subentry.rdtype == 5:
+                        if subentry.name == dns.name.from_text(item) and subentry.rdtype == 5:
                             # CNAME refering to another CNAME record (this happens)
                             item = subentry.to_text().split(" ")[-1].rstrip(".")
 

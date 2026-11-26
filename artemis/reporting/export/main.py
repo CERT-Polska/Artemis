@@ -51,11 +51,14 @@ def nl2br(eval_ctx: EvalContext, value: str) -> Union[Markup, str]:
 
     br = Markup(br)
 
-    markup = Markup(item).striptags()
-    if '<' in markup:
-        return ''
+    lines = []
+    for item in value.splitlines():
+        markup = Markup(item).striptags()
+        if "<" in markup:
+            return ""
+        lines.append(markup)
 
-    result = br.join([markup for item in value.splitlines()])
+    result = br.join(lines)
     return Markup(result)
 
 

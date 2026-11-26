@@ -303,6 +303,12 @@ services:
     volumes:
       - ./test/data/git/git/:/usr/share/nginx/html/.git/
 
+  test-service-with-exposed-vcs:
+    image: nginx:latest
+    volumes:
+      - ./test/data/git/git/:/usr/share/nginx/html/.git/
+      - ./test/data/svn/.svn/:/usr/share/nginx/html/.svn/
+
   test-old-wordpress:
     image: wordpress:5.9.3-apache
     environment:

@@ -70,6 +70,10 @@ class SandboxProfile(Enum):
 
         assert False
 
+    def assertEnforced(self) -> None:
+        # TODO: spawn `sh SANDBOX_CHECKS_SH <profile>` if needed
+        raise NotImplementedError
+
 
 # Network confinement needs Landlock ABI 4 (kernel >=6.7) - checked to fail fast instead of
 # silently not enforcing the port allowlist. syscall 444 is LANDLOCK_CREATE_RULESET_VERSION.

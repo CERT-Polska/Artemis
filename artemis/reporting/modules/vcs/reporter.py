@@ -60,7 +60,7 @@ class VCSReporter(Reporter):
                 remote_url: str = (
                     run_sandboxed(
                         ["python3", "-m", "artemis.sandboxing_payloads.read_remote_url_from_repository_sqlite", f.name],
-                        profile=SandboxProfile.LV_PYTHON,
+                        profile=SandboxProfile.PYTHON,
                         sandbox_paths=[f.name],
                     )
                     .decode(errors="replace")
@@ -95,7 +95,7 @@ class VCSReporter(Reporter):
             with tempfile.TemporaryDirectory() as output_dir_name:
                 run_sandboxed(
                     ["svn", "co", remote_url, "--depth", "empty", output_dir_name],
-                    profile=SandboxProfile.LV_INTERNET,
+                    profile=SandboxProfile.INTERNET,
                     timeout=30,
                     sandbox_paths=[output_dir_name],
                 )
@@ -134,7 +134,7 @@ class VCSReporter(Reporter):
                 remote_url = (
                     run_sandboxed(
                         ["git", "config", "-f", f.name, "--get", "remote.origin.url"],
-                        profile=SandboxProfile.LV_VCS,
+                        profile=SandboxProfile.VCS,
                         sandbox_paths=[f.name],
                     )
                     .decode("ascii")
@@ -173,7 +173,7 @@ class VCSReporter(Reporter):
         logger.info("Successfully obtained remote url: %s", remote_url)
 
         try:
-            # TODO: sandbox needed for that? it's level internet anyway
+            # TODO: sandbox needed for that? it's the internet profile anyway
             with tempfile.TemporaryDirectory() as output_dir_name:
                 run_sandboxed(
                     [
@@ -186,7 +186,7 @@ class VCSReporter(Reporter):
                         "--no-checkout",
                         output_dir_name,
                     ],
-                    profile=SandboxProfile.LV_INTERNET,
+                    profile=SandboxProfile.INTERNET,
                     timeout=30,
                     sandbox_paths=[output_dir_name],
                     env={

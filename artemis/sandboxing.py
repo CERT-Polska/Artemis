@@ -19,17 +19,17 @@ SANDBOX_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 
 class SandboxProfile(Enum):
-    LV_STRICT = auto()
-    LV_VCS = auto()
-    LV_PYTHON = auto()
-    LV_INTERNET = auto()
+    STRICT = auto()
+    VCS = auto()
+    PYTHON = auto()
+    INTERNET = auto()
 
     @property
     def landrun_args(self) -> List[str]:
         command = ["landrun", "--ro", os.path.dirname(SANDBOX_CHECKS_SH), "--env", f"PATH={SANDBOX_PATH}"]
-        if self is SandboxProfile.LV_STRICT:
+        if self is SandboxProfile.STRICT:
             return command + ["--rox", "/bin/,/usr/bin/,/usr/lib,/lib"]
-        if self is SandboxProfile.LV_VCS:
+        if self is SandboxProfile.VCS:
             return command + [
                 "--rox",
                 "/usr/bin/git,/bin,/usr/bin,/usr/lib,/lib",
@@ -40,7 +40,7 @@ class SandboxProfile(Enum):
                 "--env",
                 "SANDBOX_TMP={scratch_dir}",
             ]
-        if self is SandboxProfile.LV_PYTHON:
+        if self is SandboxProfile.PYTHON:
             return command + [
                 "--rox",
                 "/usr/local/bin/python3,/bin,/usr/bin,/usr/local/lib,/usr/lib,/lib",
@@ -54,7 +54,7 @@ class SandboxProfile(Enum):
                 "--env",
                 "PYTHONPYCACHEPREFIX={scratch_dir}",
             ]
-        if self is SandboxProfile.LV_INTERNET:
+        if self is SandboxProfile.INTERNET:
             return command + [
                 "--rox",
                 "/usr,/bin,/sbin,/lib",
@@ -71,8 +71,8 @@ class SandboxProfile(Enum):
         assert False
 
     def assertEnforced(self) -> None:
-        # TODO: spawn `sh SANDBOX_CHECKS_SH <profile>` if needed
-        raise NotImplementedError
+        # Deliberately not run_sandboxed - it verifies the confinement of the already-sandboxed current process.
+        subprocess.check_output(["sh", SANDBOX_CHECKS_SH, self.name], stderr=subprocess.DEVNULL)
 
 
 # Network confinement needs Landlock ABI 4 (kernel >=6.7) - checked to fail fast instead of

@@ -7,6 +7,8 @@ import sqlite3
 import sys
 from typing import Optional
 
+from artemis.sandboxing import SandboxProfile
+
 
 def read_remote_url(db_path: str) -> Optional[str]:
     con = sqlite3.connect(db_path)
@@ -21,6 +23,7 @@ def read_remote_url(db_path: str) -> Optional[str]:
 
 
 def main() -> None:
+    SandboxProfile.PYTHON.assertEnforced()
     remote_url = read_remote_url(sys.argv[1])
     if remote_url is not None:
         print(remote_url)

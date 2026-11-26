@@ -1,6 +1,6 @@
 #!/bin/sh
 # Sandbox checks, run only inside the landrun sandbox (artemis/sandboxing): one short function per
-# check, grouped into a subset per SandboxProfile level. $1 is the level name, in line with the
+# check, grouped into a subset per SandboxProfile. $1 is the profile name, in line with the
 # SandboxProfile enum in python.
 # Exits nonzero on the first failing check.
 set -e
@@ -23,7 +23,7 @@ allow_git_config() {
     [ "$(/usr/bin/git config -f "$SANDBOX_TMP/config" --get remote.origin.url)" = "https://example.invalid/r" ]
 }
 
-checks_LV_STRICT() {
+checks_STRICT() {
     allow_frozen_binary
     deny_write_outside_scratch
     deny_read_proc
@@ -34,7 +34,7 @@ checks_LV_STRICT() {
     deny_connect 443
 }
 
-checks_LV_VCS() {
+checks_VCS() {
     allow_git_config
     deny_write_outside_scratch
     deny_read_proc
@@ -45,7 +45,7 @@ checks_LV_VCS() {
     deny_connect 443
 }
 
-checks_LV_PYTHON() {
+checks_PYTHON() {
     allow_python
     allow_scratch_write
     deny_payload_exec
@@ -57,7 +57,7 @@ checks_LV_PYTHON() {
     deny_connect 443
 }
 
-checks_LV_INTERNET() {
+checks_INTERNET() {
     allow_python
     allow_connect_443
     allow_scratch_write

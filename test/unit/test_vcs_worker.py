@@ -23,7 +23,7 @@ class TestVCSWorker(unittest.TestCase):
     def test_worker_runs_sandboxed(self) -> None:
         sandboxed = run_sandboxed(
             [sys.executable, "-m", "artemis.sandboxing_payloads.read_remote_url_from_repository_sqlite", self.db.name],
-            profile=SandboxProfile.LV_PYTHON,
+            profile=SandboxProfile.PYTHON,
             sandbox_paths=[self.db.name],
         ).decode()
         self.assertEqual(sandboxed.strip(), REMOTE_URL)

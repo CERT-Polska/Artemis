@@ -1,6 +1,7 @@
 import datetime
 import faulthandler
 import fcntl
+import gc
 import ipaddress
 import json
 import logging
@@ -302,6 +303,8 @@ class ArtemisBase(Karton):
                 not self.shutdown
                 and time.time() - time_start < Config.Miscellaneous.MAX_MODULE_TASK_PROCESSING_TIME__SECONDS
             ):
+                gc.collect()
+
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break

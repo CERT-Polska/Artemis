@@ -61,7 +61,7 @@ class VCSReporter(Reporter):
                     run_sandboxed(
                         ["python3", "-m", "artemis.sandboxing_payloads.read_remote_url_from_repository_sqlite", f.name],
                         profile=SandboxProfile.PYTHON,
-                        sandbox_paths=[f.name],
+                        additional_readonly_paths=[f.name],
                     )
                     .decode(errors="replace")
                     .strip()
@@ -92,13 +92,13 @@ class VCSReporter(Reporter):
         logger.info("Successfully obtained remote url: %s", remote_url)
 
         try:
-            with tempfile.TemporaryDirectory() as output_dir_name:
-                run_sandboxed(
-                    ["svn", "co", remote_url, "--depth", "empty", output_dir_name],
-                    profile=SandboxProfile.INTERNET,
-                    timeout=30,
-                    sandbox_paths=[output_dir_name],
-                )
+            # remote_url is attacker-controlled - pass it by env, don't interpolate into the shell script.
+            run_sandboxed(
+                ["sh", "-c", 'svn co --depth empty "$REMOTE_URL" "$SANDBOX_TMP"'],
+                profile=SandboxProfile.INTERNET,
+                timeout=30,
+                env={"REMOTE_URL": remote_url},
+            )
             logger.info("Successfully cloned %s, that means it's a public repo - not reporting", remote_url)
             return []
         except Exception as e:
@@ -135,7 +135,7 @@ class VCSReporter(Reporter):
                     run_sandboxed(
                         ["git", "config", "-f", f.name, "--get", "remote.origin.url"],
                         profile=SandboxProfile.VCS,
-                        sandbox_paths=[f.name],
+                        additional_readonly_paths=[f.name],
                     )
                     .decode("ascii")
                     .strip()
@@ -174,26 +174,17 @@ class VCSReporter(Reporter):
 
         try:
             # TODO: sandbox needed for that? it's the internet profile anyway
-            with tempfile.TemporaryDirectory() as output_dir_name:
-                run_sandboxed(
-                    [
-                        "git",
-                        "clone",
-                        "--depth",
-                        "1",
-                        remote_url,
-                        "--filter=blob:none",
-                        "--no-checkout",
-                        output_dir_name,
-                    ],
-                    profile=SandboxProfile.INTERNET,
-                    timeout=30,
-                    sandbox_paths=[output_dir_name],
-                    env={
-                        "GIT_SSH_COMMAND": "ssh -o PasswordAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no",
-                        "GIT_TERMINAL_PROMPT": "0",
-                    },
-                )
+            # remote_url is attacker-controlled - pass it by env, don't interpolate into the shell script.
+            run_sandboxed(
+                ["sh", "-c", 'git clone --depth 1 --filter=blob:none --no-checkout "$REMOTE_URL" "$SANDBOX_TMP"'],
+                profile=SandboxProfile.INTERNET,
+                timeout=30,
+                env={
+                    "REMOTE_URL": remote_url,
+                    "GIT_SSH_COMMAND": "ssh -o PasswordAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no",
+                    "GIT_TERMINAL_PROMPT": "0",
+                },
+            )
             logger.info("Successfully cloned %s, that means it's a public repo - not reporting", remote_url)
             return []
         except Exception as e:

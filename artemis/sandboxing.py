@@ -8,7 +8,6 @@ TODO: check if io_uring is a problem for this sandboxing.
 
 import ctypes
 import os
-import shutil
 import subprocess
 import tempfile
 from enum import Enum, auto
@@ -90,21 +89,17 @@ def run_sandboxed(
     profile: SandboxProfile,
     timeout: int = 60,
     env: Optional[Dict[str, str]] = None,
-    sandbox_paths: Optional[List[str]] = None,
+    additional_readonly_paths: Optional[List[str]] = None,
 ) -> bytes:
+    """The sandboxed command reaches the writable scratch dir through the SANDBOX_TMP env set by the profile."""
     # TODO: ensure that calling .decode() is safe in Python.
     _assert_landlock_abi()
     with tempfile.TemporaryDirectory() as scratch_dir:
         command = [arg.format(scratch_dir=scratch_dir) for arg in profile.landrun_args]
         for key, value in (env or {}).items():
             command += ["--env", f"{key}={value}"]
-        for path in sandbox_paths or []:
-            destination = os.path.join(scratch_dir, os.path.basename(path))
-            if os.path.isdir(path):
-                shutil.copytree(path, destination)
-            else:
-                shutil.copy2(path, destination)
-            args = [destination if arg == path else arg for arg in args]
+        for path in additional_readonly_paths or []:
+            command += ["--ro", path]
         return subprocess.check_output(
             command + ["--"] + args,
             # Not sure where we want to pass env by --env, and where by actual env;

@@ -10,7 +10,7 @@ REMOTE_URL = "https://example.invalid/svn/repo"
 
 class TestVCSWorker(unittest.TestCase):
     """Verifies that the sandboxed worker (artemis/sandboxing/read_remote_url_from_repository_sqlite.py)
-    parses the attacker-controlled wc.db copy handed over through the sandbox scratch dir."""
+    parses the attacker-controlled wc.db handed over as a readonly path."""
 
     def setUp(self) -> None:
         self.db = tempfile.NamedTemporaryFile(suffix=".db")
@@ -24,7 +24,7 @@ class TestVCSWorker(unittest.TestCase):
         sandboxed = run_sandboxed(
             [sys.executable, "-m", "artemis.sandboxing_payloads.read_remote_url_from_repository_sqlite", self.db.name],
             profile=SandboxProfile.PYTHON,
-            sandbox_paths=[self.db.name],
+            additional_readonly_paths=[self.db.name],
         ).decode()
         self.assertEqual(sandboxed.strip(), REMOTE_URL)
 

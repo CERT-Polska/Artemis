@@ -180,9 +180,3 @@ Sandboxing
 We sandbox on a per-process basis, using the ``artemis.sandboxing.run_sandboxed``
 function that internally calls `landrun <https://github.com/zouuup/landrun>`_, a
 Landlock helper (which requires Linux kernel >=6.7 on hosts).
-
-For now we sandbox the following places:
-
-* the VCS reporter (parsing attacker-controlled repository metadata),
-
-TODO: sandbox nuclei and sqlmap.

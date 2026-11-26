@@ -1,5 +1,4 @@
 import datetime
-from multiprocessing_logging import install_mp_handler
 import faulthandler
 import fcntl
 import gc
@@ -21,6 +20,7 @@ import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
+from multiprocessing_logging import install_mp_handler
 from publicsuffixlist import PublicSuffixList
 from redis import Redis, TimeoutError
 from requests import Session
@@ -279,7 +279,9 @@ class ArtemisBase(Karton):
         if num_processes > 1:
             processes = []
             for _ in range(num_processes):
-                process = multiprocessing.get_context("fork").Process(target=run_parallel_worker, args=(cls, task_counter))
+                process = multiprocessing.get_context("fork").Process(
+                    target=run_parallel_worker, args=(cls, task_counter)
+                )
                 process.start()
                 processes.append(process)
 

@@ -142,7 +142,8 @@ class Report:
                 port_suffix = ":" + str(target_parsed.port)
             else:
                 port_suffix = ""
-            target_parsed_dict["netloc"] = self.target_ip + port_suffix
+            host = f"[{self.target_ip}]" if ":" in self.target_ip else self.target_ip
+            target_parsed_dict["netloc"] = host + port_suffix
             report.target = urllib.parse.urlunparse(urllib.parse.ParseResult(**target_parsed_dict))
             return report
         return None

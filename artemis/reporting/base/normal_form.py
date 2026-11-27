@@ -31,7 +31,10 @@ def get_url_normal_form(url: str) -> str:
     if not port:
         port = socket.getservbyname(url_parsed.scheme)
 
-    hostname = get_domain_normal_form(url_parsed.hostname)
+    if ":" in url_parsed.hostname:
+        hostname = f"[{url_parsed.hostname}]"
+    else:
+        hostname = get_domain_normal_form(url_parsed.hostname)
 
     if url_parsed.scheme in ["http", "https"] and port in Config.Reporting.REPORTING_DEDUPLICATION_COMMON_HTTP_PORTS:
         url_parsed_dict["scheme"] = "http_or_https"

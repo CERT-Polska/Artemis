@@ -87,7 +87,10 @@ def destroy_session(request: Request) -> None:
 
 class FrontendAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        path = request.url.path
+        # Use the ASGI path - the same value the router dispatches on. request.url is rebuilt from the
+        # client-controlled Host header, so e.g. "Host: example.com/api/x?" would make request.url.path
+        # start with /api/ while the request is still routed to a protected endpoint (GHSA-86qp-5c8j-p5mr).
+        path = request.scope["path"]
 
         if path in UNPROTECTED_PATHS or any(path.startswith(prefix) for prefix in UNPROTECTED_PATH_PREFIXES):
             return await call_next(request)

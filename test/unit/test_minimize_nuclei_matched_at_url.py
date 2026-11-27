@@ -1,4 +1,5 @@
 import io
+import re
 import runpy
 import unittest
 import urllib.parse
@@ -163,13 +164,30 @@ class TestMinimizeNucleiMatchedAtUrl(unittest.TestCase):
         self.assertEqual(minimize_nuclei_matched_at_url(url, reproduces_fn=reproduces), url)
         self.assertEqual(len(reproduces.calls), 1)
 
-    def test_nuclei_error_falls_back_to_full(self) -> None:
+    def test_nuclei_error_returns_the_shortest_confirmed_subset(self) -> None:
+        """A re-fuzz that times out half-way must not throw away what ddmin
+        has already confirmed: every subset it kept was reported by a re-fuzz,
+        so the smallest one is a working PoC."""
         url = _large_dast_url({"sortby": self.SORTBY_PAYLOAD})
+        reproduces = _Counted(lambda called_url: "sortby" in _param_names(called_url))
 
         def failing(called_url: str) -> bool:
             if len(_param_names(called_url)) < 50:
                 raise RefuzzError("timeout")
-            return "sortby" in _param_names(called_url)
+            return reproduces(called_url)
+
+        result = minimize_nuclei_matched_at_url(url, reproduces_fn=failing)
+        self.assertNotEqual(result, url)
+        self.assertIn(_param_names(result), [_param_names(called) for called in reproduces.calls])
+        self.assertLessEqual(set(_raw_query(result).split("&")), set(_raw_query(url).split("&")))
+
+    def test_nuclei_error_before_any_split_falls_back_to_full(self) -> None:
+        url = _large_dast_url({"sortby": self.SORTBY_PAYLOAD})
+
+        def failing(called_url: str) -> bool:
+            if len(_param_names(called_url)) < 122:
+                raise RefuzzError("timeout")
+            return True
 
         self.assertEqual(minimize_nuclei_matched_at_url(url, reproduces_fn=failing), url)
 
@@ -186,6 +204,96 @@ class TestMinimizeNucleiMatchedAtUrl(unittest.TestCase):
     def test_no_query_returned_unchanged(self) -> None:
         url = "http://example.com/path"
         self.assertEqual(minimize_nuclei_matched_at_url(url, reproduces_fn=_reproduces_when_present("a")), url)
+
+
+class TestRefuzzFromTheFuzzedUrl(unittest.TestCase):
+    """With the URL Nuclei fuzzed (the finding's ``url``), subsets are
+    re-fuzzed from the original values - so a rule of type postfix adds the
+    payload once, as in the scan - while the PoC is cut out of matched-at."""
+
+    NAMES = [f"p{i}" for i in range(40)] + ["sortby"] + [f"q{i}" for i in range(80)]
+    BASE = "http://example.com/list.php?" + "&".join(f"{name}=testing" for name in NAMES)
+    MATCHED = "http://example.com/list.php?" + "&".join(f"{name}=testing%27" for name in NAMES)
+
+    def test_subsets_carry_the_original_values_and_the_poc_the_payload(self) -> None:
+        reproduces = _Counted(lambda called_url: "sortby" in _param_names(called_url))
+        result = minimize_nuclei_matched_at_url(self.MATCHED, reproduces_fn=reproduces, base_url=self.BASE)
+        self.assertEqual(result, "http://example.com/list.php?sortby=testing%27")
+        for called_url in reproduces.calls:
+            self.assertNotIn("%27", called_url)
+            self.assertLessEqual(set(_raw_query(called_url).split("&")), set(_raw_query(self.BASE).split("&")))
+
+    def test_urls_that_do_not_line_up_fall_back_to_matched_at(self) -> None:
+        for base_url in (self.BASE.replace("&sortby=testing", ""), self.BASE.replace("p3=", "other="), ""):
+            reproduces = _Counted(lambda called_url: "sortby" in _param_names(called_url))
+            result = minimize_nuclei_matched_at_url(self.MATCHED, reproduces_fn=reproduces, base_url=base_url)
+            self.assertEqual(result, "http://example.com/list.php?sortby=testing%27")
+            self.assertTrue(all("%27" in called_url for called_url in reproduces.calls))
+
+    def test_payload_in_the_path_drops_the_whole_query(self) -> None:
+        """reflected-xss also fuzzes the path: matched-at has the payload in
+        the path and the query unchanged, so no parameter is needed - ddmin
+        alone would keep an arbitrary one."""
+        query = "&".join(f"p{i}=testing" for i in range(10))
+        called: list[str] = []
+
+        def reflects_the_path(called_url: str) -> bool:
+            called.append(called_url)
+            return True
+
+        result = minimize_nuclei_matched_at_url(
+            "http://example.com/page%27%22%3E%3Cabc%3E?" + query,
+            reproduces_fn=reflects_the_path,
+            base_url="http://example.com/page?" + query,
+        )
+        self.assertEqual(result, "http://example.com/page%27%22%3E%3Cabc%3E")
+        # One re-fuzz, from the original path, which Nuclei fuzzes again.
+        self.assertEqual(called, ["http://example.com/page"])
+
+    def test_payload_in_the_path_but_a_parameter_needed(self) -> None:
+        query = "&".join(f"p{i}=testing" for i in range(10))
+        result = minimize_nuclei_matched_at_url(
+            "http://example.com/page%27%3E?" + query,
+            reproduces_fn=lambda called_url: "p4=" in called_url,
+            base_url="http://example.com/page?" + query,
+        )
+        self.assertEqual(result, "http://example.com/page%27%3E?p4=testing")
+
+    def test_payload_with_a_raw_hash(self) -> None:
+        """Nuclei sends a payload's "#" as it is; the PoC keeps everything
+        after it."""
+        names = [f"p{i}" for i in range(10)]
+        base = "http://example.com/?" + "&".join(f"{name}=testing" for name in names)
+        payload = "testing1;nslookup${IFS}x.oast.fun;#${IFS}'"
+        matched = "http://example.com/?" + "&".join(f"{name}={payload}" for name in names)
+        result = minimize_nuclei_matched_at_url(
+            matched, reproduces_fn=lambda called_url: "p3=" in called_url, base_url=base
+        )
+        self.assertEqual(result, "http://example.com/?p3=" + payload)
+
+    def test_payload_with_a_raw_ampersand_stays_whole(self) -> None:
+        """Nuclei does not encode "&" in a payload: a segment without "="
+        stays with the parameter before it."""
+        names = [f"p{i}" for i in range(10)]
+        base = "http://example.com/?" + "&".join(f"{name}=testing" for name in names)
+        matched = "http://example.com/?" + "&".join(f"{name}=testing&&id&'" for name in names)
+        for base_url in (base, None):
+            result = minimize_nuclei_matched_at_url(
+                matched, reproduces_fn=lambda called_url: "p7=" in called_url, base_url=base_url
+            )
+            self.assertEqual(result, "http://example.com/?p7=testing&&id&'")
+
+    def test_poc_without_the_payload_falls_back_to_full(self) -> None:
+        """Nuclei moves the parts of a payload with "&" that are the same in
+        every parameter behind the first one, so the other parameters do not
+        show it in matched-at."""
+        names = [f"p{i}" for i in range(10)]
+        base = "http://example.com/?" + "&".join(f"{name}=testing" for name in names)
+        matched = base.replace("p0=testing", "p0=testing&nslookup+x.oast.fun&'")
+        result = minimize_nuclei_matched_at_url(
+            matched, reproduces_fn=lambda called_url: "p7=" in called_url, base_url=base
+        )
+        self.assertEqual(result, matched)
 
 
 class TestMinimizationSummaryLog(unittest.TestCase):
@@ -240,6 +348,35 @@ class TestMinimizationSummaryLog(unittest.TestCase):
         self.assertRegex(
             self._log_line(failing),
             r"params=122->122 outcome=fallback_error ddmin_calls=1 elapsed=\d+s error=timeout$",
+        )
+
+    def test_partial_after_a_timeout(self) -> None:
+        def failing(called_url: str) -> bool:
+            if len(_param_names(called_url)) < 50:
+                raise RefuzzError("timeout")
+            return "sortby" in _param_names(called_url)
+
+        self.assertRegex(self._log_line(failing), r"params=122->61 outcome=shortened_partial .* error=timeout$")
+
+    def test_partial_when_the_budget_runs_out(self) -> None:
+        with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+            result = minimize_nuclei_matched_at_url(
+                self.URL, reproduces_fn=_reproduces_when_present("sortby"), max_refuzz_calls=4
+            )
+        self.assertNotEqual(result, self.URL)
+        self.assertRegex(logs.output[0], r"outcome=shortened_partial .* error=budget$")
+
+    def test_fuzzed_url_and_details(self) -> None:
+        base = re.sub(r"=[^&]*", "=testing", self.URL)
+        with self.assertLogs("artemis.poc_minimization", level="INFO") as logs:
+            minimize_nuclei_matched_at_url(
+                self.URL,
+                reproduces_fn=_reproduces_when_present("sortby"),
+                base_url=base,
+                describe_fn=lambda: "oob=1 payloads=1/106",
+            )
+        self.assertRegex(
+            logs.output[0], r"outcome=shortened ddmin_calls=\d+ elapsed=\d+s base=url oob=1 payloads=1/106$"
         )
 
     def test_line_goes_through_the_console_handler(self) -> None:

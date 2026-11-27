@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 import collections
-import functools
 import itertools
 import json
 import logging
 import os
 import random
+import re
 import shutil
 import subprocess
+import tempfile
 import time
+import traceback
 import urllib
 from statistics import StatisticsError, quantiles
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import more_itertools
+import timeout_decorator
+import yaml
 from karton.core import Task
 from prometheus_client import Counter, Histogram, start_http_server
 
@@ -34,6 +38,7 @@ from artemis.modules.runtime_configuration.nuclei_configuration import (
 from artemis.reporting.modules.nuclei.poc_url_utils import (
     RefuzzError,
     minimize_nuclei_matched_at_url,
+    summary_logger,
 )
 from artemis.task_utils import get_target_host, get_target_url
 from artemis.utils import (
@@ -189,7 +194,9 @@ def _is_dast_finding(finding: Dict[str, Any]) -> bool:
     return template.startswith("dast/") or template_path.startswith(dast_directory)
 
 
-def _reproduces_with_nuclei(url: str, template_path: str) -> bool:
+def _reproduces_with_nuclei(
+    url: str, template_path: str, extra_args: Sequence[str] = (), timeout: Optional[int] = None
+) -> bool:
     """Check whether Nuclei in multiple fuzzing mode still reports the finding
     of ``template_path`` on ``url``.
     """
@@ -205,26 +212,199 @@ def _reproduces_with_nuclei(url: str, template_path: str) -> bool:
         "-fuzzing-mode",
         "multiple",
         "-silent",
+        *extra_args,
     ]
 
     try:
         result = subprocess.check_output(
-            command, stderr=subprocess.DEVNULL, timeout=Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS
+            command,
+            stderr=subprocess.DEVNULL,
+            # Nuclei reads targets from stdin when it is a pipe, and waits up
+            # to 3 minutes for them.
+            stdin=subprocess.DEVNULL,
+            timeout=timeout or Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS,
         )
     except FileNotFoundError:
         raise RefuzzError("nuclei_missing")
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as e:
+        # A finding reported before the timeout still counts.
+        if _has_result(e.output):
+            return True
         raise RefuzzError("timeout")
     except subprocess.CalledProcessError as e:
         raise RefuzzError(f"exit_code_{e.returncode}")
+    return _has_result(result)
 
-    for line in result.strip().splitlines():
+
+def _has_result(output: Optional[bytes]) -> bool:
+    for line in (output or b"").strip().splitlines():
         try:
             json.loads(line)
         except json.JSONDecodeError:
             continue
         return True
     return False
+
+
+# Templates with more payloads than that get re-fuzzed with only the one the
+# finding fired with (see _Reproducer).
+NARROW_ABOVE_PAYLOADS = 20
+
+_YAML_BOOL = "tag:yaml.org,2002:bool"
+_YAML_INT = "tag:yaml.org,2002:int"
+
+
+class _Yaml12Loader(yaml.SafeLoader):
+    """SafeLoader resolving booleans and integers the YAML 1.2 way, as Nuclei"""
+
+
+_Yaml12Loader.yaml_implicit_resolvers = {
+    first: [(tag, regexp) for tag, regexp in resolvers if tag not in (_YAML_BOOL, _YAML_INT)]
+    for first, resolvers in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
+# What add_implicit_resolver() does, without its untyped call.
+for _tag, _regexp, _first in (
+    (_YAML_BOOL, re.compile(r"^(?:true|True|TRUE|false|False|FALSE)$"), "tTfF"),
+    (_YAML_INT, re.compile(r"^(?:[-+]?[0-9]+|0o[0-7]+|0x[0-9a-fA-F]+)$"), "-+0123456789"),
+):
+    for _character in _first:
+        _Yaml12Loader.yaml_implicit_resolvers.setdefault(_character, []).append((_tag, _regexp))
+
+
+def _payload_list(template: Any) -> Optional[Tuple[Dict[str, Any], str, List[str]]]:
+    if not isinstance(template, dict) or not isinstance(template.get("http"), list):
+        return None
+    requests = [request for request in template["http"] if isinstance(request, dict) and request.get("fuzzing")]
+    if len(requests) != 1:
+        return None
+    payloads = requests[0].get("payloads")
+    if not isinstance(payloads, dict) or len(payloads) != 1:
+        return None
+    ((name, entries),) = payloads.items()
+    if not isinstance(entries, list) or not all(isinstance(entry, str) for entry in entries):
+        return None
+    return requests[0], str(name), entries
+
+
+class _Reproducer:
+
+    def __init__(self, template_path: str, workdir: str, oob: bool = False) -> None:
+        self.template_path = template_path
+        self.workdir = workdir
+        self.oob = oob
+        self.narrowing_tried = False
+        self.payloads = ""
+        self.extra_args: List[str] = []
+        self.timeout: Optional[int] = None
+        if oob:
+            cooldown = Config.Modules.Nuclei.NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS
+            self.extra_args = ["-interactions-cooldown-period", str(cooldown)]
+            self.timeout = Config.Modules.Nuclei.NUCLEI_REFUZZ_TIMEOUT_SECONDS + cooldown
+
+    def __call__(self, url: str) -> bool:
+        # On the first URL with parameters - the full one, which the scan has
+        # just reported.
+        if not self.narrowing_tried and "?" in url:
+            self.narrowing_tried = True
+            if self._narrow(url):
+                return True
+        return self._run(url, self.template_path)
+
+    def describe(self) -> str:
+        return " ".join((["oob=1"] if self.oob else []) + ([f"payloads={self.payloads}"] if self.payloads else []))
+
+    def _run(self, url: str, template_path: str) -> bool:
+        return _reproduces_with_nuclei(url, template_path, self.extra_args, self.timeout)
+
+    def _narrow(self, url: str) -> bool:
+        """Bisect the payload list on ``url``; whether one payload fired there,
+        which the later calls then use alone."""
+        try:
+            with open(self.template_path, encoding="utf-8") as f:
+                template = yaml.load(f, Loader=_Yaml12Loader)  # nosec - a safe loader
+        except (OSError, UnicodeDecodeError, yaml.YAMLError):
+            return False
+        found = _payload_list(template)
+        if found is None:
+            return False
+        request, name, entries = found
+        candidates = list(dict.fromkeys(entries))
+        if len(candidates) <= NARROW_ABOVE_PAYLOADS:
+            return False
+
+        fired = False
+        while len(candidates) > 1:
+            half = candidates[: len(candidates) // 2]
+            if self._run(url, self._write(template, request, name, half, "bisect")):
+                candidates, fired = half, True
+            else:
+                # Some payload fired in the scan, so it is in the other half -
+                # unless the target stopped reproducing, which the check of
+                # the last candidate shows.
+                candidates, fired = candidates[len(half) :], False
+        narrowed = self._write(template, request, name, candidates, "narrowed")
+        if not fired and not self._run(url, narrowed):
+            return False
+        self.template_path = narrowed
+        self.payloads = f"1/{len(entries)}"
+        return True
+
+    def _write(
+        self, template: Dict[str, Any], request: Dict[str, Any], name: str, entries: List[str], file: str
+    ) -> str:
+        # The copy is unsigned (the digest is a comment), which Nuclei runs -
+        # with a warning - for HTTP templates.
+        copy = dict(
+            template,
+            http=[dict(item, payloads={name: entries}) if item is request else item for item in template["http"]],
+        )
+        path = os.path.join(self.workdir, file + ".yaml")
+        with open(path, "w", encoding="utf-8") as f:
+            yaml.safe_dump(copy, f, sort_keys=False, allow_unicode=True, width=1 << 30)
+        return path
+
+
+def _minimize_dast_finding(finding: Dict[str, Any]) -> str:
+    """Return the shortened matched-at URL of a DAST finding, or the original."""
+    try:
+        return _minimize_dast_poc(finding)
+    except timeout_decorator.TimeoutError:
+        # module_base's task timeout, raised wherever the batch happens to be
+        # (an Exception too): it must end the batch, not just this minimization.
+        raise
+    except Exception as e:
+        # A bug here must not lose the finding - nor the whole batch, which
+        # run_multiple would fail with it. The type and the place only: the
+        # message may carry the URL.
+        frames = [
+            frame for frame in traceback.extract_tb(e.__traceback__) if f"{os.sep}artemis{os.sep}" in frame.filename
+        ]
+        place = f" at {os.path.basename(frames[-1].filename)}:{frames[-1].lineno}" if frames else ""
+        summary_logger.warning("PoC minimization failed: %s%s", type(e).__name__, place)
+        return str(finding["matched-at"])
+
+
+def _minimize_dast_poc(finding: Dict[str, Any]) -> str:
+    template_path = finding.get("template-path") or os.path.join(
+        NUCLEI_TEMPLATES_LOCATION, finding.get("template") or finding["template-id"]
+    )
+    oob = bool(finding.get("interaction"))
+    with tempfile.TemporaryDirectory(prefix="artemis-poc-refuzz-") as workdir:
+        reproducer = _Reproducer(template_path, workdir, oob=oob)
+        return minimize_nuclei_matched_at_url(
+            finding["matched-at"],
+            reproduces_fn=reproducer,
+            template_id=finding["template-id"],
+            # Every re-fuzz of an out-of-band finding waits for callbacks, so
+            # its search stops after a few halvings - a good enough PoC.
+            max_refuzz_calls=(
+                Config.Modules.Nuclei.NUCLEI_REFUZZ_OOB_MAX_CALLS_PER_FINDING
+                if oob
+                else Config.Modules.Nuclei.NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING
+            ),
+            base_url=finding.get("url"),
+            describe_fn=reproducer.describe,
+        )
 
 
 UPDATE_INTERVAL = 60 * 60 * 24 * 7  # 7 days
@@ -918,15 +1098,7 @@ class Nuclei(ArtemisBase):
             for finding in findings_per_task[task.uid]:
                 # Only DAST findings carry the wordlist parameters worth shortening.
                 if "matched-at" in finding and _is_dast_finding(finding):
-                    template_path = finding.get("template-path") or os.path.join(
-                        NUCLEI_TEMPLATES_LOCATION, finding.get("template") or finding["template-id"]
-                    )
-                    finding["matched-at"] = minimize_nuclei_matched_at_url(
-                        finding["matched-at"],
-                        reproduces_fn=functools.partial(_reproduces_with_nuclei, template_path=template_path),
-                        template_id=finding["template-id"],
-                        max_refuzz_calls=Config.Modules.Nuclei.NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING,
-                    )
+                    finding["matched-at"] = _minimize_dast_finding(finding)
                 result.append(finding)
                 messages.append(
                     f"[{finding['info']['severity']}] {finding.get('matched-at', None) or finding.get('url')}: {finding['info'].get('name')} {finding['info'].get('description', '')}"

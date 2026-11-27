@@ -596,7 +596,8 @@ class Config:
             NUCLEI_REFUZZ_TIMEOUT_SECONDS: Annotated[
                 int,
                 "Timeout of a single Nuclei re-fuzz used to check whether a subset of parameters still "
-                "reproduces a DAST finding while shortening its PoC URL.",
+                "reproduces a DAST finding while shortening its PoC URL. Re-fuzzes of out-of-band findings get "
+                "NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS on top.",
             ] = get_config("NUCLEI_REFUZZ_TIMEOUT_SECONDS", default=150, cast=int)
 
             NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING: Annotated[
@@ -606,6 +607,20 @@ class Config:
                 "parameters 11-24; when the limit is hit, the shortest PoC found so far is used. Together with "
                 "NUCLEI_REFUZZ_TIMEOUT_SECONDS it bounds the time spent per finding.",
             ] = get_config("NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING", default=30, cast=int)
+
+            NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS: Annotated[
+                int,
+                "How long a re-fuzz of an out-of-band (interactsh) DAST finding waits for callbacks after its last "
+                "request (Nuclei's -interactions-cooldown-period). The scan sends many more requests after the one "
+                "that triggered a callback, so a slow callback still arrives in time there; a re-fuzz sends a few.",
+            ] = get_config("NUCLEI_REFUZZ_OOB_INTERACTIONS_COOLDOWN_SECONDS", default=30, cast=int)
+
+            NUCLEI_REFUZZ_OOB_MAX_CALLS_PER_FINDING: Annotated[
+                int,
+                "NUCLEI_REFUZZ_MAX_CALLS_PER_FINDING for out-of-band findings. Every re-fuzz waits for callbacks, so "
+                "the search stops after a few halvings, with the shortest PoC confirmed so far - with the default "
+                "and ~120 parameters, around a tenth of them.",
+            ] = get_config("NUCLEI_REFUZZ_OOB_MAX_CALLS_PER_FINDING", default=6, cast=int)
 
             NUCLEI_TEMPLATE_GROUPS_FILE: Annotated[
                 str,

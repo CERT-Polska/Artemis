@@ -4,6 +4,7 @@ from typing import Set
 
 import dns
 from dns.resolver import Answer
+from dns.name import Name
 
 from artemis.retrying_resolver import retry
 
@@ -19,13 +20,17 @@ class NoAnswer(Exception):
 MAX_CNAME_NEST_DEPTH = 5
 
 
+def clean_domain_name(domain_name: Name) -> str:
+    return str(domain_name).strip(".").lower()
+
+
 def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[str]:
     found_results = []
     response = answer.response
     domain_name = dns.name.from_text(domain)
 
     for entry in response.answer:
-        if entry.name != domain_name:
+        if clean_domain_name(entry.name) != clean_domain_name(domain_name):
             continue
 
         for item in entry.items:
@@ -41,16 +46,25 @@ def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[s
                     # for the IP - so we cut the trailing dot (kazet.cc. -> kazet.cc) and
                     # look for this domain in other records.
                     for subentry in response.answer:
-                        if subentry.name == dns.name.from_text(item) and subentry.rdtype == 1:
+                        if (
+                            clean_domain_name(subentry.name) == clean_domain_name(dns.name.from_text(item))
+                            and subentry.rdtype == 1
+                        ):
                             found_results.append(subentry.to_text().split(" ")[-1].rstrip("."))
                             break
 
-                        if subentry.name == dns.name.from_text(item) and subentry.rdtype == 2:
+                        if (
+                            clean_domain_name(subentry.name) == clean_domain_name(dns.name.from_text(item))
+                            and subentry.rdtype == 2
+                        ):
                             for rdataset in subentry:
                                 found_results.append(rdataset.to_text().rstrip("."))
                             break
 
-                        if subentry.name == dns.name.from_text(item) and subentry.rdtype == 5:
+                        if (
+                            clean_domain_name(subentry.name) == clean_domain_name(dns.name.from_text(item))
+                            and subentry.rdtype == 5
+                        ):
                             # CNAME refering to another CNAME record (this happens)
                             item = subentry.to_text().split(" ")[-1].rstrip(".")
 

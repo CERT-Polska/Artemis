@@ -40,9 +40,6 @@ class _BudgetExhausted(Exception):
 
 
 def _split_url(url: str) -> Tuple[str, str]:
-    """The part before the query and the raw query: everything after the first
-    ``?``. Nuclei sends a payload's ``#`` as it is, so it does not start a
-    fragment there - urlparse would cut the query short at it."""
     before, _, query = url.partition("?")
     return before, query
 

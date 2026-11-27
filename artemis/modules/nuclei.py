@@ -255,10 +255,7 @@ _YAML_INT = "tag:yaml.org,2002:int"
 
 
 class _Yaml12Loader(yaml.SafeLoader):
-    """SafeLoader resolving booleans and integers the YAML 1.2 way, as Nuclei
-    (Go) does. PyYAML follows YAML 1.1, where e.g. ``yes``/``on`` are booleans
-    and ``1:20`` is an integer: a payload ``yes`` would come back from the dump
-    as ``true`` - a different payload."""
+    """SafeLoader resolving booleans and integers the YAML 1.2 way, as Nuclei"""
 
 
 _Yaml12Loader.yaml_implicit_resolvers = {
@@ -275,9 +272,6 @@ for _tag, _regexp, _first in (
 
 
 def _payload_list(template: Any) -> Optional[Tuple[Dict[str, Any], str, List[str]]]:
-    """The fuzzing request of a DAST template and the name and entries of its
-    one payload list, or None for another shape (several fuzzing requests or
-    payload lists, a wordlist file, aggression levels)."""
     if not isinstance(template, dict) or not isinstance(template.get("http"), list):
         return None
     requests = [request for request in template["http"] if isinstance(request, dict) and request.get("fuzzing")]
@@ -293,22 +287,6 @@ def _payload_list(template: Any) -> Optional[Tuple[Dict[str, Any], str, List[str
 
 
 class _Reproducer:
-    """``reproduces_fn`` for a DAST finding: whether Nuclei, in multiple
-    fuzzing mode, still reports it on a URL.
-
-    A template sends one request per payload and stops at the first match, so
-    a re-fuzz without the vulnerable parameter goes through the whole list -
-    for open-redirect-bypass's 106 payloads at -rate-limit 1, about the re-fuzz
-    timeout. For a template with a long list, the first check of the full URL,
-    which the scan has just reported, bisects the list down to one payload
-    that fires there, and the later checks re-fuzz with a copy of the template
-    that carries only that one.
-
-    An out-of-band finding's evidence is an interactsh callback, which comes
-    some time after the request. The scan sends many more requests after the
-    one that triggered it, so a slow callback still arrives there; a re-fuzz
-    sends a few, so it waits longer for callbacks.
-    """
 
     def __init__(self, template_path: str, workdir: str, oob: bool = False) -> None:
         self.template_path = template_path

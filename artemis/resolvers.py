@@ -3,8 +3,8 @@ import socket
 from typing import Set
 
 import dns
-from dns.resolver import Answer
 from dns.name import Name
+from dns.resolver import Answer
 
 from artemis.retrying_resolver import retry
 

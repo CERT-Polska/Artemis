@@ -11,6 +11,7 @@ import os
 import subprocess
 import tempfile
 from enum import Enum, auto
+from pathlib import Path
 from typing import Dict, List, Optional
 
 SANDBOX_CHECKS_SH = os.path.join(os.path.dirname(__file__), "sandboxing_payloads", "sandbox_checks.sh")
@@ -23,24 +24,24 @@ class SandboxProfile(Enum):
     NOTCP_PYTHON = auto()
     INTERNET = auto()
 
-    @property
-    def landrun_args(self) -> List[str]:
+    def landrun_args(self, sandbox_rw_folder: Path) -> List[str]:
         command = ["landrun", "--ro", os.path.dirname(SANDBOX_CHECKS_SH), "--env", f"PATH={SANDBOX_PATH}"]
         if self is SandboxProfile.NOTCP_STRICT:
-            return command + ["--rox", "/bin/,/usr/bin/,/usr/lib,/lib"]
-        if self is SandboxProfile.NOTCP_VCS:
-            return command + [
+            args = command + ["--rox", "/bin/,/usr/bin/,/usr/lib,/lib"]
+        elif self is SandboxProfile.NOTCP_VCS:
+            args = command + [
                 "--rox",
                 "/usr/bin/git,/bin,/usr/bin,/usr/lib,/lib",
                 "--ro",
                 "/etc",
                 "--rw",
+                # {scratch_dir} is substituted for sandbox_rw_folder at the end of the function
                 "/dev/null,{scratch_dir}",
                 "--env",
                 "SANDBOX_TMP={scratch_dir}",
             ]
-        if self is SandboxProfile.NOTCP_PYTHON:
-            return command + [
+        elif self is SandboxProfile.NOTCP_PYTHON:
+            args = command + [
                 "--rox",
                 "/usr/local/bin/python3,/bin,/usr/bin,/usr/local/lib,/usr/lib,/lib",
                 "--ro",
@@ -53,8 +54,8 @@ class SandboxProfile(Enum):
                 "--env",
                 "PYTHONPYCACHEPREFIX={scratch_dir}",
             ]
-        if self is SandboxProfile.INTERNET:
-            return command + [
+        elif self is SandboxProfile.INTERNET:
+            args = command + [
                 "--rox",
                 "/usr,/bin,/sbin,/lib",
                 "--ro",
@@ -66,8 +67,12 @@ class SandboxProfile(Enum):
                 "--env",
                 "SANDBOX_TMP={scratch_dir}",
             ]
+        else:
+            assert False
 
-        assert False
+        # For paranoia, use .replace and not .format, so that the argument is not interpreted as a template
+        # even though it is trusted.
+        return [arg.replace("{scratch_dir}", str(sandbox_rw_folder)) for arg in args]
 
     def assertEnforced(self) -> None:
         # Deliberately not run_sandboxed - it verifies the confinement of the already-sandboxed current process.
@@ -95,7 +100,7 @@ def run_sandboxed(
     # TODO: ensure that calling .decode() is safe in Python.
     _assert_landlock_abi()
     with tempfile.TemporaryDirectory() as scratch_dir:
-        command = [arg.format(scratch_dir=scratch_dir) for arg in profile.landrun_args]
+        command = profile.landrun_args(sandbox_rw_folder=Path(scratch_dir))
         for key, value in (env or {}).items():
             command += ["--env", f"{key}={value}"]
         for path in additional_readonly_paths or []:

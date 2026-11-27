@@ -94,7 +94,7 @@ class VCSReporter(Reporter):
         try:
             # remote_url is attacker-controlled - pass it by env, don't interpolate into the shell script.
             run_sandboxed(
-                ["sh", "-c", 'svn co --depth empty "$REMOTE_URL" "$SANDBOX_TMP"'],
+                ["sh", "-c", 'svn co --depth empty -- "$REMOTE_URL" "$SANDBOX_TMP"'],
                 profile=SandboxProfile.INTERNET,
                 timeout=30,
                 env={"REMOTE_URL": remote_url},
@@ -176,7 +176,11 @@ class VCSReporter(Reporter):
             # TODO: sandbox needed for that? it's the internet profile anyway
             # remote_url is attacker-controlled - pass it by env, don't interpolate into the shell script.
             run_sandboxed(
-                ["sh", "-c", 'git clone --depth 1 --filter=blob:none --no-checkout "$REMOTE_URL" "$SANDBOX_TMP"'],
+                [
+                    "sh",
+                    "-c",
+                    'git clone --depth 1 --filter=blob:none --no-checkout -- "$REMOTE_URL" "$SANDBOX_TMP"',
+                ],
                 profile=SandboxProfile.INTERNET,
                 timeout=30,
                 env={

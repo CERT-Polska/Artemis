@@ -124,6 +124,8 @@ def parse_ntlm_challenge(b64_challenge: str) -> Optional[Dict[str, str]]:
     pos = 0
     while pos + 4 <= len(block):
         rec_type_id, rec_sz = struct.unpack("<hh", block[pos : pos + 4])
+        if rec_sz < 0:
+            rec_sz = 0
         if rec_type_id == 0:
             break
         value = block[pos + 4 : pos + 4 + rec_sz].decode("utf-8", errors="ignore").replace("\x00", "")

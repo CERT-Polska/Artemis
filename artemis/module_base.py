@@ -1,6 +1,7 @@
 import datetime
 import faulthandler
 import fcntl
+import gc
 import ipaddress
 import json
 import logging
@@ -19,6 +20,7 @@ import timeout_decorator
 from karton.core import Karton, Task
 from karton.core.backend import KartonMetrics
 from karton.core.task import TaskState as KartonTaskState
+from multiprocessing_logging import install_mp_handler
 from publicsuffixlist import PublicSuffixList
 from redis import Redis, TimeoutError
 from requests import Session
@@ -57,6 +59,10 @@ REDIS = Redis.from_url(Config.Data.REDIS_CONN_STR)
 PUBLIC_SUFFIX_LIST = PublicSuffixList()
 
 setup_retrying_resolver()
+
+if multiprocessing.get_start_method() == "fork":
+    install_mp_handler()
+
 ProbeResponse = TypeVar("ProbeResponse")
 
 
@@ -273,7 +279,9 @@ class ArtemisBase(Karton):
         if num_processes > 1:
             processes = []
             for _ in range(num_processes):
-                process = multiprocessing.Process(target=run_parallel_worker, args=(cls, task_counter))
+                process = multiprocessing.get_context("fork").Process(
+                    target=run_parallel_worker, args=(cls, task_counter)
+                )
                 process.start()
                 processes.append(process)
 
@@ -302,6 +310,8 @@ class ArtemisBase(Karton):
                 not self.shutdown
                 and time.time() - time_start < Config.Miscellaneous.MAX_MODULE_TASK_PROCESSING_TIME__SECONDS
             ):
+                gc.collect()
+
                 if self.backend.get_bind(self.identity) != self._bind:
                     self.log.info("Binds changed, shutting down.")
                     break

@@ -25,9 +25,14 @@ allow_git_config() {
 
 checks_NOTCP_STRICT() {
     allow_frozen_binary
+    deny_scratch_write
+    # we don't run deny_payload_exec, as already the `cp` step from it dies
+    # due to no writeable scratch dir, which is not the intended behaviour of that test
+
+    deny_python
+
     deny_write_outside_scratch
     deny_read_proc
-    deny_python
     deny_listen
     deny_connect 53
     allow_udp 53
@@ -35,10 +40,15 @@ checks_NOTCP_STRICT() {
 }
 
 checks_NOTCP_VCS() {
+    allow_frozen_binary
+    allow_scratch_write
+    deny_payload_exec
+
+    deny_python
     allow_git_config
+
     deny_write_outside_scratch
     deny_read_proc
-    deny_python
     deny_listen
     deny_connect 53
     allow_udp 53
@@ -46,11 +56,15 @@ checks_NOTCP_VCS() {
 }
 
 checks_NOTCP_PYTHON() {
-    allow_python
+    allow_frozen_binary
     allow_scratch_write
     deny_payload_exec
+
+    allow_python
+
     deny_write_outside_scratch
     deny_read_proc
+
     deny_listen
     deny_connect 53
     allow_udp 53
@@ -58,16 +72,19 @@ checks_NOTCP_PYTHON() {
 }
 
 checks_INTERNET() {
-    allow_python
-    allow_connect_443
-    allow_scratch_write
     allow_frozen_binary
+    allow_python
+    allow_scratch_write
     deny_payload_exec
+
     deny_write_outside_scratch
     deny_read_proc
+
     deny_listen
+    # even in INTERNET profile, we only allow ports 80, 443
     deny_connect 53
     allow_udp 53
+    allow_connect_443
 }
 
 "checks_$1"

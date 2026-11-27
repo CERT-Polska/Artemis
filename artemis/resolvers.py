@@ -48,17 +48,9 @@ def _results_from_answer(domain: str, answer: Answer, result_type: int) -> Set[s
                     for subentry in response.answer:
                         if (
                             clean_domain_name(subentry.name) == clean_domain_name(dns.name.from_text(item))
-                            and subentry.rdtype == 1
+                            and subentry.rdtype == result_type
                         ):
-                            found_results.append(subentry.to_text().split(" ")[-1].rstrip("."))
-                            break
-
-                        if (
-                            clean_domain_name(subentry.name) == clean_domain_name(dns.name.from_text(item))
-                            and subentry.rdtype == 2
-                        ):
-                            for rdataset in subentry:
-                                found_results.append(rdataset.to_text().rstrip("."))
+                            found_results.extend(record.to_text().rstrip(".") for record in subentry)
                             break
 
                         if (

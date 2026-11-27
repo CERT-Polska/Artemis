@@ -1,0 +1,7 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+[remote "origin"]
+	url = http://test-service-with-exposed-vcs:80/repo.git
+	fetch = +refs/heads/*:refs/remotes/origin/*

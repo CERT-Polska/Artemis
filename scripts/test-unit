@@ -8,6 +8,9 @@ fi
 
 docker compose -f docker-compose.test.yaml down --remove-orphans
 
+# Generate the SVN wc.db fixture
+python3 test/data/svn/generate_wc_db.py
+
 # Let's first start everything except the test container and perform relevant setup
 docker compose -f docker-compose.test.yaml up -d --build --scale test=0 --scale=test-e2e=0
 
@@ -18,6 +21,7 @@ for attempt in 1 2 3; do
                       test-service-with-bruteable-files:80 test-robots-service:80 \
                       test-ftp-server-with-easy-password:21 test-old-joomla:80 \
                       test-smtp-server:25 test-service-with-exposed-git:80 \
+                      test-service-with-exposed-vcs:80 \
                       test-old-wordpress:80 test-wordpress-with-plugins:80 \
                       test-service-with-directory-index:80 \
                       test-static-redirect-to-example-com:80 \

@@ -172,3 +172,11 @@ In order for API to validate the runtime configuration you need to add record to
         "mail_dns_scanner": MailDNSScannerConfiguration,
         "nuclei": NucleiConfiguration,
     }
+
+
+Sandboxing
+----------
+
+We sandbox on a per-process basis, using the ``artemis.sandboxing.run_sandboxed``
+function that internally calls `landrun <https://github.com/zouuup/landrun>`_, a
+Landlock helper (which requires Linux kernel >=6.7 on hosts).

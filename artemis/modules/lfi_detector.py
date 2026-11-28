@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from karton.core import Task
+from karton.core.task import TaskPriority
 from requests import Session
 
 from artemis import load_risk_class
@@ -116,14 +117,14 @@ class LFIDetector(ArtemisBase):
         # fallback if no single param triggers LFI
         return params
 
-    def scan(self, urls: List[str], session: Session) -> List[Dict[str, Any]]:
+    def scan(self, priority: TaskPriority, urls: List[str], session: Session) -> List[Dict[str, Any]]:
         """Scan URLs for LFI vulnerabilities."""
         messages: List[Dict[str, Any]] = []
 
         for current_url in urls:
             original_response = self.session_clear_cookies_http_get(session, current_url)
 
-            parameters = get_injectable_parameters(current_url)
+            parameters = get_injectable_parameters(priority, current_url)
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
 
             for vulnerability, payloads in [
@@ -182,7 +183,7 @@ class LFIDetector(ArtemisBase):
             links = get_links_to_scan(url)
 
             with Session() as session:
-                messages = self.scan(urls=links, session=session)
+                messages = self.scan(current_task.priority, urls=links, session=session)
 
             if messages:
                 status = TaskStatus.INTERESTING

@@ -4,6 +4,7 @@ import random
 import re
 
 import requests
+from karton.core.task import TaskPriority
 
 from artemis.config import Config
 from artemis.utils import build_logger
@@ -29,7 +30,7 @@ def is_output_line_correct(output_line: str, endpoint: str, max_length: int = 30
     return bool(output_line.strip() and len(output_line) < max_length and pattern.fullmatch(output_line.strip()))
 
 
-def get_assets(endpoint: str, target: str, max_count: int = 200) -> list[str]:
+def get_assets(priority: TaskPriority, endpoint: str, target: str, max_count: int = 200) -> list[str]:
     base_url = Config.ScannedAssetsAPI.SCANNED_ASSETS_API_URL
     if not base_url:
         return []
@@ -40,7 +41,7 @@ def get_assets(endpoint: str, target: str, max_count: int = 200) -> list[str]:
     try:
         response = requests.get(
             f"{base_url.rstrip('/')}/{endpoint}",
-            params={parameter: target},
+            params={parameter: target, "priority": str(priority)},
             timeout=300,  # Make the timeout large, it might need heavy queries
         )
         response.raise_for_status()

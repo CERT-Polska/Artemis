@@ -8,6 +8,7 @@ from typing import Any, Literal
 import more_itertools
 import requests
 from karton.core import Task
+from karton.core.task import TaskPriority
 
 from artemis import load_risk_class
 from artemis.binds import Service, TaskStatus, TaskType
@@ -130,12 +131,12 @@ class CommandInjectionDetector(ArtemisBase):
                 break
         return minimal_params or params
 
-    def scan(self, urls: list[str], session: requests.Session) -> list[dict[str, Any]]:
+    def scan(self, priority: TaskPriority, urls: list[str], session: requests.Session) -> list[dict[str, Any]]:
         self.log.info("Scanning URLs: %s", urls)
         message: list[dict[str, Any]] = []
 
         for current_url in urls:
-            parameters = get_injectable_parameters(current_url)
+            parameters = get_injectable_parameters(priority, current_url)
             self.log.info("Obtained parameters: %s for url %s", parameters, current_url)
 
             output_payloads = build_output_payloads()
@@ -252,7 +253,9 @@ class CommandInjectionDetector(ArtemisBase):
         random.shuffle(links)
 
         with requests.Session() as session:
-            message = self.scan(urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], session=session)
+            message = self.scan(
+                current_task.priority, urls=links[: Config.Miscellaneous.MAX_URLS_TO_SCAN], session=session
+            )
 
         if message:
             status = TaskStatus.INTERESTING

@@ -287,10 +287,12 @@ class SubdomainEnumeration(ArtemisBase):
             len(subdomains),
             len(wildcard_ips),
         )
-        if "www" in (
-            subdomains - kept
-        ):  # even if we have wildcard, let's keep at least one domain with the 'wildcard' config
-            kept.add("www")
+        # Even if we have a wildcard DNS configuration, let's keep at least one domain with
+        # the wildcard config - preferably www.<parent_domain>, as it's the most likely to host
+        # actual content.
+        www_subdomain = f"www.{parent_domain}"
+        if www_subdomain in subdomains - kept:
+            kept.add(www_subdomain)
         elif subdomains - kept:
             kept.add(sorted(list(subdomains - kept))[0])
         return kept
